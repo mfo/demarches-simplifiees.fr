@@ -91,6 +91,9 @@ ActiveRecord::Schema.define(version: 2022_03_15_113510) do
     t.string "status", null: false
     t.string "time_span_type", null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "key", null: false
+    t.date "start_day"
+    t.date "end_day"
     t.index ["key", "time_span_type", "month"], name: "index_archives_on_key_and_time_span_type_and_month", unique: true
   end
 
