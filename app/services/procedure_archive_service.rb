@@ -19,10 +19,13 @@ class ProcedureArchiveService
     dossiers = Dossier.visible_by_administration
       .where(groupe_instructeur: archive.groupe_instructeurs)
 
-    dossiers = if archive.time_span_type == 'everything'
-      dossiers.state_termine
-    else
-      dossiers.processed_in_month(archive.month)
+    case archive.time_span_type
+    when 'everything'
+      dossiers = dossiers.state_termine
+    when 'monthly'
+      dossiers = dossiers.processed_in_month(archive.month)
+    when 'custom'
+      dossiers = dossiers.processed_between(archive.end_day, archive.start_day)
     end
 
     attachments = create_list_of_attachments(dossiers)
