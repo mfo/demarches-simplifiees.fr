@@ -74,7 +74,7 @@ class Traitement < ApplicationRecord
 
     sanitized_query = ActiveRecord::Base.sanitize_sql([
       sql,
-      timezone_offset: timezone_offset
+      timezone_offset: timezone_offset(month)
     ])
     ActiveRecord::Base.connection.execute(sanitized_query)
   end
@@ -104,7 +104,7 @@ class Traitement < ApplicationRecord
 
   private
 
-  def self.timezone_offset
-    Time.zone.now.formatted_offset
+  def self.timezone_offset(day = Time.zone.today)
+    Time.zone.parse(day.inspect).formatted_offset
   end
 end
