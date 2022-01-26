@@ -11,38 +11,48 @@
           %li
             = link_to "https://numerique.gouv.fr/", title: "DINUM", 'aria-label': 'DINUM' do
               %span.footer-logo.footer-logo-dinum{ role: 'img', 'aria-label': 'Logo DINUM' }
-            = link_to "https://beta.gouv.fr", title: "le site de Beta.gouv.fr", 'aria-label': 'beta.gouv.fr' do
-              %span.footer-logo.footer-logo-beta-gouv-fr{ role: 'img', 'aria-label': 'Logo beta.gouv.fr' }
+            - if FOOTER_BETAGOUV_LINK_ENABLED
+              = link_to "https://beta.gouv.fr", title: "le site de Beta.gouv.fr", 'aria-label': 'beta.gouv.fr' do
+                %span.footer-logo.footer-logo-beta-gouv-fr{ role: 'img', 'aria-label': 'Logo beta.gouv.fr' }
 
       %li.footer-column
         %ul.footer-links
-          %li.footer-link
-            = link_to "Newsletter", "https://my.sendinblue.com/users/subscribe/js_id/3s2q1/id/1", :title => "Notre newsletter", :class => "footer-link", :target => "_blank", rel: "noopener"
-          %li.footer-link
-            -# haml-lint:disable ApplicationNameLinter
-            = link_to "Nouveautés", "https://github.com/betagouv/demarches-simplifiees.fr/releases", :class => "footer-link", :title => "Nos nouveautés"
-            -# haml-lint:enable ApplicationNameLinter
-          %li.footer-link
-            = link_to "Statistiques", stats_path, :class => "footer-link"
-          %li.footer-link
-            = link_to "CGU", CGU_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer"
-          %li.footer-link
-            = link_to "Mentions légales", MENTIONS_LEGALES_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer"
-          %li.footer-link
-            = link_to "Suivi d’audience et vie privée", suivi_path, :class => "footer-link"
+          - if FOOTER_NEWSLETTER_LINK_ENABLED
+            %li.footer-link
+              = link_to NEWSLETTER_LABEL, NEWSLETTER_URL, title: NEWSLETTER_TITLE, class: "footer-link", target: "_blank", rel: "noopener"
+          - if FOOTER_RELEASES_LINK_ENABLED
+            %li.footer-link
+              = link_to RELEASES_LABEL, RELEASES_URL, title: RELEASES_TITLE, class: "footer-link"
+          - if FOOTER_STATS_LINK_ENABLED
+            %li.footer-link
+              = link_to STATS_LABEL, stats_path, title: STATS_TITLE, class: "footer-link"
+          - if FOOTER_CGU_LINK_ENABLED
+            %li.footer-link
+              = link_to CGU_LABEL, CGU_URL, title: CGU_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
+          - if FOOTER_MENTIONS_LEGALES_LINK_ENABLED
+            %li.footer-link
+              = link_to MENTIONS_LEGALES_LABEL, MENTIONS_LEGALES_URL, title: MENTIONS_LEGALES_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
+          - if FOOTER_SUIVI_LINK_ENABLED
+            %li.footer-link
+              = link_to SUIVI_LABEL, suivi_path, title: SUIVI_TITLE, class: "footer-link"
 
       %li.footer-column
         %ul.footer-links
-          %li.footer-link
-            = contact_link "Contact", class: "footer-link"
-          %li.footer-link
-            = link_to "Documentation", DOC_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer"
-          %li.footer-link
-            = link_to "Documentation de l'API", API_DOC_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer"
-          %li.footer-link
-            = link_to "FAQ", FAQ_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer"
-          %li.footer-link
-            = link_to ACCESSIBILITE_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer" do
-              Accessibilité&nbsp;: non conforme
-          %li.footer-link
-            = link_to "Disponibilité", STATUS_PAGE_URL, :class => "footer-link", :target => "_blank", rel: "noopener noreferrer"
+          - if FOOTER_CONTACT_LINK_ENABLED
+            %li.footer-link
+              = contact_link CONTACT_LABEL, title: CONTACT_TITLE, class: "footer-link"
+          - if FOOTER_DOC_LINK_ENABLED
+            %li.footer-link
+              = link_to DOC_LABEL, DOC_URL, title: DOC_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
+          - if FOOTER_API_DOC_LINK_ENABLED
+            %li.footer-link
+              = link_to API_DOC_LABEL, API_DOC_URL, title: API_DOC_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
+          - if FOOTER_FAQ_LINK_ENABLED
+            %li.footer-link
+              = link_to FAQ_LABEL, FAQ_URL, title: FAQ_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
+          - if FOOTER_ACCESSIBILITE_LINK_ENABLED
+            %li.footer-link
+              = link_to ACCESSIBILITE_LABEL, ACCESSIBILITE_URL, title: ACCESSIBILITE_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
+          - if FOOTER_STATUS_PAGE_LINK_ENABLED
+            %li.footer-link
+              = link_to STATUS_PAGE_LABEL, STATUS_PAGE_URL, title: STATUS_PAGE_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"

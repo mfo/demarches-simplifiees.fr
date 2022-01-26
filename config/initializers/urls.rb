@@ -45,4 +45,8 @@ STATUS_PAGE_URL = ENV.fetch("STATUS_PAGE_URL", "https://status.demarches-simplif
 DEMANDE_INSCRIPTION_ADMIN_PAGE_URL = ENV.fetch("DEMANDE_INSCRIPTION_ADMIN_PAGE_URL", "https://www.demarches-simplifiees.fr/commencer/demande-d-inscription-a-demarches-simplifiees")
 MATOMO_IFRAME_URL = "https://stats.data.gouv.fr/index.php?module=CoreAdminHome&action=optOut&language=fr&&fontColor=333333&fontSize=16px&fontFamily=Muli"
 
+# Footer URLs
+BETAGOUV_URL = ENV.fetch("BETAGOUV_URL", "https://beta.gouv.fr")
+NEWSLETTER_URL = ENV.fetch("NEWSLETTER_URL", "https://my.sendinblue.com/users/subscribe/js_id/3s2q1/id/1")
+RELEASES_URL = ENV.fetch("RELEASES_URL", "https://github.com/betagouv/demarches-simplifiees.fr/releases")
 # rubocop:enable DS/ApplicationName

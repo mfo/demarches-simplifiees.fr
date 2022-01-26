@@ -3,14 +3,14 @@
     = link_to 'DINUM', 'https://www.numerique.gouv.fr/dinum/'
     = Time.zone.now.year
     \-
-    = link_to 'Nouveautés', DOC_NOUVEAUTES_URL, target: '_blank'
+    = link_to DOC_NOUVEAUTES_LABEL, DOC_NOUVEAUTES_URL, target: '_blank' if FOOTER_DOC_NOUVEAUTES_LINK_ENABLED
     \-
-    = link_to 'Statistiques', stats_path
+    = link_to STATS_LABEL, stats_path if FOOTER_STATS_LINK_ENABLED
     \-
-    = link_to 'CGU / Mentions légales', CGU_URL, target: '_blank'
+    = link_to "#{CGU_LABEL} / #{MENTIONS_LEGALES_LABEL}", CGU_URL, target: '_blank' if FOOTER_CGU_LINK_ENABLED
     \-
-    = link_to 'Documentation', DOC_URL, target: '_blank'
+    = link_to DOC_LABEL, DOC_URL, target: '_blank' if FOOTER_DOC_LINK_ENABLED
     \-
-    = link_to 'FAQ', FAQ_ADMIN_URL, target: '_blank'
+    = link_to FAQ_ADMIN_LABEL, FAQ_ADMIN_URL, target: '_blank' if FOOTER_FAQ_ADMIN_LINK_ENABLED
     \-
-    = link_to 'Inscription ateliers en ligne', WEBINAIRE_URL, target: '_blank'
+    = link_to WEBINAIRE_LABEL, WEBINAIRE_URL, target: '_blank' if FOOTER_WEBINAIRE_LINK_ENABLED
