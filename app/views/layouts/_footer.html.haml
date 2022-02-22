@@ -1,16 +1,17 @@
+- # do you want to customize this view? just copy/paste it with .fr/.en : app/views/layouts/_footer.(fr|en).html.haml ; do you adaptation
 #footer
   %p{ class: "copyright col-md-push-#{12-main_container_size} col-md-#{main_container_size} col-lg-push-#{12-main_container_size} col-lg-#{main_container_size} text-muted small" }
     = link_to 'DINUM', 'https://www.numerique.gouv.fr/dinum/'
     = Time.zone.now.year
     \-
-    = link_to DOC_NOUVEAUTES_LABEL, DOC_NOUVEAUTES_URL, target: '_blank' if FOOTER_DOC_NOUVEAUTES_LINK_ENABLED
+    = link_to DOC_NOUVEAUTES_LABEL, DOC_NOUVEAUTES_URL, target: '_blank'
     \-
-    = link_to STATS_LABEL, stats_path if FOOTER_STATS_LINK_ENABLED
+    = link_to STATS_LABEL, stats_path
     \-
-    = link_to "#{CGU_LABEL} / #{MENTIONS_LEGALES_LABEL}", CGU_URL, target: '_blank' if FOOTER_CGU_LINK_ENABLED
+    = link_to "#{CGU_LABEL} / #{MENTIONS_LEGALES_LABEL}", CGU_URL, target: '_blank'
     \-
-    = link_to DOC_LABEL, DOC_URL, target: '_blank' if FOOTER_DOC_LINK_ENABLED
+    = link_to DOC_LABEL, DOC_URL, target: '_blank'
     \-
-    = link_to FAQ_ADMIN_LABEL, FAQ_ADMIN_URL, target: '_blank' if FOOTER_FAQ_ADMIN_LINK_ENABLED
+    = link_to FAQ_ADMIN_LABEL, FAQ_ADMIN_URL, target: '_blank'
     \-
-    = link_to WEBINAIRE_LABEL, WEBINAIRE_URL, target: '_blank' if FOOTER_WEBINAIRE_LINK_ENABLED
+    = link_to WEBINAIRE_LABEL, WEBINAIRE_URL, target: '_blank'

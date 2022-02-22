@@ -1,8 +1,7 @@
-- # do you want to customize this view? just copy/paste it with .fr/.en : app/views/root/_footer.(fr|en).html.haml ; do you adaptation
+-# custom view for app/views/root/_footer.html.haml
 %footer.landing-footer{ role: 'contentinfo' }
   .container
     %ul.footer-columns
-
       %li.footer-column
         %ul.footer-logos
           %li.footer-text
@@ -12,17 +11,9 @@
           %li
             = link_to "https://numerique.gouv.fr/", title: "DINUM", 'aria-label': 'DINUM' do
               %span.footer-logo.footer-logo-dinum{ role: 'img', 'aria-label': 'Logo DINUM' }
-            = link_to "https://beta.gouv.fr", title: "le site de Beta.gouv.fr", 'aria-label': 'beta.gouv.fr' do
-              %span.footer-logo.footer-logo-beta-gouv-fr{ role: 'img', 'aria-label': 'Logo beta.gouv.fr' }
 
       %li.footer-column
         %ul.footer-links
-            %li.footer-link
-            = link_to NEWSLETTER_LABEL, NEWSLETTER_URL, title: NEWSLETTER_TITLE, class: "footer-link", target: "_blank", rel: "noopener"
-          %li.footer-link
-            = link_to RELEASES_LABEL, RELEASES_URL, title: RELEASES_TITLE, class: "footer-link"
-          %li.footer-link
-            = link_to STATS_LABEL, stats_path, title: STATS_TITLE, class: "footer-link"
           %li.footer-link
             = link_to CGU_LABEL, CGU_URL, title: CGU_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
           %li.footer-link
@@ -36,8 +27,6 @@
             = contact_link CONTACT_LABEL, title: CONTACT_TITLE, class: "footer-link"
           %li.footer-link
             = link_to DOC_LABEL, DOC_URL, title: DOC_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
-          %li.footer-link
-            = link_to API_DOC_LABEL, API_DOC_URL, title: API_DOC_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
           %li.footer-link
             = link_to FAQ_LABEL, FAQ_URL, title: FAQ_TITLE, class: "footer-link", target: "_blank", rel: "noopener noreferrer"
           %li.footer-link
