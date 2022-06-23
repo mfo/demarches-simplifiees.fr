@@ -1,5 +1,5 @@
-module Instructeurs
-  class ArchivesController < InstructeurController
+module Administrateurs
+  class ArchivesController < AdministrateurController
     before_action :retrieve_procedure, only: [:index, :create]
     helper_method :create_archive_url
 
@@ -15,28 +15,22 @@ module Instructeurs
 
       archive = ProcedureArchiveService.new(@procedure).create_pending_archive(groupe_instructeurs, type, month)
       if archive.pending?
-        ArchiveCreationJob.perform_later(@procedure, archive, current_instructeur)
+        ArchiveCreationJob.perform_later(@procedure, archive, current_administrateur)
         flash[:notice] = "Votre demande a été prise en compte. Selon le nombre de dossiers, cela peut prendre de quelques minutes a plusieurs heures. Vous recevrez un courriel lorsque le fichier sera disponible."
       else
         flash[:notice] = "Cette archive a déjà été générée."
       end
-      redirect_to instructeur_archives_path(@procedure)
+      redirect_to admin_procedure_archives_path(@procedure)
     end
 
     private
 
-    def create_archive_url(procedure, month)
-      instructeur_archives_path(procedure, type: 'monthly', month: month.strftime('%Y-%m'))
-    end
-
     def groupe_instructeurs
-      current_instructeur
-        .groupe_instructeurs
-        .where(procedure_id: params[:procedure_id])
+      @procedure.groupe_instructeurs
     end
 
-    def retrieve_procedure
-      @procedure = current_instructeur.procedures.find(params[:procedure_id])
+    def create_archive_url(procedure, month)
+      admin_procedure_archives_path(procedure, type: 'monthly', month: month.strftime('%Y-%m'))
     end
   end
 end

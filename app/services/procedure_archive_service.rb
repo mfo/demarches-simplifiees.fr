@@ -5,15 +5,11 @@ class ProcedureArchiveService
     @procedure = procedure
   end
 
-  def create_pending_archive(instructeur, type, month = nil)
-    groupe_instructeurs = instructeur
-      .groupe_instructeurs
-      .where(procedure: @procedure)
-
+  def create_pending_archive(groupe_instructeurs, type, month = nil)
     Archive.find_or_create_archive(type, month, groupe_instructeurs)
   end
 
-  def make_and_upload_archive(archive, instructeur)
+  def make_and_upload_archive(archive)
     dossiers = Dossier.visible_by_administration
       .where(groupe_instructeur: archive.groupe_instructeurs)
 
