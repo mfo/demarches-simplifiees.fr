@@ -76,3 +76,4 @@ import '../../../node_modules/@gouvfr/dsfr/dist/component/alert/alert.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/callout/callout.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/table/table.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/breadcrumb/breadcrumb.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/callout/callout.css';
