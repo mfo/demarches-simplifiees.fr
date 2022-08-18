@@ -70,8 +70,18 @@ import('../shared/track/sentry');
 import '../../../node_modules/@gouvfr/dsfr/dist/dsfr.module.js';
 
 import '../../../node_modules/@gouvfr/dsfr/dist/core/core.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/link/link.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/button/button.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/logo/logo.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/form/form.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/badge/badge.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/navigation/navigation.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/alert/alert.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/callout/callout.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/table/table.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/breadcrumb/breadcrumb.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/modal/modal.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/input/input.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/search/search.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/translate/translate.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/header/header.css';
