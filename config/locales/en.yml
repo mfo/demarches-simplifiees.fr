@@ -67,6 +67,12 @@ en:
         are_you_new: First time on %{app_name}?
     locale_dropdown:
       languages: "Languages"
+      select_locale: "Choose a language"
+      fr: FR
+      en: EN
+      francais: " - French"
+      fr_francais:  FR - French
+      en_english: EN - English
     notifications:
       actions:
         access: View your File

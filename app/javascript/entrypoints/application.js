@@ -85,3 +85,4 @@ import '../../../node_modules/@gouvfr/dsfr/dist/component/input/input.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/search/search.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/translate/translate.css';
 import '../../../node_modules/@gouvfr/dsfr/dist/component/header/header.css';
+import '../../../node_modules/@gouvfr/dsfr/dist/component/translate/translate.css';
