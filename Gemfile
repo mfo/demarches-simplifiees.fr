@@ -43,7 +43,6 @@ gem 'geo_coord', require: "geo/coord"
 gem 'gitlab-sidekiq-fetcher', require: 'sidekiq-reliable-fetch', git: 'https://github.com/demarche-numerique/reliable-fetch.git'
 gem 'gon'
 gem 'graphql'
-gem 'graphql-batch'
 gem 'groupdate'
 gem 'haml-rails'
 gem 'hashie'
