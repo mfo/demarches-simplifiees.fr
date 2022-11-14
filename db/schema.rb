@@ -46,11 +46,13 @@ ActiveRecord::Schema.define(version: 2023_03_31_125931) do
     t.string "key", null: false
     t.integer "lock_version"
     t.text "metadata"
+    t.boolean "prefixed_key"
     t.string "service_name", null: false
     t.string "virus_scan_result"
     t.datetime "virus_scanned_at"
     t.datetime "watermarked_at"
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+    t.index ["prefixed_key"], name: "index_active_storage_blobs_on_prefixed_key"
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
