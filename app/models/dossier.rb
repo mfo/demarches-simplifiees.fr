@@ -33,6 +33,7 @@
 #  termine_close_to_expiration_notice_sent_at         :datetime
 #  created_at                                         :datetime
 #  updated_at                                         :datetime
+#  batch_operation_id                                 :bigint
 #  dossier_transfer_id                                :bigint
 #  groupe_instructeur_id                              :bigint
 #  parent_dossier_id                                  :bigint
@@ -132,7 +133,7 @@ class Dossier < ApplicationRecord
   belongs_to :revision, class_name: 'ProcedureRevision', optional: false
   belongs_to :user, optional: true
   belongs_to :parent_dossier, class_name: 'Dossier', optional: true
-
+  belongs_to :batch_operation, optional: true
   has_one :france_connect_information, through: :user
 
   has_one :attestation_template, through: :revision

@@ -1879,6 +1879,11 @@ describe Dossier do
     end
   end
 
+  describe 'BatchOperation' do
+    subject { build(:dossier) }
+    it { is_expected.to belong_to(:batch_operation).optional }
+  end
+
   private
 
   def count_for_month(processed_by_month, month)
