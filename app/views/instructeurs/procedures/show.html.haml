@@ -99,7 +99,11 @@
                 %tr{ class: [p.hidden_by_user_at.present? && "file-hidden-by-user"] }
                   %td.folder-col
                     - if batch_operation_component.render_button?
-                      = f.check_box :"dossier_ids", {multiple: true, data: { "batch-operation-target" => "input"}}, p.dossier_id, nil
+                      - if p.batch_operation_id.present?
+                        %span.cell-link
+                          %span.icon.lock
+                      - else
+                        = f.check_box :"dossier_ids", {multiple: true, data: { "batch-operation-target" => "input"}}, p.dossier_id, nil
                     - else
                       - if p.hidden_by_administration_at.present?
                         %span.cell-link
