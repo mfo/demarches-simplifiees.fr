@@ -56,7 +56,6 @@ module Instructeurs
       @procedure_presentation = procedure_presentation
 
       @current_filters = current_filters
-      @displayable_fields_for_select, @displayable_fields_selected = procedure_presentation.displayable_fields_for_select
       @filterable_fields_for_select = procedure_presentation.filterable_fields_options
       @counts = current_instructeur
         .dossiers_count_summary(groupe_instructeur_ids)
@@ -117,7 +116,20 @@ module Instructeurs
       values = params['values'].presence || [].to_json
       procedure_presentation.update_displayed_fields(JSON.parse(values))
 
-      redirect_back(fallback_location: instructeur_procedure_url(procedure))
+      redirect_to(instructeur_procedure_url(procedure, statut: params[:statut]))
+    end
+
+    def manage_displayed_fields
+      @procedure = procedure
+      # Technically, procedure_presentation already sets the attribute.
+      # Setting it here to make clear that it is used by the view
+      @procedure_presentation = procedure_presentation
+
+      @current_filters = current_filters
+      @displayable_fields_for_select, @displayable_fields_selected = procedure_presentation.displayable_fields_for_select
+      @counts = current_instructeur
+        .dossiers_count_summary(groupe_instructeur_ids)
+        .symbolize_keys
     end
 
     def update_sort

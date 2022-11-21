@@ -370,6 +370,7 @@ Rails.application.routes.draw do
         end
 
         patch 'update_displayed_fields'
+        get 'manage_displayed_fields'
         get 'update_sort/:table/:column' => 'procedures#update_sort', as: 'update_sort'
         post 'add_filter'
         get 'remove_filter' => 'procedures#remove_filter', as: 'remove_filter'

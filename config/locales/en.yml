@@ -175,6 +175,7 @@ en:
         filters:
           title: Filter
         personalize: Personalize
+        back: Back to procedure
         follow_file: Follow-up the file
         save: Save
         stop_follow: No longer follow

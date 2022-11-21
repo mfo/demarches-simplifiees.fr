@@ -169,7 +169,8 @@ fr:
         restore: "Restaurer"
         filters:
           title: Filtrer
-        personalize: Personnaliser
+        personalize: Personnaliser les colonnes a afficher dans le tableau
+        back: Revenir à la procédure
         download: Télécharger un dossier
         follow_file: Suivre le dossier
         stop_follow: Ne plus suivre

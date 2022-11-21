@@ -1,0 +1,25 @@
+- content_for(:title, "#{@procedure.libelle}")
+#procedure-show
+  .sub-header
+    .container.flex
+
+      .procedure-logo{ style: "background-image: url(#{@procedure.logo_url})",
+        role: 'img', 'aria-label': "logo de la démarche #{@procedure.libelle}" }
+
+      = render partial: 'header', locals: { procedure: @procedure, statut: @statut }
+
+  .container
+    %h1= t('views.instructeurs.dossiers.personalize')
+
+    = form_tag update_displayed_fields_instructeur_procedure_path(@procedure), method: :patch, class: 'dropdown-form large columns-form' do
+      = hidden_field_tag :values, nil
+      = hidden_field_tag :statut, params[:statut]
+      = react_component("ComboMultiple",
+        options: @displayable_fields_for_select,
+        selected: @displayable_fields_selected,
+        disabled: [],
+        label: 'Colonne à afficher',
+        group: '.columns-form',
+        name: 'values')
+      = submit_tag t('views.instructeurs.dossiers.save'), class: 'button'
+      = link_to t('views.instructeurs.dossiers.back'), :back
