@@ -1,0 +1,6 @@
+
+-if render_button?
+  .fr-select-group
+    = @form.label :operation, t('.libelle'), label: 'fr-label'
+    = @form.select :operation, options_for_select(available_operations), {}, class: "fr-select", data: {action: "batch-operation#onSelectOperation"}
+  = @form.submit t('.submit'), class: 'fr-hidden'

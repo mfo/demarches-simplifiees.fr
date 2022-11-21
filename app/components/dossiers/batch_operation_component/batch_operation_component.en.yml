@@ -1,0 +1,6 @@
+fr:
+  libelle: Bulk actions
+  prompt: Choose one bulk action
+  operations:
+    archiver: 'Archive'
+  submit: Submit

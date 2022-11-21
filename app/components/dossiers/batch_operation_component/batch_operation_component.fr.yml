@@ -1,0 +1,6 @@
+fr:
+  libelle: Actions de masse
+  prompt: Selectionnez une action de masse
+  operations:
+    archiver: 'Archiver'
+  submit: "Appliquer"
