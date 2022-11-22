@@ -6,12 +6,14 @@ class Dossiers::BatchOperationComponent < ApplicationComponent
   end
 
   def render_button?
-    @statut == 'traites'
+    ['traites', 'suivis'].include?(@statut)
   end
 
   def available_operations
     options = [t('.prompt')]
     case @statut
+    when 'suivis' then
+      options.push [t(".operations.accepter"), BatchOperation.operations.fetch(:accepter)]
     when 'traites' then
       options.push [t(".operations.archiver"), BatchOperation.operations.fetch(:archiver)]
     else

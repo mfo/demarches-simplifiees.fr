@@ -11,14 +11,18 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
     cmp
   end
 
-
   subject { render_inline(component).to_html }
+
   context 'statut traite' do
     let(:statut) { 'traites' }
     it { is_expected.to have_selector('.fr-select-group') }
     it { is_expected.to have_selector('option', text: "Archiver") }
   end
-
+  context 'status suivis' do
+    let(:statut) { 'suivis' }
+    it { is_expected.to have_selector('.fr-select-group') }
+    it { is_expected.to have_selector('option', text: "Accepter") }
+  end
   context 'statut tous' do
     let(:statut) { 'tous' }
     it { is_expected.not_to have_selector('.fr-select-group') }

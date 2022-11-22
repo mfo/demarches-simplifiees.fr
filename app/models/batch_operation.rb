@@ -16,25 +16,27 @@
 
 class BatchOperation < ApplicationRecord
   enum operation: {
-    archiver: 'archiver'
+    archiver: 'archiver',
+    accepter: 'accepter'
   }
 
   has_many :dossiers, dependent: :nullify
   belongs_to :instructeur
+  has_one_attached :justificatif_motivation
 
   validates :operation, presence: true
 
   def enqueue_all
-    Dossier.joins(:procedure)
-      .where(procedure: { id: instructeur.procedures.ids })
-      .where(id: dossiers.ids)
+    dossiers_safe_scope
       .map { |dossier| BatchOperationProcessOneJob.perform_later(self, dossier) }
   end
 
   def process_one(dossier)
     case operation
-    when BatchOperation.operations.fetch(:archiver)
+    when BatchOperation.operations.fetch(:archiver) then
       dossier.archiver!(instructeur)
+    when BatchOperation.operations.fetch(:accepter) then
+      dossier.accepter!({ instructeur: instructeur, motivation: payload["motivation"], justificatif: justificatif_motivation&.blob })
     end
     true
   rescue
@@ -47,5 +49,21 @@ class BatchOperation < ApplicationRecord
 
   def called_for_last_time? # beware, must be reloaded first
     dossiers.count.zero?
+  end
+
+  private
+
+  # safer enqueue, in case instructeur kept the page for some time and their is a Dossier.id which does not fit current transaction
+  def dossiers_safe_scope
+    query = Dossier.joins(:procedure)
+      .where(procedure: { id: instructeur.procedures.ids })
+      .where(id: dossiers.ids)
+      .visible_by_administration
+    case operation
+    when BatchOperation.operations.fetch(:archiver) then
+      query.not_archived
+    when BatchOperation.operations.fetch(:accepter) then
+      query.state_en_instruction
+    end
   end
 end
