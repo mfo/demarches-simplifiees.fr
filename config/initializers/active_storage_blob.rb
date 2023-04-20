@@ -19,16 +19,21 @@ Rails.application.config.to_prepare do
     #     ....
     #   end
     def migrate_to_prefixed_key
-      old_key = key.dup
-      new_key = ActiveStorage::Blob.make_prefixed_key(old_key)
-      service.client.copy_object(service.container,
-                                 old_key,
-                                 service.container,
-                                 new_key,
+      return if prefixed_key?
+      old_key, new_key = ActiveStorage::Blob.make_prefixed_key(key, self)
+      service.client.copy_object(source_container_name = service.container,
+                                 source_object_name = old_key,
+                                 target_container_name = service.container,
+                                 target_object_name = new_key,
                                  { "Content-Type" => self.content_type })
       update_columns(key: new_key, prefixed_key: true)
-      service.delete(old_key)
     rescue Fog::OpenStack::Storage::NotFound
+    end
+
+    def former_key
+      return nil if !prefixed_key?
+      byebug
+      key.split('/').last
     end
 
     class << self
@@ -40,8 +45,15 @@ Rails.application.config.to_prepare do
         end
       end
 
-      def make_prefixed_key(key)
-        [key[0..1], key[2..3], key].join('/')
+      def make_prefixed_key(old_key, migrating_blob=nil)
+        new_key = [
+          (migrating_blob ? migrating_blob.created_at : Time.now).strftime('%Y'),
+          old_key[0..1],
+          old_key
+        ].join('/')
+
+        [old_key, new_key]
       end
+    end
   end
 end
