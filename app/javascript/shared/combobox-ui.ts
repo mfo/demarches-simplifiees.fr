@@ -353,7 +353,7 @@ function inViewport(container: HTMLElement, element: HTMLElement): boolean {
 }
 
 function optionId(value: string) {
-  return `option-${value.replace(/\s/g, '-')}`;
+  return `option-${value.replace(/(\s|\.|-)/g, '-')}`;
 }
 
 function defaultGetHintText(hint: Hint): string {
