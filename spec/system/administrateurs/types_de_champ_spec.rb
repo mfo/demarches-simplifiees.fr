@@ -325,7 +325,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
       scenario 'when first child select is changed, move champ in repetition' do
         page.find(first_child_coordinate_selector).click
-        expect(children_coordinates.first.position).to eq(0)
+        expect(children_coordinates.first.new_position).to eq(0)
         page.find(first_child_coordinate_selector).select(children_coordinates.last.libelle)
         # check reorder works on backend
         wait_until do

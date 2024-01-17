@@ -35,18 +35,31 @@ class ProcedureRevision < ApplicationRecord
   def add_type_de_champ(params)
     parent_stable_id = params.delete(:parent_stable_id)
     parent_coordinate, _ = coordinate_and_tdc(parent_stable_id)
-    parent_id = parent_coordinate&.id
+
+    siblings = if parent_coordinate
+      parent_coordinate.revision_types_de_champ
+    elsif params['private'] || params[:private]
+      revision_types_de_champ_private
+    else
+      revision_types_de_champ_public
+    end.to_a
+
 
     after_stable_id = params.delete(:after_stable_id)
     after_coordinate, _ = coordinate_and_tdc(after_stable_id)
-
-    new_position = (after_coordinate&.new_position&.to_f) || 100_000.0
+    if siblings.empty? # first element of the list, starts at 0
+      new_position = 0.0
+    elsif after_coordinate # middle of the list, between two items
+      next_coordinate = siblings[siblings.find_index(after_coordinate) + 1]
+      new_position = (after_coordinate.new_position + next_coordinate.new_position) / 2
+    else # last element of the list, end with last new_position + 1
+      new_position = siblings.last.new_position + 1.0
+    end
 
     tdc = TypeDeChamp.new(params)
     if tdc.save
-      h = { type_de_champ: tdc, parent_id: parent_id, position: new_position.to_i, new_position: new_position }
+      h = { type_de_champ: tdc, parent_id: parent_coordinate&.id, position: new_position.to_i, new_position: new_position }
       coordinate = revision_types_de_champ.create!(h)
-      renumber(coordinate.reload.siblings)
     end
 
     # they are not aware of the addition
@@ -68,18 +81,18 @@ class ProcedureRevision < ApplicationRecord
     end
   end
 
-  # TODO: position.to_f
-  def move_type_de_champ(stable_id, position)
-    coordinate, _ = coordinate_and_tdc(stable_id)
+  def move_type_de_champ(source, target)
+    siblings = source.siblings.to_a
 
-    siblings = coordinate.siblings.to_a
-
-    siblings.insert(position, siblings.delete_at(siblings.index(coordinate)))
-
-    renumber(siblings)
-    coordinate.reload
-
-    coordinate
+    before_target, target = siblings[siblings.find_index(source) - 2].take(2)
+    new_position = if before_target && target
+      (before_target.new_position + target.new_position) / 2.0
+    else
+      target.new_position + 1.0
+    end
+    source.update_column(:new_position, new_position)
+    source.reload
+    source
   end
 
   def remove_type_de_champ(stable_id)
@@ -98,27 +111,33 @@ class ProcedureRevision < ApplicationRecord
     types_de_champ_public.reset
     types_de_champ_private.reset
 
-    renumber(coordinate.siblings)
-
     coordinate
   end
 
-  # TODO: position.to_f
   def move_up_type_de_champ(stable_id)
-    coordinate, _ = coordinate_and_tdc(stable_id)
+    source, _ = coordinate_and_tdc(stable_id)
+    siblings = source.siblings.to_a
+    before_target, target = siblings[siblings.find_index(source) - 2].take(2)
 
-    if coordinate.new_position > 0.0
-      move_type_de_champ(stable_id, coordinate.new_position - 1)
+    new_position = if before_target && target
+      (before_target.new_position + target.new_position) / 2.0
     else
-      coordinate
+      target.new_position - 1.0
     end
+    source.update_column(:new_position, new_position)
   end
 
-  # TODO: position.to_f
   def move_down_type_de_champ(stable_id)
-    coordinate, _ = coordinate_and_tdc(stable_id)
+    source, _ = coordinate_and_tdc(stable_id)
+    siblings = source.siblings.to_a
+    after_target, target = siblings[siblings.find_index(source) + 2].take(2)
 
-    move_type_de_champ(stable_id, coordinate.new_position + 1)
+    new_position = if after_target && target
+      (after_target.new_position + target.new_position) / 2.0
+    else
+      target.new_position + 1.0
+    end
+    source.update_column(:new_position, new_position)
   end
 
   def draft?

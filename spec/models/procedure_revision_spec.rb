@@ -175,14 +175,14 @@ describe ProcedureRevision do
         let(:procedure) { create(:procedure, :with_type_de_champ, types_de_champ_count: 3) }
 
         # TODO: position.to_f
-        it 'reorders' do
+        it 'does not re-order' do
           expect(draft.revision_types_de_champ_public.pluck(:new_position)).to eq([0.0, 1.0, 2.0])
 
           first_stable_id = draft.types_de_champ_public[1].stable_id
 
           draft.remove_type_de_champ(first_stable_id)
 
-          expect(draft.revision_types_de_champ_public.pluck(:position)).to eq([0, 1])
+          expect(draft.revision_types_de_champ_public.pluck(:new_position)).to eq([0.0, 2.0])
 
           expect { draft.remove_type_de_champ(first_stable_id) }.not_to raise_error
         end
