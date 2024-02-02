@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_01_26_071130) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_02_133417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -104,11 +104,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_26_071130) do
     t.datetime "updated_at", null: false
     t.integer "version", default: 3, null: false
     t.boolean "write_access", default: true, null: false
-    t.date "expires_at"
     t.index ["administrateur_id"], name: "index_api_tokens_on_administrateur_id"
   end
 
   create_table "archives", force: :cascade do |t|
+    t.bigint "administrateur_id"
     t.datetime "created_at", null: false
     t.string "job_status", null: false
     t.text "key", null: false
@@ -581,6 +581,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_26_071130) do
     t.string "statut", default: "tous"
     t.string "time_span_type", default: "everything", null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.bigint "user_profile_id"
+    t.string "user_profile_type"
     t.index ["instructeur_id"], name: "index_exports_on_instructeur_id"
     t.index ["key"], name: "index_exports_on_key"
     t.index ["procedure_presentation_id"], name: "index_exports_on_procedure_presentation_id"

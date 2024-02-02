@@ -2,6 +2,7 @@ require 'fog/openstack'
 
 class ActiveStorage::DownloadableFile
 <<<<<<< HEAD
+<<<<<<< HEAD
   def self.create_list_from_dossiers(
     dossiers,
     with_bills: false,
@@ -12,14 +13,40 @@ class ActiveStorage::DownloadableFile
     PiecesJustificativesService.generate_dossier_export(dossiers, include_infos_administration:, include_avis_for_expert:) +
       PiecesJustificativesService.liste_documents(dossiers, with_bills:, with_champs_private:, with_avis_piece_justificative: include_infos_administration)
 =======
+=======
+>>>>>>> 6ae81dddb (wip(pending): w8 for now)
   # TODO, refactor using user asking for the list from dossiers
   # instead of using flags from caller
   # we do a big switch extracting those flag here
   def self.create_list_from_dossiers(dossiers, user_profile)
     acls = acl_for_liste_documents(user_profile)
+<<<<<<< HEAD
     PiecesJustificativesService.generate_dossier_export(dossiers, user_profile) +
       PiecesJustificativesService.liste_documents(dossiers, user_profile)
 >>>>>>> ed52aae17 (wip)
+=======
+    PiecesJustificativesService.generate_dossier_export(dossiers, acls.slice(:include_infos_administration, :include_avis_for_expert)) +
+      PiecesJustificativesService.liste_documents(dossiers, acls.slice(:with_bills, :with_champs_private, :with_avis_piece_justificative, :include_infos_administration))
+  end
+
+  def self.acl_for_liste_documents(user_profile)
+    acl_for_user_profile = case user_profile
+    when Expert
+      { include_avis_for_expert: current_expert }
+    when Instructeur
+      { with_champs_private: true, include_infos_administration: true }
+    end
+    default_acls.merge(acl_for_user_profile)
+  end
+
+  def self.default_acls
+    {
+      with_bills: false,
+      with_champs_private: false,
+      include_infos_administration: false,
+      include_avis_for_expert: false
+    }
+>>>>>>> 6ae81dddb (wip(pending): w8 for now)
   end
 
   def self.cleanup_list_from_dossier(files)

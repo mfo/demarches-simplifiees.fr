@@ -321,7 +321,8 @@ module Instructeurs
     end
 
     def telecharger_pjs
-      files = ActiveStorage::DownloadableFile.create_list_from_dossiers(Dossier.where(id: dossier.id), with_champs_private: true, include_infos_administration: true)
+      # TODO, refactor using user asking for the archive (instructeur)
+      files = ActiveStorage::DownloadableFile.create_list_from_dossiers(Dossier.where(id: dossier.id), current_instructeur)
       cleaned_files = ActiveStorage::DownloadableFile.cleanup_list_from_dossier(files)
 
       zipline(cleaned_files, "dossier-#{dossier.id}.zip")

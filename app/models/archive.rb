@@ -9,7 +9,7 @@ class Archive < ApplicationRecord
   has_and_belongs_to_many :groupe_instructeurs
 
   has_one_attached :file
-
+  belongs_to :administrateur
   scope :for_groupe_instructeur, -> (groupe_instructeur) {
     joins(:archives_groupe_instructeurs)
       .where(
