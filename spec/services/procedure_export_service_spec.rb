@@ -1,8 +1,9 @@
 require 'csv'
 
 describe ProcedureExportService do
-  let(:procedure) { create(:procedure, :published, :for_individual, :with_all_champs) }
-  let(:service) { ProcedureExportService.new(procedure, procedure.dossiers) }
+  let(:instructeur) { create(:instructeur) }
+  let(:procedure) { create(:procedure, :published, :for_individual, :with_all_champs, instructeurs: [instructeur]) }
+  let(:service) { ProcedureExportService.new(procedure, procedure.dossiers, instructeur) }
 
   describe 'to_xlsx' do
     subject do
@@ -235,7 +236,7 @@ describe ProcedureExportService do
 
       context 'as csv' do
         subject do
-          ProcedureExportService.new(procedure, procedure.dossiers)
+          ProcedureExportService.new(procedure, procedure.dossiers, instructeur)
             .to_csv
             .open { |f| CSV.read(f.path) }
         end
@@ -511,7 +512,7 @@ describe ProcedureExportService do
 
     context 'generate_dossier_export' do
       it 'include_infos_administration (so it includes avis, champs privés)' do
-        expect(ActiveStorage::DownloadableFile).to receive(:create_list_from_dossiers).with(anything, with_champs_private: true, include_infos_administration: true).and_return([])
+        expect(ActiveStorage::DownloadableFile).to receive(:create_list_from_dossiers).with(anything, instructeur).and_return([])
         subject
       end
     end

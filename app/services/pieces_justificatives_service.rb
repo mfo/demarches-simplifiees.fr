@@ -1,9 +1,10 @@
 class PiecesJustificativesService
-  def self.liste_documents(dossiers,
-    with_bills:,
-    with_champs_private:,
-    with_avis_piece_justificative:)
+  def self.liste_documents(dossiers, user_profile)
     bill_ids = []
+    acls = acl_for_liste_documents(user_profile)
+    with_champs_private = acls[:with_champs_private]
+    with_avis_piece_justificative = acls[:with_avis_piece_justificative]
+    with_bills = acls[:with_bills]
 
     docs = dossiers.in_batches.flat_map do |batch|
       pjs = pjs_for_champs(batch, with_champs_private:) +
@@ -29,6 +30,38 @@ class PiecesJustificativesService
     end
 
     docs
+  end
+
+  def self.generate_dossier_export(dossiers, user_profile)
+    return [] if dossiers.empty?
+
+    pdfs = []
+
+    procedure = dossiers.first.procedure
+    dossiers = dossiers.includes(:individual, :traitement, :etablissement, user: :france_connect_information, avis: :expert, commentaires: [:instructeur, :expert])
+    dossiers = DossierPreloader.new(dossiers).in_batches
+    dossiers.each do |dossier|
+      dossier.association(:procedure).target = procedure
+
+      pdf = ApplicationController
+        .render(template: 'dossiers/show', formats: [:pdf],
+                assigns: {
+                  acls: acl_for_dossier_export(user_profile),
+                  dossier: dossier
+                })
+
+      a = ActiveStorage::FakeAttachment.new(
+        file: StringIO.new(pdf),
+        filename: "export-#{dossier.id}.pdf",
+        name: 'pdf_export_for_instructeur',
+        id: dossier.id,
+        created_at: dossier.updated_at
+      )
+
+      pdfs << ActiveStorage::DownloadableFile.pj_and_path(dossier.id, a)
+    end
+
+    pdfs
   end
 
   def self.serialize_types_de_champ_as_type_pj(revision)
@@ -87,37 +120,42 @@ class PiecesJustificativesService
     end
   end
 
-  def self.generate_dossier_export(dossiers, include_infos_administration: false, include_avis_for_expert: false)
-    return [] if dossiers.empty?
-
-    pdfs = []
-
-    procedure = dossiers.first.procedure
-    dossiers = dossiers.includes(:individual, :traitement, :etablissement, user: :france_connect_information, avis: :expert, commentaires: [:instructeur, :expert])
-    dossiers = DossierPreloader.new(dossiers).in_batches
-    dossiers.each do |dossier|
-      dossier.association(:procedure).target = procedure
-
-      pdf = ApplicationController
-        .render(template: 'dossiers/show', formats: [:pdf],
-                assigns: {
-                  include_infos_administration:,
-                  include_avis_for_expert:,
-                  dossier: dossier
-                })
-
-      a = ActiveStorage::FakeAttachment.new(
-        file: StringIO.new(pdf),
-        filename: "export-#{dossier.id}.pdf",
-        name: 'pdf_export_for_instructeur',
-        id: dossier.id,
-        created_at: dossier.updated_at
-      )
-
-      pdfs << ActiveStorage::DownloadableFile.pj_and_path(dossier.id, a)
+  def self.acl_for_liste_documents(user_profile)
+    case user_profile
+    when Expert
+      {
+        with_bills: false,
+        with_champs_private: false,
+        with_avis_piece_justificative: false
+      }
+    when Instructeur
+      {
+        with_bills: false,
+        with_champs_private: true,
+        with_avis_piece_justificative: true
+      }
+    when Administrateur
+      {
+        with_bills: true,
+        with_champs_private: true,
+        with_avis_piece_justificative: true
+      }
+    else
+      raise 'not supported'
     end
+  end
 
-    pdfs
+  def self.acl_for_dossier_export(user_profile)
+    case user_profile
+    when Expert
+      { include_infos_administration: true, include_avis_for_expert: true, only_for_expert: user_profile }
+    when Instructeur, Administrateur
+      { include_infos_administration: true, include_avis_for_expert: true, only_for_export: false }
+    when User
+      { include_infos_administration: false, include_avis_for_expert: false, only_for_expert: false }
+    else
+      raise 'error'
+    end
   end
 
   private
@@ -211,8 +249,7 @@ class PiecesJustificativesService
   end
 
   def self.pjs_for_avis(dossiers, with_avis_piece_justificative:)
-    avis_ids_dossier_id_query = Avis.joins(:dossier)
-      .where(dossier: dossiers)
+    avis_ids_dossier_id_query = Avis.joins(:dossier).where(dossier: dossiers)
     avis_ids_dossier_id_query = avis_ids_dossier_id_query.where(confidentiel: false) if !with_avis_piece_justificative
     avis_ids_dossier_id = avis_ids_dossier_id_query.pluck(:id, :dossier_id).to_h
 
