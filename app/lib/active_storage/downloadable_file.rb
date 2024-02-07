@@ -1,15 +1,13 @@
 require 'fog/openstack'
 
 class ActiveStorage::DownloadableFile
-  def self.create_list_from_dossiers(
-    dossiers,
-    with_bills: false,
-    with_champs_private: false,
-    include_infos_administration: false,
-    include_avis_for_expert: false
-  )
-    PiecesJustificativesService.generate_dossier_export(dossiers, include_infos_administration:, include_avis_for_expert:) +
-      PiecesJustificativesService.liste_documents(dossiers, with_bills:, with_champs_private:, with_avis_piece_justificative: include_infos_administration)
+  # TODO, refactor using user asking for the list from dossiers
+  # instead of using flags from caller
+  # we do a big switch extracting those flag here
+  def self.create_list_from_dossiers(dossiers, user_profile)
+    acls = acl_for_liste_documents(user_profile)
+    PiecesJustificativesService.generate_dossier_export(dossiers, user_profile) +
+      PiecesJustificativesService.liste_documents(dossiers, user_profile)
   end
 
   def self.cleanup_list_from_dossier(files)

@@ -52,8 +52,7 @@ module Instructeurs
 
       respond_to do |format|
         format.pdf do
-          @include_infos_administration = true
-          render(template: 'dossiers/show', formats: [:pdf])
+          render(template: 'dossiers/show', formats: [:pdf], locals: PieceJustificativesService.acl_for_dossier_export(current_instructeur))
         end
         format.all
       end
