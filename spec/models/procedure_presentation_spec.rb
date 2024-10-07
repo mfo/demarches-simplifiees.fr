@@ -40,8 +40,11 @@ describe ProcedurePresentation do
   describe 'validation' do
     it { expect(build(:procedure_presentation)).to be_valid }
 
-    context 'of displayed fields' do
-      it { expect(build(:procedure_presentation, displayed_fields: [{ table: "user", column: "reset_password_token", "order" => "asc" }])).to be_invalid }
+    context 'of displayed columns' do
+      it do
+        pp = build(:procedure_presentation, displayed_columns: [{ table: "user", column: "reset_password_token", procedure_id: }])
+        expect { pp.displayed_columns }.to raise_error(ActiveRecord::RecordNotFound)
+      end
     end
 
     context 'of filters' do
