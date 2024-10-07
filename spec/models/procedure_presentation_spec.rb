@@ -48,12 +48,9 @@ describe ProcedurePresentation do
     end
 
     context 'of filters' do
-      it { expect(build(:procedure_presentation, filters: { "suivis" => [{ table: "user", column: "reset_password_token", "order" => "asc" }] })).to be_invalid }
-      it { expect(build(:procedure_presentation, filters: { "suivis" => [{ table: "user", column: "email", "value" => "exceedingly long filter value" * 10 }] })).to be_invalid }
-
-      describe 'check_filters_max_integer' do
-        it { expect(build(:procedure_presentation, filters: { "suivis" => [{ table: "self", column: "id", "value" => ProcedurePresentation::PG_INTEGER_MAX_VALUE.to_s }] })).to be_invalid }
-        it { expect(build(:procedure_presentation, filters: { "suivis" => [{ table: "self", column: "id", "value" => (ProcedurePresentation::PG_INTEGER_MAX_VALUE - 1).to_s }] })).to be_valid }
+      it 'validates the filter_column objects' do
+        expect(build(:procedure_presentation, "suivis_filters": [{ id: { column_id: "user/email", procedure_id: }, "filter": "not so long filter value" }])).to be_valid
+        expect(build(:procedure_presentation, "suivis_filters": [{ id: { column_id: "user/email", procedure_id: }, "filter": "exceedingly long filter value" * 10 }])).to be_invalid
       end
     end
   end
