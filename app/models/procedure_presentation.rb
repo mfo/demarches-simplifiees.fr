@@ -9,7 +9,6 @@ class ProcedurePresentation < ApplicationRecord
   delegate :procedure, :instructeur, to: :assign_to
 
   attribute :displayed_columns, :column, array: true
-  def displayed_columns = super.presence || procedure.default_displayed_columns # Dummy override to set default value
 
   attribute :sorted_column, :sorted_column
   def sorted_column = super || procedure.default_sorted_column # Dummy override to set default value
@@ -22,6 +21,8 @@ class ProcedurePresentation < ApplicationRecord
   attribute :supprimes_recemment_filters, :filtered_column, array: true
   attribute :expirant_filters, :filtered_column, array: true
   attribute :archives_filters, :filtered_column, array: true
+
+  before_create { self.displayed_columns = procedure.default_displayed_columns }
 
   validates_associated :a_suivre_filters, :suivis_filters, :traites_filters,
     :tous_filters, :supprimes_filters, :expirant_filters, :archives_filters
