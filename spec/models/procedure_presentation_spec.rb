@@ -473,8 +473,7 @@ describe ProcedurePresentation do
       end
 
       context 'with enum type_de_champ' do
-        let(:filter_value) { 'Favorable' }
-        let(:filter) { [{ 'table' => 'type_de_champ', 'column' => type_de_champ.stable_id.to_s, 'value_column' => :value, 'value' => filter_value }] }
+        let(:filter) { [type_de_champ.libelle, 'Favorable'] }
         let(:types_de_champ_public) { [{ type: :drop_down_list, options: ['Favorable', 'Defavorable'] }] }
 
         before do
