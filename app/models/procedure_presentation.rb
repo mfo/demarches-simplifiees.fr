@@ -14,6 +14,7 @@ class ProcedurePresentation < ApplicationRecord
   delegate :procedure, :instructeur, to: :assign_to
 
   attribute :displayed_columns, :column, array: true
+  def displayed_columns = super.presence || procedure.default_displayed_columns # Dummy override to set default value
 
   attribute :sorted_column, :sorted_column
   def sorted_column = super || procedure.default_sorted_column # Dummy override to set default value
