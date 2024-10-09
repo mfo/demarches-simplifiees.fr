@@ -6,7 +6,7 @@
       - filters.each_with_index do |filter, i|
         - if i > 0
           = " ou "
-        = form_tag add_filter_instructeur_procedure_path(procedure) do
+        = form_tag(add_filter_instructeur_procedure_path(procedure), class: 'inline') do
           - prefix = procedure_presentation.filters_name_for(statut)
           = hidden_field_tag "#{prefix}[]", ''
           - (current_filters - [filter]).each do |f|
