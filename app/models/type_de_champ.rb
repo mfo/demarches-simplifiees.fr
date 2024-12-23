@@ -211,6 +211,9 @@ class TypeDeChamp < ApplicationRecord
     allow_blank: true
   }
 
+  validates :referentiel_adapter, inclusion: { in: ['csv', 'url'] }, allow_blank: true, allow_nil: true
+  validates :referentiel_presenter, inclusion: { in: ['exact_match', 'autocomplete'] }, allow_blank: true, allow_nil: true
+
   before_validation :check_mandatory
   before_validation :normalize_libelle
 
@@ -369,6 +372,19 @@ class TypeDeChamp < ApplicationRecord
       drop_down_options + [[I18n.t('shared.champs.drop_down_list.other'), Champs::DropDownListChamp::OTHER]]
     else
       drop_down_options
+    end
+  end
+
+  def configured?
+    case referentiel_adapter
+    when 'url'
+      [referentiel_presenter, referentiel_url, referentiel_test_data].all?(&:present?)
+    when 'csv'
+      false
+    when nil
+      false
+    else
+      fail "unknown adapter: #{referentiel_adapter}"
     end
   end
 

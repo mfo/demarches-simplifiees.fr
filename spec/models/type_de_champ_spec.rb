@@ -149,6 +149,35 @@ describe TypeDeChamp do
     end
   end
 
+  describe "referentiel" do
+    it 'validates referentiel_adapter as csv/url or nil' do
+      expect(build(:type_de_champ_referentiel, referentiel_adapter: 'csv').tap(&:validate).errors.map(&:attribute)).not_to include(:referentiel_adapter)
+      expect(build(:type_de_champ_referentiel, referentiel_adapter: 'url').tap(&:validate).errors.map(&:attribute)).not_to include(:referentiel_adapter)
+      expect(build(:type_de_champ_referentiel, referentiel_adapter: nil).tap(&:validate).errors.map(&:attribute)).not_to include(:referentiel_adapter)
+      expect(build(:type_de_champ_referentiel, referentiel_adapter: 'wrong').tap(&:validate).errors.map(&:attribute)).to include(:referentiel_adapter)
+    end
+
+    it 'validates referentiel_presentater as exact_match/autocomplete or nil' do
+      expect(build(:type_de_champ_referentiel, referentiel_presenter: 'exact_match').tap(&:validate).errors.map(&:attribute)).not_to include(:referentiel_presenter)
+      expect(build(:type_de_champ_referentiel, referentiel_presenter: 'autocomplete').tap(&:validate).errors.map(&:attribute)).not_to include(:referentiel_presenter)
+      expect(build(:type_de_champ_referentiel, referentiel_presenter: nil).tap(&:validate).errors.map(&:attribute)).not_to include(:referentiel_presenter)
+      expect(build(:type_de_champ_referentiel, referentiel_presenter: 'wrong').tap(&:validate).errors.map(&:attribute)).to include(:referentiel_presenter)
+    end
+
+    describe 'configured?' do
+      context 'when referentiel_adapter is url' do
+        it 'tests url params' do
+          tdc = build(:type_de_champ_referentiel, referentiel_adapter: 'url')
+          expect(tdc).to receive(:referentiel_presenter).and_return(double(present?: true))
+          expect(tdc).to receive(:referentiel_url).and_return(double(present?: true))
+          expect(tdc).to receive(:referentiel_test_data).and_return(double(present?: true))
+
+          expect(tdc.configured?).to eq(true)
+        end
+      end
+    end
+  end
+
   describe "validate_regexp" do
     let(:tdc) { create(:type_de_champ_expression_reguliere, expression_reguliere:, expression_reguliere_exemple_text:) }
     subject { tdc.invalid_regexp? }
