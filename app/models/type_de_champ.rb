@@ -139,7 +139,12 @@ class TypeDeChamp < ApplicationRecord
                  :expression_reguliere_error_message,
                  :collapsible_explanation_enabled,
                  :collapsible_explanation_text,
-                 :header_section_level
+                 :header_section_level,
+                 :referentiel_adapter,
+                 :referentiel_presenter,
+                 :referentiel_url,
+                 :referentiel_hint,
+                 :referentiel_test_data
 
   has_many :revision_types_de_champ, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
   has_many :revisions, -> { ordered }, through: :revision_types_de_champ

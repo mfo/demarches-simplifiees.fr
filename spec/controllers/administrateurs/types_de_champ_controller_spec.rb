@@ -246,4 +246,33 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       end
     end
   end
+
+  describe '#setup_datasource' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, stable_id: 123 }]) }
+    it 'works' do
+      get :setup_datasource, params: { procedure_id: procedure.id, stable_id: 123 }
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe '#update_datasource' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, stable_id: 123 }]) }
+    it 'works' do
+      type_de_champ_params = {
+        referentiel_adapter: 'url',
+        referentiel_presenter: 'exact_match',
+        referentiel_url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
+        referentiel_hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
+        referentiel_test_data: 'PG46YY6YWCX8'
+      }
+      patch :update_datasource, params: { procedure_id: procedure.id, stable_id: 123, type_de_champ: type_de_champ_params }, format: :turbo_stream
+      tdc = procedure.draft_revision.types_de_champ.first
+
+      expect(tdc.referentiel_adapter).to eq(type_de_champ_params[:referentiel_adapter])
+      expect(tdc.referentiel_presenter).to eq(type_de_champ_params[:referentiel_presenter])
+      expect(tdc.referentiel_url).to eq(type_de_champ_params[:referentiel_url])
+      expect(tdc.referentiel_hint).to eq(type_de_champ_params[:referentiel_hint])
+      expect(tdc.referentiel_test_data).to eq(type_de_champ_params[:referentiel_test_data])
+    end
+  end
 end

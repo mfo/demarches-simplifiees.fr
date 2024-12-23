@@ -119,7 +119,27 @@ module Administrateurs
       end
     end
 
+    def setup_datasource
+      @procedure = draft.procedure
+      @type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
+
+      render layout: "empty_layout"
+    end
+
+    def update_datasource
+      type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
+      type_de_champ.update(types_de_champ_referentiel_params)
+
+      component = TypeDeChampReferentiel::SetupDatasourceComponent.new(type_de_champ:, procedure: draft.procedure)
+      render turbo_stream: turbo_stream.replace(component.id, component)
+    end
+
     private
+
+    def types_de_champ_referentiel_params
+      params.require(:type_de_champ)
+        .permit(:referentiel_adapter, :referentiel_presenter, :referentiel_url, :referentiel_hint, :referentiel_test_data)
+    end
 
     def changing_of_type?(type_de_champ)
       type_de_champ_update_params['type_champ'].present? && (type_de_champ_update_params['type_champ'] != type_de_champ.type_champ)
