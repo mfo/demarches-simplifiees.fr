@@ -728,6 +728,7 @@ Rails.application.routes.draw do
           put :notice_explicative
 
           get :setup_datasource
+          get :mapping_datasource
           patch :update_datasource
         end
       end

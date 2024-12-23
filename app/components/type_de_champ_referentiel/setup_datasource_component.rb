@@ -19,6 +19,14 @@ class TypeDeChampReferentiel::SetupDatasourceComponent < ApplicationComponent
     type_de_champ.referentiel_adapter == value
   end
 
+  def submit_options
+    if adatper?(nil)
+      { class: 'fr-btn', disabled: true }
+    else
+      { class: 'fr-btn' }
+    end
+  end
+
   private
 
   def force_autosubmit? = adatper?(nil)

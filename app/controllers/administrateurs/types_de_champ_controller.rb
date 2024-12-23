@@ -130,8 +130,19 @@ module Administrateurs
       type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
       type_de_champ.update(types_de_champ_referentiel_params)
 
-      component = TypeDeChampReferentiel::SetupDatasourceComponent.new(type_de_champ:, procedure: draft.procedure)
-      render turbo_stream: turbo_stream.replace(component.id, component)
+      if type_de_champ.configured?
+        redirect_to mapping_datasource_admin_procedure_type_de_champ_path(draft.procedure, type_de_champ.stable_id)
+      else
+        component = TypeDeChampReferentiel::SetupDatasourceComponent.new(type_de_champ:, procedure: draft.procedure)
+        render turbo_stream: turbo_stream.replace(component.id, component)
+      end
+    end
+
+    def mapping_datasource
+      @procedure = draft.procedure
+      @type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
+
+      render layout: "empty_layout"
     end
 
     private
