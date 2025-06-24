@@ -2,7 +2,9 @@
 
 module Mutations
   class DemarcheAjouterAdministrateur < Mutations::BaseMutation
-    description "Ajouter un administrateur a une démarche"
+    # rubocop:disable DS/ApplicationName
+    description "Ajouter un administrateur existant a une démarche. A moins que utilisiez cette mutation sur une instance autre que demarche.numerique.gouv.fr avec la fonctionnalité activée, l'administrateur doit avoir été crée a priori."
+    # rubocop:enable DS/ApplicationName
 
     argument :demarche, Types::DemarcheDescriptorType::FindDemarcheInput, "La démarche", required: true
     argument :administrateurs, [Types::ProfileInput], "Administrateur à ajouter.", required: true
