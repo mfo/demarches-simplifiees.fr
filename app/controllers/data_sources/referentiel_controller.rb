@@ -11,7 +11,7 @@ class DataSources::ReferentielController < ApplicationController
 
       case result
       in Dry::Monads::Success(body)
-        formatted = ReferentielAutocompleteRenderService.format_response(body, referentiel)
+        formatted = ReferentielAutocompleteRenderService.new(body, referentiel).format_response
         return render json: formatted
       in Dry::Monads::Failure(data)
         Sentry.set_extras(q: params[:q], body: data[:body], code: data[:code]) if data.is_a?(Hash)
