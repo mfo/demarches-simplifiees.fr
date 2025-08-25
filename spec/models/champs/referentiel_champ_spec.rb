@@ -131,6 +131,7 @@ describe Champs::ReferentielChamp, type: :model do
         expect { subject }.to change { referentiel_champ.reload.data }.to(eq({ ok: :ko }))
       end
     end
+
     context 'when autocomplete' do
       let(:datasource) { '$.deep.nested' }
       let(:referentiel) { create(:api_referentiel, :autocomplete, datasource: datasource) }
@@ -144,6 +145,13 @@ describe Champs::ReferentielChamp, type: :model do
             .to change { referentiel_champ.reload.data }
             .from(nil)
             .to(referentiel_champ.send(:rewrap_selected_object_in_datasource, raw_data))
+        end
+      end
+
+      context 'when data is not present' do
+        let(:data) { nil }
+        it 'void data' do
+          expect { subject }.not_to change { referentiel_champ.reload.data }
         end
       end
     end

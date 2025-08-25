@@ -29,7 +29,7 @@ class Champs::ReferentielChamp < Champ
   end
 
   def data=(data)
-    if exact_match?
+    if exact_match? || data.blank?
       super(data)
     else
       message_encryptor_service = MessageEncryptorService.new
