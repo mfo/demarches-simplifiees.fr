@@ -1,15 +1,18 @@
-- content_for(:title, "Service avec Siret manquant")
+<% content_for(:title, 'Service avec Siret manquant') %>
 
-%p
+<p>
   Bonjour,
+</p>
 
-%p
+<p>
   Vous êtes administrateur sur la plateforme
-  = Current.application_name
+  <%= Current.application_name %>
   et au moins un de vos services n'a pas son siret renseigné.
+</p>
 
-%p
+<p>
   Afin d'éviter tout dysfonctionnement sur la plateforme, nous vous invitons à le remplir au plus vite à cette adresse :
-  = link_to admin_procedures_url, admin_procedures_url
+  <%= link_to admin_procedures_url, admin_procedures_url %>
+</p>
 
-= render partial: "layouts/mailers/signature"
+<%= render partial: 'layouts/mailers/signature' %>
