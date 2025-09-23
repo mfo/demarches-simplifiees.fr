@@ -6,7 +6,7 @@
       %h1.fr-h3.fr-mb-0 Démarches
       = render Instructeurs::TabsExplanationsComponent.new
 
-    = render partial: 'instructeurs/procedures/synthese', locals: { procedures: @procedures, all_dossiers_counts: @all_dossiers_counts }
+    = render partial: 'instructeurs/procedures/synthese', locals: { procedures: @procedures }
     = render SelectProcedureDropDownListComponent.new(procedures: @procedures, action_path: url_for([:select_procedure, :instructeur, :procedures]), form_class: 'width-66 fr-mb-3w')
 
     %nav.fr-tabs{ role: 'navigation', 'aria-label': t('views.instructeurs.procedures_menu') }

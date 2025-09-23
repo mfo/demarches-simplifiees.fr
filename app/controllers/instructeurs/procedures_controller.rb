@@ -5,7 +5,7 @@ module Instructeurs
     include InstructeurProcedureConcern
     include ProConnectSessionConcern
 
-    before_action :ensure_ownership!, except: [:index, :order_positions, :update_order_positions, :select_procedure]
+    before_action :ensure_ownership!, except: [:index, :order_positions, :update_order_positions, :select_procedure, :synthese]
     before_action :ensure_not_super_admin!, only: [:download_export, :exports]
     after_action :mark_latest_revision_as_seen, only: [:history]
 
@@ -39,7 +39,7 @@ module Instructeurs
       @procedures_closes_count = closes_with_no_dossier_en_cours.count
 
       groupe_ids = current_instructeur.groupe_instructeurs.pluck(:id)
-      load_dossiers_counts(dossiers, groupe_ids)
+      load_procedure_dossiers_counts(dossiers, groupe_ids)
 
       @procedure_ids_with_notifications = DossierNotification.notifications_sticker_for_instructeur_procedures(groupe_ids, current_instructeur)
       @notifications_counts_per_procedure = DossierNotification.notifications_counts_for_instructeur_procedures(groupe_ids, current_instructeur)
@@ -336,7 +336,7 @@ module Instructeurs
 
     private
 
-    def load_dossiers_counts(dossiers, groupe_ids)
+    def load_procedure_dossiers_counts(dossiers, groupe_ids)
       @dossiers_count_per_procedure = dossiers.by_statut('tous').group('groupe_instructeurs.procedure_id').reorder(nil).count
       @dossiers_a_suivre_count_per_procedure = dossiers.by_statut('a-suivre').group('groupe_instructeurs.procedure_id').reorder(nil).count
       @dossiers_termines_count_per_procedure = dossiers.by_statut('traites').group('groupe_instructeurs.procedure_id').reorder(nil).count
@@ -351,13 +351,21 @@ module Instructeurs
         .group('groupe_instructeurs.procedure_id')
         .reorder(nil)
         .count
+    end
 
+    def load_dossiers_counts(dossiers, groupe_ids)
       @all_dossiers_counts = {
-        'a-suivre' => @dossiers_a_suivre_count_per_procedure.values.sum,
-        'suivis' => @followed_dossiers_count_per_procedure.values.sum,
-        'traites' => @dossiers_termines_count_per_procedure.values.sum,
-        'tous' => @dossiers_count_per_procedure.values.sum,
-        'expirant' => @dossiers_expirant_count_per_procedure.values.sum
+        'a-suivre' => dossiers.by_statut('a-suivre').count,
+        'suivis' => current_instructeur
+          .followed_dossiers
+          .joins(:groupe_instructeur)
+          .en_cours
+          .where(groupe_instructeur_id: groupe_ids)
+          .visible_by_administration
+          .count,
+        'traites' => dossiers.by_statut('traites').count,
+        'tous' => dossiers.by_statut('tous').count,
+        'expirant' => dossiers.by_statut('expirant').count
       }
     end
 

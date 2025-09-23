@@ -2,7 +2,8 @@
 
 describe 'instructeurs/procedures/synthese', type: :view do
   subject do
-    render template: 'instructeurs/procedures/synthese', locals: { all_dossiers_counts: }
+    assign(:all_dossiers_counts, all_dossiers_counts)
+    render template: 'instructeurs/procedures/synthese'
   end
 
   let(:all_dossiers_counts) do

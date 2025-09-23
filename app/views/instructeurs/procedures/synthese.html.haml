@@ -13,7 +13,7 @@
             %h1{ id: modal_title_id, class: 'fr-modal__title' }
               = t('views.instructeurs.dossiers.dossier_synthesis')
             %ul.list-style-type-none.fr-p-0.fr-mb-0
-              - all_dossiers_counts.each do |tab_key, dossier_count|
+              - @all_dossiers_counts.each do |tab_key, dossier_count|
                 - next if dossier_count.zero?
                 %li.flex.justify-between.fr-py-2v
                   %span.fr-text--sm= i18n_tab_from_status(tab_key)
