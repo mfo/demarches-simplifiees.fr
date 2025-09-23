@@ -1,0 +1,97 @@
+<div id='contact-form'>
+<div class='fr-container'>
+<h1>
+Contactez notre équipe
+</h1>
+<div class='fr-highlight'><p>En tant qu’administration, vous pouvez nous contactez via ce formulaire. Nous vous répondrons dans les plus brefs délais, par email ou par téléphone.</p> <p><strong>Attention, ce formulaire est réservé uniquement aux organismes publics.</strong> Il ne concerne ni les particuliers, ni les entreprises, ni les associations (sauf celles reconnues d’utilité publique). Si c'est votre cas, rendez-vous sur notre <a href="/contact">formulaire de contact public</a>.</p></div>
+<form class="new_contact_form" data-controller="contact" id="new_contact_form" enctype="multipart/form-data" action="/contact" accept-charset="UTF-8" method="post"><p class='fr-hint-text'>Les champs suivis d’un astérisque ( <svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><desc>obligatoire</desc><path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path></svg> ) sont obligatoires.</p>
+<div class="fr-input-group" data-controller="email-input" data-email-input-url-value="/check_email"><label class="fr-label" for="contact_form_email">Votre adresse électronique professionnelle
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+<span class='fr-hint-text'>Exemple: adresse@mail.com</span>
+</label><input autocomplete="email" class="fr-input fr-mb-0" required="required" data-action="blur-&gt;email-input#checkEmail" data-email-input-target="input" data-controller="" type="email" value="test@example.com" name="contact_form[email]" id="contact_form_email" />
+<div class='suspect-email hidden' data-email-input-target='ariaRegion' tabindex='-1'>
+<div class='fr-alert fr-alert-- fr-alert--info'>
+<h3 class="fr-alert__title">L&#39;adresse électronique semble erronée
+</h3><p>
+Vouliez-vous écrire :
+<span data-email-input-target='suggestion'>
+exemple@gmail.com
+</span>
+?
+</p>
+<p>
+<button name="button" type="button" class="fr-btn fr-btn--sm fr-mr-3w" data-action="click-&gt;email-input#accept">Oui
+</button><button name="button" type="button" class="fr-btn fr-btn--sm" data-action="click-&gt;email-input#discard">Non
+</button></p>
+
+</div>
+</div>
+</div><fieldset class='fr-fieldset' name='question_type'>
+<legend class='fr-fieldset__legend fr-fieldset__legend--regular'>
+Votre question
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+</legend>
+<div class='fr-fieldset__content'>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="admin_question" checked="checked" name="contact_form[question_type]" id="contact_form_question_type_admin_question" />
+<label class="fr-label" for="contact_form_question_type_admin_question">J’ai une question sur Demarches Simplifiées
+</label></div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="admin_demande_rdv" name="contact_form[question_type]" id="contact_form_question_type_admin_demande_rdv" />
+<label class="fr-label" for="contact_form_question_type_admin_demande_rdv">Demande de RDV pour une présentation à distance de Demarches Simplifiées
+</label></div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="admin_soucis" name="contact_form[question_type]" id="contact_form_question_type_admin_soucis" />
+<label class="fr-label" for="contact_form_question_type_admin_soucis">J’ai un problème technique avec Demarches Simplifiées
+</label></div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="admin_suggestion_produit" name="contact_form[question_type]" id="contact_form_question_type_admin_suggestion_produit" />
+<label class="fr-label" for="contact_form_question_type_admin_suggestion_produit">J’ai une proposition d’évolution
+</label></div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="admin_demande_compte" name="contact_form[question_type]" id="contact_form_question_type_admin_demande_compte" />
+<label class="fr-label" for="contact_form_question_type_admin_demande_compte">Je souhaite ouvrir un compte administrateur avec une adresse électronique Orange, Wanadoo, etc.
+</label></div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="admin_autre" name="contact_form[question_type]" id="contact_form_question_type_admin_autre" />
+<label class="fr-label" for="contact_form_question_type_admin_autre">Autre sujet
+</label></div>
+</div>
+</fieldset>
+<div class="fr-input-group"><label class="fr-label" for="contact_form_phone">Numéro de téléphone professionnel (ligne directe)
+</label><input class="fr-input fr-mb-0" data-controller="" type="text" name="contact_form[phone]" id="contact_form_phone" />
+</div>
+<div class="fr-input-group"><label class="fr-label" for="contact_form_subject">Sujet
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+</label><input class="fr-input fr-mb-0" required="required" data-controller="" type="text" value="Test Subject" name="contact_form[subject]" id="contact_form_subject" />
+</div>
+<div class="fr-input-group"><label class="fr-label" for="contact_form_text">Message
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+</label><textarea rows="6" class="fr-input fr-mb-0" required="required" data-controller="autoresize" name="contact_form[text]" id="contact_form_text">
+Test Content</textarea>
+</div>
+<input name="contact_form[tags][]" id="contact_form_tag_0" value="test tag" autocomplete="off" type="hidden" />
+<input autocomplete="off" type="hidden" value="true" name="contact_form[for_admin]" id="contact_form_for_admin" />
+<div class="tdunxkipqozr_1758605332"><label for="tdunxkipqozr">Si vous êtes un humain, laissez ce champ vide</label><input type="text" name="tdunxkipqozr" id="tdunxkipqozr" autocomplete="off" tabindex="-1" /></div>
+<div class='fr-input-group fr-my-3w'>
+<input type="submit" name="commit" value="Envoyer le message" class="fr-btn" data-disable="true" data-disable-with="Envoyer le message" />
+</div>
+</form>
+</div>
+</div>
