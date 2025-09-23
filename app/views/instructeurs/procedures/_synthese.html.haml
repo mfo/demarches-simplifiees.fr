@@ -1,6 +1,13 @@
 - if procedures.length > 1
-  .flex.align-center.fr-mb-2w
-    %p.font-weight-bold.fr-text--sm.fr-mb-1w= t('views.instructeurs.dossiers.dossier_synthesis')
-    - all_dossiers_counts.each_with_index  do |(tab_key, dossier_count)|
-      - if dossier_count != 0
-        %span.fr-badge.fr-ml-1w.fr-mb-1w= number_with_html_delimiter(dossier_count) + ' ' + i18n_tab_from_status(tab_key)
+  - frame_id = 'instructeur-dossiers-synthesis-modal'
+  - modal_id = "#{frame_id}-dialog"
+  - modal_title_id = "#{modal_id}-title"
+
+  %span{ data: { controller: 'lazy-modal' } }
+    .flex.align-center.fr-mb-2w
+      %button.fr-btn.fr-btn--secondary.fr-btn--sm.fr-btn--icon-left{ type: 'button', aria: { controls: modal_id }, data: { 'fr-opened': 'false', 'turbo-frame': frame_id, action: 'lazy-modal#load' }, src: synthese_instructeur_procedures_path }
+        = dsfr_icon('fr-icon-pie-chart-2-line', :sm, :mr)
+        = t('views.instructeurs.dossiers.dossier_synthesis')
+
+    = turbo_frame_tag frame_id, data: { 'lazy-modal-target': 'frame' } do
+      %dialog{ id: modal_id, class: 'fr-modal', role: 'dialog', aria: { labelledby: modal_title_id } }

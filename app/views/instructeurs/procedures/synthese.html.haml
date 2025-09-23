@@ -1,0 +1,20 @@
+- frame_id = 'instructeur-dossiers-synthesis-modal'
+- modal_id = "#{frame_id}-dialog"
+- modal_title_id = "#{modal_id}-title"
+
+%dialog{ id: modal_id, class: 'fr-modal', role: 'dialog', aria: { labelledby: modal_title_id } }
+  .fr-container.fr-container--fluid.fr-container-md
+    .fr-grid-row.fr-grid-row--center
+      .fr-col-12.fr-col-md-8.fr-col-lg-6
+        .fr-modal__body
+          .fr-modal__header
+            %button.fr-btn.fr-btn--close{ aria: { controls: modal_id }, title: t('utils.modal_close_alt') }= t('utils.modal_close')
+          .fr-modal__content
+            %h1{ id: modal_title_id, class: 'fr-modal__title' }
+              = t('views.instructeurs.dossiers.dossier_synthesis')
+            %ul.list-style-type-none.fr-p-0.fr-mb-0
+              - all_dossiers_counts.each do |tab_key, dossier_count|
+                - next if dossier_count.zero?
+                %li.flex.justify-between.fr-py-2v
+                  %span.fr-text--sm= i18n_tab_from_status(tab_key)
+                  %span.fr-text--bold= number_with_html_delimiter(dossier_count)

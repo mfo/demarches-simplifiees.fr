@@ -20,9 +20,17 @@ describe 'instructeurs/procedures/_synthese', type: :view do
     }
 
     it { is_expected.to have_text('Synthèse des dossiers') }
+    it {
+      is_expected.to have_css(
+        'span[data-controller="lazy-modal"] button[aria-controls="instructeur-dossiers-synthesis-modal-dialog"][data-action="lazy-modal#load"]',
+        text: 'Synthèse des dossiers'
+      )
+    }
+    it { is_expected.to have_css('turbo-frame#instructeur-dossiers-synthesis-modal dialog#instructeur-dossiers-synthesis-modal-dialog.fr-modal') }
+    it { is_expected.to have_css('turbo-frame#instructeur-dossiers-synthesis-modal[data-lazy-modal-target="frame"]') }
     it { is_expected.not_to have_text('suivis par moi') }
-    it { is_expected.to have_text('traités') }
-    it { is_expected.to have_text('au total') }
+    it { is_expected.not_to have_text('traités') }
+    it { is_expected.not_to have_text('au total') }
   end
 
   context 'when instructeur has 1 procedure and 1 file, table is not shown' do
@@ -41,5 +49,6 @@ describe 'instructeurs/procedures/_synthese', type: :view do
     it { is_expected.not_to have_text('suivis par moi') }
     it { is_expected.not_to have_text('traités') }
     it { is_expected.not_to have_text('au total') }
+    it { is_expected.not_to have_css('button[aria-controls="instructeur-dossiers-synthesis-modal-dialog"]') }
   end
 end
