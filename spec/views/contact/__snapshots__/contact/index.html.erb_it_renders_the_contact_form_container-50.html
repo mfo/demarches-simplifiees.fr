@@ -1,0 +1,138 @@
+<div id='contact-form'>
+<div class='fr-container'>
+<h1>
+Contacter demarches-simplifiees.fr
+</h1>
+<div class='fr-highlight'><p>Contactez-nous via ce formulaire et nous vous répondrons dans les plus brefs délais.</p> <p>Pensez bien à nous donner le plus d’informations possible pour que nous puissions vous aider au mieux.</p></div>
+<form class="new_contact_form" data-controller="contact" id="new_contact_form" enctype="multipart/form-data" action="/contact" accept-charset="UTF-8" method="post"><p class='fr-hint-text'>Les champs suivis d’un astérisque ( <svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><desc>obligatoire</desc><path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path></svg> ) sont obligatoires.</p>
+<div class="fr-input-group" data-controller="email-input" data-email-input-url-value="/check_email"><label class="fr-label" for="contact_form_email">Votre adresse électronique
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+<span class='fr-hint-text'>Exemple: adresse@mail.com</span>
+</label><input autocomplete="email" class="fr-input fr-mb-0" required="required" data-action="blur-&gt;email-input#checkEmail" data-email-input-target="input" data-controller="" type="email" value="test@example.com" name="contact_form[email]" id="contact_form_email" />
+<div class='suspect-email hidden' data-email-input-target='ariaRegion' tabindex='-1'>
+<div class='fr-alert fr-alert-- fr-alert--info'>
+<h3 class="fr-alert__title">L&#39;adresse électronique semble erronée
+</h3><p>
+Vouliez-vous écrire :
+<span data-email-input-target='suggestion'>
+exemple@gmail.com
+</span>
+?
+</p>
+<p>
+<button name="button" type="button" class="fr-btn fr-btn--sm fr-mr-3w" data-action="click-&gt;email-input#accept">Oui
+</button><button name="button" type="button" class="fr-btn fr-btn--sm" data-action="click-&gt;email-input#discard">Non
+</button></p>
+
+</div>
+</div>
+</div><fieldset class='fr-fieldset' name='question_type'>
+<legend class='fr-fieldset__legend fr-fieldset__legend--regular'>
+Votre question
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+</legend>
+<div class='fr-fieldset__content'>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="procedure_info" name="contact_form[question_type]" id="contact_form_question_type_procedure_info" />
+<label aria-controls="card-procedure_info" class="fr-label" for="contact_form_question_type_procedure_info">J’ai un problème lors du remplissage de mon dossier
+</label><div aria-hidden class='fr-ml-3w hidden' data-contact-target='content' id='card-procedure_info'>
+<div class='fr-callout fr-background-alt--blue-france'>
+<h3 class="fr-callout__title">Notre réponse
+</h3><div class='fr-callout__text'><p>Avez-vous bien vérifié que tous les champs obligatoires (<span class= mandatory> * </span>) sont remplis ? <p>Si vous avez des questions sur les informations à saisir, <a href="/faq/usager/je-veux-contacter-le-service-en-charge-de-ma-demarche">contactez les services en charge de la démarche (FAQ)</a>.</p>
+</div>
+
+</div>
+</div>
+</div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="lost_user" checked="checked" name="contact_form[question_type]" id="contact_form_question_type_lost_user" />
+<label aria-controls="card-lost_user" class="fr-label" for="contact_form_question_type_lost_user">Je ne trouve pas la démarche que je veux faire
+</label><div class='fr-ml-3w' data-contact-target='content' id='card-lost_user'>
+<div class='fr-callout fr-background-alt--blue-france'>
+<h3 class="fr-callout__title">Notre réponse
+</h3><div class='fr-callout__text'><p>Nous vous invitons à contacter l’administration en charge de votre démarche pour qu’elle vous indique le lien à suivre. Celui-ci devrait ressembler à cela : <code>https://example.test/commencer/NOM_DE_LA_DEMARCHE</code>.</p> <p>Vous pouvez aussi <a href="https://doc.demarches-simplifiees.fr/listes-des-demarches">consulter ici la liste de nos démarches les plus fréquentes (permis, detr, etc.)</a>.</p>
+</div>
+
+</div>
+</div>
+</div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="instruction_info" name="contact_form[question_type]" id="contact_form_question_type_instruction_info" />
+<label aria-controls="card-instruction_info" class="fr-label" for="contact_form_question_type_instruction_info">J’ai une question sur l’instruction de mon dossier
+</label><div aria-hidden class='fr-ml-3w hidden' data-contact-target='content' id='card-instruction_info'>
+<div class='fr-callout fr-background-alt--blue-france'>
+<h3 class="fr-callout__title">Notre réponse
+</h3><div class='fr-callout__text'><p>Si vous avez des questions sur l’instruction de votre dossier (par exemple sur les délais), nous vous invitons à <a href="/faq/usager/je-veux-savoir-ou-en-est-l-instruction-de-ma-demarche">contacter directement les services qui instruisent votre dossier par votre messagerie (FAQ)</a>.</p> <p>Si vous souhaitez poser une question pour un problème technique sur le site, utilisez le formulaire ci-dessous. Nous ne pourrons pas vous renseigner sur l’instruction de votre dossier.</p>
+</div>
+
+</div>
+</div>
+</div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="product" name="contact_form[question_type]" id="contact_form_question_type_product" />
+<label aria-controls="card-product" class="fr-label" for="contact_form_question_type_product">J’ai une idée d’amélioration pour votre site
+</label><div aria-hidden class='fr-ml-3w hidden' data-contact-target='content' id='card-product'>
+<div class='fr-callout fr-background-alt--blue-france'>
+<h3 class="fr-callout__title">Notre réponse
+</h3><div class='fr-callout__text'><p>Une idée ? Pensez à <a href="https://demarches-simplifiees.featureupvote.com" rel="noopener noreferrer" target="_blank" title="Consulter notre tableau de bord des améliorations - Nouvel onglet">consulter notre tableau de bord des améliorations</a> :</p> <ul><li>Votez pour vos améliorations prioritaires,</li> <li>Proposez votre propre idée.</li></ul>
+</div>
+
+</div>
+</div>
+</div>
+<div class='fr-radio-group'>
+<input required="required" data-contact-target="inputRadio" type="radio" value="other" name="contact_form[question_type]" id="contact_form_question_type_other" />
+<label class="fr-label" for="contact_form_question_type_other">Autre sujet
+</label></div>
+</div>
+</fieldset>
+<div class="fr-input-group"><label class="fr-label" for="contact_form_dossier_id">Numéro de dossier
+</label><input class="fr-input fr-mb-0" data-controller="" type="text" name="contact_form[dossier_id]" id="contact_form_dossier_id" />
+</div>
+<div class="fr-input-group"><label class="fr-label" for="contact_form_subject">Sujet
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+</label><input class="fr-input fr-mb-0" required="required" data-controller="" type="text" value="Test Subject" name="contact_form[subject]" id="contact_form_subject" />
+</div>
+<div class="fr-input-group"><label class="fr-label" for="contact_form_text">Message
+<svg aria-label='obligatoire' class='icon mandatory' height='10' role='img' viewBox='0 0 1200 1200' width='10' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'>
+<desc>obligatoire</desc>
+<path d='M489.838 29.354v443.603L68.032 335.894 0 545.285l421.829 137.086-260.743 358.876 178.219 129.398L600.048 811.84l260.673 358.806 178.146-129.398-260.766-358.783L1200 545.379l-68.032-209.403-421.899 137.07V29.443H489.84l-.002-.089z'></path>
+</svg>
+
+</label><textarea rows="6" class="fr-input fr-mb-0" required="required" data-controller="autoresize" name="contact_form[text]" id="contact_form_text">
+Test Content</textarea>
+</div>
+<div class='fr-upload-group'>
+<label class="fr-label" for="contact_form_piece_jointe">Pièces jointes
+<span class='fr-hint-text'>
+Taille maximale autorisée : 200 Mo. Formats supportés : jpg, png, pdf.
+</span>
+</label><p class='notice hidden' data-contact-type-only='product'>
+Une capture d’écran peut nous aider à identifier plus facilement l’endroit à améliorer.
+</p>
+<p class='notice hidden' data-contact-type-only='other'>
+Une capture d’écran peut nous aider à identifier plus facilement le problème.
+</p>
+<input class="fr-upload" accept=".jpg, .jpeg, .png, .pdf" type="file" name="contact_form[piece_jointe]" id="contact_form_piece_jointe" />
+</div>
+<input name="contact_form[tags][]" id="contact_form_tag_0" value="test tag" autocomplete="off" type="hidden" />
+<input autocomplete="off" type="hidden" value="false" name="contact_form[for_admin]" id="contact_form_for_admin" />
+<div class="arwdjfozgh_1758123946"><label for="arwdjfozgh">Si vous êtes un humain, laissez ce champ vide</label><input type="text" name="arwdjfozgh" id="arwdjfozgh" autocomplete="off" tabindex="-1" /></div>
+<div class='fr-input-group fr-my-3w'>
+<input type="submit" name="commit" value="Envoyer le message" class="fr-btn" data-disable="true" data-disable-with="Envoyer le message" />
+</div>
+</form>
+</div>
+</div>
