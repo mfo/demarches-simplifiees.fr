@@ -14,21 +14,9 @@ class Instructeurs::OCRViewerComponent < ApplicationComponent
       bic: value_json.dig('rib', 'bic'),
       bank_name: value_json.dig('rib', 'bank_name'),
     }
-      .transform_values! { (it.presence || processing_error) }
   end
 
   def render?
     champ.RIB? && champ.fetched?
-  end
-
-  private
-
-  def processing_error
-    tag.span class: 'fr-hint-text fr-text-default--warning font-weight-normal' do
-      safe_join([
-        dsfr_icon("fr-icon-warning-line", :sm, :mr),
-        t('.processing_error'),
-      ])
-    end
   end
 end
