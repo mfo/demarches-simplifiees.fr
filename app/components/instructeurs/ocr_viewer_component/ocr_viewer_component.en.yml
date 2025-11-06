@@ -1,5 +1,6 @@
 ---
 en:
+  title: Data retrieved from attachment
   account_holder: Account Holder
   iban: IBAN
   bic: BIC Code

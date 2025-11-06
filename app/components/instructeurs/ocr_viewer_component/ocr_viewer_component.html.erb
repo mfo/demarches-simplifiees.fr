@@ -1,7 +1,16 @@
-<div class="fr-mt-2v fr-background-alt--grey fr-p-2w flex-grow">
-  <p class="fr-text-mention--grey fr-mb-2w">
-    Données récupérées depuis la pièce jointe
-  </p>
+<div class="fr-mt-2v fr-background-alt--grey fr-p-2w">
+  <div class="flex justify-between align-baseline">
+    <p class="fr-text-mention--grey fr-mb-2w"><%= t('.title') %></p>
+
+    <button
+      class="
+        fr-btn fr-btn--sm fr-btn--secondary fr-btn--icon-left
+        fr-icon-pencil-line
+      "
+    >
+      <%= t('views.shared.actions.edit') %>
+    </button>
+  </div>
 
   <dl class="fr-pl-0">
     <% formated_data.each do |key, value| %>
