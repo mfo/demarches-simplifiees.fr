@@ -1,0 +1,9 @@
+fr:
+  dossier_mailer:
+    notify_owner_for_changes:
+      subject: Your file number %{dossier_id} has been modified by %{email_invite}
+      body_html: "%{email_invite}, invited to complete your file, wishes to inform you that they <b>have made changes</b> to your file."
+      link_html: |
+        You can <b>retrieve your file</b> by clicking the button below:
+      submit_before: You can submit your file/its modifications until %{before}.
+      access_file: View your file
