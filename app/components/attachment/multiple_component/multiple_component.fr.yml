@@ -1,0 +1,4 @@
+---
+fr:
+  max_file_size: "Taille maximale autorisée : %{max_file_size}."
+  allowed_formats: "Formats acceptés : %{formats}"

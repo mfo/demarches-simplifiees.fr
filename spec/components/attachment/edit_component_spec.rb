@@ -42,8 +42,7 @@ RSpec.describe Attachment::EditComponent, type: :component do
     let(:types_de_champ_public) { [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }] }
     let(:attachment) { nil }
 
-    it 'shows 200 Mo and accept includes .pdf but not .zip' do
-      expect(subject).to have_content(/Taille maximale autorisée(?:\u00A0| ):\s*200 Mo/)
+    it 'accept includes .pdf but not .zip' do
       expect(subject).to have_selector("input[accept*='.pdf']")
       expect(subject).not_to have_selector("input[accept*='.zip']")
     end
@@ -53,8 +52,8 @@ RSpec.describe Attachment::EditComponent, type: :component do
     let(:types_de_champ_public) { [{ type: :piece_justificative }] }
     let(:attachment) { nil }
 
-    it 'shows 200 Mo and has a non empty accept' do
-      expect(subject).to have_content(/Taille maximale autorisée(?:\u00A0| ):\s*200 Mo/)
+    it 'has a non empty accept' do
+      subject
       expect(page.find('input')['accept']).to be_present
     end
   end
@@ -68,24 +67,14 @@ RSpec.describe Attachment::EditComponent, type: :component do
       expect(subject).to have_selector('input[type=file]:not([disabled])')
     end
 
-    it 'renders max size' do
-      expect(subject).to have_content(/Taille maximale autorisée(?:\u00A0| ):\s*20 Mo/)
-    end
-
-    it 'renders allowed formats' do
-      expect(subject).to have_content(/Formats acceptés(?:\u00A0| ):\s*jpeg, png/)
-    end
-
     describe 'aria describedby' do
+      let(:parent_hint_id) { "#{champ.focusable_input_id}-pj-hint" }
+      let(:kwargs) { { parent_hint_id: parent_hint_id } }
       let(:describedby_attribute) { page.find('input')['aria-describedby'].split }
 
-      it 'targets describedby_id and pj-hint' do
+      it 'targets describedby_id and parent_hint_id' do
         subject
-
-        hint_element = page.find('.fr-hint-text')
-        expect(hint_element['id']).to eq("#{champ.focusable_input_id}-pj-hint")
-
-        expect(describedby_attribute).to eq([champ.describedby_id, "#{champ.focusable_input_id}-pj-hint"])
+        expect(describedby_attribute).to eq([champ.describedby_id, parent_hint_id])
       end
 
       context 'when there is an error' do
@@ -93,8 +82,16 @@ RSpec.describe Attachment::EditComponent, type: :component do
 
         it 'targets error_id' do
           subject
+          expect(describedby_attribute).to eq([champ.describedby_id, parent_hint_id, champ.error_id])
+        end
+      end
 
-          expect(describedby_attribute).to eq([champ.describedby_id, "#{champ.focusable_input_id}-pj-hint", champ.error_id])
+      context 'without parent_hint_id' do
+        let(:kwargs) { {} }
+
+        it 'only targets describedby_id' do
+          subject
+          expect(describedby_attribute).to eq([champ.describedby_id])
         end
       end
     end
@@ -143,18 +140,6 @@ RSpec.describe Attachment::EditComponent, type: :component do
 
     it 'does render an empty file' do # (is is rendered by MultipleComponent)
       expect(subject).to have_selector('input[type=file]')
-    end
-
-    it 'renders max size for first index' do
-      expect(subject).to have_content(/Taille maximale autorisée(?:\u00A0| ):\s*20 Mo/)
-    end
-
-    context 'when index is not 0' do
-      let(:index) { 1 }
-
-      it 'renders max size for first index' do
-        expect(subject).not_to have_content('Taille maximale')
-      end
     end
   end
 
