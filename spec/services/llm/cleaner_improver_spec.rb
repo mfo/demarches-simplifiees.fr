@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe LLM::CleanerImprover do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, types_de_champ_public:, service: create(:service)) }
   let(:revision) { procedure.active_revision }
   let(:suggestion) { double('suggestion', procedure_revision: revision, rule: 'cleaner') }
   let(:usage) do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe LLM::StructureImprover do
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, types_de_champ_public:, service: create(:service)) }
   let(:types_de_champ_public) do
     [
       { type: :text, stable_id: 1, libelle: 'nom' },
@@ -12,16 +12,14 @@ RSpec.describe LLM::StructureImprover do
     ]
   end
   let(:rule) { LLMRuleSuggestion.rules.fetch('improve_structure') }
-  let(:usage) { double() }
+  let(:usage) do
+    {
+      prompt_tokens: 100,
+      completion_tokens: 200,
+    }.with_indifferent_access
+  end
   let(:suggestion) { create(:llm_rule_suggestion, procedure_revision: procedure.draft_revision, rule:) }
 
-  before do
-   allow(usage).to receive(:with_indifferent_access).and_return({
-     prompt_tokens: 100,
-     completion_tokens: 200,
-     total_tokens: 300,
-   }.with_indifferent_access)
- end
   describe '#generate_for' do
     let(:runner) { double() }
     let(:service) { described_class.new(runner:) }

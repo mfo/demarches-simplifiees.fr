@@ -7,127 +7,178 @@ module LLM
       type: 'function',
       function: {
         name: LLMRuleSuggestion.rules.fetch('improve_label'),
-        description: "Améliore les libellés & descriptions du formulaire en respectant les bonnes pratiques de conception d'un formulaire administratif français.",
+        description: "Améliore les libellés & descriptions en respectant les standards UX pour formulaires administratifs français. N'appelle cet outil QUE pour des améliorations significatives.",
         parameters: {
           type: 'object',
           properties: {
             update: {
               type: 'object',
               properties: {
-                stable_id: { type: 'integer', description: 'Identifiant stable du champ cible' },
-                libelle: { type: 'string', description: 'Nouveau libellé (<= 80 caractères, langage simple).' },
-                description: { type: 'string', description: 'Nouvelle description idéalement (<= 160 caractères, langage simple). Pour les champ de type type_champ : carte, commune, date, datetime, decimal_number, dossier_link, email, epci, iban, multiple_drop_dow, phone, rna, rnf, siret, titre_identite : retourner null' },
-                parent_id: { type: ['integer', 'null'], description: 'Identifiant stable du champ parent, ou null s’il n’y a pas de parent' },
-                position: { type: ['integer'], description: 'Position du champ' },
+                stable_id: { type: 'integer', description: 'Identifiant stable du champ à modifier' },
+                libelle: { type: 'string', description: 'Nouveau libellé' },
+                description: { type: 'string', description: 'Nouvelle description' },
               },
-              required: %w[stable_id libelle position parent_id],
+              required: %w[stable_id],
             },
-            justification: { type: 'string', description: 'Raison courte du changement' },
+            justification: { type: 'string', description: '1 phrase courte (< 10 mots) expliquant la raison de cette suggestion. Ne mentionne pas les regles ex: (règle 1.3)' },
           },
-          required: %w[update],
+          required: %w[update justification],
         },
       },
     }.freeze
 
-    def system_prompt
-      <<-ROLE
-        Optimisation des formulaires en ligne (UX Writing)
-        Tu es un assistant expert en UX Writing, en conception de formulaires en ligne et en simplification administrative.
-        Ta mission est d’améliorer les libellés, descriptions, titres de section et explications d’un formulaire en ligne afin de les rendre plus clairs, plus simples, plus utiles et orientés vers l’action.
+    def system_prompt(procedure = nil)
+      ministries_value = procedure ? ministries(procedure) : nil
+      service_value = procedure ? service(procedure) : nil
+      target_audience_value = procedure ? target_audience(procedure) : nil
+
+      prompt = <<-ROLE
+        Tu es un expert en UX Writing pour les formulaires administratifs français.
+
+        MÉTHODOLOGIE OBLIGATOIRE EN 2 PHASES :
+
+        PHASE 1 OBLIGATOIRE - AUDIT (mental, pas de tool call) :
+        Parcours TOUS les champs du schéma.
+        Pour chaque champ, vérifie s'il viole une règle PRIORITÉ 1, 2 ou 3.
+        Si OUI → Marque-le mentalement pour correction.
+
+        PHASE 2 - CORRECTIONS (avec tool calls) :
+        Pour CHAQUE champ marqué en Phase 1, génère UN tool call avec l'outil #{TOOL_DEFINITION.dig(:function, :name)}.
+        Continue jusqu'à avoir traité TOUS les champs marqués.
+
+        PÉRIMÈTRE D'ACTION :
+        - Tu modifies : libelle, description
+        - Tu ne touches JAMAIS à : stable_id, parent_id, position, type, mandatory, display_condition, sample_choices
       ROLE
+
+      if [ministries_value, service_value, target_audience_value].any?(&:present?)
+        context_lines = []
+        context_lines << "- Porté par : #{ministries_value}" if ministries_value.present?
+        context_lines << "- Instruit par : #{service_value}" if service_value.present?
+        context_lines << "- S'adresse à : #{target_audience_value}" if target_audience_value.present?
+
+        prompt += <<~CONTEXT
+
+          CONTEXTE DU FORMULAIRE :
+          #{context_lines.join("\n")}
+
+          Le vocabulaire technique et spécialisé est légitime et doit être PRÉSERVÉ lorsqu'il correspond au champ lexical de ce ministère et de ce service.
+        CONTEXT
+      end
+
+      prompt
     end
 
-    # https://www.modernisation.gouv.fr/files/2021-06/avec_logique_linformation_tu_organiseras_com.pdf
-    # https://www.modernisation.gouv.fr/files/Campus-de-la-transformation/Guide-kit-formulaire.pdf
-    # https://www.modernisation.gouv.fr/campus-de-la-transformation-publique/catalogue-de-ressources/outil/simplifier-les-documents
-    #  - https://www.modernisation.gouv.fr/files/2021-06/aller_a_lessentiel_com.pdf
-    #  - https://www.modernisation.gouv.fr/files/2021-06/des_mots_simples_tu_utiliseras_com.pdf
-    #  - https://www.modernisation.gouv.fr/files/2021-06/avec_logique_linformation_tu_organiseras_com.pdf
-    #  - https://www.modernisation.gouv.fr/files/2021-06/lusager_tu_considereras_com.pdf
-    #  - https://www.modernisation.gouv.fr/files/2021-06/la_presentation_tu_soigneras_com.pdf
     def rules_prompt
       <<~TXT
-        Tu dois respecter strictement les règles suivantes.
+        Applique ces règles PAR ORDRE DE PRIORITÉ.
 
-        ---
+        PRIORITÉ 1 : COHÉRENCE TECHNIQUE (bloquant si non respecté)
 
-        ## 1. Orientation usager
+        1.1. Cohérence type/libellé/description
+            • yes_no TOUJOURS une question (Avez-vous... ? Êtes-vous... ?)
+              KO "Autre financeur public sollicité"
+              OK "Avez-vous sollicité un autre financeur public ?"
 
-        * Adapter la formulation au niveau de compréhension d’un usager non-expert.
-        * Employer un ton bienveillant et non culpabilisant.
-        * Ne jamais supposer de connaissances juridiques, techniques ou administratives.
+            • drop_down_list TOUJOURS une question, a laquelle les choix répondent.
+              OK "Vous êtes ?" + ["Une association", "Une entreprise"]
+              KO "Type de structure" + ["Une association", "Une entreprise"]
 
-        ---
+            • Le libellé ne DOIT PAS être une répétition de la description et inversement.
 
-        ## 2. Clarté immédiate (formulaire = 1 message → 1 action)
+            • Carte, commune, date, datetime, decimal_number, dossier_link, email, epci, iban, drop_down_list, linked_drop_down_list, multiple_drop_down_list, phone, rna, rnf, siret, titre_identite, piece_justificative
+              Ne jamais ajouter de description si elle n'existe pas déjà, celle ci est ajoutée automatiquement par le système.
 
-        * Le libellé (libelle) d’un champ doit indiquer clairement ce que l’usager doit saisir.
-        * Le texte d’aide (description) doit lever une ambiguïté, pas ajouter d’informations inutiles.
-        * Les champs de type explication doivent expliquer précisément quoi faire, comment, et si nécessaire quand.
 
-        ---
+        1.2. Descriptions
+            • Ne JAMAIS changer/supprimer une description si elle contient un lien ou un mail
+            • Description = guide/exemple/format attendu UNIQUEMENT
 
-        ## 3. Simplification du langage
+        1.3. Display conditions
+            • JAMAIS mentionner les conditions d'affichage dans le libellé
+              KO "Adresse (hors France)" quand conditionné par pays != France
+              OK "Adresse" (la condition gère déjà l'affichage)
 
-        * Utiliser des mots simples, concrets et courants.
-        * Éviter le jargon, les formulations administratives ou juridiques.
-        * Utiliser un seul mot pour un même concept (pas de synonymes).
-        * Éviter les mots à double sens.
-        * Écrire les nombres en chiffres (ex : « 2 documents »).
-        * Supprimer les mots inutiles, tournures longues et adverbes superflus.
-        * Éviter les acronymes ; si nécessaire, les définir systématiquement.
 
-        Exemples à éviter : « veuillez », « conformément à », « procéder à ».
-        Préférer : « envoyez », « sélectionnez », « indiquez ».
+        1.4. Acronymes et unités (PRÉSERVATION STRICTE)
+            • JAMAIS remplacer un acronyme par un autre
+              KO "ETPT" → "ETP" (ce sont deux concepts différents)
+              KO "DROM" → "DOM-TOM" (terminologie obsolète)
+            • JAMAIS modifier les unités de mesure
+              OK "m²", "k€", "ETPT", "€ HT", "jours ouvrés"
+            • Si un acronyme te semble peu clair : tu PEUX l'expliciter dans la description
+              OK libellé "Nombre d'ETPT", description "ETPT = Équivalent Temps Plein Travaillé"
 
-        ---
+        PRIORITÉ 2 : PRÉSERVATION DU CONTEXTE (ne pas casser l'existant)
 
-        ## 4. Simplicité des phrases
+        2.1. Sections (header_section)
+            • Éviter répétitions avec le titre de section
+              Si section "Projet" alors champs suivant = "Description", pas "Description du projet"
 
-        * Phrases courtes (idéalement moins de 12 mots).
-        * Une seule idée par phrase.
-        * Préférence pour la forme active.
-        * Syntaxe directe : sujet – verbe – complément.
-        * Éviter les parenthèses et les doubles négations.
+            • Vérifier la cohérence et la lecture naturelle des champs suivants
+              Si section "Je déclare" alors libellés = actions déclarées Ex: "que les informations sont exactes"
 
-        ---
+        2.2. Relations entre champs
+            • PRÉSERVER les références croisées
+              Si: "Nombre de salariés" suivi de "... dont en CDI"
+              Alors garder la formulation "dont" qui référence le champ précédent
+              KO "Nombre de salariés en CDI" (perd le lien)
 
-        ## 5. Faciliter le passage à l’action
+            • PRÉSERVER les patterns répétés intentionnels
+              Si "Recueil par X" + "Recueil par Y"
+              Alors garder la structure similaire (choix de l'admin)
+              KO "Recueil de données" (perd l'homogénéité)
 
-        * Indiquer clairement les documents requis, formats attendus, dates limites et contraintes éventuelles.
-        * Fournir listes, étapes ou checklists lorsque pertinent.
-        * Utiliser l’impératif bienveillant pour les actions : « Téléchargez », « Indiquez », « Sélectionnez ».
+        2.3. Jargon technique/légal/métier
+            • Le vocabulaire technique et spécialisé est légitime et doit être PRÉSERVÉ lorsqu'il correspond au champ lexical du ministère porteur et du service instructeur.
 
-        ---
+            Exemples de légitimité contextuelle :
+              Ministère de la Santé : termes médicaux, nomenclatures de soins, codes ALD
+              Ministère de l'Éducation : cycles scolaires, VAE, ECTS, diplômes spécifiques
+              Ministère de l'Agriculture : PAC, GAEC, exploitation agricole, parcelles cadastrales
+              Ministère de la Culture : monuments historiques, DRAC, labels patrimoniaux
+              Services techniques municipaux : voirie, assainissement, PLU, zonage
 
-        ## 6. Lisibilité visuelle (sous forme de suggestions)
+            Règle : Ne simplifie PAS un terme technique si :
+            - Il est couramment utilisé par le public cible (professionnels du secteur)
+            - Il correspond au domaine d'expertise du ministère/service
+            - Sa simplification ferait perdre en précision juridique ou administrative
 
-        Le modèle peut suggérer :
+            Exemples concrets :
+              OK : "Montant de la subvention PAC" (Ministère Agriculture, public = agriculteurs)
+              OK : "Nombre d'ETPT demandés" (contexte RH, public = gestionnaires, subventions)
+              KO : "Procédure d'adjudication" → "Procédure d'attribution" (perd la précision juridique pour un marché public)
+              Si acronyme inconnu : le GARDER tel quel (c'est un choix métier de l'admin)
 
-        * L’aération des sections (paragraphes courts, espaces).
-        * Des formulations plus courtes et adaptées aux interfaces.
-        * Les libellés des sections (header_section) ne doivent JAMAIS être préfixés par un numéro car le système les gère automatiquement.
+            • PRÉSERVER les termes métier essentiels
+              OK "Indicateurs et méthodes d'évaluation" (pas juste "Indicateurs")
+              OK "Montant en ETPT" (pas "Nombre de personnes" ou "ETP")
 
-        ---
 
-        ## 7. Vérification automatique avant réponse
+        PRIORITÉ 3 : SIMPLIFICATION (si 1 et 2 respectés)
 
-        Avant de produire la version finale du texte, vérifier que :
+        3.1. Longueur
+            • Libellé idéalement ≤ 80 caractères
+            • Description idéalement ≤ 160 caractères
+            • Phrases < 12 mots (une idée/phrase)
 
-        * L’action demandée est clairement décrite.
-        * Aucun jargon, acronyme non défini ou terme technique n’est présent.
-        * Les textes sont concis, lisibles et orientés vers l’action.
-        * Le message principal est visible immédiatement.
-        * La formulation n’excède pas une ou deux phrases, sauf exception nécessaire.
+        3.2. Langage
+            • Mots simples, courants, concrets
+            • Nombres en chiffres : "2 documents" pas "deux documents"
+            • Forme active, syntaxe directe, Impératif bienveillant : "Envoyez" pas "Veuillez envoyer"
+            • Éviter : veuillez, conformément à, parenthèses, doubles négations
 
-        ---
+        3.3. Informations pratiques (dans description)
+            • Formats attendus
+            • Dates limites
+            • Contraintes spécifiques
+            • Exemples concrets quand utile
 
-        ## 8. Regles d'accessibilité numérique (WCAG)
-        * Ne JAMAIS indiquer quand les champs sont optionnels/facultatifs dans les libellés. Cette information est fournie automatiquement par le système.
-        * Ne JAMAIS utilise email, courriel. Preférer adresse électronique.
-        * Ne JAMAIS utiliser les termes "email", "courriel". Préférer "adresse éléctronique".
-
-        Utiliser l’outil #{TOOL_DEFINITION.dig(:function, :name)} pour chaque champ à améliorer (un appel par champ). Ignore les champs pour lesquels l'amélioration n'est pas significative pour ne pas ennuyer l'administrateur.
+        3.4. Accessibilité
+            • "adresse électronique" (pas email/courriel)
+            • JAMAIS indiquer "(optionnel)" ou "(si applicable)"
+            • Sections JAMAIS préfixées par numéro
+            • Pas de libélés en MAJUSCULES
       TXT
     end
 
@@ -150,7 +201,20 @@ module LLM
     end
 
     def filter_invalid_llm_result(stable_id, libelle, description)
-      stable_id.nil? || libelle.blank?
+      return true if stable_id.blank?
+      libelle.blank? && description.blank?
+    end
+
+    def target_audience(procedure)
+      procedure.description_target_audience
+    end
+
+    def ministries(procedure)
+      procedure.zones.map { it.labels.first }.join(", ")
+    end
+
+    def service(procedure)
+      procedure.service&.pretty_nom
     end
   end
 end

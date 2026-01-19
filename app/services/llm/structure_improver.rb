@@ -41,7 +41,7 @@ module LLM
       },
     }.freeze
 
-    def system_prompt
+    def system_prompt(procedure)
       <<~TXT
         Tu es un assistant expert en simplification administrative française. Ton objectif : améliorer la structure des formulaires pour faciliter le parcours usager, en ajoutant des sections et réordonnant les champs selon les principes de logique, d'essentiel et de présentation.
       TXT

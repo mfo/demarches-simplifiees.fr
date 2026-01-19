@@ -43,7 +43,7 @@ module LLM
       'drop_down_list' => "pour un choix unique dans une liste déroulante (options configurées ailleurs par l’administration).",
       'multiple_drop_down_list' => "pour un choix multiple dans une liste déroulante (options configurées ailleurs par l’administration).",
       'linked_drop_down_list' => "pour des listes déroulantes liées.",
-      'yes_no' => "pour une question à réponse « oui »/« non ».",
+      'yes_no' => "pour une question à réponse oui / non.",
       'dossier_link' => "pour lier à un autre dossier.",
 
       # Champs référentiels
@@ -99,18 +99,23 @@ module LLM
       safe_schema = sanitize_schema_for_prompt(procedure_revision.schema_to_llm)
       unique_types = procedure_revision.types_de_champ.map(&:type_champ).uniq
       field_types_description = format_field_types(unique_types)
+      total_fields = safe_schema.size
 
       [
-        { role: 'system', content: system_prompt },
+        { role: 'system', content: system_prompt(procedure_revision.procedure) },
         {
           role: 'user',
           content: format(
             procedure_prompt,
-            schema: safe_schema.to_json,
+            schema: safe_schema,
             procedure_description: procedure_revision.procedure.description,
             procedure_libelle: procedure_revision.procedure.libelle,
             field_types: field_types_description,
-            before_schema: before_schema(procedure_revision.procedure)
+            ministries: ministries(procedure_revision.procedure),
+            service: service(procedure_revision.procedure),
+            target_audience: target_audience(procedure_revision.procedure),
+            before_schema: before_schema(procedure_revision.procedure),
+            total_fields: total_fields
           ),
         },
         { role: 'user', content: rules_prompt },
@@ -133,12 +138,12 @@ module LLM
 
     def procedure_prompt
       <<~PROMPT
-        Le formulaire se nomme :
+        Le titre de ce formulaire est :
         <procedure_libelle>
           %<procedure_libelle>s
         </procedure_libelle>
 
-        Il s'adresse à :
+        L'objet de ce formulaire est :
         <procedure_description>
           %<procedure_description>s
         </procedure_description>
@@ -158,16 +163,14 @@ module LLM
           - sample_choices : quelques exemples d'options disponibles pour les champs de type liste déroulante (drop_down_list ou multiple_drop_down_list)
           - choices_dynamic : boolean indiquant si les options du champ sont issues d'un référentiel externe (true) ou non (false ou absent)
           - position : la position du champ dans le formulaire, dans une une répétition la position est relative à la répétition et commence a 0
-          - parent_id : l'identifiant stable du champ parent, ou null s’il n’y a pas de parent
+          - parent_id : l'identifiant du champ parent, ou null s’il n’y a pas de parent
           - header_section_level : le niveau de section si le champ est de type header_section
           - display_condition : une condition d'affichage, optionnelle, dépendant de valeurs saisies préalablement par l'usager. Si cette condition est vraie le champ sera affiché, sinon il sera masqué, même s'il est obligatoire.
 
           Les types de champ utilisés dans ce formulaire sont :
           %<field_types>s
 
-          Rappel : Utilise ce contexte pour proposer des améliorations alignées avec les règles, en priorisant la simplicité pour l'usager et le respect des contraintes techniques.
-
-          Sections existantes : Liste des libellés des sections (champs de type 'header_section') pour référence. Utilise-les pour réorganiser les champs au lieu d'en créer de nouvelles.
+          Rappel : Utilise ce contexte pour proposer des améliorations alignées avec les règles, en priorisant la simplicité pour l'usager tout en préservant le champ lexical de l'administration qui porte le formulaire.
 
           <schema>
           %<schema>s
