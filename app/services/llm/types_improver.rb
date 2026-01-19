@@ -36,7 +36,7 @@ module LLM
       },
     }.freeze
 
-    def system_prompt
+    def system_prompt(procedure)
       <<~TXT
         Tu es un assistant expert chargé d'améliorer les types de champs d'un formulaire administratif français afin d'améliorer son ergonomie.
       TXT

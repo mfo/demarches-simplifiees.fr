@@ -25,7 +25,7 @@ module LLM
       },
     }.freeze
 
-    def system_prompt
+    def system_prompt(procedure)
       <<~TXT
         Tu es un assistant chargé d'identifier les champs redondants d'un formulaire administratif français.
 

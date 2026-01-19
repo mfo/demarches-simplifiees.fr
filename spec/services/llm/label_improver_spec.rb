@@ -11,7 +11,7 @@ RSpec.describe LLM::LabelImprover do
     ]
   end
   let(:usage) { double() }
-  let(:procedure) { double('procedure', description: 'Test description', libelle: 'Test libelle', for_individual: true) }
+  let(:procedure) { create('procedure', description: 'Test description', libelle: 'Test libelle', for_individual: true, zones: [], service: nil) }
   let(:revision) { double('revision', schema_to_llm: schema, procedure_id: 123, types_de_champ: [], procedure:) }
   let(:suggestion) { double('suggestion', procedure_revision: revision, rule: LLMRuleSuggestion.rules.fetch(:improve_label)) }
   before do
@@ -102,17 +102,22 @@ RSpec.describe LLM::LabelImprover do
       # Invalid: stable_id is nil
       expect(service.send(:filter_invalid_llm_result, nil, 'libelle', 'description')).to be true
 
-      # Invalid: libelle is blank
-      expect(service.send(:filter_invalid_llm_result, 123, '', 'description')).to be true
-      expect(service.send(:filter_invalid_llm_result, 123, nil, 'description')).to be true
-      expect(service.send(:filter_invalid_llm_result, 123, '   ', 'description')).to be true
+      # Invalid: both libelle and description are blank (no change at all)
+      expect(service.send(:filter_invalid_llm_result, 123, '', '')).to be true
+      expect(service.send(:filter_invalid_llm_result, 123, nil, nil)).to be true
+      expect(service.send(:filter_invalid_llm_result, 123, '   ', '   ')).to be true
     end
 
     it 'returns false for valid results' do
       service = described_class.new
 
+      # Valid: libelle is present
       expect(service.send(:filter_invalid_llm_result, 123, 'valid libelle', 'valid description')).to be false
-      expect(service.send(:filter_invalid_llm_result, 123, 'libelle', '')).to be false # description can be empty
+      expect(service.send(:filter_invalid_llm_result, 123, 'libelle', '')).to be false
+
+      # Valid: libelle is empty but description is present (changing only description)
+      expect(service.send(:filter_invalid_llm_result, 123, '', 'description')).to be false
+      expect(service.send(:filter_invalid_llm_result, 123, nil, 'description')).to be false
     end
   end
 end

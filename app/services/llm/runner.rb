@@ -29,7 +29,7 @@ module LLM
           messages: messages,
           tools: tools,
           tool_choice: 'auto',
-          temperature: 0,
+          temperature: 0.0,
           model: @model,
         })
         raw = response.respond_to?(:raw_response) ? response.raw_response : response
