@@ -1852,9 +1852,14 @@ type Dossier {
   dateDerniereModificationAnnotations: ISO8601DateTime!
 
   """
-  Date de la dernière modification des champs.
+  Date de la dernière modification des champs par un usager.
   """
   dateDerniereModificationChamps: ISO8601DateTime!
+
+  """
+  Date de la dernière modification des champs par un instructeur.
+  """
+  dateDerniereModificationChampsParInstructeur: ISO8601DateTime
 
   """
   Date d’expiration.

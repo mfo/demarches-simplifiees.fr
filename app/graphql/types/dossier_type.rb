@@ -28,8 +28,9 @@ module Types
     field :date_traitement, GraphQL::Types::ISO8601DateTime, "Date du dernier traitement.", null: true, method: :processed_at
     field :date_derniere_modification, GraphQL::Types::ISO8601DateTime, "Date de la dernière modification.", null: false, method: :updated_at
 
-    field :date_derniere_modification_champs, GraphQL::Types::ISO8601DateTime, "Date de la dernière modification des champs.", null: false
+    field :date_derniere_modification_champs, GraphQL::Types::ISO8601DateTime, "Date de la dernière modification des champs par un usager.", null: false
     field :date_derniere_modification_annotations, GraphQL::Types::ISO8601DateTime, "Date de la dernière modification des annotations.", null: false
+    field :date_derniere_modification_champs_par_instructeur, GraphQL::Types::ISO8601DateTime, "Date de la dernière modification des champs par un instructeur.", null: true
 
     field :date_suppression_par_usager, GraphQL::Types::ISO8601DateTime, "Date de la suppression par l’usager.", null: true, method: :hidden_by_user_at
     field :date_suppression_par_administration, GraphQL::Types::ISO8601DateTime, "Date de la suppression par l’administration.", null: true, method: :hidden_by_administration_at
@@ -99,6 +100,10 @@ module Types
 
     def date_derniere_modification_champs
       object.last_champ_updated_at || object.created_at
+    end
+
+    def date_derniere_modification_champs_par_instructeur
+      object.last_champ_instructeur_updated_at
     end
 
     def date_derniere_modification_annotations
