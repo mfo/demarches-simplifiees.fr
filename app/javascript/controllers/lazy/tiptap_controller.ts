@@ -8,7 +8,20 @@ import { tagSchema, type TagSchema } from '../../shared/tiptap/tags';
 import { createEditor } from '../../shared/tiptap/editor';
 
 export class TiptapController extends ApplicationController {
-  static targets = ['editor', 'input', 'button', 'tag'];
+  static targets = [
+    'editor',
+    'input',
+    'button',
+    'tag',
+    'linkModal',
+    'linkUrlInput',
+    'linkErrorText',
+    'linkSelectedText',
+    'linkFormContent',
+    'linkInputGroup',
+    'linkConfirmButton',
+    'removeLinkButton'
+  ];
   static values = {
     insertAfterTag: { type: String, default: '' },
     attributes: { type: Object, default: {} }
@@ -20,6 +33,18 @@ export class TiptapController extends ApplicationController {
   declare tagTargets: HTMLElement[];
   declare insertAfterTagValue: string;
   declare attributesValue: Record<string, string>;
+
+  // Link modal targets (optional - not all tiptap instances have the modal)
+  declare hasLinkModalTarget: boolean;
+  declare linkModalTarget: HTMLDialogElement;
+  declare linkUrlInputTarget: HTMLInputElement;
+  declare linkErrorTextTarget: HTMLElement;
+  declare linkSelectedTextTarget: HTMLElement;
+  declare linkFormContentTarget: HTMLElement;
+  declare linkInputGroupTarget: HTMLElement;
+  declare linkConfirmButtonTarget: HTMLButtonElement;
+  declare hasRemoveLinkButtonTarget: boolean;
+  declare removeLinkButtonTarget: HTMLButtonElement;
 
   #initializing = true;
   #editor?: Editor;
@@ -35,7 +60,15 @@ export class TiptapController extends ApplicationController {
         for (const button of this.buttonTargets) {
           const action = getAction(editor, button);
           button.classList.toggle('fr-btn--secondary', !action.isActive());
-          button.disabled = action.isDisabled();
+
+          // Special handling for link button: disable when no selection and no existing link
+          if (button.dataset.tiptapAction === 'link') {
+            const { empty } = editor.state.selection;
+            const hasExistingLink = !!editor.getAttributes('link').href;
+            button.disabled = empty && !hasExistingLink;
+          } else {
+            button.disabled = action.isDisabled();
+          }
         }
 
         const previousValue = this.inputTarget.value;
@@ -58,7 +91,12 @@ export class TiptapController extends ApplicationController {
 
   menuButton(event: MouseEvent) {
     if (this.#editor && isButtonElement(event.target)) {
-      getAction(this.#editor, event.target).run();
+      const action = event.target.dataset.tiptapAction;
+      if (action === 'link') {
+        this.openLinkModal();
+      } else {
+        getAction(this.#editor, event.target).run();
+      }
     }
   }
 
@@ -75,6 +113,115 @@ export class TiptapController extends ApplicationController {
       }
       editor.run();
     }
+  }
+
+  openLinkModal() {
+    console.log('openLinkModal open');
+    if (!this.#editor || !this.hasLinkModalTarget) return;
+
+    const { from, to, empty } = this.#editor.state.selection;
+    const selectedText = empty
+      ? ''
+      : this.#editor.state.doc.textBetween(from, to);
+    const previousUrl = this.#editor.getAttributes('link').href ?? '';
+
+    console.log('openLinkModal', { from, to, empty, selectedText });
+
+    this.#clearLinkError();
+    this.linkSelectedTextTarget.textContent = selectedText || '(lien existant)';
+    this.linkUrlInputTarget.value = previousUrl;
+
+    // this.linkModalTarget.showModal();
+    // window.dsfr(this.linkModalTarget).modal.disclose();
+    // this.linkModalTarget.classList.add('fr-modal--opened');
+    // document.body.classList.add('fr-modal-open');
+
+    this.linkUrlInputTarget.focus();
+    this.linkUrlInputTarget.select();
+
+    this.updateRemoveLinkButtonState();
+  }
+
+  closeLinkModal() {
+    if (!this.hasLinkModalTarget) return;
+    window.dsfr(this.linkModalTarget).modal.conceal();
+    // this.linkModalTarget.close();
+    // this.linkModalTarget.classList.remove('fr-modal--opened');
+    // document.body.classList.remove('fr-modal-open');
+    if (this.#editor) {
+      const { to } = this.#editor.state.selection;
+      const { doc } = this.#editor.state;
+      const nextChar = doc.textBetween(to, Math.min(to + 1, doc.content.size));
+      const chain = this.#editor
+        .chain()
+        .focus()
+        .setTextSelection(to)
+        .unsetMark('link');
+      if (nextChar !== ' ') {
+        chain.insertContent(' ');
+      }
+      chain.run();
+    }
+  }
+
+  confirmLink(event: Event) {
+    event.preventDefault();
+
+    if (!this.#editor || !this.hasLinkModalTarget) return;
+
+    const url = this.linkUrlInputTarget.value.trim();
+
+    if (url === '') {
+      this.#editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      this.closeLinkModal();
+      return;
+    }
+
+    if (!this.#isValidUrl(url)) {
+      this.#showLinkError();
+      return;
+    }
+
+    this.#editor
+      .chain()
+      .focus()
+      .extendMarkRange('link')
+      .setLink({ href: url })
+      .run();
+
+    this.closeLinkModal();
+  }
+
+  clearLinkInput() {
+    this.linkUrlInputTarget.value = '';
+    this.linkUrlInputTarget.focus();
+    this.updateRemoveLinkButtonState();
+  }
+
+  updateRemoveLinkButtonState() {
+    if (!this.hasRemoveLinkButtonTarget) return;
+
+    const hasValue = this.linkUrlInputTarget.value.trim() !== '';
+    this.removeLinkButtonTarget.disabled = !hasValue;
+  }
+
+  #isValidUrl(url: string): boolean {
+    return url.startsWith('https://');
+  }
+
+  #showLinkError() {
+    this.linkInputGroupTarget.classList.add('fr-input-group--error');
+    this.linkErrorTextTarget.classList.remove('fr-hidden');
+    this.linkUrlInputTarget.setAttribute(
+      'aria-describedby',
+      this.linkErrorTextTarget.id || 'link-url-error'
+    );
+  }
+
+  #clearLinkError() {
+    this.linkInputGroupTarget.classList.remove('fr-input-group--error');
+    this.linkErrorTextTarget.classList.add('fr-hidden');
+    this.linkUrlInputTarget.removeAttribute('aria-describedby');
   }
 
   private get content() {
