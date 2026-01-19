@@ -1,0 +1,8 @@
+---
+en:
+  cancel: "Cancel"
+  confirm: "Confirm and notify"
+  default_message_label: "The following message will be automatically sent to the user through the file’s messaging:"
+  motivation_label: "Your additional message (optional)"
+  motivation_placeholder: "Explain to the applicant the reason(s) why you edited their file"
+  title: "Editing file no. %{dossier_number} – %{demandeur}"
