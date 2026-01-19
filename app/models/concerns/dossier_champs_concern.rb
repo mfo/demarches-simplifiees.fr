@@ -228,9 +228,23 @@ module DossierChampsConcern
     champs_on_user_buffer_stream.any? { _1.public_id == champ.public_id }
   end
 
+  def can_update_as_user?(user)
+    return false unless en_construction?
+    user.owns_or_invite?(self)
+  end
+
+  def can_update_as_instructeur?(user)
+    return false unless en_construction?
+    return false unless user.instructeur?
+    return false if can_update_as_user?(user)
+    groupe_instructeur.instructeurs.include?(user.instructeur)
+  end
+
   def with_update_stream(user, &block)
-    if en_construction? && user.owns_or_invite?(self)
+    if can_update_as_user?(user)
       with_stream(Champ::USER_BUFFER_STREAM, &block)
+    elsif can_update_as_instructeur?(user)
+      with_stream(Champ::INSTRUCTEUR_BUFFER_STREAM, &block)
     else
       with_stream(Champ::MAIN_STREAM, &block)
     end
@@ -342,6 +356,7 @@ module DossierChampsConcern
         champ.stream = history_stream
       elsif champ.id.in?(buffer_ids)
         champ.stream = Champ::MAIN_STREAM
+        champ.checkpoint = history_stream
       end
     end
 
