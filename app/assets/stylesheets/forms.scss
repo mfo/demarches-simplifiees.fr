@@ -431,9 +431,10 @@
       .repetition-toggle-all {
         display: none;
 
-        &:has(~ .repetition > :nth-child(5)) {
+        &:has(+ .repetition .repetition-row:nth-child(5)) {
           @media (min-width: 48em) {
-            display: block;
+            display: flex;
+            justify-content: flex-end;
           }
         }
       }
