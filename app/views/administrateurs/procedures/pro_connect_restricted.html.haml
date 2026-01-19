@@ -17,6 +17,8 @@
             %strong instructeurs
             pourront accéder à la démarche
             %strong uniquement en se connectant via ProConnect.
+          %p
+            = link_to "Qu'est ce que ProConnect ?", "https://www.proconnect.gouv.fr/", class: "fr-link", target: "_blank", rel: "noopener"
 
       - unless @logged_in_with_pro_connect
         = render Dsfr::AlertComponent.new(title: nil, state: :warning, extra_class_names: 'fr-my-2w') do |c|
