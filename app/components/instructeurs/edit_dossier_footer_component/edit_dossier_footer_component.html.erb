@@ -1,0 +1,27 @@
+<div class="padded-fixed-footer dossier-edit-footer">
+  <div class="fixed-footer">
+    <div class="fr-container">
+      <div class="fr-grid-row fr-grid-row--center flex-gap-2">
+        <%= link_to t('.cancel'),
+          instructeur_dossier_path,
+          class: 'fr-btn fr-btn--secondary fr-mb-2w',
+          data: { confirm: t('.confirm') } %>
+
+        <button
+          type="button"
+          class="fr-btn fr-mb-2w"
+          <% unless @dossier.instructeur_buffer_changes? %>
+            disabled
+          <% end %>
+          aria-controls="dossier-submit-dialog"
+          aria-haspopup="dialog"
+          data-fr-opened="false"
+        >
+          <%= t('.submit') %>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <%= render Instructeurs::EditDossierConfirmComponent.new dossier: @dossier %>
+</div>
