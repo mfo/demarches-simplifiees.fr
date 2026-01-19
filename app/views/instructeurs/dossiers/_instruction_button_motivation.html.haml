@@ -32,7 +32,7 @@
       %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-delete-line.fr-ml-0.fr-mt-1w{ type: 'button', onclick: "DS.deleteJustificatif('#{popup_class}');" } Supprimer le  justificatif
 
     - if Dossier.instruction_action?(process_action)
-      #alert-error-annotation{ class: dossier.any_annotations_privees_with_errors? ? '' : 'hidden' }
+      #alert-error-annotation{ class: dossier.champs_private_valid? ? 'hidden' : '' }
         = render Dsfr::AlertComponent.new(state: :warning, title: nil, size: :sm, extra_class_names: 'fr-mt-2w') do |c|
           - c.with_body do
             %p

@@ -1,0 +1,11 @@
+<%= fields_for champ.input_name, champ do |form| %>
+  <% if full %>
+    <%= turbo_stream.replace champ.input_group_id do %>
+      <%= render EditableChamp::EditableChampComponent.new champ:, form: %>
+    <% end %>
+  <% else %>
+    <%= turbo_stream.update input_label_id(champ) do %>
+      <%= render EditableChamp::ChampLabelContentComponent.new champ:, form: %>
+    <% end %>
+  <% end %>
+<% end %>
