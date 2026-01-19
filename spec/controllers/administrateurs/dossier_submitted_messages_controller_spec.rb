@@ -77,4 +77,17 @@ describe Administrateurs::DossierSubmittedMessagesController, type: :controller 
       end
     end
   end
+
+  describe '#preview' do
+    let(:procedure) { create(:procedure, administrateur: administrateur) }
+    render_views
+
+    it 'returns a turbo stream with the preview' do
+      post(:preview, params: { procedure_id: procedure.id, dossier_submitted_message: { tiptap_body: } }, format: :turbo_stream)
+      expect(response).to have_http_status(200)
+      expect(response.media_type).to eq('text/vnd.turbo-stream.html')
+      expect(response.body).to include('turbo-stream')
+      expect(response.body).to include('tiptap-preview')
+    end
+  end
 end

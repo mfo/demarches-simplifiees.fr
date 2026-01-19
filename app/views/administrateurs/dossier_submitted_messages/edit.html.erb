@@ -20,19 +20,16 @@
           </legend>
 
           <div class="fr-fieldset__element">
-            <%= render TiptapEditorComponent.new(form: f, field_name: :tiptap_body) %>
+            <%= render TiptapEditorComponent.new(form: f, field_name: :tiptap_body, preview_url: preview_admin_procedure_dossier_submitted_message_path(@procedure)) %>
           </div>
         </fieldset>
       </div>
 
       <div class="fr-col-12 fr-col-lg-5 fr-background-alt--blue-france fr-py-3w">
         <h2 class="fr-h4">Aperçu</h2>
-        <div class="realistic-preview">
+        <div id="tiptap-preview" class="realistic-preview">
           <%= render partial: 'users/dossiers/merci', locals: { procedure: @procedure, dossier: nil } %>
         </div>
-        <p class="fr-hint-text">
-          L’aperçu est mis à jour après chaque enregistrement.
-        </p>
       </div>
     </div>
   </div>

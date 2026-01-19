@@ -825,7 +825,9 @@ Rails.application.routes.draw do
         end
       end
 
-      resource :dossier_submitted_message, only: [:edit, :update, :create]
+      resource :dossier_submitted_message, only: [:edit, :update, :create] do
+        post :preview, on: :member
+      end
       # ADDED TO ACCESS IT FROM THE IFRAME
       get 'attestation_template/preview' => 'attestation_templates#preview'
 

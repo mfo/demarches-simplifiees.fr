@@ -6,6 +6,7 @@ import { ApplicationController } from '../application_controller';
 import { getAction } from '../../shared/tiptap/actions';
 import { tagSchema, type TagSchema } from '../../shared/tiptap/tags';
 import { createEditor } from '../../shared/tiptap/editor';
+import { httpRequest } from '../../shared/utils';
 
 export class TiptapController extends ApplicationController {
   static targets = [
@@ -24,7 +25,8 @@ export class TiptapController extends ApplicationController {
   ];
   static values = {
     insertAfterTag: { type: String, default: '' },
-    attributes: { type: Object, default: {} }
+    attributes: { type: Object, default: {} },
+    previewUrl: { type: String, default: '' }
   };
 
   declare editorTarget: Element;
@@ -33,6 +35,7 @@ export class TiptapController extends ApplicationController {
   declare tagTargets: HTMLElement[];
   declare insertAfterTagValue: string;
   declare attributesValue: Record<string, string>;
+  declare previewUrlValue: string;
 
   // Link modal targets (optional - not all tiptap instances have the modal)
   declare hasLinkModalTarget: boolean;
@@ -48,6 +51,7 @@ export class TiptapController extends ApplicationController {
 
   #initializing = true;
   #editor?: Editor;
+  #previewTimeout?: ReturnType<typeof setTimeout>;
 
   connect(): void {
     this.#editor = createEditor({
@@ -80,6 +84,7 @@ export class TiptapController extends ApplicationController {
           this.#initializing = false;
         } else if (value != previousValue) {
           this.dispatch('input', { target: this.inputTarget, prefix: '' });
+          this.#schedulePreview();
         }
       }
     });
@@ -87,6 +92,31 @@ export class TiptapController extends ApplicationController {
 
   disconnect(): void {
     this.#editor?.destroy();
+    if (this.#previewTimeout) {
+      clearTimeout(this.#previewTimeout);
+    }
+  }
+
+  #schedulePreview() {
+    if (!this.previewUrlValue) return;
+
+    if (this.#previewTimeout) {
+      clearTimeout(this.#previewTimeout);
+    }
+
+    this.#previewTimeout = setTimeout(() => {
+      this.#updatePreview();
+    }, 500);
+  }
+
+  #updatePreview() {
+    const formData = new FormData();
+    formData.append(this.inputTarget.name, this.inputTarget.value);
+
+    httpRequest(this.previewUrlValue, {
+      method: 'POST',
+      body: formData
+    }).turbo();
   }
 
   menuButton(event: MouseEvent) {

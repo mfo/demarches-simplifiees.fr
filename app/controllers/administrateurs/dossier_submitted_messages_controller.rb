@@ -29,6 +29,13 @@ module Administrateurs
       end
     end
 
+    def preview
+      @dossier_submitted_message = build_dossier_submitted_message(dossier_submitted_message_params)
+      respond_to do |format|
+        format.turbo_stream
+      end
+    end
+
     private
 
     # for now, only works on active revision no matter the procedure_revision_policy
