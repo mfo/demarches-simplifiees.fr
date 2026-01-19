@@ -2,25 +2,25 @@
 
 <%= render partial: "header", locals: { dossier: @dossier, gallery_attachments: @gallery_attachments, procedure_presentation: @procedure_presentation, notifications: @notifications, notifications_sticker: @notifications_sticker } %>
 
-<% if @dossier.etablissement&.as_degraded_mode? %>
-  <div class="container">
-    <%= render Dsfr::CalloutComponent.new(title: "Données de l’entreprise non vérifiées", theme: :warning, icon: "fr-icon-feedback-fill") do |c| %>
-      <% c.with_html_body do %>
-        <p>
-          Les services de l’INSEE sont indisponibles, nous ne pouvons pas
-          vérifier les informations liées à l’établissement de ce dossier.
-          <strong> Il n’est pas possible d’accepter ou de refuser un dossier sans cette étape. </strong>
-        </p>
-
-        <p>
-          Les informations sur l’entreprise arriveront d’ici quelques heures.
-        </p>
-      <% end %>
-    <% end %>
-  </div>
-<% end %>
-
 <div class="fr-container">
+  <% if @dossier.etablissement&.as_degraded_mode? %>
+    <div class="fr-grid-row fr-grid-row--center">
+      <%= render Dsfr::CalloutComponent.new(title: "Données de l’entreprise non vérifiées", theme: :warning, icon: "fr-icon-feedback-fill") do |c| %>
+        <% c.with_html_body do %>
+          <p>
+            Les services de l’INSEE sont indisponibles, nous ne pouvons pas
+            vérifier les informations liées à l’établissement de ce dossier.
+            <strong> Il n’est pas possible d’accepter ou de refuser un dossier sans cette étape. </strong>
+          </p>
+
+          <p>
+            Les informations sur l’entreprise arriveront d’ici quelques heures.
+          </p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class="fr-grid-row fr-grid-row--center">
     <% summary = ViewableChamp::HeaderSectionsSummaryComponent.new(dossier: @dossier, is_private: false) %>
     <%= render summary %>

@@ -269,10 +269,6 @@ class Champ < ApplicationRecord
     [input_id, attribute].compact.join('-')
   end
 
-  def user_buffer_changes?
-    public? && dossier.user_buffer_changes_on_champ?(self)
-  end
-
   def public_id
     TypeDeChamp.public_id(stable_id, row_id)
   end
@@ -304,7 +300,7 @@ class Champ < ApplicationRecord
   end
 
   def buffer_stream?
-    user_buffer_stream? || instructeur_buffer_stream?
+    persisted? && (user_buffer_stream? || instructeur_buffer_stream?)
   end
 
   def clear

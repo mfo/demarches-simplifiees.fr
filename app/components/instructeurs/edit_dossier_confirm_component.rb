@@ -12,8 +12,4 @@ class Instructeurs::EditDossierConfirmComponent < ApplicationComponent
   def default_message
     Message::DossierModifierParInstructeurComponent.preview(@dossier)
   end
-
-  def render?
-    @dossier.instructeur_buffer_changes?
-  end
 end

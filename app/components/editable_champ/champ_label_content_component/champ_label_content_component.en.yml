@@ -1,5 +1,6 @@
 ---
 en:
-  changes_to_save: 'modifications to submit'
+  changes_to_save: 'modifications to save'
+  changes_to_submit: 'modifications to submit'
   modified_at: 'modified on %{datetime}'
   check_content_rebased: 'Information: field updated by administration. Check its content.'

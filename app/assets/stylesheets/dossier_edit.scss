@@ -16,3 +16,17 @@
     text-align: right;
   }
 }
+
+.readonly-text-area {
+  max-height: 200px;
+  background-color: var(--background-contrast-grey);
+  overflow-y: scroll;
+
+  p {
+    margin-bottom: $default-padding;
+  }
+
+  dl {
+    margin-bottom: $default-padding;
+  }
+}

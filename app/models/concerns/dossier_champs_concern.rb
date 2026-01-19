@@ -224,10 +224,6 @@ module DossierChampsConcern
     champs_on_instructeur_buffer_stream.present?
   end
 
-  def user_buffer_changes_on_champ?(champ)
-    champs_on_user_buffer_stream.any? { _1.public_id == champ.public_id }
-  end
-
   def can_update_as_user?(user)
     return false unless en_construction?
     user.owns_or_invite?(self)

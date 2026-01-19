@@ -400,14 +400,9 @@ module Instructeurs
 
       respond_to do |format|
         format.turbo_stream do
-          @to_update = [annotation].concat(annotation.prefillable_champs)
+          @to_show, @to_hide, @to_update = champ_to_turbo_update(annotation, dossier.project_champs_private_all)
 
-          @to_show, @to_hide = @dossier.project_champs_private_all
-            .filter { it.conditional? || it.child? }
-            .partition(&:visible?)
-            .map { champs_to_one_selector(_1 - @to_update) }
-
-          render :update_annotations
+          render :update_annotations, layout: false
         end
       end
     end

@@ -44,7 +44,7 @@ class AttachmentsController < ApplicationController
 
   def ensure_legitimate_access_show
     return if user_or_invite_changing_an_attachment?
-    return if instructeur_changing_a_private_attachment?
+    return if instructeur_changing_an_attachment?
     return if expert_changing_its_avis?
     return unless champ? || avis?
 
@@ -53,7 +53,7 @@ class AttachmentsController < ApplicationController
 
   def ensure_legitimate_access_destroy
     return if user_or_invite_changing_an_attachment?
-    return if instructeur_changing_a_private_attachment?
+    return if instructeur_changing_an_attachment?
     return if admin_changing_its_procedure?
     return if admin_changing_its_attestation_template?
     return if admin_changing_its_type_de_champ?
@@ -72,8 +72,8 @@ class AttachmentsController < ApplicationController
     champ&.public? && current_user.owns_or_invite?(champ.dossier)
   end
 
-  def instructeur_changing_a_private_attachment?
-    champ&.private? && current_user.instructeur? && current_instructeur.in?(champ.dossier.groupe_instructeur.instructeurs)
+  def instructeur_changing_an_attachment?
+    (champ&.private? || champ&.stream == Champ::INSTRUCTEUR_BUFFER_STREAM) && current_user.instructeur? && current_instructeur.in?(champ.dossier.groupe_instructeur.instructeurs)
   end
 
   def admin_changing_its_procedure?
