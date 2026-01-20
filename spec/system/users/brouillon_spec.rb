@@ -150,7 +150,7 @@ describe 'The user', js: true do
     click_on 'Ajouter un élément à'
     expect(page).to have_selector(".repetition .champs-group:first-child .utils-repetition-required-destroy-button", count: 1, visible: false)
     expect(page).to have_selector(".repetition .champs-group", count: 2)
-    expect(page).to have_selector(".repetition .champs-group:last-child .utils-repetition-required-destroy-button", count: 1, visible: true)
+    expect(page).to have_selector(".repetition .champs-group:last-child .utils-repetition-required-destroy-button", count: 2, visible: true)
 
     within '.repetition .repetition-row:first-child' do
       fill_in('sub type de champ', with: 'un autre texte')

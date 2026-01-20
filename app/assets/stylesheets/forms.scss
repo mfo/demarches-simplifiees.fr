@@ -446,10 +446,15 @@
       padding: 1rem;
     }
 
-    .utils-repetition-required
-      .repetition-row:first-child
-      .utils-repetition-required-destroy-button {
-      display: none;
+    .utils-repetition-required {
+      .repetition-row .utils-repetition-required-destroy-button {
+        display: none;
+      }
+
+      &:has(.repetition-row:nth-child(2))
+        .utils-repetition-required-destroy-button {
+        display: flex;
+      }
     }
   }
 
