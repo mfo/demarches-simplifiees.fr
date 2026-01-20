@@ -4,11 +4,38 @@ describe 'As an administateur i can setup a DossierSubmittedMessage', js: true d
   let(:procedure) { create(:procedure, :for_individual, administrateurs: [administrateur], instructeurs: [create(:instructeur)]) }
   let(:administrateur) { create(:administrateur, user: create(:user)) }
   before { login_as administrateur.user, scope: :user }
+
   scenario 'Dossier submitted message' do
     visit edit_admin_procedure_dossier_submitted_message_path(procedure)
-    page.execute_script("document.querySelector('[data-tiptap-target=\"input\"]').type = 'text'")
-    fill_in 'dossier_submitted_message[tiptap_body]', with: '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"ok"}]}]}'
+
+    editor = find('.tiptap-editor')
+    editor.click
+
+    # Type text that will be bold
+    editor.send_keys('Texte super important')
+    15.times { editor.send_keys([:shift, :left]) } # Select "super important"
+    click_on 'Gras'
+
+    within('#tiptap-preview .tiptap-content') do
+      expect(page).to have_css('strong', text: 'super important')
+    end
+
+    # Link modal
+    click_on "Ajouter un lien sur le texte sélectionné"
+    expect(page).to have_content("Intitulé du lien : super important")
+    fill_in "Adresse du lien", with: "Pas un lien"
+    click_on "Créer le lien"
+    expect(page).to have_content("doit commencer par https")
+
+    fill_in "Adresse du lien", with: "https://example.gouv.fr"
+    click_on "Créer le lien"
+
+    within('#tiptap-preview .tiptap-content') do
+      expect(page).to have_link('super important', href: "https://example.gouv.fr")
+    end
+
     click_on 'Enregistrer'
     expect(page).to have_content("Les informations de fin de dépot ont bien été sauvegardées.")
+    expect(procedure.dossier_submitted_messages.last.json_body["content"].to_s).to include("super important")
   end
 end

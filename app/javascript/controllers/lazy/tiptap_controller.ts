@@ -8,6 +8,9 @@ import { tagSchema, type TagSchema } from '../../shared/tiptap/tags';
 import { createEditor } from '../../shared/tiptap/editor';
 import { httpRequest } from '../../shared/utils';
 
+declare const window: Window &
+  typeof globalThis & { dsfr?: (el: HTMLElement) => { modal: unknown } };
+
 export class TiptapController extends ApplicationController {
   static targets = [
     'editor',
@@ -146,7 +149,6 @@ export class TiptapController extends ApplicationController {
   }
 
   openLinkModal() {
-    console.log('openLinkModal open');
     if (!this.#editor || !this.hasLinkModalTarget) return;
 
     const { from, to, empty } = this.#editor.state.selection;
@@ -155,16 +157,9 @@ export class TiptapController extends ApplicationController {
       : this.#editor.state.doc.textBetween(from, to);
     const previousUrl = this.#editor.getAttributes('link').href ?? '';
 
-    console.log('openLinkModal', { from, to, empty, selectedText });
-
     this.#clearLinkError();
     this.linkSelectedTextTarget.textContent = selectedText || '(lien existant)';
     this.linkUrlInputTarget.value = previousUrl;
-
-    // this.linkModalTarget.showModal();
-    // window.dsfr(this.linkModalTarget).modal.disclose();
-    // this.linkModalTarget.classList.add('fr-modal--opened');
-    // document.body.classList.add('fr-modal-open');
 
     this.linkUrlInputTarget.focus();
     this.linkUrlInputTarget.select();
@@ -174,10 +169,10 @@ export class TiptapController extends ApplicationController {
 
   closeLinkModal() {
     if (!this.hasLinkModalTarget) return;
+
+    // @ts-expect-error type not enforced
     window.dsfr(this.linkModalTarget).modal.conceal();
-    // this.linkModalTarget.close();
-    // this.linkModalTarget.classList.remove('fr-modal--opened');
-    // document.body.classList.remove('fr-modal-open');
+
     if (this.#editor) {
       const { to } = this.#editor.state.selection;
       const { doc } = this.#editor.state;
