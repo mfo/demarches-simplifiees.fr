@@ -573,6 +573,12 @@ textarea::placeholder {
   color: $dark-grey;
 }
 
+.fr-select::placeholder {
+  opacity: 1;
+  font-style: italic;
+  color: var(--text-mention-grey);
+}
+
 .mandatory {
   fill: currentColor;
 }
