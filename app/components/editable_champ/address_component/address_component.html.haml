@@ -47,6 +47,7 @@
               - capture do
                 = t('.commune_label')
                 = render EditableChamp::AsteriskMandatoryComponent.new
+                .fr-hint-text= t('.commune_hint')
             %react-fragment
               = render ReactComponent.new "ComboBox/RemoteComboBox", **commune_react_props
 
