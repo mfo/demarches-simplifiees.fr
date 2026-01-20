@@ -5,7 +5,7 @@ require Rails.root.join("lib", "tasks", "task_helper")
 namespace :routing_engine do
   desc <<~EOD
     Given an id in argument, run the RoutingEngine for a dossier, after having set `forced_groupe_instructeur` field to false.
-    ex: rails routing_engine:run\[1352684\]
+    ex : rails routing_engine:run\[1352684\]
   EOD
   task :run, [:dossier_id] => :environment do |_t, args|
     dossier = Dossier.find_by(id: args[:dossier_id])

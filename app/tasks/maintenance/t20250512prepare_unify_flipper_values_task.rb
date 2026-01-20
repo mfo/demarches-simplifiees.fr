@@ -3,7 +3,7 @@
 module Maintenance
   class T20250512prepareUnifyFlipperValuesTask < MaintenanceTasks::Task
     # Cette tache duplique en bases les identifiants des entité́s Flipper
-    # par ex: (User:123) -> (User:123 User;123)
+    # par ex : (User:123) -> (User:123 User;123)
     # pour les rendre à nouveau compatible avec le format natif de Flipper tout
     # en gardant la compatibilité avec le code existant.
 

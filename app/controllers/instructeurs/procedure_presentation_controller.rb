@@ -93,7 +93,7 @@ module Instructeurs
 
       if params[:statut].present?
         filter_name = @procedure_presentation.filters_name_for(params[:statut])
-        h[filter_name] = h.delete("filters") # move filters to the right key, ex: tous_filters
+        h[filter_name] = h.delete("filters") # move filters to the right key, ex : tous_filters
       end
 
       # React ComboBox/MultiComboBox return [''] when no value is selected

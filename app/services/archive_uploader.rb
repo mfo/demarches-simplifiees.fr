@@ -69,7 +69,7 @@ class ArchiveUploader
     }
   end
 
-  # explicitely memoize so it keeps its consistency across many calls (Ex: retry)
+  # explicitely memoize so it keeps its consistency across many calls (Ex : retry)
   def namespaced_object_key
     @namespaced_object_key ||= "archives/#{Date.today.strftime("%Y-%m-%d")}/#{SecureRandom.uuid}"
   end
