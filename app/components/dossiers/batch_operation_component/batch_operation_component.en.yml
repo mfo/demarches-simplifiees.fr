@@ -20,6 +20,7 @@ en:
     confirm: Do you confirm the batch operation for selected files ?
     create_avis: Ask for an opinion
     create_commentaire: Send a message to users
+    restaurer_repousser_expiration: Restore and keep for one more month
   placeholders:
     accepter: "Explain to users why their file is accepted (optional)"
     refuser: "Explain to users why their file is refused (mandatory)"

@@ -655,7 +655,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
       it do
         is_expected.to have_selector('.fr-alert--info')
         is_expected.to have_text("Une action de masse est en cours")
-        is_expected.to have_text("1/2 dossiers ont été restaurés")
+        is_expected.to have_text("1/2 dossiers sont en cours de restauration")
       end
     end
 

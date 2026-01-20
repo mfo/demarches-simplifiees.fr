@@ -70,7 +70,7 @@ fr:
     in_progress:
       text_success:
         one: "1 dossier est en cours de restauration"
-        other: "%{success_count}/%{count} dossiers ont été restaurés"
+        other: "%{success_count}/%{count} dossiers sont en cours de restauration"
   classer_sans_suite:
     finish:
       text_success:
@@ -125,6 +125,15 @@ fr:
       text_success:
         one: "Un message est en cours d’envoi pour 1 dossier"
         other: "Un message est en cours d’envoi pour %{success_count}/%{count} dossiers"
+  restaurer_repousser_expiration:
+    finish:
+      text_success:
+        one: "%{success_count}/1 dossier a été restauré et sera conservé 1 mois supplémentaire"
+        other: "%{success_count}/%{count} dossiers ont été restaurés et seront conservés 1 mois supplémentaire"
+    in_progress:
+      text_success:
+        one: "1 dossier est en cours de restauration et de conservation pour 1 mois supplémentaire"
+        other: "%{success_count}/%{count} dossiers sont en cours de restauration et de conservation pour 1 mois supplémentaire"
   title:
     finish: L’action de masse est terminée
     in_progress: Une action de masse est en cours

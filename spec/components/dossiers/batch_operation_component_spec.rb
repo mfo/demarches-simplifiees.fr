@@ -66,4 +66,12 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
       is_expected.to have_button('Envoyer un message aux usagers', disabled: true)
     end
   end
+
+  context 'statut supprimes' do
+    let(:statut) { 'supprimes' }
+    it do
+      is_expected.to have_button('Restaurer', disabled: true)
+      is_expected.to have_button('Restaurer et conserver un mois de plus', disabled: true)
+    end
+  end
 end

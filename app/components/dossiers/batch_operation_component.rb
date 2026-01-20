@@ -208,6 +208,7 @@ class Dossiers::BatchOperationComponent < ApplicationComponent
       unfollow: 'fr-icon-star-fill',
       create_avis: 'fr-icon-questionnaire-line',
       create_commentaire: 'fr-icon-mail-line',
+      restaurer_repousser_expiration: 'fr-icon-arrow-right-up-line',
     }
   end
 
