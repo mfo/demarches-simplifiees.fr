@@ -18,3 +18,9 @@
 
 - if @champ.textarea? && @champ.character_limit_base&.positive?
   %span.fr-hint-text= t('.recommended_size', size: @champ.character_limit_base)
+
+- if @champ.integer_number? || @champ.decimal_number?
+  - if @champ.positive_number?
+    %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.positive_number')
+  - if @champ.range_number?
+    %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range_number', min: @champ.min_number , max: @champ.max_number )
