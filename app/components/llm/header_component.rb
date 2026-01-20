@@ -9,16 +9,12 @@ module LLM
     end
 
     def show_last_suggestion_status?
-      !llm_rule_suggestion.pending?
+      [llm_rule_suggestion.pending?, llm_rule_suggestion.queued?].none?
     end
 
     def last_suggestion_status_label
-      if llm_rule_suggestion.queued?
-        t('.queued')
-      else
-        searched_at = I18n.l(llm_rule_suggestion.created_at, format: :human)
-        t('.last_refresh', searched_at:)
-      end
+      searched_at = I18n.l(llm_rule_suggestion.created_at, format: :human)
+      t('.last_refresh', searched_at:)
     end
 
     def accordion_id

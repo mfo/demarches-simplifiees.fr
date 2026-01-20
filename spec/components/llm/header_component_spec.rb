@@ -23,15 +23,6 @@ RSpec.describe LLM::HeaderComponent, type: :component do
     end
   end
 
-  context 'when state is queued' do
-    let(:state) { :queued }
-
-    it 'shows queued status' do
-      expect(rendered_component).to have_content('Analyse en cours…')
-      expect(rendered_component).to have_text('Comment fonctionne ce module')
-    end
-  end
-
   context 'when state is completed' do
     let(:state) { :completed }
     it 'shows last refresh with timestamp' do
