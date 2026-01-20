@@ -121,6 +121,17 @@ FactoryBot.define do
       end
     end
 
+    trait :restaurer_repousser_expiration do
+      operation { BatchOperation.operations.fetch(:restaurer_repousser_expiration) }
+      after(:build) do |batch_operation, evaluator|
+        procedure = create(:simple_procedure, :published, instructeurs: [evaluator.invalid_instructeur.presence || batch_operation.instructeur])
+        batch_operation.dossiers = [
+          create(:dossier, :with_individual, :refuse, procedure: procedure, hidden_by_administration_at: 1.day.ago, hidden_by_expired_at: Time.zone.now, hidden_by_reason: 'expired'),
+          create(:dossier, :with_individual, :en_construction, procedure: procedure, hidden_by_expired_at: Time.zone.now, hidden_by_reason: 'expired'),
+        ]
+      end
+    end
+
     trait :repasser_en_construction do
       operation { BatchOperation.operations.fetch(:repasser_en_construction) }
       after(:build) do |batch_operation, evaluator|

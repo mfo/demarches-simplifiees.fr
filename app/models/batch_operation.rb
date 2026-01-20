@@ -18,6 +18,7 @@ class BatchOperation < ApplicationRecord
     supprimer: 'supprimer',
     create_avis: 'create_avis',
     create_commentaire: 'create_commentaire',
+    restaurer_repousser_expiration: 'restaurer_repousser_expiration',
   }
 
   has_many :dossiers, dependent: :nullify
@@ -77,6 +78,8 @@ class BatchOperation < ApplicationRecord
       query.visible_by_administration.state_not_termine
     when BatchOperation.operations.fetch(:create_commentaire) then
       query.visible_by_administration
+    when BatchOperation.operations.fetch(:restaurer_repousser_expiration) then
+      query.hidden_by_expired
     end
   end
 
@@ -126,6 +129,8 @@ class BatchOperation < ApplicationRecord
       )
     when BatchOperation.operations.fetch(:create_commentaire)
       CommentaireService.create(instructeur, dossier, { email: dossier.user.email, body:, piece_jointe: })
+    when BatchOperation.operations.fetch(:restaurer_repousser_expiration)
+      dossier.extend_conservation_and_restore(1.month, instructeur)
     end
   end
 
