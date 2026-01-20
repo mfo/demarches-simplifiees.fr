@@ -5,4 +5,7 @@ en:
         hints:
           value_html: "Expected format: 1 to 3 decimal places after the point. Example: 3.141"
           positive_number: "This number must be positive."
-          range_number: "This number must be between %{min} and %{max}."
+          range:
+            both: "This number must be between %{min} and %{max}."
+            min_only: "This number must be greater than or equal to %{min}."
+            max_only: "This number must be less than or equal to %{max}."

@@ -22,5 +22,14 @@
 - if @champ.integer_number? || @champ.decimal_number?
   - if @champ.positive_number?
     %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.positive_number')
+
   - if @champ.range_number?
-    %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range_number', min: @champ.min_number , max: @champ.max_number )
+    - min = @champ.min_number.presence
+    - max = @champ.max_number.presence
+
+    - if min && max
+      %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range.both', min: min, max: max)
+    - elsif min
+      %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range.min_only',min: min)
+    - elsif max
+      %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range.max_only', max: max)

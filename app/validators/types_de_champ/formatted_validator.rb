@@ -19,6 +19,7 @@ class TypesDeChamp::FormattedValidator < ActiveModel::EachValidator
         tdc.letters_accepted == '0' &&
         tdc.numbers_accepted == '0' &&
         tdc.special_characters_accepted == '0'
+      # i18n-tasks-use t('errors.messages.invalid_character_rules')
       procedure.errors.add(
         attribute,
         :invalid_character_rules,
@@ -32,6 +33,7 @@ class TypesDeChamp::FormattedValidator < ActiveModel::EachValidator
         tdc.max_character_length.present? &&
         tdc.min_character_length.present? &&
         (tdc.min_character_length.to_i > tdc.max_character_length.to_i)
+      # i18n-tasks-use t('errors.messages.invalid_character_length')
       procedure.errors.add(
         attribute,
         :invalid_character_length,

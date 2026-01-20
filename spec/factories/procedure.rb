@@ -151,6 +151,14 @@ FactoryBot.define do
       types_de_champ_private { [{ type: :text }] }
     end
 
+    trait :with_decimal_number_public do
+      types_de_champ_public { [{ type: :decimal_number }] }
+    end
+
+    trait :with_decimal_number_private do
+      types_de_champ_private { [{ type: :decimal_number }] }
+    end
+
     trait :draft do
       aasm_state { :brouillon }
     end
