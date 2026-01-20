@@ -23,7 +23,7 @@ class Dossiers::BatchOperationComponent < ApplicationComponent
     when Dossier.states.fetch(:accepte), Dossier.states.fetch(:refuse), Dossier.states.fetch(:sans_suite)
       [
         BatchOperation.operations.fetch(:archiver), BatchOperation.operations.fetch(:desarchiver), BatchOperation.operations.fetch(:supprimer),
-        BatchOperation.operations.fetch(:restaurer), BatchOperation.operations.fetch(:repousser_expiration), BatchOperation.operations.fetch(:restaurer_repousser_expiration),
+        BatchOperation.operations.fetch(:repousser_expiration), restore_operation_for(dossier),
       ]
     else
       []
@@ -214,5 +214,13 @@ class Dossiers::BatchOperationComponent < ApplicationComponent
 
   def expert_review_disallowed?(operation)
     operation == 'create_avis' && procedure.disallow_expert_review?
+  end
+
+  def restore_operation_for(dossier)
+    if dossier.hidden_by_expired?
+      BatchOperation.operations.fetch(:restaurer_repousser_expiration)
+    else
+      BatchOperation.operations.fetch(:restaurer)
+    end
   end
 end
