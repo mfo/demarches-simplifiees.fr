@@ -3,6 +3,7 @@
 
 $procedure-context-breakpoint: $two-columns-breakpoint;
 
+// Legacy editor/preview architecture
 .procedure-preview {
   .simple {
     margin-bottom: 0.2rem;
@@ -55,35 +56,28 @@ $procedure-context-breakpoint: $two-columns-breakpoint;
   }
 }
 
-.tiptap-content-editor {
-  .tiptap {
-    padding: $default-spacer;
-    min-height: 200px;
-  }
+.tiptap-preview {
+  background: var(--background-default-grey);
+  padding: $default-spacer * 1.5;
+  margin-bottom: $default-spacer;
+  zoom: 0.85;
 
-  .realistic-preview {
-    background: var(--background-default-grey);
-    padding: $default-spacer * 1.5;
-    margin-bottom: $default-spacer;
-    zoom: 0.85;
+  .merci {
+    padding-top: 0 !important;
 
-    .merci {
-      padding-top: 0 !important;
+    .fr-container {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
 
-      .fr-container {
-        padding: 0 !important;
-        margin: 0 !important;
-      }
+    .preview-spacing {
+      max-width: 0;
+    }
 
-      .preview-spacing {
-        max-width: 0;
-      }
-
-      .preview-content {
-        flex: 0 0 100%;
-        width: 100%;
-        max-width: 100%;
-      }
+    .preview-content {
+      flex: 0 0 100%;
+      width: 100%;
+      max-width: 100%;
     }
   }
 }

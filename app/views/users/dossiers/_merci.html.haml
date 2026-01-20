@@ -22,8 +22,9 @@
         - dsm = local_assigns[:dossier_submitted_message] || procedure.active_dossier_submitted_message
         - if dsm
           .fr-my-4w
-            - if dsm.has_tiptap_content?
-              = dsm.body_as_html.html_safe
+            - if dsm.tiptap_content?
+              .tiptap-content
+                = dsm.body_as_html.html_safe
             - else
               %p= dsm.message_on_submit_by_usager
 
