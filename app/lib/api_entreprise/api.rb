@@ -133,6 +133,8 @@ class APIEntreprise::API
       raise Error::BadGateway.new(response)
     elsif response.timed_out?
       raise Error::TimedOut.new(response)
+    elsif response.code == 500
+      raise Error::InternalServerError.new(response)
     else
       raise Error::RequestFailed.new(response)
     end

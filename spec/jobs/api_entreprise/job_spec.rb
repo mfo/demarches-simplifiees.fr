@@ -17,11 +17,19 @@ RSpec.describe APIEntreprise::Job, type: :job do
     end
 
     context 'when a retriable error is raised' do
-      let(:errors) { [:service_unavailable, :bad_gateway, :timed_out] }
+      let(:errors) { [:service_unavailable, :bad_gateway, :internal_server_error] }
 
       it 'retries 5 times' do
         ensure_errors_force_n_retry(errors, 5)
         expect(dossier.reload.api_entreprise_job_exceptions.first).to match('APIEntreprise::API::Error::ServiceUnavailable')
+      end
+    end
+
+    context 'when a timeout error is raised' do
+      let(:errors) { [:timed_out] }
+
+      it 'retries 22 times' do
+        ensure_errors_force_n_retry(errors, 22)
       end
     end
 
@@ -76,6 +84,8 @@ RSpec.describe APIEntreprise::Job, type: :job do
         raise APIEntreprise::API::Error::BadGateway.new(response)
       when :timed_out
         raise APIEntreprise::API::Error::TimedOut.new(response)
+      when :internal_server_error
+        raise APIEntreprise::API::Error::InternalServerError.new(response)
       else
         raise StandardError
       end
