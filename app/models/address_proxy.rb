@@ -37,7 +37,7 @@ class AddressProxy
         @departement_code = APIGeoService.departement_code(@departement_name)
         @region_code = APIGeoService.region_code_by_departement(@departement_code)
         @region_name = APIGeoService.region_name(@region_code)
-      else # adresse without postal_code, ex :
+      else # adresse without postal_code, ex:
         @departement_name, @departement_code, @region_code, @region_name = nil
       end
     end

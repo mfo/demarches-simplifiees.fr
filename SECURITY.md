@@ -69,7 +69,7 @@ JD7AQC83LyZNNtsvPqeElYsnAGbCbFRbkeYiHhktfOtFAQJ5AWDvilsX2Ec97+2U
 -----END PGP PUBLIC KEY BLOCK---
 ```
 
-ex : `gpg --encrypt --recipient-file "fichier_avec_la_clé_publique" --output "fichier_chiffré" "fichier_en_clair"`
+ex: `gpg --encrypt --recipient-file "fichier_avec_la_clé_publique" --output "fichier_chiffré" "fichier_en_clair"`
 
 L’équipe accusera réception de votre mail dans les 72 heures. Après la réponse initiale à votre rapport, elle vous tiendra informé de la progression vers une correction et une annonce complète, et pourra vous demander des informations ou des conseils supplémentaires.
 

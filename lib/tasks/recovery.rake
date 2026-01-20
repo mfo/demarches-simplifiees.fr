@@ -15,7 +15,7 @@ namespace :recovery do
         ],
         ...
       }
-    ex : rails recovery:export[missing_dossier_ids_per_procedure.json]
+    ex: rails recovery:export[missing_dossier_ids_per_procedure.json]
   USAGE
   task :export, [:file_path] => :environment do |_t, args|
     dossier_ids = JSON.parse(File.read(args[:file_path])).values.flatten
@@ -29,7 +29,7 @@ namespace :recovery do
   desc <<~USAGE
     given a file path, read it as marshal data
     the given file should be the result of recover:export
-    ex : rails recovery:import[/absolute/path/to/lib/data/export.dump]
+    ex: rails recovery:import[/absolute/path/to/lib/data/export.dump]
   USAGE
   task :import, [:file_path] => :environment do |_t, args|
     importer = Recovery::Importer.new(file_path: args[:file_path])
@@ -43,7 +43,7 @@ namespace :recovery do
   desc <<~USAGE
     given a in_file path, read it as JSON
     the given file should be an Array of dossier_ids dump with JSON.dump `JSON.dump([1,2,3,4])`
-    ex : rails recovery:list_blob_ids[/in_ids.json, /blob_keys.json]
+    ex: rails recovery:list_blob_ids[/in_ids.json, /blob_keys.json]
   USAGE
   task :list_blob_ids, [:in_file_path, :out_file_path] => [:environment] do |_t, args|
     dossier_ids = JSON.parse(File.read(args[:in_file_path]))

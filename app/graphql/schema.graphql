@@ -89,7 +89,7 @@ type AddressChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -362,7 +362,7 @@ type CarteChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -422,7 +422,7 @@ interface Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -481,7 +481,7 @@ type CheckboxChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -570,7 +570,7 @@ type CiviliteChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -689,7 +689,7 @@ type CommuneChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -840,7 +840,7 @@ type DateChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -939,7 +939,7 @@ type DatetimeChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -1018,7 +1018,7 @@ type DecimalNumberChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -1540,7 +1540,7 @@ type DepartementChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -2103,7 +2103,7 @@ type DossierLinkChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -2738,7 +2738,7 @@ type DropDownListChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -2846,7 +2846,7 @@ type EngagementJuridiqueChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -2991,7 +2991,7 @@ type EpciChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -3052,7 +3052,7 @@ type ExplicationChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -3531,7 +3531,7 @@ type HeaderSectionChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -3645,7 +3645,7 @@ type IntegerNumberChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -3730,7 +3730,7 @@ type LinkedDropDownListChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -3835,7 +3835,7 @@ type MultipleDropDownListChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4273,7 +4273,7 @@ type PaysChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4406,7 +4406,7 @@ type PieceJustificativeChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4567,7 +4567,7 @@ type RNAChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4635,7 +4635,7 @@ type RNFChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4730,7 +4730,7 @@ type RegionChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4796,7 +4796,7 @@ type RepetitionChamp implements Champ {
   champs: [Champ!]! @deprecated(reason: "Utilisez le champ `rows` à la place.")
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4908,7 +4908,7 @@ type SiretChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -4968,7 +4968,7 @@ type TextChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -5071,7 +5071,7 @@ type TitreIdentiteChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """
@@ -5485,7 +5485,7 @@ type YesNoChamp implements Champ {
   champDescriptorId: String!
 
   """
-  Les colonnes sont des données associées à un champ. ex : Pour un champ adresse,
+  Les colonnes sont des données associées à un champ. ex: Pour un champ adresse,
   nous pouvons renvoyer les composant (rue, code postal, departement, region)
   sous formes de colonne
   """

@@ -7,7 +7,7 @@ class Dsfr::InputComponent < ApplicationComponent
 
   attr_reader :attribute
 
-  # use it to indicate detailed about the inputs, ex : https://www.systeme-de-design.gouv.fr/elements-d-interface/modeles-et-blocs-fonctionnels/demande-de-mot-de-passe
+  # use it to indicate detailed about the inputs, ex: https://www.systeme-de-design.gouv.fr/elements-d-interface/modeles-et-blocs-fonctionnels/demande-de-mot-de-passe
   # it uses aria-describedby on input and link it to yielded content
   renders_one :describedby
   renders_one :label

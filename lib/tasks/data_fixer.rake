@@ -5,7 +5,7 @@ require Rails.root.join("lib", "tasks", "task_helper")
 namespace :data_fixer do
   desc <<~EOD
     Given a procedure_id in argument, run the DataFixer::ChampsPhoneInvalid.
-    ex : rails data_fixer:fix_phones\[1\]
+    ex: rails data_fixer:fix_phones\[1\]
   EOD
   task :fix_phones, [:procedure_id] => :environment do |_t, args|
     procedure = Procedure.find(args[:procedure_id])

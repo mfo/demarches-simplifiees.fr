@@ -3,7 +3,7 @@
 module ChampAriaLabelledbyHelper
   # There are 4 cases:
 
-  # 1. A champ is in a repetition fieldset with multiple champ per row and a champ fieldset (ex : address)
+  # 1. A champ is in a repetition fieldset with multiple champ per row and a champ fieldset (ex: address)
   # - repetition fieldset
   #   - repetition legend
   #   - row fieldset
@@ -13,7 +13,7 @@ module ChampAriaLabelledbyHelper
   #       - label
   #       - input => aria-labelledby="row-legend-id champ-legend-id label-id"
 
-  # 2. A champ is in a repetition fieldset with multiple champ per row and no champ fieldset (ex : text)
+  # 2. A champ is in a repetition fieldset with multiple champ per row and no champ fieldset (ex: text)
   # - repetition fieldset
   #   - repetition legend
   #   - row fieldset(multiple champ per row)
@@ -21,7 +21,7 @@ module ChampAriaLabelledbyHelper
   #     - label
   #     - input => aria-labelledby="row-legend-id label-id"
 
-  # 3. A champ is in a repetition fieldset with one champ per row and a champ fieldset (ex : address)
+  # 3. A champ is in a repetition fieldset with one champ per row and a champ fieldset (ex: address)
   # - repetition fieldset
   #   - repetition legend
   #   - champ fieldset
@@ -29,7 +29,7 @@ module ChampAriaLabelledbyHelper
   #     - label
   #     - input => aria-labelledby="repetition-legend-id champ-legend-id label-id"
 
-  # 4. A champ is in a repetition fieldset with one champ per row and no champ fieldset (ex : text)
+  # 4. A champ is in a repetition fieldset with one champ per row and no champ fieldset (ex: text)
   # - repetition fieldset
   #   - repetition legend
   #   - label
