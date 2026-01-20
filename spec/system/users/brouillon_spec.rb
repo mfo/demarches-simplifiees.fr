@@ -507,7 +507,8 @@ describe 'The user', js: true do
             { type: :integer_number, libelle: 'UNIQ_LABEL', mandatory: false, stable_id: },
             {
               type: :repetition, libelle: 'repetition', mandatory: repetition_mandatory, condition:, children: [
-                { type: :text, libelle: 'nom', mandatory: true },
+                { type: :text, libelle: 'nom', mandatory: false },
+                { type: :text, libelle: 'fromage', mandatory: false },
               ],
             },
           ])
@@ -537,6 +538,32 @@ describe 'The user', js: true do
           click_on 'Déposer le dossier'
           expect(page).to have_current_path(merci_dossier_path(user_dossier))
         end
+      end
+
+      scenario 'when there is a repetition there is a toggle button to expand all rows' do
+        log_in(user, procedure)
+        fill_individual
+        fill_in('UNIQ_LABEL', with: 20)
+        # add 4 rows
+        click_on 'Ajouter'
+        click_on 'Ajouter'
+        click_on 'Ajouter'
+        click_on 'Ajouter'
+        # no toggle button because there is less than 5 rows
+        expect(page).to have_selector('.repetition-toggle-all', text: 'Replier tous les éléments', visible: false)
+        click_on 'Ajouter'
+        # toggle button visible because there is 5 rows
+        expect(page).to have_selector('.repetition-toggle-all', text: 'Replier tous les éléments', visible: true)
+
+        # all rows are visible
+        expect(page).to have_selector('.repetition-row label', text: 'fromage', visible: true, count: 5)
+
+        scroll_to(find('.repetition-toggle-all'))
+        click_on 'Replier tous les éléments'
+        # toggle button changed to expand all
+        expect(page).to have_selector('.repetition-toggle-all', text: 'Déplier tous les éléments', visible: true)
+        # all rows are hidden
+        expect(page).not_to have_selector('.repetition-row label', text: 'nom', visible: true)
       end
     end
 
