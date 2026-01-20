@@ -159,7 +159,9 @@ describe 'The user', js: true do
 
     expect do
       within '.repetition .repetition-row:last-child' do
-        click_on 'Supprimer'
+        accept_confirm do
+          click_on 'Supprimer'
+        end
       end
       wait_until { page.all(".repetition-row").size == 1 }
       # removing a repetition means one child only, thus its button destroy is not visible
