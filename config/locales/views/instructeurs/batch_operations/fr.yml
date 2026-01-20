@@ -4,6 +4,8 @@ fr:
       commentaire_form:
         notice: Votre message s’ajoutera dans le fil de messagerie de chaque dossier
         submit: Envoyer le message
+        send_message_and_mark: "Envoyer et marquer les dossiers"
+        pending_response_badge: "EN ATTENTE DE RÉPONSE"
         cancel: Annuler
       create_batch_commentaire:
         batch_selection_limit_exceeded: L’envoi d’un message groupé est limité à %{limit} usagers. Veuillez restreindre le nombre de dossiers sélectionnés

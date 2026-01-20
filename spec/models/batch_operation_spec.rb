@@ -257,6 +257,42 @@ describe BatchOperation, type: :model do
       let(:operation) { :classer_sans_suite }
       it { expect { subject.process_one(dossier) }.to have_enqueued_job(PriorizedMailDeliveryJob) }
     end
+
+    context 'create_commentaire' do
+      let(:operation) { :create_commentaire }
+      let(:dossier) { create(:dossier, :en_construction, :with_individual) }
+
+      before do
+        subject.update!(body: 'Hello')
+      end
+
+      it 'creates a commentaire' do
+        expect { subject.process_one(dossier) }.to change { dossier.commentaires.count }.by(1)
+      end
+
+      context 'with mark_as_pending_response' do
+        before do
+          subject.update!(mark_as_pending_response: 'true')
+        end
+
+        it 'marks the dossier as pending response' do
+          expect { subject.process_one(dossier) }.to change { dossier.reload.pending_response? }.from(false).to(true)
+        end
+
+        it 'creates a pending response record linked to the commentaire' do
+          subject.process_one(dossier)
+          commentaire = dossier.commentaires.last
+          expect(commentaire.dossier_pending_response).to be_present
+          expect(commentaire.dossier_pending_response.pending?).to be true
+        end
+      end
+
+      context 'without mark_as_pending_response' do
+        it 'does not mark the dossier as pending response' do
+          expect { subject.process_one(dossier) }.not_to change { dossier.reload.pending_response? }
+        end
+      end
+    end
   end
 
   describe 'stale' do

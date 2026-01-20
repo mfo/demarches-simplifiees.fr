@@ -4,6 +4,8 @@ en:
       commentaire_form:
         notice: Your message will be added to the message box of each folder
         submit: Send the message
+        send_message_and_mark: "Send and mark files as"
+        pending_response_badge: "WAITING FOR RESPONSE"
         cancel: Cancel
       create_batch_commentaire:
         batch_selection_limit_exceeded: "Bulk message sending is limited to %{limit} users. Please reduce the number of selected files."
