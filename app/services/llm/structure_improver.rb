@@ -71,7 +71,7 @@ module LLM
         - Ordonne logiquement : informations personnelles d'abord, puis contextuelles.
         - L'ordre respecte une logique administrative claire.
         - Sépare les champs avec des header_sections pour clarifier les parties du formulaire.
-        - Attention : conserve l'ordre des champs couplés en eux-mêmes par leurs libelle ex: "Nom de l'enfant 1", "Prénom de l'enfant 1", "Nom de l'enfant 2", "Prénom de l'enfant 2" doivent rester ensemble.
+        - Attention : conserve l'ordre des champs couplés en eux-mêmes par leurs libelle ex : "Nom de l'enfant 1", "Prénom de l'enfant 1", "Nom de l'enfant 2", "Prénom de l'enfant 2" doivent rester ensemble.
 
         ## 2. Présentation visuelle et lisibilité
         - Utilise les header_sections pour améliorer la lisibilité du formulaire.
@@ -112,7 +112,7 @@ module LLM
       TXT
     end
 
-    def build_item(args, tdc_index: {})
+    def build_item(args, tdc_index : {})
       if args['add']
         build_add_item(args)
       elsif args['update']

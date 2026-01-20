@@ -47,7 +47,7 @@
 
           .fr-fieldset__element{ class: class_names("hidden" => !attestation_template.official_layout?), data: { "attestation-target": 'logoMarianneLabelFieldset'} }
             = render Dsfr::InputComponent.new(form: f, attribute: :label_logo, input_type: :text_area, required: attestation_template.official_layout?, opts: { rows: 3, data: { controller: :textarea, textarea_max_rows_value: 5 } }) do |c|
-              - c.with_hint { "Exemple: Ministère de la Mer. 5 lignes maximum" }
+              - c.with_hint { "Exemple : Ministère de la Mer. 5 lignes maximum" }
 
           .fr-fieldset__element{ data: { attestation_target: 'logoAttachmentFieldset' } }
             %label.fr-label{ for: dom_id(attestation_template, :logo) }
@@ -64,7 +64,7 @@
 
           .fr-fieldset__element
             = render Dsfr::InputComponent.new(form: f, attribute: :label_direction, input_type: :text_area, required: false, opts: { rows: 2, data: { controller: :textarea, textarea_max_rows_value: 2 } }) do |c|
-              - c.with_hint { "Exemple: Direction interministérielle du numérique. 2 lignes maximum" }
+              - c.with_hint { "Exemple : Direction interministérielle du numérique. 2 lignes maximum" }
 
           .fr-fieldset__element.fr-mt-3w
             .fr-input-group{ class: class_names("fr-input-group--error" => f.object.errors.include?(:json_body)) }
@@ -107,7 +107,7 @@
 
           .fr-fieldset__element
             = render Dsfr::InputComponent.new(form: f, attribute: :footer, input_type: :text_area, required: false, opts: { rows: 3, data: { controller: :textarea, textarea_max_rows_value: 3 } }) do |c|
-              - c.with_hint { "Exemple: 20 avenue de Ségur, 75007 Paris" }
+              - c.with_hint { "Exemple : 20 avenue de Ségur, 75007 Paris" }
 
       #preview-column.fr-col-12.fr-col-lg-5.fr-background-alt--blue-france
         .sticky--top.fr-px-1w{ data: { controller: "sticky-top" } }

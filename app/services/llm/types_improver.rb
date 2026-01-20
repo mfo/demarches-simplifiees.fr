@@ -107,7 +107,7 @@ module LLM
 
         Pour "date" / "datetime" :
         - date_in_past (boolean): n'accepter que les dates passées
-        - start_date (string ISO): date minimale (ex: "2020-01-01")
+        - start_date (string ISO): date minimale (ex : "2020-01-01")
         - end_date (string ISO): date maximale
 
         Note: Les options fournies seront fusionnées avec les options existantes du champ.
@@ -133,7 +133,7 @@ module LLM
       TXT
     end
 
-    def build_item(args, tdc_index: {})
+    def build_item(args, tdc_index : {})
       build_update_item(args, tdc_index) if args['update']
     end
 

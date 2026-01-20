@@ -9,7 +9,7 @@ fr:
         text: Message
         dossier_id: Numéro de dossier
         hints:
-          email: 'Exemple: adresse@mail.com'
+          email: 'Exemple : adresse@mail.com'
     errors:
       models:
         contact_form:
