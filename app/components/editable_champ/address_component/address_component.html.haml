@@ -13,9 +13,6 @@
         - t('.not_in_ban')
 
   - if @champ.not_ban?
-    - if @champ.description.present?
-      .fr-ml-1w{ id: @champ.describedby_id }= render SimpleFormatComponent.new(@champ.description, allow_a: true, class_names_map: { paragraph: "fr-hint-text" })
-
     .width-100.not-in-ban-group.champs-group.fr-ml-1w
       .fr-fieldset__element
         .fr-input-group
