@@ -21,7 +21,7 @@
       <%= render Instructeurs::ProceduresDossiersSyntheseButtonComponent.new(procedures_count: @all_procedures.size) %>
     </div>
 
-    <%= render SelectProcedureDropDownListComponent.new(procedures: @all_procedures, action_path: url_for([:select_procedure, :instructeur, :procedures]), form_class: 'width-66 fr-mb-3w') %>
+    <%= render SelectProcedureDropDownListComponent.new(procedures: @all_procedures, action_path: url_for([:select_procedure, :instructeur, :procedures]), form_class: 'fr-grid-row fr-mb-3w') %>
 
     <nav
       class="fr-tabs"
