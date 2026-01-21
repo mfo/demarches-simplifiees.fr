@@ -10,9 +10,9 @@
 
 <div class="fr-fieldset__element flex column flex-gap-2" data-controller="repetition-toggle-all" data-repetition-toggle-all-expanded-text-value="<%= t(".collapse_all") %>" data-repetition-toggle-all-collapsed-text-value="<%= t(".expand_all") %>">
   <% if show_toggle_all_button? %>
-    <div class="repetition-toggle-all fr-mb-2w">
+    <div class="repetition-toggle-all fr-mt-n2w">
       <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left" data-action="click->repetition-toggle-all#toggleAll">
-        <span data-repetition-toggle-all-target="icon" class="fr-icon-arrow-down-s-line" aria-hidden="true"></span>
+        <span data-repetition-toggle-all-target="icon" class="fr-icon-arrow-down-double-line" aria-hidden="true"></span>
         <span data-repetition-toggle-all-target="text"><%= t(".expand_all") %></span>
       </button>
     </div>

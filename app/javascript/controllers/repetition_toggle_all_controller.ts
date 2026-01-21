@@ -116,10 +116,10 @@ export class RepetitionToggleAllController extends ApplicationController {
     // Update icon
     if (allExpanded) {
       // Change icon to up arrow (replier)
-      this.iconTarget.className = 'fr-icon-arrow-up-s-line';
+      this.iconTarget.className = 'fr-icon-arrow-up-double-line';
     } else {
       // Change icon to down arrow (déplier)
-      this.iconTarget.className = 'fr-icon-arrow-down-s-line';
+      this.iconTarget.className = 'fr-icon-arrow-down-double-line';
     }
 
     // Update button text
