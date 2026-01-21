@@ -369,7 +369,7 @@ describe 'fetch API Particulier Data', js: true do
         expect(page).to have_content("nom d’usage Moustaki")
         expect(page).to have_content('prénom Georges')
         expect(page).to have_content('sexe masculin')
-        expect(page).to have_content('date de naissance 3 mai 1934')
+        expect(page).to have_content('date de naissance 03 mai 1934')
 
         expect(page).to have_content('code INSEE de la commune 75118')
         expect(page).to have_content('code postal 75018')
@@ -380,8 +380,8 @@ describe 'fetch API Particulier Data', js: true do
         expect(page).to have_content('adresse électronique georges@moustaki.fr')
         expect(page).to have_content('téléphone 0629212921')
 
-        expect(page).to have_content("date d’inscription 3 mai 1965")
-        expect(page).to have_content("date de cessation d’inscription 3 mai 1966")
+        expect(page).to have_content("date d’inscription 03 mai 1965")
+        expect(page).to have_content("date de cessation d’inscription 03 mai 1966")
         expect(page).to have_content('code de certification CNAV VC')
         expect(page).to have_content("code de catégorie d’inscription 1")
         expect(page).to have_content("libellé de catégorie d’inscription PERSONNE SANS EMPLOI DISPONIBLE DUREE INDETERMINEE PLEIN TPS")
@@ -436,13 +436,13 @@ describe 'fetch API Particulier Data', js: true do
 
         expect(page).to have_content('statut inscrit')
         expect(page).to have_content('régime formation continue')
-        expect(page).to have_content("date de début d’inscription 1 septembre 2022")
+        expect(page).to have_content("date de début d’inscription 01 septembre 2022")
         expect(page).to have_content("date de fin d’inscription 31 août 2023")
         expect(page).to have_content('code de la commune 75106')
 
         expect(page).to have_content('statut admis')
         expect(page).to have_content('régime formation continue')
-        expect(page).to have_content("date de début d’admission 1 septembre 2021")
+        expect(page).to have_content("date de début d’admission 01 septembre 2021")
         expect(page).to have_content("date de fin d’admission 31 août 2022")
         expect(page).to have_content('code de la commune 75106')
 
