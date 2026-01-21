@@ -50,7 +50,7 @@
                 %span
                   = t('views.users.dossiers.dossiers_list.created_at', date: l(dossier.created_at.to_date, format: :long))
                 - if dossier.created_at != dossier.updated_at
-                  = t('views.users.dossiers.dossiers_list.updated_at', date: l(dossier.updated_at.to_datetime))
+                  = t('views.users.dossiers.dossiers_list.updated_at', date: l(dossier.updated_at, format: :long_with_time))
 
             - if dossier.invites.present?
               %p.fr-icon--sm.fr-icon-shield-line
