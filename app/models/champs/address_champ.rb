@@ -16,9 +16,6 @@ class Champs::AddressChamp < Champs::TextChamp
 
   before_validation :set_full_address, if: :should_set_full_address?, on: :update
 
-  validate :validate_not_in_ban_completed, if: -> { validate_champ_value? && !become_not_ban? && not_ban? && france? }
-  validate :validate_international_completed, if: -> { validate_champ_value? && international? }
-
   # Legacy attributes
   def code_departement
     department_code
@@ -192,6 +189,16 @@ class Champs::AddressChamp < Champs::TextChamp
 
   def html_label?
     false
+  end
+
+  def validate_completed
+    if ban? && mandatory?
+      errors.add(:value, :missing)
+    elsif not_ban? && france?
+      validate_not_in_ban_completed
+    elsif international?
+      validate_international_completed
+    end
   end
 
   private

@@ -248,7 +248,6 @@ describe 'The user', js: true do
     find('label', text: 'Je ne trouve pas mon adresse dans les suggestions').click
     fill_in('Numéro et nom de voie, ou lieu-dit', with: '2 rue de la paix')
     scroll_to(find_field('Ville ou commune'), align: :center)
-    expect(page).to have_content('Renseigner la ville ou commune')
     fill_in('Ville ou commune', with: '60400')
     find('.fr-menu__item', text: 'Brétigny (60400)').click
     wait_until { champ_for('address').city_name == 'Brétigny' }
@@ -274,6 +273,25 @@ describe 'The user', js: true do
     fill_in('Ville ou commune', with: '60400')
     find('.fr-menu__item', text: 'Brétigny (60400)').click
     wait_until { champ_for('address').city_name == 'Brétigny' }
+  end
+
+  scenario 'try submitting not complete not in BAN' do
+    stub_request(:get, "https://data.geopf.fr/geocodage/search?limit=10&q=2%20rue%20de%20la%20paix,%2092094%20Belgique")
+      .to_return(body: '{"type":"FeatureCollection","version":"draft","features":[]}')
+
+    log_in(user, simple_procedure)
+    fill_individual
+
+    find('label', text: 'Je ne trouve pas mon adresse dans les suggestions').click
+    fill_in('Numéro et nom de voie, ou lieu-dit', with: '2 rue de la paix')
+
+    click_on 'Déposer le dossier'
+
+    expect(page).to have_content("Renseigner la ville ou commune") # errors list on top
+    expect(champ_for('address').street_address).to eq('2 rue de la paix')
+
+    scroll_to(find_field('Ville ou commune'), align: :top)
+    expect(page).to have_content("Renseigner la ville ou commune") # error below commune field
   end
 
   scenario 'numbers champs formatting' do
