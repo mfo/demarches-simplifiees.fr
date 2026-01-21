@@ -839,7 +839,7 @@ en:
       message: "Your session was renewed. Please repeat this action from this page."
   time:
     formats:
-      default: "%d %B %Y at %H:%M"
+      default: "%d %B %Y %R"
       long: "%d %B %Y"
       long_with_time: "%d %B %Y at %H:%M"
       long_with_time_and_timezone: "%d %B %Y at %H:%M (%Z)"

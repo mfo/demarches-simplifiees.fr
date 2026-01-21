@@ -480,6 +480,27 @@ RSpec.describe Types::DossierType, type: :graphql do
     }
   end
 
+  describe 'dossier with date and datetime champs' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :date }, { type: :datetime }]) }
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+    let(:query) { DOSSIER_WITH_DATE_CHAMPS_QUERY }
+    let(:variables) { { number: dossier.id } }
+
+    let(:champ_date) { dossier.project_champs_public.first }
+    let(:champ_datetime) { dossier.project_champs_public.second }
+
+    before do
+      champ_date.update(value: '2026-01-01')
+      champ_datetime.update(value: '2026-01-01T12:12:00+01:00')
+    end
+
+    it 'returns date and datetime in the expected format' do
+      expect(errors).to be_nil
+      expect(data[:dossier][:champs][0][:stringValue]).to eq('01 janvier 2026')
+      expect(data[:dossier][:champs][1][:stringValue]).to eq('01 janvier 2026 12:12')
+    end
+  end
+
   DOSSIER_QUERY = <<-GRAPHQL
   query($number: Int!) {
     dossier(number: $number) {
@@ -756,5 +777,24 @@ RSpec.describe Types::DossierType, type: :graphql do
         }
       }
     }
+  GRAPHQL
+
+  DOSSIER_WITH_DATE_CHAMPS_QUERY = <<-GRAPHQL
+  query($number: Int!) {
+    dossier(number: $number) {
+      champs {
+        id
+        label
+        stringValue
+        __typename
+        ... on DateChamp {
+          date
+        }
+        ... on DatetimeChamp {
+          datetime
+        }
+      }
+    }
+  }
   GRAPHQL
 end
