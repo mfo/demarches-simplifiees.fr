@@ -19,23 +19,24 @@
           = @form.label :country_code, for: @champ.focusable_input_id(:country_code), class: 'fr-label', id: input_label_id(@champ, :country_code) do
             - capture do
               = t('.country_label')
-              = render EditableChamp::AsteriskMandatoryComponent.new
+              - if @champ.required?
+                = render EditableChamp::AsteriskMandatoryComponent.new
           = @form.select :country_code, pays_options, @champ.mandatory? ? { prompt: '' } : { include_blank: '' }, required: @champ.required?, id: @champ.focusable_input_id(:country_code), class: "width-33-desktop fr-select small-margin", 'aria-labelledby': aria_labelledby(:country_code)
 
       .fr-fieldset__element
-        = render Dsfr::InputComponent.new(form: @form, attribute: :street_address, opts: { id: @champ.focusable_input_id(:street_address), class:"fr-input small-margin", "aria-labelledby": aria_labelledby(:street_address) }, label_opts: { id: input_label_id(@champ, :street_address) }) do |c|
+        = render Dsfr::InputComponent.new(form: @form, attribute: :street_address, required: @champ.required?, opts: { id: @champ.focusable_input_id(:street_address), class:"fr-input small-margin", "aria-labelledby": aria_labelledby(:street_address) }, label_opts: { id: input_label_id(@champ, :street_address) }) do |c|
           - c.with_label { t('.street_label') }
           - c.with_hint { @champ.international? ? t('.street_international_hint') : t('.street_fr_hint') }
 
       - if @champ.international?
         .fr-fieldset__element
-          = render Dsfr::InputComponent.new(form: @form, attribute: :city_name, opts: { id: @champ.focusable_input_id(:city_name), class:"fr-input small-margin width-33-desktop ", "aria-labelledby": aria_labelledby(:city_name) }, label_opts: { id: input_label_id(@champ, :city_name) }) do |c|
+          = render Dsfr::InputComponent.new(form: @form, attribute: :city_name, required: @champ.required?, opts: { id: @champ.focusable_input_id(:city_name), class:"fr-input small-margin width-33-desktop ", "aria-labelledby": aria_labelledby(:city_name) }, label_opts: { id: input_label_id(@champ, :city_name) }) do |c|
             - c.with_label { t('.city_label') }
             - c.with_hint t('.city_hint')
 
         .fr-fieldset__element
           .fr-input-group
-          = render Dsfr::InputComponent.new(form: @form, attribute: :postal_code, opts: { id: @champ.focusable_input_id(:postal_code), class:"fr-input small-margin width-33-desktop ", "aria-labelledby": aria_labelledby(:postal_code) }, label_opts: { id: input_label_id(@champ, :postal_code) }) do |c|
+          = render Dsfr::InputComponent.new(form: @form, attribute: :postal_code, required: @champ.required?, opts: { id: @champ.focusable_input_id(:postal_code), class:"fr-input small-margin width-33-desktop ", "aria-labelledby": aria_labelledby(:postal_code) }, label_opts: { id: input_label_id(@champ, :postal_code) }) do |c|
             - c.with_label { t('.postal_code_label') }
       - else
         .fr-fieldset__element
@@ -43,7 +44,8 @@
             = @form.label :commune_name, for: @champ.focusable_input_id(:commune_name), class: 'fr-label', id: input_label_id(@champ, :commune_name) do
               - capture do
                 = t('.commune_label')
-                = render EditableChamp::AsteriskMandatoryComponent.new
+                - if @champ.required?
+                  = render EditableChamp::AsteriskMandatoryComponent.new
                 .fr-hint-text= t('.commune_hint')
             %react-fragment
               = render ReactComponent.new "ComboBox/RemoteComboBox", **commune_react_props
