@@ -52,13 +52,13 @@
         <%= link_to "Personnaliser l'ordre", order_positions_instructeur_procedures_path, class: 'fr-btn fr-btn--sm fr-btn--tertiary fr-btn--icon-left fr-icon-settings-5-line' %>
       <% end %>
     </div>
-    <ul
-      class="procedure-list fr-pl-0"
+    <div
+      class="procedure-list"
       data-controller="stream-loader"
       data-stream-loader-url-value="<%= counters_instructeur_procedures_path(statut: params[:statut], page: params[:page]) %>"
     >
       <%= render Instructeurs::ProcedureSummaryComponent.with_collection(@procedures) %>
-    </ul>
+    </div>
     <%= paginate @procedures, views_prefix: 'shared' %>
   <% end %>
 </div>
