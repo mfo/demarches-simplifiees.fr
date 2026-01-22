@@ -16,4 +16,8 @@ class EditableChamp::RepetitionComponent < EditableChamp::EditableChampBaseCompo
   def show_toggle_all_button?
     @champ.dossier.revision.children_of(@champ.type_de_champ).size > 1
   end
+
+  def aria_controls
+    @champ.row_ids.map { |row_id| "#{@champ.html_id}-#{row_id}-accordion-accordion-content" }.join(' ')
+  end
 end

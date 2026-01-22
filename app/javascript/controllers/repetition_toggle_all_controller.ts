@@ -8,7 +8,7 @@ declare const window: Window &
   };
 
 export class RepetitionToggleAllController extends ApplicationController {
-  static targets = ['icon', 'text', 'rowsContainer'];
+  static targets = ['icon', 'text', 'rowsContainer', 'button'];
   static values = {
     expandedText: String,
     collapsedText: String
@@ -17,12 +17,18 @@ export class RepetitionToggleAllController extends ApplicationController {
   declare readonly iconTarget: HTMLElement;
   declare readonly textTarget: HTMLElement;
   declare readonly rowsContainerTarget: HTMLElement;
+  declare readonly hasButtonTarget: boolean;
+  declare readonly buttonTarget: HTMLButtonElement;
   declare expandedTextValue: string;
   declare collapsedTextValue: string;
 
   private mutationObserver?: MutationObserver;
 
   connect() {
+    if (!this.hasButtonTarget) {
+      return;
+    }
+
     this.updateButtonState();
     // Listen to accordion changes to update button state
     this.rowsContainerTarget.addEventListener(
@@ -46,6 +52,10 @@ export class RepetitionToggleAllController extends ApplicationController {
   }
 
   disconnect() {
+    if (!this.hasButtonTarget) {
+      return;
+    }
+
     this.rowsContainerTarget.removeEventListener(
       'click',
       this.handleAccordionClick.bind(this),
@@ -126,5 +136,8 @@ export class RepetitionToggleAllController extends ApplicationController {
     this.textTarget.textContent = allExpanded
       ? this.expandedTextValue
       : this.collapsedTextValue;
+
+    // Update aria-expanded for accessibility
+    this.buttonTarget.setAttribute('aria-expanded', allExpanded.toString());
   }
 }
