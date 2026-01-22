@@ -988,18 +988,26 @@ class Dossier < ApplicationRecord
 
   def check_mandatory_and_visible_champs_for(collection)
     collection.filter(&:visible?).each do |champ|
-      if champ.mandatory_blank?
+      if champ.mandatory_blank? && !champ.address?
         error = champ.errors.add(:value, :missing)
         errors.import(error)
       end
 
       if champ.repetition?
         champ.rows.each do |champs|
-          champs.filter(&:visible?).filter(&:mandatory_blank?).each do |champ|
-            error = champ.errors.add(:value, :missing)
-            errors.import(error)
+          champs.filter(&:visible?).each do |champ|
+            if champ.address?
+              champ.validate_completed
+              champ.errors.each { errors.import(it) }
+            elsif champ.mandatory_blank?
+              error = champ.errors.add(:value, :missing)
+              errors.import(error)
+            end
           end
         end
+      elsif champ.address?
+        champ.validate_completed
+        champ.errors.each { errors.import(it) }
       end
     end
     errors
