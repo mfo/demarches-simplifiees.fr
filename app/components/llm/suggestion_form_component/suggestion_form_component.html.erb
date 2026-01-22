@@ -26,7 +26,7 @@
     <%= form_for llm_rule_suggestion,
                     url: accept_simplification_admin_procedure_types_de_champ_path(procedure, llm_rule_suggestion),
                     method: :post,
-                    data: { controller: "enable-submit-if-checked" } do |form| %>
+                    data: { controller: "enable-submit-if-checked" }, html: { class: 'llm-rule-suggestion-form' } do |form| %>
       <div class="border-background-contrast-grey fr-p-2w">
         <p class="fr-mb-3w flex align-center">
           <span class="fr-badge fr-badge--info fr-mr-1w">

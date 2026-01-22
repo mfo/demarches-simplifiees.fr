@@ -21,7 +21,7 @@
             <% if original_tdc.description.lines.many? %>
               <%= simple_format(original_tdc.description) %>
             <% else %>
-              <%= original_tdc.description %>
+              <p><%= original_tdc.description %></p >
             <% end %>
           <% end %>
 
