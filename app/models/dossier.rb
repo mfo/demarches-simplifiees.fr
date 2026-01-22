@@ -360,8 +360,10 @@ class Dossier < ApplicationRecord
   scope :without_termine_expiration_notice_sent, -> { where(termine_close_to_expiration_notice_sent_at: nil) }
   scope :without_dossier_expirant_notification, -> do
     where.not(
-      id: DossierNotification.where(notification_type: :dossier_expirant)
-                            .select(:dossier_id)
+      DossierNotification
+        .where("dossier_notifications.dossier_id = dossiers.id")
+        .where(notification_type: :dossier_expirant)
+        .arel.exists
     )
   end
 
