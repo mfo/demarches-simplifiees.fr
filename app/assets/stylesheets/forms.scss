@@ -568,11 +568,7 @@
 }
 
 input::placeholder,
-textarea::placeholder {
-  opacity: 0.6; // normalize opacity across browsers
-  color: $dark-grey;
-}
-
+textarea::placeholder,
 .fr-select::placeholder {
   opacity: 1;
   font-style: italic;
