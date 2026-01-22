@@ -147,6 +147,15 @@ describe APIEntreprise::API do
         end
       end
     end
+
+    context 'when the service reponds with 500 code' do
+      let(:status) { 500 }
+      let(:body) { fixture_file('error_500.html') }
+
+      it 'raises APIEntreprise::API::Error::InternalServerError' do
+        expect { subject }.to raise_error(APIEntreprise::API::Error::InternalServerError)
+      end
+    end
   end
 
   describe '.etablissement' do
