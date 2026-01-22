@@ -161,6 +161,12 @@ describe ColumnsConcern do
       let(:procedure) { create(:procedure, :for_individual) }
 
       it { is_expected.to include(name_field, surname_field) }
+      it 'defines yes/no options for the for_tiers boolean column' do
+        column = procedure.columns.find { _1.column == 'for_tiers' }
+
+        expect(column.type).to eq(:boolean)
+        expect(column.options_for_select).to eq(Champs::YesNoChamp.options)
+      end
     end
 
     context 'when the procedure is sva' do

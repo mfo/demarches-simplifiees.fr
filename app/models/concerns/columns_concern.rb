@@ -215,7 +215,7 @@ module ColumnsConcern
       @individual_columns
         .concat ['nom', 'prenom'].map { |column| dossier_col(table: 'individual', column:) }
         .concat ['mandataire_last_name', 'mandataire_first_name'].map { |column| dossier_col(table: 'self', column:) }
-        .concat ['for_tiers'].map { |column| dossier_col(table: 'self', column:, type: :boolean) }
+        .concat ['for_tiers'].map { |column| dossier_col(table: 'self', column:, type: :boolean, options_for_select: Champs::YesNoChamp.options) }
     end
 
     def moral_columns
