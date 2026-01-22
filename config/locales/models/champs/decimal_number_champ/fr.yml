@@ -4,3 +4,8 @@ fr:
       champs/decimal_number_champ:
         hints:
           value_html: "Format attendu : De 1 à 3 décimales après le point. Exemple: <span aria-hidden='true'>3.141</span><span class='sr-only'>3 point 141</span>"
+          positive_number: "Ce nombre doit être positif."
+          range:
+            both: "Ce nombre doit être compris entre %{min} et %{max}."
+            min_only: "Ce nombre doit être supérieur ou égal à %{min}."
+            max_only: "Ce nombre doit être inférieur ou égal à %{max}."

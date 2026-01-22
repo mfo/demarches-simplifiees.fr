@@ -240,6 +240,7 @@ class Procedure < ApplicationRecord
     'types_de_champ/formatted': true,
     'types_de_champ/referentiel_ready': true,
     'types_de_champ/libelle': true,
+    'types_de_champ/number': true,
     on: [:types_de_champ_public_editor, :publication]
 
   validates :draft_types_de_champ_private,
@@ -250,6 +251,7 @@ class Procedure < ApplicationRecord
     'types_de_champ/formatted': true,
     'types_de_champ/referentiel_ready': true,
     'types_de_champ/libelle': true,
+    'types_de_champ/number': true,
     on: [:types_de_champ_private_editor, :publication]
 
   validate :check_juridique, on: [:create, :publication]

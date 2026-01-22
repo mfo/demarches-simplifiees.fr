@@ -815,6 +815,11 @@ en:
         connexion: "Error trying to connect to France Connect."
         forbidden_html: "Only citizen can use FranceConnect. As an instructor or administrator, you should <a href='%{reset_link}'>reset your password</a>."
         internal_error: "Error trying to connect to France Connect. Please try another way to connect."
+      missing_range_rules: The minimum and maximum values ​​must be specified.
+      invalid_range_rules: The minimum value must be less than the maximum value.
+      invalid_positive_range_rules: The maximum value must be greater than 0 for the number to be positive.
+      invalid_character_rules: You must select at least one character type.
+      invalid_character_length: The minimum number of characters must be less than the maximum number of characters.
       evil_regexp: The regular expression you have entered is potentially dangerous and could lead to performance issues.
       mismatch_regexp: The provided example must match the regular expression
       syntax_error_regexp: The syntax of the regular expression is invalid
