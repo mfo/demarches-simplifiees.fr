@@ -70,7 +70,7 @@ en:
     in_progress:
       text_success:
         one: "1 is being restored"
-        other: "%{success_count}/%{count} files have been restored"
+        other: "%{success_count}/%{count} files are being restored"
   classer_sans_suite:
     finish:
       text_success:
@@ -125,6 +125,15 @@ en:
       text_success:
         one: "A message is being sent for 1 file"
         other: "A message is being sent for %{success_count}/%{count} files"
+  restaurer_repousser_expiration:
+    finish:
+      text_success:
+        one: "%{success_count}/1 file has been restored and will be kept for an additional month"
+        other: "%{success_count}/%{count} files have been restored and will be kept for an additional month"
+    in_progress:
+      text_success:
+        one: "1 is being restored and kept for an additional month"
+        other: "%{success_count}/%{count} files are being restored and kept for an additional month"
   title:
     finish: The bulk action is finished
     in_progress:  A bulk action is processing

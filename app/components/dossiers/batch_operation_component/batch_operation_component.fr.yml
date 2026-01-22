@@ -20,6 +20,7 @@ fr:
     confirm: Confirmez-vous le traitement multiple des dossiers sélectionnés ?
     create_avis: Demander un avis externe
     create_commentaire: Envoyer un message aux usagers
+    restaurer_repousser_expiration: Restaurer et conserver un mois de plus
   placeholders:
     accepter: "Expliquez aux demandeurs pourquoi leur dossier est accepté (facultatif)"
     refuser: "Expliquez aux demandeurs pourquoi leur dossier est refusé (obligatoire)"

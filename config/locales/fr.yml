@@ -441,7 +441,7 @@ fr:
           user_removed: L’usager a supprimé son compte
         acts_on_behalf: "agit pour"
         restore: "Restaurer"
-        restore_and_extend: "Restaurer et étendre la conservation"
+        restore_and_extend: "Restaurer et conserver un mois de plus"
         select_all: Tout selectionner
         batch_operation:
           enabled: "Ajouter le dossier %{dossier_id} à la sélection pour un traitement de masse"

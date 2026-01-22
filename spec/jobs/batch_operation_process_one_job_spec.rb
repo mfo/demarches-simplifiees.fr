@@ -239,11 +239,43 @@ describe BatchOperationProcessOneJob, type: :job do
                                  options.merge(instructeur: create(:instructeur)))
       end
 
-      it 'changed the dossier to en construction' do
+      it 'restores the dossier' do
         expect { subject.perform_now }
           .to change { dossier_job.reload.hidden_by_administration? }
           .from(true)
           .to(false)
+      end
+    end
+
+    context 'when operation is "restaurer_repousser_expiration"' do
+      let(:batch_operation) do
+        create(:batch_operation, :restaurer_repousser_expiration,
+                                 options.merge(instructeur: create(:instructeur)))
+      end
+
+      context "when the dossier is en_construction and expired" do
+        it 'restores and extends conservation' do
+          subject.perform_now
+          dossier_job.reload
+
+          expect(dossier_job.hidden_by_expired?).to eq(false)
+          expect(dossier_job.conservation_extension).to eq(1.month)
+          expect(dossier_job.hidden_by_reason).to eq(nil)
+        end
+      end
+
+      context "when the dossier is termine, was deleted by administration and then expired" do
+        let(:dossier_job) { batch_operation.dossiers.second }
+
+        it 'restores and extends conservation' do
+          subject.perform_now
+          dossier_job.reload
+
+          expect(dossier_job.hidden_by_expired?).to eq(false)
+          expect(dossier_job.hidden_by_administration?).to eq(false)
+          expect(dossier_job.conservation_extension).to eq(1.month)
+          expect(dossier_job.hidden_by_reason).to eq(nil)
+        end
       end
     end
 
