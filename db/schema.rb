@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_05_093205) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_22_143826) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -438,6 +438,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_05_093205) do
     t.index ["dossier_id", "notification_type", "instructeur_id"], name: "unique_dossier_instructeur_notification", unique: true
     t.index ["dossier_id"], name: "index_dossier_notifications_on_dossier_id"
     t.index ["instructeur_id"], name: "index_dossier_notifications_on_instructeur_id"
+    t.index ["notification_type", "dossier_id"], name: "index_dossier_notifications_on_type_and_dossier_id"
   end
 
   create_table "dossier_operation_logs", force: :cascade do |t|
