@@ -29,4 +29,6 @@
       <%= t(".add", libelle: @champ.libelle) %>
     <% end %>
   </div>
+
+  <div id="<%= dom_id(@champ, :deletion_announcement) %>" class="sr-only" role="status"></div>
 </div>
