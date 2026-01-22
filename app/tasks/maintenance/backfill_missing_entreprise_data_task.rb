@@ -21,7 +21,7 @@ module Maintenance
 
       # Add delay
       wait_time = rand(0..max_wait)
-      APIEntreprise::EntrepriseJob.set(wait: wait_time.seconds).perform_later(etablissement.id, procedure_id)
+      APIEntrepriseService.perform_later_fetch_jobs(etablissement, procedure_id, nil, wait: wait_time.seconds)
     rescue StandardError => e
       # Log l'erreur mais continue avec les autres établissements
       Rails.logger.error("BackfillMissingEntrepriseDataTask: Error processing etablissement #{etablissement.id}: #{e.message}")

@@ -31,12 +31,17 @@ module Maintenance
     end
 
     describe "#process" do
-      it "enqueues APIEntreprise::EntrepriseJob for the etablissement" do
+      it "calls perform_later_fetch_jobs to enqueue all API Entreprise jobs" do
         allow(task).to receive(:max_wait).and_return(0)
 
-        expect do
-          task.process(etablissement_to_repair)
-        end.to have_enqueued_job(APIEntreprise::EntrepriseJob).with(etablissement_to_repair.id, procedure.id)
+        expect(APIEntrepriseService).to receive(:perform_later_fetch_jobs).with(
+          etablissement_to_repair,
+          procedure.id,
+          nil,
+          wait: 0.seconds
+        )
+
+        task.process(etablissement_to_repair)
       end
     end
   end
