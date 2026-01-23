@@ -13,29 +13,27 @@
     %h1.fr-h3 Avis
 
 .fr-container
-  .procedure-list
-    - @avis_by_procedure.each do |p, procedure_avis|
-      %section.procedure__item{ id: dom_id(p) }
-        .procedure-details
-          .clipboard-container
-            .fr-mb-2w
-              %h3.font-weight-normal.fr-link.fr-mr-2w
-                = link_to procedure_libelle_with_number(p), procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS)
-              = procedure_badge(p)
+  - @avis_by_procedure.each do |p, procedure_avis|
+    %section.procedure__item{ id: dom_id(p) }
+      .clipboard-container
+        .fr-mb-2w
+          %h3.font-weight-normal.fr-link.fr-mr-2w
+            = link_to procedure_libelle_with_number(p), procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS)
+          = procedure_badge(p)
 
-          %ul.procedure-stats.flex.wrap.flex-gap-1
-            %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link.fr-mb-1w
-              = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS)) do
-                - without_answer_count = procedure_avis.select { _1.answer.nil? }.reject{ _1.dossier.termine?}.size
-                - if without_answer_count > 0
-                  %span.notifications{ 'aria-label': "notifications" }
-                .center.fr-text--bold.fr-text--sm
-                  = without_answer_count
-                .center.fr-text--xs
-                  avis à donner
-            %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link.fr-mb-1w
-              = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::DONNES_STATUS)) do
-                - with_answer_count = procedure_avis.select { |a| a.answer.present? }.size
-                .center.fr-text--bold.fr-text--sm= with_answer_count
-                .center.fr-text--xs
-                  = pluralize(with_answer_count, "avis donné")
+      %ul.procedure-stats.flex.wrap.flex-gap-1
+        %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link.fr-mb-1w
+          = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS)) do
+            - without_answer_count = procedure_avis.select { _1.answer.nil? }.reject{ _1.dossier.termine?}.size
+            - if without_answer_count > 0
+              %span.notifications{ 'aria-label': "notifications" }
+            .center.fr-text--bold.fr-text--sm
+              = without_answer_count
+            .center.fr-text--xs
+              avis à donner
+        %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link.fr-mb-1w
+          = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::DONNES_STATUS)) do
+            - with_answer_count = procedure_avis.select { |a| a.answer.present? }.size
+            .center.fr-text--bold.fr-text--sm= with_answer_count
+            .center.fr-text--xs
+              = pluralize(with_answer_count, "avis donné")

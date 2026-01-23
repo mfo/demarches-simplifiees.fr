@@ -1,50 +1,32 @@
-@import 'constants';
-@import 'mixins';
-
 .procedure__item {
   box-shadow: 0 -1px 0 0 var(--border-default-grey);
   margin-bottom: 2.5rem;
   padding-top: 1rem;
 }
 
-.procedure-list {
-  .procedure-logo-link {
-    background-image: none;
-  }
+.procedure-stats {
+  list-style-type: none;
+  padding-inline-start: 0;
 
-  .procedure-logo {
-    @include ie-compatible-background-image();
+  li {
+    min-height: 36px;
+    min-width: 6em;
+    position: relative;
+    border-left: 1px solid var(--border-default-grey);
+    flex: 1 1 auto;
 
-    height: 93px;
-    width: 93px;
-    margin-right: 3 * $default-spacer;
-    background-position: 95% 50%;
-  }
+    &:first-child {
+      border-left: none;
+    }
 
-  .procedure-stats {
-    list-style-type: none;
-    padding-inline-start: 0;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
 
-    li {
-      min-height: 36px;
-      min-width: 6em;
-      position: relative;
-      border-left: 1px solid var(--border-default-grey);
-      flex: 1 1 auto;
-
-      &:first-child {
-        border-left: none;
-      }
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-
-      .notifications {
-        top: 10px;
-        left: 50%;
-        margin-left: 15px;
-      }
+    .notifications {
+      top: 10px;
+      left: 50%;
+      margin-left: 15px;
     }
   }
 }
