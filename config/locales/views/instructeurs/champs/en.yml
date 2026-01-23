@@ -4,3 +4,5 @@ en:
       edit:
         change_attachment_data: Change attachment data
         attachment_data: Attachment data
+      update:
+        success: "The attachment data '%{libelle}' has been successfully updated."
