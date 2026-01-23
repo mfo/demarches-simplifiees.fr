@@ -374,6 +374,9 @@ en:
         account_deleted: '(the user has deleted his/her account)'
       actions:
         edit: "Edit"
+        save_modifications: "Save changes"
+        cancel: "Cancel"
+        back_to_file: "Back to file"
       greetings:
         hello: Dear Sir or Madam,
         best_regards: Best Regards,

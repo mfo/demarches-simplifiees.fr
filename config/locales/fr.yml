@@ -377,6 +377,9 @@ fr:
         save: Enregistrer
         edit: Modifier
         see: Voir
+        save_modifications: Enregistrer les modifications
+        cancel: Annuler
+        back_to_file: Retour au dossier
       greetings:
         hello: Bonjour,
         best_regards: Cordialement,
