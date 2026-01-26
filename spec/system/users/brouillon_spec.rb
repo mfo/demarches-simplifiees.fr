@@ -53,14 +53,6 @@ describe 'The user', js: true do
     find('.fr-menu__item', text: 'Brétigny (60400)').click
     wait_until { champ_value_for('communes') == "Brétigny" }
 
-    address_locator = "Saisissez une adresse, une voie, un lieu-dit ou une commune. Exemple : 11 rue Réaumur, Paris"
-    scroll_to(find_field(address_locator), align: :center)
-    fill_in(address_locator, with: '78 Rue du Grés 30310 Vergè')
-    find('.fr-menu__item', text: '78 Rue du Grés 30310 Vergèze').click
-    wait_until { champ_value_for('address') == '78 Rue du Grés 30310 Vergèze' }
-    wait_until { champ_for('address').full_address? }
-    expect(champ_for('address').departement_code_and_name).to eq('30 – Gard')
-
     # scroll_to(find_field('annuaire_education'), align: :center)
     # fill_in('annuaire_education', with: 'Moulin')
     # find('.fr-menu__item', text: 'Ecole primaire Jean Moulin, Moulins (0030323K)').click
@@ -236,7 +228,25 @@ describe 'The user', js: true do
     expect(page).to have_current_path(merci_dossier_path(user_dossier))
   end
 
-  scenario 'fill address not in BAN' do
+  scenario 'fill address in BAN and submit dossier', vcr: true do
+    log_in(user, simple_procedure)
+    fill_individual
+
+    address_locator = "Saisissez une adresse, une voie, un lieu-dit ou une commune. Exemple : 11 rue Réaumur, Paris"
+    scroll_to(find_field(address_locator), align: :center)
+    fill_in(address_locator, with: '78 Rue du Grés 30310 Vergè')
+    find('.fr-menu__item', text: '78 Rue du Grés 30310 Vergèze').click
+    wait_until { champ_value_for('address') == '78 Rue du Grés 30310 Vergèze' }
+    wait_until { champ_for('address').full_address? }
+    expect(champ_for('address').departement_code_and_name).to eq('30 – Gard')
+
+    fill_in('texte obligatoire', with: 'pour déposer')
+
+    click_on 'Déposer le dossier'
+    expect(page).to have_text("Merci")
+  end
+
+  scenario 'fill address not in BAN and submit dossier' do
     stub_request(:get, "https://data.geopf.fr/geocodage/search?limit=10&q=2%20rue%20de%20la%20paix,%2092094%20Belgique")
       .to_return(body: '{"type":"FeatureCollection","version":"draft","features":[]}')
     stub_request(:get, "https://geo.api.gouv.fr/communes?boost=population&codePostal=60400&limit=50&type=commune-actuelle,arrondissement-municipal")
@@ -273,6 +283,11 @@ describe 'The user', js: true do
     fill_in('Ville ou commune', with: '60400')
     find('.fr-menu__item', text: 'Brétigny (60400)').click
     wait_until { champ_for('address').city_name == 'Brétigny' }
+
+    fill_in('texte obligatoire', with: 'pour déposer')
+
+    click_on 'Déposer le dossier'
+    expect(page).to have_text("Merci")
   end
 
   scenario 'try submitting not complete not in BAN' do

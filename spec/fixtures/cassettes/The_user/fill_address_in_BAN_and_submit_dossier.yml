@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://data.geopf.fr/geocodage/search?limit=10&q=78%20Rue%20du%20Gr%C3%A9s%2030310%20Verg%C3%A8
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - demarche.numerique.gouv.fr
+      Expect:
+      - ''
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 26 Jan 2026 13:44:26 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '561'
+      X-Ratelimit-Limit-Second:
+      - '1'
+      Ratelimit-Limit:
+      - '50'
+      Vary:
+      - Origin
+      Etag:
+      - W/"231-ISo//MSuZp6xYt2z4zYYCfAgG3s"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, PUT, POST, DELETE, PATCH, OPTIONS
+      Access-Control-Allow-Headers:
+      - DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community
+      Access-Control-Max-Age:
+      - '1728000'
+      X-Iplb-Request-Id:
+      - 52414B63:CE47_91EFC1E7:01BB_69776FB9_B8DACF64:4CBC
+      X-Iplb-Instance:
+      - '61217'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJ0eXBlIjoiRmVhdHVyZUNvbGxlY3Rpb24iLCJmZWF0dXJlcyI6W3sidHlwZSI6IkZlYXR1cmUiLCJnZW9tZXRyeSI6eyJ0eXBlIjoiUG9pbnQiLCJjb29yZGluYXRlcyI6WzQuMjMwNjgzLDQzLjc0NjA4NV19LCJwcm9wZXJ0aWVzIjp7ImxhYmVsIjoiNzggUnVlIGR1IEdyw6lzIDMwMzEwIFZlcmfDqHplIiwic2NvcmUiOjAuODY4NDU1NDU0NTQ1NDU0NiwiaG91c2VudW1iZXIiOiI3OCIsImlkIjoiMzAzNDRfMDA5OF8wMDA3OCIsImJhbklkIjoiNzJlNDQ2NjAtYmQyYS00MTI3LWI3MmUtMzZmOWU2YmQ5M2JhIiwibmFtZSI6Ijc4IFJ1ZSBkdSBHcsOpcyIsInBvc3Rjb2RlIjoiMzAzMTAiLCJjaXR5Y29kZSI6IjMwMzQ0IiwieCI6Nzk5MTQ0LjE0LCJ5Ijo2Mjk0ODkwLjU2LCJjaXR5IjoiVmVyZ8OoemUiLCJjb250ZXh0IjoiMzAsIEdhcmQsIE9jY2l0YW5pZSIsInR5cGUiOiJob3VzZW51bWJlciIsImltcG9ydGFuY2UiOjAuNTUzMDEsInN0cmVldCI6IlJ1ZSBkdSBHcsOpcyIsIl90eXBlIjoiYWRkcmVzcyJ9fV0sInF1ZXJ5IjoiNzggUnVlIGR1IEdyw6lzIDMwMzEwIFZlcmfDqCJ9
+  recorded_at: Mon, 26 Jan 2026 13:44:25 GMT
+recorded_with: VCR 6.3.1
