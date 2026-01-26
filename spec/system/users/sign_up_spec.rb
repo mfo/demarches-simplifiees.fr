@@ -62,7 +62,7 @@ describe 'Signing up:', js: true do
 
     # Then with a good password
     sign_up_with user_email, user_password
-    expect(page).to have_current_path new_user_confirmation_path user: { email: user_email }
+    expect(page).to have_current_path(/\/users\/confirmation\/new\?email=[^@]{32,}$/)
     expect(page).to have_content "nous avons besoin de vérifier votre adresse électronique #{user_email}"
   end
 

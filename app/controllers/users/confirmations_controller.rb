@@ -4,7 +4,8 @@ class Users::ConfirmationsController < Devise::ConfirmationsController
   # GET /resource/confirmation/new
   def new
     # Allow displaying the user email in the message
-    self.resource = resource_class.new(email: user_email_param)
+    decoded_email = message_encryptor_service.decrypt_and_verify(params[:email], purpose: :email_confirmation) rescue nil
+    self.resource = resource_class.new(email: decoded_email)
   end
 
   # POST /resource/confirmation

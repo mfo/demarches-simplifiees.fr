@@ -70,4 +70,36 @@ describe Users::ConfirmationsController, type: :controller do
       end
     end
   end
+
+  describe '#new' do
+    let(:email) { 'test@example.com' }
+    render_views
+
+    it 'decodes the signed email and makes it available to the view' do
+      signed_email = controller.message_encryptor_service.encrypt_and_sign(email, purpose: :email_confirmation)
+
+      get :new, params: { email: signed_email }
+
+      expect(response.body).to have_text("votre adresse électronique #{email}.")
+      expect(response.body).to have_text("nous pouvons vous le renvoyer")
+    end
+
+    context 'when signed email is invalid' do
+      it 'does not fail' do
+        get :new, params: { email: 'invalid_token' }
+
+        expect(response.body).to have_text("cliquez sur le lien d’activation")
+        expect(response.body).not_to have_text("nous pouvons vous le renvoyer")
+      end
+    end
+
+    context 'without email parameter (transition from legacy confirmation flow)' do
+      it 'does not fail' do
+        get :new
+
+        expect(response.body).to have_text("cliquez sur le lien d’activation")
+        expect(response.body).not_to have_text("nous pouvons vous le renvoyer")
+      end
+    end
+  end
 end
