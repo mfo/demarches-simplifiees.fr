@@ -1,86 +1,25 @@
-@import 'colors';
-@import 'constants';
-@import 'mixins';
-
-.procedure-list {
-  .procedure-logo-link {
-    background-image: none;
-  }
-
-  > li {
-    border-top: none;
-
-    @media (min-width: 62em) {
-      border-top: 1px solid var(--border-default-grey);
-    }
-  }
-
-  .procedure-logo {
-    @include ie-compatible-background-image();
-
-    height: 93px;
-    width: 93px;
-    margin-right: 3 * $default-spacer;
-    background-position: 95% 50%;
-  }
-
-  .procedure-stats {
-    list-style-type: none;
-    padding-inline-start: 0;
-
-    li {
-      min-height: 36px;
-      min-width: 6em;
-      position: relative;
-      border-left: 1px solid var(--border-default-grey);
-      flex: 1 1 auto;
-
-      &:first-child {
-        border-left: none;
-      }
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-
-      .notifications {
-        top: 10px;
-        left: 50%;
-        margin-left: 15px;
-      }
-    }
-  }
+.procedure__item {
+  box-shadow: 0 -1px 0 0 var(--border-default-grey);
+  margin-bottom: 2.5rem;
+  padding-top: 1rem;
 }
 
-.procedure-list-item {
-  .fr-btn--tertiary {
-    a {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
+.procedure-stats {
+  padding-inline-start: 0;
+
+  li {
+    min-height: 36px;
+    position: relative;
+    flex: 1 1 auto;
+
+    &:hover {
+      background-color: var(--background-alt-grey);
     }
 
     .notifications {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background-color: red;
-      border-radius: 50%;
-      top: 15px;
-      right: 35%;
-    }
-
-    .center.fr-text--bold {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &::after {
-        content: '';
-        display: inline-block;
-        width: 30px;
-      }
+      top: 10px;
+      left: 50%;
+      margin-left: 15px;
     }
   }
 }
