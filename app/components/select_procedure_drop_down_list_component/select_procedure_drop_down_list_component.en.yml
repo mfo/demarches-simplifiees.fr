@@ -1,4 +1,4 @@
 ---
 en:
-  label: Direct access
+  label_html: 'Direct access <span class="fr-sr-only">Select a procedure</span>'
   placeholder: Select a procedure

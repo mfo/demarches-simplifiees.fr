@@ -1,4 +1,4 @@
 ---
 fr:
-  label: Accès direct
+  label_html: 'Accès direct <span class="fr-sr-only">Sélectionnez une démarche</span>'
   placeholder: Sélectionnez une démarche
