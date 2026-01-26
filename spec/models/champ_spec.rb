@@ -621,4 +621,20 @@ describe Champ do
       expect(champ.parent).to eq(TypeDeChamp.find_by(type_champ: "repetition"))
     end
   end
+
+  describe '#clone_value_from' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:source_champ) { dossier.champs.first }
+    let(:target_champ) { source_champ.dup.tap { it.stream = Champ::USER_BUFFER_STREAM } }
+
+    before do
+      source_champ.update_columns(external_state: 'fetched')
+    end
+
+    it 'clones external_state' do
+      target_champ.clone_value_from(source_champ)
+      expect(target_champ.external_state).to eq('fetched')
+    end
+  end
 end
