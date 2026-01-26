@@ -9,5 +9,5 @@
       = turbo_stream.update "#{@champ.focusable_input_id}-aria-live", t('activerecord.models.attachment.antivirus_pending')
 
 - if @champ.dossier.en_construction?
-  = turbo_stream.replace_all '.dossier-edit-sticky-footer' do
+  = turbo_stream.replace_all '.dossier-edit-footer' do
     = render Dossiers::EditFooterComponent.new(dossier: @champ.dossier, annotation: @champ.private?)
