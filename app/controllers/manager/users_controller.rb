@@ -78,6 +78,7 @@ module Manager
 
       email_services = [
         Sendinblue::API.new,
+        Scaleway::API.new,
       ].filter(&:properly_configured?)
 
       @sent_mails = Concurrent::Array.new
