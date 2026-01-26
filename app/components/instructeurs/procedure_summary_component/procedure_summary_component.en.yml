@@ -2,3 +2,4 @@
 en:
   menu: Menu
   menu_aria_label: '%{name} procedure'
+  procedure_menu: Procedure menu

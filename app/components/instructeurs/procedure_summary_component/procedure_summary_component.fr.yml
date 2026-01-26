@@ -2,3 +2,4 @@
 fr:
   menu: Menu
   menu_aria_label: Démarche %{name}
+  procedure_menu: Menu de la démarche
