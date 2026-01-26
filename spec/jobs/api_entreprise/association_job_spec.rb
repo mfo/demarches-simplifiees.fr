@@ -22,6 +22,16 @@ RSpec.describe APIEntreprise::AssociationJob, type: :job do
     expect(Etablissement.find(etablissement.id).association_rna).to eq("W751080001")
   end
 
+  context "when the etablissement already has an address" do
+    let(:original_adresse) { "123 rue existante, 75001 Paris" }
+    let(:etablissement) { create(:etablissement, siret: siret, adresse: original_adresse) }
+
+    it "does not override the existing address" do
+      subject
+      expect(Etablissement.find(etablissement.id).adresse).to eq(original_adresse)
+    end
+  end
+
   context "when the etablissement has been deleted" do
     before do
       allow_any_instance_of(Etablissement).to receive(:find) { raise ActiveRecord::RecordNotFound }
