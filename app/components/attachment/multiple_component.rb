@@ -47,4 +47,27 @@ class Attachment::MultipleComponent < ApplicationComponent
 
     nil
   end
+
+  def show_hint?
+    champ.present?
+  end
+
+  def describedby_hint_id
+    return nil if champ.nil?
+    "#{champ.focusable_input_id}-pj-hint"
+  end
+
+  def max_file_size
+    return TypeDeChamp::IDENTITY_FILE_MAX_SIZE if champ&.titre_identite? || champ&.titre_identite_nature?
+    champ&.max_file_size_bytes
+  end
+
+  def allowed_formats
+    @allowed_formats ||= begin
+      raw = champ&.piece_justificative? ? champ.allowed_content_types : []
+      extensions = raw.filter_map { |ct| MiniMime.lookup_by_content_type(ct)&.extension }.uniq
+      sorted = extensions.sort_by { |e| Attachment::EditComponent::EXTENSIONS_ORDER.index(e) || 999 }
+      sorted.size > 5 ? (sorted.first(5) + ['…']) : sorted
+    end
+  end
 end

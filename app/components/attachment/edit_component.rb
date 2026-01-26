@@ -12,7 +12,7 @@ class Attachment::EditComponent < ApplicationComponent
 
   EXTENSIONS_ORDER = ['jpeg', 'png', 'pdf', 'zip'].freeze
 
-  def initialize(champ: nil, auto_attach_url: nil, attached_file:, direct_upload: true, index: 0, as_multiple: false, view_as: :link, user_can_destroy: true, attachments: [], max: nil, aria_labelledby: nil, **kwargs)
+  def initialize(champ: nil, auto_attach_url: nil, attached_file:, direct_upload: true, index: 0, as_multiple: false, view_as: :link, user_can_destroy: true, attachments: [], max: nil, aria_labelledby: nil, parent_hint_id: nil, **kwargs)
     @champ = champ
     @attached_file = attached_file
     @direct_upload = direct_upload
@@ -36,6 +36,7 @@ class Attachment::EditComponent < ApplicationComponent
     @form_object_name = kwargs.delete(:form_object_name)
 
     @aria_labelledby = aria_labelledby
+    @parent_hint_id = parent_hint_id
 
     verify_initialization!(kwargs)
   end
@@ -79,10 +80,6 @@ class Attachment::EditComponent < ApplicationComponent
     "attachment-input-#{attachment_id}"
   end
 
-  def show_hint?
-    first? && !persisted?
-  end
-
   def file_field_options
     track_issue_with_missing_validators if missing_validators?
 
@@ -99,7 +96,7 @@ class Attachment::EditComponent < ApplicationComponent
 
     describedby = []
     describedby << champ.describedby_id if champ&.description.present?
-    describedby << describedby_hint_id if show_hint?
+    describedby << @parent_hint_id if @parent_hint_id.present?
     describedby << champ.error_id if champ&.errors&.has_key?(:value)
 
     options[:aria] = { describedby: describedby.join(' '), labelledby: @aria_labelledby }
