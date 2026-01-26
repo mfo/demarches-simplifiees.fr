@@ -110,6 +110,7 @@ class Instructeurs::ColumnFilterValueComponent < ApplicationComponent
       selected_keys: filtered_column&.filter_values,
       placeholder: t('.multi_select_placeholder'),
       tags_below: true,
+      hide_selected_tags: true,
     }
   end
 
