@@ -246,12 +246,7 @@ describe 'The user', js: true do
     expect(page).to have_text("Merci")
   end
 
-  scenario 'fill address not in BAN and submit dossier' do
-    stub_request(:get, "https://data.geopf.fr/geocodage/search?limit=10&q=2%20rue%20de%20la%20paix,%2092094%20Belgique")
-      .to_return(body: '{"type":"FeatureCollection","version":"draft","features":[]}')
-    stub_request(:get, "https://geo.api.gouv.fr/communes?boost=population&codePostal=60400&limit=50&type=commune-actuelle,arrondissement-municipal")
-      .to_return(body: '[{"nom":"Brétigny","code":"60105","codeDepartement":"60","codeRegion":"32","codesPostaux":["60400"]}]')
-
+  scenario 'fill address not in BAN and submit dossier', vcr: true do
     log_in(user, simple_procedure)
     fill_individual
 
