@@ -4001,8 +4001,8 @@ type Mutation {
 
   """
   Ajouter un administrateur existant a une démarche. A moins que utilisiez cette
-  mutation sur une instance autre que demarches.numerique.gouv.fr,
-  l'administrateur doit avoir été crée a priori.
+  mutation sur une instance autre que demarche.numerique.gouv.fr avec la
+  fonctionnalité activée, l'administrateur doit avoir été crée a priori.
   """
   demarcheAjouterAdministrateur(
     """
