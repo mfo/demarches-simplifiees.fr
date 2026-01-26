@@ -88,8 +88,10 @@ describe Users::RegistrationsController, type: :controller do
           expect(UserMailer).to have_received(:new_account_warning)
         end
 
-        it 'avoids leaking information about the account existence, by redirecting to the same page than normal signup' do
-          expect(response).to redirect_to(new_user_confirmation_path(user: { email: user[:email] }))
+        it 'redirects to confirmation page with signed email in url' do
+          email_param = CGI.parse(URI.parse(response.location).query)['email'].first
+          decrypted_email = controller.message_encryptor_service.decrypt_and_verify(email_param, purpose: :email_confirmation)
+          expect(decrypted_email).to eq(user[:email])
         end
       end
 
@@ -105,8 +107,12 @@ describe Users::RegistrationsController, type: :controller do
           expect(UserMailer).not_to have_received(:new_account_warning)
         end
 
-        it 'avoids leaking information about the account existence, by redirecting to the same page than normal signup' do
-          expect(response).to redirect_to(new_user_confirmation_path(user: { email: user[:email] }))
+        it 'redirects to confirmation page with signed email (not plain text)' do
+          expect(response).to redirect_to(/\/users\/confirmation\/new\?email=/)
+
+          email_param = CGI.parse(URI.parse(response.location).query)['email'].first
+          decrypted_email = controller.message_encryptor_service.decrypt_and_verify(email_param, purpose: :email_confirmation)
+          expect(decrypted_email).to eq(user[:email])
         end
       end
     end
