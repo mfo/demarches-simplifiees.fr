@@ -32,7 +32,7 @@ module Maintenance
 
     def max_wait
       # spread the jobs over 10 seconds * number of etablissements
-      count * 10
+      @max_wait ||= collection.count * 10
     end
 
     def find_procedure_id(etablissement)
