@@ -16,6 +16,10 @@
       background-color: var(--background-alt-grey);
     }
 
+    &:not(:first-child) {
+      border-left: 1px solid var(--border-default-grey);
+    }
+
     .notifications {
       top: 10px;
       left: 50%;
