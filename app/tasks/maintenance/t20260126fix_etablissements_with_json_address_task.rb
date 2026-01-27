@@ -13,7 +13,8 @@ module Maintenance
     end
 
     def process(etablissement)
-      dossier = etablissement.dossier || etablissement.champ.dossier
+      dossier = etablissement.dossier || etablissement.champ&.dossier
+      return if dossier.nil? # some etablissements does not have dossier or champ (?)
       return if dossier.termine?
 
       procedure_id = dossier.procedure.id
