@@ -301,6 +301,20 @@ RSpec.describe TiptapService do
     end
   end
 
+  describe 'sanitization' do
+    it 'escapes HTML tags in text content' do
+      json = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: '<script>alert(1)</script>' }] }] }
+      expect(described_class.new.to_html(json, {})).to include('&lt;script&gt;')
+    end
+
+    it 'ignores unknown node types' do
+      json = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello' }] }, { type: 'script', content: [{ type: 'text', text: 'evil' }] }] }
+      result = described_class.new.to_html(json, {})
+      expect(result).to include('Hello')
+      expect(result).not_to include('evil')
+    end
+  end
+
   describe '.to_texts_and_tags' do
     subject { described_class.new.to_texts_and_tags(json, substitutions) }
 
