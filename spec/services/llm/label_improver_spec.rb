@@ -120,4 +120,97 @@ RSpec.describe LLM::LabelImprover do
       expect(service.send(:filter_invalid_llm_result, 123, nil, 'description')).to be false
     end
   end
+
+  describe '#create_batches_for_suggestion (private)' do
+    let(:service) { described_class.new }
+
+    context 'when schema has fewer than 50 fields' do
+      it 'returns single batch' do
+        schema = Array.new(30) { |i| { stable_id: i, type: 'text' } }
+
+        batches = service.send(:create_batches_for_suggestion, schema, suggestion)
+
+        expect(batches.size).to eq(1)
+        expect(batches.first.size).to eq(30)
+      end
+    end
+
+    context 'when schema has more than 50 fields without sections' do
+      it 'splits into chunks of 50' do
+        schema = Array.new(51) { |i| { stable_id: i, type: 'text' } }
+
+        batches = service.send(:create_batches_for_suggestion, schema, suggestion)
+
+        expect(batches.size).to eq(2)
+        expect(batches[0].size).to eq(50)
+        expect(batches[1].size).to eq(1)
+      end
+    end
+
+    context 'when schema has level 1 sections' do
+      it 'splits by section boundaries' do
+        schema = [
+          { stable_id: 1, type: 'header_section', header_section_level: 1 },
+          *Array.new(30) { |i| { stable_id: i + 2, type: 'text' } },
+          { stable_id: 100, type: 'header_section', header_section_level: 1 },
+          *Array.new(30) { |i| { stable_id: i + 102, type: 'text' } },
+        ]
+
+        batches = service.send(:create_batches_for_suggestion, schema, suggestion)
+
+        expect(batches.size).to eq(2)
+        expect(batches[0].size).to eq(31) # section + 30 fields
+        expect(batches[1].size).to eq(31)
+      end
+    end
+
+    context 'when small sections can be merged' do
+      it 'merges sections under 50 fields total' do
+        schema = [
+          { stable_id: 1, type: 'header_section', header_section_level: 1 },
+          *Array.new(10) { |i| { stable_id: i + 2, type: 'text' } },
+          { stable_id: 100, type: 'header_section', header_section_level: 1 },
+          *Array.new(15) { |i| { stable_id: i + 102, type: 'text' } },
+        ]
+
+        batches = service.send(:create_batches_for_suggestion, schema, suggestion)
+
+        expect(batches.size).to eq(1)
+        expect(batches.first.size).to eq(27) # 2 headers + 25 fields
+      end
+    end
+
+    context 'when a section exceeds 50 fields' do
+      it 'recursively splits by deeper section levels' do
+        schema = [
+          { stable_id: 1, type: 'header_section', header_section_level: 1 },
+          { stable_id: 2, type: 'header_section', header_section_level: 2 },
+          *Array.new(30) { |i| { stable_id: i + 3, type: 'text' } },
+          { stable_id: 200, type: 'header_section', header_section_level: 2 },
+          *Array.new(30) { |i| { stable_id: i + 203, type: 'text' } },
+        ]
+
+        batches = service.send(:create_batches_for_suggestion, schema, suggestion)
+
+        expect(batches.size).to eq(2)
+        expect(batches[0].size).to eq(32) # h1 + h2 + 30 fields
+        expect(batches[1].size).to eq(31) # h2 + 30 fields
+      end
+    end
+
+    context 'when section is too large even without subsections' do
+      it 'splits into chunks of 50' do
+        schema = [
+          { stable_id: 1, type: 'header_section', header_section_level: 1 },
+          *Array.new(51) { |i| { stable_id: i + 2, type: 'text' } },
+        ]
+
+        batches = service.send(:create_batches_for_suggestion, schema, suggestion)
+
+        expect(batches.size).to eq(2)
+        expect(batches[0].size).to eq(50)
+        expect(batches[1].size).to eq(2)
+      end
+    end
+  end
 end

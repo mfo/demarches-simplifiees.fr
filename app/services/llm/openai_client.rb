@@ -6,12 +6,14 @@ require 'langchain'
 
 module LLM
   class OpenAIClient
+    TIMEOUT = 180
+
     def self.instance
       @instance ||= Langchain::LLM::OpenAI.new(
         api_key: ENV["LLM_API_KEY"],
         llm_options: {
           uri_base: ENV.fetch("LLM_URI_BASE"),
-          timeout: 180,
+          timeout: TIMEOUT,
         },
         default_options: {
           temperature: ENV.fetch("LLM_TEMPERATURE", 0.2).to_f,
