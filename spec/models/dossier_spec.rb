@@ -76,6 +76,16 @@ describe Dossier, type: :model do
       end
     end
 
+    describe '.instruction_action?' do
+      it 'is true when its an instruction action' do
+        expect(described_class.instruction_action?('accepter')).to be(true)
+        expect(described_class.instruction_action?('refuser')).to be(true)
+        expect(described_class.instruction_action?('classer_sans_suite')).to be(true)
+        expect(described_class.instruction_action?('passer_en_instruction')).to be(false)
+        expect(described_class.instruction_action?(nil)).to be(false)
+      end
+    end
+
     describe '.brouillon_expired' do
       let(:interval_between_first_and_second_expiration) { Dossier::MONTHS_AFTER_EXPIRATION.months + Dossier::DAYS_AFTER_EXPIRATION.days }
 

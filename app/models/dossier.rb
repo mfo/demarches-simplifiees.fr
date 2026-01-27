@@ -24,6 +24,17 @@ class Dossier < ApplicationRecord
     sans_suite:      'sans_suite',
   }
 
+  INSTRUCTION_ACTIONS = [
+    :accepter,
+    :refuser,
+    :classer_sans_suite,
+  ].freeze
+
+  def self.instruction_action?(action)
+    return false if action.blank?
+    INSTRUCTION_ACTIONS.include?(action.to_sym)
+  end
+
   EN_CONSTRUCTION_OU_INSTRUCTION = [states.fetch(:en_construction), states.fetch(:en_instruction)]
   TERMINE = [states.fetch(:accepte), states.fetch(:refuse), states.fetch(:sans_suite)]
   INSTRUCTION_COMMENCEE = TERMINE + [states.fetch(:en_instruction)]
