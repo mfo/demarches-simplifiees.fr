@@ -96,5 +96,28 @@ describe Instructeurs::BatchOperationsController, type: :controller do
         expect { subject }.to have_enqueued_job(BatchOperationEnqueueAllJob).with(BatchOperation.last)
       end
     end
+
+    context 'with mark_as_pending_response' do
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          batch_operation: {
+            operation: BatchOperation.operations.fetch(:create_commentaire),
+            dossier_ids: [dossier.id],
+          },
+          commentaire: {
+            body: 'test',
+            piece_jointe: nil,
+          },
+          mark_as_pending_response: 'true',
+        }
+      end
+
+      it 'stores the mark_as_pending_response flag in the batch operation' do
+        subject
+        batch_operation = BatchOperation.first
+        expect(batch_operation.mark_as_pending_response).to eq(true)
+      end
+    end
   end
 end

@@ -26,7 +26,7 @@ class BatchOperation < ApplicationRecord
   has_many :groupe_instructeurs, through: :dossier_operations
   belongs_to :instructeur
 
-  store_accessor :payload, :motivation, :justificatif_motivation, :emails, :introduction, :question_label, :introduction_file, :confidentiel, :body, :piece_jointe, :statut
+  store_accessor :payload, :motivation, :justificatif_motivation, :emails, :introduction, :question_label, :introduction_file, :confidentiel, :body, :piece_jointe, :statut, :mark_as_pending_response
 
   validates :operation, presence: true
 
@@ -128,7 +128,8 @@ class BatchOperation < ApplicationRecord
         }.with_indifferent_access
       )
     when BatchOperation.operations.fetch(:create_commentaire)
-      CommentaireService.create(instructeur, dossier, { email: dossier.user.email, body:, piece_jointe: })
+      commentaire = CommentaireService.create(instructeur, dossier, { email: dossier.user.email, body:, piece_jointe: })
+      dossier.flag_as_pending_response!(commentaire) if mark_as_pending_response && commentaire.errors.empty?
     when BatchOperation.operations.fetch(:restaurer_repousser_expiration)
       dossier.extend_conservation_and_restore(1.month, instructeur)
     end

@@ -121,6 +121,7 @@ module Instructeurs
       params.require(:batch_operation).permit(:statut, dossier_ids: []).tap do |batch_params|
         batch_params[:operation] = 'create_commentaire'
         batch_params[:instructeur] = current_instructeur
+        batch_params[:mark_as_pending_response] = params[:mark_as_pending_response] == 'true'
         batch_params.merge!(commentaire_params)
       end
     end
