@@ -225,7 +225,7 @@ def add_message(pdf, message)
     sender = @dossier.user_email_for(:display)
   end
 
-  format_in_2_lines(pdf, "#{sender}, #{try_format_date(message.created_at)}",
+  format_in_2_lines(pdf, "#{sender}, #{try_format_datetime(message.created_at, format: :short_with_time)}",
     ActionView::Base.full_sanitizer.sanitize(clean_string_for_pdf(message.body)))
 end
 
@@ -286,19 +286,19 @@ end
 
 def add_etats_dossier(pdf, dossier)
   if dossier.depose_at.present?
-    format_in_2_columns(pdf, "Déposé le", try_format_date(dossier.depose_at))
+    format_in_2_columns(pdf, "Déposé le", try_format_datetime(dossier.depose_at, format: :short_with_time))
   end
 
   if dossier.pending_correction?
-    format_in_2_columns(pdf, "Correction demandée le", try_format_date(dossier.pending_corrections.first.created_at))
+    format_in_2_columns(pdf, "Correction demandée le", try_format_datetime(dossier.pending_corrections.first.created_at, format: :short_with_time))
   end
 
   if dossier.en_instruction_at.present?
-    format_in_2_columns(pdf, "En instruction le", try_format_date(dossier.en_instruction_at))
+    format_in_2_columns(pdf, "En instruction le", try_format_datetime(dossier.en_instruction_at, format: :short_with_time))
   end
 
   if dossier.sva_svr_decision_triggered_at.present?
-    format_in_2_columns(pdf, "Décision #{dossier.procedure.sva_svr_configuration.human_decision} prise le", try_format_date(dossier.sva_svr_decision_triggered_at))
+    format_in_2_columns(pdf, "Décision #{dossier.procedure.sva_svr_configuration.human_decision} prise le", try_format_datetime(dossier.sva_svr_decision_triggered_at, format: :short_with_time))
   elsif dossier.sva_svr_decision_on.present?
     value = if dossier.pending_correction?
       "#{dossier.sva_svr_decision_in_days} jours après la correction"
@@ -310,7 +310,7 @@ def add_etats_dossier(pdf, dossier)
   end
 
   if dossier.processed_at.present?
-    format_in_2_columns(pdf, "Décision le", try_format_date(dossier.processed_at))
+    format_in_2_columns(pdf, "Décision le", try_format_datetime(dossier.processed_at, format: :short_with_time))
   end
 end
 
