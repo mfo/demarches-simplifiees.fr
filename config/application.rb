@@ -99,7 +99,7 @@ module TPS
     config.view_component.generate.distinct_locale_files = true
     config.view_component.generate.preview = true
     config.view_component.show_previews_source = true
-    config.view_component.default_preview_layout = 'component_preview'
+    config.view_component.previews.default_layout = 'component_preview'
     config.view_component.previews.paths << "#{Rails.root}/spec/components/previews"
 
     config.graphql.parser_cache = true
