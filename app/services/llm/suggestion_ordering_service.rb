@@ -5,39 +5,13 @@ class LLM::SuggestionOrderingService
   UPDATE_KEY = 'update'
 
   def self.ordered_structure_suggestions(llm_rule_suggestion)
-    original = build_original_list(llm_rule_suggestion.procedure_revision)
-    suggestion_by_kind = llm_rule_suggestion.llm_rule_suggestion_items.group_by(&:op_kind)
-
-    inject_added_header_sections(original, suggestion_by_kind[ADD_KEY] || [])
-    swap_updated_rtdc_position(original, suggestion_by_kind[UPDATE_KEY] || [])
-    inject_repetition_children(llm_rule_suggestion, original)
-  end
-
-  def self.inject_repetition_children(llm_rule_suggestion, original)
-    original.flat_map do |suggestion_or_prtdc|
-      prtdc = nil
-      if suggestion_or_prtdc.is_a?(LLMRuleSuggestionItem)
-        prtdc = llm_rule_suggestion.procedure_revision
-          .revision_types_de_champ
-          .find { it.stable_id == suggestion_or_prtdc.payload['stable_id'] }
-      else
-        prtdc = suggestion_or_prtdc
-      end
-
-      if prtdc.nil? # suggestion had been added, no prtdc exists yet
-        [suggestion_or_prtdc]
-      elsif prtdc.repetition?
-        [suggestion_or_prtdc] + prtdc.revision_types_de_champ
-      else
-        [suggestion_or_prtdc]
-      end
-    end
+    merge_suggestions_into_originals(llm_rule_suggestion)
   end
 
   def self.build_original_list(revision)
     revision.revision_types_de_champ_public
       .to_a
-  end
+   end
 
   def self.ordered_label_suggestions(llm_rule_suggestion)
     root_tdcs, children_tdcs = llm_rule_suggestion.llm_rule_suggestion_items
@@ -52,41 +26,48 @@ class LLM::SuggestionOrderingService
       end
   end
 
-  def self.find_index_after_stable_id(original, stable_id)
-    original.index { |rtdc| rtdc.stable_id == stable_id }
-  end
+  def self.merge_suggestions_into_originals(llm_rule_suggestion)
+    suggestions = llm_rule_suggestion.llm_rule_suggestion_items.to_a
+    original_items = llm_rule_suggestion.procedure_revision.revision_types_de_champ_public.to_a
 
-  def self.inject_added_header_sections(original, add_suggestions)
-    add_suggestions.each do |item|
-      if (index = insertion_index_for(item, original))
-        original.insert(index, item)
-      end
+    validate_no_cycles!(suggestions)
+
+    suggestions_by_after_id = suggestions.index_by { |s| s.payload['after_stable_id'] }
+
+    # Commencer par les suggestions en première position (after_stable_id: nil)
+    result = suggestions_by_after_id[nil] ? [suggestions_by_after_id[nil]] : []
+
+    # Parcourir les originaux et insérer les suggestions après chacun
+    original_items.each_with_object(result) do |original, acc|
+      acc << original
+      acc << suggestions_by_after_id[original.stable_id] if suggestions_by_after_id[original.stable_id]
     end
   end
 
-  def self.swap_updated_rtdc_position(original, update_suggestions)
-    update_suggestions.each do |item|
-      original.reject! { it.stable_id == item.payload['stable_id'] }
-      if (index = insertion_index_for(item, original))
-        original.insert(index, item)
-      end
+  def self.validate_no_cycles!(suggestions)
+    return if suggestions.empty?
+
+    after_ids = suggestions.map { |s| s.payload['after_stable_id'] }.compact
+
+    # CAS 1 : Duplication - deux suggestions ne peuvent pas avoir le même after_stable_id
+    if after_ids.uniq.length != after_ids.length
+      raise "Cycle détecté : duplication d'after_stable_id"
+    end
+
+    # CAS 2 : Cycle fermé - tous les éléments se référencent mutuellement sans point d'entrée
+    has_start = suggestions.any? { |s| s.payload['after_stable_id'].nil? }
+    suggestion_ids = suggestions.map { |s| stable_id_of(s) }
+
+    if !has_start && suggestion_ids.all? { |id| after_ids.include?(id) }
+      raise "Cycle détecté : chaîne fermée sans point d'entrée"
     end
   end
 
-  def self.insertion_index_for(item, original)
-    case item.payload['after_stable_id']
-    in nil
-      0
-    in Integer => after_stable_id if after_stable_id.negative?
-      # after_stable_id is for a newly added item
-      index = original.index do |rtdc|
-        rtdc.is_a?(LLMRuleSuggestionItem) && rtdc.payload['generated_stable_id'] == after_stable_id
-      end
-      index ? index + 1 : nil
-    in Integer => after_stable_id if after_stable_id.positive?
-      # after_stable_id is for an existing item
-      index = find_index_after_stable_id(original, after_stable_id)
-      index ? index + 1 : nil
+  def self.stable_id_of(item)
+    if item.is_a?(LLMRuleSuggestionItem)
+      item.payload['stable_id'] || item.payload['generated_stable_id']
+    else
+      item.stable_id
     end
   end
 end
