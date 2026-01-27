@@ -11,7 +11,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
   subject { render_inline(component) }
 
   context "when there are errors on the attribute" do
-    let(:types_de_champ_public) { [{ type: :text }] }
+    let(:types_de_champ_public) { [{ type: :text, libelle: "Plop" }] }
     let(:errors_on_attribute) { true }
     let(:error_full_messages) { ["Invalid input"] }
     it "renders the error message" do
@@ -21,7 +21,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     context "when row_number is provided" do
       let(:component) { described_class.new(errors_on_attribute:, error_full_messages:, champ:, row_number: 2) }
       it "renders the error message with row number" do
-        expect(subject).to have_css(".fr-message--error", text: "« #{champ.libelle} 2 »")
+        expect(subject).to have_css(".fr-message--error", text: "« [2] #{champ.libelle} »")
       end
     end
   end

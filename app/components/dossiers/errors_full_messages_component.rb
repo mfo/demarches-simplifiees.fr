@@ -29,19 +29,19 @@ class Dossiers::ErrorsFullMessagesComponent < ApplicationComponent
   end
 
   def model_libelle(model)
-    parent_prefix(model) + model.libelle.truncate(200) + row_number_suffix(model)
+    parent_prefix(model) + row_number_prefix(model) + model.libelle.truncate(200)
   end
 
   def parent_prefix(model)
     return "" if !model.child?
 
-    "#{[model.parent.libelle, is_in_fieldset?(model) ? row_number(model) : nil].compact.join(" ")} - "
+    "#{[is_in_fieldset?(model) ? "[#{row_number(model)}]" : nil, model.parent.libelle].compact.join(" ")} - "
   end
 
-  def row_number_suffix(model)
+  def row_number_prefix(model)
     return "" if !model.child? || is_in_fieldset?(model)
 
-    " #{row_number(model)}"
+    "[#{row_number(model)}] "
   end
 
   def row_number(model)
