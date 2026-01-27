@@ -23,28 +23,22 @@
         <%= t('.menu') %>
       </button>
 
-      <div
-        class="fr-collapse fr-mega-menu"
+      <div class="fr-collapse fr-menu"
         id="mega-menu-<%= p.id %>"
         tabindex="-1"
-        style="min-width: 350px"
       >
-        <div class="fr-container fr-container--fluid fr-container-lg">
+        <div class="fr-menu__list">
           <button
-            class="fr-btn--close fr-btn fr fr-mb-3w"
+            class="fr-btn--close fr-btn fr"
             aria-controls="mega-menu-<%= p.id %>"
           >
             <%= t('utils.modal_close') %>
           </button>
 
           <div class="fr-grid-row">
-            <div class="fr-col-12">
-              <div class="fr-mega-menu__leader">
-                <h4 class="fr-h6">
-                  <%= t('.procedure_menu') %>
-                </h4>
-              </div>
-            </div>
+            <h4 class="fr-h6  fr-my-3w fr-px-2w">
+              <%= t('.procedure_menu') %>
+            </h4>
 
             <div class="fr-col-12">
               <h5 class="fr-mega-menu__category">
