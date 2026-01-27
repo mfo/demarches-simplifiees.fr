@@ -27,10 +27,10 @@ class EditableChamp::RepetitionRowComponent < ApplicationComponent
       http_method: :delete,
       opt: {
         class: "fr-btn fr-btn--sm fr-btn--tertiary fr-icon-delete-bin-line fr-btn--icon-left utils-repetition-required-destroy-button",
-        data: { turbo_confirm: t(".confirm", libelle: @type_de_champ.libelle, row_number:) },
+        data: { turbo_confirm: t(".confirm", libelle: @champ.row_libelle, row_number:) },
       }
     ) do
-      t(".delete", libelle: @type_de_champ.libelle, row_number:)
+      t(".delete", libelle: @champ.row_libelle, row_number:)
     end
   end
 end
