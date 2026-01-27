@@ -18,7 +18,7 @@ module Maintenance
 
       procedure_id = dossier.procedure.id
 
-      APIEntreprise::EtablissementJob.set(wait: rand(0..2.hours)).perform_later(etablissement.id, procedure_id)
+      APIEntreprise::EtablissementJob.set(wait: rand(0..6.hours)).perform_later(etablissement.id, procedure_id)
     end
 
     def count
