@@ -1,4 +1,4 @@
-- content_for :title, "jeton « #{@name} » créé"
+- content_for :title, "jeton « #{@api_token.name} » créé"
 
 = render partial: 'administrateurs/breadcrumbs',
   locals: { steps: [['Tableau de bord', tableau_de_bord_helper_path],
