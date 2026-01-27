@@ -33,3 +33,22 @@
       %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range.min_only',min: min)
     - elsif max
       %span.fr-hint-text= t('activerecord.attributes.champs/decimal_number_champ.hints.range.max_only', max: max)
+
+- if @champ.date? || @champ.datetime?
+  - if @champ.date_in_past?
+    %span.fr-hint-text= t('activerecord.attributes.champs/date_champ.hints.date_in_past')
+
+  - if @champ.range_date?
+    - start_date = @champ.start_date.presence
+    - end_date = @champ.end_date.presence
+
+    - if start_date && end_date
+      - formatted_start = I18n.l(Time.zone.parse(start_date), format: :short)
+      - formatted_end = I18n.l(Time.zone.parse(end_date), format: :short)
+      %span.fr-hint-text= t('activerecord.attributes.champs/date_champ.hints.range.both', start_date: formatted_start, end_date: formatted_end)
+    - elsif start_date
+      - formatted_start = I18n.l(Time.zone.parse(start_date), format: :short)
+      %span.fr-hint-text= t('activerecord.attributes.champs/date_champ.hints.range.start_date_only', start_date: formatted_start)
+    - elsif end_date
+      - formatted_end = I18n.l(Time.zone.parse(end_date), format: :short)
+      %span.fr-hint-text= t('activerecord.attributes.champs/date_champ.hints.range.end_date_only', end_date: formatted_end)
