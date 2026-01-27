@@ -7,6 +7,7 @@ class AddIndexOnNotificationTypeAndDossierIdToDossierNotifications < ActiveRecor
     add_index :dossier_notifications,
               [:notification_type, :dossier_id],
               name: 'index_dossier_notifications_on_type_and_dossier_id',
-              algorithm: :concurrently
+              algorithm: :concurrently,
+              if_not_exists: true
   end
 end
