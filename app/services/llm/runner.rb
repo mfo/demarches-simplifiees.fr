@@ -5,13 +5,11 @@ require 'uri'
 
 module LLM
   class Runner
-    DEFAULT_TIMEOUT = 30
     attr_reader :model
 
-    def initialize(client: nil, model: ENV['LLM_MODEL_NAME'], timeout: DEFAULT_TIMEOUT, logger: Rails.logger)
+    def initialize(client: nil, model: ENV['LLM_MODEL_NAME'], logger: Rails.logger)
       @client = client || (defined?(::LLM::OpenAIClient) ? ::LLM::OpenAIClient.instance : nil)
       @model = model.presence
-      @timeout = timeout.to_i > 0 ? timeout.to_i : DEFAULT_TIMEOUT
       @logger = logger
     end
 
