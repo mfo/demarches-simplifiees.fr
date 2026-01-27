@@ -1123,3 +1123,6 @@ en:
         Thus, you will receive an answer to your request within %{delay} of submitting your complete file.
         For example, if you submit your application today, you will receive a reply no later than %{date}.
         If your file is incomplete, this date may be postponed until submitting a completed file.
+  editable_champ:
+    repetition_component:
+      deleted: "[%{row_number}] %{libelle} deleted"

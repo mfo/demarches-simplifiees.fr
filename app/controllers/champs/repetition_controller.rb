@@ -9,6 +9,9 @@ class Champs::RepetitionController < Champs::ChampController
   end
 
   def remove
+    # Calculate row number before deletion for announcement
+    row_index = @champ.row_ids.find_index(params[:row_id])
+    @deleted_row_number = row_index ? row_index + 1 : nil
     @champ.remove_row(params[:row_id], updated_by: current_user.email)
     @to_remove = "safe-row-selector-#{params[:row_id]}"
     @to_focus = @champ.focusable_input_id || helpers.dom_id(@champ, :create_repetition)

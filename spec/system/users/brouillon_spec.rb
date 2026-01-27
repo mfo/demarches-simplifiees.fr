@@ -147,23 +147,25 @@ describe 'The user', js: true do
     expect(page).to have_selector(".repetition .champs-group", count: 1)
 
     # adding an element means we can ddestroy last item
-    click_on 'Ajouter un élément supplémentaire à'
+    click_on 'Ajouter un élément à'
     expect(page).to have_selector(".repetition .champs-group:first-child .utils-repetition-required-destroy-button", count: 1, visible: false)
     expect(page).to have_selector(".repetition .champs-group", count: 2)
-    expect(page).to have_selector(".repetition .champs-group:last-child .utils-repetition-required-destroy-button", count: 1, visible: true)
+    expect(page).to have_selector(".repetition .champs-group:last-child .utils-repetition-required-destroy-button", count: 2, visible: true)
 
-    within '.repetition .champs-group:first-child' do
+    within '.repetition .repetition-row:first-child' do
       fill_in('sub type de champ', with: 'un autre texte')
       blur
     end
 
     expect do
-      within '.repetition .champs-group:last-child' do
-        click_on 'Supprimer'
+      within '.repetition .repetition-row:last-child' do
+        accept_confirm do
+          click_on 'Supprimer'
+        end
       end
-      wait_until { page.all(".champs-group").size == 1 }
+      wait_until { page.all(".repetition-row").size == 1 }
       # removing a repetition means one child only, thus its button destroy is not visible
-      expect(page).to have_selector(".repetition .champs-group:first-child .utils-repetition-required-destroy-button", count: 1, visible: false)
+      expect(page).to have_selector(".repetition .repetition-row:first-child .utils-repetition-required-destroy-button", count: 1, visible: false)
     end.to change { Champ.where.not(discarded_at: nil).count }
   end
 
@@ -507,7 +509,8 @@ describe 'The user', js: true do
             { type: :integer_number, libelle: 'UNIQ_LABEL', mandatory: false, stable_id: },
             {
               type: :repetition, libelle: 'repetition', mandatory: repetition_mandatory, condition:, children: [
-                { type: :text, libelle: 'nom', mandatory: true },
+                { type: :text, libelle: 'nom', mandatory: false },
+                { type: :text, libelle: 'fromage', mandatory: false },
               ],
             },
           ])
@@ -537,6 +540,32 @@ describe 'The user', js: true do
           click_on 'Déposer le dossier'
           expect(page).to have_current_path(merci_dossier_path(user_dossier))
         end
+      end
+
+      scenario 'when there is a repetition there is a toggle button to expand all rows' do
+        log_in(user, procedure)
+        fill_individual
+        fill_in('UNIQ_LABEL', with: 20)
+        # add 4 rows
+        click_on 'Ajouter'
+        click_on 'Ajouter'
+        click_on 'Ajouter'
+        click_on 'Ajouter'
+        # no toggle button because there is less than 5 rows
+        expect(page).to have_selector('.repetition-toggle-all', text: 'Replier tous les éléments', visible: false)
+        click_on 'Ajouter'
+        # toggle button visible because there is 5 rows
+        expect(page).to have_selector('.repetition-toggle-all', text: 'Replier tous les éléments', visible: true)
+
+        # all rows are visible
+        expect(page).to have_selector('.repetition-row label', text: 'fromage', visible: true, count: 5)
+
+        scroll_to(find('.repetition-toggle-all'))
+        click_on 'Replier tous les éléments'
+        # toggle button changed to expand all
+        expect(page).to have_selector('.repetition-toggle-all', text: 'Déplier tous les éléments', visible: true)
+        # all rows are hidden
+        expect(page).not_to have_selector('.repetition-row label', text: 'nom', visible: true)
       end
     end
 

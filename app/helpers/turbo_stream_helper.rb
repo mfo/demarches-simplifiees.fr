@@ -8,6 +8,8 @@ module TurboStreamHelper
   class TagBuilder < Turbo::Streams::TagBuilder
     include ActionView::Helpers::TagHelper
 
+    attr_reader :view_context
+
     def show(target, delay: nil)
       turbo_stream_action_tag :show, target:, delay:
     end
@@ -46,6 +48,14 @@ module TurboStreamHelper
 
     def disable_all(targets, delay: nil)
       turbo_stream_action_tag :disable, targets:, delay:
+    end
+
+    def append(target, content = nil, delay: nil, **, &block)
+      if delay
+        turbo_stream_action_tag :append, target:, delay:, template: content || view_context.capture(&block)
+      else
+        super(target, content, **, &block)
+      end
     end
 
     def refresh

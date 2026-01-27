@@ -410,14 +410,33 @@
     }
 
     &.editable-champ-repetition {
-      margin-left: 0.25rem;
-
       fieldset {
         border: none;
       }
 
       .champs-group {
         margin-bottom: 2rem;
+      }
+
+      // this applies to repetitions with more than one champ per row
+      fieldset.fr-accordion {
+        padding: 0;
+        margin: 0;
+
+        legend.fr-accordion__title {
+          padding: 0;
+        }
+      }
+
+      .repetition-toggle-all {
+        display: none;
+
+        &:has(+ .repetition .repetition-row:nth-child(5)) {
+          @media (min-width: 48em) {
+            display: flex;
+            justify-content: flex-end;
+          }
+        }
       }
     }
 
@@ -427,10 +446,15 @@
       padding: 1rem;
     }
 
-    .utils-repetition-required
-      .champs-group:first-child
-      .utils-repetition-required-destroy-button {
-      display: none;
+    .utils-repetition-required {
+      .repetition-row .utils-repetition-required-destroy-button {
+        display: none;
+      }
+
+      &:has(.repetition-row:nth-child(2))
+        .utils-repetition-required-destroy-button {
+        display: flex;
+      }
     }
   }
 

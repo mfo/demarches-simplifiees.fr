@@ -1,3 +1,4 @@
 ---
 en:
-  delete: "Destroy %{libelle} %{row_number}"
+  delete: 'Destroy [%{row_number}] %{libelle}'
+  confirm: 'Do you really want to delete element [%{row_number}] %{libelle} ?'
