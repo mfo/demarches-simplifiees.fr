@@ -1,0 +1,35 @@
+{
+  "emails": [
+    {
+      "id": "655c27f2-b2a3-4a9f-8e1f-3e6dc268b1c4",
+      "message_id": "3d928e21-187a-4539-b303-403156e37911",
+      "project_id": "8j512135-9f5f-42b3-a900-9fdf0195b563",
+      "mail_from": "noreply@demarche.numerique.gouv.fr",
+      "rcpt_to": "user@example.com",
+      "rcpt_type": "to",
+      "subject": "Confirmation de creation de compte",
+      "created_at": "2025-01-20T10:30:00.000000Z",
+      "updated_at": "2025-01-20T10:30:05.000000Z",
+      "status": "sent",
+      "status_details": "success",
+      "try_count": 1,
+      "last_tries": [{"rank": 1, "tried_at": "2025-01-20T10:30:05.000000Z", "code": 250, "message": "Ok"}]
+    },
+    {
+      "id": "abc12345-1234-5678-9abc-def012345678",
+      "message_id": "def45678-abcd-1234-5678-901234567890",
+      "project_id": "8j512135-9f5f-42b3-a900-9fdf0195b563",
+      "mail_from": "noreply@demarche.numerique.gouv.fr",
+      "rcpt_to": "user@example.com",
+      "rcpt_type": "to",
+      "subject": "Votre dossier a ete accepte",
+      "created_at": "2025-01-19T14:00:00.000000Z",
+      "updated_at": "2025-01-19T14:00:03.000000Z",
+      "status": "failed",
+      "status_details": "mailbox not found",
+      "try_count": 3,
+      "last_tries": []
+    }
+  ],
+  "total_count": 2
+}

@@ -1,14 +1,6 @@
 # frozen_string_literal: true
 
 class Sendinblue::API
-  def self.new_properly_configured!
-    api = self.new
-    if !api.properly_configured?
-      raise StandardError, 'Sendinblue API is not properly configured'
-    end
-    api
-  end
-
   def initialize
     @failures = []
   end
@@ -124,7 +116,7 @@ class Sendinblue::API
   end
 
   def client_key
-    ENV.fetch("SENDINBLUE_API_V3_KEY")
+    ENV.fetch("SENDINBLUE_API_V3_KEY", nil)
   end
 
   def parse_date(date)
