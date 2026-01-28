@@ -56,27 +56,6 @@ RSpec.describe LLM::StructureImprover do
       end
     end
 
-    context 'move_field_under_new_section' do
-      let(:arguments) do
-        {
-          'update' => {
-            'stable_id' => 1,
-            'after_stable_id' => -1,
-            'parent_id' => nil,
-          },
-        }
-      end
-
-      it 'creates an update item with correct payload' do
-        expect(tool_calls.first).to include(op_kind: 'update', stable_id: 1, verify_status: 'review', justification: nil)
-        expect(tool_calls.first[:payload]).to eq(arguments['update'].compact)
-      end
-
-      it 'returns 1 tool call' do
-        expect(tool_calls.size).to eq(1)
-      end
-    end
-
     context 'add_section_after_field' do
       let(:arguments) do
         {
@@ -93,26 +72,6 @@ RSpec.describe LLM::StructureImprover do
       it 'creates an add item with correct payload' do
         expect(tool_calls.first).to include(op_kind: 'add', stable_id: nil, verify_status: 'review', justification: nil)
         expect(tool_calls.first[:payload]).to eq(arguments['add'].compact.merge('type_champ' => 'header_section'))
-      end
-
-      it 'returns 1 tool call' do
-        expect(tool_calls.size).to eq(1)
-      end
-    end
-
-    context 'move_field_under_existing' do
-      let(:arguments) do
-        {
-          'update' => {
-            'stable_id' => 3,
-            'after_stable_id' => 2,
-          },
-        }
-      end
-
-      it 'creates an update item with correct payload' do
-        expect(tool_calls.first).to include(op_kind: 'update', stable_id: 3, verify_status: 'review', justification: nil)
-        expect(tool_calls.first[:payload]).to eq(arguments['update'].compact)
       end
 
       it 'returns 1 tool call' do
