@@ -10,7 +10,13 @@ module ApplicationController::MigrateCsrfToken
     # pour que les utilisateurs puissent continuer de soumettre un formulaire pendant le déploiement de rails 7.1
     def migrate_legacy_csrf_token
       # Ne migre que si le nouveau cookie n’existe pas déjà
-      return if cookies[:csrf_token].present?
+      # Gère le cas où le cookie pourrait contenir des séquences UTF-8 invalides
+      begin
+        return if cookies[:csrf_token].present?
+      rescue ArgumentError
+        # Si le cookie contient des données invalides, on le considère comme absent
+        # et on procède à la migration
+      end
 
       legacy_token = cookies.signed[:_csrf_token]
       return if legacy_token.blank?
