@@ -832,6 +832,8 @@ fr:
       missing_range_rules: Les valeurs minimale et/ou maximale doivent être renseignées.
       invalid_range_rules: La valeur minimale doit être inférieure à la valeur maximale.
       invalid_positive_range_rules: La valeur maximale doit être supérieure à 0 pour que le nombre soit positif.
+      missing_range_date_rules: La date de début et/ou de fin doit être renseignée.
+      invalid_range_date_rules: La date de début doit être antérieure à la date de fin.
       invalid_character_rules: Vous devez sélectionner au moins un type de caractère.
       invalid_character_length: "Le nombre minimum de caractères doit être inférieur au nombre maximum de caractères"
       evil_regexp: L’expression régulière que vous avez entrée est potentiellement dangereuse et pourrait entraîner des problèmes de performance

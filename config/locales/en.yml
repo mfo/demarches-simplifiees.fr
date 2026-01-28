@@ -820,6 +820,8 @@ en:
       missing_range_rules: The minimum and maximum values ​​must be specified.
       invalid_range_rules: The minimum value must be less than the maximum value.
       invalid_positive_range_rules: The maximum value must be greater than 0 for the number to be positive.
+      missing_range_date_rules: The minimum and/or maximum date must be specified.
+      invalid_range_date_rules: The minimum date must be before the maximum date.
       invalid_character_rules: You must select at least one character type.
       invalid_character_length: The minimum number of characters must be less than the maximum number of characters.
       evil_regexp: The regular expression you have entered is potentially dangerous and could lead to performance issues.
