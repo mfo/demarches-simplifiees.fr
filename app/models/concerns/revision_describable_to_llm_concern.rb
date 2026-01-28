@@ -18,8 +18,7 @@ module RevisionDescribableToLLMConcern
           position: rtdc.position,
           parent_id: rtdc.parent&.stable_id,
           header_section_level: (rtdc.type_de_champ.header_section_level if rtdc.type_de_champ.header_section?),
-          # absolute_level: (rtdc.type_de_champ.header_section? ? rtdc.type_de_champ.level_for_revision(self) : nil),
-          display_condition: rtdc.type_de_champ.condition.to_h,
+          display_condition: rtdc.type_de_champ.condition.present?,
           options: options_for_llm(rtdc.type_de_champ),
         }.compact.reject { |k, _v| reject.include?(k) }
       end
