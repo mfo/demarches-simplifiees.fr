@@ -3,6 +3,8 @@
 class Instructeurs::ColumnFilterValueComponent < ApplicationComponent
   attr_reader :filtered_column, :form, :instructeur_procedure
 
+  delegate :label, to: :filtered_column
+
   MAX_LABEL_LENGTH = 50
 
   def initialize(filtered_column:, form:, instructeur_procedure:)
@@ -27,8 +29,6 @@ class Instructeurs::ColumnFilterValueComponent < ApplicationComponent
   end
 
   def render_label
-    return if label.nil?
-
     content_tag(
       :span,
       label_text,
@@ -131,17 +131,11 @@ class Instructeurs::ColumnFilterValueComponent < ApplicationComponent
     end
   end
 
-  def label
-    filtered_column&.label
-  end
-
   def label_text
-    return if label.nil?
-
     label.truncate(MAX_LABEL_LENGTH)
   end
 
   def label_title
-    label if label&.length.to_i > MAX_LABEL_LENGTH
+    label if label.length > MAX_LABEL_LENGTH
   end
 end
