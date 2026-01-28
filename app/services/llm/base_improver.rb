@@ -158,11 +158,25 @@ module LLM
     end
 
     def create_batches_for_suggestion(schema, suggestion, level: 1)
-      return [schema] unless suggestion.rule == LLMRuleSuggestion.rules.fetch('improve_label')
+      case suggestion.rule
+      when LLMRuleSuggestion.rules.fetch('improve_label')
+        batch_by_sections(schema, suggestion, level)
+      when LLMRuleSuggestion.rules.fetch('improve_structure')
+        batch_by_parent_id(schema)
+      else
+        [schema]
+      end
+    end
 
+    def batch_by_parent_id(schema)
+      root_fields, _repetition_fields = schema.partition { |field| field[:parent_id].nil? }
+
+      [root_fields]
+    end
+
+    def batch_by_sections(schema, suggestion, level)
       sections = split_by_section_level(schema, level)
       merged = merge_small_sections(sections)
-
       merged.flat_map { |batch| split_if_needed(batch, suggestion, level) }
     end
 
