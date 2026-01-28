@@ -10,31 +10,18 @@ module LLM
         parameters: {
           type: 'object',
           properties: {
-            update: {
-              type: 'object',
-              description: "Mise à jour d'un champ ou d'un header_section.",
-              properties: {
-                stable_id: { type: 'integer', description: 'Identifiant du champ à modifier.' },
-                after_stable_id: { type: ['integer', 'null'], description: "Identifiant du champ après lequel ce champ doit être déplacé. Utiliser null UNIQUEMENT si le champ doit être positionné en premier, ou si c'est le premier champ d'une repetition. Si le champ est déplacé après un champ ajouté, utilise le generated_stable_id du champ ajouté précédement" },
-                libelle: { type: ['string', 'null'], description: "Le nouveau libellé de la section (<= 80 chars, plain language) si il faut le header_section. Utiliser null si le champ n'est pas un header_section" },
-                parent_id: { type: ['integer', 'null'], description: 'Identifiant de la repetition auquel le champ appartient. Utiliser null s’il n’appartient pas a une répétition' },
-                header_section_level: { type: ['integer', 'null'], description: "Le nouveau niveau de la section (1 pour la plus haute hiérarchie, jusqu\'à 3), uniquement si le champ est de type header_section" },
-              },
-              required: %w[stable_id after_stable_id],
-            },
             add: {
               type: 'object',
-              description: 'Ajout d’une nouvelle header_section.',
+              description: 'Ajout d\'une nouvelle header_section.',
               properties: {
-                generated_stable_id: { type: 'integer', description: "Identifiant stable unique du nouveau champ (section) à ajouter. Génère en entier negatif auto-décrémenté en partant de -1" },
-                after_stable_id: { type: ['integer', 'null'], description: "Identifiant du champ après lequel ce champ doit être déplacé. Utiliser null UNIQUEMENT si le champ doit être positionné en premier, ou si c'est le premier champ d'une repetition." },
-                libelle: { type: 'string', description: 'Libellé de la section (<= 80 chars, plain language)' },
+                generated_stable_id: { type: 'integer', description: "Identifiant stable unique du nouveau header_section. Génère en entier negatif auto-décrémenté en partant de -1" },
+                after_stable_id: { type: ['integer', 'null'], description: "Identifiant du champ après lequel la header_section doit être ajoutée. Utiliser null UNIQUEMENT si le header_section doit être positionné en premier." },
+                libelle: { type: 'string', description: 'Libellé de la section (<= 80 chars)' },
                 header_section_level: { type: ['integer', 'null'], description: "Le niveau de la section (1 pour la plus haute hiérarchie, jusqu\'à 3), uniquement si le champ est de type header_section" },
-                parent_id: { type: ['integer', 'null'], description: 'Identifiant de la repetition auquel le champ appartient. Utiliser null s’il n’appartient pas a une répétition' },
               },
               required: %w[generated_stable_id after_stable_id libelle header_section_level],
             },
-            justification: { type: 'string' },
+            justification: { type: 'string', description: "Justification concise en 1-2 phrases : 1) Indique quels champs (citer leurs libellés) sont regroupés et pourquoi ce regroupement aide l'usager. 2) Précise après quel champ la section est placée (ou 'en première position' si after_stable_id est null). Exemple : 'Regroupement des 4 champs relatifs à l'entreprise (Nom entreprise, SIRET, Adresse siège, Téléphone entreprise) sous une section dédiée pour clarifier cette partie du formulaire. Section placée après le champ Email.'" },
           },
           additionalProperties: false,
         },
@@ -43,7 +30,135 @@ module LLM
 
     def system_prompt(procedure)
       <<~TXT
-        Tu es un assistant expert en simplification administrative française. Ton objectif : améliorer la structure des formulaires pour faciliter le parcours usager, en ajoutant des sections et réordonnant les champs selon les principes de logique, d'essentiel et de présentation.
+        Tu es un assistant expert en simplification administrative française. Ton objectif : améliorer la structure des formulaires pour faciliter le parcours usager, en ajoutant des sections selon les principes de logique et de présentation.
+
+        IMPORTANT : Une section est définie par un champ header_section suivi de tous les champs qui viennent après, jusqu'à la prochaine header_section de même niveau.
+
+        ## PRINCIPE CRITIQUE DE POSITIONNEMENT :
+
+        Le paramètre `after_stable_id` désigne le champ APRÈS LEQUEL tu veux insérer la section.
+        - Si tu veux que ta section apparaisse AVANT le champ X, tu dois utiliser le stable_id du champ qui PRÉCÈDE X
+        - after_stable_id: null = placer la section en TOUTE PREMIÈRE position
+        - Exemple : pour insérer une section avant le champ en position 3, utilise le stable_id du champ en position 2
+
+        ## EXEMPLES DE RAISONNEMENT CORRECT :
+
+        **Exemple 1 : Groupe trop petit (REJETÉ)**
+
+        Schéma initial :
+        [
+          { stable_id: 10, libelle: "Email", position: 0, type: "email" },
+          { stable_id: 20, libelle: "Nom", position: 1, type: "text" },
+          { stable_id: 30, libelle: "Prénom", position: 2, type: "text" },
+          { stable_id: 40, libelle: "Montant demandé", position: 3, type: "number" }
+        ]
+
+        Analyse :
+        - Les champs Nom/Prénom forment un groupe cohérent "Identité"
+        - Ce groupe contient 2 champs (positions 1, 2)
+        - PROBLÈME : 2 champs < 3 minimum requis
+        - DÉCISION : Je ne propose PAS cette section
+
+        **Exemple 2 : Regroupement valide (ACCEPTÉ)**
+
+        Schéma initial :
+        [
+          { stable_id: 10, libelle: "Email", position: 0, type: "email" },
+          { stable_id: 20, libelle: "Nom entreprise", position: 1, type: "text" },
+          { stable_id: 30, libelle: "SIRET", position: 2, type: "siret" },
+          { stable_id: 40, libelle: "Adresse siège", position: 3, type: "address" },
+          { stable_id: 50, libelle: "Téléphone entreprise", position: 4, type: "phone" },
+          { stable_id: 60, libelle: "Montant demandé", position: 5, type: "number" }
+        ]
+
+        Analyse :
+        - Les champs Nom/SIRET/Adresse/Téléphone forment un groupe "Informations entreprise"
+        - Ce groupe contient 4 champs (positions 1, 2, 3, 4)
+        - Aucun champ n'a de display_condition
+        - Le premier champ du groupe est en position 1 (Nom entreprise)
+        - Le champ qui PRÉCÈDE cette position est Email (stable_id: 10, position: 0)
+        - DONC : after_stable_id = 10
+
+        Tool call correct :
+        {
+          "add": {
+            "generated_stable_id": -1,
+            "after_stable_id": 10,
+            "libelle": "Informations sur l'entreprise",
+            "header_section_level": 1
+          },
+          "justification": "Regroupement des 4 champs relatifs à l'entreprise (Nom entreprise, SIRET, Adresse siège, Téléphone entreprise) sous une section dédiée pour clarifier cette partie du formulaire. Section placée après le champ Email."
+        }
+
+        Structure résultante :
+        [Email] → [SECTION "Informations sur l'entreprise"] → [Nom entreprise] → [SIRET] → [Adresse siège] → [Téléphone entreprise] → [Montant demandé]
+
+        **Exemple 3 : Section en début de formulaire (ACCEPTÉ)**
+
+        Schéma initial :
+        [
+          { stable_id: 10, libelle: "Nom", position: 0, type: "text" },
+          { stable_id: 20, libelle: "Prénom", position: 1, type: "text" },
+          { stable_id: 30, libelle: "Date de naissance", position: 2, type: "date" },
+          { stable_id: 40, libelle: "Nationalité", position: 3, type: "pays" },
+          { stable_id: 50, libelle: "Adresse", position: 4, type: "address" }
+        ]
+
+        Analyse :
+        - Les 4 premiers champs forment un groupe "Identité"
+        - Ce groupe contient 4 champs
+        - Je veux placer la section AVANT le premier champ (position 0)
+        - Il n'y a AUCUN champ avant la position 0
+        - DONC : after_stable_id = null
+
+        Tool call correct :
+        {
+          "add": {
+            "generated_stable_id": -1,
+            "after_stable_id": null,
+            "libelle": "Votre identité",
+            "header_section_level": 1
+          },
+          "justification": "Regroupement des 4 champs d'identité (Nom, Prénom, Date de naissance, Nationalité) sous une section en début de formulaire. Section placée en première position."
+        }
+
+        Structure résultante :
+        [SECTION "Votre identité"] → [Nom] → [Prénom] → [Date de naissance] → [Nationalité] → [Adresse]
+
+        **Exemple 4 : Section déjà existante (REJETÉ)**
+
+        Schéma initial :
+        [
+          { stable_id: 5, libelle: "Email", position: 0, type: "email" },
+          { stable_id: 10, libelle: "Informations sur l'entreprise", position: 1, type: "header_section", header_section_level: 1 },
+          { stable_id: 20, libelle: "Nom entreprise", position: 2, type: "text" },
+          { stable_id: 30, libelle: "SIRET", position: 3, type: "siret" },
+          { stable_id: 40, libelle: "Adresse siège", position: 4, type: "address" },
+          { stable_id: 50, libelle: "Téléphone entreprise", position: 5, type: "phone" }
+        ]
+
+        Analyse :
+        - Les champs Nom/SIRET/Adresse/Téléphone forment un groupe cohérent
+        - Ce groupe contient 4 champs
+        - MAIS : Une header_section "Informations sur l'entreprise" existe DÉJÀ (stable_id: 10, position: 1)
+        - Cette section regroupe déjà les champs qui suivent
+        - DÉCISION : Je ne propose PAS de nouvelle section (éviter la redondance)
+
+        Rappel : Vérifie toujours si une section appropriée existe déjà avant d'en proposer une nouvelle.
+
+        ## MÉTHODOLOGIE OBLIGATOIRE EN 2 PHASES :
+
+        PHASE 1 OBLIGATOIRE - AUDIT (mental, pas de tool call) :
+        Pour chaque groupe potentiel de champs :
+        1. Liste les stable_id des champs du groupe
+        2. Compte le nombre de champs (minimum 3 requis)
+        3. Vérifie qu'aucun champ n'a de display_condition
+        4. Vérifie qu'une header_section appropriée n'existe PAS déjà pour ce groupe
+        5. Identifie la position du premier champ du groupe
+        6. Trouve le stable_id du champ qui PRÉCÈDE cette position (sera ton after_stable_id)
+
+        PHASE 2 - AMELIORATION (avec tool calls) :
+        Pour chaque groupe validé, utilise UN tool call avec l'outil #{TOOL_DEFINITION.dig(:function, :name)} pour proposer l'ajout de la header_section.
       TXT
     end
 
@@ -70,67 +185,86 @@ module LLM
     #  - https://www.modernisation.gouv.fr/files/2021-06/la_presentation_tu_soigneras_com.pdf
     def rules_prompt
       <<~TXT
-        Tu dois respecter strictement les règles suivantes pour améliorer la structure des formulaires administratifs français.
+        Applique ces règles PAR ORDRE DE PRIORITÉ.
 
-        ## Outils autorisés
-        - Utilise `update` pour repositionner un champ/section existant (si nécessaire).
-        - Utilise `add` pour ajouter une nouvelle header_section (si nécessaire). Génère des `generated_stable_id` négatifs uniques (e.g., -1, -2).
+        ═══════════════════════════════════════════════════════════════
+        PRIORITÉ 1 : CONTRAINTES TECHNIQUES (bloquant si non respecté)
+        ═══════════════════════════════════════════════════════════════
 
-        ## 1. Organisation logique de l'information
-        - Respecte la pyramide inversée : place les champs essentiels en haut.
-        - Ordonne logiquement : informations personnelles d'abord, puis contextuelles.
-        - L'ordre respecte une logique administrative claire.
-        - Sépare les champs avec des header_sections pour clarifier les parties du formulaire.
-        - Attention : conserve l'ordre des champs couplés en eux-mêmes par leurs libelle ex: "Nom de l'enfant 1", "Prénom de l'enfant 1", "Nom de l'enfant 2", "Prénom de l'enfant 2" doivent rester ensemble.
+        1.1. Taille minimale des sections
+            - Chaque header_section doit regrouper AU MINIMUM 3 champs
+            - Compter UNIQUEMENT les champs toujours visibles (sans display_condition)
+            - Si un groupe contient < 3 champs → ne propose RIEN pour ce groupe
+              KO Groupe de 2 champs [Nom, Prénom]
+              OK Groupe de 3 champs [Nom, Prénom, Email]
+              OK Groupe de 4+ champs [Nom, Prénom, Email, Téléphone]
 
-        ## 2. Présentation visuelle et lisibilité
-        - Utilise les header_sections pour améliorer la lisibilité du formulaire.
-        - Regroupe les champs similaires sous des sections appropriées.
-        - Hiérarchise avec les niveaux (header_section_level : 1 = principal, 2 = sous-section, 3 = détail).
-        - ⚠️ Règle stricte : N'ajoute jamais une header_section juste après une autre du même niveau (risque de hiérarchie plate).
-        - ⚠️ Règle stricte sur les header_sections et les conditions d'affichage : Voir la section ## 4 pour les détails et exemples (risque de confusion si la section est affichée sans les champs conditionnés).
-        - Évite deux sections consécutives sans champ entre elles (préférence, pas interdiction absolue).
+        1.2. Champs conditionnels
+            - JAMAIS de header_section juste avant un champ avec display_condition
+            - Raison : le titre apparaîtrait seul si la condition est fausse (bug UX grave)
+            - Vérifier que les 3+ premiers champs après la section n'ont PAS de display_condition
+              KO Section "Coordonnées" → [Adresse (conditionnel)]
+              OK Section "Coordonnées" → [Adresse, Ville, Code postal]
 
-        ## 3. Vérifications avant toute proposition
-        - Vérifie la pertinence : Les header_sections ajoutées doivent être utiles et non redondantes.
-        - Vérifie la clarté : les champs dans les header_sections doivent être cohérents avec le libellé de la section.
-        - Libellés : Concis (<= 80 caractères), en langage simple (e.g., "Vos coordonnées" au lieu de "Données d'identification utilisateur").
-        - ⚠️ Interdiction : Ne déplace jamais un champ hors de sa répétition (respecte parent_id).
-        - Cohérence des niveaux : Les header_sections doivent suivre une progression logique (1 avant 2, etc.).
-        - Ordre cohérent : Chaque `after_stable_id` référencé une seule fois.
+        1.3. Sections existantes
+            - JAMAIS ajouter une section si une header_section appropriée existe déjà pour le même groupe de champs
+            - Vérifier le schéma pour identifier les sections déjà présentes
+              KO Section "Identité" existe déjà → ne pas proposer une nouvelle section "Vos informations personnelles" pour les mêmes champs
+              OK Aucune section n'existe pour ce groupe de champs → proposer une section pertinente
 
-        ## 4. Logique conditionnelle (display_condition)
-        - Les champs peuvent dépendre d'autres via des conditions (e.g., afficher "Numéro de permis" seulement si "Avez-vous un véhicule ?" = oui).
-        - Opérateurs : Logic::Eq (égal), Logic::NotEq (différent), Logic::LessThan (inférieur), Logic::GreaterThan (supérieur), Logic::And (et), Logic::Or (ou).
-        - Structure : Hash avec "term" (opérateur), "left"/"right" pour binaires, "operands" pour And/Or.
-        - Exemple concret : {"term": "Logic::Eq", "left": {"term": "Logic::ChampValue", "stable_id": 123}, "right": {"term": "Logic::Constant", "value": "oui"}}.
-        - ⚠️ Règles strictes sur les repositionnements et les conditions : Lors de tout repositionnement de champs, vous devez absolument préserver les dépendances existantes. Un champ qui dépend d'un autre (via une condition d'affichage) doit toujours être placé après le champ référent (celui dont il dépend, identifiable par son stable_id dans la structure du formulaire). Cela garantit que la logique conditionnelle reste intacte.
-        - De plus, gardez les champs dépendants proches de leurs référents pour améliorer la clarté et éviter la confusion pour l'utilisateur.
-        - Interdiction absolue : Ne brisez jamais une condition existante en déplaçant un champ de manière à invalider sa dépendance.
-        - Exemples :
-          - Interdit : Déplacer un champ "Numéro de permis" (qui s'affiche seulement si "Avez-vous un véhicule ?" = oui) avant la question "Avez-vous un véhicule ?". Résultat : Le champ apparaît sans que la condition puisse être évaluée, brisant la logique.
-          - Autorisé : Déplacer le champ "Numéro de permis" juste après "Avez-vous un véhicule ?", en gardant la proximité pour une meilleure lisibilité.
-        - Cette règle assure que les formulaires conditionnels fonctionnent correctement et restent intuitifs.
-        - ⚠️ Règle stricte sur les header_sections et les conditions d'affichage : Ne placez jamais une header_section (titre de section) juste avant un ou plusieurs champs qui dépendent d'une condition d'affichage. Sinon, le titre de section risquerait d'apparaître à l'écran sans que les champs associés ne soient visibles, créant une confusion pour l'utilisateur.
-        - Vous pouvez ajouter des titres de sections uniquement devant des champs qui n'ont pas de conditions d'affichage (c'est-à-dire des champs toujours visibles).
-        - Exemples :
-          - Interdit : Ajouter une header_section "Informations complémentaires" juste avant un champ "Numéro de permis de conduire" qui s'affiche seulement si l'utilisateur répond "Oui" à la question "Avez-vous un véhicule ?". Résultat : Le titre apparaît, mais le champ reste caché, laissant une section vide.
-          - Autorisé : Ajouter une header_section "Vos coordonnées" avant les champs "Nom" et "Prénom", qui sont toujours visibles (pas de condition). Cela améliore la structure sans risque de confusion.
-        - Cette règle préserve la logique des formulaires conditionnels et évite des affichages incohérents.
+        1.4. Unicité des positions
+            - Chaque after_stable_id que tu proposes doit être UNIQUE dans tes propositions
+            - JAMAIS proposer 2 sections avec le même after_stable_id
+              KO Deux sections avec after_stable_id: 10
+              OK Section A avec after_stable_id: 10, Section B avec after_stable_id: 20
 
-        Utilise l’outil #{TOOL_DEFINITION.dig(:function, :name)} pour chaque amélioration. Justifie toujours tes choix dans la réponse.
+        >> Si UNE SEULE contrainte PRIORITÉ 1 ne peut être respectée : ABANDONNE ce groupe.
+
+        ═══════════════════════════════════════════════════════════════
+        PRIORITÉ 2 : COHÉRENCE STRUCTURELLE (éviter les incohérences)
+        ═══════════════════════════════════════════════════════════════
+
+        2.1. Pertinence et utilité
+            - Chaque section doit apporter une clarification réelle à l'usager
+            - JAMAIS de sections redondantes avec les libellés des champs
+              KO Section "Informations" → [Nom, Prénom, Email] (trop vague)
+              OK Section "Votre identité" → [Nom, Prénom, Date naissance]
+
+        2.2. Cohérence hiérarchique
+            - Les sections suivent une progression logique : niveau 1 → 2 → 3
+            - Une sous-section (niveau 2) doit apparaître après une section principale (niveau 1)
+              KO [Champs] → Section niveau 2 "Détails" (sans section niveau 1 avant)
+              OK Section niveau 1 "Projet" → Section niveau 2 "Budget du projet"
+
+        ═══════════════════════════════════════════════════════════════
+        PRIORITÉ 3 : QUALITÉ RÉDACTIONNELLE (bonnes pratiques UX)
+        ═══════════════════════════════════════════════════════════════
+
+        3.1. Libellés des sections
+            - Concis : idéalement <= 60 caractères, maximum 80 caractères
+            - Langage simple et accessible (niveau RGAA)
+              KO "Données d'identification utilisateur"
+              OK "Vos coordonnées"
+
+        3.2. Regroupements cohérents
+            - Regrouper les champs thématiquement liés
+              OK Pour une demande de subvention : Section "Votre structure" regroupant [Nom, SIRET, Adresse, Téléphone]
+              OK Pour un dossier médical : Section "Antécédents médicaux" regroupant les champs santé
+
+        ═══════════════════════════════════════════════════════════════
+        OUTIL À UTILISER
+        ═══════════════════════════════════════════════════════════════
+
+        Utilise l'outil #{TOOL_DEFINITION.dig(:function, :name)} pour chaque amélioration.
+        Génère des generated_stable_id négatifs uniques (e.g., -1, -2, -3).
+
+        >> RAPPEL CRITIQUE : Il vaut mieux ne faire AUCUNE proposition que de proposer quelque chose violant PRIORITÉ 1.
       TXT
     end
 
     def build_item(args, tdc_index: {})
-      if args['add']
-        build_add_item(args)
-      elsif args['update']
-        build_update_item(args)
-      end
-    end
+      return nil unless args['add']
 
-    def build_add_item(args)
       data = args['add'].is_a?(Hash) ? args['add'].dup : {}
       payload = data.compact
       payload['type_champ'] = 'header_section'
@@ -138,20 +272,6 @@ module LLM
       {
         op_kind: 'add',
         stable_id: nil,
-        payload: payload,
-        verify_status: 'review',
-        justification: args['justification'].to_s.presence,
-      }
-    end
-
-    def build_update_item(args)
-      data = args['update'].is_a?(Hash) ? args['update'].dup : {}
-      stable_id = data['stable_id']
-      payload = data.compact
-
-      {
-        op_kind: 'update',
-        stable_id: stable_id,
         payload: payload,
         verify_status: 'review',
         justification: args['justification'].to_s.presence,
