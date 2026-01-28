@@ -19,6 +19,8 @@ RSpec.describe CrispUpdatePeopleDataJob, type: :job do
       %r{^https://api.crisp.chat/v1/website/#{ENV['CRISP_WEBSITE_ID']}/conversation/.+/meta$}
     end
 
+    let(:existing_segments) { ['contact form', 'lost_user'] }
+
     before do
       stub_request(:patch, people_data_url_regex).and_return(body: {
         error: false, reason: "updated", data: {},
@@ -28,8 +30,11 @@ RSpec.describe CrispUpdatePeopleDataJob, type: :job do
         .and_return(body: {
           "error" => false,
           "reason" => "resolved",
-          "data" => { "email" => user.email, "segments" => [] },
+          "data" => { "email" => user.email, "segments" => existing_segments },
         }.to_json)
+
+      stub_request(:patch, conversation_meta_url_regex)
+        .and_return(body: { "error" => false, "reason" => "updated", "data" => {} }.to_json)
     end
 
     context "when email is provided" do
@@ -55,6 +60,19 @@ RSpec.describe CrispUpdatePeopleDataJob, type: :job do
           'X-Crisp-Tier' => 'plugin',
           'Authorization' => /Basic /,
         }, body: /Manager.+#{user.id}/)).to have_been_made.once
+      end
+    end
+
+    context "when conversation has existing segments" do
+      let(:email) { user.email }
+      let(:existing_segments) { ['vtc'] }
+
+      it 'merge segments' do
+        subject
+
+        expect(a_request(:patch, conversation_meta_url_regex).with(
+          body: hash_including("segments" => contain_exactly('usager', 'vtc'))
+        )).to have_been_made.once
       end
     end
 

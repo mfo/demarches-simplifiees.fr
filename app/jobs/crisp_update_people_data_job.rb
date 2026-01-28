@@ -13,6 +13,7 @@ class CrispUpdatePeopleDataJob < ApplicationJob
     user = User.find_by!(email:)
 
     update_people_data(user)
+    update_conversation(session_id, user, meta[:segments])
   end
 
   private
@@ -37,5 +38,12 @@ class CrispUpdatePeopleDataJob < ApplicationJob
     in Failure(reason:)
       fail reason
     end
+  end
+
+  def update_conversation(session_id, user, existing_segments)
+    segments = Set.new(existing_segments + user.crisp_segments)
+    return if segments == Set.new(existing_segments)
+
+    Crisp::APIService.new.update_conversation_meta(session_id:, body: { segments: })
   end
 end
