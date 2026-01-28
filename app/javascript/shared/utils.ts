@@ -55,10 +55,12 @@ const Gon = s.defaulted(
         user: s.defaulted(
           s.type({
             email: s.string(),
+            emailSignature: nullish(s.string()),
             segments: s.defaulted(s.array(s.string()), [])
           }),
           {
             email: '',
+            emailSignature: null,
             segments: []
           }
         )

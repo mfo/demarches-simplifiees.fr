@@ -340,6 +340,41 @@ describe ApplicationController, type: :controller do
     end
   end
 
+  describe 'crisp_email_signature' do
+    subject { @controller.send(:crisp_email_signature) }
+
+    let(:user) { nil }
+    let(:private_key) { nil }
+
+    before do
+      allow(@controller).to receive(:current_user).and_return(user)
+      allow(ENV).to receive(:[]).with("CRISP_IDENTITY_PRIVATE_KEY").and_return(private_key)
+    end
+
+    context 'without a current user' do
+      it { is_expected.to be_nil }
+    end
+
+    context 'with an unverified user' do
+      let(:user) { create(:user, email_verified_at: nil) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a verified user but no CRISP_IDENTITY_PRIVATE_KEY' do
+      let(:user) { create(:user, email_verified_at: Time.zone.now) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a verified user and CRISP_IDENTITY_PRIVATE_KEY set' do
+      let(:user) { create(:user, email: 'test@example.com', email_verified_at: Time.zone.now) }
+      let(:private_key) { 'test-secret-key' }
+
+      it { is_expected.to eq(OpenSSL::HMAC.hexdigest("sha256", private_key, user.email)) }
+    end
+  end
+
   describe 'chatbot feature flag' do
     let(:user) { create(:user) }
 
