@@ -120,7 +120,7 @@ module LLM
     end
 
     def propose_messages_for_procedure(procedure_revision)
-      safe_schema = sanitize_schema_for_prompt(procedure_revision.schema_to_llm)
+      safe_schema = sanitize_schema_for_prompt(procedure_revision.schema_to_llm(reject: reject_schema_to_llm_scope))
       propose_messages_with_schema(procedure_revision, safe_schema)
     end
 
@@ -297,6 +297,10 @@ module LLM
 
     def sanitize_input_to_llm(input)
       input.gsub(DANGEROUS_CHARS, '').strip
+    end
+
+    def reject_schema_to_llm_scope
+      []
     end
   end
 end

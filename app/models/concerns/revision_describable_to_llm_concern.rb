@@ -3,7 +3,7 @@
 module RevisionDescribableToLLMConcern
   TYPES_WITH_OPTIONS = %w[formatted integer_number decimal_number date datetime].freeze
 
-  def schema_to_llm
+  def schema_to_llm(reject: [])
     revision_types_de_champ.includes(:parent, :type_de_champ)
       .filter(&:public?).map do |rtdc|
         {
@@ -21,7 +21,7 @@ module RevisionDescribableToLLMConcern
           # absolute_level: (rtdc.type_de_champ.header_section? ? rtdc.type_de_champ.level_for_revision(self) : nil),
           display_condition: rtdc.type_de_champ.condition.to_h,
           options: options_for_llm(rtdc.type_de_champ),
-        }.compact
+        }.compact.reject { |k, _v| reject.include?(k) }
       end
   end
 
