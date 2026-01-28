@@ -47,6 +47,16 @@ module LLM
       TXT
     end
 
+    def reject_schema_to_llm_scope
+      [
+        :mandatory,
+        :total_choices,
+        :sample_choices,
+        :choices_dynamic,
+        :options,
+      ].freeze
+    end
+
     # important: la position des champ existant est connue
     # quand on ajoute un champ, notre API interne le position en fonction du champ qui le prédède
     # il y a donc un non alignment dans nos interface a ce moment la
