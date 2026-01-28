@@ -202,6 +202,15 @@ class User < ApplicationRecord
     expert.present?
   end
 
+  def crisp_segments
+    segments = []
+    segments << 'administrateur' if administrateur?
+    segments << 'instructeur' if instructeur?
+    segments << 'expert' if expert?
+    segments << 'usager' if segments.empty?
+    segments
+  end
+
   def can_france_connect?
     !administrateur? && !instructeur?
   end

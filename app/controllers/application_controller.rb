@@ -414,12 +414,7 @@ class ApplicationController < ActionController::Base
   end
 
   def crisp_segments
-    segments = []
-    segments << 'administrateur' if administrateur_signed_in?
-    segments << 'instructeur' if instructeur_signed_in?
-    segments << 'expert' if expert_signed_in?
-    segments << 'usager' if segments.empty?
-    segments
+    current_user&.crisp_segments
   end
 
   def current_email

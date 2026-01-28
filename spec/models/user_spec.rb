@@ -278,6 +278,17 @@ describe User, type: :model do
     end
   end
 
+  describe '#crisp_segments' do
+    it 'returns user roles or usager by default' do
+      user = create(:user)
+      expect(user.crisp_segments).to eq(['usager'])
+
+      user.create_instructeur!
+      user.create_administrateur!
+      expect(user.crisp_segments).to contain_exactly('administrateur', 'instructeur')
+    end
+  end
+
   describe '#can_be_deleted?' do
     let(:user) { create(:user) }
     let(:administrateur) { administrateurs(:default_admin) }

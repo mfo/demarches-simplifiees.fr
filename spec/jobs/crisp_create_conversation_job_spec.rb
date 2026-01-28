@@ -4,13 +4,13 @@ require 'rails_helper'
 
 RSpec.describe CrispCreateConversationJob, type: :job do
   let(:api) { instance_double(Crisp::APIService) }
-  let(:email) { 'test@domain.com' }
+  let(:user) { nil }
+  let(:email) { user&.email || 'test@domain.com' }
   let(:subject_text) { 'Test Subject' }
   let(:text) { 'Test message content' }
   let(:tags) { ['test tag'] }
   let(:question_type) { 'lost_user' }
   let(:phone) { nil }
-  let(:user) { nil }
   let(:contact_form) { create(:contact_form, email:, user:, subject: subject_text, text:, tags:, phone:, question_type:) }
   let(:session_id) { 'session_test-123-456' }
 
@@ -56,11 +56,27 @@ RSpec.describe CrispCreateConversationJob, type: :job do
             email: email,
             nickname: 'Test',
             subject: subject_text,
-            segments: match_array(['test tag', 'contact form', question_type])
+            segments: ['test tag', 'contact form', question_type]
           )
         )
 
         expect(contact_form).to be_destroyed
+      end
+
+      context 'user identifié' do
+        let(:user) { create(:user) }
+
+        it 'merge segments' do
+          subject
+
+          expect(api).to have_received(:update_conversation_meta).with(
+            session_id: session_id,
+            body: hash_including(
+              email: user.email,
+              segments: ['usager', 'test tag', 'contact form', question_type]
+            )
+          )
+        end
       end
     end
 
