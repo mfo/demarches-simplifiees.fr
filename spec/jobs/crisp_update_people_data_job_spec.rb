@@ -11,14 +11,25 @@ RSpec.describe CrispUpdatePeopleDataJob, type: :job do
   subject { job.perform_now }
 
   describe '#perform' do
-    let(:url_regex) do
+    let(:people_data_url_regex) do
       %r{\Ahttps://api\.crisp\.chat/v1/website/#{ENV['CRISP_WEBSITE_ID']}/people/data/.*\z}
     end
 
+    let(:conversation_meta_url_regex) do
+      %r{^https://api.crisp.chat/v1/website/#{ENV['CRISP_WEBSITE_ID']}/conversation/.+/meta$}
+    end
+
     before do
-      stub_request(:patch, url_regex).and_return(body: {
+      stub_request(:patch, people_data_url_regex).and_return(body: {
         error: false, reason: "updated", data: {},
       }.to_json)
+
+      stub_request(:get, conversation_meta_url_regex)
+        .and_return(body: {
+          "error" => false,
+          "reason" => "resolved",
+          "data" => { "email" => user.email, "segments" => [] },
+        }.to_json)
     end
 
     context "when email is provided" do
@@ -27,7 +38,7 @@ RSpec.describe CrispUpdatePeopleDataJob, type: :job do
       it 'updates people data' do
         subject
 
-        expect(a_request(:patch, url_regex).with(headers: {
+        expect(a_request(:patch, people_data_url_regex).with(headers: {
           'X-Crisp-Tier' => 'plugin',
           'Authorization' => /Basic /,
         }, body: /Manager.+#{user.id}/)).to have_been_made.once
@@ -36,17 +47,11 @@ RSpec.describe CrispUpdatePeopleDataJob, type: :job do
 
     context "when email is not provided, get it from session by API" do
       let(:email) { nil }
-      before do
-        stub_request(:get, %r{^https://api.crisp.chat/v1/website/#{ENV['CRISP_WEBSITE_ID']}/conversation/.+/meta$})
-          .and_return(
-            body: { "error" => false, "reason" => "resolved", "data" => { "email" => user.email } }.to_json
-          )
-      end
 
-      it 'updates people data' do
+      it 'updates people data, resolved by session id' do
         subject
 
-        expect(a_request(:patch, url_regex).with(headers: {
+        expect(a_request(:patch, people_data_url_regex).with(headers: {
           'X-Crisp-Tier' => 'plugin',
           'Authorization' => /Basic /,
         }, body: /Manager.+#{user.id}/)).to have_been_made.once

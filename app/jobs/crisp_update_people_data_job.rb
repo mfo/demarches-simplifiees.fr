@@ -8,7 +8,8 @@ class CrispUpdatePeopleDataJob < ApplicationJob
   queue_as :default
 
   def perform(session_id, email)
-    email ||= fetch_email_from_session(session_id)
+    meta = fetch_conversation_meta(session_id)
+    email ||= meta[:email]
     user = User.find_by!(email:)
 
     update_people_data(user)
@@ -16,11 +17,11 @@ class CrispUpdatePeopleDataJob < ApplicationJob
 
   private
 
-  def fetch_email_from_session(session_id)
+  def fetch_conversation_meta(session_id)
     result = Crisp::APIService.new.get_conversation_meta(session_id:)
     case result
-    in Success(data: { email: })
-      email
+    in Success(data:)
+      { email: data[:email], segments: data[:segments] || [] }
     in Failure(reason:)
       fail reason
     end
