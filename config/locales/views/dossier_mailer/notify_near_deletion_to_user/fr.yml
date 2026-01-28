@@ -14,8 +14,8 @@ fr:
         one: "Afin de respecter la durée de conservation de vos données personnelles, ce dossier traité sera supprimé le %{expiration_date} :"
         other: "Afin de respecter la durée de conservation de vos données personnelles, ces dossiers traités seront supprimés le %{expiration_date} :"
       account_active:
-        one: Votre compte reste activé sur Démarches Simplifiées, seul le dossier sera supprimé.
-        other: Votre compte reste activé sur Démarches Simplifiées, seuls les dossiers seront supprimés.
+        one: Votre compte reste activé sur %{application_name}, seul le dossier sera supprimé.
+        other: Votre compte reste activé sur %{application_name}, seuls les dossiers seront supprimés.
       footer_termine:
         one: Vous pouvez télécharger votre dossier au format PDF depuis l’onglet « Expirants » sur la page
         other: Vous pouvez télécharger vos dossiers au format PDF depuis l’onglet « Expirants » sur la page

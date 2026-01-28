@@ -13,7 +13,7 @@
 
   = t("layouts.mailers.accuse_lecture.second_part")
 %p
-  = t("layouts.mailers.accuse_lecture.third_part")
+  = t("layouts.mailers.accuse_lecture.third_part", application_name: APPLICATION_NAME)
 
 = round_button(t("layouts.mailers.accuse_lecture.button_text"), dossier_url(@dossier), :primary)
 

@@ -36,7 +36,7 @@ fr:
         good_morning: Bonjour,
         first_part: Nous vous informons qu’une décision sur le dossier n° %{dossier_id} de la démarche
         second_part: a été rendue.
-        third_part: Pour en connaitre la nature, veuillez consulter votre dossier dans votre compte Démarches Simplifiées.
+        third_part: Pour en connaitre la nature, veuillez consulter votre dossier dans votre compte %{application_name}.
         button_text: Consulter mon dossier
         commentaire_html: <p>Bonjour,</p><p>Nous vous informons qu’une décision sur votre dossier a été rendue.</p>Cordialement,<br>%{service}
 
