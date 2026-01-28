@@ -50,6 +50,15 @@ describe Champs::RNFChamp, type: :model do
         expect(champ.errors[:value]).to include(I18n.t('activerecord.errors.messages.code_404'))
       end
     end
+
+    context 'when the champ is in error but fetch_external_data_exceptions is empty' do
+      before { champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: []) }
+
+      it 'adds the code_unknown error message without raising an error' do
+        expect { champ.validate(:champs_public_value) }.not_to raise_error
+        expect(champ.errors[:value]).to include(I18n.t('activerecord.errors.messages.code_unknown'))
+      end
+    end
   end
 
   describe 'fetch_external_data' do

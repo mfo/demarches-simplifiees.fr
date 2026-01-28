@@ -715,6 +715,7 @@ en:
         code_400: 'Invalid request. Please check your information.'
         code_403: 'Access denied. You do not have the necessary permissions.'
         code_401: 'Unauthorized. Please log in to continue.'
+        code_unknown: 'The external service is not responding correctly. Please try again later.'
       models:
         attestation_template:
           attributes:
