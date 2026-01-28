@@ -23,7 +23,7 @@ fr:
         legals: Informations légales
         resources: Ressources
         diagnostic: Diagnostic
-      description_1: Démarches simplifiées est un service propulsé par
+      description_1: "%{application_name} est un service propulsé par"
       link_1_label: la direction interministérielle du numérique (DINUM)
       link_1_url: "https://www.numerique.gouv.fr/dinum/"
       link_2_label: Le code source
