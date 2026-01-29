@@ -120,4 +120,19 @@ describe Champs::SiretChamp do
       end
     end
   end
+
+  describe '#reset_external_data!' do
+    let(:external_id) { "12345678901245" }
+    let(:etablissement) { create(:etablissement, siret: external_id) }
+
+    it 'destroys the old etablissement to avoid orphans' do
+      old_etablissement = champ.etablissement
+      expect(old_etablissement).to be_persisted
+
+      champ.reset_external_data!
+
+      expect(champ.reload.etablissement).to be_nil
+      expect { old_etablissement.reload }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end
