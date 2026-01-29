@@ -29,17 +29,13 @@
       >
         <div class="fr-menu__list">
           <button
-            class="fr-btn--close fr-btn fr"
+            class="fr-btn--close fr-btn fr-mb-1w"
             aria-controls="mega-menu-<%= p.id %>"
           >
             <%= t('utils.modal_close') %>
           </button>
 
           <div class="fr-grid-row">
-            <h4 class="fr-h6  fr-my-3w fr-px-2w">
-              <%= t('.procedure_menu') %>
-            </h4>
-
             <div class="fr-col-12">
               <h5 class="fr-mega-menu__category">
                 <%= link_to t('instructeurs.dossiers.header.banner.follow_up'), instructeur_procedure_path(p), class: "fr-nav__link" %>
