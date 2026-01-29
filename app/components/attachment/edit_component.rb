@@ -265,7 +265,7 @@ class Attachment::EditComponent < ApplicationComponent
         record = @attached_file.record
         tdc = record.is_a?(TypeDeChamp) ? record : (record.respond_to?(:type_de_champ) ? record.type_de_champ : nil)
         if tdc.is_a?(TypeDeChamp)
-          return tdc.send(:allowed_extensions).map { _1.delete_prefix('.') } if tdc.rib_nature?
+          return tdc.send(:allowed_extensions).map { _1.delete_prefix('.') } if tdc.RIB?
 
           # Pour les pièces jointes avec des formats limités, on affiche les formats autorisés
           if tdc.piece_justificative? && tdc.pj_limit_formats? && tdc.pj_format_families.present?
@@ -301,7 +301,7 @@ class Attachment::EditComponent < ApplicationComponent
     families =
       if tdc.titre_identite_nature?
         [:image_scan]
-      elsif tdc.rib_nature?
+      elsif tdc.RIB?
         [:document_texte, :image_scan]
       elsif tdc.piece_justificative? && tdc.pj_limit_formats? && tdc.pj_format_families.present?
         Array.wrap(tdc.pj_format_families).map(&:to_sym)

@@ -515,7 +515,7 @@ class ProcedureRevision < ApplicationRecord
           to_type_de_champ.nature)
       end
 
-      if !(to_type_de_champ.titre_identite_nature? || from_type_de_champ.titre_identite_nature? || to_type_de_champ.rib_nature? || from_type_de_champ.rib_nature?)
+      if !(to_type_de_champ.titre_identite_nature? || from_type_de_champ.titre_identite_nature? || to_type_de_champ.RIB? || from_type_de_champ.RIB?)
         if from_type_de_champ.pj_limit_formats != to_type_de_champ.pj_limit_formats
           changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
             :pj_limit_formats,

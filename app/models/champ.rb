@@ -37,7 +37,6 @@ class Champ < ApplicationRecord
     :max_file_size_bytes,
     :allowed_content_types,
     :titre_identite_nature?,
-    :rib_nature?,
     :pj_limit_formats?,
     :pj_format_families,
     :pj_auto_purge?,

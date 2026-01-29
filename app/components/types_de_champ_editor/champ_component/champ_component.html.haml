@@ -85,7 +85,7 @@
                   = form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: 'fake-label'
                   %p.fr-mb-0= t('.identity_deletion.desc_html')
                   %p.fr-mt-0= t('.identity_deletion.note_html')
-              - elsif type_de_champ.rib_nature?
+              - elsif type_de_champ.RIB?
                 .cell.fr-mt-2w
                   = render Dsfr::NoticeComponent.new(state: 'info') do |c|
                     - c.with_title do

@@ -56,7 +56,7 @@ class Champs::PieceJustificativeChamp < Champ
     if type_de_champ.titre_identite_nature?
       allowed_types = type_de_champ.allowed_content_types
       max_size = type_de_champ.max_file_size_bytes
-    elsif type_de_champ.rib_nature?
+    elsif type_de_champ.RIB?
       allowed_types = type_de_champ.allowed_content_types
     elsif type_de_champ.pj_limit_formats? && type_de_champ.pj_format_families.present?
       allowed_types = type_de_champ.allowed_content_types
