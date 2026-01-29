@@ -67,7 +67,7 @@ describe Conditions::ChampsConditionsComponent, type: :component do
           let(:condition) { empty_operator(constant(true), constant(true)) }
 
           it do
-            expect(page).to have_select('type_de_champ[condition_form][rows][][operator_name]', with_options: ['Est'])
+            expect(page).to have_select('type_de_champ[condition_form][rows][][operator_name]', with_options: ['Est', 'N’est pas'])
             expect(page).to have_select('type_de_champ[condition_form][rows][][value]', options: ['Oui', 'Non'])
           end
         end
