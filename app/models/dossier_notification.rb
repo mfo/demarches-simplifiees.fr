@@ -427,7 +427,7 @@ class DossierNotification < ApplicationRecord
         .termine_or_en_construction_close_to_expiration
     when :dossier_suppression
       dossiers
-        .select(:id, :hidden_by_administration_at, :hidden_by_expired_at)
+        .select(:id, :hidden_by_administration_at, :hidden_by_expired_at, :hidden_by_user_at)
         .hidden_by_expired
         .or(dossiers.hidden_by_administration.hidden_by_user)
     when :dossier_modifie
