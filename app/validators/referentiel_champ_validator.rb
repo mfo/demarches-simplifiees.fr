@@ -13,7 +13,10 @@ class ReferentielChampValidator < ActiveModel::Validator
   private
 
   def error_key_for_api_response_code(record)
-    http_status = record.fetch_external_data_exceptions.first.code
+    first_exception = record.fetch_external_data_exceptions&.first
+    return :code_unknown if first_exception.nil?
+
+    http_status = first_exception.code
     error_key = :"code_#{http_status}"
 
     if http_status && translation_exists_for?(error_key, record)
