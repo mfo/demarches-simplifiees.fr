@@ -79,7 +79,7 @@ en:
           video: "Video"
           archive: "Compressed archive"
         natures:
-          NON_SPECIFIE: "Not specified"
+          non_specifie: "Not specified"
           TITRE_IDENTITE: "Identity document"
           RIB: "Bank details (RIB)"
     errors:

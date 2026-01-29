@@ -110,7 +110,7 @@ class TypeDeChamp < ApplicationRecord
   }
 
   enum :nature, {
-    NON_SPECIFIE: 'NON_SPECIFIE',
+    non_specifie: 'NON_SPECIFIE',
     TITRE_IDENTITE: 'TITRE_IDENTITE',
     RIB: 'RIB',
   }

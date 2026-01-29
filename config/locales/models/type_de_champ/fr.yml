@@ -82,7 +82,7 @@ fr:
           video: "Vidéo"
           archive: "Archive compressée"
         natures:
-          NON_SPECIFIE: "Non spécifié"
+          non_specifie: "Non spécifié"
           TITRE_IDENTITE: "Titre d’identité"
           RIB: "Relevé d’identité bancaire (RIB)"
     errors:
