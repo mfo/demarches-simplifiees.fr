@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 class ApplicationJob < ActiveJob::Base
-  include ActiveJob::RetryOnTransientErrors
+  # Disable Sidekiq retries so only Active Job's retry_on applies.
+  # Without this, Sidekiq would retry the job after Active Job exhausts retries,
+  # causing many more executions (activejob retries × Sidekiq default 25 retries).
+  sidekiq_options retry: false
 
-  DEFAULT_MAX_ATTEMPTS_JOBS = 25
+  retry_on StandardError, attempts: (ENV.fetch("MAX_ATTEMPTS_JOBS", 25).to_i), wait: :polynomially_longer
+
+  include ActiveJob::RetryOnTransientErrors
 
   attr_writer :request_id
 
@@ -38,7 +43,7 @@ class ApplicationJob < ActiveJob::Base
   end
 
   def max_attempts
-    ENV.fetch("MAX_ATTEMPTS_JOBS", DEFAULT_MAX_ATTEMPTS_JOBS).to_i
+    ENV.fetch("MAX_ATTEMPTS_JOBS", 25).to_i
   end
 
   def max_run_time

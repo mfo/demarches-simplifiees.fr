@@ -22,8 +22,8 @@ RSpec.shared_examples 'a job retrying transient errors' do |job_class = describe
   end
 
   context 'when another type of error is raised' do
-    it 'makes only 1 attempt before raising the exception up' do
-      assert_performed_jobs 1 do
+    it 'makes 25 attempts before raising the exception up (default strategy)' do
+      assert_performed_jobs 25 do
         StandardErrorJob.perform_later rescue StandardError
       end
     end
