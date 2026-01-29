@@ -129,6 +129,7 @@ ignore_unused:
 - 'utils.string'
 - 'views.shared.avis.avis_non_rendu'
 - 'views.shared.avis.en_attente'
+- 'views.shared.actions.edit'
 - 'insee_down'
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'

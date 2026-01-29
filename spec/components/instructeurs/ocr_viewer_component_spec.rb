@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe Instructeurs::OCRViewerComponent, type: :component do
-  let(:champ) { double('champ', value_json:, RIB?: rib, fetched?: fetched) }
+  let(:champ) { double('champ', value_json:, RIB?: rib, fetched?: fetched, dossier_id:, public_id:) }
   let(:component) { described_class.new(champ:) }
 
   let(:value_json) { nil }
   let(:rib) { true }
   let(:fetched) { true }
+  let(:dossier_id) { 1 }
+  let(:public_id) { 'public-id-123' }
 
   describe '#render?' do
     context 'nominal' do

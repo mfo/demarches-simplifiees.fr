@@ -639,6 +639,12 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :instructeurs do
+    resources :dossiers, only: [] do
+      resources :champs, only: [:edit, :update], param: :public_id
+    end
+  end
+
   #
   # Administrateur
   #
