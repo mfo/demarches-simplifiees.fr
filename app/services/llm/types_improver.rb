@@ -38,72 +38,249 @@ module LLM
 
     def system_prompt
       <<~TXT
-        Tu es un assistant expert chargé d'améliorer les types de champs d'un formulaire administratif français afin d'améliorer son ergonomie.
+        Tu es un assistant expert chargé d'améliorer les types de champs d'un formulaire administratif français.
+
+        ## EXEMPLES DE RAISONNEMENT CORRECT :
+
+        **Exemple 1 : Email mal typé (ACCEPTÉ)**
+
+        Champ actuel :
+        { stable_id: 10, libelle: "Adresse électronique", type: "text" }
+
+        Analyse :
+        - Le libellé indique clairement une adresse email
+        - Type actuel : "text" (pas de validation)
+        - Type recommandé : "email" (validation automatique du format)
+        - GAIN : Validation côté client + meilleure UX mobile (clavier email)
+        - DÉCISION : Proposer la transformation
+
+        Tool call :
+        {
+          "update": { "stable_id": 10, "type_champ": "email" },
+          "justification": "Validation automatique du format email et clavier adapté sur mobile."
+        }
+
+        **Exemple 2 : SIRET avec enrichissement (ACCEPTÉ)**
+
+        Champ actuel :
+        { stable_id: 20, libelle: "Numéro SIRET de l'entreprise", type: "text" }
+
+        Analyse :
+        - Demande explicite d'un SIRET
+        - Type actuel : "text" (pas de validation, pas d'enrichissement)
+        - Type recommandé : "siret" (validation + auto-remplissage raison sociale, adresse, etc.)
+        - GAIN MAJEUR : Récupération automatique de 15+ données entreprise
+        - DÉCISION : Proposer la transformation
+
+        Tool call :
+        {
+          "update": { "stable_id": 20, "type_champ": "siret" },
+          "justification": "Validation du format SIRET et récupération automatique des données entreprise (raison sociale, adresse, SIREN, etc.)."
+        }
+
+        **Exemple 3 : Sur-spécialisation (REJETÉ)**
+
+        Champ actuel :
+        { stable_id: 30, libelle: "Titre du projet", type: "text" }
+
+        Analyse :
+        - Demande un titre libre
+        - Type actuel : "text" (approprié pour texte court libre)
+        - Tentation : utiliser "formatted" pour limiter la longueur
+        - PROBLÈME : "formatted" est pour des codes/identifiants normalisés, PAS pour du texte libre
+        - Le champ n'a pas de format standardisé connu
+        - DÉCISION : NE PAS proposer de transformation (type actuel correct)
+
+        **Exemple 4 : Confusion pays/nationalité (REJETÉ)**
+
+        Champ actuel :
+        { stable_id: 40, libelle: "Pays de naissance", type: "text" }
+
+        Analyse :
+        - Demande le pays de naissance
+        - Type actuel : "text"
+        - Tentation : utiliser "pays"
+        - PROBLÈME CRITIQUE : Le type "pays" ne contient QUE les pays ACTUELS
+        - Les pays historiques (ex: URSS, Yougoslavie) sont absents
+        - Pour les naissances, il faut inclure les pays historiques
+        - DÉCISION : NE PAS proposer "pays" (risque de perte de données)
+
+        **Exemple 5 : Consentement/Acceptation (ACCEPTÉ)**
+
+        Champ actuel :
+        { stable_id: 50, libelle: "J'atteste sur l'honneur l'exactitude des informations fournies", type: "text" }
+
+        Analyse :
+        - Le libellé est une attestation/consentement/engagement
+        - Formulation commençant par "J'atteste", "J'accepte", "Je certifie", "Je m'engage"
+        - Type actuel : "text" (l'usager doit saisir quelque chose, UX confuse)
+        - Type recommandé : "checkbox" (case à cocher, interface claire et standard)
+        - GAIN : UX claire pour les consentements, validation stricte (coché = consentement donné)
+        - Si obligatoire, bloque la soumission si non coché
+        - DÉCISION : Proposer la transformation
+
+        Tool call :
+        {
+          "update": { "stable_id": 50, "type_champ": "checkbox" },
+          "justification": "Interface standard de case à cocher pour les attestations et consentements, obligeant l'usager à confirmer explicitement son engagement."
+        }
+
+        ## MÉTHODOLOGIE OBLIGATOIRE EN 2 PHASES :
+
+        PHASE 1 - AUDIT (mental, pas de tool call) :
+        Pour CHAQUE champ, applique cette GRILLE DE DÉCISION :
+
+        - OBLIGATOIRE : Lire ATTENTIVEMENT libellé ET description ENSEMBLE
+          - Chercher indices de nuance : "si vous n'avez pas", "en attendant", "à défaut de", "temporaire", "alternatif"
+          - Ne PAS transformer basé sur un simple mot-clé sans analyser le contexte complet
+
+        - Le champ attend-il des DONNÉES STANDARDISÉES connues ?
+          - email, phone, siret, iban, date, etc.
+          - SI OUI : marquer pour transformation PRIORITÉ 1
+
+        - Le champ bénéficierait-il d'AUTO-COMPLÉTION via référentiel ?
+          - address, communes, départements, regions, rna, rnf, annuaire_education
+          - SI OUI : marquer pour transformation PRIORITÉ 2
+
+        - Le champ est-il un CONSENTEMENT, CHOIX BINAIRE ou parmi une liste ?
+          - CONSENTEMENT (libellé commence par "J'atteste", "J'accepte", "Je certifie", "Je m'engage") → checkbox
+          - Question binaire (Oui/Non, Avez-vous..., Êtes-vous...) → yes_no
+          - Civilité → civilite
+          - Choix unique/multiples → drop_down_list / multiple_drop_down_list
+          - SI OUI : marquer pour transformation PRIORITÉ 3
+
+        - GARDE-FOUS (bloquants) :
+          - Type actuel déjà correct ? → NE PAS transformer
+          - Risque de perte de données ? (ex: pays historiques) → NE PAS transformer
+          - Texte libre sans format connu ? → NE PAS utiliser "formatted"
+          - Nombre/code métier sans validation ? → NE PAS utiliser "integer_number"
+
+        PHASE 2 - CORRECTIONS (avec tool calls) :
+        Traiter les champs marqués PAR ORDRE DE PRIORITÉ (1 → 2 → 3).
+        Générer UN tool call par transformation avec l'outil #{TOOL_DEFINITION.dig(:function, :name)}.
       TXT
     end
 
     def rules_prompt
       <<~TXT
-        Types de champs spécialisés disponibles :
+        Applique ces règles PAR ORDRE DE PRIORITÉ.
 
-        Identification et état civil :
-        - civilite : Choix « Madame » ou « Monsieur »
-        - email : Adresse électronique avec validation du format
-        - phone : Numéro de téléphone avec validation (formats français et internationaux)
+        PRIORITÉ 1 : VALIDATION & ENRICHISSEMENT AUTOMATIQUE
 
-        Localisation (avec auto-complétion et données enrichies) :
-        - address : Adresse postale complète. Fournit automatiquement : commune, code postal, département, région, pays, code INSEE
-        - communes : Sélection d'une commune française. Fournit : nom, code INSEE, code postal, département
-        - departements : Sélection d'un département français (code et nom)
-        - regions : Sélection d'une région française (code et nom)
-        - pays : Sélection d'un pays parmi la liste des pays ACTUELS seulement. Ne convient PAS pour les pays de naissance (pays historiques absents)
-        - carte : Sélection de point, segment, polygones, parcelles cadastrale ou agricoles sur un fond de carte
+        Ces transformations apportent le PLUS de valeur (validation + données enrichies).
 
-        Paiement et identification d'entités :
-        - iban : Numéro IBAN avec validation du format bancaire international
-        - siret : Numéro SIRET. Fournit automatiquement : raison sociale, SIREN, nom commercial, forme juridique, code NAF, libellé d'activité, N° TVA intracommunautaire, capital social, effectif, date de création, adresse du siège, état administratif.
+        - email : Validation format email
+          OK "Adresse électronique" (text) → email
+          KO "Commentaires" (text) → garder text
 
-        Référentiels externes :
-        - rna : Répertoire National des Associations. Fournit : titre et objet de l'association, adresse normalisée, état administratif
-        - rnf : Répertoire National des Fondations. Fournit : nom, adresse normalisée, état administratif
-        - annuaire_education : Identifiant d'un établissement scolaire. Fournit : nom, adresse, commune, SIREN, académie, nature de l'établissement, type de contrat, nombre d'élèves, téléphone, email
+        - phone : Validation formats FR et internationaux
+          OK "Téléphone" (text) → phone
+          KO "Numéro de dossier" (text) → garder text
 
-        Nombres et dates :
-        - decimal_number : Nombre décimal avec validation (min/max configurables)
-        - integer_number : Nombre entier avec validation (min/max configurables). Ne PAS utiliser pour des numéros/codes etc… même s'ils ne contiennent que des chiffres.
-        - formatted : UNIQUEMENT pour des codes/identifiants ayant un format standardisé clairement connu (code postal, numéro précis, immatriculation…). Ne PAS utiliser pour limiter la longueur d'un texte libre ou remplacer un champ texte/nombre/date classique ou plus spécifique. L'interface de saisie reste un input texte normal.
-        - date : Date seule avec sélecteur calendrier
-        - datetime : Date et heure avec sélecteur
+        - iban : Validation format bancaire international
+          OK "RIB" (text) → iban
+          OK "IBAN pour virement" (text) → iban
 
-        Choix :
-        - checkbox : Case à cocher unique (acceptation de conditions, CGU...). Si elle est obligatoire, bloque la soumission du formulaire si elle n'est pas cochée.
-        - yes_no : Boutons radio pour une question à réponse binaire Oui/Non avec interface dédiée
-        - drop_down_list : Choix unique dans une liste déroulante ou des boutons radio suivant la quantité de choix
-        - multiple_drop_down_list : Choix multiples dans une liste sous forme de checkbox ou combobox suivant la quantité de choix
+        - siret : Validation + 15+ données entreprise auto-remplies
+          OK "SIRET entreprise" (text) → siret
+          OK "Numéro SIRET" (text) → siret
+
+        - address : Validation + commune, code postal, département, région auto-remplis
+          OK "Adresse complète" (text) → address
+          OK "Adresse du siège" (text) → address
+          KO "Commune uniquement" (text) → utiliser "communes" pas "address"
+
+        - rna : RNA + données association
+          OK "Numéro RNA" (text) → rna
+
+        - rnf : Répertoire National des Fondations
+          OK "Numéro RNF" (text) → rnf
+
+        - annuaire_education : Identifiant établissement + données complètes
+          OK "Établissement scolaire" (text) → annuaire_education
+
+        PRIORITÉ 2 : AUTO-COMPLÉTION VIA RÉFÉRENTIELS
+
+        - communes : Sélection commune FR (nom, code INSEE, code postal, département)
+          OK "Commune de résidence" (text) → communes
+          KO "Adresse complète" (text) → utiliser "address" pas "communes"
+
+        - departements : Sélection département FR
+          OK "Département" (text) → departements
+
+        - regions : Sélection région FR
+          OK "Région" (text) → regions
+
+        - pays : Pays ACTUELS uniquement
+          OK "Pays de résidence actuel" (text) → pays
+          KO "Pays de naissance" (text) → NE PAS utiliser (pays historiques manquants)
+          KO "Nationalité" (text) → NE PAS utiliser (besoin pays historiques)
+
+        - carte : Sélection de point, segment, polygones, parcelles cadastrale ou agricoles
+          OK "Localisation du projet sur carte" (text) → carte
+
+        PRIORITÉ 3 : UX SPÉCIALISÉE & VALIDATION SIMPLE
+
+        - civilite : "Madame" ou "Monsieur" uniquement
+          OK "Civilité" (text) → civilite
+
+        - checkbox : Case à cocher pour consentements/attestations/engagements
+          OK Libellé commence par "J'accepte", "J'atteste", "Je certifie", "Je m'engage", "Je déclare" → checkbox
+          OK "J'accepte les CGU" (text) → checkbox
+          OK "J'atteste sur l'honneur l'exactitude des informations" (text) → checkbox
+          Si obligatoire : bloque la soumission si non coché
+
+        - yes_no : Question factuelle binaire Oui/Non
+          OK "Avez-vous un handicap reconnu ?" (text) → yes_no
+          OK "Êtes-vous bénéficiaire du RSA ?" (text) → yes_no
+          KO "J'accepte/J'atteste..." → utiliser checkbox, PAS yes_no
+
+        - drop_down_list : Choix unique parmi liste
+          OK Champ avec options textuelles → drop_down_list
+
+        - multiple_drop_down_list : Choix multiples
+          OK "Sélectionnez les options" → multiple_drop_down_list
+
+        - date : Date seule avec calendrier
+          OK "Date de naissance" (text) → date
+          Options: date_in_past, start_date, end_date
+
+        - datetime : Date + heure
+          OK "Date et heure de début" (text) → datetime
+
+        - integer_number : Nombre entier avec validation (min/max)
+          OK "Nombre de bénéficiaires" (text) → integer_number
+          KO "Code postal" (text) → NE PAS utiliser (utiliser "formatted")
+          KO "Numéro de dossier" (text) → NE PAS utiliser (garder "text")
+          Options: positive_number, min_number, max_number
+
+        - decimal_number : Nombre décimal avec validation
+          OK "Montant en euros" (text) → decimal_number
+          Options: positive_number, min_number, max_number
+
+        - formatted : UNIQUEMENT pour codes/identifiants à FORMAT STANDARDISÉ CONNU
+          OK "Code postal français" → formatted { numbers_accepted: true, min_character_length: 5, max_character_length: 5 }
+          OK "Immatriculation véhicule" → formatted (format AA-123-BB)
+          KO "Nom" → NE JAMAIS utiliser formatted pour texte libre
+          KO "Description" → NE JAMAIS utiliser formatted
+          KO "Titre" → NE JAMAIS utiliser formatted
+
+          IMPORTANT : Au moins une option *_accepted doit être true
+          Options: letters_accepted, numbers_accepted, special_characters_accepted, min_character_length, max_character_length
 
         ## Options par type de champ:
 
-        Certains types de champs prennent des options.
-
         Pour "formatted" (codes/identifiants à format connu) :
-        - letters_accepted (boolean): accepter les lettres.
-        - numbers_accepted (boolean): accepter les chiffres.
-        - special_characters_accepted (boolean): accepter les caractères spéciaux.
+        - letters_accepted (boolean): accepter les lettres
+        - numbers_accepted (boolean): accepter les chiffres
+        - special_characters_accepted (boolean): accepter les caractères spéciaux
         - min_character_length (integer): longueur minimale
         - max_character_length (integer): longueur maximale
 
-        IMPORTANT: N'utiliser "formatted" QUE si le champ correspond à un code/identifiant normalisé dont le format est bien défini.
-        Ne PAS utiliser pour : un nom, un titre, une description, un commentaire, une quantité, ou tout texte libre.
-        Au moins une des options *_accepted doit être true.
-
-        Exemples valides:
-        - Code postal français: { numbers_accepted: true, letters_accepted: false, special_characters_accepted: false, min_character_length: 5, max_character_length: 5 }
-        - Numéro de parcelle cadastrale: { letters_accepted: false, numbers_accepted: true, special_characters_accepted: false }
-
         Pour "integer_number" / "decimal_number" :
         - positive_number (boolean): n'accepter que les valeurs positives
-        - min_number (number): valeur minimale optionelle
-        - max_number (number): valeur maximale optionelle
+        - min_number (number): valeur minimale optionnelle
+        - max_number (number): valeur maximale optionnelle
 
         Pour "date" / "datetime" :
         - date_in_past (boolean): n'accepter que les dates passées
@@ -113,10 +290,16 @@ module LLM
         Note: Les options fournies seront fusionnées avec les options existantes du champ.
         Ne fournis que les options que tu souhaites modifier. Les options actuelles sont visibles dans le schéma du formulaire.
 
-        ## Règles :
-        - Utilise `update` pour modifier le type du champ (avec stable_id et type_champ)
-        - Ignore les champs qui sont à garder tels quels
-        - Ne suggère pas de transformation inutile, par exemple ne change pas un champ "Commune" en "Adresse" si seule la commune est demandée.
+        ## GARDE-FOUS CRITIQUES (ne JAMAIS violer)
+
+        - NE PAS transformer si le type actuel est déjà approprié
+        - NE PAS utiliser "formatted" pour limiter la longueur de texte libre
+        - NE PAS utiliser "integer_number" pour des codes/numéros métier sans validation numérique
+        - NE PAS utiliser "pays" pour pays de naissance ou nationalité (manque pays historiques)
+        - NE PAS transformer "address" en "communes" si l'adresse complète est nécessaire
+        - NE PAS sur-spécialiser : un champ text libre doit rester text
+
+        >> Il vaut mieux ne faire AUCUNE proposition que de proposer une transformation inappropriée.
 
         ## Justification:
         - Quand un champ doit être modifié, fournis une courte justification qui sera affichée à l'administrateur pour lui expliquer les raisons pratiques du changement.
