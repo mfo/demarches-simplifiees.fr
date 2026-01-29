@@ -21,6 +21,6 @@
   = link_to("mes dossiers", dossiers_url)
   \.
 %p
-  = t('.account_active', count: @dossiers.size)
+  = t('.account_active', count: @dossiers.size, application_name: APPLICATION_NAME)
 
 = render partial: "layouts/mailers/signature"

@@ -15,7 +15,7 @@
         %div
           %h2
             = t('views.accessibility_statement.compliance.title')
-          %p.fr-mb-2w= t('views.accessibility_statement.compliance.content_html')
+          %p.fr-mb-2w= t('views.accessibility_statement.compliance.content_html', application_name: Current.application_name)
           %h3
             = t('views.accessibility_statement.results.title')
           %p.fr-mb-2w= t('views.accessibility_statement.results.content')
@@ -123,7 +123,7 @@
         %div
           %h2
             = t('views.accessibility_statement.contact.title')
-          %p.fr-mb-2w= t('views.accessibility_statement.contact.intro')
+          %p.fr-mb-2w= t('views.accessibility_statement.contact.intro', application_name: Current.application_name)
           %ul.fr-mb-2w
             %li
               = t('views.accessibility_statement.contact.infos.email_html')

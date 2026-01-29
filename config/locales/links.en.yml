@@ -21,7 +21,7 @@ en:
         legals: Legal information
         resources: Resources
         diagnostic: Diagnostic
-      description_1: Démarches simplifiées is powered by
+      description_1: "%{application_name} is powered by"
       link_1_label: the interdepartmental direction of digital (DINUM).
       link_1_url: "https://www.numerique.gouv.fr/dinum/"
       link_2_label: The source code

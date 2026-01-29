@@ -72,7 +72,7 @@
     .fr-fieldset__element
       = render Dsfr::CalloutComponent.new(title: t(:opendata_header, scope: [:administrateurs, :informations])) do |c|
         - c.with_body do
-          %p= t(:opendata_notice_html, scope: [:administrateurs, :informations])
+          %p= t(:opendata_notice_html, scope: [:administrateurs, :informations], application_name: Current.application_name)
 
     .fr-fieldset__element
       = render Dsfr::ToggleComponent.new(form: f, target: :opendata, title: t(:opendata, scope: [:administrateurs, :informations]), extra_class_names: nil)

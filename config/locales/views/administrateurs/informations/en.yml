@@ -2,7 +2,7 @@ en:
   administrateurs:
     informations:
       opendata_header: Open data
-      opendata_notice_html: "Procedures on Démarches Simplifiées target individuals and companies, as well as public servant and the administration.<br>
+      opendata_notice_html: "Procedures on %{application_name} target individuals and companies, as well as public servant and the administration.<br>
       Mostly forms and fields can be shared publicly as OpenData using a usable digital format. Of courses, user data are not shared<br>
       Those information will be published and maintained on data.gouv.fr on a regular basis."
       opendata: "Do you allow the publicaton of this procedure"

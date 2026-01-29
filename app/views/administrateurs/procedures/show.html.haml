@@ -72,7 +72,7 @@
         - if @procedure.closing_reason == 'internal_procedure'
           - new_procedure = Procedure.find_by(id: @procedure.replaced_by_procedure_id)
           %p
-            = "Cette démarche est remplacée par une autre démarche dans Démarches simplifiées :"
+            = "Cette démarche est remplacée par une autre démarche dans #{Current.application_name} :"
             = link_to(new_procedure.libelle, admin_procedure_path(new_procedure))
         - if @procedure.closing_reason == 'other'
           %p

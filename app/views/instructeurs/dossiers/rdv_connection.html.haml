@@ -7,7 +7,7 @@
     %p
       Pour utiliser cette fonctionnalité, vous devez commencer par connecter votre compte
       %strong RDV Service Public
-      à votre compte Démarches Simplifiées :
+      à votre compte #{Current.application_name} :
     = form_tag('/auth/rdvservicepublic', method: 'post', data: {turbo: false}) do
       %button.fr-btn{ type:'submit' }
         Connecter RDV Service Public

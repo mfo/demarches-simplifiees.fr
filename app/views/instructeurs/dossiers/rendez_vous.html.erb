@@ -20,7 +20,7 @@
             <p>
               Pour utiliser cette fonctionnalité, vous devez commencer par connecter votre compte
               <strong>RDV Service Public</strong>
-              à votre compte Démarches Simplifiées :
+              à votre compte <%= Current.application_name %> :
             </p>
             <%= form_tag('/auth/rdvservicepublic', method: 'post', data: {turbo: false}) do %>
               <button class="fr-btn" type="submit">

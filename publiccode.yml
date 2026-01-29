@@ -23,19 +23,17 @@ localisation:
   availableLanguages:
     - fr
     - en
-fr:
-  sample: '0.2'
 description:
   fr:
     documentation: 'https://doc.demarches-simplifiees.fr/'
     apiDocumentation: |-
-      https://doc.demarches-simplifiees.fr/pour-aller-plus-loin/graphql#presentation-de-lapi
+      https://doc.demarches-simplifiees.fr/api-graphql
     awards:
       - Prix spécial du Jury Acteurs du Libre (CNLL)  2021
     shortDescription: |-
       outil permettant aux usagers d’effectuer des démarches en ligne, et aux agents administratifs d’instruire ces démarches.
     longDescription: |
-      Démarches Simplifiées est un outil permettant aux usagers d’effectuer des démarches en ligne, et aux agents administratifs d’instruire ces démarches.
+      Démarche Numérique est un outil permettant aux usagers d’effectuer des démarches en ligne, et aux agents administratifs d’instruire ces démarches.
 
       Il a pour objectif de :
       - faciliter la dématériarialisation de démarches,
@@ -46,6 +44,7 @@ description:
     genericName: Générateur de formulaire
     features:
       - réaliser une démarche en ligne
+      - instuire les dossiers
 fundedBy:
   - name: Direction interministérielle du numérique
-    url: https://lannuaire.service-public.fr/gouvernement/d1a97841-b4bf-46df-a089-1003e4e266b4
+    uri: https://lannuaire.service-public.fr/gouvernement/d1a97841-b4bf-46df-a089-1003e4e266b4

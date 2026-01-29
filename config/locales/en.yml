@@ -133,7 +133,7 @@ en:
       line_two_html: "This accessibility statement applies to <a href=\"https://%{host}\">%{app_name}</a> website."
       compliance:
         title: "Compliance status"
-        content_html: "The website Démarches simplifiées is <strong>partially compliant</strong> with <a href=\"https://accessibilite.numerique.gouv.fr/\">the General Accessibility Guidelines (RGAA)</a> version 4.1.2 as a result of the non-compliances listed below."
+        content_html: "The website %{application_name} is <strong>partially compliant</strong> with <a href=\"https://accessibilite.numerique.gouv.fr/\">the General Accessibility Guidelines (RGAA)</a> version 4.1.2 as a result of the non-compliances listed below."
       results:
         title: "Test results"
         content: "The internal audit performed in April 2025 revealed an overall compliance rate of 93.10% on the sample of pages analyzed."
@@ -214,7 +214,7 @@ en:
         page_note_html: "The procedure <a href=\"https://demarche.numerique.gouv.fr/commencer/cd92-demande-amethyste-ph-v1\">CD92 - Demande de titre améthyste - Première demande (v1 - PH)</a> was used as the basis for the audit."
       contact:
         title: "Feedback and contact"
-        intro: "If you are unable to access a piece of content or service, you can contact the Simplified Approaches manager to be directed to an accessible alternative or obtain the content in another form."
+        intro: "If you are unable to access a piece of content or service, you can contact the %{application_name} manager to be directed to an accessible alternative or obtain the content in another form."
         infos:
           email_html: "By email:"
           adress_html: "By post : DINUM , 20 avenue de Ségur 75007 Paris"
