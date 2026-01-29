@@ -89,6 +89,7 @@ class Conditions::ConditionsComponent < ApplicationComponent
     when ChampValue::CHAMP_VALUE_TYPE.fetch(:boolean)
       [
         [t('is', scope: 'logic'), Eq.name],
+        [t('is_not', scope: 'logic'), NotEq.name],
       ]
     when ChampValue::CHAMP_VALUE_TYPE.fetch(:empty)
       [
