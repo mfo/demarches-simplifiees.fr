@@ -15,7 +15,9 @@ class Champs::SiretChamp < Champ
   end
 
   def after_reset_external_data(opts = {})
+    old_etablissement = etablissement
     super(etablissement_id: nil, prefilled: false, value: nil)
+    old_etablissement&.destroy
   end
 
   def update_external_data!(data:)
