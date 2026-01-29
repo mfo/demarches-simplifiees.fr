@@ -300,6 +300,7 @@ class Champ < ApplicationRecord
     self.external_id = champ.external_id
     self.value_json = champ.value_json
     self.data = champ.data
+    self.external_state = champ.external_state
 
     self.geo_areas = champ.geo_areas.map(&:dup)
 
