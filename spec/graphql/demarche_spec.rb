@@ -106,8 +106,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
       expect(data[:demarcheAjouterAdministrateur][:warnings].count).to eq(0)
       procedure.reload
       expect(procedure.administrateurs.count).to eq(2)
-      expect(procedure.administrateurs[0]).to eq(admin)
-      expect(procedure.administrateurs[1].email).to eq("no-admin@admin.com")
+      expect(procedure.administrateurs.map(&:email)).to match_array([admin.email, 'no-admin@admin.com'])
     end
   end
 
