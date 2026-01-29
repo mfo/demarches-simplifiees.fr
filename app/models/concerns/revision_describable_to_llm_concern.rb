@@ -17,7 +17,7 @@ module RevisionDescribableToLLMConcern
           choices_dynamic: (rtdc.type_de_champ.referentiel.present? ? true : nil),
           position: rtdc.position,
           parent_id: rtdc.parent&.stable_id,
-          header_section_level: (rtdc.type_de_champ.header_section_level if rtdc.type_de_champ.header_section?),
+          header_section_level: (rtdc.type_de_champ.header_section_level_value if rtdc.type_de_champ.header_section?),
           display_condition: rtdc.type_de_champ.condition.present?,
           options: options_for_llm(rtdc.type_de_champ),
         }.compact.reject { |k, _v| reject.include?(k) }
