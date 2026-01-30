@@ -1,5 +1,5 @@
 <section class="procedure__item">
-  <div class="fr-pb-2w flex align-baseline">
+  <div class="flex align-baseline">
     <div class="fr-hidden fr-unhidden-lg">
       <h3 class="card-title fr-mb-0 fr-ml-1w">
         <%= link_to procedure_libelle_with_number(p), instructeur_procedure_path(p) %>
@@ -29,26 +29,28 @@
       >
         <div class="fr-menu__list">
           <button
-            class="fr-btn--close fr-btn fr-mb-1w"
+            class="fr-btn--close fr-btn"
             aria-controls="mega-menu-<%= p.id %>"
           >
             <%= t('utils.modal_close') %>
           </button>
 
           <ul>
-              <li class="">
-                <%= link_to t('instructeurs.dossiers.header.banner.follow_up'), instructeur_procedure_path(p), class: "fr-nav__link fr-mega-menu__category" %>
+              <li class="font-weight-bold">
+                <%= link_to t('instructeurs.dossiers.header.banner.follow_up'), instructeur_procedure_path(p), class: "fr-nav__link" %>
               </li>
-                <li class="">
-                  <button
-                    class="fr-nav__btn fr-mega-menu__category flex justify-between"
-                    aria-expanded="false"
-                    aria-controls="procedure-management-<%= p.id %>"
-                  >
-                    <%= t('instructeurs.dossiers.header.banner.procedure_management') %>
-                  </button>
+            <li>
+              <h4 class="fr-accordion__title">
+                <button
+                  class="fr-accordion__btn"
+                  aria-expanded="false"
+                  aria-controls="procedure-management-<%= p.id %>"
+                >
+                  <%= t('instructeurs.dossiers.header.banner.procedure_management') %>
+                </button>
+              </h4>
 
-                    <ul id="procedure-management-<%= p.id %>" class="fr-menu__list fr-collapse fr-mb-0">
+                    <ul id="procedure-management-<%= p.id %>" class="fr-collapse fr-m-0">
                         <li>
                           <%= link_to t('instructeurs.dossiers.header.banner.administrators_list'), administrateurs_instructeur_procedure_path(p), class: 'fr-nav__link' %>
                         </li>
@@ -76,17 +78,19 @@
                         </li>
                       </ul>
 
-                </li>
-                <li class="">
-                  <button
-                    class="fr-nav__btn fr-mega-menu__category flex justify-between"
-                    aria-expanded="false"
-                    aria-controls="user-support-<%= p.id %>"
-                  >
-                    <%= t('instructeurs.dossiers.header.banner.user_support') %>
-                  </button>
+            </li>
+            <li>
+              <h4 class="fr-accordion__title">
+                <button
+                  class="fr-accordion__btn"
+                  aria-expanded="false"
+                  aria-controls="user-support-<%= p.id %>"
+                >
+                  <%= t('instructeurs.dossiers.header.banner.user_support') %>
+                </button>
+              </h4>
 
-                    <ul id="user-support-<%= p.id %>" class="fr-menu__list fr-collapse fr-mb-0">
+                    <ul id="user-support-<%= p.id %>" class="fr-collapse">
                       <li>
                         <%= link_to t('instructeurs.dossiers.header.banner.contact_users'), email_usagers_instructeur_procedure_path(p), class: 'fr-nav__link' %>
                       </li>
@@ -107,17 +111,19 @@
                         <% end %>
                       </li>
                     </ul>
-                </li>
-                <li class="">
-                  <button
-                    class="fr-nav__btn fr-mega-menu__category flex justify-between"
-                    aria-expanded="false"
-                    aria-controls="downloads-<%= p.id %>"
-                  >
-                    <%= t('instructeurs.dossiers.header.banner.downloads') %>
-                  </button>
+            </li>
+            <li>
+              <h4 class="fr-accordion__title">
+                <button
+                  class="fr-accordion__btn"
+                  aria-expanded="false"
+                  aria-controls="downloads-<%= p.id %>"
+                >
+                  <%= t('instructeurs.dossiers.header.banner.downloads') %>
+                </button>
+              </h4>
 
-                    <ul id="downloads-<%= p.id %>" class="fr-menu__list fr-collapse fr-mb-0">
+                    <ul id="downloads-<%= p.id %>" class="fr-collapse">
                       <li>
                         <%= link_to exports_instructeur_procedure_path(p), class: 'fr-nav__link' do %>
                           <%= t('instructeurs.dossiers.header.banner.exports_list') %>
@@ -132,7 +138,7 @@
                         <%= link_to t('instructeurs.dossiers.header.banner.export_templates'), export_templates_instructeur_procedure_path(p), class: 'fr-nav__link' %>
                       </li>
                     </ul>
-                </li>
+            </li>
               </ul>
         </div>
       </div>

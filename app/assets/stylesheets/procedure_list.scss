@@ -2,6 +2,51 @@
   box-shadow: 0 -1px 0 0 var(--border-default-grey);
   margin-bottom: 2.5rem;
   padding-top: 1rem;
+
+  .fr-nav__btn {
+    display: inline-block;
+    width: auto;
+  }
+
+  .fr-menu {
+    pointer-events: none;
+    position: absolute;
+    top: 100%;
+    z-index: calc(var(--ground) + 1000);
+    filter: drop-shadow(var(--overlap-shadow));
+  }
+
+  .fr-menu__list {
+    padding: 1.25rem;
+    max-width: calc(100% - 1rem);
+    width: 19rem;
+    pointer-events: auto;
+    background-color: var(--background-overlap-grey);
+
+    @media (min-width: 62em) {
+      width: 27rem;
+    }
+  }
+
+  .fr-accordion__btn {
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    color: var(--text-action-high-grey);
+    box-shadow: 0 calc(-1rem - 1px) 0 -1rem var(--border-default-grey);
+
+    @media (min-width: 62em) {
+      font-size: 0.875rem;
+      line-height: 1.5rem;
+    }
+
+    &[aria-expanded='true'] {
+      box-shadow: none;
+    }
+  }
+
+  .fr-nav__link {
+    box-shadow: none;
+  }
 }
 
 .procedure-stats {
