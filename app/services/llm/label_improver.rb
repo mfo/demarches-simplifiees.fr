@@ -20,7 +20,7 @@ module LLM
               },
               required: %w[stable_id],
             },
-            justification: { type: 'string', description: '1 phrase courte (< 10 mots) expliquant la raison de cette suggestion. Ne mentionne pas les regles ex: (règle 1.3)' },
+            justification: { type: 'string', minLength: 5, maxLength: 150, description: '1 phrase courte (< 10 mots) expliquant la raison de cette suggestion. Ne mentionne pas les regles ex: (règle 1.3)' },
           },
           required: %w[update justification],
         },
