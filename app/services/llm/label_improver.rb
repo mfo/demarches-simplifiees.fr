@@ -295,11 +295,11 @@ module LLM
       update = args['update'].is_a?(Hash) ? args['update'] : {}
       stable_id = update['stable_id'] || args['stable_id']
       libelle = (update['libelle'] || args['libelle']).to_s.strip
-      description = (update['description'] || args['description'])
+      description = (update['description'] || args['description']).to_s.strip.presence
       position = (update['position'] || args['position'])
       parent_id = (update['parent_id'] || args['parent_id'])
 
-      return nil if filter_invalid_llm_result(stable_id, libelle, description)
+      return nil if filter_invalid_llm_result(stable_id, libelle, description, tdc_index)
 
       {
         op_kind: 'update',
@@ -309,9 +309,19 @@ module LLM
       }
     end
 
-    def filter_invalid_llm_result(stable_id, libelle, description)
+    def filter_invalid_llm_result(stable_id, libelle, description, tdc_index = {})
       return true if stable_id.blank?
-      libelle.blank? && description.blank?
+      return true unless tdc_index.key?(stable_id)
+      return true if libelle.blank? && description.blank?
+
+      # Vérifier que la modification n'est pas identique à l'original
+      original_tdc = tdc_index[stable_id]
+      libelle_unchanged = libelle.blank? || libelle == original_tdc.libelle
+      description_unchanged = description.blank? || description == original_tdc.description
+
+      return true if libelle_unchanged && description_unchanged
+
+      false
     end
 
     def target_audience(procedure)

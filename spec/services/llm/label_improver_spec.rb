@@ -32,6 +32,7 @@ RSpec.describe LLM::LabelImprover do
 
       runner = double()
       allow(runner).to receive(:call).with(anything).and_return([tool_calls, usage])
+      allow_any_instance_of(LLM::LabelImprover).to receive(:filter_invalid_llm_result).with(anything, anything, anything, anything).and_return(false)
       service = described_class.new(runner: runner)
       tool_calls, token_usage = service.generate_for(suggestion)
 
@@ -98,26 +99,31 @@ RSpec.describe LLM::LabelImprover do
   describe '#filter_invalid_llm_result' do
     it 'returns true for invalid results' do
       service = described_class.new
+      tdc_index = double()
+      allow(tdc_index).to receive(:key?).with(123).and_return(true)
+      allow(tdc_index).to receive(:[]).with(123).and_return(double(libelle: "ancien", "description": "ancien"))
 
       # Invalid: stable_id is nil
-      expect(service.send(:filter_invalid_llm_result, nil, 'libelle', 'description')).to be true
-
+      expect(service.send(:filter_invalid_llm_result, nil, 'libelle', 'description', tdc_index)).to be true
       # Invalid: both libelle and description are blank (no change at all)
-      expect(service.send(:filter_invalid_llm_result, 123, '', '')).to be true
-      expect(service.send(:filter_invalid_llm_result, 123, nil, nil)).to be true
-      expect(service.send(:filter_invalid_llm_result, 123, '   ', '   ')).to be true
+      expect(service.send(:filter_invalid_llm_result, 123, '', '', tdc_index)).to be true
+      expect(service.send(:filter_invalid_llm_result, 123, nil, nil, tdc_index)).to be true
+      expect(service.send(:filter_invalid_llm_result, 123, '   ', '   ', tdc_index)).to be true
     end
 
     it 'returns false for valid results' do
       service = described_class.new
+      tdc_index = double()
+      allow(tdc_index).to receive(:key?).with(123).and_return(true)
+      allow(tdc_index).to receive(:[]).with(123).and_return(double(libelle: "ancien", "description": "ancien"))
 
       # Valid: libelle is present
-      expect(service.send(:filter_invalid_llm_result, 123, 'valid libelle', 'valid description')).to be false
-      expect(service.send(:filter_invalid_llm_result, 123, 'libelle', '')).to be false
+      expect(service.send(:filter_invalid_llm_result, 123, 'valid libelle', 'valid description', tdc_index)).to be false
+      expect(service.send(:filter_invalid_llm_result, 123, 'libelle', '', tdc_index)).to be false
 
       # Valid: libelle is empty but description is present (changing only description)
-      expect(service.send(:filter_invalid_llm_result, 123, '', 'description')).to be false
-      expect(service.send(:filter_invalid_llm_result, 123, nil, 'description')).to be false
+      expect(service.send(:filter_invalid_llm_result, 123, '', 'description', tdc_index)).to be false
+      expect(service.send(:filter_invalid_llm_result, 123, nil, 'description', tdc_index)).to be false
     end
   end
 
