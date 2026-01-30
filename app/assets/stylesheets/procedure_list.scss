@@ -3,6 +3,14 @@
   margin-bottom: 2.5rem;
   padding-top: 1rem;
 
+  .card-title {
+    width: 100%;
+
+    @media (min-width: 62em) {
+      width: auto;
+    }
+  }
+
   .fr-nav__btn {
     display: inline-block;
     width: auto;
