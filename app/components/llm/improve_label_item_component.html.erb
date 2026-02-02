@@ -7,7 +7,10 @@
         <%= original_tdc.libelle %>
 
         <% if libelle_changed? %>
-          <span class="fr-icon-arrow-right-line fr-icon--sm fr-mx-1w" aria-hidden="true"></span>
+          <span
+            class="fr-icon-arrow-right-line fr-icon--sm fr-mx-1w"
+            aria-hidden="true"
+          ></span>
           <%= payload['libelle'] %>
         <% end %>
       </span>
@@ -27,10 +30,16 @@
 
           <% if description_changed? %>
             <% if payload['description'].lines.one? %>
-              <span class="fr-icon-arrow-right-line fr-icon--sm" aria-hidden="true"></span>
+              <span
+                class="fr-icon-arrow-right-line fr-icon--sm"
+                aria-hidden="true"
+              ></span>
               <%= payload['description'] %>
             <% else %>
-              <span class="fr-icon-arrow-down-line fr-icon--sm" aria-hidden="true"></span>
+              <span
+                class="fr-icon-arrow-down-line fr-icon--sm"
+                aria-hidden="true"
+              ></span>
               <%= simple_format(payload['description'], class: "fr-mt-1w") %>
             <% end %>
           <% end %>

@@ -3,6 +3,7 @@
     <li>
       Changer de rôle
     </li>
+
     <% if user_signed_in? %>
       <li>
         <%= link_to(dossiers_path, id: :menu_item_procedure, title: 'Aller dans votre espace usager. Vous pourrez revenir ici ensuite') do %>
@@ -11,6 +12,7 @@
         <% end %>
       </li>
     <% end %>
+
     <% if instructeur_signed_in? %>
       <li>
         <%= link_to(instructeur_procedures_path, title: 'Aller dans votre espace instructeur. Vous pourrez revenir ici ensuite.') do %>

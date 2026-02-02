@@ -2,6 +2,7 @@
   <dt class="attribute-label">
     Emails
   </dt>
+
   <dd class="attribute-data attribute-data--meta-usager">
     <%= link_to('Voir les derniers emails', emails_manager_user_path(user)) %>
   </dd>
@@ -11,6 +12,7 @@
   <dt class="attribute-label">
     Usager
   </dt>
+
   <dd class="attribute-data attribute-data--meta-usager">
     <% style = "background-color: red;color: white;" if user.blocked_at %>
     <%= link_to('Voir son compte utilisateur', manager_user_path(user),  style: style) %>
@@ -21,6 +23,7 @@
   <dt class="attribute-label">
     Instructeur
   </dt>
+
   <dd class="attribute-data attribute-data--meta-usager">
     <% if user.instructeur? %>
       <%= link_to('Voir son compte instructeur', manager_instructeur_path(user.instructeur)) %>
@@ -34,6 +37,7 @@
   <dt class="attribute-label">
     Expert
   </dt>
+
   <dd class="attribute-data attribute-data--meta-usager">
     <% if user.expert? %>
       <%= link_to('Voir son compte expert', manager_expert_path(user.expert)) %>
@@ -47,6 +51,7 @@
   <dt class="attribute-label">
     Administrateur
   </dt>
+
   <dd class="attribute-data attribute-data--meta-usager">
     <% if user.administrateur? %>
       <%= link_to('Voir son compte administrateur', manager_administrateur_path(user.administrateur)) %>
@@ -60,6 +65,7 @@
   <dt class="attribute-label">
     Gestionnaire
   </dt>
+
   <dd class="attribute-data attribute-data--meta-usager">
     <% if user.gestionnaire? %>
       <%= link_to('Voir son compte gestionnaire', manager_gestionnaire_path(user.gestionnaire)) %>

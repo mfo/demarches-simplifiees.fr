@@ -29,6 +29,7 @@
 <% if notifications? %>
   <%= turbo_stream.update "procedure-#{procedure.id}-notifications" do %>
     <%= tags_summary_notification(notifications_counts_per_procedure[procedure.id]) %>
+
     <div class="fr-container" id="notifications-container-<%= procedure.id %>"></div>
 
     <%= link_to t('.notifications_details'), instructeur_procedure_display_notifications_path(procedure_id: procedure.id, display: 'true'), class: "fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line fr-btn--icon-right fr-btn--sm fr-px-0", id: "notifications-button-#{procedure.id}", data: { turbo: true } %>

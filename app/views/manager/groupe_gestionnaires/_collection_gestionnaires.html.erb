@@ -22,6 +22,7 @@
           "helpers.label.#{attribute.associated_collection(order).resource_name}.#{attr_name}",
           default: attribute.associated_class.human_attribute_name(attr_name).titleize,
         ) %>
+
               <% if attribute.associated_collection(order).ordered_by?(attr_name) %>
                 <span class="cell-label__sort-indicator cell-label__sort-indicator--<%= attribute.associated_collection(order).ordered_html_class(attr_name) %>">
                   <svg aria-hidden="true">
@@ -32,6 +33,7 @@
             <% end %>
           </th>
         <% end %>
+
         <% [false && existing_action?(attribute.associated_collection(order).resource_name, :edit),
           existing_action?(attribute.associated_collection(order).resource_name, :destroy)].count(true).times do %>
           <th scope="col"></th>
@@ -47,6 +49,7 @@
               <%= render_field field %>
             </td>
           <% end %>
+
           <% if false %>
             <td>
               <%= link_to(
@@ -80,5 +83,6 @@
 
 <%= form_tag(add_gestionnaire_manager_groupe_gestionnaire_path(page.resource), style: 'margin-top: 1rem;') do %>
   <%= email_field_tag(:emails, '', placeholder: 'Adresses électroniques', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', style: 'margin-bottom: 1rem;width:24rem;') %>
+
   <button>Ajouter un gestionnaire</button>
 <% end %>

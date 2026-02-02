@@ -1,38 +1,85 @@
 <div class="fr-input-group" <%= tag.attributes(data: data_attributes) %>>
-  <label class="fr-label fr-h4" for="editor">
-    Message personnalisé
-  </label>
+  <label class="fr-label fr-h4" for="editor"> Message personnalisé </label>
 
   <div class="flex flex-gap-2 fr-mb-2w">
     <div class="flex flex-gap-1">
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-bold" type="button" title="Gras" data-action="click->tiptap#menuButton" data-tiptap-target="button" data-tiptap-action="bold">
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-bold"
+        type="button"
+        title="Gras"
+        data-action="click->tiptap#menuButton"
+        data-tiptap-target="button"
+        data-tiptap-action="bold"
+      >
         Gras
       </button>
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-italic" type="button" title="Italique" data-action="click->tiptap#menuButton" data-tiptap-target="button" data-tiptap-action="italic">
+
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-italic"
+        type="button"
+        title="Italique"
+        data-action="click->tiptap#menuButton"
+        data-tiptap-target="button"
+        data-tiptap-action="italic"
+      >
         Italique
       </button>
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-underline" type="button" title="Souligné" data-action="click->tiptap#menuButton" data-tiptap-target="button" data-tiptap-action="underline">
+
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-underline"
+        type="button"
+        title="Souligné"
+        data-action="click->tiptap#menuButton"
+        data-tiptap-target="button"
+        data-tiptap-action="underline"
+      >
         Souligné
       </button>
     </div>
+
     <div class="flex flex-gap-1">
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-list-unordered" type="button" title="Liste à puces" data-action="click->tiptap#menuButton" data-tiptap-target="button" data-tiptap-action="bulletList">
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-list-unordered"
+        type="button"
+        title="Liste à puces"
+        data-action="click->tiptap#menuButton"
+        data-tiptap-target="button"
+        data-tiptap-action="bulletList"
+      >
         Liste
       </button>
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-list-ordered" type="button" title="Liste numérotée" data-action="click->tiptap#menuButton" data-tiptap-target="button" data-tiptap-action="orderedList">
+
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-list-ordered"
+        type="button"
+        title="Liste numérotée"
+        data-action="click->tiptap#menuButton"
+        data-tiptap-target="button"
+        data-tiptap-action="orderedList"
+      >
         Numérotée
       </button>
     </div>
+
     <div class="flex flex-gap-1">
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-link" type="button" title="Ajouter un lien sur le texte sélectionné" aria-controls="tiptap-link-modal"
-      data-fr-opened="false" data-action="click->tiptap#menuButton" data-tiptap-target="button" data-tiptap-action="link">
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-link"
+        type="button"
+        title="Ajouter un lien sur le texte sélectionné"
+        aria-controls="tiptap-link-modal"
+        data-fr-opened="false"
+        data-action="click->tiptap#menuButton"
+        data-tiptap-target="button"
+        data-tiptap-action="link"
+      >
         Lien
       </button>
     </div>
   </div>
 
   <p class="fr-hint-text">
-    Utilisez les boutons ci-dessus pour mettre en forme votre message ou ajouter un lien.
+    Utilisez les boutons ci-dessus pour mettre en forme votre message ou ajouter
+    un lien.
   </p>
 
   <div id="editor" class="tiptap-editor" data-tiptap-target="editor"></div>
@@ -59,6 +106,7 @@
                 <%= t('utils.modal_close') %>
               </button>
             </div>
+
             <div class="fr-modal__content">
               <h1 id="tiptap-link-modal-title" class="fr-modal__title">
                 <span class="fr-icon-link fr-mr-1v" aria-hidden="true"></span>
@@ -67,7 +115,8 @@
 
               <div data-tiptap-target="linkFormContent">
                 <p class="fr-text--sm fr-mb-2w">
-                  Intitulé du lien : <strong data-tiptap-target="linkSelectedText"></strong>
+                  Intitulé du lien :
+                  <strong data-tiptap-target="linkSelectedText"></strong>
                 </p>
 
                 <div class="fr-input-group" data-tiptap-target="linkInputGroup">
@@ -75,6 +124,7 @@
                     Adresse du lien
                     <span class="fr-hint-text">Indiquer l’url cible du lien. Exemple : https://jeunes.gouv.fr</span>
                   </label>
+
                   <input
                     class="fr-input fr-mt-1w"
                     type="url"
@@ -83,16 +133,24 @@
                     data-action="keydown.enter->tiptap#confirmLink input->tiptap#updateRemoveLinkButtonState"
                     autocomplete="url"
                   >
-                  <p class="fr-error-text fr-hidden" data-tiptap-target="linkErrorText">
+
+                  <p
+                    class="fr-error-text fr-hidden"
+                    data-tiptap-target="linkErrorText"
+                  >
                     L’adresse du lien doit commencer par https://
                   </p>
                 </div>
               </div>
             </div>
+
             <div class="fr-modal__footer">
               <div class="flex width-100 justify-between items-center">
                 <button
-                  class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-delete-line"
+                  class="
+                    fr-btn fr-btn--secondary fr-btn--icon-left
+                    fr-icon-delete-line
+                  "
                   type="button"
                   disabled
                   data-action="click->tiptap#clearLinkInput"
@@ -100,11 +158,22 @@
                 >
                   Supprimer le lien
                 </button>
+
                 <div class="fr-btns-group fr-btns-group--inline fr-btns-group--inline-lg">
-                  <button class="fr-btn fr-btn--secondary" type="button" data-action="click->tiptap#closeLinkModal">
+                  <button
+                    class="fr-btn fr-btn--secondary"
+                    type="button"
+                    data-action="click->tiptap#closeLinkModal"
+                  >
                     Annuler
                   </button>
-                  <button class="fr-btn" type="button" data-action="click->tiptap#confirmLink" data-tiptap-target="linkConfirmButton">
+
+                  <button
+                    class="fr-btn"
+                    type="button"
+                    data-action="click->tiptap#confirmLink"
+                    data-tiptap-target="linkConfirmButton"
+                  >
                     Créer le lien
                   </button>
                 </div>

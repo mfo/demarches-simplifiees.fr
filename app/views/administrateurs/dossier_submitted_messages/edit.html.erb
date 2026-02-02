@@ -9,11 +9,19 @@
   <div class="fr-container fr-my-4w">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-7">
-        <fieldset class="fr-fieldset" aria-labelledby="edit-dossier-submitted-message">
-          <legend class="fr-fieldset__legend" id="edit-dossier-submitted-message">
+        <fieldset
+          class="fr-fieldset"
+          aria-labelledby="edit-dossier-submitted-message"
+        >
+          <legend
+            class="fr-fieldset__legend"
+            id="edit-dossier-submitted-message"
+          >
             <h1 class="fr-h2">Fin de dépôt</h1>
+
             <p class="fr-text--regular">
-              Personnalisez le message affiché à l’usager après le dépôt de son dossier.
+              Personnalisez le message affiché à l’usager après le dépôt de son
+              dossier.
             </p>
           </legend>
 
@@ -25,6 +33,7 @@
 
       <div class="fr-col-12 fr-col-lg-5 fr-background-alt--blue-france fr-py-3w">
         <h2 class="fr-h4">Aperçu</h2>
+
         <div id="tiptap-preview" class="tiptap-preview">
           <%= render partial: 'users/dossiers/merci', locals: { procedure: @procedure, dossier: nil } %>
         </div>

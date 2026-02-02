@@ -51,6 +51,7 @@
     <%= vite_client_tag %>
     <%= vite_react_refresh_tag %>
     <%= vite_javascript_tag 'application' %>
+
     <% if user_signed_in? %>
       <%= vite_javascript_tag 'chatbot' %>
     <% end %>
@@ -68,6 +69,7 @@
       <meta name="robots" content="<%= content_for(:meta_robots) %>">
     <% end %>
   </head>
+
   <body
     id="<%= content_for(:page_id) %>"
     class="<%= browser.platform.ios? ? 'ios' : '' %>"
@@ -93,6 +95,7 @@
       </div>
 
       <%= render partial: "layouts/header" %>
+
       <main id="contenu" role="main">
         <%= render partial: "layouts/flash_messages" %>
 
@@ -107,6 +110,7 @@
 
       <%= yield :charts_js %>
     </div>
+
     <%= render Attachment::ProgressBarComponent.new %>
   </body>
 </html>
