@@ -124,8 +124,13 @@ describe Typhoeus::Cache::SuccessfulRequestsRailsCache, lib: true do
     end
 
     describe '#cacheable?' do
-      it 'returns true when public directive is present' do
+      it 'returns false when public directive is present but no max-age' do
         cache_info = described_class.new('public')
+        expect(cache_info.cacheable?).to be false
+      end
+
+      it 'returns true when public directive and max-age > 0 are present' do
+        cache_info = described_class.new('public, max-age=60')
         expect(cache_info.cacheable?).to be true
       end
 
