@@ -110,17 +110,13 @@ class TypeDeChamp < ApplicationRecord
   }
 
   enum :nature, {
-    NON_SPECIFIE: 'NON_SPECIFIE',
+    non_specifie: 'NON_SPECIFIE',
     TITRE_IDENTITE: 'TITRE_IDENTITE',
     RIB: 'RIB',
   }
 
   def titre_identite_nature?
     TITRE_IDENTITE?
-  end
-
-  def rib_nature?
-    RIB?
   end
 
   SIMPLE_ROUTABLE_TYPES = [
@@ -750,7 +746,7 @@ class TypeDeChamp < ApplicationRecord
   def allowed_content_types
     if titre_identite_nature?
       families_to_content_types(%w[image_scan])
-    elsif rib_nature?
+    elsif RIB?
       families_to_content_types(%w[document_texte image_scan])
     elsif pj_limit_formats? && pj_format_families.present?
       families_to_content_types(pj_format_families)
@@ -900,7 +896,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def reset_pj_format_options_if_forced_nature
-    if titre_identite_nature? || rib_nature?
+    if titre_identite_nature? || RIB?
       self.pj_limit_formats = nil
       self.pj_format_families = []
     end
