@@ -574,6 +574,31 @@ class ProcedureRevision < ApplicationRecord
           from_type_de_champ.max_number,
           to_type_de_champ.max_number)
       end
+    elsif to_type_de_champ.date? || to_type_de_champ.datetime?
+      if from_type_de_champ.range_date != to_type_de_champ.range_date
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :range_date,
+          from_type_de_champ.range_date,
+          to_type_de_champ.range_date)
+      end
+      if from_type_de_champ.date_in_past != to_type_de_champ.date_in_past
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :date_in_past,
+          from_type_de_champ.date_in_past,
+          to_type_de_champ.date_in_past)
+      end
+      if from_type_de_champ.start_date != to_type_de_champ.start_date
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :start_date,
+          from_type_de_champ.start_date,
+          to_type_de_champ.start_date)
+      end
+      if from_type_de_champ.end_date != to_type_de_champ.end_date
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :end_date,
+          from_type_de_champ.end_date,
+          to_type_de_champ.end_date)
+      end
     elsif to_type_de_champ.formatted?
       if from_type_de_champ.expression_reguliere != to_type_de_champ.expression_reguliere
         changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,

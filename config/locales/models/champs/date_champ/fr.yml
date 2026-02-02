@@ -4,3 +4,8 @@ fr:
       champs/date_champ:
         hints:
           value: "Format attendu : JJ/MM/AAAA."
+          date_in_past: "Cette date doit être dans le passé."
+          range:
+            both: "Cette date doit être comprise entre le %{start_date} et le %{end_date}."
+            start_date_only: "Cette date doit être postérieure ou égale au %{start_date}."
+            end_date_only: "Cette date doit être antérieure ou égale au %{end_date}."

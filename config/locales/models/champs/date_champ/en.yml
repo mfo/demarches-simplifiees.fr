@@ -4,3 +4,8 @@ en:
       champs/date_champ:
         hints:
           value: "Expected format: mm/dd/yyyy."
+          date_in_past: "This date must be in the past."
+          range:
+            both: "This date must be between %{start_date} and %{end_date}."
+            start_date_only: "This date must be greater than or equal to %{start_date}."
+            end_date_only: "This date must be less than or equal to %{end_date}."
