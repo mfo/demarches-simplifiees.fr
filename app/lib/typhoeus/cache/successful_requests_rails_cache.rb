@@ -3,7 +3,7 @@
 module Typhoeus
   module Cache
     # Cache successful Typhoeus requests in the Rails cache that are cacheable
-    # according to their Cache-Control headers (only public + max-age >= 0).
+    # according to their Cache-Control headers (only public + max-age > 0).
     #
     # Usage:
     #   Typhoeus.config.cache = Typhoeus::Cache::SuccessfulRequestsRailsCache.new
@@ -45,7 +45,9 @@ module Typhoeus
           @expires_in = CacheInfo.expires_in(directives)
         end
 
-        def cacheable? = @cacheable
+        def cacheable?
+          @cacheable && @expires_in > 0
+        end
 
         private
 
