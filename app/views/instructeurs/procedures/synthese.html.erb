@@ -3,7 +3,10 @@
     <% @counters.all_dossiers_counts.each do |tab_key, dossier_count| %>
       <% if dossier_count.positive? %>
         <div class="fr-badge flex column">
-          <dt class="fr-cell--numeric"><%= number_with_html_delimiter(dossier_count) %></dt>
+          <dt class="fr-cell--numeric">
+            <%= number_with_html_delimiter(dossier_count) %>
+          </dt>
+
           <dd><%= i18n_tab_from_status(tab_key) %></dd>
         </div>
       <% end %>

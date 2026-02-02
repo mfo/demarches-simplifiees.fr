@@ -8,17 +8,40 @@
   <% end %>
 <% end %>
 
-<div class="fr-fieldset__element flex column flex-gap-2" data-controller="repetition-toggle-all" data-repetition-toggle-all-expanded-text-value="<%= t(".collapse_all") %>" data-repetition-toggle-all-collapsed-text-value="<%= t(".expand_all") %>">
+<div
+  class="fr-fieldset__element flex column flex-gap-2"
+  data-controller="repetition-toggle-all"
+  data-repetition-toggle-all-expanded-text-value="<%= t(".collapse_all") %>"
+  data-repetition-toggle-all-collapsed-text-value="<%= t(".expand_all") %>"
+>
   <% if show_toggle_all_button? %>
     <div class="repetition-toggle-all fr-mt-n2w">
-      <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left" data-action="click->repetition-toggle-all#toggleAll" data-repetition-toggle-all-target="button" aria-expanded="false" aria-controls="<%= aria_controls %>">
-        <span data-repetition-toggle-all-target="icon" class="fr-icon-arrow-down-double-line" aria-hidden="true"></span>
-        <span data-repetition-toggle-all-target="text"><%= t(".expand_all") %></span>
+      <button
+        type="button"
+        class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left"
+        data-action="click->repetition-toggle-all#toggleAll"
+        data-repetition-toggle-all-target="button"
+        aria-expanded="false"
+        aria-controls="<%= aria_controls %>"
+      >
+        <span
+          data-repetition-toggle-all-target="icon"
+          class="fr-icon-arrow-down-double-line"
+          aria-hidden="true"
+        ></span>
+
+        <span data-repetition-toggle-all-target="text">
+          <%= t(".expand_all") %>
+        </span>
       </button>
     </div>
   <% end %>
 
-  <div class="repetition width-100 flex column flex-gap-2 <%= class_names('utils-repetition-required' => @champ.mandatory?) %>" id="<%= dom_id(@champ, :rows) %>" data-repetition-toggle-all-target="rowsContainer">
+  <div
+    class="repetition width-100 flex column flex-gap-2 <%= class_names('utils-repetition-required' => @champ.mandatory?) %>"
+    id="<%= dom_id(@champ, :rows) %>"
+    data-repetition-toggle-all-target="rowsContainer"
+  >
     <% @champ.row_ids.each.with_index(1) do |row_id, row_number| %>
       <%= render EditableChamp::RepetitionRowComponent.new(form: @form, dossier: @champ.dossier, champ: @champ, row_id: row_id, row_number: row_number, seen_at: @seen_at, expanded: row_number == 1) %>
     <% end %>
@@ -30,5 +53,9 @@
     <% end %>
   </div>
 
-  <div id="<%= dom_id(@champ, :deletion_announcement) %>" class="sr-only" role="status"></div>
+  <div
+    id="<%= dom_id(@champ, :deletion_announcement) %>"
+    class="sr-only"
+    role="status"
+  ></div>
 </div>

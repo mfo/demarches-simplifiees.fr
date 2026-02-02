@@ -21,11 +21,13 @@
 <div style="padding: 1em">
   <%= form_with(url: manager_outdated_procedures_path, method: :get) do |f| %>
     <h2>
-      Nombre de démarches sans auto archivage des dossiers: <%= @records_per_page %>
+      Nombre de démarches sans auto archivage des dossiers:
+      <%= @records_per_page %>
     </h2>
 
     <h2>
-      Nombre de dossiers archivable parmis ces démarches: <%= resources.sum(&:dossiers_close_to_expiration) %>
+      Nombre de dossiers archivable parmis ces démarches:
+      <%= resources.sum(&:dossiers_close_to_expiration) %>
     </h2>
 
     <%= f.select :records_per_page, options_for_select([["10", "10"], ["100", "100"], ["1000", "1000"]], @records_per_page), {}, style: "width: auto" %>
@@ -38,6 +40,7 @@
     <thead data-controller="outdated">
       <tr>
         <th></th>
+
         <% collection_presenter.attribute_types.each do |attr_name, attr_type| %>
           <th
             class="
@@ -56,6 +59,7 @@
             "helpers.label.#{collection_presenter.resource_name}.#{attr_name}",
             default: resource_class.human_attribute_name(attr_name).titleize,
           ) %>
+
               <% if collection_presenter.ordered_by?(attr_name) %>
                 <span class="cell-label__sort-indicator cell-label__sort-indicator--<%= collection_presenter.ordered_html_class(attr_name) %>">
                   <svg aria-hidden="true">
@@ -66,6 +70,7 @@
             <% end %>
           </th>
         <% end %>
+
         <%= render(
           "collection_header_actions",
           collection_presenter: collection_presenter,
@@ -116,5 +121,6 @@
       <% end %>
     </tbody>
   </table>
+
   <%= f.submit "Activer l’archivage automatique des démarches sélectionnée", style: "margin: 1em" %>
 <% end %>

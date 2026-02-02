@@ -2,12 +2,16 @@
   <%= form.label :path, class: 'fr-label' do %>
     <%= t('activerecord.attributes.procedure.procedure_path') %>
     <%= render EditableChamp::AsteriskMandatoryComponent.new %>
-    <span class="fr-hint-text"><%= t('activerecord.attributes.procedure.hints.procedure_path') %></span>
+
+    <span class="fr-hint-text">
+      <%= t('activerecord.attributes.procedure.hints.procedure_path') %>
+    </span>
   <% end %>
 
   <div class="fr-input">
     <div class="flex">
       <span class="placeholder"><%= commencer_url(path: '') %></span>
+
       <%= form.text_field(:path, value: procedure.suggested_path,
                           placeholder: t('activerecord.attributes.procedure.procedure_path_placeholder'),
                           required: true,
@@ -36,8 +40,12 @@
     <%= label_tag :old_procedure, class: 'fr-label' do %>
       <%= t('activerecord.attributes.procedure.old_procedure') %>
       <%= t('utils.no_mandatory') %>
-      <span class="fr-hint-text"><%= t('activerecord.attributes.procedure.hints.old_procedure') %></span>
+
+      <span class="fr-hint-text">
+        <%= t('activerecord.attributes.procedure.hints.old_procedure') %>
+      </span>
     <% end %>
+
     <%= select_tag :old_procedure, options_for_select(@closed_procedures), include_blank: true, class: 'fr-select' %>
   </div>
 <% end %>

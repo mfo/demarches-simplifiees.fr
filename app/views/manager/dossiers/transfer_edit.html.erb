@@ -34,8 +34,11 @@
   <%= form_for([namespace, DossierTransfer.new], method: :post, url: transfer_manager_dossier_path(@dossier), html: { class: "form" }) do |f| %>
     <div class="field-unit field-unit--string field-unit--optional">
       <div class="field-unit__label">
-        <label for="user_email">A qui souhaitez-vous transferer le dossier ?</label>
+        <label for="user_email">
+          A qui souhaitez-vous transferer le dossier ?
+        </label>
       </div>
+
       <div class="field-unit__field">
         <input
           autocomplete="off"
@@ -46,6 +49,7 @@
         >
       </div>
     </div>
+
     <div class="form-actions"><%= f.submit "Transférer le dossier" %></div>
   <% end %>
 </section>

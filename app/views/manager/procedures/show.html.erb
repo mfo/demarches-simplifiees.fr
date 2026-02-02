@@ -23,6 +23,7 @@
 <header class="main-content__header">
   <h1 class="main-content__page-title">
     <%= content_for(:title) %>
+
     <% if procedure.discarded? %>
       (Supprimé)
     <% end %>
@@ -75,9 +76,11 @@
 
           <dd class="attribute-data attribute-data--<%= attribute.html_class %>">
             <%= render_field attribute, page: page %>
+
             <% if attribute.name == 'administrateurs' %>
               <%= form_tag(add_administrateur_with_confirmation_manager_procedure_path(procedure), style: 'margin-top: 1rem;') do %>
                 <%= email_field_tag(:email, '', placeholder: 'Adresse électronique', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', style: 'margin-bottom: 1rem;width:24rem;') %>
+
                 <button>Ajouter un administrateur (pour toujours)</button>
 
                 <p>
@@ -91,16 +94,15 @@
                   démarche
                   <%= link_to("ETQ admin", admin_procedure_path(procedure), **external_link_attributes) %>
                   ou
-                  <%= link_to("ETQ instructeur", instructeur_procedure_path(procedure), **external_link_attributes) %>
-                  .
+                  <%= link_to("ETQ instructeur", instructeur_procedure_path(procedure), **external_link_attributes) %>.
                 </p>
-
                 <%= link_to 'Me retirer de cette démarche', delete_administrateur_manager_procedure_path(procedure), method: :put, class: 'button' %>
-                <% else %>
+              <% else %>
                 <%= form_tag(add_administrateur_and_instructeur_manager_procedure_path(procedure), style: 'margin-top: 1rem;') do %>
                   <button>
                     Devenir administrateur &amp; instructeur (pour la journée)
                   </button>
+
                   <p>
                     J’utilise cette option temporairement à des fins de support.
                   </p>
@@ -117,6 +119,7 @@
                     name: 'procedure[tags][]',
                     'aria-label': 'Tags' %>
                 </react-fragment>
+
                 <button class="mt-1">Ajouter des tags</button>
               <% end %>
             <% elsif attribute.name == 'template' %>
