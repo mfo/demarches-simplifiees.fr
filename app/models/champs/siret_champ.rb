@@ -20,10 +20,6 @@ class Champs::SiretChamp < Champ
     old_etablissement&.destroy
   end
 
-  def update_external_data!(data:)
-    update(etablissement: data[:etablissement], value: external_id)
-  end
-
   def ready_for_external_call?
     Siret.new(siret: external_id).valid?
   end
@@ -33,7 +29,7 @@ class Champs::SiretChamp < Champ
     if etablissement.blank?
       Failure(retryable: false, reason: StandardError.new('NotFound'), code: 404)
     else
-      Success(etablissement:)
+      Success(etablissement:, value: external_id)
     end
   rescue APIEntrepriseToken::TokenError => error
     Failure(retryable: false, reason: error, code: 401)
