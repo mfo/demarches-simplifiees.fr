@@ -177,7 +177,8 @@ export function useMultiList({
   valueSeparator,
   onChange,
   focusInput,
-  formValue
+  formValue,
+  keepSelectedItems = false
 }: {
   defaultItems?: Item[];
   defaultSelectedKeys?: string[];
@@ -186,6 +187,7 @@ export function useMultiList({
   onChange?: () => void;
   focusInput?: () => void;
   formValue?: 'text' | 'key';
+  keepSelectedItems?: boolean;
 }) {
   const valueSeparatorRegExp = useMemo(
     () =>
@@ -211,17 +213,23 @@ export function useMultiList({
     }
     return index;
   }, [items]);
-  const filteredItems = useMemo(
-    () =>
-      inputValue.length == 0
-        ? items.filter((item) => !selectedKeys.has(item.value))
-        : matchSorter(
-            items.filter((item) => !selectedKeys.has(item.value)),
-            inputValue,
-            { keys: ['label'] }
-          ),
-    [items, inputValue, selectedKeys]
-  );
+
+  const visibleItems = useMemo(() => {
+    return keepSelectedItems
+      ? items
+      : items.filter((item) => !selectedKeys.has(item.value));
+  }, [items, selectedKeys, keepSelectedItems]);
+
+  const filteredItems = useMemo(() => {
+    if (inputValue.length === 0) {
+      return visibleItems;
+    }
+
+    return matchSorter(visibleItems, inputValue, {
+      keys: ['label']
+    });
+  }, [visibleItems, inputValue]);
+
   const selectedItems = useMemo(() => {
     const selectedItems: Item[] = [];
     for (const key of selectedKeys) {

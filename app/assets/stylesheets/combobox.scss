@@ -85,6 +85,22 @@
       &[data-selected] {
         border: 1px solid var(--border-plain-info);
       }
+
+      &[aria-disabled='true'],
+      &[data-disabled='true'],
+      &.fr-menu__item--disabled {
+        background-color: var(--background-default-grey) !important;
+        color: var(--text-disabled-grey);
+        cursor: not-allowed;
+        pointer-events: none;
+        border-color: transparent;
+      }
+
+      &[aria-disabled='true'][data-focused],
+      &[data-disabled='true'][data-focused] {
+        background-color: var(--background-default-grey) !important;
+        color: var(--text-disabled-grey);
+      }
     }
   }
 }

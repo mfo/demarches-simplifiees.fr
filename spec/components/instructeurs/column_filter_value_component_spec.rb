@@ -103,4 +103,44 @@ describe Instructeurs::ColumnFilterValueComponent, type: :component do
       }
     end
   end
+
+  describe 'label truncation' do
+    let(:long_label) { 'a' * 60 }
+    let(:column) do
+      double(
+        "Column",
+        column: :value,
+        type: :string,
+        mandatory: true,
+        h_id: {},
+        label: long_label
+      )
+    end
+
+    it 'truncates the label, adds a title attribute and aria-label' do
+      expect(page).to have_text(long_label.truncate(50))
+      expect(page).to have_selector('[title]', visible: true)
+      expect(page.find('[title]')[:title]).to eq(long_label)
+      expect(page.find('[aria-label]')[:'aria-label']).to eq(long_label)
+    end
+  end
+
+  describe 'short label' do
+    let(:column) do
+      double(
+        "Column",
+        column: :value,
+        type: :string,
+        mandatory: true,
+        h_id: {},
+        label: 'label court'
+      )
+    end
+
+    it 'does not add a title or aria-label attribute' do
+      expect(page).to have_selector('label.fr-label', text: 'label court')
+      expect(page).not_to have_selector('label.fr-label[title]')
+      expect(page).not_to have_selector('label.fr-label[aria-label]')
+    end
+  end
 end

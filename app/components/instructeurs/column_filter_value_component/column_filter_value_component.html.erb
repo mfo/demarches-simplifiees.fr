@@ -7,13 +7,14 @@
       buttons: radio_button_options,
       inline: true,
     ) do %>
-      <%= label %>
+      <%= render_label %>
     <% end %>
   <% elsif is_date? %>
     <fieldset class="fr-fieldset flex column flex-1">
       <legend class="fr-fieldset__legend fr-fieldset__legend--regular fr-pb-0">
-        <%= filtered_column&.label %>
+        <%= render_label %>
       </legend>
+
 
       <div class="flex width-100">
         <div class="fr-fieldset__element fr-fieldset__element--inline">
@@ -41,7 +42,9 @@
       </div>
     </fieldset>
   <% elsif selectable? %>
-    <%= form.label input_id, label, class: 'fr-label' %>
+    <%= form.label input_id, class: 'fr-label' do %>
+      <%= render_label %>
+    <% end %>
     <react-fragment>
       <%= render ReactComponent.new "ComboBox/MultiComboBox", **react_props %>
     </react-fragment>
@@ -64,7 +67,7 @@
         },
       ) do |c| %>
         <% c.with_label do %>
-          <%= label %>
+          <%= render_label %>
         <% end %>
 
         <% c.with_button do %>

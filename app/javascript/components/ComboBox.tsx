@@ -121,7 +121,21 @@ export function ComboBox({
 }
 
 export function ComboBoxItem(props: ListBoxItemProps<Item>) {
-  return <ListBoxItem {...props} className="fr-menu__item" />;
+  const { isDisabled, className, ...rest } = props;
+
+  return (
+    <ListBoxItem
+      {...rest}
+      isDisabled={isDisabled}
+      className={[
+        'fr-menu__item',
+        isDisabled ? 'fr-menu__item--disabled' : null,
+        className
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    />
+  );
 }
 
 export function SingleComboBox({
@@ -192,9 +206,11 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
     className,
     focusOnSelect,
     tagsBelow = false,
+    hideSelectedTags = false,
     ...props
   } = useMemo(() => s.create(maybeProps, MultiComboBoxProps), [maybeProps]);
 
+  const keepSelectedItems = hideSelectedTags;
   const { ref, dispatch } = useDispatchChangeEvent();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -210,6 +226,7 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
     formValue,
     allowsCustomValue,
     valueSeparator,
+    keepSelectedItems,
     focusInput: () => {
       inputRef.current?.focus();
     },
@@ -223,7 +240,7 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
   const formResetRef = useOnFormReset(onReset);
 
   const tagGroup =
-    selectedItems.length > 0 ? (
+    selectedItems.length > 0 && !hideSelectedTags ? (
       <TagGroup
         onRemove={onRemove}
         aria-label={props['aria-label']}
@@ -263,12 +280,21 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
         {...comboBoxProps}
         {...props}
       >
-        {(item) => <ComboBoxItem id={item.value}>{item.label}</ComboBoxItem>}
+        {(item) => (
+          <ComboBoxItem
+            id={item.value}
+            isDisabled={selectedItems.some(
+              (selected) => selected.value === item.value
+            )}
+          >
+            {item.label}
+          </ComboBoxItem>
+        )}
       </ComboBox>
       {tagsBelow ? tagGroup : null}
       {name ? (
         <span ref={ref}>
-          {hiddenInputValues.length == 0 ? (
+          {hiddenInputValues.length === 0 ? (
             <input
               type="hidden"
               value=""
@@ -283,7 +309,7 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
                 value={value}
                 name={name}
                 form={form}
-                ref={i == 0 ? formResetRef : undefined}
+                ref={i === 0 ? formResetRef : undefined}
                 key={value}
               />
             ))
