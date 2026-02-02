@@ -13,18 +13,19 @@ class Champs::ReferentielChamp < Champ
   validates_with ReferentielChampValidator, if: :validate_champ_value?
 
   def fetch_external_data
-    ReferentielService.new(referentiel:).call(external_id)
+    ReferentielService.new(referentiel:).call(external_id).fmap do |data|
+      {
+        data:, # keep raw API response
+        value: external_id, # now that we have the data, we can set the value
+        value_json: cast_displayable_values(data.with_indifferent_access), # columnize the data
+      }
+    end
   end
 
-  def update_external_data!(data:)
+  def update_external_data!(hash)
     transaction do
-      update!(
-        value: external_id,                # now that we have the data, we can set the value
-        data:,                             # keep raw API response
-        value_json: cast_displayable_values(data.with_indifferent_access), # columnize the data
-        fetch_external_data_exceptions: [] # void previous errors
-      )
-      propagate_prefill(data)
+      update!(hash.merge(fetch_external_data_exceptions: [])) # void previous errors
+      propagate_prefill(hash[:data])
     end
     dossier.with_champ_stream(self).enqueue_fetch_external_data_jobs
   end
