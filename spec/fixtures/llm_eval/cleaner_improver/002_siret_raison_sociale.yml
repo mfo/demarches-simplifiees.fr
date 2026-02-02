@@ -1,7 +1,6 @@
 name: "SIRET, Raison sociale redondante par rapport a une demarche destinée a une persone morale"
 
 procedure_params:
-  for_individual: false
   types_de_champ_public:
     - type: siret
       libelle: "SIRET de votre entreprise"
@@ -17,7 +16,6 @@ procedure_params:
       position: 2
 
 expected_destroys:
-  - stable_id: 100
   - stable_id: 200
   - stable_id: 300
 

@@ -1,7 +1,6 @@
 description: "Le champ Adresse fournit déjà la commune et le code postal via autocomplete"
 
 procedure_params:
-  for_individual: true
   types_de_champ_public:
     - type: address
       libelle: "Adresse postale"

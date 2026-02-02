@@ -123,6 +123,16 @@ RSpec.configure do |config|
     end
   end
 
+  config.around(:each, :llm_eval) do |example|
+    VCR.turn_off!(ignore_cassettes: true)
+    WebMock.allow_net_connect!
+
+    example.call
+  ensure
+    VCR.turn_on!
+    WebMock.disable_net_connect!(allow_localhost: true)
+  end
+
   module SpecHelpers
     def champ_for_update(champ)
       champ.dossier.champ_for_update(champ.type_de_champ, row_id: champ.row_id, updated_by: 'test')

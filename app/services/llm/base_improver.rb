@@ -77,6 +77,17 @@ module LLM
       @logger = logger
     end
 
+    def section_explanation
+      <<~TXT
+        IMPORTANT - COMPRENDRE LES SECTIONS :
+        Le formulaire est structuré en sections pour organiser les champs.
+        Une section est définie par un champ header_section suivi de tous les champs qui viennent après, jusqu'au prochain header_section de même niveau (ou la fin du formulaire).
+
+        Pour identifier la section d'un champ : cherche le dernier header_section AVANT ce champ (en regardant les positions).
+        Si aucun header_section avant → le champ n'a pas de section.
+      TXT
+    end
+
     # Returns an array of hashes suitable for LlmRuleSuggestionItem creation
     # [{ rule:, op_kind:, stable_id:, payload:, justification: }]
     def generate_for(suggestion, action: nil, user_id: nil)
@@ -137,8 +148,7 @@ module LLM
             schema: schema,
             procedure_description: procedure_revision.procedure.description,
             procedure_libelle: procedure_revision.procedure.libelle,
-            field_types: field_types_description,
-            before_schema: before_schema(procedure_revision.procedure)
+            field_types: field_types_description
           ),
         },
         { role: 'user', content: rules_prompt },
@@ -159,7 +169,8 @@ module LLM
 
     def create_batches_for_suggestion(schema, suggestion, level: 1)
       case suggestion.rule
-      when LLMRuleSuggestion.rules.fetch('improve_label')
+      when LLMRuleSuggestion.rules.fetch('improve_label'),
+           LLMRuleSuggestion.rules.fetch('cleaner')
         batch_by_sections(schema, suggestion, level)
       when LLMRuleSuggestion.rules.fetch('improve_structure')
         batch_by_parent_id(schema)
@@ -217,11 +228,6 @@ module LLM
           %<procedure_description>s
         </procedure_description>
 
-        Avant de remplir le formulaire, l'usager a déjà fourni les informations suivantes :
-        <before_schema>
-          %<before_schema>s
-        </before_schema>
-
         Voici le schéma des champs (publics) du formulaire en JSON. Chaque entrée contient :
           - stable_id : l'identifiant du champ
           - type : le type de champ (voir liste plus bas)
@@ -261,35 +267,6 @@ module LLM
         end
         lines.join("\n")
       end.compact.join("\n\n")
-    end
-
-    def before_schema(procedure)
-      if procedure.for_individual
-        <<~TEXT.strip
-          - Civilité (Madame/Monsieur)
-          - Nom de famille
-          - Prénom(s)
-          - Adresse email
-        TEXT
-      else
-        <<~TEXT.strip
-          - Adresse email
-          - Numéro SIRET
-
-          Ce qui a permis de récupérer automatiquement ces informations associées :
-          - Raison sociale
-          - Adresse normalisée du siège social et de l'établissement
-          - SIREN
-          - Nom commercial
-          - Forme juridique (code et libellé)
-          - Code NAF et libellé d'activité
-          - N° TVA intracommunautaire
-          - Capital social
-          - Date de création
-          - État administratif (actif/fermé)
-          - Effectif (tranche et année de référence)
-        TEXT
-      end
     end
 
     def sanitize_schema_for_prompt(schema)
