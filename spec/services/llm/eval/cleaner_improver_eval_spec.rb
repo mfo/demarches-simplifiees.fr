@@ -48,4 +48,11 @@ RSpec.describe "LLM::CleanerImprover Evaluation", :llm_eval do
     expect(result[:actual_destroys]).to eq(result[:expected_destroys]),
       "Expected: #{result[:expected_destroys].inspect}, Got: #{result[:actual_destroys].inspect}"
   end
+
+  it "adresse electronique dans une section" do
+    result = evaluate_fixture('003_representant_legal_under_section.yml')
+
+    expect(result[:actual_destroys]).to eq(result[:expected_destroys]),
+      "Expected: #{result[:expected_destroys].inspect}, Got: #{result[:actual_destroys].inspect}"
+  end
 end
