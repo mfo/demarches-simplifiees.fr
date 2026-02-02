@@ -21,8 +21,8 @@ fr:
           title: info.gouv.fr
           url: "https://info.gouv.fr"
         service_public:
-          title: service-public.fr
-          url: "https://service-public.fr"
+          title: service-public.gouv.fr
+          url: "https://service-public.gouv.fr"
         data_gouv:
           title: data.gouv.fr
           url: "https://data.gouv.fr"
