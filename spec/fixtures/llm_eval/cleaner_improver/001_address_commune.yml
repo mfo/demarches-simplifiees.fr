@@ -1,0 +1,24 @@
+description: "Le champ Adresse fournit déjà la commune et le code postal via autocomplete"
+
+procedure_params:
+  for_individual: true
+  types_de_champ_public:
+    - type: address
+      libelle: "Adresse postale"
+      stable_id: 100
+      position: 0
+    - type: text
+      libelle: "Commune"
+      stable_id: 200
+      position: 1
+    - type: text
+      libelle: "Code postal"
+      stable_id: 300
+      position: 2
+
+expected_destroys:
+  - stable_id: 200
+  - stable_id: 300
+
+expected_keeps:
+  - stable_id: 100
