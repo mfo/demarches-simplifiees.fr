@@ -18,7 +18,9 @@ class OCRService
   def self.handle_api_result(result)
     case result
     in Dry::Monads::Success(body:)
-      Dry::Monads::Success(body)
+      # store directly the data in value_json
+      # as there is no transformation to do
+      Dry::Monads::Success(value_json: body)
     in Dry::Monads::Failure(code:, reason:)
       Dry::Monads::Failure(retryable: false, reason:, code:)
     else

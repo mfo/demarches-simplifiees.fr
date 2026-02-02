@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 describe ImageProcessorJob, type: :job do
+  include Dry::Monads[:result]
+
   let(:antivirus_pending) { false }
   let(:watermark_service) { instance_double("WatermarkService") }
   let(:auto_rotate_service) { instance_double("AutoRotateService") }
@@ -169,7 +171,7 @@ describe ImageProcessorJob, type: :job do
     end
 
     before do
-      allow(OCRService).to receive(:analyze).and_return(analysis)
+      allow(OCRService).to receive(:analyze).and_return(Success(value_json: analysis))
 
       described_class.perform_now(blob)
     end

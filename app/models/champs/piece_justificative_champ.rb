@@ -34,12 +34,6 @@ class Champs::PieceJustificativeChamp < Champ
     nil # the job is already enqueued by the ImageProcessorJob when the blob is attached
   end
 
-  # store directly the data in value_json
-  # as there is no transformation to do
-  def update_external_data!(data:)
-    update!(value_json: data, fetch_external_data_exceptions: [])
-  end
-
   def ready_for_external_call?
     piece_justificative_file.blobs.present?
   end
