@@ -17,15 +17,16 @@ module Maintenance
     def process(champ)
       result = champ.fetch_external_data
       case result
-      in Success(data)
+      in Success(data:, value_json:)
         begin
-          champ.update_external_data!(data:)
+          champ.send(:update_external_data!, { data:, value_json: })
         rescue ActiveRecord::RecordInvalid
           # some champ might have dossier nil
         end
       else # fondation was removed, but we kept API data in data:, use it to restore stuff
-
-        champ.update_external_data!(data: champ.data.with_indifferent_access)
+        data = champ.data.with_indifferent_access
+        value_json = champ.send(:extract_value_json, data:)
+        champ.update(data:, value_json:)
       end
     end
 

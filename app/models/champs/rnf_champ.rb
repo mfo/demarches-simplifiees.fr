@@ -14,11 +14,7 @@ class Champs::RNFChamp < Champ
   end
 
   def fetch_external_data
-    RNFService.new.(rnf_id:)
-  end
-
-  def update_external_data!(data:)
-    update!(data:, value_json: extract_value_json(data:), fetch_external_data_exceptions: [])
+    RNFService.new.(rnf_id:).fmap { |data| { data:, value_json: extract_value_json(data:) } }
   end
 
   def uses_external_data?

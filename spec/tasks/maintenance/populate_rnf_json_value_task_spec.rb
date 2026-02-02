@@ -48,7 +48,7 @@ module Maintenance
 
       context 'when api respond ok' do
         before do
-          allow_any_instance_of(Champs::RNFChamp).to receive(:fetch_external_data).and_return(Success(data))
+          allow_any_instance_of(RNFService).to receive(:call).and_return(Success(data))
         end
 
         it 'updates value_json' do
