@@ -178,7 +178,11 @@ module Instructeurs
     end
 
     def archive
-      dossier.archiver!(current_instructeur)
+      if !dossier.termine?
+        flash.alert = I18n.t('activerecord.errors.models.dossier.cannot_archive')
+      else
+        dossier.archiver!(current_instructeur)
+      end
       redirect_back(fallback_location: instructeur_procedure_path(procedure))
     end
 
