@@ -30,12 +30,64 @@ module LLM
         Tu es un assistant chargé d'identifier les champs redondants d'un formulaire administratif français.
 
         Principe "Dites-le nous une fois" (DLNUF) : l'administration ne doit pas redemander des informations déjà collectées soit à l'entrée du formulaire, soit par un champ qui collecte des informations complémentaires.
+
+        MÉTHODOLOGIE OBLIGATOIRE EN 2 PHASES :
+
+        PHASE 1 OBLIGATOIRE - AUDIT (mental, pas de tool call) :
+        Pour chaque champ du schéma :
+        1. Analyse tous les autres champs du formulaire
+        2. Vérifie si un autre champ fournit déjà l'information demandée (que ce soit un champ spécialisé comme SIRET/address ou un simple doublon)
+        3. Vérifie le contexte : même section parente directe (header_section) ? même entité ?
+        Si TOUTES les conditions sont OK → Marque-le mentalement pour suppression
+
+        PHASE 2 - SUPPRESSION (avec tool calls) :
+        Pour CHAQUE champ marqué en Phase 1, génère UN tool call avec l'outil #{TOOL_DEFINITION.dig(:function, :name)}.
+        Continue jusqu'à avoir traité TOUS les champs marqués.
+
+        PÉRIMÈTRE D'ACTION :
+        - Tu proposes : suppression de champs redondants (destroy)
+        - Tu ne touches JAMAIS à : libellé, description, position, type, mandatory, display_condition
+        - Tu analyses : type du champ, libellé, description, position, section parente directe (header_section)
+        - Le système filtrera automatiquement tes propositions pour éviter de supprimer des champs utilisés comme sources de conditions d'affichage
       TXT
     end
 
     def rules_prompt
       <<~TXT
-        Types de champs spécialisés qui fournissent des données enrichies :
+        Applique ces règles PAR ORDRE DE PRIORITÉ.
+
+        ═══════════════════════════════════════════════════════════════
+        PRIORITÉ 1 : CONTRAINTES TECHNIQUES (bloquant si non respecté)
+        ═══════════════════════════════════════════════════════════════
+
+        1.1. Contexte de section
+            - Vérifier que les champs sont dans le même contexte (même section parente directe)
+            - Des sections différentes = des contextes/entités différents
+            - Une section est définie par un champ header_section
+              KO Section "Identité du demandeur" → [Adresse de résidence]
+                  Section "Lieu de naissance" → [Commune de naissance]
+                  + Champ "Adresse" fournit une commune
+                  → NE PAS supprimer "Commune de naissance" (contextes différents : résidence ≠ naissance)
+              OK Section "Informations sur l'entreprise" → [SIRET, Raison sociale, Adresse siège]
+                  → Supprimer "Raison sociale" et "Adresse siège" (même section = même contexte)
+
+        >> Si cette contrainte PRIORITÉ 1 ne peut être respectée : ABANDONNE ce champ.
+
+        ═══════════════════════════════════════════════════════════════
+        PRIORITÉ 2 : COHÉRENCE SÉMANTIQUE (éviter les incohérences)
+        ═══════════════════════════════════════════════════════════════
+
+        2.1. Même sujet/entité
+            - Les champs doivent concerner exactement la même chose
+            - Vérifier le libellé ET la description pour comprendre le contexte réel
+              KO "Adresse de résidence" vs "Commune de naissance" (résidence ≠ naissance)
+              KO "Adresse du siège social" vs "Adresse de correspondance" (siège ≠ correspondance)
+              OK "Adresse" fournit "Commune" et champ "Commune" sans précision (même entité)
+
+
+        ═══════════════════════════════════════════════════════════════
+        TYPES DE CHAMPS SPÉCIALISÉS (référence)
+        ═══════════════════════════════════════════════════════════════
 
         Localisation (avec auto-complétion et données enrichies) :
         - address : Adresse postale complète avec autocomplete. Fournit : commune, code postal, département, région, pays, code INSEE de la commune.
@@ -53,27 +105,61 @@ module LLM
         - nom de la commune et son code INSEE
         - département
 
-        ## Règles :
-        - Identifie les champs qui demandent une information déjà disponible via un autre champ du formulaire plus haut dans la démarche.
-        - Utilise `destroy` pour proposer la suppression d'un champ redondant
+        ═══════════════════════════════════════════════════════════════
+        EXEMPLES DÉTAILLÉS
+        ═══════════════════════════════════════════════════════════════
 
-        ## Exemples de redondance :
-        - Un champ "Commune" quand un champ "Adresse" existe (l'adresse fournit automatiquement la commune)
-        - Un champ "Département" quand un champ "Adresse" ou "Commune" existe
-        - Un champ "Raison sociale", "Adresse du siège" ou "Date de création" quand un champ "SIRET" existe
+        **Exemple 1 : Regroupement valide (ACCEPTÉ)**
 
-        ## Règle critique :
-        - Ne supprime JAMAIS un champ qui sert de condition d'affichage pour d'autres champs: cela les rendrait invalides.
-        - Les champs à supprimer doivent concerner le MÊME sujet/contexte.
-        Exemple : "Adresse de résidence" + "Commune de résidence" → supprimer le champ commune
-        Contre-exemple : "Adresse de résidence" + "Commune de naissance" → NE PAS supprimer (sujets différents)
+        Schéma initial :
+        [
+          { stable_id: 10, libelle: "Informations entreprise", position: 0, type: "header_section" },
+          { stable_id: 20, libelle: "SIRET", position: 1, type: "siret" },
+          { stable_id: 30, libelle: "Raison sociale", position: 2, type: "text" },
+          { stable_id: 40, libelle: "Adresse du siège social", position: 3, type: "text" }
+        ]
 
-        ## Justification:
-        - Fournis une justification courte expliquant quel champ fournit déjà l'information
-        - Le texte ne doit pas comporter de détails ou noms techniques.
+        Analyse :
+        - Le SIRET (position 1) fournit automatiquement raison sociale ET adresse du siège
+        - Les champs Raison sociale et Adresse sont dans la même section "Informations entreprise"
+        - Même contexte (l'entreprise), pas de nuance (pas "adresse de correspondance")
+        - DÉCISION : Supprimer les champs 30 et 40 (redondance avérée)
+
+        Tool calls corrects :
+        {
+          "destroy": { "stable_id": 30 },
+          "justification": "Le champ SIRET fournit automatiquement la raison sociale."
+        }
+        {
+          "destroy": { "stable_id": 40 },
+          "justification": "Le champ SIRET fournit automatiquement l'adresse du siège social."
+        }
+
+        **Exemple 2 : Contexte de section différent (REJETÉ)**
+
+        Schéma initial :
+        [
+          { stable_id: 5, libelle: "Votre identité", position: 0, type: "header_section" },
+          { stable_id: 10, libelle: "Adresse de résidence", position: 1, type: "address" },
+          { stable_id: 20, libelle: "Lieu de naissance", position: 2, type: "header_section" },
+          { stable_id: 30, libelle: "Commune de naissance", position: 3, type: "communes" }
+        ]
+
+        Analyse :
+        - L'adresse de résidence (position 1) fournit la commune de résidence
+        - Le champ "Commune de naissance" (position 3) semble similaire techniquement
+        - MAIS contextes différents : section "Votre identité" (résidence actuelle) ≠ section "Lieu de naissance" (passé)
+        - Les sections indiquent clairement cette distinction
+        - DÉCISION : NE PAS supprimer (violation PRIORITÉ 1.1 : contexte de section différent)
+
+        ═══════════════════════════════════════════════════════════════
+        OUTIL À UTILISER
+        ═══════════════════════════════════════════════════════════════
 
         Utilise l'outil #{TOOL_DEFINITION.dig(:function, :name)} pour chaque proposition (un appel par suppression).
         Ne réponds rien s'il n'y a aucun champ redondant.
+
+        >> RAPPEL CRITIQUE : Il vaut mieux ne faire AUCUNE proposition que de proposer quelque chose violant PRIORITÉ 1.
       TXT
     end
 
