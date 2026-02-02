@@ -29,6 +29,13 @@ module Administrateurs
       end
     end
 
+    def preview
+      @dossier_submitted_message = build_dossier_submitted_message(dossier_submitted_message_params)
+      respond_to do |format|
+        format.turbo_stream
+      end
+    end
+
     private
 
     # for now, only works on active revision no matter the procedure_revision_policy
@@ -41,7 +48,7 @@ module Administrateurs
 
     def dossier_submitted_message_params
       params.require(:dossier_submitted_message)
-        .permit(:message_on_submit_by_usager)
+        .permit(:tiptap_body)
     end
   end
 end

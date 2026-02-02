@@ -90,10 +90,11 @@ class TiptapService
     in type: 'descriptionDetails', content:
       "<dd>#{children(content, substitutions, level + 1)}</dd>"
     in type: 'text', text:, **rest
+      escaped = ERB::Util.html_escape(text)
       if rest[:marks].present?
-        apply_marks(text, rest[:marks])
+        apply_marks(escaped, rest[:marks])
       else
-        text
+        escaped
       end
     in type: 'mention', attrs: { id: }, **rest
       text_or_presentation = substitutions.fetch(id) { "--#{id}--" }
@@ -110,6 +111,9 @@ class TiptapService
       end
     in { type: type } if ["paragraph", "title", "heading"].include?(type) && !node.key?(:content)
       # noop
+    else
+      # ignore unknown node types
+      ''
     end
   end
 
@@ -150,6 +154,8 @@ class TiptapService
         "<s>#{text}</s>"
       in type: 'highlight'
         "<mark>#{text}</mark>"
+      in type: 'link', attrs: { href: }
+        "<a href=\"#{ERB::Util.html_escape(href)}\" target=\"_blank\" rel=\"noopener noreferrer\">#{text}</a>"
       end
     end
   end

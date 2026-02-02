@@ -202,6 +202,64 @@ RSpec.describe TiptapService do
       end
     end
 
+    context 'link mark' do
+      let(:json) do
+        {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Cliquez ',
+                },
+                {
+                  type: 'text',
+                  text: 'ici',
+                  marks: [{ type: 'link', attrs: { href: 'https://example.com' } }],
+                },
+                {
+                  type: 'text',
+                  text: ' pour continuer.',
+                },
+              ],
+            },
+          ],
+        }
+      end
+
+      it 'renders link with security attributes' do
+        expect(described_class.new.to_html(json, {})).to eq(
+          '<p class="body-start">Cliquez <a href="https://example.com" target="_blank" rel="noopener noreferrer">ici</a> pour continuer.</p>'
+        )
+      end
+
+      context 'with XSS attempt in href' do
+        let(:json) do
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'link',
+                    marks: [{ type: 'link', attrs: { href: '"><script>alert(1)</script>' } }],
+                  },
+                ],
+              },
+            ],
+          }
+        end
+
+        it 'escapes malicious href' do
+          expect(described_class.new.to_html(json, {})).to include('&quot;&gt;&lt;script&gt;')
+        end
+      end
+    end
+
     context 'ordered list with custom classes' do
       let(:json) do
         {
@@ -240,6 +298,20 @@ RSpec.describe TiptapService do
   describe '#used_tags' do
     it 'returns used tags' do
       expect(described_class.used_tags_and_libelle_for(json)).to eq(Set.new([['name', 'Nom'], ['languages', 'Langages']]))
+    end
+  end
+
+  describe 'sanitization' do
+    it 'escapes HTML tags in text content' do
+      json = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: '<script>alert(1)</script>' }] }] }
+      expect(described_class.new.to_html(json, {})).to include('&lt;script&gt;')
+    end
+
+    it 'ignores unknown node types' do
+      json = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello' }] }, { type: 'script', content: [{ type: 'text', text: 'evil' }] }] }
+      result = described_class.new.to_html(json, {})
+      expect(result).to include('Hello')
+      expect(result).not_to include('evil')
     end
   end
 
