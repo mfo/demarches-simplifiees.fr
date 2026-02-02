@@ -4,7 +4,7 @@
       - notifications.each_with_index do |(statut, dossiers_by_notification_type), index|
         - if index != 0
           .fr-hr.fr-pb-1w.fr-mt-1w
-        %p.font-weight-bold.fr-mr-2w.fr-mb-1w
+        %h4.fr-text--md.fr-mb-1w
           = t("instructeurs.procedures.index.statuts.#{statut}")
 
         - dossiers_by_notification_type.each do |notification_type, dossiers|
