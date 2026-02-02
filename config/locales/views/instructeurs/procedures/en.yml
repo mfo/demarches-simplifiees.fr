@@ -6,5 +6,12 @@ en:
         reinit_display: Your display had to be reset due to a technical issue.
       administrators_list:
         title: Procedure administrators
+      index:
+        statuts:
+          a-suivre: "To follow"
+          suivis: "Followed by me"
+          traites: "Processed"
+          archives: "To archive"
+          supprimes: "Trash"
       exports:
         title: Exports

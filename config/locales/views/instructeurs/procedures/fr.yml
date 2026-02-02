@@ -6,3 +6,12 @@ fr:
         reinit_display: Votre affichage a dû être réinitialisé en raison d’un problème technique.
       administrators_list:
         title: Administrateurs de la démarche
+      index:
+        statuts:
+          a-suivre: "À suivre"
+          suivis: "Suivis par moi"
+          traites: "Traités"
+          archives: "À archiver"
+          supprimes: "Corbeille"
+      exports:
+        title: Exports
