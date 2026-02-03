@@ -35,7 +35,7 @@ describe OCRService do
 
         it 'returns a StringIO object with the PDF data' do
           analysis = described_class.analyze(blob)
-          expect(analysis).to eq(Success(body))
+          expect(analysis).to eq(Success(value_json: body))
         end
       end
 

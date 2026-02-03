@@ -89,8 +89,8 @@ module ChampExternalDataConcern
     def handle_result(result)
       if result.is_a?(Dry::Monads::Result)
         case result
-        in Success(data)
-          update_external_data!(data:)
+        in Success(hash)
+          update_external_data!(hash)
           external_data_fetched!
         in Failure(retryable: true, reason:, code:)
           save_external_exception(reason, code)
@@ -107,8 +107,8 @@ module ChampExternalDataConcern
       end
     end
 
-    def update_external_data!(data:)
-      update!(data:, fetch_external_data_exceptions: [])
+    def update_external_data!(hash)
+      update!(hash.merge(fetch_external_data_exceptions: []))
     end
 
     def save_external_exception(exception, code)

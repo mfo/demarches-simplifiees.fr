@@ -70,7 +70,7 @@ describe Champs::RNFChamp, type: :model do
 
     context 'success' do
       it do
-        expect(subject.value!).to eq({
+        expect(subject.value![:data]).to eq({
           id: 3,
           rnfId: '075-FDD-00003-01',
           type: 'FDD',
@@ -182,8 +182,8 @@ describe Champs::RNFChamp, type: :model do
           country_code: "FR",
           country_name: "France",
         }
-        expect(champ).to receive(:update!).with(data: anything, value_json:, fetch_external_data_exceptions: [])
-        champ.update_external_data!(data: subject.value!)
+
+        expect(subject.value![:value_json]).to eq(value_json)
       end
     end
   end
