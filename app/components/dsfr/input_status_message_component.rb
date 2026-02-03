@@ -42,6 +42,10 @@ module Dsfr
       type_de_champ.dossier_link? && @champ.value.present?
     end
 
+    def libelle
+      @row_number.present? ? "[#{@row_number}] #{@champ.libelle}" : @champ.libelle
+    end
+
     def statut_message
       case @champ.type_de_champ.type_champ
       when TypeDeChamp.type_champs[:siret]

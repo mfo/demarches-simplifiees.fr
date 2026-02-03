@@ -3,6 +3,42 @@
 describe EditableChamp::RepetitionComponent, type: :component do
   include ChampAriaLabelledbyHelper
 
+  describe "#row_has_errors?" do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, libelle: 'Répétition', children: [{ type: :text, libelle: 'Texte', mandatory: true }] }]) }
+    let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
+    let(:repetition_champ) { dossier.project_champs_public.first }
+    let(:row_champ) { repetition_champ.rows.first.first }
+
+    subject(:component) do
+      comp = nil
+      ActionView::Base.empty.form_for(repetition_champ, url: '/') do |form|
+        comp = described_class.new(champ: repetition_champ, form:)
+      end
+      comp
+    end
+
+    context "when the row has no errors" do
+      it "returns false" do
+        expect(component.row_has_errors?(row_champ.row_id)).to be false
+      end
+    end
+
+    context "when the dossier has nested errors for a champ in the row" do
+      before do
+        # Clear the value to make the mandatory field fail validation
+        row_champ.value = nil
+        row_champ.save!
+        dossier.reload
+        dossier.check_mandatory_and_visible_champs_public
+      end
+
+      it "returns true" do
+        expect(dossier.errors).not_to be_empty
+        expect(component.row_has_errors?(row_champ.row_id)).to be true
+      end
+    end
+  end
+
   describe "the champ label or legend text" do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, libelle: 'Répétition', children: }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }

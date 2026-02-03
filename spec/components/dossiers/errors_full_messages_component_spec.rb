@@ -37,15 +37,15 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
         end
 
         it "renders the model libelle with the parent libelle and the row number" do
-          expect(subject).to have_text("Champ parent - Champ enfant 1")
+          expect(subject).to have_text("Champ parent - [1] Champ enfant")
         end
 
         context "when there is more than one child" do
           let(:types_de_champ_public) { [{ libelle: "Champ parent", type: :repetition, children: [{ libelle: "Premier champ", type: :text }, { libelle: "Second enfant", type: :text }] }] }
 
           it do
-            expect(subject).to have_text("Champ parent 1 - Premier champ")
-            expect(subject).to have_text("Champ parent 1 - Second enfant")
+            expect(subject).to have_text("[1] Champ parent - Premier champ")
+            expect(subject).to have_text("[1] Champ parent - Second enfant")
           end
         end
       end

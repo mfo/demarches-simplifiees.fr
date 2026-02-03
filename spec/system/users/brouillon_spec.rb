@@ -180,11 +180,11 @@ describe 'The user', js: true do
 
     # errors in header section
     expect(page).to have_content('texte obligatoire doit être rempli')
-    expect(page).to have_content('repetition - sub type de champ 1 doit être rempli')
+    expect(page).to have_content('repetition - [1] sub type de champ doit être rempli')
 
     # errors on champs
     expect(page).to have_content('« texte obligatoire » doit être rempli')
-    expect(page).to have_content('« sub type de champ 1 » doit être rempli')
+    expect(page).to have_content('« [1] sub type de champ » doit être rempli')
   end
 
   let(:simple_procedure) {
