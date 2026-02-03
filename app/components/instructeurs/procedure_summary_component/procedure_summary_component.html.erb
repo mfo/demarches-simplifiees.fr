@@ -1,13 +1,14 @@
-<section class="procedure__item">
-  <div class="flex align-baseline wrap">
-    <h3 class="card-title fr-mb-0">
+<section class="procedure__item fr-mb-5w fr-pt-2w">
+  <div class="procedure__title">
+    <h3 class="card-title fr-mr-1v fr-mb-0">
       <%= link_to procedure_libelle_with_number(p), instructeur_procedure_path(p) %>
-      <%= render Dsfr::CopyButtonComponent.new(text: commencer_url(p.path), title: t('instructeurs.dossiers.header.banner.copy_link_button')) %>
       <%= procedure_badge(p, 'align-middle') %>
     </h3>
+    <%= render Dsfr::CopyButtonComponent.new(text: commencer_url(p.path), title: t('instructeurs.dossiers.header.banner.copy_link_button')) %>
+  </div>
 
     <nav
-      class="fr-nav order-first relative fr-mr-1w"
+      class="fr-nav fr-mr-1v"
       role="navigation"
       aria-label="<%= t('.menu_aria_label', name: procedure_libelle_with_number(p)) %>"
     >
@@ -142,9 +143,8 @@
         </div>
       </div>
     </nav>
-  </div>
 
-  <ul class="procedure-stats flex fr-background-alt--grey fr-p-1w justify-around wrap">
+  <ul class="procedure-stats flex fr-background-alt--grey justify-around wrap fr-p-1w">
     <li
       class="
         fr-btn fr-btn--tertiary-no-outline flex justify-center
