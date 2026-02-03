@@ -56,3 +56,13 @@
     margin: 0;
   }
 }
+
+// Prevent fixed footer from overlapping the real page footer
+body:has(.dossier-edit-footer) .fr-footer {
+  @media (max-width: 62em) {
+    padding-bottom: 120px + $default-padding;
+  }
+  @media (min-width: 62em) {
+    padding-bottom: 60px + $default-padding;
+  }
+}

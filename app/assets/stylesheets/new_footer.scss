@@ -1,14 +1,3 @@
-@import 'mixins';
-
-.landing-footer {
-  @include vertical-padding(72px);
-}
-
-.procedure-footer {
-  @include vertical-padding(30px);
-  line-height: 24px;
-}
-
 .footer-logo:hover {
   opacity: 0.8;
 }
