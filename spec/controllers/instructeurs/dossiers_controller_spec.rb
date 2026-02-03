@@ -10,6 +10,7 @@ describe Instructeurs::DossiersController, type: :controller do
   let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: instructeurs, types_de_champ_public:) }
   let(:procedure_accuse_lecture) { create(:procedure, :published, :for_individual, :accuse_lecture, :new_administrateur, instructeurs: instructeurs) }
   let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
+  let(:dossier_accepte) { create(:dossier, :accepte, :with_individual, procedure: procedure) }
   let(:dossier_accuse_lecture) { create(:dossier, :en_construction, :with_individual, procedure: procedure_accuse_lecture) }
   let(:dossier_for_tiers) { create(:dossier, :en_construction, :for_tiers_with_notification, procedure: procedure) }
   let(:dossier_for_tiers_without_notif) { create(:dossier, :en_construction, :for_tiers_without_notification, procedure: procedure) }
@@ -127,23 +128,38 @@ describe Instructeurs::DossiersController, type: :controller do
 
   describe '#archive' do
     let(:batch_operation) {}
+
     before do
       batch_operation
-      patch :archive, params: { procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }
-      dossier.reload
+      patch :archive, params: { procedure_id: procedure.id, dossier_id: dossier_to_archive.id, statut: 'traites' }
+      dossier_to_archive.reload
       instructeur.follow(dossier)
     end
 
-    it do
-      expect(dossier.archived).to eq(true)
-      expect(response).to redirect_to(instructeur_procedure_path(dossier.procedure))
+    context 'with dossier termine' do
+      let(:dossier_to_archive) { dossier_accepte }
+
+      it do
+        expect(dossier_to_archive.archived).to eq(true)
+        expect(response).to redirect_to(instructeur_procedure_path(dossier_to_archive.procedure))
+      end
+    end
+
+    context 'with dossier not termine' do
+      let(:dossier_to_archive) { dossier }
+
+      it do
+        expect(dossier_to_archive.archived).to eq(false)
+        expect(response).to redirect_to(instructeur_procedure_path(dossier_to_archive.procedure))
+      end
     end
 
     context 'with dossier in batch_operation' do
-      let(:batch_operation) { create(:batch_operation, operation: :archiver, dossiers: [dossier], instructeur: instructeur) }
+      let(:dossier_to_archive) { dossier_accepte }
+      let(:batch_operation) { create(:batch_operation, operation: :archiver, dossiers: [dossier_to_archive], instructeur: instructeur) }
       it do
-        expect(dossier.archived).to eq(false)
-        expect(response).to redirect_to(instructeur_dossier_path(dossier.procedure, dossier))
+        expect(dossier_to_archive.archived).to eq(false)
+        expect(response).to redirect_to(instructeur_dossier_path(dossier_to_archive.procedure, dossier_to_archive))
         expect(flash.alert).to eq("Votre action n’a pas été effectuée, ce dossier fait parti d’un traitement de masse.")
       end
     end
