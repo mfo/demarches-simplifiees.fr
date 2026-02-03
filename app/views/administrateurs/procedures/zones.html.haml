@@ -18,7 +18,7 @@
           .fr-fieldset__element
             .fr-checkbox-group
               = b.check_box
-              = b.label class: "fr-label font-weight-bold"
+              = b.label class: "fr-label fr-text--bold"
         = f.collection_check_boxes :zone_ids, @zones, :id, :label do |b|
           .fr-fieldset__element
             .fr-checkbox-group
