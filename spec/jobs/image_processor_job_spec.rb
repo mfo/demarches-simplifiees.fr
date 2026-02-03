@@ -97,6 +97,18 @@ describe ImageProcessorJob, type: :job do
         expect { described_class.perform_now(blob) }.to change { ActiveStorage::VariantRecord.count }.by(2)
       end
     end
+
+    context "when file is a pdf type", :external_deps do
+      let(:file) { fixture_file_upload('spec/fixtures/files/piece_justificative_0.pdf', 'application/pdf') }
+
+      before do
+        allow(blob).to receive(:representation_required?).and_return(true)
+      end
+
+      it "creates blob representation" do
+        expect { described_class.perform_now(blob) }.to change { ActiveStorage::VariantRecord.count }.by(1)
+      end
+    end
   end
 
   describe 'watermark' do
