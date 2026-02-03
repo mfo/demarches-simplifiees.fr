@@ -36,6 +36,8 @@ class EditableChamp::RepetitionComponent < EditableChamp::EditableChampBaseCompo
   end
 
   def errors_public_ids
-    @errors_public_ids ||= @champ.dossier.errors.map { |error| error.inner_error.base.public_id if error.is_a?(ActiveModel::NestedError) && error.inner_error.base.respond_to?(:public_id) }.compact.to_set
+    @errors_public_ids ||= @champ.dossier.errors.filter_map do |error|
+      error.inner_error.base.public_id if error.is_a?(ActiveModel::NestedError) && error.inner_error.base.respond_to?(:public_id)
+    end.to_set
   end
 end
