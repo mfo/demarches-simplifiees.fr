@@ -8,30 +8,8 @@ RSpec.describe APIEntreprise::Job, type: :job do
   describe '#perform' do
     let(:dossier) { create(:dossier, :with_entreprise) }
 
-    context 'when an un-retriable error is raised' do
-      let(:errors) { [:standard_error] }
-
-      it 'does not retry' do
-        ensure_errors_force_n_retry(errors, 1)
-      end
-    end
-
-    context 'when a retriable error is raised' do
-      let(:errors) { [:service_unavailable, :bad_gateway, :internal_server_error] }
-
-      it 'retries 5 times' do
-        ensure_errors_force_n_retry(errors, 5)
-        expect(dossier.reload.api_entreprise_job_exceptions.first).to match('APIEntreprise::API::Error::ServiceUnavailable')
-      end
-    end
-
-    context 'when a timeout error is raised' do
-      let(:errors) { [:timed_out] }
-
-      it 'retries 22 times' do
-        ensure_errors_force_n_retry(errors, 22)
-      end
-    end
+    it_behaves_like 'a job retrying standard errors'
+    it_behaves_like 'a job retrying transient errors'
 
     context 'when error with an etablissement on a champ' do
       let(:procedure) { create(:procedure, types_de_champ_public:) }

@@ -12,9 +12,9 @@ describe ArchiveCreationJob, type: :job do
       let(:mailer) { double('mailer', deliver_later: true) }
       before { expect(UserMailer).not_to receive(:send_archive) }
 
-      it 'does not send email and forward error for retry' do
+      it 'does not send email and job is reenqueued for retry' do
         allow(DownloadableFileService).to receive(:download_and_zip).and_raise(StandardError, "kaboom")
-        expect { job.perform_now }.to raise_error(StandardError, "kaboom")
+        expect { job.perform_now }.to have_enqueued_job(described_class)
         expect(archive.reload.failed?).to eq(true)
       end
     end

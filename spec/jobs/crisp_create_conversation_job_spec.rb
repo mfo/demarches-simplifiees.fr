@@ -138,17 +138,17 @@ RSpec.describe CrispCreateConversationJob, type: :job do
           .and_return(Dry::Monads::Failure(reason: 'API Error'))
       end
 
-      it 'raise an error so job will retry later' do
+      it 'reenqueues job so it will retry later' do
         allow_any_instance_of(described_class).to receive(:executions).and_return(5)
 
-        expect { subject }.to raise_error('API Error')
+        expect { subject }.to have_enqueued_job(described_class)
         expect(contact_form).not_to be_destroyed
       end
 
       it 'destroy contact form when max executions is reached' do
         allow_any_instance_of(described_class).to receive(:executions).and_return(16)
 
-        expect { subject }.to raise_error('API Error')
+        expect { subject }.to have_enqueued_job(described_class)
         expect(contact_form).to be_destroyed
       end
     end
@@ -162,8 +162,8 @@ RSpec.describe CrispCreateConversationJob, type: :job do
           .and_return(Dry::Monads::Failure(reason: 'Message send failed'))
       end
 
-      it 'lève une exception' do
-        expect { subject }.to raise_error('Message send failed')
+      it 'reenqueues job for retry' do
+        expect { subject }.to have_enqueued_job(described_class)
       end
     end
 

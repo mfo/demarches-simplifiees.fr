@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 class ApplicationJob < ActiveJob::Base
+  include ActiveJob::RetryOnStandardError
   include ActiveJob::RetryOnTransientErrors
-
-  DEFAULT_MAX_ATTEMPTS_JOBS = 25
 
   attr_writer :request_id
 
@@ -38,7 +37,7 @@ class ApplicationJob < ActiveJob::Base
   end
 
   def max_attempts
-    ENV.fetch("MAX_ATTEMPTS_JOBS", DEFAULT_MAX_ATTEMPTS_JOBS).to_i
+    ENV.fetch("MAX_ATTEMPTS_JOBS", 25).to_i
   end
 
   def max_run_time
