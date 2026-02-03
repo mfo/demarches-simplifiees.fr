@@ -31,14 +31,14 @@
           </button>
 
           <ul>
-            <li class="font-weight-bold">
-              <%= link_to t('instructeurs.dossiers.header.banner.follow_up'), instructeur_procedure_path(p), class: "fr-nav__link" %>
+            <li>
+              <%= link_to t('instructeurs.dossiers.header.banner.follow_up'), instructeur_procedure_path(p), class: "fr-nav__link fr-text--bold" %>
             </li>
 
             <li>
               <h4 class="fr-accordion__title">
                 <button
-                  class="fr-accordion__btn"
+                  class="fr-accordion__btn fr-text--bold"
                   aria-expanded="false"
                   aria-controls="procedure-management-<%= p.id %>"
                 >
@@ -81,7 +81,7 @@
             <li>
               <h4 class="fr-accordion__title">
                 <button
-                  class="fr-accordion__btn"
+                  class="fr-accordion__btn fr-text--bold"
                   aria-expanded="false"
                   aria-controls="user-support-<%= p.id %>"
                 >
@@ -115,7 +115,7 @@
             <li>
               <h4 class="fr-accordion__title">
                 <button
-                  class="fr-accordion__btn"
+                  class="fr-accordion__btn fr-text--bold"
                   aria-expanded="false"
                   aria-controls="downloads-<%= p.id %>"
                 >
