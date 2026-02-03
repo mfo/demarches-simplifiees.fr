@@ -31,7 +31,11 @@ if (enabled) {
   script.src = 'https://client.crisp.chat/l.js';
   firstScript.parentNode?.insertBefore(script, firstScript);
 
-  window.$crisp.push(['set', 'user:email', [user.email]]);
+  window.$crisp.push([
+    'set',
+    'user:email',
+    [user.email, user.emailSignature].filter(Boolean)
+  ]);
   window.$crisp.push(['set', 'session:segments', [user.segments]]);
 
   // Prevent Crisp to log warnings about Sentry overriding document.addEventListener

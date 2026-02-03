@@ -398,18 +398,23 @@ class ApplicationController < ActionController::Base
       websiteId: enabled ? ENV.fetch("CRISP_WEBSITE_ID") : nil,
       user: {
         email: current_user&.email,
+        emailSignature: crisp_email_signature,
         segments: crisp_segments,
       },
     }
   end
 
+  def crisp_email_signature
+    key = ENV["CRISP_IDENTITY_PRIVATE_KEY"]
+    return if key.blank?
+
+    return unless current_user&.email_verified_at?
+
+    OpenSSL::HMAC.hexdigest("sha256", key, current_user.email)
+  end
+
   def crisp_segments
-    segments = []
-    segments << 'administrateur' if administrateur_signed_in?
-    segments << 'instructeur' if instructeur_signed_in?
-    segments << 'expert' if expert_signed_in?
-    segments << 'usager' if segments.empty?
-    segments
+    current_user&.crisp_segments
   end
 
   def current_email

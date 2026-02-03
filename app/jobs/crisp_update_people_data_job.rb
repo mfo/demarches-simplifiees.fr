@@ -8,33 +8,42 @@ class CrispUpdatePeopleDataJob < ApplicationJob
   queue_as :default
 
   def perform(session_id, email)
-    email ||= fetch_email_from_session(session_id)
+    meta = fetch_conversation_meta(session_id)
+    email ||= meta[:email]
     user = User.find_by!(email:)
 
-    user_data = Crisp::UserDataBuilder.new(user).build_data
+    update_people_data(user)
+    update_conversation(session_id, user, meta[:segments])
+  end
 
-    result = Crisp::APIService.new.update_people_data(
-      email: user.email,
-      body: { data: user_data }
-    )
+  private
 
+  def fetch_conversation_meta(session_id)
+    result = Crisp::APIService.new.get_conversation_meta(session_id:)
     case result
-    in Success
-      # NOOP
+    in Success(data:)
+      { email: data[:email], segments: data[:segments] || [] }
     in Failure(reason:)
       fail reason
     end
   end
 
-  private
+  def update_people_data(user)
+    user_data = Crisp::UserDataBuilder.new(user).build_data
+    result = Crisp::APIService.new.update_people_data(email: user.email, body: { data: user_data })
 
-  def fetch_email_from_session(session_id)
-    result = Crisp::APIService.new.get_conversation_meta(session_id:)
     case result
-    in Success(data: { email: })
-      email
+    in Success
+    # NOOP
     in Failure(reason:)
       fail reason
     end
+  end
+
+  def update_conversation(session_id, user, existing_segments)
+    segments = Set.new(existing_segments + user.crisp_segments)
+    return if segments == Set.new(existing_segments)
+
+    Crisp::APIService.new.update_conversation_meta(session_id:, body: { segments: })
   end
 end

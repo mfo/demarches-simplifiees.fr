@@ -105,8 +105,7 @@ class CrispCreateConversationJob < ApplicationJob
       email:,
       nickname:,
       subject: contact_form.subject,
-      segments: contact_form.tags,
-      # TODO: ip & device ?
+      segments: Set.new(contact_form.user&.crisp_segments) + contact_form.tags,
     }
 
     body[:data] = { "Dossier" => dossier_link } if contact_form.dossier_id.present?

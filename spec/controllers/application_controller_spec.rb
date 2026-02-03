@@ -281,13 +281,11 @@ describe ApplicationController, type: :controller do
         allow(@controller).to receive(:current_user).and_return(administrateur.user)
         allow(@controller).to receive(:user_signed_in?).and_return(true)
         allow(@controller).to receive(:administrateur_signed_in?).and_return(true)
-        allow(@controller).to receive(:instructeur_signed_in?).and_return(false)
-        allow(@controller).to receive(:expert_signed_in?).and_return(false)
       end
 
-      it 'returns administrateur segment' do
+      it 'returns administrateur and instructeur segments' do
         config = @controller.send(:crisp_config)
-        expect(config[:user][:segments]).to eq(['administrateur'])
+        expect(config[:user][:segments]).to contain_exactly('administrateur', 'instructeur')
       end
     end
 
@@ -297,31 +295,12 @@ describe ApplicationController, type: :controller do
       before do
         allow(@controller).to receive(:current_user).and_return(instructeur.user)
         allow(@controller).to receive(:user_signed_in?).and_return(true)
-        allow(@controller).to receive(:administrateur_signed_in?).and_return(false)
         allow(@controller).to receive(:instructeur_signed_in?).and_return(true)
-        allow(@controller).to receive(:expert_signed_in?).and_return(false)
       end
 
       it 'returns instructeur segment' do
         config = @controller.send(:crisp_config)
         expect(config[:user][:segments]).to eq(['instructeur'])
-      end
-    end
-
-    context 'when a user has multiple roles' do
-      let(:administrateur) { administrateurs(:default_admin) }
-
-      before do
-        allow(@controller).to receive(:current_user).and_return(administrateur.user)
-        allow(@controller).to receive(:user_signed_in?).and_return(true)
-        allow(@controller).to receive(:administrateur_signed_in?).and_return(true)
-        allow(@controller).to receive(:instructeur_signed_in?).and_return(true)
-        allow(@controller).to receive(:expert_signed_in?).and_return(false)
-      end
-
-      it 'returns all applicable segments' do
-        config = @controller.send(:crisp_config)
-        expect(config[:user][:segments]).to contain_exactly('administrateur', 'instructeur')
       end
     end
 
@@ -337,6 +316,41 @@ describe ApplicationController, type: :controller do
         expect(@controller).not_to receive(:crisp_config)
         @controller.send(:setup_tracking)
       end
+    end
+  end
+
+  describe 'crisp_email_signature' do
+    subject { @controller.send(:crisp_email_signature) }
+
+    let(:user) { nil }
+    let(:private_key) { nil }
+
+    before do
+      allow(@controller).to receive(:current_user).and_return(user)
+      allow(ENV).to receive(:[]).with("CRISP_IDENTITY_PRIVATE_KEY").and_return(private_key)
+    end
+
+    context 'without a current user' do
+      it { is_expected.to be_nil }
+    end
+
+    context 'with an unverified user' do
+      let(:user) { create(:user, email_verified_at: nil) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a verified user but no CRISP_IDENTITY_PRIVATE_KEY' do
+      let(:user) { create(:user, email_verified_at: Time.zone.now) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a verified user and CRISP_IDENTITY_PRIVATE_KEY set' do
+      let(:user) { create(:user, email: 'test@example.com', email_verified_at: Time.zone.now) }
+      let(:private_key) { 'test-secret-key' }
+
+      it { is_expected.to eq(OpenSSL::HMAC.hexdigest("sha256", private_key, user.email)) }
     end
   end
 
