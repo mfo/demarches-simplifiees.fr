@@ -5,12 +5,12 @@ class ContactController < ApplicationController
   before_action :reject_invalid_attachment, only: [:create]
 
   def index
-    @form = ContactForm.new(tags: contact_form_params.fetch(:tags, []), dossier_id: dossier&.id)
+    @form = ContactForm.new(dossier_id: dossier&.id)
     @form.user = current_user
   end
 
   def admin
-    @form = ContactForm.new(tags: contact_form_params.fetch(:tags, []), for_admin: true)
+    @form = ContactForm.new(for_admin: true)
     @form.user = current_user
   end
 
@@ -69,13 +69,13 @@ class ContactController < ApplicationController
   end
 
   def contact_form_params
-    keys = [:subject, :text, :question_type, :dossier_id, :piece_jointe, :phone, :for_admin, tags: []]
-    keys << :email unless user_signed_in? # Email autorisé UNIQUEMENT si non connecté
+    keys = [:subject, :text, :question_type, :dossier_id, :piece_jointe, :phone, :for_admin]
+    keys << :email if !user_signed_in? # Email autorisé UNIQUEMENT si non connecté
 
     if params.key?(:contact_form) # submitting form
       params.require(:contact_form).permit(*keys)
     else
-      params.permit(:dossier_id, tags: []) # prefilling form
+      params.permit(:dossier_id) # prefilling form
     end
   end
 

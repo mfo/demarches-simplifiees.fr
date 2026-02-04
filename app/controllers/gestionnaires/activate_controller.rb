@@ -13,7 +13,7 @@ class Gestionnaires::ActivateController < ApplicationController
       # the gestionnaire activates its account from an email
       trust_device(Time.zone.now)
     else
-      flash.alert = "Le lien de validation de gestionnaire a expiré, #{helpers.contact_link('contactez-nous', tags: 'lien expiré')} pour obtenir un nouveau lien."
+      flash.alert = "Le lien de validation de gestionnaire a expiré, #{helpers.contact_link('contactez-nous')} pour obtenir un nouveau lien."
       redirect_to root_path
     end
   end

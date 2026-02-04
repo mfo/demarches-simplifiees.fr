@@ -29,29 +29,6 @@ describe ContactController, question_type: :controller do
       end
     end
 
-    describe "with tag" do
-      let(:tag) { 'yolo' }
-
-      it 'should fill tags' do
-        get :index, params: { tags: [tag] }
-
-        expect(response.status).to eq(200)
-        expect(response.body).to include(tag)
-      end
-    end
-
-    describe "with multiple tags" do
-      let(:tags) { ['yolo', 'toto'] }
-
-      it 'should fill tags' do
-        get :index, params: { tags: tags }
-
-        expect(response.status).to eq(200)
-        expect(response.body).to include("value=\"yolo\"")
-        expect(response.body).to include("value=\"toto\"")
-      end
-    end
-
     describe "send form" do
       subject do
         post :create, params: { contact_form: params }
@@ -166,17 +143,6 @@ describe ContactController, question_type: :controller do
 
         expect(response.status).to eq(200)
         expect(response.body).to have_text("Votre adresse électronique")
-      end
-    end
-
-    describe "with dossier" do
-      let(:tag) { 'yolo' }
-
-      it 'should fill tags' do
-        get :index, params: { tags: [tag] }
-
-        expect(response.status).to eq(200)
-        expect(response.body).to include(tag)
       end
     end
 
