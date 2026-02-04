@@ -25,6 +25,7 @@ class ContactController < ApplicationController
 
     @form = ContactForm.new(contact_form_params)
     @form.user = current_user
+    @form.user_agent = request.user_agent
 
     if @form.save
       @form.create_conversation_later

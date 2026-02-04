@@ -48,6 +48,7 @@ describe ContactController, question_type: :controller do
           expect(contact_form.subject).to eq("bonjour")
           expect(contact_form.text).to eq("un message")
           expect(contact_form.tags).to include("procedure_info")
+          expect(contact_form.user_agent).to be_present
 
           expect(flash[:notice]).to match('Votre message a été envoyé.')
           expect(response).to redirect_to root_path

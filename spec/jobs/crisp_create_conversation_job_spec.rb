@@ -11,7 +11,8 @@ RSpec.describe CrispCreateConversationJob, type: :job do
   let(:tags) { ['test tag'] }
   let(:question_type) { 'lost_user' }
   let(:phone) { nil }
-  let(:contact_form) { create(:contact_form, email:, user:, subject: subject_text, text:, tags:, phone:, question_type:) }
+  let(:user_agent) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:148.0) Gecko/20100101 Firefox/148.0" }
+  let(:contact_form) { create(:contact_form, email:, user:, subject: subject_text, text:, tags:, phone:, question_type:, user_agent:) }
   let(:session_id) { 'session_test-123-456' }
 
   before do
@@ -56,7 +57,8 @@ RSpec.describe CrispCreateConversationJob, type: :job do
             email: email,
             nickname: 'Test',
             subject: subject_text,
-            segments: ['test tag', 'contact form', question_type]
+            segments: ['test tag', 'contact form', question_type],
+            device: { system: { useragent: user_agent, os: { name: "macOS", version: "10.15" }, browser: { name: "Firefox", major: "148", version: "148.0" } } }
           )
         )
 
