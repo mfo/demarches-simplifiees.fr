@@ -204,7 +204,7 @@ describe ContactController, question_type: :controller do
         post :create, params: { contact_form: params }
       end
 
-      let(:params) { { for_admin: "true", email: "email@pro.fr", subject: 'bonjour', text: 'un message', question_type: 'admin question', phone: '06' } }
+      let(:params) { { for_admin: "true", email: "email@pro.fr", subject: 'bonjour', text: 'un message', question_type: ContactForm::ADMIN_TYPE_QUESTION, phone: '06' } }
 
       describe "when form is filled" do
         it "creates a conversation on Crisp" do
@@ -214,7 +214,7 @@ describe ContactController, question_type: :controller do
           expect(CrispCreateConversationJob).to have_been_enqueued.with(contact_form)
           expect(contact_form.email).to eq(params[:email])
           expect(contact_form.phone).to eq("06")
-          expect(contact_form.tags).to match_array(["admin question", "contact form"])
+          expect(contact_form.tags).to match_array([ContactForm::ADMIN_TYPE_QUESTION, "contact form"])
 
           expect(flash[:notice]).to match('Votre message a été envoyé.')
         end
