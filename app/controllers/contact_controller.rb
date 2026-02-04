@@ -69,7 +69,9 @@ class ContactController < ApplicationController
   end
 
   def contact_form_params
-    keys = [:email, :subject, :text, :question_type, :dossier_id, :piece_jointe, :phone, :for_admin, tags: []]
+    keys = [:subject, :text, :question_type, :dossier_id, :piece_jointe, :phone, :for_admin, tags: []]
+    keys << :email unless user_signed_in? # Email autorisé UNIQUEMENT si non connecté
+
     if params.key?(:contact_form) # submitting form
       params.require(:contact_form).permit(*keys)
     else

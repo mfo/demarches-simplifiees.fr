@@ -76,6 +76,18 @@ describe ContactController, question_type: :controller do
           expect(response).to redirect_to root_path
         end
 
+        context 'when an attacker tries to spoof email via form manipulation' do
+          let(:params) { { subject: 'bonjour', text: 'un message', question_type: 'procedure_info', email: 'victim@attacker.com' } }
+
+          it 'ignores the submitted email and uses the signed-in user email' do
+            expect { subject }.to change(ContactForm, :count).by(1)
+
+            contact_form = ContactForm.last
+            expect(contact_form.email).to be_nil # Email param is ignored
+            expect(contact_form.user).to eq(user) # User is set, so CrispJob will use user.email
+          end
+        end
+
         context 'when a drafted dossier is mentionned' do
           let(:dossier) { create(:dossier) }
           let(:user) { dossier.user }
