@@ -183,5 +183,20 @@ RSpec.describe CrispCreateConversationJob, type: :job do
         expect(contact_form).to be_destroyed
       end
     end
+
+    context 'when user agent contains test patterns' do
+      let(:user_agent) { 'ywh' }
+
+      before do
+        allow(api).to receive(:create_conversation)
+      end
+
+      it 'ignores contact form and aborts job execution' do
+        subject
+
+        expect(api).not_to have_received(:create_conversation)
+        expect(contact_form).to be_destroyed
+      end
+    end
   end
 end

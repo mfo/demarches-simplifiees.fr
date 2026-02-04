@@ -156,7 +156,7 @@ class CrispCreateConversationJob < ApplicationJob
     test_patterns = %w[testing ywh yeswehack example burpcollaborator]
 
     test_patterns.any? do |pattern|
-      email.downcase.include?(pattern) || subject.downcase.include?(pattern)
+      email.downcase.include?(pattern) || subject.downcase.include?(pattern) || contact_form.user_agent.downcase.include?(pattern)
     end
   end
 
