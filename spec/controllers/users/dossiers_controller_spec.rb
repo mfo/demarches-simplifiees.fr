@@ -1984,7 +1984,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#champ' do
-    let(:stable_id) { 1234 }
+    let(:stable_id) { generate(:stable_id) }
     let(:types_de_champ_public) { [{ type: :text, stable_id: }] }
     let(:procedure) { create(:procedure, types_de_champ_public:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, user:) }
