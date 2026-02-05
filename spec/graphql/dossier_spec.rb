@@ -242,7 +242,7 @@ RSpec.describe Types::DossierType, type: :graphql do
 
   describe 'dossier with conditional champs' do
     include Logic
-    let(:stable_id) { 1234 }
+    let(:stable_id) { generate(:stable_id) }
     let(:condition) { ds_eq(champ_value(stable_id), constant(true)) }
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :checkbox, stable_id: stable_id }, { type: :text, condition: condition }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
