@@ -32,7 +32,7 @@
         class: class_names('fr-input-group--error': @invalid_network_message.present?) }
         = f.label :name, class: 'fr-label' do
           = @api_token.eternal? ? "Entrez au moins 1 réseau autorisé" : "Entrez les adresses ip autorisées"
-          %span.fr-hint-text adresses réseaux séparées par des espaces. ex: 176.31.79.200 192.168.33.0/24 2001:41d0:304:400::52f/128
+          %span.fr-hint-text adresses réseaux séparées par des espaces. ex : 176.31.79.200 192.168.33.0/24 2001:41d0:304:400::52f/128
         .flex
           = f.text_field :networks,
             class: class_names('fr-input': true, 'fr-input--error': @invalid_network_message.present?),

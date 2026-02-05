@@ -44,7 +44,7 @@
       class: class_names('hidden': params[:networkFiltering] == 'none' || params[:networkFiltering].blank?, 'fr-input-group--error': params[:invalidNetwork].present?) }
       = f.label :name, class: 'fr-label' do
         Entrez les adresses IP autorisées
-        %span.fr-hint-text adresses réseaux séparées par des espaces. Ex: 176.31.79.200 192.168.33.0/24 2001:41d0:304:400::52f/128
+        %span.fr-hint-text adresses réseaux séparées par des espaces. Ex : 176.31.79.200 192.168.33.0/24 2001:41d0:304:400::52f/128
       = f.text_field :networks,
         class: class_names('fr-input': true, 'fr-input--error': params[:invalidNetwork].present?),
         autocomplete: 'off',
