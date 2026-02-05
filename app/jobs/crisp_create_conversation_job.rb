@@ -111,6 +111,7 @@ class CrispCreateConversationJob < ApplicationJob
     body[:data] = { "Dossier" => dossier_link } if contact_form.dossier_id.present?
     body[:ip] = contact_form.user.current_sign_in_ip if contact_form&.user&.current_sign_in_ip.present?
     body[:phone] = contact_form.phone if contact_form.phone.present?
+    body[:device] = { system: build_device_system(contact_form.user_agent) } if contact_form.user_agent.present?
 
     response = api.update_conversation_meta(session_id:, body:)
     handle_api_response(response)
@@ -152,10 +153,29 @@ class CrispCreateConversationJob < ApplicationJob
     email = contact_form.email.presence || contact_form.user&.email
     subject = contact_form.subject
 
-    test_patterns = %w[testing ywh yeswehack example]
+    test_patterns = %w[testing ywh yeswehack example burpcollaborator]
 
     test_patterns.any? do |pattern|
-      email.downcase.include?(pattern) || subject.downcase.include?(pattern)
+      email.downcase.include?(pattern) || subject.downcase.include?(pattern) || contact_form.user_agent.downcase.include?(pattern)
     end
+  end
+
+  def build_device_system(user_agent)
+    hash = { useragent: user_agent }
+
+    browser = Browser.new(user_agent)
+
+    hash[:os] = {
+      name: browser.platform.name,
+      version: browser.platform.version,
+    }
+
+    hash[:browser] = {
+      name: browser.name,
+      major: browser.version,
+      version: browser.full_version,
+    }
+
+    hash
   end
 end

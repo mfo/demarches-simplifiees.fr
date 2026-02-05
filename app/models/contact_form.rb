@@ -21,7 +21,7 @@ class ContactForm < ApplicationRecord
     greater_than_or_equal_to: PG_BIGINT_MIN,
     less_than_or_equal_to: PG_BIGINT_MAX,
   }, allow_nil: true
-  validates :question_type, presence: true
+  validates :question_type, inclusion: { in: :valid_question_types }
 
   has_one_attached :piece_jointe
 
@@ -37,6 +37,9 @@ class ContactForm < ApplicationRecord
   ADMIN_TYPE_PRODUIT = 'admin_suggestion_produit'
   ADMIN_TYPE_DEMANDE_COMPTE = 'admin_demande_compte'
   ADMIN_TYPE_AUTRE = 'admin_autre'
+
+  VALID_PUBLIC_TYPES = [TYPE_INFO, TYPE_PERDU, TYPE_INSTRUCTION, TYPE_AMELIORATION, TYPE_AUTRE].freeze
+  VALID_ADMIN_TYPES = [ADMIN_TYPE_RDV, ADMIN_TYPE_QUESTION, ADMIN_TYPE_SOUCIS, ADMIN_TYPE_PRODUIT, ADMIN_TYPE_DEMANDE_COMPTE, ADMIN_TYPE_AUTRE].freeze
 
   def self.default_options
     [
@@ -87,5 +90,9 @@ class ContactForm < ApplicationRecord
 
   def set_options
     @options = for_admin? ? self.class.admin_options : self.class.default_options
+  end
+
+  def valid_question_types
+    for_admin ? VALID_ADMIN_TYPES : VALID_PUBLIC_TYPES
   end
 end

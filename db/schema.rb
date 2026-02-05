@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_22_143826) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_04_165525) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -328,6 +328,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_143826) do
     t.string "tags", default: [], array: true
     t.text "text", null: false
     t.datetime "updated_at", null: false
+    t.text "user_agent"
     t.bigint "user_id"
     t.index ["user_id"], name: "index_contact_forms_on_user_id"
   end

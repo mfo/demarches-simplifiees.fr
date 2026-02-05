@@ -49,9 +49,6 @@
         = t('.notice_pj_other')
       = f.file_field :piece_jointe, class: 'fr-upload', accept: '.jpg, .jpeg, .png, .pdf'
 
-  - f.object.tags.each_with_index do |tag, index|
-    = f.hidden_field :tags, name: f.field_name(:tags, multiple: true), id: f.field_id(:tag, index), value: tag
-
   = f.hidden_field :for_admin
 
   = invisible_captcha

@@ -29,29 +29,6 @@ describe ContactController, question_type: :controller do
       end
     end
 
-    describe "with tag" do
-      let(:tag) { 'yolo' }
-
-      it 'should fill tags' do
-        get :index, params: { tags: [tag] }
-
-        expect(response.status).to eq(200)
-        expect(response.body).to include(tag)
-      end
-    end
-
-    describe "with multiple tags" do
-      let(:tags) { ['yolo', 'toto'] }
-
-      it 'should fill tags' do
-        get :index, params: { tags: tags }
-
-        expect(response.status).to eq(200)
-        expect(response.body).to include("value=\"yolo\"")
-        expect(response.body).to include("value=\"toto\"")
-      end
-    end
-
     describe "send form" do
       subject do
         post :create, params: { contact_form: params }
@@ -71,9 +48,22 @@ describe ContactController, question_type: :controller do
           expect(contact_form.subject).to eq("bonjour")
           expect(contact_form.text).to eq("un message")
           expect(contact_form.tags).to include("procedure_info")
+          expect(contact_form.user_agent).to be_present
 
           expect(flash[:notice]).to match('Votre message a été envoyé.')
           expect(response).to redirect_to root_path
+        end
+
+        context 'when an attacker tries to spoof email via form manipulation' do
+          let(:params) { { subject: 'bonjour', text: 'un message', question_type: 'procedure_info', email: 'victim@attacker.com' } }
+
+          it 'ignores the submitted email and uses the signed-in user email' do
+            expect { subject }.to change(ContactForm, :count).by(1)
+
+            contact_form = ContactForm.last
+            expect(contact_form.email).to be_nil # Email param is ignored
+            expect(contact_form.user).to eq(user) # User is set, so CrispJob will use user.email
+          end
         end
 
         context 'when a drafted dossier is mentionned' do
@@ -157,17 +147,6 @@ describe ContactController, question_type: :controller do
       end
     end
 
-    describe "with dossier" do
-      let(:tag) { 'yolo' }
-
-      it 'should fill tags' do
-        get :index, params: { tags: [tag] }
-
-        expect(response.status).to eq(200)
-        expect(response.body).to include(tag)
-      end
-    end
-
     describe 'send form' do
       subject do
         post :create, params: { contact_form: params }
@@ -226,7 +205,7 @@ describe ContactController, question_type: :controller do
         post :create, params: { contact_form: params }
       end
 
-      let(:params) { { for_admin: "true", email: "email@pro.fr", subject: 'bonjour', text: 'un message', question_type: 'admin question', phone: '06' } }
+      let(:params) { { for_admin: "true", email: "email@pro.fr", subject: 'bonjour', text: 'un message', question_type: ContactForm::ADMIN_TYPE_QUESTION, phone: '06' } }
 
       describe "when form is filled" do
         it "creates a conversation on Crisp" do
@@ -236,7 +215,7 @@ describe ContactController, question_type: :controller do
           expect(CrispCreateConversationJob).to have_been_enqueued.with(contact_form)
           expect(contact_form.email).to eq(params[:email])
           expect(contact_form.phone).to eq("06")
-          expect(contact_form.tags).to match_array(["admin question", "contact form"])
+          expect(contact_form.tags).to match_array([ContactForm::ADMIN_TYPE_QUESTION, "contact form"])
 
           expect(flash[:notice]).to match('Votre message a été envoyé.')
         end
