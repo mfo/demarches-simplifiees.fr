@@ -3,7 +3,7 @@
     - types_de_champ = champ.dossier.revision.children_of(champ.type_de_champ)
     - champ.row_ids.each.with_index(1) do |row_id, row_number|
       .fr-background-alt--grey.fr-p-2w.fr-my-3w.fr-ml-2w.champ-repetition
-        %p.font-weight-bold= "#{champ.libelle} #{row_number} :"
+        %p.fr-text--bold= "#{champ.libelle} #{row_number} :"
         = render ViewableChamp::SectionComponent.new(dossier: champ.dossier, types_de_champ:, row_id:, demande_seen_at: seen_at, profile:)
 
   - else

@@ -199,9 +199,9 @@ export class BatchOperationController extends ApplicationController {
 
     const classList = this.checkboxCountTarget.classList;
     if (count > 0) {
-      classList.add('text-high-blue', 'font-weight-bold');
+      classList.add('text-high-blue', 'fr-text--bold');
     } else {
-      classList.remove('text-high-blue', 'font-weight-bold');
+      classList.remove('text-high-blue', 'fr-text--bold');
     }
   }
 

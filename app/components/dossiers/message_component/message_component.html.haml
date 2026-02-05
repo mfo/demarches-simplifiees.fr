@@ -7,7 +7,7 @@
     %span.mail
       = commentaire_issuer
     - if commentaire_from_guest?
-      %span.fr-text--xs.fr-text-mention--grey.font-weight-normal= t('.guest')
+      %span.fr-text--xs.fr-text-mention--grey.fr-text--regular= t('.guest')
   - if badge = correction_badge
     .fr-mt-1v.fr-mb-1w
       = badge
@@ -36,15 +36,15 @@
         = render Attachment::ShowComponent.new(attachment: attachment, new_tab: true)
 
   .fr-mt-1v.flex.align-center.flex-gap-1.justify-between
-    %span.date{ class: ["fr-mb-0", "fr-text--xs", "fr-text-mention--grey", "font-weight-normal"], data: scroll_to_target }
+    %span.date{ class: ["fr-mb-0", "fr-text--xs", "fr-text-mention--grey", "fr-text--regular"], data: scroll_to_target }
       = commentaire_date
     - if sent_by_connected_user?
       - if read_by_recipient?
         .flex.align-center
           = dsfr_icon('fr-icon-check-line fr-icon--sm fr-mr-1w')
-          %span.fr-text--xs.fr-text-mention--grey.font-weight-normal.fr-mb-0= t('.read_label')
+          %span.fr-text--xs.fr-text-mention--grey.fr-text--regular.fr-mb-0= t('.read_label')
       - else
-        %span.fr-text--xs.fr-text-mention--grey.font-weight-normal.fr-mb-0= t('.unread_label')
+        %span.fr-text--xs.fr-text-mention--grey.fr-text--regular.fr-mb-0= t('.unread_label')
 
   - if correction_badge && connected_user.is_a?(User) && commentaire.dossier_correction&.pending?
     = render Dsfr::AlertComponent.new(state: :warning, size: :sm, extra_class_names: 'fr-my-1w') do |c|

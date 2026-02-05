@@ -12,7 +12,7 @@
   to_configure_filter: @to_configure_filter)
 
 .flex.justify-between.align-baseline
-  .title.font-weight-bold= table_header
+  .title.fr-text--bold= table_header
   = button_to export_groupe_instructeurs_admin_procedure_groupe_instructeurs_path(@procedure, format: :csv), method: :get, class: 'fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line' do
     Exporter la liste (.csv)
 

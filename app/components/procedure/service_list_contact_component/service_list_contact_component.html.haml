@@ -17,7 +17,7 @@
     .flex.fr-mb-2v
       %dt.fr-mr-2v
         %span.fr-icon-message-2-line.fr-icon--sm{ "aria-hidden": "true" }
-        %span.visually-hidden= t('layouts.mailers.service_footer.by_messagerie')
+        %span.fr-sr-only= t('layouts.mailers.service_footer.by_messagerie')
       %dd
         = link_to t('.contact_instructeur'), messagerie_dossier_path(dossier)
 
@@ -25,19 +25,19 @@
     .flex.fr-mb-2v
       %dt.fr-mr-2v
         %span.fr-icon-mail-line.fr-icon--sm{ "aria-hidden": "true" }
-        %span.visually-hidden= t('layouts.mailers.service_footer.by_email')
+        %span.fr-sr-only= t('layouts.mailers.service_footer.by_email')
       %dd
         = link_to email, "mailto:#{email}"
   .flex.fr-mb-2v
     %dt.fr-mr-2v
       %span.fr-icon-phone-line.fr-icon--sm{ "aria-hidden": "true" }
-      %span.visually-hidden= t('layouts.mailers.service_footer.by_phone')
+      %span.fr-sr-only= t('layouts.mailers.service_footer.by_phone')
     %dd
       = link_to telephone, telephone_url
   .flex.fr-mb-2v
     %dt.fr-mr-2v
       %span.fr-icon-time-line.fr-icon--sm{ "aria-hidden": "true" }
-      %span.visually-hidden= t('layouts.mailers.service_footer.schedule')
+      %span.fr-sr-only= t('layouts.mailers.service_footer.schedule')
     %dd
       = horaires
 

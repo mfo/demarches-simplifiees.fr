@@ -19,7 +19,7 @@
           = t(".csv_import.#{scope}.notification_alert_html")
 
     = form_tag import_admin_procedure_groupe_instructeurs_path(@procedure), method: :post, multipart: true, class: "mt-4 column", "data-controller" => "enable-submit-if-uploaded" do
-      %label.fr-label.font-weight-bold
+      %label.fr-label.fr-text--bold
         = t('.csv_import.file_to_import')
       .fr-download
         = link_to template_file, {class: "fr-download__link", download: ''} do

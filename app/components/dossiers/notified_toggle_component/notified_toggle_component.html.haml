@@ -9,4 +9,4 @@
       aria: { describedby: 'toggle-notifications-messages' }
     = label_tag 'toggle-notifications', t('.show_notified_first'), class: 'fr-toggle__label fr-text--sm no-wrap'
     .fr-messages-group{ id: 'toggle-notifications-messages', aria: { live: 'polite' } }
-  = submit_tag t('.show_notified_first'), data: { "checkbox-target": 'submit' }, class: 'visually-hidden'
+  = submit_tag t('.show_notified_first'), data: { "checkbox-target": 'submit' }, class: 'fr-sr-only'

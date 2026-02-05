@@ -585,10 +585,10 @@ fr:
             more_details: Plus d’informations
             procedure: démarche
             this_procedure: cette démarche
-          pending_correction_html: '<h4 class="card-title fr-mb-1v">Ce dossier attend vos corrections</h4><p>Consultez les modifications à apporter dans la <a href="%{link}" class="fr-link">messagerie <span class="visually-hidden">du dossier numéro %{id}</span></a>.</p>'
+          pending_correction_html: '<h4 class="card-title fr-mb-1v">Ce dossier attend vos corrections</h4><p>Consultez les modifications à apporter dans la <a href="%{link}" class="fr-link">messagerie <span class="fr-sr-only">du dossier numéro %{id}</span></a>.</p>'
           pending_response:
             title: "Ce dossier attend votre réponse"
-            message_html: 'Consultez la <a href="%{link}" class="fr-link">messagerie<span class="visually-hidden"> du dossier numéro %{id}</span></a> et répondez à l''administration.'
+            message_html: 'Consultez la <a href="%{link}" class="fr-link">messagerie<span class="fr-sr-only"> du dossier numéro %{id}</span></a> et répondez à l''administration.'
           depose_at: Déposé le %{date}
           created_at: Créé le %{date}
           updated_at: modifié le %{date}
@@ -605,7 +605,7 @@ fr:
           transfer_dossier: "Transférer le dossier"
           edit_draft: "Continuer à remplir"
           restore: "Restaurer"
-          restore_and_extend_conservation_html: 'Restaurer et étendre la conservation <span class="visually-hidden">du dossier numéro %{id}</span> (%{duree_conservation_dossiers_dans_ds} mois)'
+          restore_and_extend_conservation_html: 'Restaurer et étendre la conservation <span class="fr-sr-only">du dossier numéro %{id}</span> (%{duree_conservation_dossiers_dans_ds} mois)'
           actions: "Actions"
           other_actions: "Autres actions"
         transfers:
@@ -614,7 +614,7 @@ fr:
           sender_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">Une demande de transfert par le support technique est en cours sur le dossier n° %{id} pour %{email}</h4>'
           receiver_demande_en_cours_html: '<h4 class="card-title fr-mb-1v">Demande de transfert pour le dossier n° %{id} envoyé par %{email}</h4>'
           receiver_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">Demande de transfert par le support technique pour le dossier n° %{id} de %{email}</h4>'
-          revoke_html: 'Révoquer cette demande <span class="visually-hidden">de transfert</span>'
+          revoke_html: 'Révoquer cette demande <span class="fr-sr-only">de transfert</span>'
           accept: Accepter
           reject: Refuser
       sessions:
@@ -913,8 +913,8 @@ fr:
       one: dossier invité
       other: dossiers invités
     dossiers_supprimes_html:
-      one: '<span class="visually-hidden">dans la </span>corbeille'
-      other: '<span class="visually-hidden">dans la </span>corbeille'
+      one: '<span class="fr-sr-only">dans la </span>corbeille'
+      other: '<span class="fr-sr-only">dans la </span>corbeille'
     dossiers_historique:
       one:  supprimé définitivement
       other: supprimés définitivement

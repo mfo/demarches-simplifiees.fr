@@ -12,7 +12,7 @@
           %h1.tab-title Donner votre avis
           %h2.fr-text--sm.fr-mb-2w
             Demandeur :
-            %span.email.font-weight-normal= safe_claimant_email(@avis.claimant)
+            %span.email.fr-text--regular= safe_claimant_email(@avis.claimant)
             %span.fr-text--xs.fr-text-mention--grey.pull-right Demande d’avis envoyée le #{l(@avis.created_at, format: '%d/%m/%y')}
           = render SimpleFormatComponent.new(@avis.introduction, allow_a: false)
 

@@ -48,7 +48,7 @@ export function PointInput({
             onClick={getCurrentPosition}
             title={translations.show_pin}
           >
-            <span className="sr-only">{translations.show_pin}</span>
+            <span className="fr-sr-only">{translations.show_pin}</span>
           </button>
         ) : null}
         <CoordinateInput
@@ -78,7 +78,7 @@ export function PointInput({
           disabled={!feature}
           title={translations.add_pin}
         >
-          <span className="sr-only">{translations.add_pin}</span>
+          <span className="fr-sr-only">{translations.add_pin}</span>
         </button>
       </div>
     </div>
