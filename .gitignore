@@ -61,3 +61,6 @@ public/graphql/schema
 
 /.claude/
 !/.claude/settings.json
+
+# git worktrees
+.worktrees/
