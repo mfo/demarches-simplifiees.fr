@@ -147,4 +147,8 @@ AUTHORIZED_CONTENT_TYPES_IN_POLICY_XML = [
   'image/png',
   'image/tiff',
   'image/webp',
+  'application/pdf',
+  'application/x-pdf',
+  'image/pdf',
+  'text/pdf',
 ].freeze
