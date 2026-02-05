@@ -88,7 +88,7 @@
               %br
               = link_to url_for_dossier(@first_brouillon_recently_updated), class: 'fr-btn' do
                 = t('users.dossiers.header.callout.first_brouillon_recently_updated_button')
-                %span.visually-hidden= t('utils.file')
+                %span.fr-sr-only= t('utils.file')
 
       - if @statut == "dossiers-supprimes" && @search_terms.blank?
         .fr-mb-3w.text-right

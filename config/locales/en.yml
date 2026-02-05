@@ -566,10 +566,10 @@ en:
           no_result_reset_search: Reset search
           no_result_text_with_filter: found with selected filters
           no_result_reset_filter: Reset filters
-          pending_correction_html: '<h4 class="card-title fr-mb-1v">This file is waiting for your corrections</h4><p>Consult the changes to be made in the <a href="%{link}" class="fr-link">messaging system <span class="visually-hidden">of file number %{id}</span></a>.</p>'
+          pending_correction_html: '<h4 class="card-title fr-mb-1v">This file is waiting for your corrections</h4><p>Consult the changes to be made in the <a href="%{link}" class="fr-link">messaging system <span class="fr-sr-only">of file number %{id}</span></a>.</p>'
           pending_response:
             title: "This file is waiting for your response"
-            message_html: 'Consult the <a href="%{link}" class="fr-link">messaging system<span class="visually-hidden"> of file number %{id}</span></a> and respond to the administration.'
+            message_html: 'Consult the <a href="%{link}" class="fr-link">messaging system<span class="fr-sr-only"> of file number %{id}</span></a> and respond to the administration.'
           depose_at: First submission on %{date}
           created_at: Created at %{date}
           updated_at: updated at %{date}
@@ -597,7 +597,7 @@ en:
           sender_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">A transfer request from technical support is pending on file Nº %{id} to %{email}</h4>'
           receiver_demande_en_cours_html: '<h4 class="card-title fr-mb-1v">Transfer request on file Nº %{id} sent by %{email}</h4>'
           receiver_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">Transfer request from technical support on file Nº %{id} of %{email}</h4>'
-          revoke_html: 'Revoke this <span class="visually-hidden">transfer</span> request'
+          revoke_html: 'Revoke this <span class="fr-sr-only">transfer</span> request'
           accept: Accept
           reject: Reject
         dossier_action:
@@ -610,7 +610,7 @@ en:
           transfer_dossier: "Transfer the file"
           edit_draft: "Keep filling"
           restore: "Restore"
-          restore_and_extend_conservation_html: 'Restore and extend conservation <span class="visually-hidden">of file number %{id}</span> (%{duree_conservation_dossiers_dans_ds} month)'
+          restore_and_extend_conservation_html: 'Restore and extend conservation <span class="fr-sr-only">of file number %{id}</span> (%{duree_conservation_dossiers_dans_ds} month)'
           actions: "Actions"
           other_actions: "Other actions"
       sessions:
@@ -903,8 +903,8 @@ en:
       one: guest file
       other: guest files
     dossiers_supprimes_html:
-      one: '<span class="visually-hidden">in the </span>trash'
-      other: '<span class="visually-hidden">in the </span>trash'
+      one: '<span class="fr-sr-only">in the </span>trash'
+      other: '<span class="fr-sr-only">in the </span>trash'
     dossiers_transferes:
       one: transfer request
       other: transfer requests

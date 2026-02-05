@@ -5,7 +5,7 @@ en:
     depose_at: Submitted since
   button:
     apply_filters: Apply filters
-    cancel_filters_html: 'Reset <span class="visually-hidden">filters</span>'
+    cancel_filters_html: 'Reset <span class="fr-sr-only">filters</span>'
     select_filters: Select a filter
   tag:
     active_filters:

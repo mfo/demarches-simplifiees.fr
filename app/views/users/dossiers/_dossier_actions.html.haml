@@ -12,7 +12,7 @@
         %li
           = link_to (url_for_dossier(dossier)), class: 'fr-btn fr-btn--sm fr-mr-1w fr-icon-draft-line fr-btn--icon-left' do
             = t('views.users.dossiers.dossier_action.edit_draft')
-            %span.visually-hidden
+            %span.fr-sr-only
               = t('utils.file')
               = t('utils.number')
               = number_with_html_delimiter(dossier.id)
@@ -21,7 +21,7 @@
         %li
           = link_to modifier_dossier_path(dossier), class: 'fr-btn fr-btn--sm fr-mr-1w fr-icon-draft-line fr-btn--icon-left' do
             = t('views.users.dossiers.dossier_action.edit_dossier')
-            %span.visually-hidden
+            %span.fr-sr-only
               = t('utils.number')
               = number_with_html_delimiter(dossier.id)
 
@@ -29,7 +29,7 @@
       %li
         = link_to (commencer_url(dossier.procedure.path)), class: 'fr-btn fr-btn--sm fr-btn--tertiary fr-mr-1w fr-icon-file-fill fr-btn--icon-left' do
           = t('views.users.dossiers.dossier_action.start_other_dossier')
-          %span.visually-hidden
+          %span.fr-sr-only
             = dossier.procedure.libelle
 
     = render Dropdown::MenuComponent.new(wrapper: :li, wrapper_options: {class: 'invite-user-actions'}, menu_options: {id: dom_id(dossier, :actions_menu)}, button_options: {class: 'fr-btn--sm fr-btn--tertiary'}) do |menu|
@@ -45,7 +45,7 @@
             = dsfr_icon('fr-icon-user-add-fill', :sm)
             .dropdown-description
               = t('views.users.dossiers.dossier_action.transfer_dossier')
-              %span.visually-hidden
+              %span.fr-sr-only
                 = t('utils.number')
                 = number_with_html_delimiter(dossier.id)
 
@@ -55,7 +55,7 @@
             = dsfr_icon('fr-icon-file-copy-line', :sm)
             .dropdown-description
               = t('views.users.dossiers.dossier_action.clone')
-              %span.visually-hidden
+              %span.fr-sr-only
                 = t('utils.number')
                 = number_with_html_delimiter(dossier.id)
 
@@ -66,7 +66,7 @@
             = dsfr_icon('fr-icon-delete-fill', :sm)
             .dropdown-description
               = t('views.users.dossiers.dossier_action.delete_dossier')
-              %span.visually-hidden
+              %span.fr-sr-only
                 = t('utils.file')
                 = t('utils.number')
                 = number_with_html_delimiter(dossier.id)

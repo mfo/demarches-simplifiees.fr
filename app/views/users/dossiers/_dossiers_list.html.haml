@@ -10,7 +10,7 @@
             - if ["dossiers-transferes", "dossiers-supprimes"].exclude?(@statut)
               = link_to(url_for_dossier(dossier)) do
                 = dossier.procedure.libelle
-                %span.visually-hidden
+                %span.fr-sr-only
                   = t('views.users.dossiers.dossiers_list.n_dossier')
                   = number_with_html_delimiter(dossier.id)
             - else
@@ -32,7 +32,7 @@
               = pending_response_badge(:for_user)
 
           %p.fr-icon--sm.fr-icon-user-line
-            %span.visually-hidden= t('views.shared.dossiers.demande.requester_identity')
+            %span.fr-sr-only= t('views.shared.dossiers.demande.requester_identity')
             = demandeur_dossier(dossier)
 
           - if dossier.hidden_by_expired?
@@ -136,7 +136,7 @@
           - if dossier.hidden_by_reason != 'expired'
             = link_to restore_dossier_path(dossier.id), method: :patch, class: "fr-btn fr-btn--sm" do
               = t("views.users.dossiers.dossier_action.restore")
-              %span.visually-hidden
+              %span.fr-sr-only
                 = t('utils.file')
                 = t('utils.number')
                 = number_with_html_delimiter(dossier.id)
