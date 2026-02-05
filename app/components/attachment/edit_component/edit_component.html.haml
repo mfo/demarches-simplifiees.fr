@@ -49,4 +49,4 @@
     = button_tag(**retry_button_options) do
       = t(".retry")
   - unless champ.present?
-    .sr-only{ id: "#{input_id}-aria-live", role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }
+    .fr-sr-only{ id: "#{input_id}-aria-live", role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }

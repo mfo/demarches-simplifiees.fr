@@ -1,7 +1,7 @@
 .fr-download
   = link_to url, {class: "fr-download__link", download: name} do
     - if !has_name
-      %span.sr-only= t('.action')
+      %span.fr-sr-only= t('.action')
     = truncate ? name.truncate(20) : name
     %span.fr-download__detail
       = helpers.download_details(attachment)

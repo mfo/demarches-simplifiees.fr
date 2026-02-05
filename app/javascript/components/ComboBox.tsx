@@ -261,7 +261,7 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
                 slot="remove"
                 className="fr-tag--dismiss"
               >
-                <span className="sr-only">Supprimer {item.label}</span>
+                <span className="fr-sr-only">Supprimer {item.label}</span>
               </Button>
             </Tag>
           ))}
