@@ -19,17 +19,15 @@
   }
 
   .edit-identity-content {
+    padding: $default-padding !important;
+    min-width: 250px !important;
+
     .champ-row {
       padding: 0;
     }
   }
 
   .edit-identity-action {
-    .dropdown-content {
-      padding: $default-padding;
-      min-width: 250px;
-    }
-
     .table {
       margin-bottom: $default-padding * 2;
     }
