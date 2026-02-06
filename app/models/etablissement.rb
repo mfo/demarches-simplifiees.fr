@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class Etablissement < ApplicationRecord
-  belongs_to :dossier, optional: true
+  belongs_to :dossier, optional: true, touch: true
 
-  has_one :champ, class_name: 'Champs::SiretChamp'
+  has_one :champ, class_name: 'Champs::SiretChamp', touch: true
+
   has_many :exercices, dependent: :destroy
 
   has_one_attached :entreprise_attestation_sociale

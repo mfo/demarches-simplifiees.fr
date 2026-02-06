@@ -146,6 +146,35 @@ describe Etablissement do
     end
   end
 
+  describe 'touching dossier when updated' do
+    it "touches dossier updated_at when etablissement belongs to dossier" do
+      dossier = create(:dossier)
+      etablissement = create(:etablissement, dossier:)
+      previous_updated_at = dossier.updated_at
+
+      travel 1.second do
+        etablissement.update!(entreprise_raison_sociale: "Ptite entreprise")
+      end
+
+      expect(dossier.reload.updated_at).to be > previous_updated_at
+    end
+
+    it "touches dossier updated_at when etablissement is linked via champ only" do
+      procedure = create(:procedure, types_de_champ_public: [{ type: :siret }])
+      dossier = create(:dossier, procedure:)
+      champ = dossier.project_champs_public.find { |c| c.is_a?(Champs::SiretChamp) }
+      etablissement = create(:etablissement, siret: "44011762001530")
+      champ.update!(etablissement:)
+      previous_updated_at = dossier.updated_at
+
+      travel 1.second do
+        etablissement.update!(entreprise_raison_sociale: "Grande entreprise")
+      end
+
+      expect(dossier.reload.updated_at).to be > previous_updated_at
+    end
+  end
+
   describe '#update_champ_value_json!' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }
