@@ -6,21 +6,32 @@
 #     le backfill les anciens champs RNA/RNF/SIRET
 module Maintenance
   class PopulateRNAJSONValueTask < MaintenanceTasks::Task
+    include Dry::Monads[:result]
+
     def collection
+      # on regarde value et non external_id car avant le refacto #12725, on stockait directement dans value
       Champs::RNAChamp.where.not(value: nil)
     end
 
     def process(champ)
       return if champ&.dossier&.procedure&.id.blank?
-      result = APIEntreprise::RNAAdapter.new(champ.value, champ&.dossier&.procedure&.id).to_params
-      return unless result.success?
-      data = result.value!
-      return if data.blank?
-      champ.update_external_data!(data:, value: champ.value)
+      result = champ.send(:fetch_external_data)
+      case result
+      in Success(data:, value_json:, value:)
+        begin
+          champ.send(:update_external_data!, { data:, value_json:, value: })
+        rescue ActiveRecord::RecordInvalid
+          # some champ might have dossier nil
+        end
+      else # fondation was removed, but we kept API data in data:, use it to restore stuff
+        data = champ.data.with_indifferent_access
+        value_json = champ.send(:extract_value_json, data:)
+        champ.update(data:, value_json:)
+      end
+    rescue URI::InvalidURIError
+      # some Champs::RNAChamp contain spaces which raise this error
     rescue ActiveRecord::RecordNotFound
       # some Champs::RNAChamp procedure had been soft deleted
-    rescue URI::InvalidURIError
-      # some Champs::RNAChamp contain spaces or invalid characters
     end
 
     def count

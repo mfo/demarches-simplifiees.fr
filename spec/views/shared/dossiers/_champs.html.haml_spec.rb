@@ -20,7 +20,7 @@ describe 'shared/dossiers/champs', type: :view do
   subject { render ViewableChamp::SectionComponent.new(types_de_champ:, dossier:, demande_seen_at:, profile:) }
 
   context "there are some champs" do
-    let(:types_de_champ_public) { [{ type: :checkbox }, { type: :header_section }, { type: :explication }, { type: :dossier_link }, { type: :textarea }, { type: :rna }] }
+    let(:types_de_champ_public) { [{ type: :checkbox }, { type: :header_section }, { type: :explication }, { type: :dossier_link }, { type: :textarea }, { type: :integer_number }] }
     let(:champ1) { dossier.project_champs_public[0] }
     let(:champ2) { dossier.project_champs_public[1] }
     let(:champ3) { dossier.project_champs_public[2] }
@@ -32,7 +32,7 @@ describe 'shared/dossiers/champs', type: :view do
       champ1.update(value: 'true')
       champ4.update(value: dossier.id)
       champ5.update(value: "Some long text in a textarea.")
-      champ6.update(value: "W173847273")
+      champ6.update(value: 123)
     end
 
     it "renders titles and values of champs" do

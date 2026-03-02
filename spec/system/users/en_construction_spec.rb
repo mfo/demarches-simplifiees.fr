@@ -63,14 +63,23 @@ describe "Dossier en_construction", js: true do
 
   context "with a RNA champ" do
     let(:types_de_champ_public) { [{ type: :rna, stable_id: 99, mandatory: true, libelle: "Num RNA" }] }
+    let(:external_id) { 'W751004076' }
+    let(:body) { File.read('spec/fixtures/files/api_entreprise/associations.json') }
+    let(:status) { 200 }
+
+    before do
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/djepva\/api-association\/associations\/open_data\/#{external_id}/)
+        .to_return(body: body, status: status)
+      allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
+    end
 
     scenario "can update a dynamic champ" do
       visit_dossier(dossier)
 
-      fill_in("Num RNA", with: 'W751004076')
-
-      wait_until { user_buffer_champ.value == 'W751004076' }
-      expect(page).to have_text("Ce RNA correspond à")
+      fill_in("Num RNA", with: external_id)
+      perform_enqueued_jobs do
+        expect(page).to have_text("Ce RNA correspond à")
+      end
     end
   end
 

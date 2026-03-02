@@ -5,19 +5,39 @@ require "rails_helper"
 module Maintenance
   RSpec.describe PopulateRNAJSONValueTask do
     describe "#process" do
+      include Dry::Monads[:result]
+
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rna }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:element) { dossier.champs.first }
+      let(:body) { File.read('spec/fixtures/files/api_entreprise/associations.json') }
+      let(:data_source) { JSON.parse(body).with_indifferent_access }
+      let(:data) { data_source[:data] }
+      let(:meta) { data_source[:meta] }
+      let(:processed_params) do
+        {
+          "association_rna" => data[:rna],
+          "association_titre" => data[:nom],
+          "association_objet" => data[:activites][:objet],
+          "association_date_creation" => data[:date_creation],
+          "association_date_declaration" => meta[:date_derniere_mise_a_jour_rna],
+          "association_date_publication" => data[:date_publication_journal_officiel],
+          "adresse" => data[:adresse_siege],
+        }
+      end
+
       subject(:process) { described_class.process(element) }
 
-      let(:body) { File.read('spec/fixtures/files/api_entreprise/associations.json') }
-      let(:status) { 200 }
-
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/djepva\/api-association\/associations\/open_data\/#{element.value}/)
-          .to_return(body: body, status: status)
-        allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
+        allow(element).to receive(:fetch_external_data).and_return(
+          Success(
+            data: processed_params,
+            value_json: element.send(:extract_value_json, data: processed_params),
+            value: element.value
+          )
+        )
       end
+
       it 'updates value_json' do
         expect { subject }.to change { element.reload.value_json }
           .from(anything)

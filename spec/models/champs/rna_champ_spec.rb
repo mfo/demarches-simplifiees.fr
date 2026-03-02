@@ -30,7 +30,7 @@ describe Champs::RNAChamp do
 
     it 'when valid format, but no data, it contains only error message for not found' do
       champ = with_external_id("W182736273")
-      error = ExternalDataException.new(reason: 'Not retryable', code: 404)
+      error = ExternalDataException.new(error: 'Not retryable', code: 404)
       champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: [error])
       champ.validate(:champs_public_value)
       expect(champ.errors.full_messages).to eq(["Le champ « Numéro RNA » Résultat introuvable. Vérifiez vos informations."])
