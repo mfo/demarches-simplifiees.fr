@@ -1063,6 +1063,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_13_120001) do
   create_table "procedures", id: :serial, force: :cascade do |t|
     t.string "aasm_state", default: "brouillon"
     t.boolean "accuse_lecture", default: false, null: false
+    t.boolean "admin_default_procedure_presentation_active", default: false, null: false
+    t.bigint "admin_default_procedure_presentation_id"
     t.boolean "allow_expert_messaging", default: true, null: false
     t.boolean "allow_expert_review", default: true, null: false
     t.string "api_entreprise_token"
@@ -1136,6 +1138,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_13_120001) do
     t.string "web_hook_url"
     t.datetime "whitelisted_at", precision: nil
     t.bigint "zone_id"
+    t.index ["admin_default_procedure_presentation_id"], name: "index_procedures_on_admin_default_procedure_presentation_id"
     t.index ["api_particulier_sources"], name: "index_procedures_on_api_particulier_sources", using: :gin
     t.index ["declarative_with_state"], name: "index_procedures_on_declarative_with_state"
     t.index ["defaut_groupe_instructeur_id"], name: "index_procedures_on_defaut_groupe_instructeur_id"
@@ -1530,6 +1533,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_13_120001) do
   add_foreign_key "procedure_revisions", "dossier_submitted_messages"
   add_foreign_key "procedure_revisions", "procedures"
   add_foreign_key "procedures", "groupe_instructeurs", column: "defaut_groupe_instructeur_id"
+  add_foreign_key "procedures", "procedure_presentations", column: "admin_default_procedure_presentation_id"
   add_foreign_key "procedures", "procedure_revisions", column: "draft_revision_id"
   add_foreign_key "procedures", "procedure_revisions", column: "published_revision_id"
   add_foreign_key "procedures", "services"
