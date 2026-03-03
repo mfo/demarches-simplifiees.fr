@@ -375,6 +375,20 @@ describe TypeDeChamp do
     end
   end
 
+  describe '#dossier_link_procedure_ids=' do
+    let(:type_de_champ) { build(:type_de_champ_dossier_link) }
+
+    it 'stores strings as integers' do
+      expect(type_de_champ.dossier_link_procedure_ids).to eq([])
+
+      type_de_champ.dossier_link_procedure_ids = ["", "1", "2", "1"]
+      expect(type_de_champ.dossier_link_procedure_ids).to eq([1, 2])
+
+      type_de_champ.dossier_link_procedure_ids = nil
+      expect(type_de_champ.dossier_link_procedure_ids).to eq([])
+    end
+  end
+
   describe '#safe_filename' do
     subject { build(:type_de_champ, libelle:).libelle_as_filename }
 
