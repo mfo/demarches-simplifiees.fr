@@ -67,4 +67,61 @@ describe Champs::DossierLinkChamp, type: :model do
       end
     end
   end
+
+  describe 'dossier_in_allowed_procedures validation' do
+    subject { champ.validate(:champs_public_value) }
+
+    let(:mandatory) { false }
+    let(:user) { dossier.user }
+    let(:allowed_procedure) { create(:procedure) }
+    let(:other_procedure) { create(:procedure) }
+    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+
+    before do
+      type_de_champ.update!(options: type_de_champ.options.merge(
+        'procedures_limit' => '1',
+        'dossier_link_procedure_ids' => [allowed_procedure.id]
+      ))
+    end
+
+    context 'when dossier belongs to an allowed procedure and to the current user' do
+      let(:value) { create(:dossier, procedure: allowed_procedure, user:).id }
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when dossier does not belong to an allowed procedure' do
+      let(:value) { create(:dossier, procedure: other_procedure, user:).id }
+
+      it 'is invalid with correct error message' do
+        is_expected.to be_falsey
+        expect(champ.errors.full_messages).to include("Ce dossier n’est pas dans une démarche autorisée")
+      end
+    end
+
+    context 'when dossier belongs to another user' do
+      let(:value) { create(:dossier, procedure: allowed_procedure).id }
+
+      it 'is invalid' do
+        is_expected.to be_falsey
+      end
+    end
+
+    context 'when procedures_limit is not enabled' do
+      before do
+        type_de_champ.update!(options: type_de_champ.options.merge('procedures_limit' => nil))
+      end
+
+      let(:value) { create(:dossier, procedure: other_procedure, user:).id }
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when no allowed procedures configured' do
+      before do
+        type_de_champ.update!(options: type_de_champ.options.merge('dossier_link_procedure_ids' => []))
+      end
+
+      let(:value) { create(:dossier, procedure: other_procedure, user:).id }
+      it { is_expected.to be_truthy }
+    end
+  end
 end
