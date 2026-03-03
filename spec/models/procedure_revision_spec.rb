@@ -756,6 +756,55 @@ describe ProcedureRevision do
           })
         end
       end
+
+      context 'when a dossier_link type de champ has procedures_limit and procedure_ids changed' do
+        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :dossier_link, libelle: 'Dossier lié' }]) }
+
+        context 'when procedures_limit is enabled' do
+          before do
+            updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+            updated_tdc.update(procedures_limit: "1")
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                op: :update,
+                attribute: :procedures_limit,
+                label: "Dossier lié",
+                private: false,
+                stable_id: first_tdc.stable_id,
+                from: nil,
+                to: "1",
+              },
+            ])
+          end
+        end
+
+        context 'when dossier_link_procedure_ids are changed' do
+          let!(:proc_a) { create(:procedure, libelle: "Démarche A") }
+          let!(:proc_b) { create(:procedure, libelle: "Démarche B") }
+
+          before do
+            updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+            updated_tdc.update(dossier_link_procedure_ids: [proc_a.id, proc_b.id])
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                op: :update,
+                attribute: :dossier_link_procedure_ids,
+                label: "Dossier lié",
+                private: false,
+                stable_id: first_tdc.stable_id,
+                from: [],
+                to: [{ id: proc_a.id, libelle: "Démarche A" }, { id: proc_b.id, libelle: "Démarche B" }],
+              },
+            ])
+          end
+        end
+      end
     end
   end
 
