@@ -1,0 +1,16 @@
+#!/bin/bash
+# Active les hooks git pour les utilisateurs de worktrees
+# À exécuter une seule fois après le clone du repo
+
+set -e
+
+git config core.hooksPath .githooks
+
+echo "✓ Hooks activés pour les worktrees"
+echo ""
+echo "Le hook post-checkout va maintenant :"
+echo "  - Créer automatiquement .env.test.local avec une DB unique"
+echo "  - Créer la base de données PostgreSQL"
+echo "  - Charger le schema"
+echo ""
+echo "À chaque création de worktree ou checkout de branche."
