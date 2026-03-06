@@ -51,3 +51,9 @@ ul[data-file-input-reset-target='fileList'] {
   list-style-type: none;
   padding-inline-start: 0;
 }
+
+.attachment-files-list {
+  .fr-download {
+    margin-bottom: 0.5rem;
+  }
+}
