@@ -93,3 +93,42 @@ ul[data-file-input-reset-target='fileList'] {
     white-space: nowrap;
   }
 }
+
+// New unified attachment field styles
+.attachment-field {
+  // Common styles for all attachment fields
+
+  // Anti-virus badge for just uploaded attachment when seen as downloadable
+  .fr-download + .fr-badge {
+    position: relative;
+    top: -1rem;
+  }
+
+  .fr-btn {
+    align-self: flex-start;
+  }
+
+  &.attachment-field--single {
+    // Styles for single file (max=1)
+  }
+
+  &.attachment-field--multiple {
+    // Styles for multiple files (max>1)
+    &:not(.fr-downloads-group),
+    &.fr-downloads-group[data-controller='replace-attachment'] {
+      ul {
+        list-style-type: none;
+        padding-inline-start: 0;
+      }
+
+      li {
+        padding-bottom: 0;
+      }
+    }
+
+    &.fr-downloads-group.destroyable ul {
+      list-style-type: none;
+      padding-inline-start: 0;
+    }
+  }
+}
