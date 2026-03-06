@@ -1,5 +1,4 @@
-.attachment-error,
-.attachment-upload-error {
+.attachment-error {
   position: relative;
 
   &::before {
@@ -22,6 +21,7 @@
   }
 }
 
+// Legacy support for old class names (will be removed)
 .attachment-multiple:not(.fr-downloads-group),
 .attachment-multiple.fr-downloads-group[data-controller='replace-attachment'] {
   ul {
