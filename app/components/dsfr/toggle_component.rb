@@ -39,4 +39,16 @@ class Dsfr::ToggleComponent < ApplicationComponent
       target.to_s
     end
   end
+
+  def label_data
+    if toggle_labels
+      {
+        'fr-checked-label': toggle_labels[:checked],
+        'fr-unchecked-label': toggle_labels[:unchecked],
+        'fr-js-toggle-status-label': true,
+      }
+    else
+      { 'fr-js-toggle-status-label': true }
+    end
+  end
 end

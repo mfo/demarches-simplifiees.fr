@@ -33,6 +33,8 @@ class ProcedurePresentation < ApplicationRecord
   attribute :expirant_filters, :filtered_column, array: true
   attribute :archives_filters, :filtered_column, array: true
 
+  attr_writer :admin_default_procedure_presentation_active_virtual
+
   before_create { self.displayed_columns = procedure.default_displayed_columns }
   before_create :set_default_filters
 
@@ -112,5 +114,11 @@ class ProcedurePresentation < ApplicationRecord
     ALL_FILTERS.each do |filters_by_status|
       send("#{filters_by_status}=", default_filters_for_all_statuts) if send(filters_by_status).blank?
     end
+  end
+
+  def admin_default_procedure_presentation_active_virtual
+    return @admin_default_procedure_presentation_active_virtual if !@admin_default_procedure_presentation_active_virtual.nil?
+
+    procedure&.admin_default_procedure_presentation_active
   end
 end

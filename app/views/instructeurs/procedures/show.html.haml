@@ -64,7 +64,7 @@
                 - menu.with_button_inner_html do
                   = t('views.instructeurs.dossiers.customize')
                 - menu.with_form do
-                  = render Instructeurs::ColumnPickerComponent.new(procedure: @procedure, procedure_presentation: @procedure_presentation)
+                  = render Instructeurs::ColumnPickerComponent.new(procedure: @procedure, procedure_presentation: @procedure_presentation, instructeur: current_instructeur)
 
 
         = render batch_operation_component

@@ -3,7 +3,7 @@
   = @form.label target,
     title || html_title&.html_safe,
     for: label_for,
-    data: { 'fr-checked-label': toggle_labels[:checked], 'fr-unchecked-label': toggle_labels[:unchecked] },
+    data: label_data,
     class: 'fr-toggle__label'
 
   - if hint
