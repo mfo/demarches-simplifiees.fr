@@ -259,6 +259,59 @@ describe Instructeurs::ProceduresController, type: :controller do
         end
       end
 
+      describe "displayed columns" do
+        let!(:admin_instructeur) { create(:instructeur) }
+
+        let!(:instructeur_assign_to) { create(:assign_to, procedure: procedure, instructeur: instructeur, groupe_instructeur: create(:groupe_instructeur)) }
+        let!(:admin_assign_to) { create(:assign_to, procedure: procedure, instructeur: admin_instructeur, groupe_instructeur: create(:groupe_instructeur)) }
+        let!(:instructeur_procedure_presentation) { create(:procedure_presentation, assign_to: instructeur_assign_to, displayed_columns: [state_column]) }
+        let!(:admin_procedure_presentation) { create(:procedure_presentation, assign_to: admin_assign_to, displayed_columns: [state_column]) }
+
+        let!(:state_column) { procedure.dossier_state_column }
+        before { sign_in(instructeur.user) }
+
+        context "when admin default presentation is not active" do
+          before do
+            procedure.update!(admin_default_procedure_presentation_active: false)
+            subject
+          end
+
+          it "uses instructeur procedure_presentation displayed columns" do
+            expect(assigns(:displayed_columns)).to eq(instructeur_procedure_presentation.displayed_columns)
+          end
+        end
+
+        context "when admin default presentation is active and instructeur did not customize" do
+          before do
+            procedure.update!(
+              admin_default_procedure_presentation_active: true,
+              admin_default_procedure_presentation_id: admin_procedure_presentation.id
+            )
+            allow(instructeur_procedure_presentation).to receive(:customized).and_return(false)
+            subject
+          end
+
+          it "uses admin default displayed columns" do
+            expect(assigns(:displayed_columns)).to eq(admin_procedure_presentation.displayed_columns)
+          end
+        end
+
+        context "when instructeur customized the presentation" do
+          before do
+            procedure.update!(
+              admin_default_procedure_presentation_active: true,
+              admin_default_procedure_presentation_id: admin_procedure_presentation.id
+            )
+            allow(instructeur_procedure_presentation).to receive(:customized).and_return(true)
+            subject
+          end
+
+          it "uses instructeur displayed columns" do
+            expect(assigns(:displayed_columns)).to eq(instructeur_procedure_presentation.displayed_columns)
+          end
+        end
+      end
+
       context 'with a new dossier without follower' do
         let!(:new_unfollow_dossier) { create(:dossier, :en_instruction, procedure: procedure) }
 
