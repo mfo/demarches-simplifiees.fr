@@ -535,8 +535,6 @@ describe TagsSubstitutionConcern, type: :model do
   end
 
   describe 'tags' do
-    subject { template_concern.tags }
-
     let(:types_de_champ_public) do
       [
         { libelle: 'public' },
@@ -546,42 +544,41 @@ describe TagsSubstitutionConcern, type: :model do
     end
     let(:types_de_champ_private) { [{ libelle: 'privé' }] }
 
-    context 'do not generate tags for champs that cannot have usager content' do
-      it do
-        is_expected.not_to include(include({ libelle: 'entête de section' }))
-        is_expected.not_to include(include({ libelle: 'explication' }))
+    def tags_for(state)
+      klass = Class.new do
+        include TagsSubstitutionConcern
+        def initialize(p, s) = (@procedure = p; self.class.const_set(:DOSSIER_STATE, s))
+        def procedure = @procedure
       end
+      klass.new(procedure, state).tags
     end
 
-    context 'when generating a document for a dossier terminé' do
-      it do
-        is_expected.to include(include({ libelle: 'motivation' }))
-        is_expected.to include(include({ libelle: 'date de décision' }))
-        is_expected.to include(include({ libelle: 'public' }))
-        is_expected.to include(include({ libelle: 'privé' }))
-      end
-    end
+    it 'returns appropriate tags per dossier state', :aggregate_failures do
+      tags_accepte = tags_for(Dossier.states.fetch(:accepte))
+      tags_instruction = tags_for(Dossier.states.fetch(:en_instruction))
+      tags_construction = tags_for(Dossier.states.fetch(:en_construction))
 
-    context 'when generating a document for a dossier en instruction' do
-      let(:state) { Dossier.states.fetch(:en_instruction) }
+      # champs that cannot have usager content are excluded
+      expect(tags_accepte).not_to include(include({ libelle: 'entête de section' }))
+      expect(tags_accepte).not_to include(include({ libelle: 'explication' }))
 
-      it do
-        is_expected.not_to include(include({ libelle: 'motivation' }))
-        is_expected.not_to include(include({ libelle: 'date de décision' }))
-        is_expected.to include(include({ libelle: 'public' }))
-        is_expected.to include(include({ libelle: 'privé' }))
-      end
-    end
+      # dossier terminé includes motivation, date de décision, public and privé
+      expect(tags_accepte).to include(include({ libelle: 'motivation' }))
+      expect(tags_accepte).to include(include({ libelle: 'date de décision' }))
+      expect(tags_accepte).to include(include({ libelle: 'public' }))
+      expect(tags_accepte).to include(include({ libelle: 'privé' }))
 
-    context 'when generating a document for a dossier en construction' do
-      let(:state) { Dossier.states.fetch(:en_construction) }
+      # dossier en instruction excludes motivation/date de décision, includes public and privé
+      expect(tags_instruction).not_to include(include({ libelle: 'motivation' }))
+      expect(tags_instruction).not_to include(include({ libelle: 'date de décision' }))
+      expect(tags_instruction).to include(include({ libelle: 'public' }))
+      expect(tags_instruction).to include(include({ libelle: 'privé' }))
 
-      it do
-        is_expected.not_to include(include({ libelle: 'motivation' }))
-        is_expected.not_to include(include({ libelle: 'date de décision' }))
-        is_expected.not_to include(include({ libelle: 'privé' }))
-        is_expected.to include(include({ libelle: 'public' }))
-      end
+      # dossier en construction excludes motivation/date de décision/privé
+      expect(tags_construction).not_to include(include({ libelle: 'motivation' }))
+      expect(tags_construction).not_to include(include({ libelle: 'date de décision' }))
+      expect(tags_construction).not_to include(include({ libelle: 'privé' }))
+      expect(tags_construction).to include(include({ libelle: 'public' }))
     end
 
     context 'when generating document for dossier having conditional' do
@@ -597,6 +594,8 @@ describe TagsSubstitutionConcern, type: :model do
         ]
       end
 
+      subject { template_concern.tags }
+
       it do
         is_expected.to include(include({ libelle: 'public' }))
         is_expected.not_to include(include({ libelle: 'conditional' }))
@@ -604,9 +603,8 @@ describe TagsSubstitutionConcern, type: :model do
     end
   end
 
-  describe 'used_tags_for' do
+  describe 'used_tags_for and used_type_de_champ_tags' do
     let(:text) { 'hello world --public--, --numéro du dossier--, --yolo--' }
-    subject { template_concern.used_tags_for(text) }
 
     let(:types_de_champ_public) do
       [
@@ -616,22 +614,11 @@ describe TagsSubstitutionConcern, type: :model do
       ]
     end
 
-    it { is_expected.to eq(["tdc#{procedure.draft_revision.types_de_champ.first.stable_id}", 'dossier_number', 'yolo']) }
-  end
-
-  describe 'used_type_de_champ_tags' do
-    let(:text) { 'hello world --public--, --numéro du dossier--, --yolo--' }
-    subject { template_concern.used_type_de_champ_tags(text) }
-
-    let(:types_de_champ_public) do
-      [
-        { libelle: 'public' },
-        { type: :header_section, libelle: 'entête de section' },
-        { type: :explication, libelle: 'explication' },
-      ]
+    it :aggregate_failures do
+      stable_id = procedure.draft_revision.types_de_champ.first.stable_id
+      expect(template_concern.used_tags_for(text)).to eq(["tdc#{stable_id}", 'dossier_number', 'yolo'])
+      expect(template_concern.used_type_de_champ_tags(text)).to eq([["public", stable_id], ['yolo']])
     end
-
-    it { is_expected.to eq([["public", procedure.draft_revision.types_de_champ.first.stable_id], ['yolo']]) }
   end
 
   describe 'tags_categorized' do
