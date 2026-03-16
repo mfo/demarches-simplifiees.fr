@@ -482,20 +482,9 @@ describe TagsSubstitutionConcern, type: :model do
         procedure.publish_revision!(procedure.administrateurs.first)
       end
 
-      context "when using the champ's original label" do
-        let(:template) { '--mon ancien libellé--' }
-
-        it "replaces the tag" do
-          is_expected.to eq('valeur')
-        end
-      end
-
-      context "when using the champ's revised label" do
-        let(:template) { '--mon nouveau libellé--' }
-
-        it "replaces the tag" do
-          is_expected.to eq('valeur')
-        end
+      it 'replaces tags using both original and revised labels', :aggregate_failures do
+        expect(template_concern.send(:replace_tags, '--mon ancien libellé--', dossier)).to eq('valeur')
+        expect(template_concern.send(:replace_tags, '--mon nouveau libellé--', dossier)).to eq('valeur')
       end
     end
 
