@@ -405,30 +405,11 @@ describe TagsSubstitutionConcern, type: :model do
         dossier.accepter!(instructeur: instructeur)
       end
 
-      context "with date de dépôt" do
-        let(:template) { '--date de dépôt--' }
-
-        it '', :slow do
-          is_expected.to eq('03/02/2001')
-        end
-      end
-
-      context "with date de passage en instruction" do
-        let(:template) { '--date de passage en instruction--' }
-
-        it { is_expected.to eq('06/05/2004') }
-      end
-
-      context "with date de décision" do
-        let(:template) { '--date de décision--' }
-
-        it { is_expected.to eq('09/08/2007') }
-      end
-
-      context "with date last ,champ updated at" do
-        let(:template) { '--date de mise à jour--' }
-
-        it { is_expected.to eq('03/01/2003') }
+      it 'replaces date tags', :slow, :aggregate_failures do
+        expect(template_concern.send(:replace_tags, '--date de dépôt--', dossier)).to eq('03/02/2001')
+        expect(template_concern.send(:replace_tags, '--date de passage en instruction--', dossier)).to eq('06/05/2004')
+        expect(template_concern.send(:replace_tags, '--date de décision--', dossier)).to eq('09/08/2007')
+        expect(template_concern.send(:replace_tags, '--date de mise à jour--', dossier)).to eq('03/01/2003')
       end
     end
 
