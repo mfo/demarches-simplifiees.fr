@@ -21,4 +21,37 @@ class Instructeurs::ColumnPickerComponent < ApplicationComponent
     admin = instructeur.user.administrateur
     admin.present? && admin.owns?(procedure)
   end
+
+  def default_presentation_active?
+    procedure.admin_default_procedure_presentation_active
+  end
+
+  def default_presentation
+    ProcedurePresentation.find_by(id: procedure.admin_default_procedure_presentation_id)
+  end
+
+  def default_admin
+    default_presentation&.instructeur
+  end
+
+  def owner_of_default_presentation?
+    return false if !default_presentation
+
+    default_presentation.id ==
+      instructeur.procedure_presentation_for_procedure_id(procedure.id)&.id
+  end
+
+  def another_admin_active_default_presentation?
+    instructeur_is_admin? &&
+      default_presentation_active? &&
+      !owner_of_default_presentation?
+  end
+
+  def toggle_disabled?
+    another_admin_active_default_presentation?
+  end
+
+  def toggle_checked?
+    default_presentation_active? && owner_of_default_presentation?
+  end
 end
