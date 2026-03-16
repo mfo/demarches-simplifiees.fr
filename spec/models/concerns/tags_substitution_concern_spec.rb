@@ -447,32 +447,16 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context "match breaking and non breaking spaces" do
+      let(:template) { '--mon tag--' }
+      let(:types_de_champ_public) { [{ libelle: "mon\u00A0tag" }] }
+
       before { dossier.project_champs_public.first.update(value: 'valeur') }
 
-      shared_examples "treat all kinds of space as equivalent" do
-        context 'and the champ has a non breaking space' do
-          let(:types_de_champ_public) { [{ libelle: 'mon tag' }] }
-
-          it { is_expected.to eq('valeur') }
-        end
-
-        context 'and the champ has an ordinary space' do
-          let(:types_de_champ_public) { [{ libelle: 'mon tag' }] }
-
-          it { is_expected.to eq('valeur') }
-        end
-      end
-
-      context "when the tag has a non breaking space" do
-        let(:template) { '--mon tag--' }
-
-        it_behaves_like "treat all kinds of space as equivalent"
-      end
-
-      context "when the tag has an ordinary space" do
-        let(:template) { '--mon tag--' }
-
-        it_behaves_like "treat all kinds of space as equivalent"
+      it 'treats all kinds of space as equivalent', :aggregate_failures do
+        # tag with NBSP in template, champ with NBSP in libelle
+        expect(template_concern.send(:replace_tags, "--mon\u00A0tag--", dossier)).to eq('valeur')
+        # tag with regular space in template, champ with NBSP in libelle
+        expect(template_concern.send(:replace_tags, '--mon tag--', dossier)).to eq('valeur')
       end
     end
 
