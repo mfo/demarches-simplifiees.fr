@@ -36,9 +36,7 @@ describe TagsSubstitutionConcern, type: :model do
 
   describe 'tags_substitutions' do
     let(:individual) { nil }
-    let(:etablissement) { create(:etablissement) }
-    let(:dossier) { create(:dossier, :en_construction, procedure:, individual:, etablissement:) }
-    let(:instructeur) { create(:instructeur) }
+    let(:dossier) { create(:dossier, :en_construction, procedure:, individual:) }
     let(:tags) { Set.new([["dossier_number", "numéro de dossier"]]) }
 
     subject { template_concern.tags_substitutions(tags, dossier) }
@@ -78,9 +76,8 @@ describe TagsSubstitutionConcern, type: :model do
 
   describe 'replace_tags' do
     let(:individual) { nil }
-    let(:etablissement) { create(:etablissement) }
-    let!(:dossier) { create(:dossier, procedure: procedure, individual: individual, etablissement: etablissement) }
-    let(:instructeur) { create(:instructeur) }
+    let(:etablissement) { nil }
+    let(:dossier) { create(:dossier, procedure: procedure, individual: individual, etablissement: etablissement) }
 
     before { freeze_time }
 
@@ -318,7 +315,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the dossier has a motivation' do
-      let(:dossier) { create(:dossier, :accepte, motivation: 'motivation') }
+      let(:dossier) { create(:dossier, :accepte, procedure:, motivation: 'motivation') }
 
       context 'and the template has some dossier tags' do
         let(:template) { '--motivation-- --numéro du dossier--' }
@@ -391,6 +388,9 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context "when using a date tag" do
+      let(:instructeur) { create(:instructeur) }
+      let(:etablissement) { create(:etablissement) }
+
       before do
         travel_to Time.zone.local(2001, 2, 3)
         dossier.passer_en_construction!
@@ -435,6 +435,7 @@ describe TagsSubstitutionConcern, type: :model do
     context "with date decision sva/svr" do
       let(:template) { '--date prévisionnelle SVA/SVR--' }
       let(:procedure) { create(:procedure, :published, :sva) }
+      let(:etablissement) { create(:etablissement) }
       let(:state) { dossier.state }
 
       before do
@@ -449,6 +450,7 @@ describe TagsSubstitutionConcern, type: :model do
     context "with a contact information name tag" do
       let(:template) { '--nom du service instructeur--' }
       let(:procedure) { create(:procedure, :routee) }
+      let(:etablissement) { create(:etablissement) }
       let(:groupe_instructeur) { procedure.defaut_groupe_instructeur }
       let!(:contact_information) { create(:contact_information, groupe_instructeur:, nom: 'Service local') }
 
@@ -494,7 +496,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when generating a document for a dossier that is not termine' do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { create(:dossier, procedure:) }
       let(:template) { 'text --motivation-- --date de décision--' }
       let(:state) { Dossier.states.fetch(:en_instruction) }
 
