@@ -37,7 +37,7 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
 
       it do
         is_expected.to have_button('Passer les dossiers en instruction', disabled: true)
-        is_expected.to have_button('Instruire les dossiers', disabled: true)
+        is_expected.to have_button('Rendre une décision', disabled: true)
         is_expected.to have_button('Autres actions multiples', disabled: true)
         is_expected.to have_button('Repasser les dossiers en construction', disabled: true)
         is_expected.to have_button('Ne plus suivre les dossiers', disabled: true)
@@ -51,7 +51,7 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
         }
         it do
           is_expected.to have_button('Passer les dossiers en instruction', disabled: true)
-          is_expected.to have_button('Instruire les dossiers', disabled: true)
+          is_expected.to have_button('Rendre une décision', disabled: true)
           is_expected.to have_button('Autres actions multiples', disabled: true)
           is_expected.to have_button('Repasser les dossiers en construction', disabled: true)
           is_expected.to have_button('Ne plus suivre les dossiers', disabled: true)
