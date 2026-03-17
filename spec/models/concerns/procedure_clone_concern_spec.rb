@@ -364,6 +364,24 @@ describe ProcedureCloneConcern, type: :model do
       end
     end
 
+    context 'with a default procedure_presentation active' do
+      let(:procedure) { create(:procedure) }
+      let(:procedure_presentation) { build(:procedure_presentation, assign_to: assign_to) }
+      let(:instructeur) { create(:instructeur) }
+      let(:assign_to) { create(:assign_to, procedure: procedure, instructeur: instructeur) }
+
+      before do
+        procedure.update!(
+          admin_default_procedure_presentation_active: true,
+          admin_default_procedure_presentation_id: procedure_presentation.id
+        )
+      end
+      it 'should not clone default procedure_presentation attributes ' do
+        expect(subject.admin_default_procedure_presentation_active).to be false
+        expect(subject.admin_default_procedure_presentation_id).to be nil
+      end
+    end
+
     context 'with canonical procedure' do
       let(:canonical_procedure) { create(:procedure) }
       let(:procedure) { create(:procedure, canonical_procedure: canonical_procedure, received_mail: received_mail, service: service) }

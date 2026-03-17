@@ -84,6 +84,8 @@ module ProcedureCloneConcern
     'no_gender',
     'pro_connect_restriction',
     'robots_indexable',
+    'admin_default_procedure_presentation_active',
+    'admin_default_procedure_presentation_id',
   ]
 
   NEW_MAX_DUREE_CONSERVATION = Expired::DEFAULT_DOSSIER_RENTENTION_IN_MONTH
@@ -185,6 +187,8 @@ module ProcedureCloneConcern
     procedure.routing_alert = false
     procedure.pro_connect_restriction = :none
     procedure.robots_indexable = true
+    procedure.admin_default_procedure_presentation_active = false
+    procedure.admin_default_procedure_presentation_id = nil
     procedure
   end
 
