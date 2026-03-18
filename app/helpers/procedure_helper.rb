@@ -46,6 +46,7 @@ module ProcedureHelper
   rescue URI::InvalidComponentError
     uri = Addressable::URI.parse(procedure.lien_dpo)
     return "//#{uri}" if uri.scheme.nil?
+    return "#" unless uri.scheme.in?(%w[http https])
     uri.to_s
   end
 
