@@ -32,6 +32,33 @@ RSpec.describe ProcedureHelper, type: :helper do
     end
   end
 
+  describe '#url_or_email_to_lien_dpo rejects dangerous protocols (XSS prevention)' do
+    it 'does not return a javascript: URL' do
+      procedure = build(:procedure, lien_dpo: 'javascript:alert(1)')
+      expect(helper.url_or_email_to_lien_dpo(procedure)).not_to match(/\Ajavascript:/i)
+    end
+
+    it 'does not return a JavaScript: URL (mixed case)' do
+      procedure = build(:procedure, lien_dpo: 'JavaScript:alert(document.cookie)')
+      expect(helper.url_or_email_to_lien_dpo(procedure)).not_to match(/\Ajavascript:/i)
+    end
+
+    it 'does not return a data: URL' do
+      procedure = build(:procedure, lien_dpo: 'data:text/html,<script>alert(1)</script>')
+      expect(helper.url_or_email_to_lien_dpo(procedure)).not_to match(/\Adata:/i)
+    end
+
+    it 'returns valid https URLs unchanged' do
+      procedure = build(:procedure, lien_dpo: 'https://example.com/dpo')
+      expect(helper.url_or_email_to_lien_dpo(procedure)).to eq('https://example.com/dpo')
+    end
+
+    it 'returns mailto: for email addresses' do
+      procedure = build(:procedure, lien_dpo: 'dpo@example.com')
+      expect(helper.url_or_email_to_lien_dpo(procedure)).to start_with('mailto:')
+    end
+  end
+
   describe '#estimated_fill_duration_minutes' do
     subject { estimated_fill_duration_minutes(procedure.reload) }
 
