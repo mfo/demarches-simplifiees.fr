@@ -34,6 +34,7 @@ yarn-debug.log*
 /public/assets
 /spec/support/spec_config.local.rb
 /config/initializers/config.local.rb
+/config/initializers/dev_auto_login.rb
 /coverage
 
 # Local Netlify folder
