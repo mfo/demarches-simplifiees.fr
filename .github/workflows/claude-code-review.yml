@@ -12,12 +12,9 @@ on:
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-
+    # Skip when the OAuth token is unavailable (e.g. forked PRs, Dependabot)
+    # GitHub does not expose repository secrets to workflows triggered from forks.
+    if: secrets.CLAUDE_CODE_OAUTH_TOKEN != ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
