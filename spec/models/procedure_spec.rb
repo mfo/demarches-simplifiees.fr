@@ -1,6 +1,61 @@
 # frozen_string_literal: true
 
 describe Procedure do
+  describe 'web_hook_url validation' do
+    let(:procedure) { build(:procedure) }
+
+    it 'accepts a valid https URL' do
+      procedure.web_hook_url = 'https://example.com/webhook'
+      expect(procedure).to be_valid
+    end
+
+    it 'accepts blank value' do
+      procedure.web_hook_url = ''
+      expect(procedure).to be_valid
+    end
+
+    it 'rejects localhost URL' do
+      procedure.web_hook_url = 'http://localhost:3000/admin'
+      expect(procedure).not_to be_valid
+      expect(procedure.errors[:web_hook_url]).to be_present
+    end
+
+    it 'rejects 127.0.0.1' do
+      procedure.web_hook_url = 'http://127.0.0.1/admin'
+      expect(procedure).not_to be_valid
+    end
+
+    it 'rejects link-local metadata endpoint (169.254.169.254)' do
+      procedure.web_hook_url = 'http://169.254.169.254/latest/meta-data/'
+      expect(procedure).not_to be_valid
+    end
+
+    it 'rejects private network 10.x.x.x' do
+      procedure.web_hook_url = 'http://10.0.0.1/admin'
+      expect(procedure).not_to be_valid
+    end
+
+    it 'rejects private network 172.16.x.x' do
+      procedure.web_hook_url = 'http://172.16.0.1/admin'
+      expect(procedure).not_to be_valid
+    end
+
+    it 'rejects private network 192.168.x.x' do
+      procedure.web_hook_url = 'http://192.168.1.1/admin'
+      expect(procedure).not_to be_valid
+    end
+
+    it 'rejects 0.0.0.0' do
+      procedure.web_hook_url = 'http://0.0.0.0/'
+      expect(procedure).not_to be_valid
+    end
+
+    it 'rejects ::1 (IPv6 loopback)' do
+      procedure.web_hook_url = 'http://[::1]/admin'
+      expect(procedure).not_to be_valid
+    end
+  end
+
   describe 'mail templates' do
     subject { create(:procedure) }
 
