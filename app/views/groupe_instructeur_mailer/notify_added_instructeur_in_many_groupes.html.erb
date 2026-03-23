@@ -1,3 +1,5 @@
+<% content_for(:title, t(".title")) %>
+
 <p><%= t(:hello, scope: [:views, :shared, :greetings]) %></p>
 
 <p>
@@ -5,8 +7,7 @@
       count: @groups.count,
       groupe: @groups.first.label,
       email: @current_instructeur_email,
-      procedure: @procedure.libelle,
-      procedure_url: instructeur_procedure_url(@procedure)) %>
+      procedure: @procedure.libelle) %>
 
   <% if @groups.count > 1 %>
     <ul>
@@ -15,6 +16,10 @@
       <% end %>
     </ul>
   <% end %>
+</p>
+
+<p>
+  <%= dsfr_button(t(".access_button"), instructeur_procedure_url(@procedure), :primary) %>
 </p>
 
 <%= render partial: "layouts/mailers/signature" %>
