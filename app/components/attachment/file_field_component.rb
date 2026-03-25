@@ -41,7 +41,7 @@ class Attachment::FileFieldComponent < ApplicationComponent
     @hidden = hidden
     @input_id = id
 
-    # Get attachments
+    # Get attachments (filter unpersisted ones — they have nil IDs and can't generate routes)
     @attachments = if attachments
       Array(attachments).compact
     elsif attached_file.is_a?(ActiveStorage::Attached::Many)
@@ -50,7 +50,7 @@ class Attachment::FileFieldComponent < ApplicationComponent
       [attached_file.attachment]
     else
       []
-    end
+    end.filter(&:persisted?)
 
     @current_count = @attachments.size
 

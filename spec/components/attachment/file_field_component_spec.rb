@@ -65,6 +65,19 @@ RSpec.describe Attachment::FileFieldComponent, type: :component do
     end
   end
 
+  describe 'with unpersisted attachments' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:champ) { dossier.champs.first }
+    let(:context) { Attachment::Context.new(champ:) }
+    let(:unpersisted_attachment) { ActiveStorage::Attachment.new(blob: ActiveStorage::Blob.create_and_upload!(io: StringIO.new('fake'), filename: 'test.pdf', content_type: 'application/pdf')) }
+
+    it 'filters out unpersisted attachments' do
+      component = described_class.new(context:, drop_zone: :none, attachments: [unpersisted_attachment])
+      expect(component.attachments).to be_empty
+    end
+  end
+
   describe 'drop_zone validation' do
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
     let(:dossier) { create(:dossier, procedure:) }
