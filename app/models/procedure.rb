@@ -229,8 +229,13 @@ class Procedure < ApplicationRecord
   validates :administrateurs, presence: true
 
   validates :lien_site_web, presence: true, if: :publiee?
+
   validates :lien_notice, url: { no_local: true, allow_blank: true }
+  validates :lien_notice, no_private_ip_url: true, allow_blank: true
+
   validates :lien_dpo, url: { no_local: true, allow_blank: true, accept_email: true }
+  validates :lien_dpo, no_private_ip_url: true, allow_blank: true
+
   validates :web_hook_url, url: { no_local: true, allow_blank: true }
   validates :web_hook_url, no_private_ip_url: true, allow_blank: true
 
