@@ -638,7 +638,7 @@ en:
           no_mail: Didn't receive the email?
           check_spams: Check your junk or spam email.
           check_account_html: Have you created a <strong> %{application_name} </strong>account with the adress <strong> %{email}</strong>? You will not receive any message if no account is linked to your email adress.
-          check_france_connect_html: Have you once logged in with France Connect? If yes, <a href=\"%{href}\">try again with France Connect</a>.
+          check_france_connect_html: Have you once logged in with FranceConnect? If yes, <a href=\"%{href}\">try again with FranceConnect</a>.
           check_gpdr: "The account may have been deleted in the event of prolonged inactivity and no current file. In this case you will have to recreate an account from a procedure."
           title: "Password reset link sent"
       shared:
@@ -821,9 +821,9 @@ en:
         network_error: 'Sorry, SIRET information retrieval is temporarily unavailable. Please try again shortly.'
         not_found: "We haven't found an establishment corresponding to this SIRET number."
       france_connect:
-        connexion: "Error trying to connect to France Connect."
+        connexion: "Error trying to connect to FranceConnect."
         forbidden_html: "Only citizen can use FranceConnect. As an instructor or administrator, please identify yourself with ProConnect or log in with your %{app_name} account."
-        internal_error: "Error trying to connect to France Connect. Please try another way to connect."
+        internal_error: "Error trying to connect to FranceConnect. Please try another way to connect."
       missing_range_rules: The minimum and maximum values ​​must be specified.
       invalid_range_rules: The minimum value must be less than the maximum value.
       invalid_positive_range_rules: The maximum value must be greater than 0 for the number to be positive.

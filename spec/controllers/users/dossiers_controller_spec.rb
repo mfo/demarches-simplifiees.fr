@@ -151,7 +151,7 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
-  describe 'identite with france connect' do
+  describe 'identite with FranceConnect' do
     let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
     let(:dossier) { create(:dossier, user:, procedure:) }
 
@@ -297,13 +297,13 @@ describe Users::DossiersController, type: :controller do
       end
     end
 
-    context 'when user is connected via France Connect' do
+    context 'when user is connected via FranceConnect' do
       let(:user) { create(:user, :with_fci) }
 
       context 'when dossier is for self' do
         let(:dossier) { create(:dossier, :with_individual, user:, procedure:) }
 
-        it 'ignores attempts to modify locked identity attributes and uses France Connect values' do
+        it 'ignores attempts to modify locked identity attributes and uses FranceConnect values' do
           fc_info = user.france_connect_informations.first
 
           post :update_identite, params: {
@@ -317,7 +317,7 @@ describe Users::DossiersController, type: :controller do
           }
 
           dossier.reload
-          # Identity should be locked to France Connect values, ignoring submitted params
+          # Identity should be locked to FranceConnect values, ignoring submitted params
           expect(dossier.individual.nom).to eq(fc_info.family_name)
           expect(dossier.individual.prenom).to eq(fc_info.given_name)
         end
@@ -343,7 +343,7 @@ describe Users::DossiersController, type: :controller do
           }
 
           dossier.reload
-          # Mandataire should be locked to France Connect values
+          # Mandataire should be locked to FranceConnect values
           expect(dossier.mandataire_first_name).to eq(fc_info.given_name)
           expect(dossier.mandataire_last_name).to eq(fc_info.family_name)
           # Beneficiary should be updated
@@ -370,7 +370,7 @@ describe Users::DossiersController, type: :controller do
           dossier.reload
           # Dossier switched to "for self" mode
           expect(dossier.for_tiers).to be false
-          # But identity is still locked to France Connect values
+          # But identity is still locked to FranceConnect values
           expect(dossier.individual.nom).to eq(fc_info.family_name)
           expect(dossier.individual.prenom).to eq(fc_info.given_name)
         end

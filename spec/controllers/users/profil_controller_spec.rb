@@ -195,14 +195,14 @@ describe Users::ProfilController, type: :controller do
       expect(response).to redirect_to(profil_path)
     end
 
-    context 'when the user is logged in with France Connect' do
+    context 'when the user is logged in with FranceConnect' do
       before do
         stub_const('FRANCE_CONNECT', { end_session_endpoint: 'https://logout.franceconnect.gouv.fr' })
         cookies.encrypted[FranceConnectController::ID_TOKEN_COOKIE_NAME] = 'id_token'
         cookies.encrypted[FranceConnectController::STATE_COOKIE_NAME] = 'state'
       end
 
-      it 'deletes the cookies and redirect to France Connect logout' do
+      it 'deletes the cookies and redirect to FranceConnect logout' do
         subject
         expect(FranceConnectInformation.where(user: user).count).to eq(0)
 
