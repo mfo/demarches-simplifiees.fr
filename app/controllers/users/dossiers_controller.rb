@@ -276,6 +276,7 @@ module Users
 
       if @dossier.errors.blank? && @dossier.can_passer_en_construction?
         begin
+          @dossier.submitted_with_france_connect = current_user.loged_in_with_france_connect.present?
           @dossier.passer_en_construction!
           redirect_to merci_dossier_path(@dossier)
           return
@@ -319,6 +320,7 @@ module Users
       submit_dossier_and_compute_errors
 
       if dossier.errors.blank? && dossier.can_passer_en_construction?
+        dossier.submitted_with_france_connect = current_user.loged_in_with_france_connect.present?
         dossier.merge_user_buffer_stream!
         dossier.usager_submit_en_construction!
 

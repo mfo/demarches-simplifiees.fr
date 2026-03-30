@@ -1,4 +1,4 @@
-- if dossier.france_connected_with_one_identity?  && current_user.instructeur? && !current_user.owns_or_invite?(dossier)
+- if dossier.submitted_with_france_connect? && dossier.user.france_connect_informations.present? && current_user.instructeur? && !current_user.owns_or_invite?(dossier)
   - content_for(:notice_info) do
     = render partial: "shared/dossiers/france_connect_informations_notice", locals: { user_information: dossier.user.france_connect_informations.first }
 
