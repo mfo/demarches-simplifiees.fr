@@ -15,7 +15,7 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
     end
 
     context 'when referentiel was not persisted' do
-      let(:referentiel) { type_de_champ.build_referentiel() }
+      let(:referentiel) { type_de_champ.build_referentiel(use_tiptap: false) }
 
       it 'render back button as destroy' do
         expect(page).to have_link("Annuler", href: url_helpers.champs_admin_procedure_path(procedure))
@@ -43,7 +43,7 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
       end
 
       context 'with api was selected' do
-        let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::APIReferentiel") }
+        let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::APIReferentiel", use_tiptap: false) }
         it 'renders url' do
           expect(page).to have_selector('input[name="referentiel[url]"]')
           expect(page).to have_selector('input[type=submit][disabled]', count: 0)
@@ -51,7 +51,7 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
       end
 
       context 'with csv was selected' do
-        let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::CsvReferentiel") }
+        let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::CsvReferentiel", use_tiptap: false) }
         it 'renders url' do
           expect(page).to have_selector('input[type="file"]')
           expect(page).to have_selector('input[type=submit][disabled]', count: 0)

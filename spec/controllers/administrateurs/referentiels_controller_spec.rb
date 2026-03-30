@@ -54,6 +54,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
           url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
           hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
           test_data: 'PG46YY6YWCX8',
+          use_tiptap: 'false',
           authentication_data: { header: 'Authorization', value: 'Bearer secret-token' },
           authentication_method: 'header_token',
         }
@@ -87,6 +88,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
             url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
             test_data: 'PG46YY6YWCX8',
+            use_tiptap: 'false',
           }
         end
 
@@ -114,6 +116,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
             url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
             test_data: 'PG46YY6YWCX8',
+            use_tiptap: 'false',
           }
         end
 

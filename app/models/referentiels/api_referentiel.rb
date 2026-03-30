@@ -18,8 +18,9 @@ class Referentiels::APIReferentiel < Referentiel
 
   validates :mode, inclusion: { in: modes.values }
   validate :url_allowed?
-  validates :test_data, presence: true
-  validates :url, presence: true
+  validates :test_data, presence: true, unless: :use_tiptap?
+  validates :url, presence: true, unless: :use_tiptap?
+  validates :url_tiptap, presence: true, if: :use_tiptap?
 
   store_accessor :autocomplete_configuration, :datasource, :json_template
   before_save :name_as_uuid
@@ -49,6 +50,23 @@ class Referentiels::APIReferentiel < Referentiel
     json_template&.to_json
   end
 
+  def tiptap_mention_stable_ids
+    return [] if url_tiptap.blank?
+
+    paragraph = url_tiptap.dig("content", 0, "content")
+    return [] if paragraph.blank?
+
+    paragraph
+      .select { _1["type"] == "mention" }
+      .map { _1.dig("attrs", "id") }
+      .select { _1&.start_with?("tdc") }
+      .map { _1.delete_prefix("tdc").to_i }
+  end
+
+  def url_has_query_tag?
+    tiptap_paragraph_nodes.any? { _1["type"] == "mention" && _1.dig("attrs", "id") == "{query}" }
+  end
+
   def last_response_body
     (last_response || {}).fetch("body") { {} }
   end
@@ -64,7 +82,11 @@ class Referentiels::APIReferentiel < Referentiel
   def configured?
     case type
     when "Referentiels::APIReferentiel"
-      [mode, url, test_data].all?(&:present?)
+      if use_tiptap?
+        [mode, url_tiptap, test_data_tiptap].all?(&:present?)
+      else
+        [mode, url, test_data].all?(&:present?)
+      end
     when "Referentiels::CsvReferentiel"
       false
     else
@@ -88,10 +110,26 @@ class Referentiels::APIReferentiel < Referentiel
     ].all?
   end
 
-  def url_allowed?
-    return if url.blank?
+  def url_from_tiptap_for_validation
+    nodes = tiptap_paragraph_nodes
+    return nil if nodes.empty?
 
-    uri = Addressable::URI.parse(url)
+    nodes
+      .filter { _1["type"] == "text" }
+      .map { _1["text"] }
+      .join
+  end
+
+  def url_allowed?
+    raw_url = if use_tiptap?
+      url_from_tiptap_for_validation
+    else
+      url
+    end
+
+    return if raw_url.blank?
+
+    uri = Addressable::URI.parse(raw_url)
     return if uri.tld == "gouv.fr" && uri.domain != "beta.gouv.fr"
     allowed_domains = ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND', '').split(',')
     if allowed_domains.none? { |allowed_domain| uri.host && allowed_domain.include?(uri.host) }
