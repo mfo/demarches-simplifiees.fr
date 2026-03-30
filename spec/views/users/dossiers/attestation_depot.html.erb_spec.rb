@@ -53,7 +53,7 @@ describe 'users/dossiers/attestation_depot', type: :view do
   end
 
   context "avec LOGO_MARIANNE_SRC présent" do
-    before { stub_const('LOGO_MARIANNE_SRC', 'institution/Marianne-Light@2x.png') }
+    before { stub_const('LOGO_MARIANNE_SRC', 'Marianne-Light@2x.png') }
 
     it 'affiche le bloc Marianne' do
       render
