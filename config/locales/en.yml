@@ -970,8 +970,8 @@ en:
       attestation:
         not_available: "The certificate is not available, please try again later."
       show:
-        papertrail:
-          get_papertrail: "Get a deposit receipt"
+        attestation_depot:
+          get_attestation_depot: "Get a deposit receipt"
           filename: "deposit-receipt_file-%{dossier_id}.pdf"
       show_in_trash:
         page_title: "File n° %{numero} - In trash"
@@ -988,7 +988,7 @@ en:
         reason_user_request: "It was moved to trash at your request, then automatically deleted."
         reason_automatic: "It was deleted because its maximum retention period has been reached."
         history_link_html: "You can find all deleted files from your account (except \"DRAFT\") on the <a href=\"%{history_link}\" class=\"fr-link\">Deleted files history</a> page."
-      papertrail:
+      attestation_depot:
         receipt: "Deposit receipt"
         description: "This document attests that on the %{date}, %{user_name} submitted a file on the procedure “%{procedure}”."
         file_submitted_at: "File submission date"
@@ -998,7 +998,7 @@ en:
           en_instruction: "processing"
           accepte: "accepted"
           refuse: "declined"
-          sans suite: "closed, no further action"
+          sans_suite: "closed, no further action"
         administrative_service: "Administrative department"
         generated_at: "Made on %{date},"
         signature: "%{app_name}"

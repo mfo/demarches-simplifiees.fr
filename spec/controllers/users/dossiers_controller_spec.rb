@@ -1813,19 +1813,23 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
-  describe "#papertrail" do
+  describe "#attestation_depot" do
     before { sign_in(user) }
 
     subject do
-      get :papertrail, format: :pdf, params: { id: dossier.id }
+      get :attestation_depot, format: :pdf, params: { id: dossier.id }
     end
 
     context 'when the dossier has been submitted' do
       let(:dossier) { create(:dossier, :en_construction, user: user) }
 
-      it 'renders a PDF document' do
+      before do
+        allow_any_instance_of(Dossier).to receive(:generate_or_reuse_attestation_depot).and_return("%PDF-1.4 fake")
+      end
+
+      it 'sends a PDF document' do
         subject
-        expect(response).to render_template(:papertrail)
+        expect(response.headers['Content-Type']).to include('application/pdf')
       end
     end
 

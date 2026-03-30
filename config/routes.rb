@@ -395,7 +395,8 @@ Rails.application.routes.draw do
         patch 'restore', to: 'dossiers#restore'
         get 'attestation'
         get 'transferer', to: 'dossiers#transferer'
-        get 'papertrail', format: :pdf
+        get 'attestation_depot', format: :pdf
+        get 'papertrail', to: 'dossiers#attestation_depot', format: :pdf
         get 'set_accuse_lecture_agreement_at'
         get 'corbeille', to: 'dossiers#show_in_trash'
         get 'supprime', to: 'dossiers#show_deleted'
