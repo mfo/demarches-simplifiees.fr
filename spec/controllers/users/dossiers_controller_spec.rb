@@ -1821,15 +1821,27 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier has been submitted' do
-      let(:dossier) { create(:dossier, :en_construction, user: user) }
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, user: user) }
 
       before do
-        allow_any_instance_of(Dossier).to receive(:generate_or_reuse_attestation_depot).and_return("%PDF-1.4 fake")
+        allow(WeasyprintService).to receive(:generate_pdf).and_return("%PDF-1.4 fake")
       end
 
       it 'sends a PDF document' do
         subject
         expect(response.headers['Content-Type']).to include('application/pdf')
+      end
+
+      it 'calls WeasyPrint with the correct context' do
+        subject
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(a_string_matching(/#{dossier.procedure.libelle}/), { procedure_id: dossier.procedure.id, dossier_id: dossier.id })
+      end
+
+      it 'includes dossier identity in the HTML' do
+        subject
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(a_string_matching(/#{dossier.individual.prenom}/), anything)
       end
     end
 

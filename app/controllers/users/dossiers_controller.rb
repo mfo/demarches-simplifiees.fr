@@ -140,6 +140,11 @@ module Users
     def attestation_depot
       raise ActionController::BadRequest if dossier.brouillon?
       @dossier = dossier
+      pdf = @dossier.generate_or_reuse_attestation_depot
+      send_data pdf,
+        filename: I18n.t('users.dossiers.show.attestation_depot.filename', dossier_id: @dossier.id),
+        type: 'application/pdf',
+        disposition: 'attachment'
     end
 
     def set_accuse_lecture_agreement_at
