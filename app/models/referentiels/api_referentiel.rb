@@ -56,16 +56,20 @@ class Referentiels::APIReferentiel < Referentiel
     super(value)
   end
 
-  def tiptap_mention_stable_ids
+  def tiptap_paragraph_nodes
     return [] if url_tiptap.blank?
+    url_tiptap.dig("content", 0, "content") || []
+  end
 
-    paragraph = url_tiptap.dig("content", 0, "content")
-    return [] if paragraph.blank?
+  def tiptap_mention_ids
+    tiptap_paragraph_nodes
+      .filter { _1["type"] == "mention" }
+      .filter_map { _1.dig("attrs", "id") }
+  end
 
-    paragraph
-      .select { _1["type"] == "mention" }
-      .map { _1.dig("attrs", "id") }
-      .select { _1&.start_with?("tdc") }
+  def tiptap_mention_stable_ids
+    tiptap_mention_ids
+      .filter { _1.start_with?("tdc") }
       .map { _1.delete_prefix("tdc").to_i }
   end
 
@@ -89,7 +93,7 @@ class Referentiels::APIReferentiel < Referentiel
     case type
     when "Referentiels::APIReferentiel"
       if use_tiptap?
-        [mode, url_tiptap, test_data_tiptap].all?(&:present?)
+        [mode, url_tiptap].all?(&:present?) && tiptap_test_data_complete?
       else
         [mode, url, test_data].all?(&:present?)
       end
@@ -146,6 +150,13 @@ class Referentiels::APIReferentiel < Referentiel
   end
 
   private
+
+  def tiptap_test_data_complete?
+    ids = tiptap_mention_ids
+    return true if ids.empty?
+
+    ids.all? { test_data_tiptap&.dig(_1).present? }
+  end
 
   def name_as_uuid # should be uniq, using the url was an idea but not unique
     self.name = SecureRandom.uuid
