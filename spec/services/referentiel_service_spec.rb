@@ -117,4 +117,57 @@ RSpec.describe ReferentielService, type: :service do
       end
     end
   end
+
+  describe '#resolve_tiptap_url' do
+    let(:api_referentiel) { create(:api_referentiel, :exact_match, url_tiptap:) }
+    let(:service) { described_class.new(referentiel: api_referentiel) }
+    let(:query_params) { "dummy" }
+    let(:status) { 200 }
+    let(:body) { {} }
+
+    let(:url_tiptap) do
+      { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [
+        { "type" => "text", "text" => "https://api.gouv.fr/" },
+        { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+        { "type" => "text", "text" => "/dep/" },
+        { "type" => "mention", "attrs" => { "id" => "tdc42", "label" => "Dep" } }
+      ] }] }
+    end
+
+    context 'with Hash values_source and all values present' do
+      let(:values_source) { { "{query}" => "search term", "tdc42" => "75" } }
+      it 'resolves URL with encoding' do
+        result = service.send(:resolve_tiptap_url, "search term", values_source)
+        expect(result).to eq("https://api.gouv.fr/search+term/dep/75")
+      end
+    end
+
+    context 'with Hash values_source and empty tdc value' do
+      let(:values_source) { { "{query}" => "search", "tdc42" => "" } }
+      it { expect(service.send(:resolve_tiptap_url, "search", values_source)).to be_nil }
+    end
+
+    context 'with blank query_params when {query} tag present' do
+      let(:values_source) { { "{query}" => "", "tdc42" => "75" } }
+      it { expect(service.send(:resolve_tiptap_url, "", values_source)).to be_nil }
+    end
+
+    context 'with special characters' do
+      let(:values_source) { { "{query}" => "café & thé", "tdc42" => "île de france" } }
+      it 'applies URI encoding' do
+        result = service.send(:resolve_tiptap_url, "café & thé", values_source)
+        expect(result).to include("caf%C3%A9+%26+th%C3%A9")
+        expect(result).to include("%C3%AEle+de+france")
+      end
+    end
+
+    context 'when url_tiptap is nil' do
+      let(:url_tiptap) { nil }
+      it { expect(service.send(:resolve_tiptap_url, "q", {})).to be_nil }
+    end
+
+    context 'when values_source is nil' do
+      it { expect(service.send(:resolve_tiptap_url, "search", nil)).to be_nil }
+    end
+  end
 end
