@@ -47,7 +47,7 @@ describe 'users/dossiers/demande', type: :view do
     end
 
     it 'does not fill the individual with the informations from FranceConnect' do
-      expect(view.content_for(:notice_info)).not_to have_text("Le dossier a été déposé par le compte de #{france_connect_information.given_name} #{france_connect_information.family_name}, authentifié par FranceConnect le #{france_connect_information.updated_at.strftime('%d/%m/%Y')}")
+      expect(rendered).not_to have_text("Le dossier a été déposé par le compte de #{france_connect_information.given_name} #{france_connect_information.family_name}, authentifié par FranceConnect")
     end
   end
 
