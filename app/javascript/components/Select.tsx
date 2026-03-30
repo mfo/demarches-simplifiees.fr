@@ -34,8 +34,8 @@ type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
 > & {
   items: Item[];
   value: M extends 'single' ? string : string[];
-  labelId: string;
-  ariaLabelledbyPrefix: string;
+  labelId?: string;
+  ariaLabelledbyPrefix?: string;
 };
 
 function Select<M extends SelectionMode = 'single'>({
@@ -45,7 +45,11 @@ function Select<M extends SelectionMode = 'single'>({
   ...props
 }: SelectProps<M>) {
   const { contains } = useFilter({ sensitivity: 'base', numeric: true });
-  const inputAriaLabelledby = `${ariaLabelledbyPrefix} ${labelId}`;
+
+  const inputAriaLabelledby =
+    labelId && ariaLabelledbyPrefix
+      ? `${ariaLabelledbyPrefix} ${labelId}`
+      : undefined;
 
   return (
     <AriaSelect {...props} aria-labelledby={inputAriaLabelledby}>
