@@ -13,27 +13,17 @@
 
       - if @referentiel.type == 'Referentiels::APIReferentiel'
         - if use_tiptap?
-          #url-tiptap.fr-mb-4w{ data: { controller: 'tiptap', tiptap_insert_after_tag_value: '', tiptap_single_line_value: 'true' } }
-            .fr-input-group
-              %label.fr-label URL du référentiel
+          #url-tiptap{ data: { controller: 'tiptap', tiptap_insert_after_tag_value: '', tiptap_single_line_value: 'true' } }
+            .fr-input-group.fr-mb-3w
+              %label.fr-label.fr-mb-1w URL du référentiel
               #editor.tiptap-editor.tiptap-inline{ data: { tiptap_target: 'editor', turbo_force: :browser } }
-              = hidden_field_tag "referentiel[url_tiptap]", @referentiel.url_tiptap&.to_json, data: { tiptap_target: 'input', controller: 'autosubmit' }
-
+              = hidden_field_tag "referentiel[url_tiptap]", @referentiel.url_tiptap&.to_json, data: { tiptap_target: 'input', action: 'input->autosubmit-validate-url#debounce' }
+              = render partial: 'administrateurs/referentiels/url_validation_feedback', locals: { referentiel: @referentiel }
             = render TagsButtonListComponent.new(tags:)
         - unless use_tiptap?
-          = render Dsfr::InputComponent.new(form:, attribute: :url, opts: { data: { controller: 'autosubmit', no_autosubmit: 'input' } }) do |c|
+          = render Dsfr::InputComponent.new(form:, attribute: :url, opts: { data: { action: 'input->autosubmit-validate-url#debounce' } }) do |c|
             - c.with_describedby do
-              - if @referentiel.url.blank? || @referentiel.errors.where(:url).present?
-                = render Dsfr::AlertComponent.new(state: :warning, title: nil, size: :sm, heading_level: :p, extra_class_names: 'fr-mt-2w') do |c|
-                  - c.with_body do
-                    %p
-                      Pour des raisons de securite,
-                      %strong seuls les domaines se terminant par .gouv.fr sont automatiquement autorises
-                      (a l'exception de .beta.gouv.fr). Les autres domaines sont soumis a une validation manuelle de notre part, merci de nous en faire la demande par mail a "
-                      = mail_to CONTACT_EMAIL, CONTACT_EMAIL, class: 'fr-link'
-                      = "."
-              - else
-                .fr-mt-1w.fr-message.fr-message--info Attention si vous appelez une API qui renvoie de la donnee personnelle, vous devez en informer votre DPO.
+              = render partial: 'administrateurs/referentiels/url_validation_feedback', locals: { referentiel: @referentiel }
 
 
       - elsif @referentiel.type == 'Referentiels::CsvReferentiel'
@@ -53,10 +43,7 @@
 
       = render Dsfr::InputComponent.new(form:, attribute: :hint)
       - if use_tiptap?
-        - test_data_tags.each do |tag|
-          .fr-input-group
-            %label.fr-label= tag[:label]
-            %input.fr-input{ type: 'text', name: "referentiel[test_data_tiptap][#{tag[:id]}]", value: @referentiel.test_data_tiptap&.dig(tag[:id]) }
+        = render partial: 'administrateurs/referentiels/test_data_fields', locals: { referentiel: @referentiel, test_data_tags: test_data_tags }
       - else
         = render Dsfr::InputComponent.new(form:, attribute: :test_data)
       .clearfix

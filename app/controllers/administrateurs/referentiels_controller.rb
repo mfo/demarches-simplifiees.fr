@@ -4,7 +4,7 @@ module Administrateurs
   class ReferentielsController < AdministrateurController
     before_action :retrieve_procedure
     before_action :retrieve_type_de_champ
-    before_action :retrieve_referentiel, except: [:new, :create]
+    before_action :retrieve_referentiel, except: [:new, :create, :validate_url]
     before_action :reachable_referentiel?, only: [:mapping_type_de_champ, :autocomplete_configuration]
     layout 'empty_layout'
 
@@ -26,6 +26,31 @@ module Administrateurs
     def update
       @referentiel.assign_attributes(referentiel_params)
       handle_referentiel_save(@referentiel)
+    end
+
+    def validate_url
+      @referentiel = Referentiels::APIReferentiel.new(referentiel_params.slice(:url, :url_tiptap, :use_tiptap))
+      @referentiel.url_allowed?
+
+      test_data_tags = if @referentiel.use_tiptap? && @referentiel.url_tiptap.present?
+        TiptapService.used_tags_and_libelle_for(@referentiel.url_tiptap.deep_symbolize_keys)
+          .map { |id, label| { id:, label: } }
+      else
+        []
+      end
+
+      render turbo_stream: [
+        turbo_stream.replace(
+          'url-validation-feedback',
+          partial: 'administrateurs/referentiels/url_validation_feedback',
+          locals: { referentiel: @referentiel }
+        ),
+        turbo_stream.replace(
+          'test-data-fields',
+          partial: 'administrateurs/referentiels/test_data_fields',
+          locals: { referentiel: @referentiel, test_data_tags: @referentiel.test_data_tags }
+        ),
+      ]
     end
 
     def update_autocomplete_configuration

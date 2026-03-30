@@ -1,0 +1,5 @@
+#test-data-fields
+  - test_data_tags.each do |tag|
+    .fr-input-group
+      %label.fr-label= tag[:label]
+      %input.fr-input{ type: 'text', name: "referentiel[test_data_tiptap][#{tag[:id]}]", value: referentiel.test_data_tiptap&.dig(tag[:id]) }

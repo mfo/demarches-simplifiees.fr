@@ -24,7 +24,7 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
 
   def form_options
     {
-      data: { turbo: 'true', controller: 'referentiel-new-form' },
+      data: { turbo: 'true', controller: 'referentiel-new-form autosubmit-validate-url', 'autosubmit-validate-url-url-value': validate_url_path },
       html: { novalidate: 'novalidate', id: },
     }
   end
@@ -57,6 +57,10 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
     }
     options[:opts][:disabled] = true if authentication_by_header_token?
     options
+  end
+
+  def validate_url_path
+    validate_url_admin_procedure_referentiels_path(@procedure, @type_de_champ.stable_id)
   end
 
   def submit_options
