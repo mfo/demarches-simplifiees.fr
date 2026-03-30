@@ -19,8 +19,10 @@
               #editor.tiptap-editor.tiptap-inline{ data: { tiptap_target: 'editor', turbo_force: :browser } }
               = hidden_field_tag "referentiel[url_tiptap]", @referentiel.url_tiptap&.to_json, data: { tiptap_target: 'input', action: 'input->autosubmit-validate-url#debounce' }
               = render partial: 'administrateurs/referentiels/url_validation_feedback', locals: { referentiel: @referentiel }
-            = render TagsButtonListComponent.new(tags:)
-        - unless use_tiptap?
+            .fr-mb-3w
+              = render TagsButtonListComponent.new(tags:)
+          = render partial: 'administrateurs/referentiels/test_data_fields', locals: { referentiel: @referentiel, test_data_tags: test_data_tags }
+        - else
           = render Dsfr::InputComponent.new(form:, attribute: :url, opts: { data: { action: 'input->autosubmit-validate-url#debounce' } }) do |c|
             - c.with_describedby do
               = render partial: 'administrateurs/referentiels/url_validation_feedback', locals: { referentiel: @referentiel }
@@ -42,9 +44,7 @@
         Mode de remplissage du champ par l’usager
 
       = render Dsfr::InputComponent.new(form:, attribute: :hint)
-      - if use_tiptap?
-        = render partial: 'administrateurs/referentiels/test_data_fields', locals: { referentiel: @referentiel, test_data_tags: test_data_tags }
-      - else
+      - unless use_tiptap?
         = render Dsfr::InputComponent.new(form:, attribute: :test_data)
       .clearfix
 

@@ -84,7 +84,7 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
 
     query_tag = { id: "{query}", libelle: "Valeur saisie par l’usager" }
 
-    { properties: field_tags + [query_tag] }
+    { url_tags: field_tags + [query_tag] }
   end
 
   def test_data_tags
