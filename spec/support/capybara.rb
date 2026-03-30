@@ -105,3 +105,21 @@ RSpec.configure do |config|
     Capybara.raise_server_errors = true
   end
 end
+
+Capybara.add_selector(:by_label) do
+  xpath do |text|
+    # 1. Element has aria-label="text"
+    has_aria_label = XPath.attr(:'aria-label').equals(text)
+
+    # 2. Element's id is referenced by a <label for="...">
+    label_for = XPath.anywhere(:label)[XPath.string.n.is(text)].attr(:for)
+    has_label_for = XPath.attr(:id).equals(label_for)
+
+    # 3. Element's aria-labelledby points to a label/element whose text matches
+    # Find the id of any element whose text is our target text
+    labelling_element_id = XPath.anywhere[XPath.string.n.is(text)].attr(:id)
+    has_aria_labelledby = XPath.attr(:'aria-labelledby').equals(labelling_element_id)
+
+    XPath.descendant[has_aria_label | has_label_for | has_aria_labelledby]
+  end
+end

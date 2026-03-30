@@ -200,8 +200,8 @@ describe 'Instructing a dossier:', js: true do
 
     click_on 'Personnes impliquées'
 
-    select_combobox('Emails', instructeur_2.email)
-    select_combobox('Emails', instructeur_3.email)
+    select_autocomplete('Emails', instructeur_2.email)
+    select_autocomplete('Emails', instructeur_3.email)
 
     click_on 'Envoyer'
 

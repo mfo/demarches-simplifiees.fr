@@ -123,6 +123,6 @@ export const MultipleSelectProps = s.assign(
   SelectProps,
   s.object({
     items: s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]),
-    value: s.array(s.string())
+    value: s.defaulted(s.array(s.string()), [])
   })
 );

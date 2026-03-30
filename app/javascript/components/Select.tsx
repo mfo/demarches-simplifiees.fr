@@ -46,20 +46,19 @@ function Select<M extends SelectionMode = 'single'>({
 }: SelectProps<M>) {
   const { contains } = useFilter({ sensitivity: 'base', numeric: true });
 
-  const inputAriaLabelledby =
-    labelId && ariaLabelledbyPrefix
-      ? `${ariaLabelledbyPrefix} ${labelId}`
-      : undefined;
+  if (!props['aria-label'] && labelId && ariaLabelledbyPrefix) {
+    props['aria-labelledby'] = `${ariaLabelledbyPrefix} ${labelId}`;
+  }
 
   return (
-    <AriaSelect {...props} aria-labelledby={inputAriaLabelledby}>
-      <Button className="react-aria-Select fr-select">
-        {props.selectionMode == 'single' ? (
+    <AriaSelect {...props}>
+      {props.selectionMode == 'single' ? (
+        <Button className="react-aria-Select fr-select">
           <SelectValue />
-        ) : (
-          <MultipleSelectValue />
-        )}
-      </Button>
+        </Button>
+      ) : (
+        <MultipleSelectValue />
+      )}
       <Popover
         className="react-aria-Popover select-popover"
         style={{ display: 'flex', flexDirection: 'column' }}
@@ -79,29 +78,35 @@ function Select<M extends SelectionMode = 'single'>({
 
 function MultipleSelectValue() {
   return (
-    <SelectValue>
-      {({ selectedItems, defaultChildren }) => {
-        if (selectedItems.length == 0) {
-          return defaultChildren;
-        } else if (selectedItems.length == 1) {
-          return `Un choix sélectionné`;
-        }
-        return `${selectedItems.length} choix sélectionnés`;
-      }}
+    <SelectValue<Item>>
+      {({ selectedItems, state, defaultChildren }) => (
+        <>
+          <Button className="react-aria-Select fr-select">
+            {selectedItems.length == 0
+              ? defaultChildren
+              : `${selectedItems.length} choix sélectionnés`}
+          </Button>
+          <TagGroup
+            items={selectedItems.filter((item) => item != null)}
+            onRemove={(keys) => {
+              if (Array.isArray(state.value)) {
+                state.setValue(state.value.filter((k) => !keys.has(k)));
+              }
+            }}
+          />
+        </>
+      )}
     </SelectValue>
   );
 }
 
 export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
-  const { value: initialValue, ...props } = useMemo(
-    () => s.create(maybeProps, MultipleSelectProps),
-    [maybeProps]
-  );
+  const {
+    value: initialValue,
+    className,
+    ...props
+  } = useMemo(() => s.create(maybeProps, MultipleSelectProps), [maybeProps]);
   const [value, setValue] = useState<string[]>(() => initialValue);
-  const selectedItems = value.flatMap((key) => {
-    const item = props.items.find((item) => item.value === key);
-    return item ? [item] : [];
-  });
   const changeDispatchRef = useRef<HTMLInputElement>(null);
 
   const dispatchChange = () => {
@@ -117,30 +122,28 @@ export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
     dispatchChange();
   };
 
-  const onRemove = (keys: Set<Key>) => {
-    flushSync(() => {
-      setValue((value) => value.filter((item) => !keys.has(item)));
-    });
-    dispatchChange();
-  };
-
   return (
-    <div className="fr-ds-select_multiple">
+    <>
       <Select
+        className={`fr-ds-select_multiple react-aria-Select ${className ?? ''}`}
         selectionMode="multiple"
         value={value}
         onChange={onChange}
         {...props}
       />
-      <TagGroup items={selectedItems} onRemove={onRemove} />
-      <input ref={changeDispatchRef} type="hidden" />
-    </div>
+      <input
+        ref={changeDispatchRef}
+        type="hidden"
+        name={value.length > 0 ? undefined : props.name}
+        value=""
+      />
+    </>
   );
 }
 
 function TagGroup({ items, ...props }: TagGroupProps & { items: Item[] }) {
   return (
-    <AriaTagGroup {...props}>
+    <AriaTagGroup {...props} aria-label="selection">
       <TagList items={items} className="fr-tag-list">
         {(item) => (
           <Tag
