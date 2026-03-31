@@ -130,15 +130,17 @@ module SystemHelpers
   end
 
   def select_autocomplete(libelle, value)
-    label = find('label', text: libelle)
+    label = find(:by_label, libelle, match: :first)
     scroll_to(label)
     label.click
+    page.active_element.send_keys(value)
 
     within '[role="listbox"]' do
       option = find('[role="option"]', text: value)
       expect(option).to be_visible
       sleep 0.1 # wait for any animation to complete
       option.click
+      option.send_keys(:escape)
       option.send_keys(:escape)
     end
   end
