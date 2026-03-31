@@ -1994,6 +1994,64 @@ describe Procedure do
     end
   end
 
+  describe '#used_by_referentiel_urls?' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, stable_id: 100 }, { type: :referentiel, stable_id: 200 }]) }
+    let(:text_tdc) { procedure.draft_revision.types_de_champ.find { _1.stable_id == 100 } }
+    let(:ref_tdc) { procedure.draft_revision.types_de_champ.find { _1.stable_id == 200 } }
+
+    context 'when referentiel url_tiptap references the text field' do
+      before do
+        ref_tdc.update!(referentiel: create(:api_referentiel, :exact_match, use_tiptap: true, url_tiptap: {
+          "type" => "doc",
+          "content" => [
+            {
+              "type" => "paragraph",
+                        "content" => [
+                          { "type" => "text", "text" => "https://api.gouv.fr/" },
+                          { "type" => "mention", "attrs" => { "id" => "tdc100", "label" => "Texte" } },
+                        ],
+            },
+          ],
+        }, test_data_tiptap: { "tdc100" => "test" }))
+      end
+
+      it 'returns true for the referenced field' do
+        expect(procedure.used_by_referentiel_urls?(text_tdc)).to be true
+      end
+
+      it 'returns false for the referentiel field itself' do
+        expect(procedure.used_by_referentiel_urls?(ref_tdc)).to be false
+      end
+    end
+
+    context 'when no referentiel' do
+      it 'returns false' do
+        expect(procedure.used_by_referentiel_urls?(text_tdc)).to be false
+      end
+    end
+
+    context 'when referentiel has only {query} tag' do
+      before do
+        ref_tdc.update!(referentiel: create(:api_referentiel, :exact_match, use_tiptap: true, url_tiptap: {
+          "type" => "doc",
+          "content" => [
+            {
+              "type" => "paragraph",
+                        "content" => [
+                          { "type" => "text", "text" => "https://api.gouv.fr/" },
+                          { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+                        ],
+            },
+          ],
+        }, test_data_tiptap: { "{query}" => "test" }))
+      end
+
+      it 'returns false (query tag does not protect any field)' do
+        expect(procedure.used_by_referentiel_urls?(text_tdc)).to be false
+      end
+    end
+  end
+
   private
 
   def create_dossier_with_pj_of_size(size, procedure)

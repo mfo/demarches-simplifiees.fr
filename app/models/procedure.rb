@@ -754,6 +754,10 @@ class Procedure < ApplicationRecord
     type_de_champ.stable_id.in?(stable_ids_used_by_routing_rules)
   end
 
+  def used_by_referentiel_urls?(type_de_champ)
+    type_de_champ.stable_id.in?(stable_ids_used_by_referentiel_urls)
+  end
+
   # We need this to unfuck administrate + aasm
   def self.human_attribute_name(attribute, options = {})
     if attribute == :aasm_state
@@ -840,6 +844,14 @@ class Procedure < ApplicationRecord
 
   def stable_ids_used_by_routing_rules
     @stable_ids_used_by_routing_rules ||= groupe_instructeurs.flat_map { _1.routing_rule&.sources }.compact.uniq
+  end
+
+  def stable_ids_used_by_referentiel_urls
+    @stable_ids_used_by_referentiel_urls ||= draft_revision
+      .types_de_champ
+      .filter_map(&:referentiel)
+      .flat_map(&:tiptap_mention_stable_ids)
+      .uniq
   end
 
   def published_revisions_types_de_champ(parent: nil, with_header_section: false)
