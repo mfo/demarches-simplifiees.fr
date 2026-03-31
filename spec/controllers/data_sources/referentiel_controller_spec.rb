@@ -70,6 +70,41 @@ describe DataSources::ReferentielController, type: :controller do
         end
       end
 
+      context 'with dossier_id' do
+        let(:dossier) { create(:dossier, procedure:, user:) }
+
+        subject { post :search, params: { q: '010002699', referentiel_id: referentiel.id, dossier_id: dossier.id } }
+
+        it 'passes dossier to the service', vcr: 'referentiel/datagouv-finess' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        context 'when signed in as instructeur (annotation privée)' do
+          let(:instructeur) { create(:instructeur) }
+          let(:procedure) { create(:procedure, types_de_champ_public:, instructeurs: [instructeur]) }
+          let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+          before { sign_in(instructeur.user) }
+
+          it 'finds the dossier and returns results', vcr: 'referentiel/datagouv-finess' do
+            post :search, params: { q: '010002699', referentiel_id: referentiel.id, dossier_id: dossier.id }
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body).to be_an(Array)
+            expect(response.parsed_body.size).to eq(1)
+          end
+        end
+
+        context 'when dossier belongs to another user' do
+          let(:other_user) { create(:user) }
+          let(:dossier) { create(:dossier, procedure:, user: other_user) }
+
+          it 'returns empty array (dossier not found for current user)' do
+            expect(subject).to have_http_status(:ok)
+            expect(response.parsed_body).to eq([])
+          end
+        end
+      end
+
       context 'when failure' do
         let(:referentiel_service) { double(call: service_respone) }
 

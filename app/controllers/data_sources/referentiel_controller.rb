@@ -11,7 +11,7 @@ class DataSources::ReferentielController < ApplicationController
       return render json: [] if referentiel&.autocomplete_configuration.blank?
 
       begin
-        result = referentiel_service.call(query)
+        result = referentiel_service.call(query, dossier: dossier)
 
         case result
         in Dry::Monads::Success
@@ -61,6 +61,15 @@ class DataSources::ReferentielController < ApplicationController
     return @referentiel if defined?(@referentiel)
 
     @referentiel = Referentiel.find_by(id: params[:referentiel_id])
+  end
+
+  def dossier
+    return @dossier if defined?(@dossier)
+
+    return @dossier = nil if params[:dossier_id].blank?
+
+    @dossier = current_user.dossiers.find_by(id: params[:dossier_id]) ||
+      current_user.instructeur&.dossiers&.find_by(id: params[:dossier_id])
   end
 
   class RetryableError < StandardError; end
