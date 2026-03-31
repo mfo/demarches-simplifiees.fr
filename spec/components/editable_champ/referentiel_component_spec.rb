@@ -32,5 +32,9 @@ describe EditableChamp::ReferentielComponent, type: :component do
     it 'renders the autocomplete combobox' do
       expect(subject).to have_selector('react-fragment')
     end
+
+    it 'includes dossier_id in loader URL' do
+      expect(subject.to_html).to include("dossier_id=#{dossier.id}")
+    end
   end
 end
