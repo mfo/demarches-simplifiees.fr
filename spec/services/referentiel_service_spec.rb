@@ -126,12 +126,18 @@ RSpec.describe ReferentielService, type: :service do
     let(:body) { {} }
 
     let(:url_tiptap) do
-      { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [
-        { "type" => "text", "text" => "https://api.gouv.fr/" },
-        { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
-        { "type" => "text", "text" => "/dep/" },
-        { "type" => "mention", "attrs" => { "id" => "tdc42", "label" => "Dep" } }
-      ] }] }
+      {
+        "type" => "doc", "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "https://api.gouv.fr/" },
+              { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+              { "type" => "text", "text" => "/dep/" },
+              { "type" => "mention", "attrs" => { "id" => "tdc42", "label" => "Dep" } },
+            ],
+          },
+        ],
+      }
     end
 
     context 'with Hash values_source and all values present' do
@@ -158,6 +164,43 @@ RSpec.describe ReferentielService, type: :service do
         result = service.send(:resolve_tiptap_url, "café & thé", values_source)
         expect(result).to include("caf%C3%A9+%26+th%C3%A9")
         expect(result).to include("%C3%AEle+de+france")
+      end
+    end
+
+    context 'with Dossier as values_source' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+      let(:dossier) { create(:dossier, procedure:) }
+      let(:type_de_champ) { procedure.draft_revision.types_de_champ_public.first }
+      let(:url_tiptap) do
+        {
+          "type" => "doc", "content" => [
+            {
+              "type" => "paragraph", "content" => [
+                { "type" => "text", "text" => "https://api.gouv.fr/" },
+                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+                { "type" => "text", "text" => "/dep/" },
+                { "type" => "mention", "attrs" => { "id" => "tdc#{type_de_champ.stable_id}", "label" => "Dep" } },
+              ],
+            },
+          ],
+        }
+      end
+
+      before do
+        dossier.champs.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "75")
+      end
+
+      it 'resolves tdc tags from dossier champs' do
+        result = service.send(:resolve_tiptap_url, "search", dossier)
+        expect(result).to eq("https://api.gouv.fr/search/dep/75")
+      end
+
+      context 'when champ value is blank' do
+        before do
+          dossier.champs.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "")
+        end
+
+        it { expect(service.send(:resolve_tiptap_url, "search", dossier)).to be_nil }
       end
     end
 
