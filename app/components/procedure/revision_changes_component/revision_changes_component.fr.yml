@@ -92,6 +92,13 @@ fr:
     add_procedures_limit: L’option « Limiter à certaines démarches » a été activée pour le champ « %{label} ».
     remove_procedures_limit: L’option « Limiter à certaines démarches » a été désactivée pour le champ « %{label} ».
     update_procedures: "Les démarches autorisées pour le champ « %{label} » ont été modifiées :"
+    update_limit_repetitions: "La limitation du nombre d’éléments du champ « %{label} » a été modifiée. %{to}"
+    enable_limit_repetitions: "La limitation est désormais activée."
+    disable_limit_repetitions: "La limitation est désormais désactivée."
+    remove_min_repetitions: "Le nombre minimum d’éléments du champ « %{label} » a été supprimé."
+    update_min_repetitions: "Le nombre minimum d’éléments du champ « %{label} » a été modifié. Le minimum est désormais %{to}."
+    remove_max_repetitions: "Le nombre maximum d’éléments du champ « %{label} » a été supprimé."
+    update_max_repetitions: "Le nombre maximum d’éléments du champ « %{label} » a été modifié. Le maximum est désormais %{to}."
 
   private:
     add: L’annotation privée « %{label} » a été ajoutée.
