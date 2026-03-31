@@ -106,7 +106,7 @@ module Dsfr
       end
 
       def react_input_opts(other_opts = {})
-        input_opts(other_opts, true)
+        input_opts(other_opts, true).compact
       end
 
       def input_opts(other_opts = {}, react = false)

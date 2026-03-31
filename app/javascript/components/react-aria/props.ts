@@ -116,7 +116,16 @@ const SelectProps = s.partial(
     placeholder: s.string(),
     data: s.record(s.string(), s.string()),
     labelId: s.string(), // if label is not in the component, we need to pass the label id
-    ariaLabelledbyPrefix: s.string()
+    ariaLabelledbyPrefix: s.string(),
+    alwaysShowKey: s.string()
+  })
+);
+
+export const SingleSelectProps = s.assign(
+  SelectProps,
+  s.object({
+    items: s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]),
+    value: s.defaulted(s.nullable(s.string()), '')
   })
 );
 
