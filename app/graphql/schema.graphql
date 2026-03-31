@@ -1739,6 +1739,13 @@ type Dossier {
   connectionUsager: ConnectionUsager!
 
   """
+  Date à laquelle l’usager a pris connaissance de la décision. Null si l’accusé
+  de lecture n’est pas activé sur la démarche ou si l’usager n’a pas encore pris
+  connaissance de la décision.
+  """
+  dateAccuseLectureAgreement: ISO8601DateTime
+
+  """
   Date de dépôt.
   """
   dateDepot: ISO8601DateTime!
