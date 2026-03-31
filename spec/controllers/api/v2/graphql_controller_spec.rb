@@ -410,6 +410,7 @@ describe API::V2::GraphqlController do
               datePassageEnInstruction
               dateTraitement
               dateDepot
+              dateAccuseLectureAgreement
               motivation
               motivationAttachment {
                 url
@@ -498,6 +499,7 @@ describe API::V2::GraphqlController do
             dateDepot: dossier.depose_at.iso8601,
             datePassageEnInstruction: nil,
             dateTraitement: nil,
+            dateAccuseLectureAgreement: nil,
             motivation: nil,
             motivationAttachment: nil,
             demarche: {
