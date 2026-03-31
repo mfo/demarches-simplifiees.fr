@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_13_120001) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_30_134316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -1226,9 +1226,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_13_120001) do
     t.string "mode"
     t.string "name", null: false
     t.string "test_data"
+    t.jsonb "test_data_tiptap"
     t.string "type"
     t.datetime "updated_at", null: false
     t.string "url"
+    t.jsonb "url_tiptap"
+    t.boolean "use_tiptap", default: true, null: false
   end
 
   create_table "refused_mails", id: :serial, force: :cascade do |t|

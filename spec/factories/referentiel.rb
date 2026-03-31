@@ -15,6 +15,8 @@ FactoryBot.define do
     end
 
     factory :api_referentiel, class: 'Referentiels::APIReferentiel' do
+      use_tiptap { false }
+
       trait :autocomplete do # finess
         mode { 'autocomplete' }
         test_data { '0100026' } # one result 010002699
