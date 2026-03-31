@@ -56,6 +56,8 @@ RSpec.describe NotificationMailer, type: :mailer do
   end
 
   describe 'send_en_construction_notification' do
+    before { stub_request(:post, WEASYPRINT_URL).to_return(body: '%PDF-1.4 fake') }
+
     let(:dossier) { create(:dossier, :en_construction, :with_individual, user: user, procedure:) }
 
     subject(:mail) { described_class.send_en_construction_notification(dossier) }
