@@ -1,0 +1,217 @@
+name: HAML to ERB Migration
+
+on:
+  schedule:
+    - cron: '23 */3 * * *' # every 3h, off-minute
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'Number of files to migrate in this run'
+        required: false
+        default: '5'
+        type: string
+
+concurrency:
+  group: haml-migration
+  cancel-in-progress: false
+
+env:
+  DISABLE_SPRING: '1'
+  RAILS_ENV: development
+  DATABASE_URL: 'postgres://tps_test:tps_test@localhost:5432/tps_dev'
+
+jobs:
+  migrate:
+    name: Migrate HAML files
+    runs-on: warp-ubuntu-2204-x64-2x
+    timeout-minutes: 120
+
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: tps_test
+          POSTGRES_DB: tps_dev
+          POSTGRES_PASSWORD: tps_test
+        ports: ["5432:5432"]
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Rails
+        uses: ./.github/actions/ci-setup-rails
+        env:
+          RAILS_ENV: development
+          DATABASE_URL: 'postgres://tps_test:tps_test@localhost:5432/tps_dev'
+
+      - name: Setup bun and node modules
+        uses: ./.github/actions/ci-setup-bun-node
+
+      - name: Setup Playwright MCP
+        run: npx -y playwright install --with-deps chromium
+
+      - name: Precompile assets
+        run: bin/rails assets:precompile
+        env:
+          RAILS_ENV: development
+
+      - name: Setup development database
+        run: bin/rails db:schema:load db:seed
+        env:
+          DATABASE_URL: 'postgres://tps_test:tps_test@localhost:5432/tps_dev'
+
+      - name: Generate routes reference
+        run: |
+          mkdir -p data
+          bundle exec rails routes > data/routes-reference.txt
+
+      - name: Setup auto-login initializer
+        run: |
+          cat > config/initializers/dev_auto_login.rb << 'RUBY'
+          return unless Rails.env.development?
+
+          Rails.application.config.to_prepare do
+            ApplicationController.class_eval do
+              prepend_before_action :auto_sign_in_dev_user
+
+              def auto_sign_in_dev_user
+                return if user_signed_in?
+                return if ENV['DEV_EMAIL'].blank?
+                user = User.find_by(email: ENV['DEV_EMAIL'])
+                sign_in(user, scope: :user) if user
+                current_user&.instructeur&.update(bypass_email_login_token: true)
+              end
+            end
+
+            ViewComponent::CompileCache.invalidate!
+            ObjectSpace.each_object(Class).select { |klass| klass < ViewComponent::Base }.each do |klass|
+              if klass.instance_variable_defined?(:@__vc_compiler)
+                compiler = klass.instance_variable_get(:@__vc_compiler)
+                compiler.instance_variable_set(:@templates, nil) if compiler.instance_variable_defined?(:@templates)
+              end
+            end
+          end
+          RUBY
+
+      - name: Start dev server
+        run: |
+          bin/rails server -p 3000 -d
+          # Wait for server to be ready
+          for i in $(seq 1 30); do
+            curl -s http://localhost:3000/ > /dev/null && break
+            sleep 2
+          done
+
+      - name: Configure git
+        run: |
+          git config user.name "claude-haml-migration[bot]"
+          git config user.email "claude-haml-migration[bot]@users.noreply.github.com"
+
+      - name: Pick files from issue and lock them
+        id: pick-files
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          BATCH_SIZE: ${{ inputs.batch_size || '5' }}
+        run: |
+          # Fetch issue body
+          gh issue view 19 --repo mfo/demarches-simplifiees.fr --json body -q '.body' > /tmp/issue-body.txt
+
+          # Pick N unlocked files (empty PR column = trailing ||)
+          grep -E '^\| [0-9]+ \| .* \|\|$' /tmp/issue-body.txt | head -n "$BATCH_SIZE" > /tmp/picked-lines.txt
+
+          # Extract file paths
+          awk -F'`' '{print $2}' /tmp/picked-lines.txt > /tmp/picked-files.txt
+
+          if [ ! -s /tmp/picked-files.txt ]; then
+            echo "No files to migrate"
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_files=true" >> "$GITHUB_OUTPUT"
+          echo "Files to migrate:"
+          cat /tmp/picked-files.txt
+
+          # Lock files in issue (replace trailing || with |🔄 en cours|)
+          cp /tmp/issue-body.txt /tmp/issue-body-updated.txt
+          while IFS= read -r filepath; do
+            python3 -c "
+          content = open('/tmp/issue-body-updated.txt').read()
+          old = '\`${filepath}\` ||'
+          new = '\`${filepath}\` |🔄 en cours|'
+          content = content.replace(old, new, 1)
+          open('/tmp/issue-body-updated.txt', 'w').write(content)
+          "
+          done < /tmp/picked-files.txt
+
+          gh issue edit 19 --repo mfo/demarches-simplifiees.fr --body-file /tmp/issue-body-updated.txt
+
+      - name: Install Claude Code
+        if: steps.pick-files.outputs.has_files == 'true'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run migrations
+        if: steps.pick-files.outputs.has_files == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          while IFS= read -r filepath; do
+            echo "=== Migrating: $filepath ==="
+
+            # Create a branch for this file
+            component_name=$(basename "$(dirname "$filepath")" | sed 's/_component$//')
+            branch_name="haml/migrate-${component_name}"
+
+            git checkout main
+            git checkout -b "$branch_name"
+
+            # Run claude with the haml-migration skill
+            claude --print \
+              --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
+              --max-turns 50 \
+              "/haml-migration $filepath" || true
+
+            # Check if a PR was created, get PR URL
+            pr_url=$(gh pr list --head "$branch_name" --state open --json url -q '.[0].url' 2>/dev/null || echo "")
+
+            # Update issue with result
+            gh issue view 19 --repo mfo/demarches-simplifiees.fr --json body -q '.body' > /tmp/issue-current.txt
+            if [ -n "$pr_url" ]; then
+              # Success: replace 🔄 en cours with PR link
+              python3 -c "
+          content = open('/tmp/issue-current.txt').read()
+          content = content.replace('\`${filepath}\` |🔄 en cours|', '\`${filepath}\` |${pr_url}|', 1)
+          open('/tmp/issue-current.txt', 'w').write(content)
+          "
+            else
+              # Failed: revert lock
+              python3 -c "
+          content = open('/tmp/issue-current.txt').read()
+          content = content.replace('\`${filepath}\` |🔄 en cours|', '\`${filepath}\` ||', 1)
+          open('/tmp/issue-current.txt', 'w').write(content)
+          "
+            fi
+            gh issue edit 19 --repo mfo/demarches-simplifiees.fr --body-file /tmp/issue-current.txt
+
+          done < /tmp/picked-files.txt
+
+      - name: Unlock remaining files on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          # Revert all 🔄 en cours back to empty
+          gh issue view 19 --repo mfo/demarches-simplifiees.fr --json body -q '.body' > /tmp/issue-cleanup.txt
+          python3 -c "
+          content = open('/tmp/issue-cleanup.txt').read()
+          content = content.replace('|🔄 en cours|', '||')
+          open('/tmp/issue-cleanup.txt', 'w').write(content)
+          "
+          gh issue edit 19 --repo mfo/demarches-simplifiees.fr --body-file /tmp/issue-cleanup.txt
