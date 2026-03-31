@@ -14,6 +14,7 @@
     "@heroicons/react": "^1.0.6",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo": "^7.3.0",
+    "@lingui/react": "^5.9.4",
     "@mapbox/mapbox-gl-draw": "^1.4.3",
     "@popperjs/core": "^2.11.8",
     "@rails/actiontext": "^7.2.201",
@@ -74,6 +75,9 @@
     "@eslint/js": "^9.38.0",
     "@herb-tools/formatter": "^0.8.9",
     "@herb-tools/linter": "^0.8.9",
+    "@lingui/cli": "^5.9.4",
+    "@lingui/swc-plugin": "^5.11.0",
+    "@lingui/vite-plugin": "^5.9.4",
     "@magidoc/cli": "^6.2.0",
     "@react-aria/optimize-locales-plugin": "^1.1.5",
     "@types/debounce": "^1.2.4",
@@ -86,7 +90,7 @@
     "@types/react-dom": "^19.2.2",
     "@types/sortablejs": "^1.15.8",
     "@ungap/with-resolvers": "^0.1.0",
-    "@vitejs/plugin-react": "^5.0.4",
+    "@vitejs/plugin-react-swc": "^4.3.0",
     "del-cli": "^7.0.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
@@ -120,7 +124,8 @@
     "graphql:doc:build": "magidoc generate -c",
     "magidoc:dev": "magidoc dev -m bun -p 4000",
     "magidoc:generate": "magidoc generate -m bun -c",
-    "magidoc:preview": "magidoc preview"
+    "magidoc:preview": "magidoc preview",
+    "i18n:extract": "lingui extract"
   },
   "trustedDependencies": [
     "core-js",

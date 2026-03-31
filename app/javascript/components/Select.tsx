@@ -18,6 +18,7 @@ import type {
 import { useState, useMemo, useRef, type Key } from 'react';
 import { flushSync } from 'react-dom';
 import * as s from 'superstruct';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 
 import './react-aria/components/Select.css';
 import { SearchField } from './react-aria/components/SearchField';
@@ -82,9 +83,12 @@ function MultipleSelectValue() {
       {({ selectedItems, state, defaultChildren }) => (
         <>
           <Button className="react-aria-Select fr-select">
-            {selectedItems.length == 0
-              ? defaultChildren
-              : `${selectedItems.length} choix sélectionnés`}
+            <Plural
+              value={selectedItems.length}
+              _0={defaultChildren}
+              one="1 choix sélectionné"
+              other="# choix sélectionnés"
+            />
           </Button>
           <TagGroup
             items={selectedItems.filter((item) => item != null)}
@@ -142,6 +146,7 @@ export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
 }
 
 function TagGroup({ items, ...props }: TagGroupProps & { items: Item[] }) {
+  const { t } = useLingui();
   return (
     <AriaTagGroup {...props} aria-label="selection">
       <TagList items={items} className="fr-tag-list">
@@ -149,7 +154,7 @@ function TagGroup({ items, ...props }: TagGroupProps & { items: Item[] }) {
           <Tag
             key={item.value}
             id={item.value}
-            textValue={`Supprimer ${item.label}`}
+            textValue={t`Supprimer ${item.label}`}
             className="fr-tag fr-tag--sm fr-tag--dismiss"
           >
             {item.label}
@@ -159,7 +164,9 @@ function TagGroup({ items, ...props }: TagGroupProps & { items: Item[] }) {
               slot="remove"
               className="fr-tag--dismiss"
             >
-              <span className="fr-sr-only">Supprimer {item.label}</span>
+              <span className="fr-sr-only">
+                <Trans>Supprimer {item.label}</Trans>
+              </span>
             </Button>
           </Tag>
         )}
