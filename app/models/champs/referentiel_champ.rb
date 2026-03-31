@@ -11,7 +11,7 @@ class Champs::ReferentielChamp < Champ
   before_save :clear_previous_result, if: -> { external_id_changed? }
 
   def fetch_external_data
-    ReferentielService.new(referentiel:).call(external_id).fmap do |data|
+    ReferentielService.new(referentiel:).call(external_id, dossier:).fmap do |data|
       {
         data:, # keep raw API response
         value: external_id, # now that we have the data, we can set the value
