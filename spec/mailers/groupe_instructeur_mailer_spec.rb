@@ -163,7 +163,7 @@ RSpec.describe GroupeInstructeurMailer, type: :mailer do
         expect(subject.to).to eq(['instructeur@test.fr'])
         expect(subject.subject).to include('Vous avez été ajouté(e) au groupe instructeur « Groupe 1 »')
         expect(subject.subject).to include(procedure.libelle)
-        expect(subject.body).to include('Vous avez été ajouté(e) au groupe instructeur « Groupe 1 »')
+        expect(subject.body).to include('Vous avez été ajouté(e) au groupe instructeur « <strong>Groupe 1</strong> »')
         expect(subject.body).to include(procedure.libelle)
         expect(subject.body).to include('admin@test.fr')
       end
