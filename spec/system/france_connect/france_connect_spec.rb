@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe 'France Connect Connexion' do
+describe 'FranceConnect Connexion' do
   let(:code) { 'plop' }
   let(:state) { 'state' }
   let(:id_token) { 'id_token' }
@@ -32,11 +32,11 @@ describe 'France Connect Connexion' do
       visit new_user_session_path
     end
 
-    scenario 'link to France Connect is present' do
+    scenario 'link to FranceConnect is present' do
       expect(page).to have_css('.fr-connect')
     end
 
-    context 'and click on france connect link' do
+    context 'and click on FranceConnect link' do
       context 'when authentification is ok' do
         before do
           allow(FranceConnectService).to receive(:authorization_uri)

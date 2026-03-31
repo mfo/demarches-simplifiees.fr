@@ -396,20 +396,20 @@ describe Dossier, type: :model do
           expect(dossier.individual.gender).to be_nil
         end
 
-        context 'and the user signs-in using France Connect' do
+        context 'and the user signs-in using FranceConnect' do
           let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
 
-          it 'fills the individual with the informations from France Connect' do
+          it 'fills the individual with the informations from FranceConnect' do
             subject
             expect(dossier.individual.nom).to eq('DUBOIS')
             expect(dossier.individual.prenom).to eq('Angela Claire Louise')
             expect(dossier.individual.gender).to eq(Individual::GENDER_FEMALE)
           end
         end
-        context 'and the user signs-in using France Connect many times' do
+        context 'and the user signs-in using FranceConnect many times' do
           let(:user) { create(:user, france_connect_informations: [build(:france_connect_information), build(:france_connect_information)]) }
 
-          it 'fills the individual with the informations from France Connect' do
+          it 'fills the individual with the informations from FranceConnect' do
             subject
             expect(dossier.individual.nom).to eq(nil)
             expect(dossier.individual.prenom).to eq(nil)

@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
   before_action :redirect_transitoire_domain
 
   def staging_authenticate
-    # france connect sector identifier system does not support basic auth
+    # FranceConnect sector identifier system does not support basic auth
     return if request.path == france_connect_redirect_uris_path
 
     if StagingAuthService.enabled? && !authenticate_with_http_basic { |username, password| StagingAuthService.authenticate(username, password) }

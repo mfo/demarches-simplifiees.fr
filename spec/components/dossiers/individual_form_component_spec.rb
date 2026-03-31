@@ -10,7 +10,7 @@ RSpec.describe Dossiers::IndividualFormComponent, type: :component do
 
   subject { render_inline(described_class.new(dossier:)) }
 
-  context "when user is connected via France Connect" do
+  context "when user is connected via FranceConnect" do
     let(:user) { create(:user, :with_fci) }
 
     context "for self" do
@@ -23,7 +23,7 @@ RSpec.describe Dossiers::IndividualFormComponent, type: :component do
       end
     end
 
-    context "for self, when France Connect did not provide all identity fields" do
+    context "for self, when FranceConnect did not provide all identity fields" do
       let(:user) { create(:user, france_connect_informations: [build(:france_connect_information, family_name: nil)]) }
 
       it "all identity fields are editable" do
@@ -58,7 +58,7 @@ RSpec.describe Dossiers::IndividualFormComponent, type: :component do
     end
   end
 
-  context "when user is not connected via France Connect" do
+  context "when user is not connected via FranceConnect" do
     let(:user) { create(:user) }
 
     it "identity fields are editable" do

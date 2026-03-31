@@ -148,11 +148,11 @@ describe Users::SessionsController, type: :controller do
       expect(user.loged_in_with_france_connect.present?).to be_falsey
     end
 
-    context 'when user is connect with france connect particulier' do
+    context 'when user is connect with FranceConnect particulier' do
       let(:logged_in_with_france_connect) { true }
       let(:loged_in_with_france_connect) { User.loged_in_with_france_connects.fetch(:particulier) }
 
-      it 'redirect to france connect logout page' do
+      it 'redirect to FranceConnect logout page' do
         h = { id_token_hint: 'id_token', post_logout_redirect_uri: root_url, state: 'state' }
         expect(response).to redirect_to("#{FRANCE_CONNECT[:end_session_endpoint]}?#{h.to_query}")
 
@@ -166,7 +166,7 @@ describe Users::SessionsController, type: :controller do
       end
     end
 
-    context 'when user is not connect with france connect' do
+    context 'when user is not connect with FranceConnect' do
       it 'redirect to root page' do
         expect(response).to redirect_to(root_path)
       end

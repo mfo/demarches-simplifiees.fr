@@ -72,7 +72,7 @@ describe 'Creating a new dossier:', js: true do
         it_behaves_like 'the user can create a new draft'
       end
 
-      context 'when user is connected via France Connect with incomplete identity' do
+      context 'when user is connected via FranceConnect with incomplete identity' do
         let(:procedure) { create(:procedure, :published, :for_individual, :with_service, libelle:) }
         let(:user) { create(:user, france_connect_informations: [build(:france_connect_information, family_name: nil)]) }
 
