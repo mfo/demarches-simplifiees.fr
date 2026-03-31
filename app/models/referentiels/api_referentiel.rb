@@ -21,6 +21,7 @@ class Referentiels::APIReferentiel < Referentiel
   validates :test_data, presence: true, unless: :use_tiptap?
   validates :url, presence: true, unless: :use_tiptap?
   validates :url_tiptap, presence: true, if: :use_tiptap?
+  validate :validate_tiptap_test_data, if: :use_tiptap?
 
   store_accessor :autocomplete_configuration, :datasource, :json_template
   before_save :name_as_uuid
@@ -156,6 +157,14 @@ class Referentiels::APIReferentiel < Referentiel
     return true if ids.empty?
 
     ids.all? { test_data_tiptap&.dig(_1).present? }
+  end
+
+  def validate_tiptap_test_data
+    tiptap_mention_ids.each do |id|
+      next if test_data_tiptap&.dig(id).present?
+
+      errors.add(:"test_data_tiptap_#{id}", "doit être renseigné")
+    end
   end
 
   def name_as_uuid # should be uniq, using the url was an idea but not unique
