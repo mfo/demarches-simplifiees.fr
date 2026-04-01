@@ -52,3 +52,17 @@
         onclick: "DS.deleteJustificatif('#{opt[:operation]}');"
       }
         Supprimer le justificatif
+
+    - if attestation_context[:template]&.activated?
+      = render Dsfr::NoticeComponent.new(closable: false, data_attributes: { class: 'fr-my-2w' }) do |c|
+        - c.with_title do
+          = attestation_context[:title]
+        - if !batch && attestation_context[:kind].present?
+          - c.with_link do
+            = link_to 'Prévisualiser l’attestation',
+              apercu_attestation_instructeur_dossier_path(dossier.procedure, dossier, attestation_kind: attestation_context[:kind]),
+              class: 'fr-notice__link'
+
+    - if !batch && attestation_context[:kind].present?
+      = render partial: 'instructeurs/dossiers/unspecified_champs',
+        locals: { unspecified_attestation_champs: dossier.unspecified_attestation_champs(attestation_context[:kind]) }

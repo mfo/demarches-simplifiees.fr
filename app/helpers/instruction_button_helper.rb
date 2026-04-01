@@ -56,6 +56,25 @@ module InstructionButtonHelper
     instruction_options(batch:).find { _1[:operation] == operation }
   end
 
+  def instruction_attestation_context(operation:, batch:, procedure:, dossier:)
+    case operation
+    when "accept"
+      {
+        template: batch ? procedure.attestation_acceptation_template : dossier.attestation_acceptation_template,
+        kind: "acceptation",
+        title: "L’acceptation du dossier envoie automatiquement une attestation à l’usager",
+      }
+    when "refuse"
+      {
+        template: batch ? procedure.attestation_refus_template : dossier.attestation_refus_template,
+        kind: "refus",
+        title: "Le refus du dossier envoie automatiquement une attestation à l’usager",
+      }
+    else
+      { template: nil, kind: nil, title: nil }
+    end
+  end
+
   private
 
   def instruction_option(key:, operation:, action:, icon:, batch:)

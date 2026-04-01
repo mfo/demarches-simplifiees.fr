@@ -2,6 +2,7 @@
 
 RSpec.describe Instructeurs::InstructionButtonComponent, type: :component do
   include DossierHelper
+  include Rails.application.routes.url_helpers
 
   subject(:rendered) do
     render_inline(described_class.new(dossier:, procedure: dossier.procedure))
@@ -23,19 +24,12 @@ RSpec.describe Instructeurs::InstructionButtonComponent, type: :component do
       expect(rendered).to have_selector('#modal-instruction-button')
       expect(rendered).to have_selector('#modal-instruction-title', text: "Rendre une décision sur le dossier n° #{dossier.id} - #{dossier.owner_name}")
 
-      expect(rendered).to have_text('Accepter le dossier')
-      expect(rendered).to have_text('Refuser le dossier')
-      expect(rendered).to have_text('Classer sans suite le dossier')
-
-      expect(rendered).to have_selector('[data-state="accept"]')
-      expect(rendered).to have_selector('[data-state="refuse"]')
-      expect(rendered).to have_selector('[data-state="without-continuation"]')
-    end
-
-    it 'renders the motivation fields for each action' do
-      expect(rendered).to have_field('motivation_accept', type: 'textarea')
-      expect(rendered).to have_field('motivation_refuse', type: 'textarea')
-      expect(rendered).to have_field('motivation_without-continuation', type: 'textarea')
+      expect(rendered).to have_link('Accepter le dossier')
+      expect(rendered).to have_link('Refuser le dossier')
+      expect(rendered).to have_link('Classer sans suite le dossier')
+      expect(rendered).to have_selector('a[data-turbo-method="post"]')
+      expect(rendered).not_to have_field('motivation_accept')
+      expect(rendered).not_to have_text("L’acceptation du dossier envoie automatiquement une attestation à l’usager")
     end
 
     it 'renders the annotation warning hidden by default when there are no errors' do
