@@ -199,6 +199,7 @@
                     .fr-toggle
                       = form.check_box :birthdate, id: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__input'
                       = form.label :birthdate, "Ce champ est une date de naissance", for: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__label fr-label'
+                    %p.fr-hint-text La date devra être comprise entre le 1er janvier 1900 et aujourd’hui
 
                   - unless form.object.birthdate?
                     .fr-toggle.fr-mt-2w

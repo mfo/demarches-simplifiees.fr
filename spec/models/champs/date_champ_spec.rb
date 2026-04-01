@@ -161,7 +161,7 @@ describe Champs::DateChamp do
 
       it 'is not valid and contains errors' do
         is_expected.to be_falsey
-        expect(champ.errors[:value]).to eq(["doit être une date de naissance valide (entre le 1er janvier 1900 et aujourd'hui)"])
+        expect(champ.errors.where(:value, :invalid_birthdate)).to be_present
       end
     end
 
@@ -170,7 +170,7 @@ describe Champs::DateChamp do
 
       it 'is not valid and contains errors' do
         is_expected.to be_falsey
-        expect(champ.errors[:value]).to eq(["doit être une date de naissance valide (entre le 1er janvier 1900 et aujourd'hui)"])
+        expect(champ.errors.where(:value, :invalid_birthdate)).to be_present
       end
     end
 
