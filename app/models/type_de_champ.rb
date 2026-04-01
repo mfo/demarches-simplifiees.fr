@@ -245,6 +245,7 @@ class TypeDeChamp < ApplicationRecord
 
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
+  before_save :clear_conflicting_date_options, if: :birthdate?
 
   def valid?(context = nil)
     super
@@ -884,6 +885,13 @@ class TypeDeChamp < ApplicationRecord
   end
 
   private
+
+  def clear_conflicting_date_options
+    self.date_in_past = nil
+    self.range_date = nil
+    self.start_date = nil
+    self.end_date = nil
+  end
 
   def families_to_content_types(families)
     return AUTHORIZED_CONTENT_TYPES if families.blank?
