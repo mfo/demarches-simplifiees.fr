@@ -87,9 +87,5 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
     { url_tags: field_tags + [query_tag] }
   end
 
-  def test_data_tags
-    return [] if referentiel.url_tiptap.blank?
-    TiptapService.used_tags_and_libelle_for(referentiel.url_tiptap.deep_symbolize_keys)
-      .map { |id, label| { id:, label: } }
-  end
+  delegate :test_data_tags, to: :referentiel
 end

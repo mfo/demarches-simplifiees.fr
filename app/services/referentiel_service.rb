@@ -38,7 +38,7 @@ class ReferentielService
   end
 
   def test_url
-    url(referentiel.use_tiptap? ? referentiel.test_data_tiptap&.dig("{query}") : referentiel.test_data)
+    url(referentiel.effective_test_data)
   end
 
   def test_headers
@@ -48,8 +48,7 @@ class ReferentielService
   def validate_referentiel
     case referentiel
     when Referentiels::APIReferentiel
-      test_data = referentiel.use_tiptap? ? referentiel.test_data_tiptap&.dig("{query}") : referentiel.test_data
-      result = call(test_data)
+      result = call(referentiel.effective_test_data)
 
       case result
       in Success

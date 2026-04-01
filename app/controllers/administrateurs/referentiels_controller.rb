@@ -32,13 +32,6 @@ module Administrateurs
       @referentiel = Referentiels::APIReferentiel.new(referentiel_params.slice(:url, :url_tiptap, :use_tiptap, :test_data_tiptap))
       @referentiel.url_allowed?
 
-      test_data_tags = if @referentiel.use_tiptap? && @referentiel.url_tiptap.present?
-        TiptapService.used_tags_and_libelle_for(@referentiel.url_tiptap.deep_symbolize_keys)
-          .map { |id, label| { id:, label: } }
-      else
-        []
-      end
-
       render turbo_stream: [
         turbo_stream.replace(
           'url-validation-feedback',

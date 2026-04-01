@@ -78,6 +78,16 @@ class Referentiels::APIReferentiel < Referentiel
     tiptap_paragraph_nodes.any? { _1["type"] == "mention" && _1.dig("attrs", "id") == "{query}" }
   end
 
+  def test_data_tags
+    return [] if url_tiptap.blank?
+    TiptapService.used_tags_and_libelle_for(url_tiptap.deep_symbolize_keys)
+      .map { |id, label| { id:, label: } }
+  end
+
+  def effective_test_data
+    use_tiptap? ? test_data_tiptap&.dig("{query}") : test_data
+  end
+
   def last_response_body
     (last_response || {}).fetch("body") { {} }
   end
