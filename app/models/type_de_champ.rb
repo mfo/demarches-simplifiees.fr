@@ -156,6 +156,7 @@ class TypeDeChamp < ApplicationRecord
                  :min_number,
                  :max_number,
                  :range_number,
+                 :birthdate,
                  :date_in_past,
                  :range_date,
                  :start_date,
@@ -354,6 +355,10 @@ class TypeDeChamp < ApplicationRecord
 
   def range_number?
     range_number == "1"
+  end
+
+  def birthdate?
+    birthdate == "1"
   end
 
   def date_in_past?
