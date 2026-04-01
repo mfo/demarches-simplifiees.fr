@@ -669,6 +669,23 @@ class ProcedureRevision < ApplicationRecord
       compare_referentiel_changes(from_type_de_champ, to_type_de_champ).each do |change|
         changes << change
       end
+    elsif to_type_de_champ.dossier_link?
+      if from_type_de_champ.procedures_limit != to_type_de_champ.procedures_limit
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :procedures_limit,
+          from_type_de_champ.procedures_limit,
+          to_type_de_champ.procedures_limit)
+      end
+      if from_type_de_champ.dossier_link_procedure_ids != to_type_de_champ.dossier_link_procedure_ids
+        all_ids = (from_type_de_champ.dossier_link_procedure_ids + to_type_de_champ.dossier_link_procedure_ids).uniq
+        procedures_by_id = Procedure.with_discarded.where(id: all_ids).pluck(:id, :libelle).to_h
+        from = from_type_de_champ.dossier_link_procedure_ids.map { { id: _1, libelle: procedures_by_id[_1] } }
+        to = to_type_de_champ.dossier_link_procedure_ids.map { { id: _1, libelle: procedures_by_id[_1] } }
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :dossier_link_procedure_ids,
+          from,
+          to)
+      end
     end
     changes
   end

@@ -177,7 +177,9 @@ class TypeDeChamp < ApplicationRecord
                  :referentiel_mapping,
                  :pj_limit_formats,
                  :pj_format_families,
-                 :pj_auto_purge
+                 :pj_auto_purge,
+                 :procedures_limit,
+                 :dossier_link_procedure_ids
 
   has_many :revision_types_de_champ, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
@@ -368,6 +370,16 @@ class TypeDeChamp < ApplicationRecord
 
   def collapsible_explanation_enabled?
     collapsible_explanation_enabled == "1"
+  end
+
+  def procedures_limit?
+    procedures_limit == "1"
+  end
+
+  def dossier_link_procedure_ids = Array.wrap(super)
+
+  def dossier_link_procedure_ids=(value)
+    super(Array.wrap(value).map(&:to_i).reject(&:zero?).uniq)
   end
 
   def prefillable?
@@ -733,6 +745,7 @@ class TypeDeChamp < ApplicationRecord
       :expression_reguliere, :expression_reguliere_indications, :expression_reguliere_exemple_text, :expression_reguliere_error_message,
     ],
     type_champs.fetch(:referentiel) => [:referentiel_mapping],
+    type_champs.fetch(:dossier_link) => [:procedures_limit, :dossier_link_procedure_ids],
   }
 
   def clean_options

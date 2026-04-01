@@ -221,6 +221,24 @@
             - if type_de_champ.quotient_familial?
               .cell.fr-my-auto.fr-mx-3w
                 Ce champ permet de récupérer automatiquement et de façon fiable les données d'identité, le quotient familial CAF ou MSA et la composition familiale de l'usager connecté via FranceConnect
+            - if type_de_champ.dossier_link?
+              .fr-hr.fr-mt-2w
+              .cell
+                .fr-toggle.fr-mb-2w
+                  = form.check_box :procedures_limit, id: dom_id(type_de_champ, :procedures_limit), class: 'fr-toggle__input'
+                  = form.label :procedures_limit, "Limiter à certaines démarches", for: dom_id(type_de_champ, :procedures_limit), class: 'fr-toggle__label fr-label'
+
+                - if form.object.procedures_limit?
+                  .border-left-dark
+
+                    .fr-notice.fr-notice--info
+                      .fr-container
+                        .fr-notice__body
+                          %p
+                            %span.fr-notice__title.fr-text--sm.fr-mr-0 Seuls les dossiers déposés par l'usager lui-même seront proposés
+
+                    .cell.fr-mt-2w
+                      = render TypesDeChampEditor::DossierLinkChampComponent.new(procedures: current_administrateur.procedures, type_de_champ: type_de_champ, form: form, procedure: procedure)
 
         .flex.justify-start.fr-mt-1w.flex-gap
           - if type_de_champ.linked_drop_down_list?

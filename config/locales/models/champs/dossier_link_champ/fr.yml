@@ -11,3 +11,4 @@ fr:
           attributes:
             value:
               not_found: "Le dossier n’existe pas"
+              not_in_allowed_procedures: "Ce dossier n’est pas dans une démarche autorisée"

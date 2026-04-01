@@ -59,7 +59,9 @@ export class TypeDeChampEditorController extends ApplicationController {
           this.requestSubmitForm(target.form);
         }
       },
-      changeable: (target) => this.save(target.form)
+      changeable: (target) => this.save(target.form),
+      // dossier link combobox use hidden input to trigger saves
+      hidden: (target) => this.save(target.form)
     });
   }
 

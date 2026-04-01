@@ -89,6 +89,9 @@ fr:
     update_pj_limit_formats: "La limitation des formats du champ « %{label} » a été modifiée."
     update_pj_format_families: "Les familles de formats acceptés du champ « %{label} » ont été modifiées."
     update_pj_auto_purge: "La suppression automatique du champ « %{label} » a été modifiée."
+    add_procedures_limit: L’option « Limiter à certaines démarches » a été activée pour le champ « %{label} ».
+    remove_procedures_limit: L’option « Limiter à certaines démarches » a été désactivée pour le champ « %{label} ».
+    update_procedures: "Les démarches autorisées pour le champ « %{label} » ont été modifiées :"
 
   private:
     add: L’annotation privée « %{label} » a été ajoutée.
