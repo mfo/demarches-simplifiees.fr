@@ -3,6 +3,7 @@
 class Referentiels::NewFormComponent < Referentiels::MappingFormBase
   delegate :authentication_by_header_token?,
            :authentication_data_header,
+           :use_tiptap?,
            to: :referentiel
 
   def id
@@ -64,5 +65,27 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
     else
       { class: 'fr-btn' }
     end
+  end
+
+  def coordinate
+    @coordinate ||= @procedure.draft_revision.coordinate_for(@type_de_champ)
+  end
+
+  def tags
+    eligible_types = %w[text email phone number integer_number decimal_number formatted iban siret drop_down_list dossier_link rna rnf annuaire_education]
+
+    field_tags = coordinate.upper_coordinates
+      .filter { eligible_types.include?(_1.type_champ) }
+      .map { |coord| { id: "tdc#{coord.stable_id}", libelle: coord.libelle } }
+
+    query_tag = { id: "{query}", libelle: "Valeur saisie par l’usager" }
+
+    { properties: field_tags + [query_tag] }
+  end
+
+  def test_data_tags
+    return [] if referentiel.url_tiptap.blank?
+    TiptapService.used_tags_and_libelle_for(referentiel.url_tiptap.deep_symbolize_keys)
+      .map { |id, label| { id:, label: } }
   end
 end

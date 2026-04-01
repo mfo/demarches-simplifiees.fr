@@ -50,6 +50,12 @@ class Referentiels::APIReferentiel < Referentiel
     json_template&.to_json
   end
 
+  def url_tiptap=(value)
+    super(value.is_a?(String) ? JSON.parse(value) : value)
+  rescue JSON::ParserError
+    super(value)
+  end
+
   def tiptap_mention_stable_ids
     return [] if url_tiptap.blank?
 
