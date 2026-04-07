@@ -55,6 +55,7 @@ class Dossier < ApplicationRecord
   has_many :attestations, dependent: :destroy
 
   has_one_attached :justificatif_motivation
+  has_one_attached :attestation_depot_pdf
 
   has_many :champs, dependent: :destroy
   has_many :commentaires, inverse_of: :dossier, dependent: :destroy
@@ -894,6 +895,28 @@ class Dossier < ApplicationRecord
     return if !template.activated?
 
     AttestationPdfGenerationJob.perform_later(self)
+  end
+
+  def generate_or_reuse_attestation_depot
+    if attestation_depot_pdf.attached? && attestation_depot_pdf.blob.created_at.today? && attestation_depot_pdf.blob.created_at > updated_at
+      return attestation_depot_pdf.blob.download
+    end
+
+    html = ApplicationController.render(
+      template: 'users/dossiers/attestation_depot',
+      layout: 'attestation',
+      assigns: { dossier: self }
+    )
+
+    pdf = WeasyprintService.generate_pdf(html, { procedure_id: procedure.id, dossier_id: id })
+
+    attestation_depot_pdf.attach(
+      io: StringIO.new(pdf),
+      filename: "attestation-depot-dossier-#{id}.pdf",
+      content_type: 'application/pdf'
+    )
+
+    pdf
   end
 
   def is_user?(author)

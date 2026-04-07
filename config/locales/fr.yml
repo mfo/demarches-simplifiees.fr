@@ -966,7 +966,7 @@ fr:
         identity_saved: "Identité enregistrée"
       attestation:
         not_available: "L’attestation n’est pas disponible, veuillez réessayer plus tard."
-      papertrail:
+      attestation_depot:
         receipt: "Attestation de dépôt"
         description: "Ce document atteste que %{user_name} a déposé le %{date} un dossier sur la démarche « %{procedure} »."
         file_submitted_at: "Dossier déposé le"
@@ -976,13 +976,13 @@ fr:
           en_instruction: "en cours d’instruction par l’administration"
           accepte: "accepté"
           refuse: "refusé"
-          sans suite: "classé sans suite"
+          sans_suite: "classé sans suite"
         administrative_service: "Service administratif"
         generated_at: "Fait le %{date},"
         signature: "La direction de %{app_name}"
       show:
-        papertrail:
-          get_papertrail: "Obtenir une attestation de dépôt de dossier"
+        attestation_depot:
+          get_attestation_depot: "Obtenir une attestation de dépôt de dossier"
           filename: "attestation-depot_dossier-%{dossier_id}.pdf"
       show_in_trash:
         page_title: "Dossier n° %{numero} - En corbeille"

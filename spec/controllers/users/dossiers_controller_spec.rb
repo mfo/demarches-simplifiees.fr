@@ -1813,19 +1813,35 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
-  describe "#papertrail" do
+  describe "#attestation_depot" do
     before { sign_in(user) }
 
     subject do
-      get :papertrail, format: :pdf, params: { id: dossier.id }
+      get :attestation_depot, format: :pdf, params: { id: dossier.id }
     end
 
     context 'when the dossier has been submitted' do
-      let(:dossier) { create(:dossier, :en_construction, user: user) }
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, user: user) }
 
-      it 'renders a PDF document' do
+      before do
+        allow(WeasyprintService).to receive(:generate_pdf).and_return("%PDF-1.4 fake")
+      end
+
+      it 'sends a PDF document' do
         subject
-        expect(response).to render_template(:papertrail)
+        expect(response.headers['Content-Type']).to include('application/pdf')
+      end
+
+      it 'calls WeasyPrint with the correct context' do
+        subject
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(a_string_matching(/#{dossier.procedure.libelle}/), { procedure_id: dossier.procedure.id, dossier_id: dossier.id })
+      end
+
+      it 'includes dossier identity in the HTML' do
+        subject
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(a_string_matching(/#{dossier.individual.prenom}/), anything)
       end
     end
 

@@ -8,7 +8,7 @@
 
   .fr-container
     = render partial: 'users/dossiers/show/status_overview', locals: { dossier: @dossier }
-    = render partial: 'users/dossiers/show/papertrail', locals: { dossier: @dossier }
+    = render partial: 'users/dossiers/show/attestation_depot', locals: { dossier: @dossier }
 
     - if !@dossier.termine?
       = render partial: 'users/dossiers/show/latest_message', locals: { dossier: @dossier }
