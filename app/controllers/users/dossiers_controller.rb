@@ -191,6 +191,7 @@ module Users
         end
 
         @dossier.update!(autorisation_donnees: true, identity_updated_at: Time.zone.now)
+        @dossier.prefill_champs_from_france_connect
 
         flash.notice = t('.identity_saved')
 

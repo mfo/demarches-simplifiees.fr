@@ -25,6 +25,28 @@ module DossierFranceConnectPrefillConcern
     )
   end
 
+  def prefill_champs_from_france_connect
+    return if for_tiers?
+    return if !france_connected_with_one_identity?
+
+    fc_info = user.france_connect_informations.first
+    return if fc_info.birthdate.blank?
+
+    revision.types_de_champ_public.each do |tdc|
+      next if !tdc.date?
+      next if !tdc.prefill_with_france_connect?
+
+      champ = project_champ(tdc)
+      next if champ.value.present?
+
+      champ.prefilled_from_france_connect = true
+      champ.value = fc_info.birthdate.iso8601
+      champ.data ||= {}
+      champ.data["prefilled_from_fc"] = true
+      champ.save!
+    end
+  end
+
   private
 
   def prefill_mandataire_from_france_connect
