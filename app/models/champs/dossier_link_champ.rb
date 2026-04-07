@@ -8,8 +8,11 @@ class Champs::DossierLinkChamp < Champ
   private
 
   def dossier_exists
-    if !Dossier.exists?(value)
+    linked_dossier = Dossier.find_by(id: value)
+    if linked_dossier.nil?
       errors.add(:value, :not_found)
+    elsif linked_dossier.brouillon?
+      errors.add(:value, :brouillon_not_allowed)
     end
   end
 
