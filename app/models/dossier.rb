@@ -910,7 +910,6 @@ class Dossier < ApplicationRecord
 
     pdf = WeasyprintService.generate_pdf(html, { procedure_id: procedure.id, dossier_id: id })
 
-    attestation_depot_pdf.purge_later if attestation_depot_pdf.attached?
     attestation_depot_pdf.attach(
       io: StringIO.new(pdf),
       filename: "attestation-depot-dossier-#{id}.pdf",
