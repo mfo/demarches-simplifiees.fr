@@ -843,6 +843,7 @@ en:
       not_in_range: "must be a number between %{min} and %{max}"
       limit_min: "must be a number greater than or equal to %{min}"
       limit_max: "must be a number less than or equal to %{max}"
+      invalid_birthdate: "must be a valid birthdate (between January 1, 1900 and today)"
       date_in_past: "must be a date in the past"
       not_in_range_date: "must be a date between %{start_date} and %{end_date}"
       limit_start_date: "must be a date greater than or equal to %{start_date}"

@@ -66,6 +66,8 @@ class Champ < ApplicationRecord
     :max_number,
     :range_number,
     :range_number?,
+    :birthdate,
+    :birthdate?,
     :date_in_past,
     :date_in_past?,
     :range_date,

@@ -156,6 +156,7 @@ class TypeDeChamp < ApplicationRecord
                  :min_number,
                  :max_number,
                  :range_number,
+                 :birthdate,
                  :date_in_past,
                  :range_date,
                  :start_date,
@@ -244,6 +245,7 @@ class TypeDeChamp < ApplicationRecord
 
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
+  before_save :clear_conflicting_date_options, if: :birthdate?
 
   def valid?(context = nil)
     super
@@ -354,6 +356,10 @@ class TypeDeChamp < ApplicationRecord
 
   def range_number?
     range_number == "1"
+  end
+
+  def birthdate?
+    birthdate == "1"
   end
 
   def date_in_past?
@@ -725,7 +731,7 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:textarea) => [:character_limit],
     type_champs.fetch(:integer_number) => [:positive_number, :min_number, :max_number, :range_number],
     type_champs.fetch(:decimal_number) => [:positive_number, :min_number, :max_number, :range_number],
-    type_champs.fetch(:date) => [:date_in_past, :start_date, :end_date, :range_date],
+    type_champs.fetch(:date) => [:birthdate, :date_in_past, :start_date, :end_date, :range_date],
     type_champs.fetch(:datetime) => [:date_in_past, :start_date, :end_date, :range_date],
     type_champs.fetch(:carte) => TypesDeChamp::CarteTypeDeChamp::LAYERS,
     type_champs.fetch(:drop_down_list) => [:drop_down_other, :drop_down_options, :drop_down_mode],
@@ -879,6 +885,13 @@ class TypeDeChamp < ApplicationRecord
   end
 
   private
+
+  def clear_conflicting_date_options
+    self.date_in_past = nil
+    self.range_date = nil
+    self.start_date = nil
+    self.end_date = nil
+  end
 
   def families_to_content_types(families)
     return AUTHORIZED_CONTENT_TYPES if families.blank?

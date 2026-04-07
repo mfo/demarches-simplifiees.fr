@@ -217,6 +217,7 @@ module Administrateurs
         :min_number,
         :max_number,
         :range_number,
+        :birthdate,
         :date_in_past,
         :range_date,
         :start_date,

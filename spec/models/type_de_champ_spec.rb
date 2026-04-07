@@ -519,6 +519,19 @@ describe TypeDeChamp do
       end
     end
 
+    context "Date with birthdate" do
+      let(:type_de_champ) { create(:type_de_champ_date, procedure:) }
+
+      before do
+        type_de_champ.update!(options: { 'birthdate' => '1', 'key' => 'value' })
+        procedure.publish_revision!(procedure.administrateurs.first)
+      end
+
+      it 'keeping only the date options including birthdate' do
+        is_expected.to eq({ 'birthdate' => '1' })
+      end
+    end
+
     context "Piece justificative" do
       let(:type_de_champ) { create(:type_de_champ_piece_justificative, procedure:) }
 

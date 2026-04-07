@@ -881,6 +881,11 @@ type DateChamp implements Champ {
 
 type DateChampDescriptor implements ChampDescriptor {
   """
+  Ce champ est une date de naissance.
+  """
+  birthdate: Boolean
+
+  """
   Description des champs d’un bloc répétable.
   """
   champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
