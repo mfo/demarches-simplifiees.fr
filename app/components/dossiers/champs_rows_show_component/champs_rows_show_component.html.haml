@@ -55,6 +55,9 @@
             = render partial: "shared/champs/cojo/show", locals: { champ: champ, profile: @profile }
           - when TypeDeChamp.type_champs.fetch(:date)
             %p.copy-zone= champ.to_s
+            - if @profile != 'usager'
+              .fr-mt-n2w
+                = render Champs::FranceConnectBadgeComponent.new(champ: champ)
           - when TypeDeChamp.type_champs.fetch(:datetime)
             %p.copy-zone= champ.to_s
           - when TypeDeChamp.type_champs.fetch(:number), TypeDeChamp.type_champs.fetch(:integer_number), TypeDeChamp.type_champs.fetch(:decimal_number)
