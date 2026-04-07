@@ -898,7 +898,7 @@ class Dossier < ApplicationRecord
   end
 
   def generate_or_reuse_attestation_depot
-    if attestation_depot_pdf.attached? && attestation_depot_pdf.blob.created_at.today?
+    if attestation_depot_pdf.attached? && attestation_depot_pdf.blob.created_at.today? && attestation_depot_pdf.blob.created_at > updated_at
       return attestation_depot_pdf.blob.download
     end
 
