@@ -67,6 +67,7 @@ en:
           rna: RNA number
           rnf: RNF number
         not_filled: Not filled
+        prefill_with_france_connect: "Prefill with FranceConnect"
         format_families:
           document_texte: "Text document"
           tableur: "Spreadsheet"
@@ -82,6 +83,9 @@ en:
           rib: "Bank details (RIB)"
           justificatif_domicile: "Proof of address"
     errors:
+      models:
+        type_de_champ:
+          prefill_with_france_connect_taken: "A date field already has the “Prefill with FranceConnect” option enabled. Only one date field can be prefilled by FranceConnect per procedure."
       type_de_champ:
         attributes:
           header_section_level:

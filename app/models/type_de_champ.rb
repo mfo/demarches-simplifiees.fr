@@ -901,8 +901,8 @@ class TypeDeChamp < ApplicationRecord
 
   def prefill_with_france_connect_unique_per_revision
     siblings = revisions.flat_map(&:types_de_champ).uniq.reject { it.id == id }
-    if siblings.any? { it.prefill_with_france_connect? }
-      errors.add(:prefill_with_france_connect, :taken)
+    if siblings.any?(&:prefill_with_france_connect?)
+      errors.add(:base, :prefill_with_france_connect_taken)
     end
   end
 

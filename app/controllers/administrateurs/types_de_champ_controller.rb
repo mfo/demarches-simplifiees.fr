@@ -40,6 +40,8 @@ module Administrateurs
         @morphed = champ_components_starting_at(@coordinate)
       else
         flash.alert = type_de_champ.errors.full_messages
+        type_de_champ.reload
+        @morphed = [champ_component_from(@coordinate)]
       end
     end
 
