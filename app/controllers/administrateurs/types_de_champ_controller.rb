@@ -37,11 +37,13 @@ module Administrateurs
         flash.alert = errors
       elsif type_de_champ.update(type_de_champ_update_params)
         reload_procedure_with_includes
-        @morphed = champ_components_starting_at(@coordinate)
+        @morphed = if type_de_champ_update_params.key?(:prefill_with_france_connect)
+          draft.revision_types_de_champ.map { |c| champ_component_from(c) }
+        else
+          champ_components_starting_at(@coordinate)
+        end
       else
         flash.alert = type_de_champ.errors.full_messages
-        type_de_champ.reload
-        @morphed = [champ_component_from(@coordinate)]
       end
     end
 

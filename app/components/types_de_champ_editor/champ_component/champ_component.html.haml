@@ -209,9 +209,12 @@
 
                   - if type_de_champ.date? && form.object.birthdate?
                     .fr-toggle.fr-mt-2w
-                      = form.check_box :prefill_with_france_connect, id: dom_id(type_de_champ, :prefill_with_france_connect), class: 'fr-toggle__input'
+                      = form.check_box :prefill_with_france_connect, { id: dom_id(type_de_champ, :prefill_with_france_connect), class: 'fr-toggle__input', disabled: prefill_with_france_connect_locked_by_sibling? }
                       = form.label :prefill_with_france_connect, "Préremplir avec la date de naissance FranceConnect", for: dom_id(type_de_champ, :prefill_with_france_connect), class: 'fr-toggle__label fr-label'
-                    %p.fr-hint-text Le champ sera prérempli avec la date de naissance de l’usager connecté via FranceConnect qui crée le dossier. La valeur reste modifiable.
+                    - if prefill_with_france_connect_locked_by_sibling?
+                      %p.fr-hint-text Un autre champ date utilise déjà cette option. Il ne peut y avoir qu’un seul champ date prérempli par FranceConnect par démarche.
+                    - else
+                      %p.fr-hint-text Le champ sera prérempli avec la date de naissance de l’usager connecté via FranceConnect qui crée le dossier. La valeur reste modifiable.
 
                   - if !form.object.birthdate?
                     .fr-toggle.fr-mt-2w
