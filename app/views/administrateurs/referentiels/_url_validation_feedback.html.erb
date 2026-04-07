@@ -1,16 +1,19 @@
 <div id="url-validation-feedback">
-  <% if referentiel.errors.where(:url).present? %>
-    <%= render Dsfr::AlertComponent.new(state: :warning, title: nil, size: :sm, heading_level: :p, extra_class_names: 'fr-mt-2w') do |c| %>
+  <% url_errors = referentiel.errors.where(:url) %>
+
+  <% if url_errors.present? %>
+    <%= render Dsfr::AlertComponent.new(state: :error, title: nil, size: :sm, heading_level: :p, extra_class_names: 'fr-mt-2w') do |c| %>
       <% c.with_body do %>
-        <p>
-          Pour des raisons de sécurité,
-          <strong>seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés</strong>
-          (à l'exception de .beta.gouv.fr). Les autres domaines sont soumis à
-          une validation manuelle de notre part, merci de nous en faire la
-          demande par mail à "
-          <%= mail_to CONTACT_EMAIL, CONTACT_EMAIL, class: 'fr-link' %>
-          <%= "." %>
-        </p>
+        <% if url_errors.size == 1 %>
+          <p><%= url_errors.first.full_message %></p>
+        <% else %>
+          <p>URL du référentiel :</p>
+          <ul>
+            <% url_errors.each do |error| %>
+              <li><%= error.message %></li>
+            <% end %>
+          </ul>
+        <% end %>
       <% end %>
     <% end %>
   <% elsif referentiel.url.present? || referentiel.url_tiptap.present? %>

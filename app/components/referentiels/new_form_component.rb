@@ -15,7 +15,7 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
   end
 
   def form_url
-    if @referentiel.persisted? && @referentiel.valid?
+    if @referentiel.persisted?
       admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel)
     else
       admin_procedure_referentiels_path(@procedure, @type_de_champ.stable_id)

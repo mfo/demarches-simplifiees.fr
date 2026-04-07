@@ -148,15 +148,28 @@ class Referentiels::APIReferentiel < Referentiel
       url
     end
 
-    return if raw_url.blank?
+    if raw_url.blank?
+      errors.add(:url, :invalid_format) if use_tiptap? && url_tiptap.present?
+      return
+    end
 
     uri = Addressable::URI.parse(raw_url)
-    return if uri.tld == "gouv.fr" && uri.domain != "beta.gouv.fr"
-    allowed_domains = ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND', '').split(',')
-    if allowed_domains.none? { |allowed_domain| uri.host && allowed_domain.include?(uri.host) }
-      errors.add(:url, :not_allowed, contact_email: CONTACT_EMAIL)
+
+    if uri.scheme.blank? || uri.scheme != 'https'
+      errors.add(:url, :https_required)
     end
-  rescue URI::InvalidURIError, PublicSuffix::DomainInvalid
+
+    if use_tiptap? && tiptap_mention_ids.empty?
+      errors.add(:url, :missing_query_params)
+    end
+
+    unless uri.tld == "gouv.fr" && uri.domain != "beta.gouv.fr"
+      allowed_hosts = ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND', '').split(',').filter_map { Addressable::URI.parse(_1).host rescue nil }
+      if uri.host.blank? || allowed_hosts.none? { uri.host == _1 || uri.host.end_with?(".#{_1}") }
+        errors.add(:url, :not_allowed, contact_email: CONTACT_EMAIL)
+      end
+    end
+  rescue Addressable::URI::InvalidURIError, URI::InvalidURIError, PublicSuffix::DomainInvalid
     errors.add(:url, :invalid_format)
   end
 

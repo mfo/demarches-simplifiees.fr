@@ -27,11 +27,15 @@ describe 'Referentiel API:' do
     scenario 'Setup as admin, fails with invalid url (tiptap)', js: true do
       click_on('Configurer le champ')
 
-      fill_in_tiptap_url('https://google.com')
+      fill_in_tiptap_url('http://google.com')
 
-      expect(page).to have_content('seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
+      expect(page).to have_content('Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
+      expect(page).to have_content('doit commencer par https://')
+      expect(page).to have_content('doit contenir au moins un paramètre dynamique (tag)')
+      expect(page).to have_content('doit être autorisée par notre équipe.')
 
       fill_in_tiptap_url('https://rnb-api.beta.gouv.fr/api/alpha/buildings/')
+      insert_tiptap_tag("Valeur saisie par l’usager", insert_after: '/')
 
       expect(page).to have_content('Attention si vous appelez une API qui renvoie de la donnée personnelle, vous devez en informer votre DPO.')
     end
@@ -41,9 +45,12 @@ describe 'Referentiel API:' do
       click_on('Configurer le champ')
       expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
 
-      fill_in_tiptap_url('https://google.com')
+      fill_in_tiptap_url('http://google.com')
 
-      expect(page).to have_content('seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
+      expect(page).to have_content('Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
+      expect(page).to have_content('doit commencer par https://')
+      expect(page).to have_content('doit contenir au moins un paramètre dynamique (tag)')
+      expect(page).to have_content('doit être autorisée par notre équipe.')
       expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
     end
 

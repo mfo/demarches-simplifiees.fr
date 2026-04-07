@@ -214,7 +214,16 @@ describe Administrateurs::ReferentielsController, type: :controller do
   describe '#clone with tiptap' do
     let(:original_tiptap_data) do
       {
-        url_tiptap: { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/" }] }] },
+        url_tiptap: {
+          "type" => "doc", "content" => [
+            {
+              "type" => "paragraph", "content" => [
+                { "type" => "text", "text" => "https://api.gouv.fr/" },
+                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+              ],
+            },
+          ],
+        },
         test_data_tiptap: { "{query}" => "test" },
         use_tiptap: true,
         hint: 'clone me',
@@ -314,7 +323,16 @@ describe Administrateurs::ReferentielsController, type: :controller do
   describe '#update with tiptap' do
     let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
     let(:initial_url_tiptap) do
-      { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/old" }] }] }
+      {
+        "type" => "doc", "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "https://api.gouv.fr/old" },
+              { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+            ],
+          },
+        ],
+      }
     end
     let(:referentiel) do
       create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ],
