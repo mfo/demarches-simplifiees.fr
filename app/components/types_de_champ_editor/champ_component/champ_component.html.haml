@@ -201,7 +201,7 @@
                       = form.label :birthdate, "Ce champ est une date de naissance", for: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__label fr-label'
                     %p.fr-hint-text La date devra être comprise entre le 1er janvier 1900 et aujourd’hui
 
-                  - unless form.object.birthdate?
+                  - if !form.object.birthdate?
                     .fr-toggle.fr-mt-2w
                       = form.check_box :date_in_past, id: dom_id(type_de_champ, :date_in_past), class: 'fr-toggle__input'
                       = form.label :date_in_past, "Cette date doit être dans le passé", for: dom_id(type_de_champ, :date_in_past), class: 'fr-toggle__label fr-label'

@@ -18,7 +18,7 @@ class DateLimitValidator < ActiveModel::Validator
   private
 
   def validate_birthdate(champ, date)
-    unless (BIRTHDATE_MIN..Date.today).cover?(date)
+    if !(BIRTHDATE_MIN..Date.today).cover?(date)
       # i18n-tasks-use t('errors.messages.invalid_birthdate')
       champ.errors.add(:value, :invalid_birthdate)
     end
