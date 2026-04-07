@@ -4,6 +4,7 @@ import * as s from 'superstruct';
 import type { Loader } from './hooks';
 
 export const Item = s.object({
+  id: s.optional(s.string()),
   label: s.string(),
   value: s.string(),
   data: s.any()
