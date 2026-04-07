@@ -55,6 +55,19 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
           expect(subject).to have_css(".fr-message--info", text: /Dossier/)
         end
       end
+
+      context "when the linked dossier has been hidden by the user" do
+        let(:linked_dossier) do
+          create(:dossier, :en_instruction, hidden_by_user_at: Time.zone.local(2026, 3, 15))
+        end
+
+        it "renders the hidden_by_user message" do
+          expect(subject).to have_css(
+            ".fr-message--info",
+            text: /Dossier déposé le .* sur la démarche .* mais supprimé le 15 mars 2026/
+          )
+        end
+      end
     end
 
     context 'with referentiel champs' do

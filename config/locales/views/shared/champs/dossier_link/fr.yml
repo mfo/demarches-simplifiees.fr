@@ -1,0 +1,6 @@
+---
+fr:
+  shared:
+    champs:
+      dossier_link:
+        hidden: "Dossier déposé le %{depose_at} sur la démarche « %{procedure_libelle} » mais supprimé le %{hidden_at}"

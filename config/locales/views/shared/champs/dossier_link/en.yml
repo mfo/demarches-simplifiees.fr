@@ -1,0 +1,6 @@
+---
+en:
+  shared:
+    champs:
+      dossier_link:
+        hidden: "File submitted on %{depose_at} for the procedure “%{procedure_libelle}” but deleted on %{hidden_at}"

@@ -63,9 +63,17 @@ module Dsfr
       when TypeDeChamp.type_champs[:rna]
         { state: :info, text: t(".rna.data_fetched", title: @champ.title, address: @champ.full_address) }
       when TypeDeChamp.type_champs[:dossier_link]
-        dossier = Dossier.visible_by_administration.find_by(id: @champ.value)
+        dossier = Dossier.find_by(id: @champ.value)
         if dossier.present?
-          { state: :info, text: dossier.text_summary }
+          if dossier.hidden_by_user_at.present?
+            { state: :info, text: I18n.t('shared.champs.dossier_link.hidden',
+                                         depose_at: l(dossier.depose_at.to_date),
+                                         procedure_libelle: dossier.procedure.libelle,
+                                         hidden_at: l(dossier.hidden_by_user_at.to_date)),
+            }
+          else
+            { state: :info, text: dossier.text_summary }
+          end
         end
       when TypeDeChamp.type_champs[:referentiel]
         if type_de_champ.referentiel.blank?
