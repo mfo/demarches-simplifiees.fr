@@ -6,4 +6,8 @@
       <%= turbo_stream.focus(@first_champ_id, delay: 50) %>
     <% end %>
   <% end %>
+
+  <%= turbo_stream.replace dom_id(@champ, :repetition_actions) do %>
+    <%= render partial: "champs/repetition/actions", locals: { champ: @champ, max_reached: @champ.max_reached? } %>
+  <% end %>
 <% end %>

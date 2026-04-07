@@ -816,6 +816,11 @@ fr:
           attributes:
             value:
               not_integerable: "doit être un entier"
+        "champs/repetition_champ":
+          attributes:
+            value:
+              repetition_too_few: "doit contenir au minimum %{min} élément(s)"
+              repetition_too_many: "ne peut pas contenir plus de %{max} élément(s)"
   errors:
     format: "Le champ « %{attribute} » %{message}"
     messages:
@@ -835,6 +840,11 @@ fr:
         not_found: 'Nous n’avons pas trouvé d’établissement correspondant à ce numéro SIRET.'
       missing_range_rules: Les valeurs minimale et/ou maximale doivent être renseignées.
       invalid_range_rules: La valeur minimale doit être inférieure à la valeur maximale.
+      invalid_repetition_range: La valeur minimale doit être inférieure ou égale à la valeur maximale.
+      invalid_repetition_max: La valeur maximale doit être supérieure ou égale à 1.
+      invalid_mandatory_repetition_min: Comme le champ est obligatoire, la valeur minimale doit être supérieure ou égale à 1.
+      invalid_not_mandatory_repetition_min: Comme le champ n’est pas obligatoire, la valeur minimale doit être égale à 0 ou ne doit pas être renseignée.
+      missing_repetition_min_or_max: Une valeur minimale ou maximale doit être renseignée.
       invalid_positive_range_rules: La valeur maximale doit être supérieure à 0 pour que le nombre soit positif.
       missing_range_date_rules: La date de début et/ou de fin doit être renseignée.
       invalid_range_date_rules: La date de début doit être antérieure à la date de fin.
@@ -1208,3 +1218,10 @@ fr:
   editable_champ:
     repetition_component:
       deleted: '[%{row_number}] %{libelle} supprimé'
+      add: 'Ajouter un élément à « %{libelle} »'
+      expand_all: 'Déplier tous les éléments'
+      collapse_all: 'Replier tous les éléments'
+      max_reached: "Vous ne pouvez plus ajouter d’éléments supplémentaires car la limite est de %{max} élément(s) au maximum. Pour ajouter un autre élément, vous devez d’abord en supprimer un."
+      limits_description_both: 'Vous devez renseigner au minimum %{min} élément(s) et au maximum %{max} élément(s).'
+      limits_description_min: 'Vous devez renseigner au minimum %{min} élément(s).'
+      limits_description_max: 'Vous devez renseigner au maximum %{max} élément(s).'
