@@ -229,6 +229,7 @@ module Administrateurs
         :limit_repetitions,
         :min_repetitions,
         :max_repetitions,
+        :prefill_with_france_connect,
         :date_in_past,
         :range_date,
         :start_date,
