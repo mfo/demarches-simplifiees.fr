@@ -85,27 +85,27 @@ class ReferentielService
   end
 
   def resolve_tiptap_url(query_params, values_source)
-    nodes = referentiel.tiptap_paragraph_nodes
-    return nil if nodes.empty?
+    substitutions = build_substitutions(query_params, values_source)
+    return nil if substitutions.nil?
 
-    parts = nodes.map do |node|
-      case node["type"]
-      when "text"
-        node["text"]
-      when "mention"
-        tag_id = node.dig("attrs", "id")
-        if tag_id == "{query}"
-          return nil if query_params.blank?
-          URI.encode_www_form_component(query_params.to_s)
-        else
-          value = extract_value(values_source, tag_id)
-          return nil if value.blank?
-          URI.encode_www_form_component(value)
-        end
+    return nil if referentiel.url_tiptap.blank?
+
+    TiptapService.new.to_texts_and_tags(
+      referentiel.url_tiptap.deep_symbolize_keys,
+      substitutions
+    )
+  end
+
+  def build_substitutions(query_params, values_source)
+    referentiel.tiptap_mention_ids.each_with_object({}) do |id, hash|
+      value = if id == "{query}"
+        query_params.presence&.to_s
+      else
+        extract_value(values_source, id)
       end
+      return nil if value.blank?
+      hash[id] = URI.encode_www_form_component(value)
     end
-
-    parts.join
   end
 
   def extract_value(values_source, tag_id)
