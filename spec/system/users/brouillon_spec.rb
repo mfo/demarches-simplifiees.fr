@@ -170,6 +170,26 @@ describe 'The user', js: true do
     end.to change { Champ.where.not(discarded_at: nil).count }
   end
 
+  let(:procedure_with_repetition_limited) do
+    procedure = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :repetition, libelle: 'bloc', children: [{ libelle: 'sous champ' }] }])
+    tdc = procedure.draft_revision.types_de_champ_public.first
+    tdc.update!(limit_repetitions: '1', max_repetitions: '2')
+    procedure
+  end
+
+  scenario 'repetition with max limit disables add button when reached' do
+    log_in(user, procedure_with_repetition_limited)
+    fill_individual
+
+    expect(page).to have_button('Ajouter un élément à « bloc »', disabled: false)
+    dossier = user_dossier.reload
+
+    click_on 'Ajouter un élément à « bloc »'
+    expect(page).to have_selector('.repetition .champs-group', count: 2)
+
+    expect(page).to have_button('Ajouter un élément à « bloc »', disabled: true)
+  end
+
   let(:procedure_with_repetition_2) do
     create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :text, mandatory: true, libelle: 'texte obligatoire' }, { type: :repetition, mandatory: true, libelle: 'repetition', children: [{ libelle: 'sub type de champ' }] }])
   end
