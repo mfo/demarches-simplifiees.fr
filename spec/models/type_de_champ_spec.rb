@@ -20,6 +20,32 @@ describe TypeDeChamp do
       end
     end
 
+    context 'prefill_with_france_connect uniqueness per revision' do
+      let(:procedure) { create(:procedure) }
+      let(:tdc1) { create(:type_de_champ_date, procedure:) }
+      let(:tdc2) { create(:type_de_champ_date, procedure:) }
+
+      before do
+        tdc1.update!(options: { 'birthdate' => '1', 'prefill_with_france_connect' => '1' })
+      end
+
+      it 'rejects a second date field with the option enabled in the same revision' do
+        tdc2.options = { 'birthdate' => '1', 'prefill_with_france_connect' => '1' }
+        expect(tdc2).not_to be_valid
+        expect(tdc2.errors[:base]).to be_present
+      end
+
+      it 'allows updating the same field that already has the option' do
+        tdc1.libelle = 'Nouveau libellé'
+        expect(tdc1).to be_valid
+      end
+
+      it 'clears prefill_with_france_connect when birthdate is disabled' do
+        tdc1.update!(options: { 'birthdate' => '0', 'prefill_with_france_connect' => '1' })
+        expect(tdc1.prefill_with_france_connect).to be_nil
+      end
+    end
+
     context 'description' do
       it do
         is_expected.to allow_value(nil).for(:description)
