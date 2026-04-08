@@ -2,7 +2,12 @@
 - profile = controller.try(:nav_bar_profile)
 - hidden_at = dossier && ((profile == :user && dossier.hidden_by_user_at) || (profile == :instructeur && dossier.hidden_by_administration_at))
 - if dossier
-  - if hidden_at.present?
+  - if dossier.hidden_by_expired_at.present?
+    %p Dossier n° #{dossier.id}
+    %br
+    .copy-zone
+      %p= t('shared.champs.dossier_link.expired', depose_at: l(dossier.depose_at.to_date), procedure_libelle: dossier.procedure.libelle, expired_at: l(dossier.hidden_by_expired_at.to_date))
+  - elsif hidden_at.present?
     %p Dossier n° #{dossier.id}
     %br
     .copy-zone
