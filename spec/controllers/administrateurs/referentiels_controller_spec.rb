@@ -69,7 +69,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
           mode: 'exact_match',
           url_tiptap: url_tiptap_json.to_json,
           hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
-          use_tiptap: 'true',
           test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
           authentication_data: { header: 'Authorization', value: 'Bearer secret-token' },
           authentication_method: 'header_token',
@@ -119,8 +118,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
             mode: 'exact_match',
             url_tiptap: url_tiptap_json.to_json,
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
-            use_tiptap: 'true',
-            test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
+              test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
           }
         end
 
@@ -147,8 +145,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
             mode: 'autocomplete',
             url_tiptap: url_tiptap_json.to_json,
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
-            use_tiptap: 'true',
-            test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
+              test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
           }
         end
 
@@ -197,7 +194,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
           mode: 'exact_match',
           url_tiptap: url_tiptap_json.to_json,
           hint: 'Identifiant FINESS',
-          use_tiptap: 'true',
           test_data_tiptap: { "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" },
         }
       end
@@ -207,13 +203,10 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
         referentiel = Referentiel.last
         expect(response).to have_http_status(:success)
-        expect(referentiel.use_tiptap).to be true
         expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
         expect(referentiel.test_data_tiptap).to eq({ "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" })
         expect(referentiel.hint).to eq('Identifiant FINESS')
         expect(referentiel.mode).to eq('exact_match')
-        expect(referentiel.url).to be_nil
-        expect(referentiel.test_data).to be_nil
       end
     end
 
@@ -226,7 +219,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
           mode: 'exact_match',
           url_tiptap: url_tiptap_json.to_json,
           hint: 'Identifiant FINESS',
-          use_tiptap: 'true',
           test_data_tiptap: { "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" },
         }
       end
@@ -236,7 +228,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
         referentiel = Referentiel.last
         expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
-        expect(referentiel.use_tiptap).to be true
         expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
         expect(referentiel.test_data_tiptap).to eq({ "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" })
       end
@@ -257,7 +248,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
           ],
         },
         test_data_tiptap: { "{query}" => "test" },
-        use_tiptap: true,
         hint: 'clone me',
         mode: 'exact_match',
       }
@@ -269,7 +259,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
       cloned = assigns(:referentiel)
       expect(cloned.url_tiptap).to eq(original_tiptap_data[:url_tiptap])
       expect(cloned.test_data_tiptap).to eq(original_tiptap_data[:test_data_tiptap])
-      expect(cloned.use_tiptap).to be true
       expect(response).to have_http_status(:success)
     end
   end
@@ -314,8 +303,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
           :exact_match,
           :with_exact_match_response,
           types_de_champ: [type_de_champ],
-          use_tiptap: true,
-          datasource: '$.jsonpath',
+            datasource: '$.jsonpath',
           tiptap_template: { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "{{jsonpath}}" }] }] }.to_json
         )
       end
@@ -369,7 +357,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
     let(:referentiel) do
       create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ],
-        use_tiptap: true,
         url_tiptap: initial_url_tiptap,
         test_data_tiptap: { "{query}" => "old_value" })
     end
@@ -392,8 +379,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
       let(:referentiel) do
         create(:api_referentiel, :exact_match, :with_exact_match_response, types_de_champ: [type_de_champ],
-          use_tiptap: true,
-          url_tiptap: initial_url_tiptap,
+            url_tiptap: initial_url_tiptap,
           test_data_tiptap: { "{query}" => "old_value" },
           datasource: '$.jsonpath',
           tiptap_template: { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "tpl" }] }] }.to_json)
@@ -438,7 +424,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
     context 'with tiptap url containing mentions' do
       let(:referentiel_params) do
         {
-          use_tiptap: 'true',
           url_tiptap: {
             type: "doc",
             content: [

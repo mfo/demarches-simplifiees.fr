@@ -2003,7 +2003,7 @@ describe Procedure do
 
     context 'when referentiel url_tiptap references the text field' do
       before do
-        ref_tdc.update!(referentiel: create(:api_referentiel, :exact_match, use_tiptap: true, url_tiptap: {
+        ref_tdc.update!(referentiel: create(:api_referentiel, :exact_match, url_tiptap: {
           "type" => "doc",
           "content" => [
             {
@@ -2043,7 +2043,7 @@ describe Procedure do
 
     context 'when referentiel has only {query} tag' do
       before do
-        ref_tdc.update!(referentiel: create(:api_referentiel, :exact_match, use_tiptap: true, url_tiptap: {
+        ref_tdc.update!(referentiel: create(:api_referentiel, :exact_match, url_tiptap: {
           "type" => "doc",
           "content" => [
             {

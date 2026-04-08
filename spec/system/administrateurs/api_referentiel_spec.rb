@@ -53,41 +53,6 @@ describe 'Referentiel API:' do
       expect(page).to have_content('doit être autorisée par notre équipe.')
       expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
     end
-
-    context 'when editing a legacy referentiel (use_tiptap: false)' do
-      let(:types_de_champ_public) do
-        [
-          {
-            type: :referentiel,
-            libelle: 'Numero de bâtiment',
-            referentiel: create(:api_referentiel, :exact_match, :with_exact_match_response, url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/'),
-          },
-        ]
-      end
-
-      scenario 'admin sees legacy URL input and reconfigures to finess', js: true, vcr: true do
-        visit champs_admin_procedure_path(procedure)
-        click_on('Configurer le champ')
-
-        # legacy mode: should see a plain text input, not tiptap editor
-        expect(page).to have_css('#referentiel_url')
-        expect(page).not_to have_css('.tiptap-editor')
-
-        # reconfigure: change URL from RNB to finess, change mode to autocomplete
-        find('#referentiel_url').fill_in(with: 'https://tabular-api.data.gouv.fr/api/resources/796dfff7-cf54-493a-a0a7-ba3c2024c6f3/data/?finess__contains={id}')
-        expect(page).to have_content('Attention si vous appelez une API qui renvoie de la donnée personnelle')
-        find('#referentiel_test_data').fill_in(with: '010002699')
-        find('label[for="referentiel_mode_autocomplete"]').click
-        find('#referentiel_hint').fill_in(with: 'Saisir votre finess')
-
-        VCR.use_cassette('referentiel/datagouv-finess') do
-          click_on('Étape suivante')
-          wait_until { Referentiel.first.reload.url.include?('finess__contains') }
-          expect(Referentiel.first.use_tiptap).to eq(false)
-          expect(page).to have_content("Configuration de l’autocomplétion")
-        end
-      end
-    end
   end
 
   context 'when user fill in types_de_champ_public' do
