@@ -17,18 +17,19 @@ describe Administrateurs::ReferentielsController, type: :controller do
     context 'given a referentiel_id' do
       let(:original_data) do
         {
-          url: 'https://rnb-api.beta.gouv.fr',
-          test_data: 'test',
           hint: 'howtofillme',
           mode: 'exact_match',
         }
       end
-      let(:referentiel) { create(:api_referentiel, **original_data) }
+      let(:referentiel) { create(:api_referentiel, :exact_match, **original_data) }
 
       it 'clone existing one' do
         get :new, params: { procedure_id: procedure.id, referentiel_id: referentiel.id, stable_id: }
-        expect(assigns(:referentiel).attributes.with_indifferent_access.slice(*original_data.keys))
-          .to eq(original_data.with_indifferent_access)
+        cloned = assigns(:referentiel)
+        expect(cloned.hint).to eq(original_data[:hint])
+        expect(cloned.mode).to eq(original_data[:mode])
+        expect(cloned.url_tiptap).to eq(referentiel.url_tiptap)
+        expect(cloned.test_data_tiptap).to eq(referentiel.test_data_tiptap)
         expect(response).to have_http_status(:success)
       end
     end
@@ -44,17 +45,32 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
     end
 
-    context 'partial update (autosave with url, hint etc...)' do
+    context 'partial update (autosave with tiptap url, hint etc...)' do
       subject { post :create, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+
+      let(:url_tiptap_json) do
+        {
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "https://rnb-api.beta.gouv.fr/api/alpha/buildings/" },
+                { type: "mention", attrs: { id: "{query}", label: "Valeur saisie par l'usager" } },
+              ],
+            },
+          ],
+        }
+      end
 
       let(:referentiel_params) do
         {
           type: 'Referentiels::APIReferentiel',
           mode: 'exact_match',
-          url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
+          url_tiptap: url_tiptap_json.to_json,
           hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
-          test_data: 'PG46YY6YWCX8',
-          use_tiptap: 'false',
+          use_tiptap: 'true',
+          test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
           authentication_data: { header: 'Authorization', value: 'Bearer secret-token' },
           authentication_method: 'header_token',
         }
@@ -70,9 +86,9 @@ describe Administrateurs::ReferentielsController, type: :controller do
         expect(referentiel.types_de_champ).to include(TypeDeChamp.find_by(stable_id:))
         expect(referentiel.type).to eq(referentiel_params[:type])
         expect(referentiel.mode).to eq(referentiel_params[:mode])
-        expect(referentiel.url).to eq(referentiel_params[:url])
+        expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
         expect(referentiel.hint).to eq(referentiel_params[:hint])
-        expect(referentiel.test_data).to eq(referentiel_params[:test_data])
+        expect(referentiel.test_data_tiptap).to eq(referentiel_params[:test_data_tiptap])
         expect(referentiel.authentication_data.with_indifferent_access).to eq(referentiel_params[:authentication_data].with_indifferent_access)
         expect(referentiel.authentication_method).to eq(referentiel_params[:authentication_method])
       end
@@ -80,15 +96,31 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
     context 'with commit params (submit save)' do
       subject { post :create, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+
+      let(:url_tiptap_json) do
+        {
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "https://rnb-api.beta.gouv.fr/api/alpha/buildings/" },
+                { type: "mention", attrs: { id: "{query}", label: "Valeur saisie par l'usager" } },
+              ],
+            },
+          ],
+        }
+      end
+
       context 'when referentiel is exact_match' do
         let(:referentiel_params) do
           {
             type: 'Referentiels::APIReferentiel',
             mode: 'exact_match',
-            url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
+            url_tiptap: url_tiptap_json.to_json,
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
-            test_data: 'PG46YY6YWCX8',
-            use_tiptap: 'false',
+            use_tiptap: 'true',
+            test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
           }
         end
 
@@ -102,9 +134,9 @@ describe Administrateurs::ReferentielsController, type: :controller do
           expect(referentiel.types_de_champ).to include(TypeDeChamp.find_by(stable_id:))
           expect(referentiel.type).to eq(referentiel_params[:type])
           expect(referentiel.mode).to eq(referentiel_params[:mode])
-          expect(referentiel.url).to eq(referentiel_params[:url])
+          expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
           expect(referentiel.hint).to eq(referentiel_params[:hint])
-          expect(referentiel.test_data).to eq(referentiel_params[:test_data])
+          expect(referentiel.test_data_tiptap).to eq(referentiel_params[:test_data_tiptap])
         end
       end
 
@@ -113,10 +145,10 @@ describe Administrateurs::ReferentielsController, type: :controller do
           {
             type: 'Referentiels::APIReferentiel',
             mode: 'autocomplete',
-            url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
+            url_tiptap: url_tiptap_json.to_json,
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
-            test_data: 'PG46YY6YWCX8',
-            use_tiptap: 'false',
+            use_tiptap: 'true',
+            test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
           }
         end
 
@@ -130,9 +162,9 @@ describe Administrateurs::ReferentielsController, type: :controller do
           expect(referentiel.types_de_champ).to include(TypeDeChamp.find_by(stable_id:))
           expect(referentiel.type).to eq(referentiel_params[:type])
           expect(referentiel.mode).to eq(referentiel_params[:mode])
-          expect(referentiel.url).to eq(referentiel_params[:url])
+          expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
           expect(referentiel.hint).to eq(referentiel_params[:hint])
-          expect(referentiel.test_data).to eq(referentiel_params[:test_data])
+          expect(referentiel.test_data_tiptap).to eq(referentiel_params[:test_data_tiptap])
         end
       end
     end
@@ -273,13 +305,16 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
     context 'full update (updating all attributes) without autosave' do
       subject { patch :update, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: referentiel_params }, format: :turbo_stream }
-      let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, types_de_champ: [type_de_champ]) }
+      let(:new_url_tiptap) do
+        { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://rnb-api.beta.gouv.fr/api/alpha/buildings/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } }] }] }
+      end
       let(:referentiel) do
         create(
           :api_referentiel,
           :exact_match,
           :with_exact_match_response,
           types_de_champ: [type_de_champ],
+          use_tiptap: true,
           datasource: '$.jsonpath',
           tiptap_template: { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "{{jsonpath}}" }] }] }.to_json
         )
@@ -291,28 +326,26 @@ describe Administrateurs::ReferentielsController, type: :controller do
       let(:referentiel_params) do
         {
           mode: 'exact_match',
-          url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
+          url_tiptap: new_url_tiptap.to_json,
           hint: 'Identifiant unique du bâtiment dans le RNB',
-          test_data: 'PG46YY6YWCX8',
+          test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
         }
       end
 
       it 'updates the referentiel and redirects' do
-        expect { subject }
-          .to change { referentiel.reload.attributes.slice(*referentiel_params.keys.map(&:to_s)) }
-          .to(referentiel_params.stringify_keys)
+        subject
 
         # redirect is ok
         expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
 
-        # ensure data is save
+        # ensure data is saved
+        referentiel.reload
         expect(referentiel.mode).to eq(referentiel_params[:mode])
-        expect(referentiel.url).to eq(referentiel_params[:url])
+        expect(referentiel.url_tiptap).to eq(new_url_tiptap)
         expect(referentiel.hint).to eq(referentiel_params[:hint])
-        expect(referentiel.test_data).to eq(referentiel_params[:test_data])
+        expect(referentiel.test_data_tiptap).to eq({ "{query}" => "PG46YY6YWCX8" })
 
         # also reset last_response/referentiel_mapping when url changed
-        referentiel.reload
         expect(referentiel.last_response).to be_nil
         expect(referentiel.autocomplete_configuration).to eq({ "json_template" => {} })
         expect(type_de_champ.reload.referentiel_mapping).to eq({})
