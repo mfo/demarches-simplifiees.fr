@@ -96,7 +96,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     end
 
     context 'with piece_justificative champs (RIB)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'RIB' }] }
+      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib' }] }
       let(:state) { :idle }
       let(:value_json) { {} }
 

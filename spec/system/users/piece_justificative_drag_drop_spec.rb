@@ -68,7 +68,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'shows 20 Mo limit and formats for titre identite' do
-      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'TITRE_IDENTITE' }])
+      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_ti.path)
       click_on 'Commencer la démarche'
@@ -82,7 +82,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'shows formats for RIB' do
-      procedure_rib = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'RIB', nature: 'RIB' }])
+      procedure_rib = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_rib.path)
       click_on 'Commencer la démarche'
@@ -151,7 +151,7 @@ describe 'Piece justificative drag and drop', js: true do
       File.write(large_file_path, large_content)
 
       # Créer une procédure avec titre_identite (limite 20 Mo)
-      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'TITRE_IDENTITE' }])
+      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
       visit commencer_path(path: procedure_ti.path)
       click_on 'Commencer la démarche'
       fill_individual
@@ -182,7 +182,7 @@ describe 'Piece justificative drag and drop', js: true do
       File.write(invalid_file_path, 'test content')
 
       # Créer une procédure avec titre_identite (accepte seulement JPEG/PNG)
-      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'TITRE_IDENTITE' }])
+      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
       visit commencer_path(path: procedure_ti.path)
       click_on 'Commencer la démarche'
       fill_individual

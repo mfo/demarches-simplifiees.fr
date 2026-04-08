@@ -36,7 +36,7 @@ module Dsfr
     end
 
     def pjs_statut?
-      @champ.RIB? && !@champ.idle?
+      @champ.rib? && !@champ.idle?
     end
 
     def dossier_link_support_statut?

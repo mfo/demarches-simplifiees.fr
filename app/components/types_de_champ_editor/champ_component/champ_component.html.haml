@@ -91,7 +91,7 @@
                   = form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: 'fake-label'
                   %p.fr-mb-0= t('.identity_deletion.desc_html')
                   %p.fr-mt-0= t('.identity_deletion.note_html')
-              - elsif type_de_champ.RIB?
+              - elsif type_de_champ.rib?
                 .cell.fr-mt-2w
                   = render Dsfr::NoticeComponent.new(state: 'info') do |c|
                     - c.with_title do
@@ -155,7 +155,7 @@
                         Dans le cadre de la RGPD, le titre d’identité sera supprimé lors de l’acceptation, du refus ou du classement sans suite du dossier.<br>
                         Aussi, pour des raisons de sécurité, un filigrane est automatiquement ajouté aux images.<br>
                         Finalement, le titre d’identité ne sera ni disponible dans les zip de dossiers, ni téléchargeable par API.
-              - elsif procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.RIB?
+              - elsif procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.rib?
                 .fr-hr.fr-mt-2w
                 .cell
                   %p= t('.multiple_files_hint')

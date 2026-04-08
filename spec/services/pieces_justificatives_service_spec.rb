@@ -53,9 +53,9 @@ describe PiecesJustificativesService do
 
     context 'with a titre_identite champ' do
       # Regression test: after T20260303MigrateTitreIdentiteToPieceJustificativeTask,
-      # titre_identite champs have type_champ='piece_justificative' and nature='TITRE_IDENTITE'.
+      # titre_identite champs have type_champ='piece_justificative' and nature='titre_identite'.
       # They must not appear in zip exports for security reasons.
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: :TITRE_IDENTITE }]) }
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: :titre_identite }]) }
 
       before { attach_file_to_champ(pj_champ(dossier)) }
 
@@ -155,7 +155,7 @@ describe PiecesJustificativesService do
       end
 
       context 'with a identite champ pj' do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
         let(:dossier) { create(:dossier, procedure: procedure) }
 
         let(:champ_identite) { dossier.project_champs_public.find(&:titre_identite?) }

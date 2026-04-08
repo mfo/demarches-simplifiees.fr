@@ -182,7 +182,7 @@ describe ImageProcessorJob, :external_deps, type: :job do
       create(:procedure,
              types_de_champ_public: [{ type: :piece_justificative, nature: }])
     end
-    let(:nature) { "RIB" }
+    let(:nature) { "rib" }
 
     let (:dossier) { create(:dossier, procedure:) }
     let(:analysis) { { "some" => "data" } }

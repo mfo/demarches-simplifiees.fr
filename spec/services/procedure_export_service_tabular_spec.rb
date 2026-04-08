@@ -106,7 +106,7 @@ describe ProcedureExportService do
       end
 
       context 'with TypeDeChamp::PieceJustificativeTypeDeChamp (titre_identite)' do
-        let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Titre d'identité", nature: :TITRE_IDENTITE }] }
+        let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Titre d'identité", nature: :titre_identite }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: "Titre d'identité – filled", column: procedure.find_column(label: "Titre d'identité – filled"))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq 'présent' }

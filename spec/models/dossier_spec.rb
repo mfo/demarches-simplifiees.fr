@@ -2831,7 +2831,7 @@ describe Dossier, type: :model do
   end
 
   describe '#update_champs_timestamps' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+    let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:changed_champs) { dossier.champs.filter(&:text?) }
 
