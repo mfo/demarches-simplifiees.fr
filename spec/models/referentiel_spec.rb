@@ -90,7 +90,6 @@ describe Referentiel do
             end
           end
         end
-
       end
     end
   end

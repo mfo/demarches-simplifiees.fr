@@ -15,12 +15,8 @@ FactoryBot.define do
     end
 
     factory :api_referentiel, class: 'Referentiels::APIReferentiel' do
-      use_tiptap { false }
-
       trait :autocomplete do # finess
         mode { 'autocomplete' }
-        test_data { '0100026' } # one result 010002699
-        url { ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/tabular-api.data.gouv/).first }
         url_tiptap do
           {
             "type" => "doc",
@@ -56,8 +52,6 @@ FactoryBot.define do
 
       trait :exact_match do # rnb
         mode { 'exact_match' }
-        test_data { 'PG46YY6YWCX8' }
-        url { ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/rnb-api.beta.gouv/).first }
         url_tiptap do
           {
             "type" => "doc",
@@ -65,8 +59,9 @@ FactoryBot.define do
               {
                 "type" => "paragraph",
                 "content" => [
-                  { "type" => "text", "text" => ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/rnb-api.beta.gouv/).first.to_s + "/" },
+                  { "type" => "text", "text" => ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/rnb-api.beta.gouv/).first.to_s + "/api/alpha/buildings/" },
                   { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Valeur saisie par l'usager" } },
+                  { "type" => "text", "text" => "/" },
                 ],
               },
             ],

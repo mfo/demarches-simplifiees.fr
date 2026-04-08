@@ -341,7 +341,7 @@ describe 'Referentiel API:' do
             type: :referentiel,
             libelle: 'Numero de bâtiment public',
             stable_id: public_referentiel_stable_id,
-            referentiel: create(:api_referentiel, :exact_match, :with_exact_match_response, url: "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/"),
+            referentiel: create(:api_referentiel, :exact_match, :with_exact_match_response),
           },
         ]
       end
@@ -415,7 +415,7 @@ describe 'Referentiel API:' do
             children: [
               {
                 type: :referentiel,
-                referentiel_id: create(:api_referentiel, :exact_match, :with_exact_match_response, url: "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/").id,
+                referentiel_id: create(:api_referentiel, :exact_match, :with_exact_match_response).id,
                 libelle: 'Numero de bâtiment private inside repetition',
                 stable_id: private_referentiel_stable_id,
               },

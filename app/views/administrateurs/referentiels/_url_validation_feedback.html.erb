@@ -1,5 +1,6 @@
 <div id="url-validation-feedback">
   <% errors = referentiel.errors.where(:url_tiptap) %>
+
   <% if errors.any? %>
     <%= render Dsfr::AlertComponent.new(state: :error, title: nil, size: :sm, heading_level: :p, extra_class_names: 'fr-mt-2w') do |c| %>
       <% c.with_body do %>

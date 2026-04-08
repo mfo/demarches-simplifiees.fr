@@ -13,7 +13,19 @@ describe DataSources::ReferentielController, type: :controller do
                :autocomplete,
                :with_autocomplete_response,
                datasource: '$.data',
-               url: "https://tabular-api.data.gouv.fr/api/resources/796dfff7-cf54-493a-a0a7-ba3c2024c6f3/data/?finess__contains={id}")
+               url_tiptap: {
+                 "type" => "doc",
+                 "content" => [
+                   {
+                     "type" => "paragraph",
+                     "content" => [
+                       { "type" => "text", "text" => "https://tabular-api.data.gouv.fr/api/resources/796dfff7-cf54-493a-a0a7-ba3c2024c6f3/data/?finess__contains=" },
+                       { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Valeur saisie par l'usager" } },
+                     ],
+                   },
+                 ],
+               },
+               test_data_tiptap: { "{query}" => "010002699" })
       end
       before { sign_in(user) }
       subject { post :search, params: { q: '010002699', referentiel_id: referentiel.id } }
@@ -52,7 +64,19 @@ describe DataSources::ReferentielController, type: :controller do
                         },
                       ],
                   },
-                  url: "https://api.apprentissage.beta.gouv.fr/api/certification/v1?identifiant.cfd={id}",
+                  url_tiptap: {
+                    "type" => "doc",
+                    "content" => [
+                      {
+                        "type" => "paragraph",
+                        "content" => [
+                          { "type" => "text", "text" => "https://api.apprentissage.beta.gouv.fr/api/certification/v1?identifiant.cfd=" },
+                          { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Valeur saisie par l'usager" } },
+                        ],
+                      },
+                    ],
+                  },
+                  test_data_tiptap: { "{query}" => "50022137" },
                   authentication_method: 'header_token',
                   authentication_data: {
                     header: "Authorization",
