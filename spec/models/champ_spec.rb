@@ -525,7 +525,7 @@ describe Champ do
 
   describe '#enqueue_watermark_job' do
     context 'when type_champ is piece_justificative with titre_identite nature' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champs.first }
 

@@ -373,8 +373,8 @@ RSpec.describe Types::DossierType, type: :graphql do
     end
   end
 
-  describe 'dossier with piece justificative nature=TITRE_IDENTITE filled' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+  describe 'dossier with piece justificative nature=titre_identite filled' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
 
     let(:query) { DOSSIER_WITH_TITRE_IDENTITE_QUERY }
@@ -386,8 +386,8 @@ RSpec.describe Types::DossierType, type: :graphql do
     end
   end
 
-  describe 'dossier with piece justificative nature=TITRE_IDENTITE does not expose sensitive data' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+  describe 'dossier with piece justificative nature=titre_identite does not expose sensitive data' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
     let(:query) { DOSSIER_WITH_PIECE_JUSTIFICATIVE_COLUMNS_AND_FILES_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -401,8 +401,8 @@ RSpec.describe Types::DossierType, type: :graphql do
     end
   end
 
-  describe 'dossier with piece justificative nature=TITRE_IDENTITE not filled' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+  describe 'dossier with piece justificative nature=titre_identite not filled' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, :accepte, procedure: procedure) }
 
     let(:query) { DOSSIER_WITH_TITRE_IDENTITE_QUERY }

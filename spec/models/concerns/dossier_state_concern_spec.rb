@@ -9,12 +9,12 @@ RSpec.describe DossierStateConcern do
       { type: :text, stable_id: 90 },
       { type: :text, stable_id: 91 },
       { type: :piece_justificative, stable_id: 92, condition: ds_eq(constant(true), constant(false)) },
-      { type: :piece_justificative, nature: 'TITRE_IDENTITE', stable_id: 93, condition: ds_eq(constant(true), constant(false)) },
+      { type: :piece_justificative, nature: 'titre_identite', stable_id: 93, condition: ds_eq(constant(true), constant(false)) },
       { type: :repetition, stable_id: 94, children: [{ type: :text, stable_id: 941 }, { type: :text, stable_id: 942 }] },
       { type: :repetition, stable_id: 95, children: [{ type: :text, stable_id: 951 }] },
       { type: :repetition, stable_id: 96, children: [{ type: :text, stable_id: 961 }], condition: ds_eq(constant(true), constant(false)) },
       { type: :text, stable_id: 97, condition: ds_eq(constant(true), constant(false)) },
-      { type: :piece_justificative, nature: 'TITRE_IDENTITE', stable_id: 98 },
+      { type: :piece_justificative, nature: 'titre_identite', stable_id: 98 },
     ]
   end
   let(:auto_archive_on) { nil }
@@ -316,7 +316,7 @@ RSpec.describe DossierStateConcern do
     before { allow(ClamavService).to receive(:safe_file?).and_return(true) }
 
     context 'when piece_justificative with titre_identite nature' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
       let(:champ) { dossier.champs.first }
@@ -328,8 +328,8 @@ RSpec.describe DossierStateConcern do
       end
     end
 
-    context 'when nature is TITRE_IDENTITE' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+    context 'when nature is titre_identite' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
       let(:champ) { dossier.champs.first }

@@ -47,7 +47,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
       )
     end
 
-    if RIB?
+    if rib?
       cs += [
         ['Titulaire', '$.rib.account_holder'],
         ['IBAN', '$.rib.iban'],

@@ -160,12 +160,12 @@ describe TypeDeChamp do
   describe 'piece_justificative nature and options' do
     describe '#allowed_content_types' do
       it 'returns jpeg/png for titre_identite' do
-        tdc = create(:type_de_champ_piece_justificative, nature: 'TITRE_IDENTITE')
+        tdc = create(:type_de_champ_piece_justificative, nature: 'titre_identite')
         expect(tdc.allowed_content_types).to match_array(['image/jpeg', 'image/png'])
       end
 
       it 'includes doc and image types for RIB' do
-        tdc = create(:type_de_champ_piece_justificative, nature: 'RIB')
+        tdc = create(:type_de_champ_piece_justificative, nature: 'rib')
         expect(tdc.allowed_content_types).to include('application/pdf').or include('application/msword')
         expect(tdc.allowed_content_types).to include('image/jpeg').or include('image/png')
       end
@@ -185,7 +185,7 @@ describe TypeDeChamp do
 
     describe '#max_file_size_bytes' do
       it 'is 20MB for titre_identite' do
-        tdc = create(:type_de_champ_piece_justificative, nature: 'TITRE_IDENTITE')
+        tdc = create(:type_de_champ_piece_justificative, nature: 'titre_identite')
         expect(tdc.max_file_size_bytes).to eq(20.megabytes)
       end
 
@@ -197,7 +197,7 @@ describe TypeDeChamp do
 
     describe '#pj_auto_purge?' do
       it 'is true for titre_identite' do
-        tdc = create(:type_de_champ_piece_justificative, nature: 'TITRE_IDENTITE')
+        tdc = create(:type_de_champ_piece_justificative, nature: 'titre_identite')
         expect(tdc.pj_auto_purge?).to be true
       end
 

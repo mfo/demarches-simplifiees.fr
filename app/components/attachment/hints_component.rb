@@ -32,7 +32,7 @@ class Attachment::HintsComponent < ApplicationComponent
     else
       tdc = champ.type_de_champ
       families = tdc.pj_format_families.map(&:to_sym)
-      if tdc.titre_identite? || tdc.RIB? || !tdc.pj_limit_formats? || families.blank? || families.sort == FORMAT_FAMILIES.keys.sort
+      if tdc.titre_identite? || tdc.rib? || !tdc.pj_limit_formats? || families.blank? || families.sort == FORMAT_FAMILIES.keys.sort
         []
       else
         families.filter_map do |key|
@@ -55,7 +55,7 @@ class Attachment::HintsComponent < ApplicationComponent
     return false if champ.nil? || !champ.piece_justificative?
 
     tdc = champ.type_de_champ
-    tdc.titre_identite? || tdc.RIB?
+    tdc.titre_identite? || tdc.rib?
   end
 
   def exhaustive_formats

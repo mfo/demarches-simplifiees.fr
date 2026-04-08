@@ -43,7 +43,7 @@ describe "Dossier en_construction", js: true do
   end
 
   context "with a mandatory titre identite" do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'TITRE_IDENTITE', stable_id: 99, mandatory: true }] }
+    let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'titre_identite', stable_id: 99, mandatory: true }] }
 
     scenario 'remplace a mandatory titre identite' do
       visit_dossier(dossier)

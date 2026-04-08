@@ -707,7 +707,7 @@ RSpec.describe DossierChampsConcern do
         let(:types_de_champ_public) do
           [
             { type: :piece_justificative, libelle: "Un champ pj", stable_id: 98 },
-            { type: :piece_justificative, nature: 'TITRE_IDENTITE', libelle: "Un champ titre identite", stable_id: 99 },
+            { type: :piece_justificative, nature: 'titre_identite', libelle: "Un champ titre identite", stable_id: 99 },
           ]
         end
 

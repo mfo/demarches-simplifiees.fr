@@ -141,8 +141,8 @@ FORMAT_FAMILY_EXAMPLES = {
 }.freeze
 
 NATURE_DISPLAY_FORMATS = {
-  TITRE_IDENTITE: '.jpg, .jpeg, .png',
-  RIB: '.pdf, .doc, .docx, .jpg, .jpeg, .png',
+  titre_identite: '.jpg, .jpeg, .png',
+  rib: '.pdf, .doc, .docx, .jpg, .jpeg, .png',
 }.freeze
 
 FORMAT_FAMILY_TOP_FORMATS = {

@@ -9,7 +9,7 @@ RSpec.describe Attachment::Validation do
 
   describe '#allowed_extensions' do
     context 'with RIB nature (multiple specific formats)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'RIB', nature: 'RIB' }] }
+      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }] }
 
       it 'returns extensions sorted according to EXTENSIONS_ORDER first, then alphabetically' do
         extensions = validation.allowed_extensions
@@ -38,7 +38,7 @@ RSpec.describe Attachment::Validation do
 
   describe '#accept_attribute' do
     context 'with titre_identite nature (image formats only)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'TITRE_IDENTITE' }] }
+      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'titre_identite' }] }
 
       it 'returns only image mime types' do
         accept = validation.accept_attribute
@@ -77,7 +77,7 @@ RSpec.describe Attachment::Validation do
 
   describe '#max_file_size' do
     context 'with titre_identite nature' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'TITRE_IDENTITE' }] }
+      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'titre_identite' }] }
 
       it 'returns 20 megabytes' do
         expect(validation.max_file_size).to eq(20.megabytes)

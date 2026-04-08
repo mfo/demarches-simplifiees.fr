@@ -2,8 +2,8 @@
 
 describe BlobImageProcessorConcern do
   describe '#watermark_pending?' do
-    context 'with PieceJustificativeChamp with nature=TITRE_IDENTITE' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+    context 'with PieceJustificativeChamp with nature=titre_identite' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
       let(:champ) { dossier.champs.first }
 
@@ -20,8 +20,8 @@ describe BlobImageProcessorConcern do
       end
     end
 
-    context 'with PieceJustificativeChamp with nature=TITRE_IDENTITE' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'TITRE_IDENTITE' }]) }
+    context 'with PieceJustificativeChamp with nature=titre_identite' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
       let(:champ) { dossier.champs.first }
 

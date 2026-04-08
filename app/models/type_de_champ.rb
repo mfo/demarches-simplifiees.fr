@@ -115,14 +115,17 @@ class TypeDeChamp < ApplicationRecord
 
   enum :nature, {
     non_specifie: 'NON_SPECIFIE',
-    TITRE_IDENTITE: 'TITRE_IDENTITE',
-    RIB: 'RIB',
+    titre_identite: 'TITRE_IDENTITE',
+    rib: 'RIB',
     justificatif_domicile: 'JUSTIFICATIF_DOMICILE',
   }
 
-  def titre_identite?
-    TITRE_IDENTITE?
-  end
+  # Surcharge transitoire : normalise la lecture de `nature` en lowercase
+  # pour supporter les valeurs uppercase legacy en DB.
+  # Next steps :
+  #   - deploy 2 : enum values → lowercase + maintenance task LOWER(nature)
+  #   - deploy 3 : supprimer cette surcharge (l'enum suffira)
+  def nature = read_attribute_before_type_cast(:nature)&.downcase
 
   SIMPLE_ROUTABLE_TYPES = [
     type_champs.fetch(:drop_down_list),
@@ -782,7 +785,7 @@ class TypeDeChamp < ApplicationRecord
   def allowed_content_types
     if titre_identite?
       families_to_content_types(%w[image_scan])
-    elsif RIB?
+    elsif rib?
       families_to_content_types(%w[document_texte image_scan])
     elsif pj_limit_formats? && pj_format_families.present?
       families_to_content_types(pj_format_families)
@@ -937,7 +940,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def reset_pj_format_options_if_forced_nature
-    if titre_identite? || RIB?
+    if titre_identite? || rib?
       self.pj_limit_formats = nil
       self.pj_format_families = []
     end
