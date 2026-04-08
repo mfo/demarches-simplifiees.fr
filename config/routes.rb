@@ -844,6 +844,10 @@ Rails.application.routes.draw do
       end
 
       resources :referentiels, only: [:new, :create, :edit, :update], path: ':stable_id', constraints: { stable_id: /\d+/ } do
+        collection do
+          patch :validate_url
+          post :validate_url
+        end
         member do
           get :configuration_error
           patch :update_autocomplete_configuration

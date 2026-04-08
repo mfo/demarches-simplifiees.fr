@@ -18,14 +18,86 @@ describe Referentiel do
         end
 
         describe 'configured?' do
-          context 'when adapter is url' do
-            it 'tests url params' do
+          context 'when legacy mode (use_tiptap: false)' do
+            it 'requires mode, url and test_data' do
               referentiel = build(:api_referentiel, url: allowed_domains)
               expect(referentiel).to receive(:mode).and_return(double(present?: true))
               expect(referentiel).to receive(:url).and_return(double(present?: true))
               expect(referentiel).to receive(:test_data).and_return(double(present?: true))
 
               expect(referentiel.configured?).to eq(true)
+            end
+          end
+
+          context 'when tiptap mode' do
+            let(:url_tiptap_with_mentions) do
+              {
+                "type" => "doc",
+                "content" => [
+                  {
+                    "type" => "paragraph",
+                                    "content" => [
+                                      { "type" => "text", "text" => "https://api.gouv.fr/" },
+                                      { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+                                      { "type" => "mention", "attrs" => { "id" => "tdc42", "label" => "Champ" } },
+                                    ],
+                  },
+                ],
+              }
+            end
+
+            let(:url_tiptap_static) do
+              {
+                "type" => "doc",
+                "content" => [
+                  {
+                    "type" => "paragraph",
+                                    "content" => [
+                                      { "type" => "text", "text" => "https://api.gouv.fr/static" },
+                                    ],
+                  },
+                ],
+              }
+            end
+
+            it 'is configured with all test_data filled' do
+              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+                url_tiptap: url_tiptap_with_mentions,
+                test_data_tiptap: { "{query}" => "val1", "tdc42" => "val2" })
+              expect(referentiel.configured?).to be true
+            end
+
+            it 'is not configured when a test_data value is missing' do
+              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+                url_tiptap: url_tiptap_with_mentions,
+                test_data_tiptap: { "{query}" => "val1" })
+              expect(referentiel.configured?).to be false
+            end
+
+            it 'is not configured when test_data_tiptap is nil with mentions' do
+              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+                url_tiptap: url_tiptap_with_mentions,
+                test_data_tiptap: nil)
+              expect(referentiel.configured?).to be false
+            end
+
+            it 'is configured with static URL (no mentions, no test_data needed)' do
+              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+                url_tiptap: url_tiptap_static,
+                test_data_tiptap: nil)
+              expect(referentiel.configured?).to be true
+            end
+
+            it 'is not configured without mode' do
+              referentiel = build(:api_referentiel, use_tiptap: true, mode: nil,
+                url_tiptap: url_tiptap_static)
+              expect(referentiel.configured?).to be false
+            end
+
+            it 'is not configured without url_tiptap' do
+              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+                url_tiptap: nil)
+              expect(referentiel.configured?).to be false
             end
           end
         end
@@ -47,7 +119,7 @@ describe Referentiel do
 
             it 'adds an error' do
               referentiel.validate
-              expect(referentiel.errors[:url]).to include("doit être autorisée par notre équipe. Veuillez nous contacter par mail (contact@demarche.numerique.gouv.fr) et nous indiquer l’URL et la documentation de l’API que vous souhaitez intégrer.")
+              expect(referentiel.errors[:url]).to include("doit être autorisée par notre équipe. Veuillez nous contacter par mail (contact@demarche.numerique.gouv.fr) et nous indiquer l’URL et la documentation de l’API que vous souhaitez intégrer. Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés (à l’exception de .beta.gouv.fr)")
             end
           end
 
@@ -74,7 +146,7 @@ describe Referentiel do
 
             it 'adds an error' do
               referentiel.validate
-              expect(referentiel.errors[:url]).to include("doit être autorisée par notre équipe. Veuillez nous contacter par mail (contact@demarche.numerique.gouv.fr) et nous indiquer l’URL et la documentation de l’API que vous souhaitez intégrer.")
+              expect(referentiel.errors[:url]).to include("doit être autorisée par notre équipe. Veuillez nous contacter par mail (contact@demarche.numerique.gouv.fr) et nous indiquer l’URL et la documentation de l’API que vous souhaitez intégrer. Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés (à l’exception de .beta.gouv.fr)")
             end
           end
         end

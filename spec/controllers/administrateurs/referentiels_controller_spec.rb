@@ -54,6 +54,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
           url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
           hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
           test_data: 'PG46YY6YWCX8',
+          use_tiptap: 'false',
           authentication_data: { header: 'Authorization', value: 'Bearer secret-token' },
           authentication_method: 'header_token',
         }
@@ -87,6 +88,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
             url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
             test_data: 'PG46YY6YWCX8',
+            use_tiptap: 'false',
           }
         end
 
@@ -114,6 +116,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
             url: 'https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/',
             hint: 'Identifiant unique du bâtiment dans le RNB, composé de 12 chiffre et lettre',
             test_data: 'PG46YY6YWCX8',
+            use_tiptap: 'false',
           }
         end
 
@@ -132,6 +135,110 @@ describe Administrateurs::ReferentielsController, type: :controller do
           expect(referentiel.test_data).to eq(referentiel_params[:test_data])
         end
       end
+    end
+  end
+
+  describe '#create with tiptap' do
+    let(:url_tiptap_json) do
+      {
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+                    content: [
+                      { type: "text", text: "https://tabular-api.data.gouv.fr/api/resources/" },
+                      { type: "mention", attrs: { id: "{query}", label: "Valeur saisie par l’usager" } },
+                      { type: "text", text: "/" },
+                      { type: "mention", attrs: { id: "tdc#{stable_id}", label: "Texte court" } },
+                    ],
+          },
+        ],
+      }
+    end
+
+    context 'partial update (autosave with tiptap params)' do
+      subject { post :create, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+
+      let(:referentiel_params) do
+        {
+          type: 'Referentiels::APIReferentiel',
+          mode: 'exact_match',
+          url_tiptap: url_tiptap_json.to_json,
+          hint: 'Identifiant FINESS',
+          use_tiptap: 'true',
+          test_data_tiptap: { "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" },
+        }
+      end
+
+      it 'creates referentiel with tiptap data' do
+        expect { subject }.to change { Referentiel.count }.by(1)
+
+        referentiel = Referentiel.last
+        expect(response).to have_http_status(:success)
+        expect(referentiel.use_tiptap).to be true
+        expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
+        expect(referentiel.test_data_tiptap).to eq({ "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" })
+        expect(referentiel.hint).to eq('Identifiant FINESS')
+        expect(referentiel.mode).to eq('exact_match')
+        expect(referentiel.url).to be_nil
+        expect(referentiel.test_data).to be_nil
+      end
+    end
+
+    context 'with commit params (submit save)' do
+      subject { post :create, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+
+      let(:referentiel_params) do
+        {
+          type: 'Referentiels::APIReferentiel',
+          mode: 'exact_match',
+          url_tiptap: url_tiptap_json.to_json,
+          hint: 'Identifiant FINESS',
+          use_tiptap: 'true',
+          test_data_tiptap: { "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" },
+        }
+      end
+
+      it 'creates referentiel and redirects' do
+        expect { subject }.to change { Referentiel.count }.by(1)
+
+        referentiel = Referentiel.last
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+        expect(referentiel.use_tiptap).to be true
+        expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
+        expect(referentiel.test_data_tiptap).to eq({ "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" })
+      end
+    end
+  end
+
+  describe '#clone with tiptap' do
+    let(:original_tiptap_data) do
+      {
+        url_tiptap: {
+          "type" => "doc", "content" => [
+            {
+              "type" => "paragraph", "content" => [
+                { "type" => "text", "text" => "https://api.gouv.fr/" },
+                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+              ],
+            },
+          ],
+        },
+        test_data_tiptap: { "{query}" => "test" },
+        use_tiptap: true,
+        hint: 'clone me',
+        mode: 'exact_match',
+      }
+    end
+    let(:referentiel) { create(:api_referentiel, **original_tiptap_data) }
+
+    it 'clones tiptap columns' do
+      get :new, params: { procedure_id: procedure.id, referentiel_id: referentiel.id, stable_id: }
+      cloned = assigns(:referentiel)
+      expect(cloned.url_tiptap).to eq(original_tiptap_data[:url_tiptap])
+      expect(cloned.test_data_tiptap).to eq(original_tiptap_data[:test_data_tiptap])
+      expect(cloned.use_tiptap).to be true
+      expect(response).to have_http_status(:success)
     end
   end
 
@@ -209,6 +316,117 @@ describe Administrateurs::ReferentielsController, type: :controller do
         expect(referentiel.last_response).to be_nil
         expect(referentiel.autocomplete_configuration).to eq({ "json_template" => {} })
         expect(type_de_champ.reload.referentiel_mapping).to eq({})
+      end
+    end
+  end
+
+  describe '#update with tiptap' do
+    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+    let(:initial_url_tiptap) do
+      {
+        "type" => "doc", "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "https://api.gouv.fr/old" },
+              { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+            ],
+          },
+        ],
+      }
+    end
+    let(:referentiel) do
+      create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ],
+        use_tiptap: true,
+        url_tiptap: initial_url_tiptap,
+        test_data_tiptap: { "{query}" => "old_value" })
+    end
+
+    context 'partial update (autosave hint only)' do
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: { hint: 'Updated hint' } }, format: :turbo_stream }
+
+      it 'updates hint without clearing cache' do
+        subject
+        referentiel.reload
+        expect(referentiel.hint).to eq('Updated hint')
+        expect(referentiel.url_tiptap).to eq(initial_url_tiptap)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'full update with url_tiptap change triggers cache bust' do
+      let(:new_url_tiptap) do
+        { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/new/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } }] }] }
+      end
+      let(:referentiel) do
+        create(:api_referentiel, :exact_match, :with_exact_match_response, types_de_champ: [type_de_champ],
+          use_tiptap: true,
+          url_tiptap: initial_url_tiptap,
+          test_data_tiptap: { "{query}" => "old_value" },
+          datasource: '$.jsonpath',
+          tiptap_template: { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "tpl" }] }] }.to_json)
+      end
+
+      before { type_de_champ.update(referentiel_mapping: { "old" => { type: "string" } }) }
+
+      subject do
+        patch :update, params: {
+          commit: 'Étape suivante',
+          procedure_id: procedure.id, stable_id:, id: referentiel.id,
+          referentiel: {
+            mode: 'exact_match',
+            url_tiptap: new_url_tiptap.to_json,
+            hint: 'New hint',
+            test_data_tiptap: { "{query}" => "new_value" },
+          },
+        }, format: :turbo_stream
+      end
+
+      it 'updates tiptap data and busts cache' do
+        subject
+        referentiel.reload
+
+        expect(referentiel.url_tiptap).to eq(new_url_tiptap)
+        expect(referentiel.test_data_tiptap).to eq({ "{query}" => "new_value" })
+        expect(referentiel.hint).to eq('New hint')
+
+        # cache bust
+        expect(referentiel.last_response).to be_nil
+        expect(referentiel.autocomplete_configuration).to eq({ "json_template" => {} })
+        expect(type_de_champ.reload.referentiel_mapping).to eq({})
+
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+      end
+    end
+  end
+
+  describe '#validate_url' do
+    subject { patch :validate_url, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+
+    context 'with tiptap url containing mentions' do
+      let(:referentiel_params) do
+        {
+          use_tiptap: 'true',
+          url_tiptap: {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                            content: [
+                              { type: "text", text: "https://api.gouv.fr/" },
+                              { type: "mention", attrs: { id: "{query}", label: "Query" } },
+                            ],
+              },
+            ],
+          }.to_json,
+        }
+      end
+
+      it 'returns turbo_stream with validation feedback and test_data fields' do
+        subject
+        expect(response).to have_http_status(:success)
+        expect(response.media_type).to eq('text/vnd.turbo-stream.html')
+        expect(response.body).to include('url-validation-feedback')
+        expect(response.body).to include('test-data-fields')
       end
     end
   end

@@ -118,6 +118,21 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       end
     end
 
+    context 'rejected if type changed and referentiel url involved' do
+      let(:params) do
+        default_params.deep_merge(type_de_champ: { type_champ: 'text', stable_id: third_coordinate.stable_id })
+      end
+
+      before do
+        allow_any_instance_of(ProcedureRevisionTypeDeChamp).to receive(:used_by_referentiel_urls?).and_return(true)
+      end
+
+      it do
+        is_expected.to have_http_status(:ok)
+        expect(flash.alert).to include("utilisé par un référentiel")
+      end
+    end
+
     context 'with a dropdown list with a referentiel' do
       let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/modele-import-referentiel.csv', 'text/csv') }
       let(:drop_down_list_type_de_champ) do
@@ -378,6 +393,21 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       it do
         is_expected.to have_http_status(:ok)
         expect(flash.alert).to include("utilisé pour le routage")
+      end
+    end
+
+    context 'rejected if referentiel url involved' do
+      let(:params) do
+        { procedure_id: procedure.id, stable_id: third_coordinate.stable_id }
+      end
+
+      before do
+        allow_any_instance_of(ProcedureRevisionTypeDeChamp).to receive(:used_by_referentiel_urls?).and_return(true)
+      end
+
+      it do
+        is_expected.to have_http_status(:ok)
+        expect(flash.alert).to include("utilisé par un référentiel")
       end
     end
   end
