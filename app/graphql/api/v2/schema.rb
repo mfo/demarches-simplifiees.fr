@@ -86,6 +86,7 @@ class API::V2::Schema < GraphQL::Schema
     Types::Champs::ExplicationChampType,
     Types::GeoAreas::ParcelleCadastraleType,
     Types::GeoAreas::SelectionUtilisateurType,
+    Types::GeoAreas::RpgType,
     Types::PersonneMoraleType,
     Types::PersonneMoraleIncompleteType,
     Types::PersonnePhysiqueType,
