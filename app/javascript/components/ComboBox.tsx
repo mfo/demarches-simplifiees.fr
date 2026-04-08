@@ -29,6 +29,7 @@ import {
   useRemoteList,
   useOnFormReset,
   createLoader,
+  getKey,
   type ComboBoxProps
 } from './react-aria/hooks';
 import {
@@ -244,7 +245,7 @@ export function SingleComboBox({
         sections={filteredSections}
         {...props}
       >
-        {(item) => <ComboBoxItem id={item.value}>{item.label}</ComboBoxItem>}
+        {(item) => <ComboBoxItem id={getKey(item)}>{item.label}</ComboBoxItem>}
       </ComboBox>
       {children || name ? (
         <span ref={ref}>
@@ -377,7 +378,7 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
         disabledKeys={disabledKeys}
         {...props}
       >
-        {(item) => <ComboBoxItem id={item.value}>{item.label}</ComboBoxItem>}
+        {(item) => <ComboBoxItem id={getKey(item)}>{item.label}</ComboBoxItem>}
       </ComboBox>
       {tagsBelow ? tagGroup : null}
       {name ? (
@@ -475,7 +476,7 @@ export function RemoteComboBox({
         {...comboBoxProps}
         {...props}
       >
-        {(item) => <ComboBoxItem id={item.value}>{item.label}</ComboBoxItem>}
+        {(item) => <ComboBoxItem id={getKey(item)}>{item.label}</ComboBoxItem>}
       </ComboBox>
       {children || name ? (
         <span ref={ref}>
