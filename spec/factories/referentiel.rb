@@ -21,6 +21,21 @@ FactoryBot.define do
         mode { 'autocomplete' }
         test_data { '0100026' } # one result 010002699
         url { ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/tabular-api.data.gouv/).first }
+        url_tiptap do
+          {
+            "type" => "doc",
+            "content" => [
+              {
+                "type" => "paragraph",
+                "content" => [
+                  { "type" => "text", "text" => ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/tabular-api.data.gouv/).first.to_s + "?finess__contains=" },
+                  { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Valeur saisie par l'usager" } },
+                ],
+              },
+            ],
+          }
+        end
+        test_data_tiptap { { "{query}" => "0100026" } }
         json_template do
           {
             "type" => "doc",
@@ -43,6 +58,21 @@ FactoryBot.define do
         mode { 'exact_match' }
         test_data { 'PG46YY6YWCX8' }
         url { ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/rnb-api.beta.gouv/).first }
+        url_tiptap do
+          {
+            "type" => "doc",
+            "content" => [
+              {
+                "type" => "paragraph",
+                "content" => [
+                  { "type" => "text", "text" => ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND').split(',').grep(/rnb-api.beta.gouv/).first.to_s + "/" },
+                  { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Valeur saisie par l'usager" } },
+                ],
+              },
+            ],
+          }
+        end
+        test_data_tiptap { { "{query}" => "PG46YY6YWCX8" } }
       end
 
       trait :with_exact_match_response do
