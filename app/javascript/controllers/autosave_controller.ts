@@ -1,5 +1,5 @@
-import { matchInputElement } from '@coldwired/utils';
 import { getConfig, httpRequest, ResponseError } from '@utils';
+import { matchInputElement } from 'coldwired/utils';
 
 import { AutoUpload } from '../shared/activestorage/auto-upload';
 import {
@@ -8,8 +8,8 @@ import {
   FileUploadError
 } from '../shared/activestorage/file-upload-error';
 import {
-  showAttachmentError,
-  hideAttachmentError
+  hideAttachmentError,
+  showAttachmentError
 } from '../shared/attachment-error';
 import { ApplicationController } from './application_controller';
 

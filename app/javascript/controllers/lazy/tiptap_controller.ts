@@ -1,12 +1,12 @@
 import { Editor } from '@tiptap/core';
-import { isButtonElement, isHTMLElement } from '@coldwired/utils';
+import { isButtonElement, isHTMLElement } from 'coldwired/utils';
 import * as s from 'superstruct';
 
-import { ApplicationController } from '../application_controller';
 import { getAction } from '../../shared/tiptap/actions';
-import { tagSchema, type TagSchema } from '../../shared/tiptap/tags';
 import { createEditor } from '../../shared/tiptap/editor';
+import { tagSchema, type TagSchema } from '../../shared/tiptap/tags';
 import { httpRequest } from '../../shared/utils';
+import { ApplicationController } from '../application_controller';
 
 declare const window: Window &
   typeof globalThis & { dsfr?: (el: HTMLElement) => { modal: unknown } };

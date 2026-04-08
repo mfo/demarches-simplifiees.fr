@@ -1,7 +1,7 @@
 import { I18nProvider } from 'react-aria-components';
 import { UNSAFE_PortalProvider } from 'react-aria';
 import { StrictMode, type ReactNode } from 'react';
-import { findOrCreateContainerElement } from '@coldwired/react';
+import { findOrCreateContainerElement } from 'coldwired/react';
 import { I18nProvider as LinguiI18nProvider } from '@lingui/react';
 import { i18n } from '@lingui/core';
 

@@ -1,10 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "@coldwired/actions": "^0.17.1",
-    "@coldwired/react": "^0.16.1",
-    "@coldwired/turbo-stream": "^0.17.1",
-    "@coldwired/utils": "^0.16.1",
     "@formatjs/intl-listformat": "^8.3.1",
     "@frsource/autoresize-textarea": "^2.0.150",
     "@gouvfr-lasuite/integration": "^1.0.2",
@@ -45,6 +41,7 @@
     "@tiptap/suggestion": "^2.2.4",
     "@tmcw/togeojson": "^6.0.1",
     "chartkick": "^5.0.1",
+    "coldwired": "^0.18.4",
     "core-js": "^3.46.0",
     "date-fns": "^4.1.0",
     "debounce": "^2.2.0",
