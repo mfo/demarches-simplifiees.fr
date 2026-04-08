@@ -87,6 +87,18 @@ describe FranceConnectController, type: :controller do
       it { is_expected.to redirect_to(new_user_session_path) }
     end
 
+    context 'when no state cookie is set and no state param is provided' do
+      before { cookies.delete(FranceConnectController::STATE_COOKIE_NAME) }
+
+      subject { get :callback, params: { code: } }
+
+      it 'rejects the callback (no nil == nil bypass)' do
+        expect(FranceConnectService).not_to receive(:find_or_retrieve_france_connect_information)
+        is_expected.to redirect_to(new_user_session_path)
+        expect(flash[:alert]).to include('Une erreur est survenue lors de la connexion')
+      end
+    end
+
     context 'when code is correct' do
       before do
         allow(FranceConnectService).to receive(:retrieve_user_informations)
