@@ -37,13 +37,13 @@ describe 'Prefill date champ from FranceConnect:', js: true do
     procedure.defaut_groupe_instructeur.add(instructeur)
     login_as instructeur.user, scope: :user
     visit instructeur_dossier_path(procedure, dossier)
-    expect(page).to have_text('Données récupérées avec FranceConnect')
+    expect(page).to have_text('Source : FranceConnect')
 
     # Si l'usager modifie la valeur, le flag disparaît
     champ.update!(value: '2000-01-01')
     expect(champ.reload.data['prefilled_from_fc']).to be_nil
 
     visit instructeur_dossier_path(procedure, dossier)
-    expect(page).not_to have_text('Données récupérées avec FranceConnect')
+    expect(page).not_to have_text('Source : FranceConnect')
   end
 end

@@ -105,6 +105,10 @@ class Champ < ApplicationRecord
     !private?
   end
 
+  def prefilled_from_fc?
+    data.is_a?(Hash) && data["prefilled_from_fc"]
+  end
+
   def child?
     row_id.present? && !is_type?(TypeDeChamp.type_champs.fetch(:repetition))
   end
