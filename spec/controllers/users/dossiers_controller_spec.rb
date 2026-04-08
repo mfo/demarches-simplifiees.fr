@@ -670,6 +670,26 @@ describe Users::DossiersController, type: :controller do
         expect(dossier.traitements.last.browser_name).to eq('Unknown Browser')
       end
     end
+
+    context 'when user logged via france connect' do
+      before { user.update!(loged_in_with_france_connect: 'particulier') }
+
+      it 'sets submitted_with_france_connect to true' do
+        subject
+        dossier.reload
+        expect(dossier.submitted_with_france_connect).to be true
+      end
+    end
+
+    context 'when user not logged via france connect' do
+      before { user.update!(loged_in_with_france_connect: nil) }
+
+      it 'sets submitted_with_france_connect to false' do
+        subject
+        dossier.reload
+        expect(dossier.submitted_with_france_connect).to be false
+      end
+    end
   end
 
   describe '#submit_en_construction (stream)' do
@@ -835,6 +855,33 @@ describe Users::DossiersController, type: :controller do
           expect(response).to redirect_to(root_path)
           expect(flash.alert).to include("Vous n’avez pas accès à ce dossier")
         end
+      end
+    end
+
+    context 'when owner logged via france connect' do
+      before do
+        sign_in(owner)
+        owner.update!(loged_in_with_france_connect: 'particulier')
+      end
+
+      it 'sets submitted_with_france_connect to true' do
+        subject
+        dossier.reload
+        expect(dossier.submitted_with_france_connect).to be true
+      end
+    end
+
+    context 'when owner not logged via france connect' do
+      before do
+        sign_in(owner)
+        owner.update!(loged_in_with_france_connect: nil)
+        dossier.update!(submitted_with_france_connect: true)
+      end
+
+      it 'sets submitted_with_france_connect to false' do
+        subject
+        dossier.reload
+        expect(dossier.submitted_with_france_connect).to be false
       end
     end
   end

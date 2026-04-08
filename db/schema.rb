@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_30_134316) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_30_164058) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -547,6 +547,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_30_134316) do
     t.string "search_terms"
     t.string "state"
     t.bigint "submitted_revision_id"
+    t.boolean "submitted_with_france_connect", default: false, null: false
     t.date "sva_svr_decision_on"
     t.datetime "sva_svr_decision_triggered_at"
     t.datetime "termine_close_to_expiration_notice_sent_at", precision: nil

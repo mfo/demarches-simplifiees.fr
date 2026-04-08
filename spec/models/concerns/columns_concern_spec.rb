@@ -167,6 +167,16 @@ describe ColumnsConcern do
         expect(column.type).to eq(:boolean)
         expect(column.options_for_select).to eq(Champs::YesNoChamp.options)
       end
+
+      it 'defines yes/no options for the submitted_with_france_connect boolean column' do
+        column = procedure.columns.find { _1.column == 'submitted_with_france_connect' }
+
+        expect(column).to be_present
+        expect(column.type).to eq(:boolean)
+        expect(column.options_for_select).to eq(Champs::YesNoChamp.options)
+        expect(column.filterable).to be true
+        expect(column.displayable).to be true
+      end
     end
 
     context 'when the procedure is sva' do
