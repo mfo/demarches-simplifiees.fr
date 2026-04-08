@@ -56,6 +56,7 @@ class Attachment::FileInputComponent < ApplicationComponent
     describedby << champ.describedby_id if champ&.description.present?
     describedby << parent_hint_id if parent_hint_id.present?
     describedby << champ.error_id(:value) if champ&.errors&.has_key?(:value)
+    describedby << error_wrapper_id if champ.present?
 
     options[:aria] = { describedby: describedby.join(' '), labelledby: aria_labelledby }
 
@@ -83,6 +84,10 @@ class Attachment::FileInputComponent < ApplicationComponent
 
   def attribute_name
     attached_file.name
+  end
+
+  def error_wrapper_id
+    "attachment-error-#{champ.public_id}"
   end
 
   def final_input_id

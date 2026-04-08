@@ -99,10 +99,11 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
     let(:parent_hint_id) { "#{champ.focusable_input_id}-pj-hint" }
     let(:context_kwargs) { { parent_hint_id: } }
     let(:describedby_attribute) { page.find('input[type="file"]')['aria-describedby'].split }
+    let(:error_wrapper_id) { "attachment-error-#{champ.public_id}" }
 
-    it 'targets describedby_id and parent_hint_id' do
+    it 'targets describedby_id, parent_hint_id and error_wrapper_id' do
       subject
-      expect(describedby_attribute).to eq([champ.describedby_id, parent_hint_id])
+      expect(describedby_attribute).to eq([champ.describedby_id, parent_hint_id, error_wrapper_id])
     end
 
     context 'when there is an error' do
@@ -110,16 +111,16 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
 
       it 'targets error_id' do
         subject
-        expect(describedby_attribute).to eq([champ.describedby_id, parent_hint_id, champ.error_id(:value)])
+        expect(describedby_attribute).to eq([champ.describedby_id, parent_hint_id, champ.error_id(:value), error_wrapper_id])
       end
     end
 
     context 'without parent_hint_id' do
       let(:context_kwargs) { {} }
 
-      it 'only targets describedby_id' do
+      it 'targets describedby_id and error_wrapper_id' do
         subject
-        expect(describedby_attribute).to eq([champ.describedby_id])
+        expect(describedby_attribute).to eq([champ.describedby_id, error_wrapper_id])
       end
     end
   end

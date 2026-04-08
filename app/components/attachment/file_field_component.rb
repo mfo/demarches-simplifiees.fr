@@ -88,6 +88,10 @@ class Attachment::FileFieldComponent < ApplicationComponent
     "#{champ.focusable_input_id}-hint"
   end
 
+  def error_wrapper_id
+    champ.present? ? "attachment-error-#{champ.public_id}" : "attachment-error-generic"
+  end
+
   def hints_component
     Attachment::HintsComponent.new(
       champ:,

@@ -55,7 +55,7 @@
   <% end %>
 
   <%# Error wrapper %>
-  <%= render Attachment::ErrorWrapperComponent.new(with_top_margin: !show_uploader?) %>
+  <%= render Attachment::ErrorWrapperComponent.new(with_top_margin: !show_uploader?, id: error_wrapper_id) %>
 
   <%# Progress bars container — preserved during turbo morph %>
   <div
