@@ -1,10 +1,12 @@
 - dossier = Dossier.includes(:procedure).find_by(id: champ.to_s)
+- profile = controller.try(:nav_bar_profile)
+- hidden_at = dossier && ((profile == :user && dossier.hidden_by_user_at) || (profile == :instructeur && dossier.hidden_by_administration_at))
 - if dossier
-  - if controller.try(:nav_bar_profile) == :user && dossier.hidden_by_user_at.present?
+  - if hidden_at.present?
     %p Dossier n° #{dossier.id}
     %br
     .copy-zone
-      %p= t('shared.champs.dossier_link.hidden_by_user', depose_at: l(dossier.depose_at.to_date), procedure_libelle: dossier.procedure.libelle, hidden_at: l(dossier.hidden_by_user_at.to_date))
+      %p= t('shared.champs.dossier_link.hidden', depose_at: l(dossier.depose_at.to_date), procedure_libelle: dossier.procedure.libelle, hidden_at: l(hidden_at.to_date))
   - else
     - path = dossier_linked_path(current_instructeur || current_user, dossier)
     - if path.present?
