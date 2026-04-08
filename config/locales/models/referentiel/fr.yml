@@ -4,7 +4,7 @@ fr:
       models:
         referentiels/api_referentiel:
           attributes:
-            url:
+            url_tiptap:
               invalid_format: "n’est pas au format d’une URL, saisissez une URL valide ex https://api_1.ext/"
               https_required: "doit commencer par https://"
               missing_query_params: "doit contenir au moins un paramètre dynamique (tag)"

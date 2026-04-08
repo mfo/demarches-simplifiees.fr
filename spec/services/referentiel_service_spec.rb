@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe ReferentielService, type: :service do
-  let(:api_referentiel) { create(:api_referentiel, :exact_match, use_tiptap: true) }
+  let(:api_referentiel) { create(:api_referentiel, :exact_match) }
   let(:query_params) { api_referentiel.effective_test_data }
   let(:resolved_url) { described_class.new(referentiel: api_referentiel).url(query_params) }
 
@@ -97,7 +97,7 @@ RSpec.describe ReferentielService, type: :service do
     end
 
     context 'when referentiel has authentication' do
-      let(:api_referentiel) { create(:api_referentiel, :exact_match, use_tiptap: true, authentication_method: 'header_token', authentication_data: { header: 'Authorization', value: 'Bearer kthxbye' }) }
+      let(:api_referentiel) { create(:api_referentiel, :exact_match, authentication_method: 'header_token', authentication_data: { header: 'Authorization', value: 'Bearer kthxbye' }) }
       let(:status) { 200 }
       let(:body) { { body: :ok } }
       before do
@@ -114,7 +114,7 @@ RSpec.describe ReferentielService, type: :service do
   end
 
   describe '#resolve_tiptap_url' do
-    let(:api_referentiel) { create(:api_referentiel, :exact_match, url_tiptap:) }
+    let(:api_referentiel) { build(:api_referentiel, :exact_match, url_tiptap:) }
     let(:service) { described_class.new(referentiel: api_referentiel) }
 
     let(:url_tiptap) do

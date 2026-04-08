@@ -29,7 +29,7 @@ module Administrateurs
     end
 
     def validate_url
-      @referentiel = Referentiels::APIReferentiel.new(referentiel_params.slice(:url_tiptap, :use_tiptap, :test_data_tiptap))
+      @referentiel = Referentiels::APIReferentiel.new(referentiel_params.slice(:url_tiptap, :test_data_tiptap))
       @referentiel.url_allowed?
 
       render turbo_stream: [
@@ -131,7 +131,7 @@ module Administrateurs
 
     def referentiel_params
       params.require(:referentiel)
-        .permit(:type, :mode, :hint, :url_tiptap, :use_tiptap,
+        .permit(:type, :mode, :hint, :url_tiptap,
                 :authentication_method, authentication_data: [:header, :value],
                 test_data_tiptap: {})
     rescue ActionController::ParameterMissing
@@ -148,7 +148,7 @@ module Administrateurs
 
     def build_or_clone_by_id_params
       if params[:referentiel_id]
-        Referentiel.find(params[:referentiel_id]).attributes.slice(*%w[url_tiptap test_data_tiptap use_tiptap hint mode type authentication_data authentication_method])
+        Referentiel.find(params[:referentiel_id]).attributes.slice(*%w[url_tiptap test_data_tiptap hint mode type authentication_data authentication_method])
       else
         params = referentiel_params.to_h
         params = params.merge(type: Referentiels::APIReferentiel) if !Referentiels::APIReferentiel.csv_available?
