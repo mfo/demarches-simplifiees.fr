@@ -5048,6 +5048,16 @@ type Row {
   id: ID!
 }
 
+type Rpg implements GeoArea {
+  commune: String
+  description: String
+  geometry: GeoJSON!
+  id: ID!
+  numero: String
+  source: GeoAreaSource!
+  surface: Float
+}
+
 type SelectionUtilisateur implements GeoArea {
   description: String
   geometry: GeoJSON!
