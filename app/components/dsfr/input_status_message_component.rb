@@ -65,8 +65,16 @@ module Dsfr
       when TypeDeChamp.type_champs[:dossier_link]
         dossier = Dossier.find_by(id: @champ.value)
         if dossier.present?
-          if dossier.hidden_by_user_at.present?
-            { state: :info, text: I18n.t('shared.champs.dossier_link.hidden',
+          if dossier.hidden_by_expired_at.present?
+            {
+              state: :info, text: I18n.t('shared.champs.dossier_link.expired',
+                                         depose_at: l(dossier.depose_at.to_date),
+                                         procedure_libelle: dossier.procedure.libelle,
+                                         expired_at: l(dossier.hidden_by_expired_at.to_date)),
+            }
+          elsif dossier.hidden_by_user_at.present?
+            {
+              state: :info, text: I18n.t('shared.champs.dossier_link.hidden',
                                          depose_at: l(dossier.depose_at.to_date),
                                          procedure_libelle: dossier.procedure.libelle,
                                          hidden_at: l(dossier.hidden_by_user_at.to_date)),

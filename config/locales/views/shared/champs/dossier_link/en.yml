@@ -4,3 +4,4 @@ en:
     champs:
       dossier_link:
         hidden: "File submitted on %{depose_at} for the procedure “%{procedure_libelle}” but deleted on %{hidden_at}"
+        expired: "File submitted on %{depose_at} for the procedure “%{procedure_libelle}” but expired on %{expired_at}"
