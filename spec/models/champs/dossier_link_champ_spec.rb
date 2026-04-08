@@ -66,6 +66,12 @@ describe Champs::DossierLinkChamp, type: :model do
         it { is_expected.to be_falsey }
       end
 
+      context 'when id of a deleted dossier' do
+        let(:value) { create(:deleted_dossier).dossier_id }
+
+        it { is_expected.to be_truthy }
+      end
+
       context 'when id of a brouillon dossier' do
         let(:value) { create(:dossier).id }
 
@@ -109,6 +115,28 @@ describe Champs::DossierLinkChamp, type: :model do
 
     context 'when dossier belongs to another user' do
       let(:value) { create(:dossier, :en_construction, procedure: allowed_procedure).id }
+
+      it 'is invalid' do
+        is_expected.to be_falsey
+      end
+    end
+
+    context 'when deleted dossier belongs to an allowed procedure and to the current user' do
+      let(:value) { create(:deleted_dossier, procedure: allowed_procedure, user_id: user.id).dossier_id }
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when deleted dossier does not belong to an allowed procedure' do
+      let(:value) { create(:deleted_dossier, procedure: other_procedure, user_id: user.id).dossier_id }
+
+      it 'is invalid with correct error message' do
+        is_expected.to be_falsey
+        expect(champ.errors.full_messages).to include("Ce dossier n’est pas dans une démarche autorisée")
+      end
+    end
+
+    context 'when deleted dossier belongs to another user' do
+      let(:value) { create(:deleted_dossier, procedure: allowed_procedure).dossier_id }
 
       it 'is invalid' do
         is_expected.to be_falsey

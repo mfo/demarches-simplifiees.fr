@@ -64,7 +64,15 @@ module Dsfr
         { state: :info, text: t(".rna.data_fetched", title: @champ.title, address: @champ.full_address) }
       when TypeDeChamp.type_champs[:dossier_link]
         dossier = Dossier.find_by(id: @champ.value)
-        if dossier.present?
+        deleted_dossier = DeletedDossier.find_by(dossier_id: @champ.value) if dossier.nil?
+        if deleted_dossier.present?
+          {
+            state: :info, text: I18n.t('shared.champs.dossier_link.hidden',
+                                       depose_at: l(deleted_dossier.depose_at),
+                                       procedure_libelle: deleted_dossier.procedure.libelle,
+                                       hidden_at: l(deleted_dossier.deleted_at.to_date)),
+          }
+        elsif dossier.present?
           if dossier.hidden_by_expired_at.present?
             {
               state: :info, text: I18n.t('shared.champs.dossier_link.expired',
