@@ -82,9 +82,9 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
       .filter { eligible_types.include?(_1.type_champ) }
       .map { |coord| { id: "tdc#{coord.stable_id}", libelle: coord.libelle } }
 
-    query_tag = { id: "{query}", libelle: "Valeur saisie par l’usager" }
+    query_tag = { id: "{query}", libelle: "Valeur saisie par l’usager", highlight: true }
 
-    { url_tags: field_tags + [query_tag] }
+    { url_tags: [query_tag] + field_tags }
   end
 
   delegate :test_data_tags, to: :referentiel
