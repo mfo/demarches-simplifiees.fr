@@ -1,7 +1,13 @@
 - dossier = Dossier.includes(:procedure).find_by(id: champ.to_s)
+- deleted_dossier = dossier.nil? ? DeletedDossier.includes(:procedure).find_by(dossier_id: champ.to_s) : nil
 - profile = controller.try(:nav_bar_profile)
 - hidden_at = dossier && ((profile == :user && dossier.hidden_by_user_at) || (profile == :instructeur && dossier.hidden_by_administration_at))
-- if dossier
+- if deleted_dossier
+  %p Dossier n° #{champ}
+  %br
+  .copy-zone
+    %p= t('shared.champs.dossier_link.deleted', procedure_libelle: deleted_dossier.procedure&.libelle)
+- elsif dossier
   - if dossier.hidden_by_expired_at.present?
     %p Dossier n° #{dossier.id}
     %br
