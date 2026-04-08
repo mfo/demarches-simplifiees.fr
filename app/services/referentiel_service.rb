@@ -30,11 +30,7 @@ class ReferentielService
   end
 
   def url(query_params, dossier: nil)
-    if referentiel.use_tiptap?
-      resolve_tiptap_url(query_params, dossier || referentiel.test_data_tiptap)
-    else
-      referentiel.url.gsub('{id}', URI.encode_www_form_component(query_params.to_s))
-    end
+    resolve_tiptap_url(query_params, dossier || referentiel.test_data_tiptap)
   end
 
   def test_url

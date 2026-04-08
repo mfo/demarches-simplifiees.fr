@@ -1,22 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe ReferentielService, type: :service do
-  let(:api_referentiel) { create(:api_referentiel, :exact_match, url:, test_data:) }
-  let(:url) { "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{id}/" }
-  let(:test_data) { "PG46YY6YWCX8" }
-  let(:stub_api_call) do
-    stub_request(:get, api_referentiel.url.gsub('{id}', query_params))
-      .to_return(status:, body: body&.to_json)
-  end
-  before { stub_api_call }
+  let(:api_referentiel) { create(:api_referentiel, :exact_match, use_tiptap: true) }
+  let(:query_params) { api_referentiel.effective_test_data }
+  let(:resolved_url) { described_class.new(referentiel: api_referentiel).url(query_params) }
 
   describe '.validate_referentiel either it works, either it does not' do
-    let(:query_params) { api_referentiel.test_data }
     subject { described_class.new(referentiel: api_referentiel).validate_referentiel }
+    before { stub_request(:get, resolved_url).to_return(status:, body: body&.to_json) }
 
     context 'when referentiel works' do
       let(:status) { 200 }
-      let(:body) { { rnb_id: api_referentiel.test_data } }
+      let(:body) { { rnb_id: api_referentiel.effective_test_data } }
       it { is_expected.to eq(true) }
       it 'update referentiel.last_response and body with expected data' do
         expect { subject }.to change { api_referentiel.reload.last_response }.from(nil).to({ status:, body: }.with_indifferent_access)
@@ -63,8 +58,8 @@ RSpec.describe ReferentielService, type: :service do
   describe '.call' do
     include Dry::Monads[:result]
 
-    let(:query_params) { api_referentiel.test_data }
     subject { described_class.new(referentiel: api_referentiel).call(query_params) }
+    before { stub_request(:get, resolved_url).to_return(status:, body: body&.to_json) }
 
     context "when referentiel 200 success" do
       let(:status) { 200 }
@@ -102,17 +97,17 @@ RSpec.describe ReferentielService, type: :service do
     end
 
     context 'when referentiel has authentication' do
-      let(:api_referentiel) { create(:api_referentiel, :exact_match, url:, test_data:, authentication_method: 'header_token', authentication_data: { header: 'Authorization', value: 'Bearer kthxbye' }) }
+      let(:api_referentiel) { create(:api_referentiel, :exact_match, use_tiptap: true, authentication_method: 'header_token', authentication_data: { header: 'Authorization', value: 'Bearer kthxbye' }) }
       let(:status) { 200 }
       let(:body) { { body: :ok } }
-      let(:stub_api_call) do
-        stub_request(:get, api_referentiel.url.gsub('{id}', query_params))
+      before do
+        stub_request(:get, resolved_url)
           .with(headers: { 'Authorization' => "Bearer kthxbye" })
           .to_return(status:, body: body&.to_json)
       end
       it 'forwards the authentication header' do
         expect(subject).to be_success
-        expect(WebMock).to have_requested(:get, api_referentiel.url.gsub('{id}', query_params))
+        expect(WebMock).to have_requested(:get, resolved_url)
           .with(headers: { 'Authorization' => "Bearer kthxbye" })
       end
     end
@@ -121,9 +116,6 @@ RSpec.describe ReferentielService, type: :service do
   describe '#resolve_tiptap_url' do
     let(:api_referentiel) { create(:api_referentiel, :exact_match, url_tiptap:) }
     let(:service) { described_class.new(referentiel: api_referentiel) }
-    let(:query_params) { "dummy" }
-    let(:status) { 200 }
-    let(:body) { {} }
 
     let(:url_tiptap) do
       {
