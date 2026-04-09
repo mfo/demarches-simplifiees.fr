@@ -74,6 +74,8 @@ RSpec.describe Attachment::GalleryItemComponent, type: :component do
     let(:commentaire) { create(:commentaire, :with_file, dossier: dossier) }
     let(:attachment) { commentaire.piece_jointe.first }
 
+    before { attachment.blob.update!(virus_scan_result: ActiveStorage::VirusScanner::SAFE) }
+
     context 'from an usager' do
       it "displays a generic libelle, link, tag and renders title" do
         expect(subject).to have_text('Pièce jointe au message')
@@ -102,7 +104,10 @@ RSpec.describe Attachment::GalleryItemComponent, type: :component do
     let(:fake_justificatif) { fixture_file_upload('spec/fixtures/files/piece_justificative_0.pdf', 'application/pdf') }
     let(:attachment) { dossier.justificatif_motivation.attachment }
 
-    before { dossier.update!(justificatif_motivation: fake_justificatif) }
+    before do
+      dossier.update!(justificatif_motivation: fake_justificatif)
+      attachment.blob.update!(virus_scan_result: ActiveStorage::VirusScanner::SAFE)
+    end
 
     it "displays a generic libelle, link, tag and renders title" do
       expect(subject).to have_text('Justificatif de décision')
@@ -150,6 +155,8 @@ RSpec.describe Attachment::GalleryItemComponent, type: :component do
     context 'from an instructeur' do
       let(:avis) { create(:avis, :with_introduction, dossier: dossier) }
       let(:attachment) { avis.introduction_file.attachment }
+
+      before { attachment.blob.update!(virus_scan_result: ActiveStorage::VirusScanner::SAFE) }
 
       it "displays a generic libelle, link, tag and renders title" do
         expect(subject).to have_text('Pièce jointe à l’avis')
