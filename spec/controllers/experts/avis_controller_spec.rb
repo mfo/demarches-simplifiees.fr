@@ -107,7 +107,9 @@ describe Experts::AvisController, type: :controller do
     describe '#bilans_bdf' do
       let(:avis) { avis_without_answer }
 
-      before { get :bilans_bdf, params: { id: avis, procedure_id: } }
+      before { get :bilans_bdf, params: { id: avis, procedure_id:, format: } }
+
+      let(:format) { :xlsx }
 
       it { expect(response).to redirect_to(expert_avis_path(avis_without_answer)) }
 
@@ -115,6 +117,16 @@ describe Experts::AvisController, type: :controller do
         let(:avis) { revoked_avis }
 
         it { expect(response).to redirect_to(root_path) }
+      end
+
+      context 'with bilans bdf present and a disallowed format' do
+        let(:etablissement) { create(:etablissement, entreprise_bilans_bdf: [{ foo: 'bar' }]) }
+        let(:dossier) { create(:dossier, :en_construction, procedure:, etablissement:) }
+        let(:format) { :inline }
+
+        it 'redirects without invoking the dynamic render' do
+          expect(response).to redirect_to(expert_avis_path(avis_without_answer))
+        end
       end
     end
 

@@ -24,7 +24,8 @@ class FranceConnectController < ApplicationController
   end
 
   def callback
-    if cookies.encrypted[STATE_COOKIE_NAME] != params['state']
+    expected_state = cookies.encrypted[STATE_COOKIE_NAME]
+    if expected_state.blank? || expected_state != params['state']
       return redirect_to(new_user_session_path, alert: t('errors.messages.france_connect.connexion'))
     end
 
