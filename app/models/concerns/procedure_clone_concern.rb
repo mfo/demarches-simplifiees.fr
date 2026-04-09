@@ -86,6 +86,7 @@ module ProcedureCloneConcern
     'robots_indexable',
     'admin_default_procedure_presentation_active',
     'admin_default_procedure_presentation_id',
+    'api_entreprise_token_expiration_notice_sent_at',
   ]
 
   NEW_MAX_DUREE_CONSERVATION = Expired::DEFAULT_DOSSIER_RENTENTION_IN_MONTH
@@ -189,6 +190,7 @@ module ProcedureCloneConcern
     procedure.robots_indexable = true
     procedure.admin_default_procedure_presentation_active = false
     procedure.admin_default_procedure_presentation_id = nil
+    procedure.api_entreprise_token_expiration_notice_sent_at = nil
     procedure
   end
 
