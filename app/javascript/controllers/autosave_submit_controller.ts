@@ -1,4 +1,4 @@
-import { isButtonElement } from '@coldwired/utils';
+import { isButtonElement } from 'coldwired/utils';
 
 import { ApplicationController } from './application_controller';
 

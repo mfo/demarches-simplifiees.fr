@@ -1,3 +1,4 @@
+import { fire, httpRequest } from '@utils';
 import { matchSorter, type MatchSorterOptions } from 'match-sorter';
 import type { Key } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -8,7 +9,6 @@ import type {
 import isEqual from 'react-fast-compare';
 import { useAsyncList, type AsyncListOptions } from 'react-stately';
 import { useEvent } from 'react-use-event-hook';
-import { fire, httpRequest } from '@utils';
 import * as s from 'superstruct';
 import { useDebounceCallback } from 'usehooks-ts';
 
@@ -601,7 +601,9 @@ export const createLoader = (
       return { items: [] };
     } catch (error) {
       console.error(error);
-      throw new Error(options?.errorMessage ?? 'An error occurred');
+      throw new Error(options?.errorMessage ?? 'An error occurred', {
+        cause: error
+      });
     }
   };
 };
