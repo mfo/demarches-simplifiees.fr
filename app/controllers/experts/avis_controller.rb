@@ -103,6 +103,7 @@ module Experts
     end
 
     def update
+      was_unanswered = @avis.answer.nil?
       updated_recently = @avis.updated_recently?
       if @avis.update(avis_answer_params)
         flash.notice = 'Votre réponse est enregistrée.'
@@ -115,7 +116,7 @@ module Experts
         DossierNotification.destroy_notifications_by_dossier_and_type(@avis.dossier, :attente_avis) if @avis.dossier.avis.without_answer.empty?
         DossierNotification.create_notification(@avis.dossier, :avis_externe)
 
-        if !updated_recently
+        if was_unanswered || !updated_recently
           @avis.dossier.followers_instructeurs
             .with_instant_email_new_expert_avis(@avis.procedure)
             .each do |instructeur|
