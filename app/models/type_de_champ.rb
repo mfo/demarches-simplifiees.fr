@@ -113,18 +113,12 @@ class TypeDeChamp < ApplicationRecord
     quotient_familial: 'quotient_familial',
   }
 
-  enum :nature, {
-    non_specifie: 'NON_SPECIFIE',
-    titre_identite: 'TITRE_IDENTITE',
-    rib: 'RIB',
-    justificatif_domicile: 'JUSTIFICATIF_DOMICILE',
-  }
+  enum :nature, %w[non_specifie titre_identite rib justificatif_domicile].index_by(&:itself)
 
   # Surcharge transitoire : normalise la lecture de `nature` en lowercase
-  # pour supporter les valeurs uppercase legacy en DB.
-  # Next steps :
-  #   - deploy 2 : enum values → lowercase + maintenance task LOWER(nature)
-  #   - deploy 3 : supprimer cette surcharge (l'enum suffira)
+  # pour supporter les valeurs uppercase legacy en DB (le temps que la
+  # maintenance task T20260408lowercaseTypeDeChampNatureValuesTask passe).
+  # Next step : deploy 3 → supprimer cette surcharge (l'enum suffira)
   def nature = read_attribute_before_type_cast(:nature)&.downcase
 
   SIMPLE_ROUTABLE_TYPES = [
