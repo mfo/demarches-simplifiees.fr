@@ -301,6 +301,15 @@ describe Experts::AvisController, type: :controller do
           expect(DossierMailer).to receive(:notify_new_avis_to_instructeur).once.with(avis_without_answer, instructeur_with_instant_avis_notification.email).and_return(double(deliver_later: true))
           subject
         end
+
+        it 'notifies the instructeur even when the expert answers within 30 minutes of the avis creation' do
+          avis_without_answer.update_column(:updated_at, 13.minutes.ago)
+
+          expect(DossierMailer).to receive(:notify_new_avis_to_instructeur).once
+            .with(avis_without_answer, instructeur_with_instant_avis_notification.email)
+            .and_return(double(deliver_later: true))
+          subject
+        end
       end
 
       context 'with attachment' do
