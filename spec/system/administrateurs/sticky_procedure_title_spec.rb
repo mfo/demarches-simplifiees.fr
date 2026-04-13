@@ -37,9 +37,12 @@ describe 'Admin sticky procedure title', js: true do
   context 'on the procedure show page' do
     before { visit admin_procedure_path(procedure) }
 
-    it 'never renders the sticky title' do
-      execute_script('window.scrollBy(0, 2000);')
-      expect(page).not_to have_css('.procedure-sticky-title', visible: :all)
+    it 'shows the sticky title after scroll past the breadcrumb' do
+      execute_script("document.body.style.minHeight = '4000px'; window.scrollTo(0, 2000);")
+      expect(page).to have_css('.procedure-sticky-title.visible', wait: 5)
+      within('.procedure-sticky-title.visible') do
+        expect(page).to have_text('Démarche test sticky')
+      end
     end
   end
 
