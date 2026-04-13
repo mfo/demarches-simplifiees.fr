@@ -57,6 +57,22 @@ describe EditableChamp::QuotientFamilialComponent, type: :component do
         expect(subject).to have_css('input[type="file"]')
       end
     end
+
+    context "when last update is older than refresh delay" do
+      before { champ.update(updated_at: 2.days.ago) }
+
+      it "renders enabled refresh button" do
+        expect(subject).to have_button('Actualiser mes données', disabled: false)
+      end
+    end
+
+    context "when last update is recent (< refresh delay)" do
+      before { champ.update(updated_at: 1.hour.ago) }
+
+      it "renders disabled refresh button" do
+        expect(subject).to have_button('Actualiser mes données', disabled: true)
+      end
+    end
   end
 
   context "when data have not been recovered from API Particulier" do
