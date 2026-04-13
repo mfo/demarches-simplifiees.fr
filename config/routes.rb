@@ -144,7 +144,6 @@ Rails.application.routes.draw do
 
   devise_for :super_admins, skip: [:registrations], controllers: {
     sessions: 'super_admins/sessions',
-    passwords: 'super_admins/passwords',
   }
 
   namespace :super_admins do
