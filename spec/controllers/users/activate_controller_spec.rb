@@ -35,7 +35,9 @@ describe Users::ActivateController, type: :controller do
     context 'when the token is ok' do
       before { get :new, params: { token: token } }
 
-      it { expect(controller).to have_received(:trust_device) }
+      it do
+        expect(user.reload.email_verified_at).to be_present
+      end
     end
 
     context 'when the token is bad' do
@@ -50,12 +52,24 @@ describe Users::ActivateController, type: :controller do
     let(:token) { user.send(:set_reset_password_token) }
     let(:password) { '{another-password-ok?}' }
 
-    before { post :create, params: { user: { reset_password_token: token, password: password } } }
+    before do
+      allow(controller).to receive(:trust_device)
+      post :create, params: { user: { reset_password_token: token, password: password } }
+    end
 
     context 'when the token is ok' do
       it do
         expect(user.reload.valid_password?(password)).to be true
-        expect(user.reload.email_verified_at).to be_present
+        expect(controller).not_to have_received(:trust_device)
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when the token is ok and user is instructeur' do
+      let!(:user) { create(:instructeur).user }
+
+      it 'trusts the device' do
+        expect(user.reload.valid_password?(password)).to be true
         expect(response).to redirect_to(root_path)
       end
     end
@@ -64,9 +78,8 @@ describe Users::ActivateController, type: :controller do
       let(:admin) { administrateurs(:default_admin) }
       let!(:user) { admin.user }
 
-      it do
+      it 'trusts the device because admin has an instructeur profile' do
         expect(user.reload.valid_password?(password)).to be true
-        expect(user.reload.email_verified_at).to be_present
         expect(response).to redirect_to(root_path)
       end
     end
@@ -75,9 +88,9 @@ describe Users::ActivateController, type: :controller do
       let(:gestionnaire) { create(:gestionnaire) }
       let!(:user) { gestionnaire.user }
 
-      it do
+      it 'does not trust the device' do
         expect(user.reload.valid_password?(password)).to be true
-        expect(user.reload.email_verified_at).to be_present
+        expect(controller).not_to have_received(:trust_device)
         expect(response).to redirect_to(root_path)
       end
     end
@@ -87,6 +100,7 @@ describe Users::ActivateController, type: :controller do
 
       it do
         expect(user.reload.valid_password?(password)).to be false
+        expect(controller).not_to have_received(:trust_device)
         expect(response).to redirect_to(users_activate_path(token: token))
       end
     end
@@ -96,6 +110,7 @@ describe Users::ActivateController, type: :controller do
 
       it do
         expect(user.reload.valid_password?(password)).to be false
+        expect(controller).not_to have_received(:trust_device)
         expect(response).to redirect_to(users_activate_path(token: token))
       end
     end

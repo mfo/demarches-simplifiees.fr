@@ -7,10 +7,10 @@ class Users::ActivateController < ApplicationController
     @user = User.with_reset_password_token(params[:token])
 
     if @user
-      # the user activates its account from an email
-      trust_device(Time.zone.now)
+      trust_device(Time.zone.now) if @user.instructeur.present?
+      @user.update!(email_verified_at: Time.zone.now) if @user.email_verified_at.nil?
     else
-      flash.alert = "Le lien de validation du compte instructeur a expiré, #{helpers.contact_link('contactez-nous')} pour obtenir un nouveau lien."
+      flash.alert = t('.expired_link_html', contact_link: helpers.contact_link('contactez-nous'))
       redirect_to root_path
     end
   end
@@ -21,11 +21,10 @@ class Users::ActivateController < ApplicationController
     user = User.reset_password_by_token({
       password: password,
       password_confirmation: password,
-      reset_password_token: user_params[:reset_password_token]
+      reset_password_token: user_params[:reset_password_token],
     })
 
-    if user&.errors&.empty?
-      user.update!(email_verified_at: Time.zone.now)
+    if user.valid?
       sign_in(user, scope: :user)
 
       flash.notice = "Mot de passe enregistré"
