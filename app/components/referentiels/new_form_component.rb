@@ -3,7 +3,6 @@
 class Referentiels::NewFormComponent < Referentiels::MappingFormBase
   delegate :authentication_by_header_token?,
            :authentication_data_header,
-           :use_tiptap?,
            to: :referentiel
 
   def id

@@ -18,10 +18,8 @@ class Referentiels::APIReferentiel < Referentiel
 
   validates :mode, inclusion: { in: modes.values }
   validate :url_allowed?
-  validates :test_data, presence: true, unless: :use_tiptap?
-  validates :url, presence: true, unless: :use_tiptap?
-  validates :url_tiptap, presence: true, if: :use_tiptap?
-  validate :validate_tiptap_test_data, if: :use_tiptap?
+  validates :url_tiptap, presence: true
+  validate :validate_tiptap_test_data
 
   store_accessor :autocomplete_configuration, :datasource, :json_template
   before_save :name_as_uuid
@@ -85,7 +83,7 @@ class Referentiels::APIReferentiel < Referentiel
   end
 
   def effective_test_data
-    use_tiptap? ? test_data_tiptap&.dig("{query}") : test_data
+    test_data_tiptap&.dig("{query}")
   end
 
   def last_response_body
@@ -103,11 +101,7 @@ class Referentiels::APIReferentiel < Referentiel
   def configured?
     case type
     when "Referentiels::APIReferentiel"
-      if use_tiptap?
-        [mode, url_tiptap].all?(&:present?) && tiptap_test_data_complete?
-      else
-        [mode, url, test_data].all?(&:present?)
-      end
+      [mode.present?, url_tiptap.present?, tiptap_test_data_complete?].all?
     when "Referentiels::CsvReferentiel"
       false
     else
@@ -142,35 +136,31 @@ class Referentiels::APIReferentiel < Referentiel
   end
 
   def url_allowed?
-    raw_url = if use_tiptap?
-      url_from_tiptap_for_validation
-    else
-      url
-    end
+    raw_url = url_from_tiptap_for_validation
 
     if raw_url.blank?
-      errors.add(:url, :invalid_format) if use_tiptap? && url_tiptap.present?
+      errors.add(:url_tiptap, :invalid_format) if url_tiptap.present?
       return
     end
 
     uri = Addressable::URI.parse(raw_url)
 
     if uri.scheme.blank? || uri.scheme != 'https'
-      errors.add(:url, :https_required)
+      errors.add(:url_tiptap, :https_required)
     end
 
-    if use_tiptap? && tiptap_mention_ids.empty?
-      errors.add(:url, :missing_query_params)
+    if tiptap_mention_ids.empty?
+      errors.add(:url_tiptap, :missing_query_params)
     end
 
     unless uri.tld == "gouv.fr" && uri.domain != "beta.gouv.fr"
       allowed_hosts = ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND', '').split(',').filter_map { Addressable::URI.parse(_1).host rescue nil }
       if uri.host.blank? || allowed_hosts.none? { uri.host == _1 || uri.host.end_with?(".#{_1}") }
-        errors.add(:url, :not_allowed, contact_email: CONTACT_EMAIL)
+        errors.add(:url_tiptap, :not_allowed, contact_email: CONTACT_EMAIL)
       end
     end
   rescue Addressable::URI::InvalidURIError, URI::InvalidURIError, PublicSuffix::DomainInvalid
-    errors.add(:url, :invalid_format)
+    errors.add(:url_tiptap, :invalid_format)
   end
 
   private

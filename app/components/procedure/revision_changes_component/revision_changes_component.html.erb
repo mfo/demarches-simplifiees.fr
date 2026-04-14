@@ -317,7 +317,7 @@
             <%= t(".#{prefix}.update_max_character_length", label: change.label, to: change.to) %>
           <% end %>
         <% end %>
-      <% when :referentiel_url, :referentiel_mode, :referentiel_hint, :referentiel_test_data, :referentiel_mapping %>
+      <% when :referentiel_url_tiptap, :referentiel_mode, :referentiel_hint, :referentiel_test_data_tiptap, :referentiel_mapping %>
         <% list.with_item do %>
           <%= t(".update_referentiel.#{change.attribute}", label: change.label, to: change.to) %>
         <% end %>

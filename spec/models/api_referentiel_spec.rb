@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Referentiels::APIReferentiel, type: :model do
   let(:authentication_data) { { "header" => 'Authorization', "value" => 'Bearer secret' } }
   it 'encrypts authentication_data' do
-    referentiel = described_class.create!(name: SecureRandom.uuid, url: 'https://api.gouv.fr', authentication_data:, mode: :autocomplete, test_data: "kkk", use_tiptap: false)
+    referentiel = described_class.create!(name: SecureRandom.uuid, authentication_data:, mode: :autocomplete, url_tiptap: { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Q" } }] }] }, test_data_tiptap: { "{query}" => "test" })
 
     referentiel.reload
     expect(referentiel.authentication_data).to eq(authentication_data)
@@ -65,7 +65,7 @@ describe Referentiels::APIReferentiel, type: :model do
     end
 
     context 'tiptap mode' do
-      let(:referentiel) { build(:api_referentiel, :exact_match, use_tiptap: true, url_tiptap:, test_data_tiptap: { "{query}" => "ok" }) }
+      let(:referentiel) { build(:api_referentiel, :exact_match, url_tiptap:, test_data_tiptap: { "{query}" => "ok" }) }
 
       context 'with https gouv.fr URL' do
         let(:url_tiptap) { tiptap_url("https://data.gouv.fr/api?q=") }
@@ -82,7 +82,7 @@ describe Referentiels::APIReferentiel, type: :model do
 
         it 'adds https_required error' do
           referentiel.valid?
-          expect(referentiel.errors.where(:url, :https_required)).to be_present
+          expect(referentiel.errors.where(:url_tiptap, :https_required)).to be_present
         end
       end
 
@@ -91,7 +91,7 @@ describe Referentiels::APIReferentiel, type: :model do
 
         it 'adds https_required error' do
           referentiel.valid?
-          expect(referentiel.errors.where(:url, :https_required)).to be_present
+          expect(referentiel.errors.where(:url_tiptap, :https_required)).to be_present
         end
       end
 
@@ -100,7 +100,7 @@ describe Referentiels::APIReferentiel, type: :model do
 
         it 'adds not_allowed error' do
           referentiel.valid?
-          expect(referentiel.errors.where(:url, :not_allowed)).to be_present
+          expect(referentiel.errors.where(:url_tiptap, :not_allowed)).to be_present
         end
       end
 
@@ -119,7 +119,7 @@ describe Referentiels::APIReferentiel, type: :model do
 
         it 'adds invalid_format error' do
           referentiel.valid?
-          expect(referentiel.errors.where(:url, :invalid_format)).to be_present
+          expect(referentiel.errors.where(:url_tiptap, :invalid_format)).to be_present
         end
       end
 
@@ -138,7 +138,7 @@ describe Referentiels::APIReferentiel, type: :model do
 
         it 'adds missing_query_params error' do
           referentiel.valid?
-          expect(referentiel.errors.where(:url, :missing_query_params)).to be_present
+          expect(referentiel.errors.where(:url_tiptap, :missing_query_params)).to be_present
         end
       end
     end

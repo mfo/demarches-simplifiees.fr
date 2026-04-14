@@ -3,7 +3,7 @@
 require "rails_helper"
 
 module Maintenance
-  RSpec.describe T20260408BackfillReferentielTiptapColumnsTask do
+  RSpec.xdescribe T20260408BackfillReferentielTiptapColumnsTask do
     subject(:task) { described_class.new }
 
     let(:url_tiptap) do

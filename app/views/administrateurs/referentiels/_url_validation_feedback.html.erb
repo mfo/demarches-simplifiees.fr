@@ -1,22 +1,22 @@
 <div id="url-validation-feedback">
-  <% url_errors = referentiel.errors.where(:url) %>
+  <% errors = referentiel.errors.where(:url_tiptap) %>
 
-  <% if url_errors.present? %>
+  <% if errors.any? %>
     <%= render Dsfr::AlertComponent.new(state: :error, title: nil, size: :sm, heading_level: :p, extra_class_names: 'fr-mt-2w') do |c| %>
       <% c.with_body do %>
-        <% if url_errors.size == 1 %>
-          <p><%= url_errors.first.full_message %></p>
+        <% if errors.one? %>
+          <p><%= errors.first.full_message %></p>
         <% else %>
           <p>URL du référentiel :</p>
           <ul>
-            <% url_errors.each do |error| %>
+            <% errors.each do |error| %>
               <li><%= error.message %></li>
             <% end %>
           </ul>
         <% end %>
       <% end %>
     <% end %>
-  <% elsif referentiel.url.present? || referentiel.url_tiptap.present? %>
+  <% elsif referentiel.url_tiptap.present? %>
     <div class="fr-mt-1w fr-message fr-message--info">
       Attention si vous appelez une API qui renvoie de la donnée personnelle,
       vous devez en informer votre DPO.

@@ -18,18 +18,7 @@ describe Referentiel do
         end
 
         describe 'configured?' do
-          context 'when legacy mode (use_tiptap: false)' do
-            it 'requires mode, url and test_data' do
-              referentiel = build(:api_referentiel, url: allowed_domains)
-              expect(referentiel).to receive(:mode).and_return(double(present?: true))
-              expect(referentiel).to receive(:url).and_return(double(present?: true))
-              expect(referentiel).to receive(:test_data).and_return(double(present?: true))
-
-              expect(referentiel.configured?).to eq(true)
-            end
-          end
-
-          context 'when tiptap mode' do
+          context 'with tiptap url' do
             let(:url_tiptap_with_mentions) do
               {
                 "type" => "doc",
@@ -61,92 +50,43 @@ describe Referentiel do
             end
 
             it 'is configured with all test_data filled' do
-              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+              referentiel = build(:api_referentiel, mode: 'exact_match',
                 url_tiptap: url_tiptap_with_mentions,
                 test_data_tiptap: { "{query}" => "val1", "tdc42" => "val2" })
               expect(referentiel.configured?).to be true
             end
 
             it 'is not configured when a test_data value is missing' do
-              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+              referentiel = build(:api_referentiel, mode: 'exact_match',
                 url_tiptap: url_tiptap_with_mentions,
                 test_data_tiptap: { "{query}" => "val1" })
               expect(referentiel.configured?).to be false
             end
 
             it 'is not configured when test_data_tiptap is nil with mentions' do
-              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+              referentiel = build(:api_referentiel, mode: 'exact_match',
                 url_tiptap: url_tiptap_with_mentions,
                 test_data_tiptap: nil)
               expect(referentiel.configured?).to be false
             end
 
             it 'is configured with static URL (no mentions, no test_data needed)' do
-              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+              referentiel = build(:api_referentiel, mode: 'exact_match',
                 url_tiptap: url_tiptap_static,
                 test_data_tiptap: nil)
               expect(referentiel.configured?).to be true
             end
 
             it 'is not configured without mode' do
-              referentiel = build(:api_referentiel, use_tiptap: true, mode: nil,
+              referentiel = build(:api_referentiel, mode: nil,
                 url_tiptap: url_tiptap_static)
               expect(referentiel.configured?).to be false
             end
 
             it 'is not configured without url_tiptap' do
-              referentiel = build(:api_referentiel, use_tiptap: true, mode: 'exact_match',
+              referentiel = build(:api_referentiel, mode: 'exact_match',
                 url_tiptap: nil)
               expect(referentiel.configured?).to be false
-            end
-          end
-        end
-
-        describe 'url_in_allowed_domains?' do
-          let(:referentiel) { build(:api_referentiel, url:) }
-
-          context 'when the URL is in the allowed_domains' do
-            let(:url) { ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND', '').split(',').first }
-
-            it 'does not add an error' do
-              referentiel.validate
-              expect(referentiel.errors[:url]).to be_empty
-            end
-          end
-
-          context 'when the URL is not in the allowed_domains' do
-            let(:url) { "https://api.untrusted.com/resource" }
-
-            it 'adds an error' do
-              referentiel.validate
-              expect(referentiel.errors[:url]).to include("doit être autorisée par notre équipe. Veuillez nous contacter par mail (contact@demarche.numerique.gouv.fr) et nous indiquer l’URL et la documentation de l’API que vous souhaitez intégrer. Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés (à l’exception de .beta.gouv.fr)")
-            end
-          end
-
-          context 'when the URL is invalid' do
-            let(:url) { "invalid_url" }
-
-            it 'adds an invalid URL error' do
-              referentiel.validate
-              expect(referentiel.errors[:url]).to include("n’est pas au format d’une URL, saisissez une URL valide ex https://api_1.ext/")
-            end
-          end
-
-          context 'when the URL ends with .gouv.fr' do
-            let(:url) { "https://ministere.gouv.fr/resource" }
-
-            it 'does not add an error' do
-              referentiel.validate
-              expect(referentiel.errors[:url]).to be_empty
-            end
-          end
-
-          context 'when the URL ends with .beta.gouv.fr' do
-            let(:url) { "https://anything.beta.gouv.fr/resource" }
-
-            it 'adds an error' do
-              referentiel.validate
-              expect(referentiel.errors[:url]).to include("doit être autorisée par notre équipe. Veuillez nous contacter par mail (contact@demarche.numerique.gouv.fr) et nous indiquer l’URL et la documentation de l’API que vous souhaitez intégrer. Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés (à l’exception de .beta.gouv.fr)")
             end
           end
         end
