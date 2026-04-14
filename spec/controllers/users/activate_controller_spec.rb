@@ -60,8 +60,39 @@ describe Users::ActivateController, type: :controller do
       end
     end
 
+    context 'when the token is ok and user is admin' do
+      let(:admin) { administrateurs(:default_admin) }
+      let!(:user) { admin.user }
+
+      it do
+        expect(user.reload.valid_password?(password)).to be true
+        expect(user.reload.email_verified_at).to be_present
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when the token is ok and user is gestionnaire' do
+      let(:gestionnaire) { create(:gestionnaire) }
+      let!(:user) { gestionnaire.user }
+
+      it do
+        expect(user.reload.valid_password?(password)).to be true
+        expect(user.reload.email_verified_at).to be_present
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
     context 'when the token is bad' do
       let(:token) { 'bad' }
+
+      it do
+        expect(user.reload.valid_password?(password)).to be false
+        expect(response).to redirect_to(users_activate_path(token: token))
+      end
+    end
+
+    context 'when the password is not strong' do
+      let(:password) { 'password-ok?' }
 
       it do
         expect(user.reload.valid_password?(password)).to be false
