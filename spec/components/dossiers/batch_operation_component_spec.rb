@@ -73,7 +73,7 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
       let(:statut) { 'tous' }
       it do
         is_expected.to have_button('Envoyer un message aux usagers', disabled: true)
-        is_expected.to have_button('Instruire les dossiers', disabled: true)
+        is_expected.to have_button('Rendre une décision', disabled: true)
         is_expected.to have_button('Autres actions multiples', disabled: true)
         is_expected.to have_button('Suivre les dossiers', disabled: true)
         is_expected.to have_button('Ne plus suivre les dossiers', disabled: true)
@@ -106,6 +106,20 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
 
       it do
         expect(subject).to match_array(["passer_en_instruction", "repousser_expiration", "create_avis", "restaurer_repousser_expiration", "follow", "create_commentaire"])
+      end
+    end
+
+    context "when the dossier is en_instruction" do
+      let(:dossier) { create(:dossier, :en_instruction) }
+
+      it do
+        expect(subject).to match_array([
+          "repasser_en_construction",
+          "create_avis",
+          "instruction",
+          "follow",
+          "create_commentaire",
+        ])
       end
     end
 

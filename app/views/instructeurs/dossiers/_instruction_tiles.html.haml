@@ -1,0 +1,27 @@
+- batch = local_assigns[:batch] || false
+- dossier_ids = local_assigns[:dossier_ids] || []
+- link_data = { turbo_method: :post, turbo: true }
+- link_data[:action] = "click->instruction-modal#addBatchIdsToUrl" if batch
+- current_statut = local_assigns[:statut] || params[:statut]
+
+#instruction-action-tiles{ class: local_assigns[:hidden] ? "hidden" : nil }
+  - instruction_options.each do |opt|
+    - url = if batch
+      - batch_instruction_modal_instructeur_batch_operations_path(procedure, opt[:operation], dossier_ids: dossier_ids, statut: current_statut)
+    - else
+      - instruction_modal_instructeur_dossier_path(procedure, dossier, opt[:operation], statut: current_statut)
+
+    .fr-mt-3w
+      .fr-tile.fr-tile--sm.fr-tile--horizontal.fr-enlarge-link
+        .fr-tile__body
+          .fr-tile__content
+            %h3.fr-tile__title
+              = link_to url,
+                data: link_data,
+                role: 'menuitem' do
+                = opt[:title]
+            %p.fr-tile__desc
+              = opt[:desc]
+        .fr-tile__header
+          .fr-tile__pictogram
+            = dsfr_icon(opt[:icon])

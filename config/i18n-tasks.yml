@@ -145,6 +145,9 @@ ignore_unused:
   - 'shared.champs.external_data.*'
   # used dynamically in _status_overview via t(decision, scope: '...delay_title')
   - 'views.users.dossiers.show.status_overview.delay_title.*'
+  - 'instructeurs.dossiers.alert_error_annotations'
+  - 'instructeurs.dossiers.alert_error_annotations_link'
+
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
 # - 'simple_form.{placeholders,hints,labels}.*'

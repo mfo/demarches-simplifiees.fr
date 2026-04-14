@@ -367,6 +367,16 @@ module Instructeurs
       )
     end
 
+    def instruction_modal
+      @dossier = dossier
+      @operation = params[:operation]
+      @modal_title_data = helpers.instruction_modal_title_data(dossier: @dossier, batch: false)
+
+      respond_to do |format|
+        format.turbo_stream
+      end
+    end
+
     def update_annotations
       update_champ_and_compute_errors(scope: :private)
 

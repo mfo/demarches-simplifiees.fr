@@ -462,6 +462,124 @@ describe 'BatchOperation a dossier:', js: true do
     end
   end
 
+  scenario 'create a BatchOperation for instruction with modal', chrome: true do
+    dossier_1 = create(:dossier, :en_instruction, procedure: procedure)
+    dossier_2 = create(:dossier, :en_instruction, procedure: procedure)
+    instructeur.follow(dossier_1)
+    instructeur.follow(dossier_2)
+    log_in(instructeur.email, password)
+
+    visit instructeur_procedure_path(procedure, statut: 'suivis')
+
+    checkbox_id_1 = dom_id(BatchOperation.new, "checkbox_#{dossier_1.id}")
+    checkbox_id_2 = dom_id(BatchOperation.new, "checkbox_#{dossier_2.id}")
+
+    expect(page).to have_button("Rendre une décision", disabled: true)
+
+    check(checkbox_id_1)
+    check(checkbox_id_2)
+
+    expect(page).to have_button("Rendre une décision")
+
+    click_on "Rendre une décision"
+
+    scroll_to(find("#modal-instruction-button"))
+
+    expect(page).to have_selector("#modal-instruction-button", visible: true)
+    expect(page).to have_content("Rendre une décision sur les dossiers")
+    expect(page).to have_content("Accepter les dossiers")
+    expect(page).to have_content("Refuser les dossiers")
+    expect(page).to have_content("Classer sans suite les dossiers")
+
+    # on peut fermer la modale
+    click_on "Fermer", visible: true
+    expect(page).to have_selector("#modal-instruction-button", visible: false)
+
+    # on la rouvre
+    click_on "Rendre une décision"
+    expect(page).to have_selector("#modal-instruction-button", visible: true)
+
+    # on sélectionne une tuile puis on fait retour
+    click_on "Accepter les dossiers"
+    expect(page).to have_field("motivation_accept")
+
+    click_on "Retour"
+    expect(page).to have_content("Accepter les dossiers")
+    expect(page).to have_content("Refuser les dossiers")
+
+    # puis on continue avec l'acceptation comme avant
+    click_on "Accepter les dossiers"
+
+    expect(page).to have_field("motivation_accept")
+    fill_in("motivation_accept", with: "Motivation batch d’acceptation")
+
+    accept_alert do
+      click_on "Valider la décision"
+    end
+
+    expect(page).to have_selector("##{checkbox_id_1}[disabled]")
+    expect(page).to have_selector("##{checkbox_id_2}[disabled]")
+
+    expect(BatchOperation.count).to eq(1)
+    expect(BatchOperation.last.operation).to eq("accepter")
+    expect(BatchOperation.last.dossiers).to match_array([dossier_1, dossier_2])
+
+    expect(page).to be_axe_clean
+    expect(page).to have_content("Information : Une action de masse est en cours")
+    expect(page).to have_selector('[data-controller~="turbo-poll"]')
+  end
+
+  scenario 'create a BatchOperation for refusal with modal and justificatif', chrome: true do
+    dossier_1 = create(:dossier, :en_instruction, :with_individual, procedure: procedure)
+    dossier_2 = create(:dossier, :en_instruction, :with_individual, procedure: procedure)
+    instructeur.follow(dossier_1)
+    instructeur.follow(dossier_2)
+    log_in(instructeur.email, password)
+
+    visit instructeur_procedure_path(procedure, statut: 'suivis')
+
+    checkbox_id_1 = dom_id(BatchOperation.new, "checkbox_#{dossier_1.id}")
+    checkbox_id_2 = dom_id(BatchOperation.new, "checkbox_#{dossier_2.id}")
+
+    check(checkbox_id_1)
+    check(checkbox_id_2)
+
+    click_on "Rendre une décision"
+
+    expect(page).to have_selector("#modal-instruction-button", visible: true)
+
+    click_on "Refuser les dossiers"
+
+    expect(page).to have_field("motivation_refuse")
+    fill_in("motivation_refuse", with: "Refus batch avec justificatif")
+
+    within(".motivation.refuse") do
+      find('input[type="file"]', visible: :all).attach_file(
+        Rails.root.join("spec/fixtures/files/piece_justificative_0.pdf")
+      )
+    end
+
+    # Selenium ne capture pas bien l'alerte
+    # On vérifie donc que l’attribut est présent, puis on stub window.confirm
+    expect(page).to have_selector('button[data-confirm="Êtes-vous sûr de vouloir appliquer cette décision aux dossiers sélectionnés ?"]')
+    page.execute_script('window.confirm = () => true')
+    click_on "Valider la décision"
+
+    expect(page).to have_selector("##{checkbox_id_1}[disabled]")
+    expect(page).to have_selector("##{checkbox_id_2}[disabled]")
+
+    expect(BatchOperation.count).to eq(1)
+    expect(BatchOperation.last.operation).to eq("refuser")
+    expect(BatchOperation.last.dossiers).to match_array([dossier_1, dossier_2])
+
+    perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
+    perform_enqueued_jobs(only: [BatchOperationProcessOneJob])
+
+    expect(dossier_1.reload).to be_refuse
+    expect(dossier_2.reload).to be_refuse
+    expect(dossier_1.justificatif_motivation).to be_attached
+  end
+
   def log_in(email, password)
     visit new_user_session_path
     expect(page).to have_current_path(new_user_session_path)

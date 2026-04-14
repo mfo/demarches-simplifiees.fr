@@ -1,0 +1,54 @@
+.motivation-wrapper{ class: local_assigns[:visible] ? nil : "hidden", data: { operation: opt[:operation], action: opt[:action]} }
+  .motivation{ class: "#{opt[:operation]}" }
+
+    - field_id = "motivation_#{opt[:operation]}"
+
+    - if batch
+      %label.fr-label{ for: field_id }
+        = opt[:label]
+        - if opt[:hint].present?
+          %span.fr-hint-text
+            = opt[:hint]
+
+      = form.text_area :motivation,
+        id: field_id,
+        class: "fr-input js_batch_operation_motivation_#{opt[:operation]}",
+        required: opt[:operation] != 'accept'
+
+    - else
+      = label_tag field_id, class: "fr-label" do
+        = opt[:label]
+        %span.fr-hint-text
+          = opt[:hint]
+
+      = text_area_tag "dossier[motivation]", nil,
+        id: field_id,
+        class: "fr-input",
+        required: opt[:operation] != 'accept'
+
+    / Justificatif
+    .optional-justificatif{ id: "justificatif_motivation_suggest_#{opt[:operation]}" }
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-attachment-line{
+        type: "button",
+        onclick: "DS.showImportJustificatif('#{opt[:operation]}');"
+      }
+        Ajouter un justificatif
+
+    .hidden{ id: "justificatif_motivation_import_#{opt[:operation]}" }
+      - if batch
+        = form.file_field :justificatif_motivation,
+          id: "dossier_justificatif_motivation_#{opt[:operation]}",
+          direct_upload: true,
+          onchange: "DS.showDeleteJustificatif('#{opt[:operation]}');"
+      - else
+        = file_field_tag "dossier[justificatif_motivation]",
+          id: "dossier_justificatif_motivation_#{opt[:operation]}",
+          direct_upload: true,
+          onchange: "DS.showDeleteJustificatif('#{opt[:operation]}');"
+
+    .hidden.js_delete_motivation{ id: "delete_motivation_import_#{opt[:operation]}" }
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-delete-line{
+        type: "button",
+        onclick: "DS.deleteJustificatif('#{opt[:operation]}');"
+      }
+        Supprimer le justificatif
