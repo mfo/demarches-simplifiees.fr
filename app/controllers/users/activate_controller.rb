@@ -27,7 +27,7 @@ class Users::ActivateController < ApplicationController
     if user.valid?
       sign_in(user, scope: :user)
 
-      flash.notice = "Mot de passe enregistré"
+      flash.notice = t('.password_registered')
       redirect_to root_path
     else
       flash.alert = user.errors.full_messages
@@ -38,16 +38,16 @@ class Users::ActivateController < ApplicationController
   def confirm_email
     user = User.find_by(confirmation_token: params[:token])
     if user && user.email_verified_at
-      flash[:notice] = "Votre adresse électronique est déjà vérifié"
+      flash[:notice] = t('.already_verified')
     elsif user && user.confirmation_sent_at >= 2.days.ago
       user.update!(email_verified_at: Time.zone.now)
-      flash[:notice] = 'Votre adresse électronique a bien été vérifié'
+      flash[:notice] = t('.email_verified')
     else
       if user.present?
-        flash[:alert] = "Ce lien n’est plus valable, un nouveau lien a été envoyé à l’adresse #{user.email}"
+        flash[:alert] = t('.expired_link', email: user.email)
         user.resend_confirmation_email!
       else
-        flash[:alert] = "Un problème est survenu, vous pouvez nous contacter sur #{Current.contact_email}"
+        flash[:alert] = t('.error', contact_email: Current.contact_email)
       end
     end
     redirect_to root_path(user)
@@ -59,9 +59,9 @@ class Users::ActivateController < ApplicationController
       token = SecureRandom.hex(10)
       user.update!(confirmation_token: token, confirmation_sent_at: Time.zone.now)
       user.resend_confirmation_email!
-      flash[:notice] = "Un nouvel email de vérification a été envoyé à l’adresse #{user.email}."
+      flash[:notice] = t('.email_sent', email: user.email)
     else
-      flash[:alert] = "Votre adresse électronique est déjà vérifié ou vous n'êtes pas connecté."
+      flash[:alert] = t('.already_verified')
     end
     redirect_to root_path(user)
   end

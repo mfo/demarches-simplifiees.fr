@@ -11,7 +11,7 @@ describe Users::ActivateController, type: :controller do
         expect {
           post :resend_verification_email
         }.to change { user.reload.confirmation_token }
-        expect(flash[:notice]).to eq("Un nouvel email de vérification a été envoyé à l’adresse #{user.email}.")
+        expect(flash[:notice]).to eq(I18n.t("users.activate.resend_verification_email.email_sent", email: user.email))
         expect(response).to redirect_to(root_path(user))
       end
     end
@@ -21,7 +21,7 @@ describe Users::ActivateController, type: :controller do
 
       it 'does not send mail and shows an alert' do
         post :resend_verification_email
-        expect(flash[:alert]).to eq("Votre adresse électronique est déjà vérifié ou vous n'êtes pas connecté.")
+        expect(flash[:alert]).to eq(I18n.t('users.activate.resend_verification_email.already_verified'))
         expect(response).to redirect_to(root_path(user))
       end
     end
@@ -135,7 +135,7 @@ describe Users::ActivateController, type: :controller do
 
       it 'redirects to root path with a success notice' do
         expect(response).to redirect_to(root_path(user))
-        expect(flash[:notice]).to eq('Votre adresse électronique a bien été vérifié')
+        expect(flash[:notice]).to eq(I18n.t('users.activate.confirm_email.email_verified'))
       end
     end
 
@@ -147,7 +147,7 @@ describe Users::ActivateController, type: :controller do
 
       it 'redirects to root path with an explanation notice' do
         expect(response).to redirect_to(root_path(user))
-        expect(flash[:notice]).to eq('Votre adresse électronique est déjà vérifié')
+        expect(flash[:notice]).to eq(I18n.t('users.activate.confirm_email.already_verified'))
       end
     end
 
@@ -161,7 +161,7 @@ describe Users::ActivateController, type: :controller do
       it 'redirects to root path with an explanation notice and it send a new link if user present' do
         expect { subject }.to have_enqueued_mail(UserMailer, :resend_confirmation_email)
         expect(response).to redirect_to(root_path(user))
-        expect(flash[:alert]).to eq("Ce lien n’est plus valable, un nouveau lien a été envoyé à l’adresse #{user.email}")
+        expect(flash[:alert]).to eq(I18n.t("users.activate.confirm_email.expired_link", email: user.email))
       end
     end
   end
