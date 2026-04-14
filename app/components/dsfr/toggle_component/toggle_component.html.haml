@@ -1,9 +1,9 @@
 %div{ class: "fr-toggle #{extra_class_names}" }
-  = @form.check_box target, class: 'fr-toggle__input', disabled:, data:, id: input_id
+  = @form.check_box target, { class: 'fr-toggle__input',id: label_for,disabled: disabled, checked: @checked }
   = @form.label target,
     title || html_title&.html_safe,
     for: label_for,
-    data: { 'fr-checked-label': toggle_labels[:checked], 'fr-unchecked-label': toggle_labels[:unchecked] },
+    data: label_data,
     class: 'fr-toggle__label'
 
   - if hint
