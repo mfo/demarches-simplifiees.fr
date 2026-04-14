@@ -55,7 +55,8 @@ describe Users::ActivateController, type: :controller do
     context 'when the token is ok' do
       it do
         expect(user.reload.valid_password?(password)).to be true
-        expect(response).to redirect_to(instructeur_procedures_path)
+        expect(user.reload.email_verified_at).to be_present
+        expect(response).to redirect_to(root_path)
       end
     end
 
