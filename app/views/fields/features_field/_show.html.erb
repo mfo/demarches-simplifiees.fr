@@ -1,9 +1,8 @@
-<% group = field.resource.class.name.downcase %>
 <% user = field.resource.user %>
 <% url = enable_feature_manager_user_path(user) %>
 
 <table id="features">
-  <% Flipper.features.select { |feature| feature.key.start_with?("#{group}_") }.each do |feature| %>
+  <% field.available_features.each do |feature| %>
     <tr>
       <td><%= feature %></td>
 

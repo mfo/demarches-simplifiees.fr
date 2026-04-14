@@ -46,10 +46,17 @@ module Manager
       redirect_to manager_user_path(user)
     end
 
+    # Only the administrateur dashboard currently exposes FeaturesField;
+    # revisit (e.g. accept the group as a param) if usager/instructeur dashboards start using it.
+    FEATURES_GROUP = "administrateur"
+
     def enable_feature
       user = User.find(params[:id])
+      allowed_keys = FeaturesField.available_features(FEATURES_GROUP).map(&:key).to_set
 
-      params[:features].each do |key, enable|
+      params.fetch(:features, {}).each do |key, enable|
+        next unless allowed_keys.include?(key)
+
         if enable
           Flipper.enable_actor(key.to_sym, user)
         else
