@@ -84,7 +84,7 @@ module Manager
       @user = User.find(params[:id])
 
       email_services = [
-        Sendinblue::API.new,
+        Brevo::API.new,
         Scaleway::API.new,
       ].filter(&:properly_configured?)
 
@@ -101,10 +101,10 @@ module Manager
 
     def unblock_email
       @user = User.find(params[:user_id])
-      if Sendinblue::API.new.unblock_user(@user.email)
-        flash.notice = "L’adresse électronique a été débloquée auprès de Sendinblue"
+      if Brevo::API.new.unblock_user(@user.email)
+        flash.notice = "L’adresse électronique a été débloquée auprès de Brevo"
       else
-        flash.alert = "Impossible de débloquer cette adresse électronique auprès de Sendinblue"
+        flash.alert = "Impossible de débloquer cette adresse électronique auprès de Brevo"
       end
       redirect_to emails_manager_user_path(@user)
     end

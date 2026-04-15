@@ -4,12 +4,12 @@ if ENV.key?('BREVO_BALANCING_VALUE')
   require 'sib-api-v3-sdk'
 
   ActiveSupport.on_load(:action_mailer) do
-    module Sendinblue
+    module Brevo
       class SMTP < ::Mail::SMTP; end
     end
 
-    ActionMailer::Base.add_delivery_method :sendinblue, Sendinblue::SMTP
-    ActionMailer::Base.sendinblue_settings = {
+    ActionMailer::Base.add_delivery_method :brevo, Brevo::SMTP
+    ActionMailer::Base.brevo_settings = {
       user_name: ENV.fetch("BREVO_USER_NAME"),
       password: ENV.fetch("BREVO_SMTP_KEY"),
       address: ENV.fetch("BREVO_SMTP_ADDRESS", "smtp-relay.brevo.com"),
