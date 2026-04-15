@@ -8,6 +8,37 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
   before { sign_in(procedure.administrateurs.first.user) }
 
+  describe 'IDOR on retrieve_referentiel (edit/update)' do
+    let(:other_referentiel) { create(:api_referentiel, :exact_match, :with_authentication_data) }
+    let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel: other_referentiel }]) }
+    let(:other_admin) { other_procedure.administrateurs.first }
+
+    it 'allows reading another admin referentiel via edit' do
+      get :edit, params: { procedure_id: procedure.id, stable_id:, id: other_referentiel.id }
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'allows modifying another admin referentiel via update' do
+      patch :update, params: {
+        procedure_id: procedure.id, stable_id:, id: other_referentiel.id,
+        referentiel: { hint: 'hacked' }
+      }, format: :turbo_stream
+      expect(other_referentiel.reload.hint).to eq('hacked')
+    end
+  end
+
+  describe 'IDOR on build_or_clone_by_id_params (clone credentials)' do
+    let(:other_referentiel) { create(:api_referentiel, :exact_match, :with_authentication_data) }
+    let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel: other_referentiel }]) }
+    let(:other_admin) { other_procedure.administrateurs.first }
+
+    it 'clones authentication_data from another admin referentiel' do
+      get :new, params: { procedure_id: procedure.id, stable_id:, referentiel_id: other_referentiel.id }
+      cloned = assigns(:referentiel)
+      expect(cloned.authentication_data).to eq(other_referentiel.authentication_data)
+    end
+  end
+
   describe '#new' do
     it 'renders successifully' do
       get :new, params: { procedure_id: procedure.id, stable_id: }
