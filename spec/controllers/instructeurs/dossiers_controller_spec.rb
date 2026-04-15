@@ -2147,8 +2147,9 @@ describe Instructeurs::DossiersController, type: :controller do
     context 'with a disallowed format' do
       let(:format) { :inline }
 
-      it 'raises because format reaches SpreadsheetArchitect.send without whitelist' do
-        expect { subject }.to raise_error(NoMethodError, /to_inline/)
+      it 'redirects without invoking the dynamic render' do
+        subject
+        expect(response).to redirect_to(instructeur_procedure_path(procedure))
       end
     end
   end

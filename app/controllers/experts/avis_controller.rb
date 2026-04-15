@@ -2,6 +2,7 @@
 
 module Experts
   class AvisController < ExpertController
+    include BilansBdfConcern
     include Zipline
     include AvisCreationConcern
 
@@ -205,18 +206,8 @@ module Experts
       end
     end
 
-    ALLOWED_FORMATS = %w[xlsx ods csv].freeze
-
     def bilans_bdf
-      if avis.dossier.etablissement&.entreprise_bilans_bdf.present?
-        extension = params[:format]
-
-        return redirect_to expert_avis_path(avis) if !extension.in?(ALLOWED_FORMATS)
-
-        render extension.to_sym => avis.dossier.etablissement.entreprise_bilans_bdf_to_sheet(extension)
-      else
-        redirect_to expert_avis_path(avis)
-      end
+      bilans_bdf_response(avis.dossier.etablissement, params[:format], expert_avis_path(avis))
     end
 
     def telecharger_pjs

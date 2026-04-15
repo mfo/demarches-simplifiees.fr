@@ -9,6 +9,7 @@ module Instructeurs
     include TurboChampsConcern
     include InstructeurConcern
     include ActionController::Streaming
+    include BilansBdfConcern
     include Zipline
 
     before_action :redirect_on_dossier_not_found, only: [:show, :show_submitted_revision]
@@ -55,8 +56,7 @@ module Instructeurs
     end
 
     def bilans_bdf
-      extension = params[:format]
-      render extension.to_sym => dossier.etablissement.entreprise_bilans_bdf_to_sheet(extension)
+      bilans_bdf_response(dossier.etablissement, params[:format], instructeur_procedure_path(procedure))
     end
 
     def show
