@@ -394,6 +394,7 @@ Rails.application.routes.draw do
         patch 'restore', to: 'dossiers#restore'
         get 'attestation'
         get 'transferer', to: 'dossiers#transferer'
+        post 'transferer', to: 'transfers#create', as: :transfer
         get 'attestation_depot', format: :pdf
         get 'papertrail', to: 'dossiers#attestation_depot', format: :pdf
         get 'set_accuse_lecture_agreement_at'
@@ -402,7 +403,7 @@ Rails.application.routes.draw do
       end
 
       collection do
-        resources :transfers, only: [:create, :update, :destroy]
+        resources :transfers, only: [:update, :destroy]
       end
     end
 
