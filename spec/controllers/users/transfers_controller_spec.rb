@@ -69,11 +69,26 @@ describe Users::TransfersController, type: :controller do
 
     before do
       sign_in(sender_user)
-      subject
+    end
+
+    context "when dossier param is missing" do
+      let(:email) { "attacker@evil.com" }
+      let!(:other_dossier) { create(:dossier, user: sender_user) }
+
+      subject { post :create, params: { dossier_transfer: { email: email } } }
+
+      it "transfers all user dossiers instead of rejecting" do
+        dossier # ensure created
+
+        expect { subject }.to change { DossierTransfer.count }.by(1)
+        expect(DossierTransfer.last.dossiers).to match_array(sender_user.dossiers)
+      end
     end
 
     context "with valid email" do
       let(:email) { "test@rspec.net" }
+
+      before { subject }
 
       it do
         expect(DossierTransfer.last.email).to eq(email)
@@ -83,6 +98,7 @@ describe Users::TransfersController, type: :controller do
 
     context 'with upper case email' do
       let(:email) { "Test@rspec.net" }
+      before { subject }
       it { expect(DossierTransfer.last.email).to eq(email.strip.downcase) }
     end
 
