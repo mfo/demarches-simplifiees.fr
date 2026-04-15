@@ -13,17 +13,19 @@ describe Administrateurs::ReferentielsController, type: :controller do
     let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel: other_referentiel }]) }
     let(:other_admin) { other_procedure.administrateurs.first }
 
-    it 'allows reading another admin referentiel via edit' do
-      get :edit, params: { procedure_id: procedure.id, stable_id:, id: other_referentiel.id }
-      expect(response).to have_http_status(:success)
+    it 'blocks reading another admin referentiel via edit' do
+      expect {
+        get :edit, params: { procedure_id: procedure.id, stable_id:, id: other_referentiel.id }
+      }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    it 'allows modifying another admin referentiel via update' do
-      patch :update, params: {
-        procedure_id: procedure.id, stable_id:, id: other_referentiel.id,
-        referentiel: { hint: 'hacked' }
-      }, format: :turbo_stream
-      expect(other_referentiel.reload.hint).to eq('hacked')
+    it 'blocks modifying another admin referentiel via update' do
+      expect {
+        patch :update, params: {
+          procedure_id: procedure.id, stable_id:, id: other_referentiel.id,
+          referentiel: { hint: 'hacked' },
+        }, format: :turbo_stream
+      }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
@@ -32,10 +34,10 @@ describe Administrateurs::ReferentielsController, type: :controller do
     let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel: other_referentiel }]) }
     let(:other_admin) { other_procedure.administrateurs.first }
 
-    it 'clones authentication_data from another admin referentiel' do
-      get :new, params: { procedure_id: procedure.id, stable_id:, referentiel_id: other_referentiel.id }
-      cloned = assigns(:referentiel)
-      expect(cloned.authentication_data).to eq(other_referentiel.authentication_data)
+    it 'blocks cloning authentication_data from another admin referentiel' do
+      expect {
+        get :new, params: { procedure_id: procedure.id, stable_id:, referentiel_id: other_referentiel.id }
+      }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
@@ -52,7 +54,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
           mode: 'exact_match',
         }
       end
-      let(:referentiel) { create(:api_referentiel, :exact_match, **original_data) }
+      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ], **original_data) }
 
       it 'clone existing one' do
         get :new, params: { procedure_id: procedure.id, referentiel_id: referentiel.id, stable_id: }
@@ -283,7 +286,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
         mode: 'exact_match',
       }
     end
-    let(:referentiel) { create(:api_referentiel, **original_tiptap_data) }
+    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+    let(:referentiel) { create(:api_referentiel, types_de_champ: [type_de_champ], **original_tiptap_data) }
 
     it 'clones tiptap columns' do
       get :new, params: { procedure_id: procedure.id, referentiel_id: referentiel.id, stable_id: }
