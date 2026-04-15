@@ -143,12 +143,15 @@ module Administrateurs
     end
 
     def retrieve_referentiel
-      @referentiel = Referentiel.find(params[:id])
+      @referentiel = @type_de_champ.referentiel
+      raise ActiveRecord::RecordNotFound if @referentiel.nil? || @referentiel.id != params[:id].to_i
     end
 
     def build_or_clone_by_id_params
       if params[:referentiel_id]
-        Referentiel.find(params[:referentiel_id]).attributes.slice(*%w[url_tiptap test_data_tiptap hint mode type authentication_data authentication_method])
+        referentiel = @type_de_champ.referentiel
+        raise ActiveRecord::RecordNotFound if referentiel.nil? || referentiel.id != params[:referentiel_id].to_i
+        referentiel.attributes.slice(*%w[url_tiptap test_data_tiptap hint mode type authentication_data authentication_method])
       else
         params = referentiel_params.to_h
         params = params.merge(type: Referentiels::APIReferentiel) if !Referentiels::APIReferentiel.csv_available?
