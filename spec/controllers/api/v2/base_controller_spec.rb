@@ -126,8 +126,13 @@ describe API::V2::BaseController, type: :controller do
           it { is_expected.to have_http_status(:forbidden) }
         end
 
-        context 'with queryId' do
+        context 'with a random queryId' do
           let(:params) { { queryId: '123' } }
+          it { is_expected.to have_http_status(:forbidden) }
+        end
+
+        context 'with an introspection query' do
+          let(:params) { { queryId: 'introspection' } }
           it { is_expected.to have_http_status(:ok) }
         end
       end
