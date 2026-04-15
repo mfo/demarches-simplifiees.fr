@@ -1022,6 +1022,11 @@ en:
       alert_error_annotations: The private annotations were not filled out correctly and are necessary to make a decision on the file.
       alert_error_annotations_link: Complete the private annotations
       alert_unspecified_attestation_champs: 'Please note, the following values have not been entered but are necessary to send a valid certificate:'
+    avis:
+      revoquer:
+        revoked: "%{email} can no longer give their opinion on this file."
+      remind:
+        reminded: "A reminder email has been sent to %{email}"
     procedure_presentation:
       customize_filters:
         exit_customization: "Exit customization"
