@@ -128,7 +128,7 @@ Rails.application.configure do
       arguments: ENV.fetch("SENDMAIL_ARGUMENTS"),
     }
   else
-    sendinblue_weight = ENV.fetch('SENDINBLUE_BALANCING_VALUE') { 0 }.to_i
+    sendinblue_weight = ENV.fetch('BREVO_BALANCING_VALUE') { 0 }.to_i
     scaleway_weight = ENV.fetch('SCALEWAY_BALANCING_VALUE') { 0 }.to_i
     ActionMailer::Base.add_delivery_method :balancer, BalancerDeliveryMethod
     config.action_mailer.balancer_settings = {
