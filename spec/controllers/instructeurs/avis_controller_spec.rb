@@ -58,6 +58,18 @@ describe Instructeurs::AvisController, type: :controller do
           expect(avis.reload.reminded_at).to be_present
         end
       end
+
+      context 'CSRF vulnerability: GET triggers mutation' do
+        let!(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure) }
+
+        it 'GET triggers DB update and email (proves CSRF vulnerability)' do
+          expect {
+            get :remind, params: { procedure_id: procedure.id, id: avis.id, statut: 'a-suivre' }
+          }.to change { avis.reload.reminded_at }.from(nil)
+
+          expect(AvisMailer).to have_received(:avis_invitation_and_confirm_email)
+        end
+      end
     end
   end
 end
