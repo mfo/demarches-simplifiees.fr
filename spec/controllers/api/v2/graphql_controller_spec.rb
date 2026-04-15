@@ -151,7 +151,7 @@ describe API::V2::GraphqlController do
         end
 
         it {
-          expect(gql_errors.first[:message]).to eq("Without a token, only persisted queries are allowed")
+          expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor query and introspection are allowed")
         }
       end
 
@@ -178,7 +178,7 @@ describe API::V2::GraphqlController do
 
         it {
           expect(token).not_to be_nil
-          expect(gql_errors.first[:message]).to eq("Without a token, only persisted queries are allowed")
+          expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor query and introspection are allowed")
         }
       end
 
