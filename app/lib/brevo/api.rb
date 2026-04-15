@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Sendinblue::API
+class Brevo::API
   def initialize
     @failures = []
   end
@@ -14,13 +14,13 @@ class Sendinblue::API
     req = post_api_request('contacts', email: email, attributes: attributes, updateEnabled: true)
     req.on_complete do |response|
       if !response.success?
-        push_failure("Error while updating identity for administrateur '#{email}' in Sendinblue: #{response.response_code} '#{response.body}'")
+        push_failure("Error while updating identity for administrateur '#{email}' in Brevo: #{response.response_code} '#{response.body}'")
       end
     end
     hydra.queue(req)
   end
 
-  # Get messages sent to a user through SendInBlue.
+  # Get messages sent to a user through Brevo.
   #
   # Returns an array of SentMail objects.
   def sent_mails(email_address)
@@ -28,7 +28,7 @@ class Sendinblue::API
     @events = client.get_email_event_report(email: email_address, days: 30).events
 
     if @events.blank?
-      Rails.logger.info "SendInBlue::API: no messages found for email address '#{email_address}'"
+      Rails.logger.info "Brevo::API: no messages found for email address '#{email_address}'"
       return []
     end
 
@@ -40,8 +40,8 @@ class Sendinblue::API
         subject: latest_event.subject,
         delivered_at: parse_date(latest_event.date),
         status: latest_event.event,
-        service_name: 'SendInBlue',
-        external_url: 'https://app-smtp.sendinblue.com/log'
+        service_name: 'Brevo',
+        external_url: 'https://app.brevo.com/transactional/email/logs'
       )
     end
   rescue ::SibApiV3Sdk::ApiError => e
@@ -98,7 +98,7 @@ class Sendinblue::API
   end
 
   def post_api_request(path, body)
-    url = "#{SENDINBLUE_API_V3_URL}/#{path}"
+    url = "#{BREVO_API_V3_URL}/#{path}"
 
     Typhoeus::Request.new(
       url,
@@ -116,7 +116,7 @@ class Sendinblue::API
   end
 
   def client_key
-    ENV.fetch("SENDINBLUE_API_V3_KEY", nil)
+    ENV.fetch("BREVO_API_V3_KEY", nil)
   end
 
   def parse_date(date)
