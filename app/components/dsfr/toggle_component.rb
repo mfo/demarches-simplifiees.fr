@@ -25,6 +25,12 @@ class Dsfr::ToggleComponent < ApplicationComponent
 
   private
 
+  def check_box_options
+    opts = { class: 'fr-toggle__input', id: label_for, disabled: disabled }
+    opts[:checked] = @checked unless @checked.nil?
+    opts
+  end
+
   def label_for
     return input_id if @form.object.present?
 
