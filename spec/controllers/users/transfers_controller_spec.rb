@@ -65,23 +65,19 @@ describe Users::TransfersController, type: :controller do
   end
 
   describe "POST create" do
-    subject { post :create, params: { dossier_transfer: { email: email, dossier: dossier.id } } }
-
     before do
       sign_in(sender_user)
     end
 
-    context "when dossier param is missing" do
-      let(:email) { "attacker@evil.com" }
+    subject { post :create, params: { id: dossier.id, dossier_transfer: { email: email } } }
+
+    context "transfers only the targeted dossier, not all" do
+      let(:email) { "test@rspec.net" }
       let!(:other_dossier) { create(:dossier, user: sender_user) }
 
-      subject { post :create, params: { dossier_transfer: { email: email } } }
-
-      it "transfers all user dossiers instead of rejecting" do
-        dossier # ensure created
-
+      it "transfers only the dossier from the URL" do
         expect { subject }.to change { DossierTransfer.count }.by(1)
-        expect(DossierTransfer.last.dossiers).to match_array(sender_user.dossiers)
+        expect(DossierTransfer.last.dossiers).to eq([dossier])
       end
     end
 
