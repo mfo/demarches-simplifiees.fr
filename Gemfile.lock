@@ -367,6 +367,10 @@ GEM
     herb (0.7.4-x86_64-linux-musl)
     highline (3.1.2)
       reline
+    href_sanitizer (0.1.2)
+      addressable (~> 2.8)
+      rails (>= 7.0)
+      rails-html-sanitizer (>= 1.6)
     htmlentities (4.3.4)
     http_accept_language (2.1.1)
     i18n (1.14.7)
@@ -1055,6 +1059,7 @@ DEPENDENCIES
   haml-lint
   haml-rails
   hashie
+  href_sanitizer
   http_accept_language
   i18n-tasks
   i18n_data

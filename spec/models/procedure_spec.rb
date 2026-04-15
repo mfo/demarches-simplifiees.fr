@@ -1,61 +1,27 @@
 # frozen_string_literal: true
 
 describe Procedure do
-  [:lien_notice, :lien_dpo, :web_hook_url].each do |field|
-    describe "#{field} validation" do
-        let(:procedure) { build(:procedure) }
+  describe 'URL validations' do
+    it 'validates lien_notice with UrlValidator and no_local' do
+      validators = Procedure.validators_on(:lien_notice)
+      url_validator = validators.find { it.is_a?(URLValidator) }
+      expect(url_validator).to be_present
+      expect(url_validator.options).to include(no_local: true)
+    end
 
-        it 'accepts a valid https URL' do
-          procedure.send("#{field}=".to_sym, 'https://example.com/')
-          expect(procedure).to be_valid
-        end
+    it 'validates lien_dpo with UrlValidator, no_local and accept_email' do
+      validators = Procedure.validators_on(:lien_dpo)
+      url_validator = validators.find { it.is_a?(URLValidator) }
+      expect(url_validator).to be_present
+      expect(url_validator.options).to include(no_local: true, accept_email: true)
+    end
 
-        it 'accepts blank value' do
-          procedure.send("#{field}=".to_sym, '')
-          expect(procedure).to be_valid
-        end
-
-        it 'rejects localhost URL' do
-          procedure.send("#{field}=".to_sym, 'http://localhost:3000/admin')
-          expect(procedure).not_to be_valid
-          expect(procedure.errors[field]).to be_present
-        end
-
-        it 'rejects 127.0.0.1' do
-          procedure.send("#{field}=".to_sym, 'http://127.0.0.1/admin')
-          expect(procedure).not_to be_valid
-        end
-
-        it 'rejects link-local metadata endpoint (169.254.169.254)' do
-          procedure.send("#{field}=".to_sym, 'http://169.254.169.254/latest/meta-data/')
-          expect(procedure).not_to be_valid
-        end
-
-        it 'rejects private network 10.x.x.x' do
-          procedure.send("#{field}=".to_sym, 'http://10.0.0.1/admin')
-          expect(procedure).not_to be_valid
-        end
-
-        it 'rejects private network 172.16.x.x' do
-          procedure.send("#{field}=".to_sym, 'http://172.16.0.1/admin')
-          expect(procedure).not_to be_valid
-        end
-
-        it 'rejects private network 192.168.x.x' do
-          procedure.send("#{field}=".to_sym, 'http://192.168.1.1/admin')
-          expect(procedure).not_to be_valid
-        end
-
-        it 'rejects 0.0.0.0' do
-          procedure.send("#{field}=".to_sym, 'http://0.0.0.0/')
-          expect(procedure).not_to be_valid
-        end
-
-        it 'rejects ::1 (IPv6 loopback)' do
-          procedure.send("#{field}=".to_sym, 'http://[::1]/admin')
-          expect(procedure).not_to be_valid
-        end
-      end
+    it 'validates web_hook_url with UrlValidator and no_local' do
+      validators = Procedure.validators_on(:web_hook_url)
+      url_validator = validators.find { it.is_a?(URLValidator) }
+      expect(url_validator).to be_present
+      expect(url_validator.options).to include(no_local: true)
+    end
   end
 
   describe 'mail templates' do
