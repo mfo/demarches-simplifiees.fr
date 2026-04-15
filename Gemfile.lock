@@ -788,12 +788,6 @@ GEM
       logger
     ruby2_keywords (0.0.5)
     rubyzip (2.4.1)
-    saml_idp (0.16.0)
-      activesupport (>= 5.2)
-      builder (>= 3.0)
-      nokogiri (>= 1.6.2)
-      rexml
-      xmlenc (>= 0.7.1)
     sanitize (7.0.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.16.8)
@@ -965,13 +959,6 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    xmlenc (0.8.0)
-      activemodel (>= 3.0.0)
-      activesupport (>= 3.0.0)
-      nokogiri (>= 1.6.0, < 2.0.0)
-      xmlmapper (>= 0.7.3)
-    xmlmapper (0.8.1)
-      nokogiri (~> 1.11)
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yabeda (0.14.0)
@@ -1119,7 +1106,6 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rspec
   ruby-openai
-  saml_idp
   sassc-rails
   selenium-devtools
   selenium-webdriver

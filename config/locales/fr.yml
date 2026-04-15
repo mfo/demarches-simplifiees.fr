@@ -819,7 +819,6 @@ fr:
   errors:
     format: "Le champ « %{attribute} » %{message}"
     messages:
-      saml_not_authorized: "Vous n’êtes pas autorisé à accéder à ce service."
       dossier_not_found: "Le dossier n’existe pas ou vous n’y avez pas accès."
       # dossier_map_not_activated: "Le dossier n’a pas accès à la cartographie."
       targeted_user_link_expired: "Ce lien d’invitation n’est plus valable ou le dossier n’est plus accessible."

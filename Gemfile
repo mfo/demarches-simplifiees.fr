@@ -91,7 +91,6 @@ gem 'redis'
 gem 'rexml' # add missing gem due to ruby3 (https://github.com/Shopify/bootsnap/issues/325)
 gem 'rqrcode'
 gem 'ruby-openai'
-gem 'saml_idp'
 gem 'sassc-rails' # Use SCSS for stylesheets
 gem 'sentry-delayed_job'
 gem 'sentry-rails'
