@@ -192,6 +192,14 @@ class BatchOperation < ApplicationRecord
     dossiers.empty? ? super : nil
   end
 
+  def seen!
+    update!(seen_at: Time.zone.now)
+  end
+
+  def finished_unseen?
+    finished_at.present? && seen_at.blank?
+  end
+
   def after_all_processed
     return unless create_avis?
 
