@@ -25,7 +25,7 @@ class Champs::PieceJustificativeController < Champs::ChampController
   private
 
   def ensure_legitimate_access
-    return if @champ.piece_justificative?
+    return if @champ.piece_justificative? || @champ.quotient_familial?
 
     head :not_found
   end
