@@ -3,19 +3,15 @@
 class Champs::ChampController < ApplicationController
   before_action :authenticate_logged_user!
   before_action :set_champ
+  after_action :verify_authorized
 
   private
 
   def find_champ
-    dossier = policy_scope(Dossier).with_revision.includes(:champs).find(params[:dossier_id])
-    scope = instructeur_signed_in? ? nil : :public
-    type_de_champ = dossier.find_type_de_champ_by_stable_id(params[:stable_id], scope)
+    dossier = Dossier.with_revision.includes(:champs).find(params[:dossier_id])
+    authorize dossier, :read?
 
-    if type_de_champ.nil? || !dossier_writable?(dossier, type_de_champ)
-      head :not_found
-      return
-    end
-
+    type_de_champ = dossier.find_type_de_champ_by_stable_id(params[:stable_id])
     dossier.with_update_stream(current_user) if type_de_champ.public?
     @dossier = dossier
 
@@ -27,19 +23,17 @@ class Champs::ChampController < ApplicationController
     end
   end
 
-  def dossier_writable?(dossier, type_de_champ)
-    if type_de_champ.private?
-      !dossier.brouillon?
-    else
-      dossier.brouillon? || dossier.en_construction?
-    end
-  end
-
   def params_row_id
     params[:row_id]
   end
 
   def set_champ
     @champ = find_champ
+    authorize @champ, permission, policy_class:
+  end
+
+  def permission
+    return :update_annotation? if @champ.private?
+    :update?
   end
 end

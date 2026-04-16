@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Champs::PieceJustificativeController < Champs::ChampController
-  before_action :ensure_legitimate_access
-
   def show
     respond_to do |format|
       format.turbo_stream
@@ -24,10 +22,8 @@ class Champs::PieceJustificativeController < Champs::ChampController
 
   private
 
-  def ensure_legitimate_access
-    return if @champ.piece_justificative? || @champ.quotient_familial?
-
-    head :not_found
+  def policy_class
+    Champs::PieceJustificativeChampPolicy
   end
 
   def attach_piece_justificative

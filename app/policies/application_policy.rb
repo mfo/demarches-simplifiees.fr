@@ -1,53 +1,18 @@
 # frozen_string_literal: true
 
 class ApplicationPolicy
-  attr_reader :user, :record
+  attr_reader :user, :instructeur, :administrateur, :record
 
   def initialize(user, record)
+    raise Pundit::NotAuthorizedError, "must be logged in" unless user
     @user = user
+    @instructeur = user&.instructeur
+    @administrateur = user&.administrateur
     @record = record
   end
 
-  def index?
-    false
-  end
+  private
 
-  def show?
-    false
-  end
-
-  def create?
-    false
-  end
-
-  def new?
-    create?
-  end
-
-  def update?
-    false
-  end
-
-  def edit?
-    update?
-  end
-
-  def destroy?
-    false
-  end
-
-  class ApplicationScope
-    attr_reader :user, :instructeur, :administrateur, :scope
-
-    def initialize(account, scope)
-      @user = account[:user]
-      @instructeur = account[:instructeur]
-      @administrateur = account[:administrateur]
-      @scope = scope
-    end
-
-    def resolve
-      scope.all
-    end
-  end
+  def instructeur? = instructeur.present?
+  def administrateur? = administrateur.present?
 end

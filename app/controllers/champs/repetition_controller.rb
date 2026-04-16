@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Champs::RepetitionController < Champs::ChampController
-  before_action :ensure_legitimate_access
-
   def add
     @row_id = @champ.add_row(updated_by: current_user.email)
     @first_champ_id = @champ.focusable_input_id
@@ -26,9 +24,7 @@ class Champs::RepetitionController < Champs::ChampController
     nil
   end
 
-  def ensure_legitimate_access
-    return if @champ.repetition?
-
-    head :not_found
+  def policy_class
+    Champs::RepetitionChampPolicy
   end
 end

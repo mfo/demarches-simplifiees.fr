@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Champs::CarteController < Champs::ChampController
-  before_action :ensure_legitimate_access
-
   def index
     @focus = params[:focus].present?
   end
@@ -92,9 +90,7 @@ class Champs::CarteController < Champs::ChampController
     geo_area.save
   end
 
-  def ensure_legitimate_access
-    return if @champ.carte?
-
-    head :not_found
+  def policy_class
+    Champs::CarteChampPolicy
   end
 end
