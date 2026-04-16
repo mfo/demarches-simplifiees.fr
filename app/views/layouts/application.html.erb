@@ -41,7 +41,15 @@
     <% end %>
 
     <title>
-      <%= content_for?(:title) ? "#{sanitize(yield(:title)).gsub("&nbsp;", " ")} · #{Current.application_name}" : Current.application_name %>
+      <% if content_for?(:title) && @procedure&.libelle.present? %>
+        <%= "#{sanitize(yield(:title)).gsub("&nbsp;", " ")} · ##{@procedure.id} · #{truncate(sanitize(@procedure.libelle).gsub("&nbsp;", " "), length: 30)} · #{Current.application_name}" %>
+      <% elsif content_for?(:title) %>
+        <%= "#{sanitize(yield(:title)).gsub("&nbsp;", " ")} · #{Current.application_name}" %>
+      <% elsif @procedure&.libelle.present? %>
+        <%= "##{@procedure.id} · #{truncate(sanitize(@procedure.libelle).gsub("&nbsp;", " "), length: 30)} · #{Current.application_name}" %>
+      <% else %>
+        <%= Current.application_name %>
+      <% end %>
     </title>
 
     <%= render partial: "layouts/favicons" %>
