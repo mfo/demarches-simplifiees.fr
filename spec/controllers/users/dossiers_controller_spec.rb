@@ -2089,11 +2089,27 @@ describe Users::DossiersController, type: :controller do
 
     subject { controller.dossier_for_help }
 
-    context 'when the id matches an existing dossier' do
-      let(:dossier) { create(:dossier) }
+    context 'when the id matches a dossier owned by the current user' do
+      let(:dossier) { create(:dossier, user:) }
       let(:dossier_id) { dossier.id }
 
       it { is_expected.to eq dossier }
+    end
+
+    context 'when the id matches a dossier the current user was invited to' do
+      let(:dossier) { create(:dossier) }
+      let(:dossier_id) { dossier.id }
+      before { create(:invite, dossier:, user:) }
+
+      it { is_expected.to eq dossier }
+    end
+
+    context 'when the id matches a dossier from another user' do
+      let(:other_user) { create(:user) }
+      let(:other_dossier) { create(:dossier, user: other_user) }
+      let(:dossier_id) { other_dossier.id }
+
+      it { is_expected.to be nil }
     end
 
     context 'when the id doesn’t match an existing dossier' do
@@ -2103,7 +2119,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when the id is empty' do
       let(:dossier_id) { nil }
-      it { is_expected.to be_falsy }
+      it { is_expected.to be nil }
     end
   end
 
