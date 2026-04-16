@@ -16,9 +16,9 @@ class BatchOperationProcessOneJob < ApplicationJob
         batch_operation.track_processed_dossier(false, dossier)
       end
       raise error
+    ensure
+      batch_operation.finalize_if_complete!
     end
-
-    batch_operation.finalize_if_complete!
   rescue ActiveRecord::RecordNotFound
     dossier.update_column(:batch_operation_id, nil)
     batch_operation.finalize_if_complete!
