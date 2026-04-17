@@ -4,7 +4,6 @@ FactoryBot.define do
   sequence(:expert_email) { |n| "expert#{n}@expert.com" }
 
   factory :avis do
-    email { generate(:expert_email) }
     introduction { 'Bonjour, merci de me donner votre avis sur ce dossier' }
     confidentiel { false }
 
@@ -21,11 +20,6 @@ FactoryBot.define do
 
     trait :not_confidentiel do
       confidentiel { false }
-    end
-
-    trait :with_instructeur do
-      email { nil }
-      instructeur { association :instructeur, email: generate(:expert_email) }
     end
 
     trait :with_answer do

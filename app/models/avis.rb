@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Avis < ApplicationRecord
-  include EmailSanitizableConcern
+  self.ignored_columns += [:email]
 
   belongs_to :dossier, inverse_of: :avis, touch: true, optional: false
   belongs_to :experts_procedure, optional: false
@@ -23,11 +23,9 @@ class Avis < ApplicationRecord
     content_type: AUTHORIZED_CONTENT_TYPES,
     size: { less_than: FILE_MAX_SIZE }
 
-  validates :email, strict_email: true, allow_nil: true
   validates :question_answer, inclusion: { in: [true, false] }, on: :update, if: -> { question_label.present? }
   validates :piece_justificative_file, size: { less_than: FILE_MAX_SIZE }
   validates :introduction_file, size: { less_than: FILE_MAX_SIZE }
-  before_validation -> { sanitize_email(:email) }
   before_validation -> { strip_attribute(:question_label) }
 
   normalizes :answer, with: NORMALIZES_NON_PRINTABLE_PROC

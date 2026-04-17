@@ -36,65 +36,14 @@ RSpec.describe Avis, type: :model do
     let(:experts_procedure) { create(:experts_procedure, procedure: procedure, expert: expert) }
 
     context 'an avis is linked to an experts_procedure' do
-      let!(:avis) { create(:avis, email: nil, experts_procedure: experts_procedure) }
+      let!(:avis) { create(:avis, experts_procedure: experts_procedure) }
 
       before do
         avis.reload
       end
       it do
         expect(avis.valid?).to be_truthy
-        expect(avis.email).to be_nil
         expect(avis.experts_procedure).to eq(experts_procedure)
-      end
-    end
-  end
-
-  describe "email sanitization" do
-    let(:expert) { create(:expert) }
-    let(:procedure) { create(:procedure) }
-    let!(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
-    subject { create(:avis, claimant: claimant, email: email, experts_procedure: experts_procedure, dossier: create(:dossier)) }
-
-    context "when there is no email" do
-      let(:email) { nil }
-      it { expect(subject.email).to be_nil }
-    end
-
-    context "when the email is in lowercase" do
-      let(:email) { "toto@tps.fr" }
-
-      it { expect(subject.email).to eq("toto@tps.fr") }
-    end
-
-    context "when the email is not in lowercase" do
-      let(:email) { "TOTO@tps.fr" }
-
-      it { expect(subject.email).to eq("toto@tps.fr") }
-    end
-
-    context "when the email has some spaces before and after" do
-      let(:email) { "  toto@tps.fr  " }
-
-      it { expect(subject.email).to eq("toto@tps.fr") }
-    end
-  end
-
-  describe 'email validation' do
-    let(:now_invalid_email) { "toto@tps" }
-    context 'new avis' do
-      before { allow(StrictEmailValidator).to receive(:eligible_to_new_validation?).and_return(true) }
-
-      it do
-        expect(build(:avis, email: now_invalid_email).valid?).to be_falsey
-        expect(build(:avis, email: nil).valid?).to be_truthy
-      end
-    end
-    context 'old avis' do
-      before { allow(StrictEmailValidator).to receive(:eligible_to_new_validation?).and_return(false) }
-
-      it do
-        expect(build(:avis, email: now_invalid_email).valid?).to be_truthy
-        expect(build(:avis, email: nil).valid?).to be_truthy
       end
     end
   end
