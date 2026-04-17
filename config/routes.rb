@@ -293,8 +293,8 @@ Rails.application.routes.draw do
   get 'admin/procedures/new' => 'administrateurs/procedures#new', as: :new_admin_procedure
 
   namespace :admin do
-    get 'activate' => '/administrateurs/activate#new'
-    patch 'activate' => '/administrateurs/activate#create'
+    get 'activate' => '/users/activate#new'
+    patch 'activate' => '/users/activate#create'
     get 'procedures/archived', to: redirect('/admin/procedures?statut=archivees')
     get 'procedures/draft', to: redirect('/admin/procedures?statut=brouillons')
 
@@ -631,8 +631,8 @@ Rails.application.routes.draw do
     end
 
     namespace :gestionnaires do
-      get 'activate' => '/gestionnaires/activate#new'
-      patch 'activate' => '/gestionnaires/activate#create'
+      get 'activate' => '/users/activate#new'
+      patch 'activate' => '/users/activate#create'
     end
   end
 
