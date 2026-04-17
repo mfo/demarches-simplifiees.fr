@@ -206,4 +206,113 @@ RSpec.describe Types::DemarcheType, type: :graphql do
     }
   }
   GRAPHQL
+
+  describe 'modifier parametres' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { MODIFIER_PARAMETRES_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, title: 'Nouveau titre' } }
+
+    it 'met à jour le titre' do
+      expect(data[:demarcheModifierParametres][:errors]).to eq(nil)
+      expect(data[:demarcheModifierParametres][:demarche][:title]).to eq('Nouveau titre')
+      procedure.reload
+      expect(procedure.libelle).to eq('Nouveau titre')
+    end
+  end
+
+  describe 'modifier parametres sans droit' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { MODIFIER_PARAMETRES_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, title: 'Nouveau titre' } }
+    let(:context) { { administrateur_id: admin_2.id, procedure_ids: admin_2.procedure_ids, write_access: true } }
+
+    it 'retourne une erreur' do
+      expect(data[:demarcheModifierParametres][:errors]).to eq([{ message: "La démarche \"#{procedure.id}\" n'existe pas ou vous n'avez pas le droit de la modifer." }])
+      procedure.reload
+      expect(procedure.libelle).not_to eq('Nouveau titre')
+    end
+  end
+
+  describe 'modifier parametres sans aucun parametre' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { MODIFIER_PARAMETRES_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id } }
+
+    it 'retourne une erreur' do
+      expect(data[:demarcheModifierParametres][:errors]).to eq([{ message: 'Aucun paramètre à modifier.' }])
+    end
+  end
+
+  describe 'modifier parametres avec une date limite dans le passé' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { MODIFIER_PARAMETRES_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, dateLimite: 1.day.ago.to_date.iso8601 } }
+
+    it 'retourne une erreur' do
+      expect(data[:demarcheModifierParametres][:errors]).to eq([{ message: 'La date limite doit être dans le futur.' }])
+      procedure.reload
+      expect(procedure.auto_archive_on).to be_nil
+    end
+  end
+
+  describe 'modifier tous les parametres' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { MODIFIER_PARAMETRES_DEMARCHE_QUERY }
+    let(:future_date) { 1.month.from_now.to_date }
+    let(:variables) do
+      {
+        demarcheNumber: procedure.id,
+        title: 'Nouveau titre',
+        description: 'Nouvelle description',
+        descriptionTargetAudience: 'Nouveau public cible',
+        descriptionPj: 'Nouvelles pièces jointes',
+        lienSiteWeb: 'https://nouveau-site.gouv.fr',
+        lienDpo: 'dpo@nouveau-site.gouv.fr',
+        dateLimite: future_date.iso8601,
+        declarative: 'accepte',
+      }
+    end
+
+    it 'met à jour tous les champs' do
+      expect(data[:demarcheModifierParametres][:errors]).to eq(nil)
+      procedure.reload
+      expect(procedure.libelle).to eq('Nouveau titre')
+      expect(procedure.description).to eq('Nouvelle description')
+      expect(procedure.description_target_audience).to eq('Nouveau public cible')
+      expect(procedure.description_pj).to eq('Nouvelles pièces jointes')
+      expect(procedure.lien_site_web).to eq('https://nouveau-site.gouv.fr')
+      expect(procedure.lien_dpo).to eq('dpo@nouveau-site.gouv.fr')
+      expect(procedure.auto_archive_on).to eq(future_date)
+      expect(procedure.declarative_with_state).to eq('accepte')
+    end
+  end
+
+  describe 'modifier parametres declarative non_declarative' do
+    let(:procedure) { create(:procedure, administrateurs: [admin], declarative_with_state: 'accepte') }
+    let(:query) { MODIFIER_PARAMETRES_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, declarative: 'non_declarative' } }
+
+    it 'remet declarative_with_state à nil' do
+      expect(data[:demarcheModifierParametres][:errors]).to eq(nil)
+      expect(data[:demarcheModifierParametres][:demarche][:declarative]).to eq(nil)
+      procedure.reload
+      expect(procedure.declarative_with_state).to be_nil
+    end
+  end
+
+  MODIFIER_PARAMETRES_DEMARCHE_QUERY = <<-GRAPHQL
+  mutation ModifierParametres($demarcheNumber: Int!, $title: String, $description: String, $descriptionTargetAudience: String, $descriptionPj: String, $lienSiteWeb: String, $lienDpo: String, $dateLimite: ISO8601Date, $declarative: DeclarativeWithState) {
+    demarcheModifierParametres(
+      input: { demarche: { number: $demarcheNumber }, title: $title, description: $description, descriptionTargetAudience: $descriptionTargetAudience, descriptionPj: $descriptionPj, lienSiteWeb: $lienSiteWeb, lienDpo: $lienDpo, dateLimite: $dateLimite, declarative: $declarative }
+    ) {
+      demarche {
+        title
+        declarative
+      }
+      errors {
+        message
+      }
+    }
+  }
+  GRAPHQL
 end
