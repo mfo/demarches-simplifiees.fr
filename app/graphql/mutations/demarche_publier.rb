@@ -5,7 +5,7 @@ module Mutations
     description "Publier une démarche"
 
     argument :demarche, Types::DemarcheDescriptorType::FindDemarcheInput, "La démarche", required: true
-    argument :path, String, "Chemin de la démarche", required: true
+    argument :path, String, "Chemin de la démarche (ne doit pas être utilisé par une autre démarche)", required: true
     argument :lien_site_web, String, "Où les usagers trouveront-ils le lien vers la démarche", required: false
     argument :robots_indexable, Boolean, "Cette démarche est référençable par les moteurs de recherche (Google, …) pour aider les usagers à la découvrir", required: false, default_value: true
 
