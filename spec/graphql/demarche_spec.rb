@@ -146,6 +146,85 @@ RSpec.describe Types::DemarcheType, type: :graphql do
     end
   end
 
+  describe 'publier une demarche' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: 'test-path', lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(procedure).to be_brouillon
+      expect(data[:demarchePublier][:errors]).to eq(nil)
+      expect(data[:demarchePublier][:demarche][:state]).to eq('publiee')
+      procedure.reload
+      expect(procedure).to be_publiee
+    end
+  end
+
+  describe 'republier une demarche depubliee' do
+    let(:procedure) { create(:procedure, :unpublished, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: procedure.path, lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(procedure).to be_depubliee
+      expect(data[:demarchePublier][:errors]).to eq(nil)
+      expect(data[:demarchePublier][:demarche][:state]).to eq('publiee')
+      procedure.reload
+      expect(procedure).to be_publiee
+    end
+  end
+
+  describe 'publier une demarche sans droit' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: 'test-path', lienSiteWeb: 'https://test.gouv.fr' } }
+    let(:context) { { administrateur_id: admin_2.id, procedure_ids: admin_2.procedure_ids, write_access: true } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq([{ message: "La démarche \"#{procedure.id}\" n'existe pas ou vous n'avez pas le droit de la publier." }])
+      procedure.reload
+      expect(procedure).to be_brouillon
+    end
+  end
+
+  describe 'publier une demarche avec un chemin deja utilise' do
+    let(:other_procedure) { create(:procedure, :published) }
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: other_procedure.path, lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq([{ message: "Il existe déjà une démarche avec le chemin \"#{other_procedure.path}\"." }])
+      procedure.reload
+      expect(procedure).to be_brouillon
+    end
+  end
+
+  describe 'publier une demarche sans lien_site_web' do
+    let(:procedure) { create(:procedure, administrateurs: [admin], lien_site_web: nil) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: 'test-path' } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq([{ message: "L'information \"Où trouver la démarche\" est obligatoire (\"lienSiteWeb\")." }])
+      procedure.reload
+      expect(procedure).to be_brouillon
+    end
+  end
+
+  describe 'publier une demarche deja publiee' do
+    let(:procedure) { create(:procedure, :published, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: procedure.path, lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(data[:demarchePublier][:warnings]).to eq([{ message: "La démarche \"#{procedure.id}\" est déjà publiée ou cloturée." }])
+      expect(data[:demarchePublier][:demarche]).to eq(nil)
+      procedure.reload
+      expect(procedure).to be_publiee
+    end
+  end
+
   DEMARCHE_QUERY = <<-GRAPHQL
   query($number: Int!) {
     demarche(number: $number) {
@@ -312,6 +391,25 @@ RSpec.describe Types::DemarcheType, type: :graphql do
         dateLimite
       }
       errors {
+        message
+      }
+    }
+  }
+  GRAPHQL
+
+  PUBLIER_DEMARCHE_QUERY = <<-GRAPHQL
+  mutation PublierDemarche($demarcheNumber: Int!, $path: String!, $lienSiteWeb: String) {
+    demarchePublier(
+      input: { demarche: { number: $demarcheNumber }, path: $path, lienSiteWeb: $lienSiteWeb }
+    ) {
+      demarche {
+        id
+        state
+      }
+      errors {
+        message
+      }
+      warnings {
         message
       }
     }
