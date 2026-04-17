@@ -484,8 +484,14 @@ module Users
     end
 
     def dossier_for_help
+      return @dossier if @dossier
+
       dossier_id = params[:id] || params[:dossier_id]
-      @dossier || (dossier_id.present? && Dossier.visible_by_user.find_by(id: dossier_id.to_i))
+      return nil if dossier_id.blank?
+
+      id = dossier_id.to_i
+      current_user.dossiers.visible_by_user.find_by(id:) ||
+        current_user.dossiers_invites.visible_by_user.find_by(id:)
     end
 
     def transferer
