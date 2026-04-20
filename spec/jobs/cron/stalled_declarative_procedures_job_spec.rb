@@ -45,5 +45,14 @@ RSpec.describe Cron::StalledDeclarativeProceduresJob, type: :job do
         expect(ProcessStalledDeclarativeDossierJob).not_to have_been_enqueued
       }
     end
+
+    context "declarative procedure in brouillon" do
+      let(:procedure) { create(:procedure, :for_individual, :with_instructeur, declarative_with_state: Dossier.states.fetch(:en_instruction)) }
+
+      it {
+        perform_job
+        expect(ProcessStalledDeclarativeDossierJob).not_to have_been_enqueued.with(en_construction)
+      }
+    end
   end
 end
