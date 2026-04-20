@@ -23,6 +23,12 @@
                   %span.fr-icon-lock-fill.fr-icon--sm
                   Aucun type de champ autorisé pour transformer ce champ
 
+              - if type_de_champ.communes?
+                .cell.fr-mt-1w
+                  = render Dsfr::NoticeComponent.new(state: "warning", closable: false) do |c|
+                    - c.with_title { "Attention :" }
+                    - c.with_desc { "ne pas utiliser ce champ pour les <strong>communes de naissance</strong>.".html_safe }
+
           .flex.column.justify-start.width-66
             .cell
               .flex.align-center
