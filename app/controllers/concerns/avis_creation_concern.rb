@@ -20,14 +20,14 @@ module AvisCreationConcern
       end
     end
 
-    if result.failed_avis.any?
+    if result.failed_emails.any?
       @new_avis = result.avis
 
-      flash.now[:alert] = result.failed_avis.flat_map do |failed_avis|
-        if failed_avis.email.blank?
-          failed_avis.errors.full_messages_for(:email)
+      flash.now[:alert] = result.failed_emails.flat_map do |failed|
+        if failed[:email].blank?
+          failed[:messages]
         else
-          "#{failed_avis.email} : #{failed_avis.errors.full_messages_for(:email).join(', ')}"
+          "#{failed[:email]} : #{failed[:messages].join(', ')}"
         end
       end.join(' | ')
 
