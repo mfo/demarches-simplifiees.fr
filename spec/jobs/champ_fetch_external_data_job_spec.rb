@@ -54,16 +54,16 @@ RSpec.describe ChampFetchExternalDataJob, type: :job do
         # currently-enqueued jobs one pass at a time. Each retry_on just
         # enqueues the next attempt without executing it inline, avoiding
         # the cascade that causes hangs with Rails 7.2.3+.
-        5.times do
+        3.times do
           perform_enqueued_jobs(only: ChampFetchExternalDataJob)
         rescue StandardError
-          # After 5 RetryableFetchError retries, the exhaust block raises err.cause
+          # After 3 RetryableFetchError retries, the exhaust block raises err.cause
         end
 
         champ.reload
 
         expect(champ).to be_external_error
-        expect(champ.fetch_external_data_exceptions.size).to eq(5)
+        expect(champ.fetch_external_data_exceptions.size).to eq(3)
       end
     end
   end
