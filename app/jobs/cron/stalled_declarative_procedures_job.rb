@@ -4,10 +4,9 @@ class Cron::StalledDeclarativeProceduresJob < Cron::CronJob
   self.schedule_expression = "every 10 minutes"
 
   def perform
-    Procedure.declarative.find_each do |procedure|
-      procedure.dossiers.state_en_construction.where(declarative_triggered_at: nil).find_each do |dossier|
-        ProcessStalledDeclarativeDossierJob.perform_later(dossier)
-      end
-    end
+    Dossier.state_en_construction
+      .where(declarative_triggered_at: nil)
+      .joins(:procedure).merge(Procedure.declarative)
+      .find_each { ProcessStalledDeclarativeDossierJob.perform_later(it) }
   end
 end
