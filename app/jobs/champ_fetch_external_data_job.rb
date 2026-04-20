@@ -4,7 +4,7 @@ class ChampFetchExternalDataJob < ApplicationJob
   discard_on ActiveJob::DeserializationError
   queue_as :critical # ui feedback, asap
 
-  retry_on RetryableFetchError, attempts: 5, wait: :polynomially_longer do |job, err|
+  retry_on RetryableFetchError, attempts: 3, wait: :polynomially_longer do |job, err|
     champ = job.arguments.first
     champ.external_data_error!
 
