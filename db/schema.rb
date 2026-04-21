@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_07_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -564,6 +564,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_07_120000) do
     t.index ["parent_dossier_id"], name: "index_dossiers_on_parent_dossier_id"
     t.index ["prefill_token"], name: "index_dossiers_on_prefill_token", unique: true
     t.index ["revision_id"], name: "index_dossiers_on_revision_id"
+    t.index ["revision_id"], name: "index_dossiers_stalled_declarative", where: "(((state)::text = 'en_construction'::text) AND (declarative_triggered_at IS NULL))"
     t.index ["state"], name: "index_dossiers_on_state"
     t.index ["user_id"], name: "index_dossiers_on_user_id"
   end
