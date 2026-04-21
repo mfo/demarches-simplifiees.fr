@@ -14,19 +14,6 @@ class WatermarkService
     @text = " #{text} " # give more space around each occurrence
   end
 
-  def process(file, output)
-    require "vips"
-
-    image = Vips::Image.new_from_file(file.to_path, access: :sequential)
-    watermarked = apply_watermark(image)
-    watermarked = watermarked.flatten if File.extname(output.to_path).downcase.in?(['.jpg', '.jpeg'])
-    watermarked.write_to_file(output.to_path)
-
-    output
-  rescue Vips::Error => e
-    raise Error, e.message, e.backtrace
-  end
-
   def apply(image, format:)
     require "vips"
 
@@ -42,14 +29,6 @@ class WatermarkService
 
   def jpeg_format?(format)
     format.in?(["image/jpeg", "image/jpg"])
-  end
-
-  def apply_watermark(image)
-    image = image.colourspace(:srgb)
-    image = image.bandjoin(255) unless image.has_alpha?
-
-    overlay = build_watermark_overlay(image.width, image.height)
-    image.composite(overlay, :over)
   end
 
   PADDING_RATIO = 0.25 # espacement entre chaque occurrence du filigrane
