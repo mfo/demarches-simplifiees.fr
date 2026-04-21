@@ -91,12 +91,12 @@ module Experts
     def create_avis
       # before_action set_avis_and_dossier
       @procedure = @avis.procedure
-      @new_avis = Avis.new
+      new_avis = Avis.new(avis_create_params.merge(dossier: @dossier))
 
       handle_create_avis(
-        dossier: @dossier,
+        dossier:,
         user: current_expert,
-        params: avis_create_params,
+        avis: new_avis,
         success_path: instruction_expert_avis_path(@procedure, @avis),
         error_template: :instruction,
         avis_source: @avis

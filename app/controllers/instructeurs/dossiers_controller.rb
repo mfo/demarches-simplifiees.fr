@@ -356,12 +356,12 @@ module Instructeurs
       @dossier = dossier
       @procedure = dossier.procedure
 
-      @new_avis = Avis.new(dossier: @dossier) # <- utilisé si le form échoue
+      avis = Avis.new(avis_create_params.merge(dossier:))
 
       handle_create_avis(
-        dossier: @dossier,
+        dossier:,
         user: current_instructeur,
-        params: avis_create_params,
+        avis:,
         success_path: avis_instructeur_dossier_path(@procedure, @dossier, statut: statut),
         error_template: :avis_new
       )

@@ -1,27 +1,28 @@
 # frozen_string_literal: true
 
 class CreateAvisService
-  Result = Data.define(:avis, :sent_emails, :failed_emails)
+  Result = Data.define(:sent_emails, :failed_emails)
 
-  def self.call(dossier:, instructeur_or_expert:, batch:, params:, avis_source: nil)
-    new(dossier, instructeur_or_expert, batch, params, avis_source).call
+  def self.call(dossier:, instructeur_or_expert:, batch:, avis:, avis_source: nil)
+    new(dossier, instructeur_or_expert, batch, avis, avis_source).call
   end
 
-  def initialize(dossier, instructeur_or_expert, batch, params, avis_source = nil)
+  def initialize(dossier, instructeur_or_expert, batch, avis, avis_source = nil)
     @dossier = dossier
     @instructeur_or_expert = instructeur_or_expert
     @batch = batch
-    @params = params
+    @avis = avis
     @avis_source = avis_source
   end
 
   def call
-    confidentiel = @avis_source&.confidentiel || @params[:confidentiel] || false
+    confidentiel = @avis_source&.confidentiel || @avis.confidentiel || false
+    introduction_file = @avis.attachment_changes["introduction_file"]&.attachable
 
-    emails = Array(@params[:emails]).map(&:strip).map(&:downcase).uniq.compact_blank
+    emails = Array(@avis.emails).map(&:strip).map(&:downcase).uniq.compact_blank
     allowed_dossiers = [@dossier]
 
-    if @params[:invite_linked_dossiers].present?
+    if @avis.invite_linked_dossiers.present?
       allowed_dossiers += @dossier.linked_dossiers_for(@instructeur_or_expert)
     end
 
@@ -41,13 +42,13 @@ class CreateAvisService
     avis_params = experts.flat_map do |expert|
       allowed_dossiers.map do |dossier|
         {
-          introduction: @params[:introduction],
-          introduction_file: @params[:introduction_file],
+          introduction: @avis.introduction,
+          introduction_file: introduction_file,
           claimant: @instructeur_or_expert,
           dossier: dossier,
           confidentiel: confidentiel,
           experts_procedure: experts_procedures_h[[expert, dossier.procedure]],
-          question_label: @params[:question_label],
+          question_label: @avis.question_label,
         }
       end
     end
@@ -81,8 +82,6 @@ class CreateAvisService
       avis.expert.email
     end
 
-    avis_result = persisted.first || failed.first || Avis.new(@params)
-
-    Result.new(avis_result, sent_emails.uniq, failed_emails)
+    Result.new(sent_emails.uniq, failed_emails)
   end
 end
