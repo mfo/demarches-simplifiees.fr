@@ -16,12 +16,6 @@ class CreateAvisService
   end
 
   def call
-    if @params[:emails].blank? || @params[:emails].all?(&:blank?)
-      avis = Avis.new(@params)
-      blank_message = format(I18n.t('errors.format'), attribute: User.human_attribute_name(:email), message: I18n.t('errors.messages.blank'))
-      return Result.new(avis, [], [{ email: nil, messages: [blank_message] }])
-    end
-
     confidentiel = @avis_source&.confidentiel || @params[:confidentiel] || false
 
     emails = Array(@params[:emails]).map(&:strip).map(&:downcase).uniq.compact_blank
