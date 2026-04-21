@@ -17,7 +17,8 @@ module AvisCreationConcern
       claimant:,
       batch: false,
       avis:,
-      avis_source:
+      avis_source:,
+      emails:
     )
 
     flash[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?

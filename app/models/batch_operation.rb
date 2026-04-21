@@ -122,13 +122,13 @@ class BatchOperation < ApplicationRecord
         introduction_file:,
         confidentiel:,
         question_label:,
-        emails: emails || [],
         invite_linked_dossiers: payload['invite_linked_dossiers']
       )
       CreateAvisService.call(
         claimant: instructeur,
         batch: true,
-        avis:
+        avis:,
+        emails: emails || []
       )
     when BatchOperation.operations.fetch(:create_commentaire)
       commentaire = CommentaireService.create(instructeur, dossier, { email: dossier.user.email, body:, piece_jointe: })

@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 class CreateAvisService
-  def self.call(claimant:, batch:, avis:, avis_source: nil)
-    new(claimant, batch, avis, avis_source).call
+  def self.call(claimant:, batch:, avis:, emails:, avis_source: nil)
+    new(claimant, batch, avis, emails, avis_source).call
   end
 
-  def initialize(claimant, batch, avis, avis_source = nil)
+  def initialize(claimant, batch, avis, emails, avis_source = nil)
     @dossier = avis.dossier
     @claimant = claimant
     @batch = batch
     @avis = avis
     @avis_source = avis_source
+    @emails = emails
   end
 
   def call
@@ -18,7 +19,6 @@ class CreateAvisService
     introduction_file_change = @avis.attachment_changes["introduction_file"]
     introduction_file = introduction_file_change.attachable if introduction_file_change.is_a?(ActiveStorage::Attached::Changes::CreateOne)
 
-    emails = Array(@avis.emails).map(&:strip).map(&:downcase).uniq.compact_blank
     allowed_dossiers = [@dossier]
 
     if @avis.invite_linked_dossiers.present?
@@ -30,7 +30,7 @@ class CreateAvisService
       @claimant.follow(@dossier)
     end
 
-    users, invalids = emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
+    users, invalids = @emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
     failed_emails = invalids.map { { email: it.email, messages: it.errors.full_messages } }
 
     experts = users.map(&:expert)
