@@ -20,26 +20,33 @@ module AvisCreationConcern
       avis_source:
     )
 
-    if sent_emails.any?
-      flash[:notice] = if sent_emails.count < 5
-        t('avis_creation_concern.avis_sent.with_emails', emails: sent_emails.join(', '))
-      else
-        t('avis_creation_concern.avis_sent.with_count', count: sent_emails.count)
-      end
-    end
+    flash[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
 
     if failed_emails.any?
-      flash.now[:alert] = failed_emails.flat_map do |failed|
-        if failed[:email].blank?
-          failed[:messages]
-        else
-          "#{failed[:email]} : #{failed[:messages].join(', ')}"
-        end
-      end.join(' | ')
-
+      flash.now[:alert] = failed_emails_alert(failed_emails)
       render error_template, status: :unprocessable_content
     else
       redirect_to success_path
     end
+  end
+
+  private
+
+  def sent_emails_notice(sent_emails)
+    if sent_emails.count < 5
+      t('avis_creation_concern.avis_sent.with_emails', emails: sent_emails.join(', '))
+    else
+      t('avis_creation_concern.avis_sent.with_count', count: sent_emails.count)
+    end
+  end
+
+  def failed_emails_alert(failed_emails)
+    failed_emails.flat_map do |failed|
+      if failed[:email].blank?
+        failed[:messages]
+      else
+        "#{failed[:email]} : #{failed[:messages].join(', ')}"
+      end
+    end.join(' | ')
   end
 end
