@@ -27,7 +27,22 @@ class WatermarkService
     raise Error, e.message, e.backtrace
   end
 
+  def apply(image, format:)
+    require "vips"
+
+    image = image.colourspace(:srgb)
+    image = image.bandjoin(255) unless image.has_alpha?
+    watermarked = image.composite(build_watermark_overlay(image.width, image.height), :over)
+    jpeg_format?(format) ? watermarked.flatten : watermarked
+  rescue Vips::Error => e
+    raise Error, e.message, e.backtrace
+  end
+
   private
+
+  def jpeg_format?(format)
+    format.in?(["image/jpeg", "image/jpg"])
+  end
 
   def apply_watermark(image)
     image = image.colourspace(:srgb)
