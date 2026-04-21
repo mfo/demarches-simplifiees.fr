@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class CreateAvisService
-  Result = Data.define(:sent_emails, :failed_emails)
-
   def self.call(dossier:, claimant:, batch:, avis:, avis_source: nil)
     new(dossier, claimant, batch, avis, avis_source).call
   end
@@ -82,6 +80,6 @@ class CreateAvisService
       avis.expert.email
     end
 
-    Result.new(sent_emails.uniq, failed_emails)
+    [sent_emails.uniq, failed_emails]
   end
 end

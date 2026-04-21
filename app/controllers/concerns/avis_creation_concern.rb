@@ -13,7 +13,7 @@ module AvisCreationConcern
       return
     end
 
-    result = CreateAvisService.call(
+    sent_emails, failed_emails = CreateAvisService.call(
       dossier: avis.dossier,
       claimant:,
       batch: false,
@@ -21,16 +21,16 @@ module AvisCreationConcern
       avis_source:
     )
 
-    if result.sent_emails.any?
-      if result.sent_emails.count < 5
-        flash[:notice] = "Une demande d’avis a été envoyée à #{result.sent_emails.join(', ')}"
+    if sent_emails.any?
+      if sent_emails.count < 5
+        flash[:notice] = "Une demande d’avis a été envoyée à #{sent_emails.join(', ')}"
       else
-        flash[:notice] = "Une demande d’avis a été envoyée à #{result.sent_emails.count} destinataires"
+        flash[:notice] = "Une demande d’avis a été envoyée à #{sent_emails.count} destinataires"
       end
     end
 
-    if result.failed_emails.any?
-      flash.now[:alert] = result.failed_emails.flat_map do |failed|
+    if failed_emails.any?
+      flash.now[:alert] = failed_emails.flat_map do |failed|
         if failed[:email].blank?
           failed[:messages]
         else
