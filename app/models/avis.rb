@@ -42,9 +42,6 @@ class Avis < ApplicationRecord
   scope :not_revoked, -> { where(revoked_at: nil) }
   scope :not_termine, -> { where.not(dossiers: { state: Dossier::TERMINE }) }
 
-  # The form allows subtmitting avis requests to several emails at once,
-  # hence this virtual attribute.
-  attr_accessor :emails
   attr_accessor :invite_linked_dossiers
 
   def email_to_display

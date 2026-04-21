@@ -356,11 +356,9 @@ module Instructeurs
       @dossier = dossier
       @procedure = dossier.procedure
 
-      avis = Avis.new(avis_create_params.merge(dossier:))
-
       handle_create_avis(
         claimant: current_instructeur,
-        avis:,
+        dossier:,
         success_path: avis_instructeur_dossier_path(@procedure, @dossier, statut: statut),
         error_template: :avis_new
       )
@@ -497,17 +495,6 @@ module Instructeurs
       else
         flash.notice = t('instructeurs.dossiers.message_sent')
       end
-    end
-
-    def avis_create_params
-      params.require(:avis).permit(
-        :introduction_file,
-        :introduction,
-        :confidentiel,
-        :invite_linked_dossiers,
-        :question_label,
-        emails: []
-      )
     end
 
     def navigate_through_dossiers_list

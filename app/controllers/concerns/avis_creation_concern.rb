@@ -3,22 +3,15 @@
 module AvisCreationConcern
   extend ActiveSupport::Concern
 
-  def handle_create_avis(claimant:, avis:, success_path:, error_template:, avis_source: nil)
-    emails = Array(avis.emails).map(&:strip).map(&:downcase).compact_blank
-
-    if emails.empty?
-      email_label = User.human_attribute_name(:email)
-      flash.now[:alert] = format(I18n.t('errors.format'), attribute: email_label, message: I18n.t('errors.messages.blank'))
-      render error_template, status: :unprocessable_content
-      return
-    end
+  def handle_create_avis(claimant:, dossier:, success_path:, error_template:, avis_source: nil)
+    return render error_template, status: :unprocessable_content if handle_empty_emails
 
     sent_emails, failed_emails = CreateAvisService.call(
       claimant:,
       batch: false,
-      avis:,
+      avis: Avis.new(avis_params.merge(dossier:)),
       avis_source:,
-      emails:
+      emails: avis_emails
     )
 
     flash[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
@@ -32,6 +25,28 @@ module AvisCreationConcern
   end
 
   private
+
+  def handle_empty_emails
+    if avis_emails.empty?
+      email_label = User.human_attribute_name(:email)
+      flash.now[:alert] = format(I18n.t('errors.format'), attribute: email_label, message: I18n.t('errors.messages.blank'))
+      true
+    end
+  end
+
+  def avis_params
+    params.require(:avis).permit(
+      :introduction_file,
+      :introduction,
+      :confidentiel,
+      :invite_linked_dossiers,
+      :question_label
+    )
+  end
+
+  def avis_emails
+    Array(params[:avis][:emails]).map(&:strip).map(&:downcase).compact_blank
+  end
 
   def sent_emails_notice(sent_emails)
     if sent_emails.count < 5
