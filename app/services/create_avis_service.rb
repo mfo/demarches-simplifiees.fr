@@ -3,13 +3,13 @@
 class CreateAvisService
   Result = Data.define(:sent_emails, :failed_emails)
 
-  def self.call(dossier:, instructeur_or_expert:, batch:, avis:, avis_source: nil)
-    new(dossier, instructeur_or_expert, batch, avis, avis_source).call
+  def self.call(dossier:, claimant:, batch:, avis:, avis_source: nil)
+    new(dossier, claimant, batch, avis, avis_source).call
   end
 
-  def initialize(dossier, instructeur_or_expert, batch, avis, avis_source = nil)
+  def initialize(dossier, claimant, batch, avis, avis_source = nil)
     @dossier = dossier
-    @instructeur_or_expert = instructeur_or_expert
+    @claimant = claimant
     @batch = batch
     @avis = avis
     @avis_source = avis_source
@@ -23,12 +23,12 @@ class CreateAvisService
     allowed_dossiers = [@dossier]
 
     if @avis.invite_linked_dossiers.present?
-      allowed_dossiers += @dossier.linked_dossiers_for(@instructeur_or_expert)
+      allowed_dossiers += @dossier.linked_dossiers_for(@claimant)
     end
 
-    if @instructeur_or_expert.is_a?(Instructeur) &&
-       !@instructeur_or_expert.follows.exists?(dossier: @dossier)
-      @instructeur_or_expert.follow(@dossier)
+    if @claimant.is_a?(Instructeur) &&
+       !@claimant.follows.exists?(dossier: @dossier)
+      @claimant.follow(@dossier)
     end
 
     users, invalids = emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
@@ -44,7 +44,7 @@ class CreateAvisService
         {
           introduction: @avis.introduction,
           introduction_file: introduction_file,
-          claimant: @instructeur_or_expert,
+          claimant: @claimant,
           dossier: dossier,
           confidentiel: confidentiel,
           experts_procedure: experts_procedures_h[[expert, dossier.procedure]],
@@ -62,12 +62,12 @@ class CreateAvisService
     if persisted.any?
       @dossier.touch(:last_avis_updated_at)
 
-      if @instructeur_or_expert.is_a?(Instructeur)
-        follow = @instructeur_or_expert.follows.find_by(dossier: @dossier)
+      if @claimant.is_a?(Instructeur)
+        follow = @claimant.follows.find_by(dossier: @dossier)
         follow&.update_column(:avis_seen_at, Time.current)
 
         DossierNotification.create_notification(@dossier, :attente_avis)
-        @instructeur_or_expert.mark_tab_as_seen(@dossier, :avis)
+        @claimant.mark_tab_as_seen(@dossier, :avis)
       end
     end
 

@@ -127,7 +127,7 @@ class BatchOperation < ApplicationRecord
       )
       CreateAvisService.call(
         dossier:,
-        instructeur_or_expert: instructeur,
+        claimant: instructeur,
         batch: true,
         avis:
       )

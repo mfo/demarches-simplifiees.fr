@@ -360,7 +360,7 @@ module Instructeurs
 
       handle_create_avis(
         dossier:,
-        user: current_instructeur,
+        claimant: current_instructeur,
         avis:,
         success_path: avis_instructeur_dossier_path(@procedure, @dossier, statut: statut),
         error_template: :avis_new

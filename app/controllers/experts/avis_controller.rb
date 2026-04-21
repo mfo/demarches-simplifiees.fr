@@ -95,7 +95,7 @@ module Experts
 
       handle_create_avis(
         dossier:,
-        user: current_expert,
+        claimant: current_expert,
         avis: new_avis,
         success_path: instruction_expert_avis_path(@procedure, @avis),
         error_template: :instruction,
