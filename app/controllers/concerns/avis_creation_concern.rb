@@ -22,10 +22,10 @@ module AvisCreationConcern
     )
 
     if sent_emails.any?
-      if sent_emails.count < 5
-        flash[:notice] = "Une demande d’avis a été envoyée à #{sent_emails.join(', ')}"
+      flash[:notice] = if sent_emails.count < 5
+        t('avis_creation_concern.avis_sent.with_emails', emails: sent_emails.join(', '))
       else
-        flash[:notice] = "Une demande d’avis a été envoyée à #{sent_emails.count} destinataires"
+        t('avis_creation_concern.avis_sent.with_count', count: sent_emails.count)
       end
     end
 

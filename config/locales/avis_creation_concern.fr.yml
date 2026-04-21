@@ -1,0 +1,5 @@
+fr:
+  avis_creation_concern:
+    avis_sent:
+      with_emails: "Une demande d’avis a été envoyée à %{emails}"
+      with_count: "Une demande d’avis a été envoyée à %{count} destinataires"
