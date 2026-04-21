@@ -8,27 +8,27 @@ class CreateAvisService
       introduction_file_change = avis.attachment_changes["introduction_file"]
       introduction_file = introduction_file_change.attachable if introduction_file_change.is_a?(ActiveStorage::Attached::Changes::CreateOne)
 
-      allowed_dossiers = [dossier]
-
-      if avis.invite_linked_dossiers.present?
-        allowed_dossiers += dossier.linked_dossiers_for(claimant)
-      end
-
       if claimant.is_a?(Instructeur) &&
           !claimant.follows.exists?(dossier:)
         claimant.follow(dossier)
       end
 
+      # create experts
       users, invalids = emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
       failed_emails = invalids.map { { email: it.email, messages: it.errors.full_messages } }
 
+      # list all related dossiers
+      dossiers = avis.invite_linked_dossiers.present? ? [dossier, *dossier.linked_dossiers_for(claimant)] : [dossier]
+
+      # create expert <-> procedure
       experts = users.map(&:expert)
-      experts_procedures_h = allowed_dossiers.map(&:procedure).uniq
+      experts_procedures_h = dossiers.map(&:procedure).uniq
         .flat_map { |procedure| experts.map { |expert| [[expert, procedure], safely_create_experts_procedure(expert, procedure)] } }
         .to_h
 
-      avis_params = experts.flat_map do |expert|
-        allowed_dossiers.map do |dossier|
+      # create avis on all related dossiers
+      persisted, failed = experts.flat_map do |expert|
+        dossiers.map do |dossier|
           {
             introduction: avis.introduction,
             introduction_file:,
@@ -40,13 +40,12 @@ class CreateAvisService
           }
         end
       end
-
-      create_results = Avis.create(avis_params)
-
-      persisted, failed = create_results.partition(&:persisted?)
+        .map { |params| Avis.create(params) }
+        .partition(&:persisted?)
 
       failed_emails += failed.map { |avis| { email: avis.expert.email, messages: avis.errors.full_messages } }
 
+      # notifications
       if persisted.any?
         dossier.touch(:last_avis_updated_at)
 
@@ -61,6 +60,7 @@ class CreateAvisService
 
       dossier.avis.reload
 
+      # log operation
       persisted.each { |avis| avis.dossier.demander_un_avis!(avis) }
 
       sent_emails = persisted.filter { it.dossier == dossier }.map do |avis|
