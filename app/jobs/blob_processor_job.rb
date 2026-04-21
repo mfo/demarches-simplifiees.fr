@@ -75,64 +75,59 @@ class BlobProcessorJob < ApplicationJob
   end
 
   def apply_mutations(tempfile)
-    require "vips"
-    modified = false
-    current_file = tempfile
-    extra_tempfiles = []
+    autorotate_needed = jpeg? && autorotate_needed?(tempfile)
+    uninterlace_needed = png_embeddable_in_pdf? && interlaced?(tempfile)
+    watermark_needed = blob.watermark_pending?
+    mutations_needed = autorotate_needed || uninterlace_needed || watermark_needed
 
-    if jpeg?
-      output = Tempfile.new(["rotated", File.extname(current_file)])
-      extra_tempfiles << output
-      processed = AutoRotateService.new.process(current_file, output)
-      if processed
-        current_file = processed
-        modified = true
-      end
-    end
+    return if !mutations_needed
 
-    if blob.content_type == "image/png" && embeddable_in_pdf?
-      # UninterlaceService modifies the file in-place (writes to the same path then reopens)
-      processed = UninterlaceService.new.process(current_file)
-      modified = true if processed
-    end
+    load_opts = { access: :sequential }
+    load_opts[:autorotate] = true if autorotate_needed
 
-    if blob.watermark_pending?
-      output = Tempfile.new(["watermarked", File.extname(current_file)])
-      extra_tempfiles << output
-      processed = WatermarkService.new.process(current_file, output)
-      if processed
-        current_file = processed
-        modified = true
-        blob.watermarked_at = Time.current
-      end
+    image = Vips::Image.new_from_file(tempfile.to_path, **load_opts)
+    image = WatermarkService.new.apply(image, format: blob.content_type) if watermark_needed
+
+    write_opts = uninterlace_needed ? { interlace: false } : {}
+
+    Tempfile.create(["processed", File.extname(tempfile.path)]) do |output|
+      image.write_to_file(output.path, **write_opts)
+      blob.upload(output)
     end
 
-    if modified
-      blob.upload(current_file)
-      blob.save!
-    end
-  ensure
-    extra_tempfiles.each do |f|
-      f.close
-      f.unlink if File.exist?(f.path)
-    end
+    blob.watermarked_at = Time.current if watermark_needed
+    blob.save!
   end
 
   def needs_mutations?
-    return true if jpeg?
-    return true if blob.content_type == "image/png" && embeddable_in_pdf?
-    return true if blob.watermark_pending?
-
-    false
+    jpeg? || png_embeddable_in_pdf? || blob.watermark_pending?
   end
 
   def jpeg?
     blob.content_type.in?(["image/jpeg", "image/jpg"])
   end
 
+  def png_embeddable_in_pdf?
+    blob.content_type == "image/png" && embeddable_in_pdf?
+  end
+
   def embeddable_in_pdf?
     attachment.name.in?(%w[logo signature]) &&
       attachment.record_type.in?(%w[AttestationTemplate GroupeInstructeur])
+  end
+
+  def autorotate_needed?(tempfile)
+    image = Vips::Image.new_from_file(tempfile.to_path)
+    image.get_fields.include?("orientation") && image.get("orientation") != 1
+  rescue Vips::Error # unreadable metadata should not abort processing: skip the mutation instead
+    false
+  end
+
+  def interlaced?(tempfile)
+    image = Vips::Image.new_from_file(tempfile.to_path)
+    image.get_fields.include?("interlaced") && image.get("interlaced") != 0
+  rescue Vips::Error # unreadable metadata should not abort processing: skip the mutation instead
+    false
   end
 
   def create_representations

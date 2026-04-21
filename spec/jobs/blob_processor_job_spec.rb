@@ -4,8 +4,6 @@ describe BlobProcessorJob, :external_deps, type: :job do
   include Dry::Monads[:result]
 
   let(:watermark_service) { instance_double("WatermarkService") }
-  let(:auto_rotate_service) { instance_double("AutoRotateService") }
-  let(:uninterlace_service) { instance_double("UninterlaceService") }
 
   let(:file) { fixture_file_upload('spec/fixtures/files/logo_test_procedure.png', 'image/png') }
 
@@ -19,8 +17,10 @@ describe BlobProcessorJob, :external_deps, type: :job do
   end
 
   before do
+    require "vips"
+
     allow(WatermarkService).to receive(:new).and_return(watermark_service)
-    allow(watermark_service).to receive(:process).and_return(true)
+    allow(watermark_service).to receive(:apply) { |image, **| image }
   end
 
   describe 'virus scanning' do
@@ -50,7 +50,7 @@ describe BlobProcessorJob, :external_deps, type: :job do
       end
 
       it 'does not process images' do
-        expect(watermark_service).not_to have_received(:process)
+        expect(watermark_service).not_to have_received(:apply)
       end
 
       it 'sets processed metadata' do
@@ -74,26 +74,39 @@ describe BlobProcessorJob, :external_deps, type: :job do
   describe 'autorotate' do
     before do
       allow(ClamavService).to receive(:safe_file?).and_return(true)
-      allow(AutoRotateService).to receive(:new).and_return(auto_rotate_service)
-      allow(auto_rotate_service).to receive(:process).and_return(true)
     end
 
     context 'when image is not a jpg' do
-      it 'does not process autorotate' do
-        expect(auto_rotate_service).not_to receive(:process)
-        described_class.perform_now(blob)
+      it 'does not re-upload the blob' do
+        expect { described_class.perform_now(blob) }.not_to change { blob.reload.checksum }
       end
     end
 
-    context 'when image is a jpg' do
-      let(:rotated_file) { Tempfile.new("rotated.jpg") }
+    context 'when image is a jpg with rotation EXIF' do
       let(:file) { fixture_file_upload('spec/fixtures/files/image-rotated.jpg', 'image/jpeg') }
 
-      before { allow(rotated_file).to receive(:size).and_return(100) }
+      it 'rotates the image and re-uploads' do
+        blob.open do |tempfile|
+          image = Vips::Image.new_from_file(tempfile.path)
+          orientation = image.get("orientation")
+          expect(orientation).to eq(8)
+        end
 
-      it 'processes autorotate' do
-        expect(auto_rotate_service).to receive(:process).and_return(rotated_file)
-        described_class.perform_now(blob)
+        expect { described_class.perform_now(blob) }.to change { blob.reload.checksum }
+
+        blob.open do |tempfile|
+          image = Vips::Image.new_from_file(tempfile.path)
+          orientation = image.get("orientation")
+          expect(orientation).to eq(1)
+        end
+      end
+    end
+
+    context 'when image is a jpg without rotation' do
+      let(:file) { fixture_file_upload('spec/fixtures/files/image-no-rotation.jpg', 'image/jpeg') }
+
+      it 'does not re-upload the blob' do
+        expect { described_class.perform_now(blob) }.not_to change { blob.reload.checksum }
       end
     end
   end
@@ -101,28 +114,49 @@ describe BlobProcessorJob, :external_deps, type: :job do
   describe 'uninterlace' do
     before do
       allow(ClamavService).to receive(:safe_file?).and_return(true)
-      allow(UninterlaceService).to receive(:new).and_return(uninterlace_service)
     end
 
-    context 'when file is a PNG attached to an attestation logo' do
+    context 'when PNG attached as attestation logo is interlaced' do
+      let(:file) { fixture_file_upload('spec/fixtures/files/interlaced-black.png', 'image/png') }
       let(:attestation_template) { create(:attestation_template, procedure:) }
       let(:blob) do
         attestation_template.logo.attach(file)
         attestation_template.logo.blob
       end
 
-      let(:uninterlaced_file) { fixture_file_upload('spec/fixtures/files/uninterlaced-black.png', 'image/png') }
+      it 'uninterlaces and re-uploads' do
+        blob.open do |tempfile|
+          image = Vips::Image.new_from_file(tempfile.path)
+          interlaced = image.get_fields.include?("interlaced")
+          expect(interlaced).to eq(true)
+        end
 
-      it 'processes uninterlace' do
-        expect(uninterlace_service).to receive(:process).and_return(uninterlaced_file)
-        described_class.perform_now(blob)
+        expect { described_class.perform_now(blob) }.to change { blob.reload.checksum }
+
+        blob.open do |tempfile|
+          image = Vips::Image.new_from_file(tempfile.path)
+          interlaced = image.get_fields.include?("interlaced")
+          expect(interlaced).to eq(false)
+        end
       end
     end
 
-    context 'when file is a PNG but not an attestation image' do
-      it 'does not process uninterlace' do
-        expect(uninterlace_service).not_to receive(:process)
-        described_class.perform_now(blob)
+    context 'when PNG attestation logo is not interlaced' do
+      let(:file) { fixture_file_upload('spec/fixtures/files/uninterlaced-black.png', 'image/png') }
+      let(:attestation_template) { create(:attestation_template, procedure:) }
+      let(:blob) do
+        attestation_template.logo.attach(file)
+        attestation_template.logo.blob
+      end
+
+      it 'does not re-upload the blob' do
+        expect { described_class.perform_now(blob) }.not_to change { blob.reload.checksum }
+      end
+    end
+
+    context 'when PNG is not an attestation image' do
+      it 'does not re-upload the blob' do
+        expect { described_class.perform_now(blob) }.not_to change { blob.reload.checksum }
       end
     end
   end
@@ -173,30 +207,23 @@ describe BlobProcessorJob, :external_deps, type: :job do
     context 'when watermark is already done' do
       before { allow(blob).to receive(:watermark_done?).and_return(true) }
 
-      it 'does not process the watermark' do
-        expect(watermark_service).not_to receive(:process)
+      it 'does not apply the watermark' do
+        expect(watermark_service).not_to receive(:apply)
         described_class.perform_now(blob)
       end
     end
 
     context 'when the blob is ready to be watermarked' do
-      let(:watermarked_file) { Tempfile.new("watermarked.jpg") }
-
       before do
-        allow(watermarked_file).to receive(:size).and_return(100)
         allow(blob).to receive(:watermark_pending?).and_return(true)
       end
 
-      it 'processes the blob with watermark' do
-        expect(watermark_service).to receive(:process).and_return(watermarked_file)
-
+      it 'applies watermark and sets watermarked_at' do
         expect {
           described_class.perform_now(blob)
-        }.to change {
-          blob.reload.checksum
-        }
+        }.to change { blob.reload.checksum }
 
-        expect(blob.byte_size).to eq(100)
+        expect(watermark_service).to have_received(:apply).with(an_instance_of(Vips::Image), format: blob.content_type)
         expect(blob.watermarked_at).to be_present
       end
     end
@@ -289,7 +316,7 @@ describe BlobProcessorJob, :external_deps, type: :job do
     end
 
     it 'does not apply image mutations' do
-      expect(watermark_service).not_to have_received(:process)
+      expect(watermark_service).not_to have_received(:apply)
     end
 
     it 'marks as processed' do
@@ -355,7 +382,7 @@ describe BlobProcessorJob, :external_deps, type: :job do
       before do
         allow(ClamavService).to receive(:safe_file?).and_return(true)
         allow(blob).to receive(:watermark_pending?).and_return(true)
-        allow(watermark_service).to receive(:process)
+        allow(watermark_service).to receive(:apply)
           .and_raise(WatermarkService::Error.new('addalpha not found'))
       end
 
