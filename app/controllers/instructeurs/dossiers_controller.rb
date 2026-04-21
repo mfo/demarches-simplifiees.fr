@@ -359,7 +359,6 @@ module Instructeurs
       avis = Avis.new(avis_create_params.merge(dossier:))
 
       handle_create_avis(
-        dossier:,
         claimant: current_instructeur,
         avis:,
         success_path: avis_instructeur_dossier_path(@procedure, @dossier, statut: statut),

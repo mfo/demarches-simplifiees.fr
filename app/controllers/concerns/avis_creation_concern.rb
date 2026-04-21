@@ -3,7 +3,7 @@
 module AvisCreationConcern
   extend ActiveSupport::Concern
 
-  def handle_create_avis(dossier:, claimant:, avis:, success_path:, error_template:, avis_source: nil)
+  def handle_create_avis(claimant:, avis:, success_path:, error_template:, avis_source: nil)
     emails = Array(avis.emails).map(&:strip).map(&:downcase).compact_blank
 
     if emails.empty?
@@ -14,7 +14,7 @@ module AvisCreationConcern
     end
 
     result = CreateAvisService.call(
-      dossier:,
+      dossier: avis.dossier,
       claimant:,
       batch: false,
       avis:,

@@ -94,7 +94,6 @@ module Experts
       new_avis = Avis.new(avis_create_params.merge(dossier: @dossier))
 
       handle_create_avis(
-        dossier:,
         claimant: current_expert,
         avis: new_avis,
         success_path: instruction_expert_avis_path(@procedure, @avis),
