@@ -14,7 +14,6 @@ module AvisCreationConcern
     end
 
     sent_emails, failed_emails = CreateAvisService.call(
-      dossier: avis.dossier,
       claimant:,
       batch: false,
       avis:,

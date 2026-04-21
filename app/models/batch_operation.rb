@@ -126,7 +126,6 @@ class BatchOperation < ApplicationRecord
         invite_linked_dossiers: payload['invite_linked_dossiers']
       )
       CreateAvisService.call(
-        dossier:,
         claimant: instructeur,
         batch: true,
         avis:

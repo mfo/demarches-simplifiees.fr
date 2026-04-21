@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 class CreateAvisService
-  def self.call(dossier:, claimant:, batch:, avis:, avis_source: nil)
-    new(dossier, claimant, batch, avis, avis_source).call
+  def self.call(claimant:, batch:, avis:, avis_source: nil)
+    new(claimant, batch, avis, avis_source).call
   end
 
-  def initialize(dossier, claimant, batch, avis, avis_source = nil)
-    @dossier = dossier
+  def initialize(claimant, batch, avis, avis_source = nil)
+    @dossier = avis.dossier
     @claimant = claimant
     @batch = batch
     @avis = avis
