@@ -14,12 +14,14 @@ module AvisCreationConcern
       emails: avis_emails
     )
 
-    flash[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
-
     if failed_emails.any?
-      flash.now[:alert] = failed_emails_alert(failed_emails)
+      flash.now[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
+      flash.now[:alert] = failed_emails_alert(failed_emails) if failed_emails.any?
+
       render error_template, status: :unprocessable_content
     else
+      flash[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
+
       redirect_to success_path
     end
   end
