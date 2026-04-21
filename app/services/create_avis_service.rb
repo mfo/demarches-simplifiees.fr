@@ -15,7 +15,8 @@ class CreateAvisService
 
   def call
     confidentiel = @avis_source&.confidentiel || @avis.confidentiel || false
-    introduction_file = @avis.attachment_changes["introduction_file"]&.attachable
+    introduction_file_change = @avis.attachment_changes["introduction_file"]
+    introduction_file = introduction_file_change.attachable if introduction_file_change.is_a?(ActiveStorage::Attached::Changes::CreateOne)
 
     emails = Array(@avis.emails).map(&:strip).map(&:downcase).uniq.compact_blank
     allowed_dossiers = [@dossier]
@@ -41,10 +42,10 @@ class CreateAvisService
       allowed_dossiers.map do |dossier|
         {
           introduction: @avis.introduction,
-          introduction_file: introduction_file,
+          introduction_file:,
           claimant: @claimant,
-          dossier: dossier,
-          confidentiel: confidentiel,
+          dossier:,
+          confidentiel:,
           experts_procedure: experts_procedures_h[[expert, dossier.procedure]],
           question_label: @avis.question_label,
         }
