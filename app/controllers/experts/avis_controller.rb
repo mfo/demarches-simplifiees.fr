@@ -7,7 +7,7 @@ module Experts
     include AvisCreationConcern
 
     before_action :authenticate_expert!, except: [:sign_up, :update_expert]
-    before_action :check_if_avis_revoked, except: [:index, :procedure, :notification_settings, :update_notification_settings]
+    before_action :check_if_avis_revoked, except: [:index, :procedure, :notification_settings, :update_notification_settings, :sign_up, :update_expert]
     before_action :redirect_if_no_sign_up_needed, only: [:sign_up, :update_expert]
     before_action :set_avis_and_dossier, only: [:show, :instruction, :avis_list, :avis_new, :create_avis, :messagerie, :create_commentaire, :update, :telecharger_pjs]
     before_action :check_messaging_allowed, only: [:messagerie, :create_commentaire]
@@ -237,11 +237,15 @@ module Experts
 
     def redirect_if_no_sign_up_needed
       avis = Avis.find(params[:id])
+      submitted_token = params[:confirmation_token] || params.dig(:user, :confirmation_token)
 
       if current_expert.present?
         # an expert is authenticated ... lets see if it can view the dossier
         redirect_to expert_avis_url(avis.procedure, avis)
-      elsif avis.expert&.email == params[:email] && avis.expert.user.active?.present?
+      elsif avis.expert&.email == params[:email] &&
+            avis.expert.user.confirmation_token.present? &&
+            avis.expert.user.confirmation_token == submitted_token &&
+            avis.expert.user.active?
         # The expert already used the sign-in page to change their password: ask them to sign-in instead.
         redirect_to new_user_session_url
       end

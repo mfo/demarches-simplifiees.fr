@@ -615,14 +615,20 @@ describe Experts::AvisController, type: :controller do
     let(:procedure_id) { procedure.id }
 
     describe '#sign_up' do
+      let(:valid_confirmation_token) { "1234" }
+      let(:confirmation_token) { valid_confirmation_token }
+      before { avis.expert.user.update(confirmation_token: valid_confirmation_token) }
+
       subject do
-        get :sign_up, params: { id: avis.id, procedure_id:, email: avis.expert.email }
+        get :sign_up, params: { id: avis.id, procedure_id:, email: avis.expert.email, confirmation_token: }
       end
 
+      # Sécurité: l’état de révocation d’un avis ne doit pas être observable
+      # par un attaquant non authentifié (IDOR / information disclosure).
       context 'when the avis is revoked' do
         before { avis.update(revoked_at: Time.zone.now) }
 
-        it { is_expected.to redirect_to(root_path) }
+        it { is_expected.to have_http_status(:success) }
       end
 
       context 'when the expert hasn’t signed up yet' do
@@ -645,6 +651,14 @@ describe Experts::AvisController, type: :controller do
             before { sign_out(expert.user) }
 
             it { is_expected.to redirect_to new_user_session_url }
+
+            # Sécurité: sans confirmation_token valide, l’assignation d’un expert
+            # à un avis ne doit pas être observable par un attaquant.
+            context 'and no confirmation_token is provided' do
+              let(:confirmation_token) { nil }
+
+              it { is_expected.not_to redirect_to new_user_session_url }
+            end
           end
         end
 
@@ -686,10 +700,12 @@ describe Experts::AvisController, type: :controller do
       context 'when valid token is provided' do
         let(:confirmation_token) { valid_confirmation_token }
 
+        # Sécurité: l’état de révocation d’un avis ne doit pas être observable
+        # par un attaquant non authentifié (IDOR / information disclosure).
         context 'when the avis is revoked' do
           before { avis.update(revoked_at: Time.zone.now) }
 
-          it { is_expected.to redirect_to(root_path) }
+          it { is_expected.to redirect_to(expert_all_avis_path) }
         end
 
         context 'when the expert hasn’t signed up yet' do
