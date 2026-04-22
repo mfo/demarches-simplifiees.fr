@@ -638,6 +638,7 @@ class EmailChecker
 
   def self.closest_domains(domain:)
     KNOWN_DOMAINS.filter do |known_domain|
+      next false if (known_domain.size - domain.size).abs > 2
       distance = String::Similarity.levenshtein_distance(domain, known_domain)
       distance == 1 || (distance == 2 && domain.chars.sort == known_domain.chars.sort)
     end
