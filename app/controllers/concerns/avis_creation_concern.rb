@@ -59,12 +59,6 @@ module AvisCreationConcern
   end
 
   def failed_emails_alert(failed_emails)
-    failed_emails.flat_map do |failed|
-      if failed[:email].blank?
-        failed[:messages]
-      else
-        "#{failed[:email]} : #{failed[:messages].join(', ')}"
-      end
-    end.join(' | ')
+    failed_emails.map { "#{it[:email]} : #{it[:messages].join(', ')}" }.join(' | ')
   end
 end
