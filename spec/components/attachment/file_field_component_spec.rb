@@ -108,7 +108,7 @@ RSpec.describe Attachment::FileFieldComponent, type: :component do
       let(:context) { Attachment::Context.new(champ:) }
 
       it 'does not render format info, only max size' do
-        expect(subject).to have_content(/Taille maximale autorisée/)
+        expect(subject).to have_content(/Taille maximale par fichier/)
         expect(subject).to have_no_content('Formats acceptés')
       end
     end

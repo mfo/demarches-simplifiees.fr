@@ -63,7 +63,7 @@ describe 'Piece justificative drag and drop', js: true do
       fill_individual
 
       within find('.editable-champ', text: 'Document') do
-        expect(page).to have_text('Taille maximale autorisée : 200 Mo')
+        expect(page).to have_text('Taille maximale par fichier : 200 Mo')
       end
     end
 
@@ -75,7 +75,7 @@ describe 'Piece justificative drag and drop', js: true do
       fill_individual
 
       within find('.editable-champ', text: 'Pièce d\'identité') do
-        expect(page).to have_text('Taille maximale autorisée : 20 Mo')
+        expect(page).to have_text('Taille maximale par fichier : 20 Mo')
         expect(page).to have_text(/Pièce attendue :.*Carte nationale.*passeport.*titre de séjour/i)
         expect(page).to have_text(/jpeg|png/i)
       end
