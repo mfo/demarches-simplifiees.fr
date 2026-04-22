@@ -13,9 +13,10 @@ import {
 } from 'react-aria-components';
 import type {
   SelectProps as AriaSelectProps,
+  AutocompleteProps,
   TagGroupProps
 } from 'react-aria-components';
-import { useState, useMemo, useRef, type Key } from 'react';
+import { useState, useMemo, useRef, useCallback, type Key } from 'react';
 import { flushSync } from 'react-dom';
 import * as s from 'superstruct';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -26,7 +27,11 @@ import {
   DropdownListBox as SelectListBox,
   DropdownItem as SelectItem
 } from './react-aria/components/ListBox';
-import { type Item, MultipleSelectProps } from './react-aria/props';
+import {
+  type Item,
+  SingleSelectProps,
+  MultipleSelectProps
+} from './react-aria/props';
 
 type SelectionMode = 'single' | 'multiple';
 type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
@@ -34,18 +39,30 @@ type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
   M
 > & {
   items: Item[];
-  value: M extends 'single' ? string : string[];
+  value: M extends 'single' ? string | null : string[];
   labelId?: string;
   ariaLabelledbyPrefix?: string;
+  alwaysShowKey?: string;
 };
+type AutocompleteFilter = NonNullable<AutocompleteProps<Item>['filter']>;
 
 function Select<M extends SelectionMode = 'single'>({
   items,
   labelId,
   ariaLabelledbyPrefix,
+  alwaysShowKey,
   ...props
 }: SelectProps<M>) {
   const { contains } = useFilter({ sensitivity: 'base', numeric: true });
+  const filter = useCallback<AutocompleteFilter>(
+    (textValue, inputValue, node) => {
+      if (alwaysShowKey && node.value?.value == alwaysShowKey) {
+        return true;
+      }
+      return contains(textValue, inputValue);
+    },
+    [contains, alwaysShowKey]
+  );
 
   if (!props['aria-label'] && labelId && ariaLabelledbyPrefix) {
     props['aria-labelledby'] = `${ariaLabelledbyPrefix} ${labelId}`;
@@ -54,7 +71,7 @@ function Select<M extends SelectionMode = 'single'>({
   return (
     <AriaSelect {...props}>
       {props.selectionMode == 'single' ? (
-        <Button className="react-aria-Select fr-select">
+        <Button className="fr-select">
           <SelectValue />
         </Button>
       ) : (
@@ -64,7 +81,7 @@ function Select<M extends SelectionMode = 'single'>({
         className="react-aria-Popover select-popover"
         style={{ display: 'flex', flexDirection: 'column' }}
       >
-        <Autocomplete<Item> filter={contains}>
+        <Autocomplete<Item> filter={filter}>
           <SearchField autoFocus style={{ margin: 4 }} />
           <Virtualizer layout={ListLayout}>
             <SelectListBox items={items}>
@@ -82,13 +99,15 @@ function MultipleSelectValue() {
     <SelectValue<Item>>
       {({ selectedItems, state, defaultChildren }) => (
         <>
-          <Button className="react-aria-Select fr-select">
-            <Plural
-              value={selectedItems.length}
-              _0={defaultChildren}
-              one="1 choix sélectionné"
-              other="# choix sélectionnés"
-            />
+          <Button className="fr-select">
+            <span className="react-aria-SelectValue" data-placeholder>
+              <Plural
+                value={selectedItems.length}
+                _0={defaultChildren}
+                one="1 choix sélectionné"
+                other="# choix sélectionnés"
+              />
+            </span>
           </Button>
           <TagGroup
             items={selectedItems.filter((item) => item != null)}
@@ -101,6 +120,42 @@ function MultipleSelectValue() {
         </>
       )}
     </SelectValue>
+  );
+}
+
+export function SingleSelect(maybeProps: SelectProps<'single'>) {
+  const {
+    value: initialValue,
+    className,
+    ...props
+  } = useMemo(() => s.create(maybeProps, SingleSelectProps), [maybeProps]);
+  const [value, setValue] = useState<string | null>(() => initialValue);
+  const changeDispatchRef = useRef<HTMLInputElement>(null);
+
+  const dispatchChange = () => {
+    changeDispatchRef.current?.dispatchEvent(
+      new Event('change', { bubbles: true })
+    );
+  };
+
+  const onChange = (key: Key | null) => {
+    flushSync(() => {
+      setValue(key ? String(key) : null);
+    });
+    dispatchChange();
+  };
+
+  return (
+    <>
+      <Select
+        className={`fr-ds-select_single react-aria-Select ${className ?? ''}`}
+        selectionMode="single"
+        value={value}
+        onChange={onChange}
+        {...props}
+      />
+      <input ref={changeDispatchRef} type="hidden" />
+    </>
   );
 }
 
