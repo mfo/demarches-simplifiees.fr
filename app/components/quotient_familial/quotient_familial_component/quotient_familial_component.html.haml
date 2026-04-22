@@ -3,4 +3,4 @@
     - c.with_header do
       = render Dsfr::AlertComponent.new(state: :info, with_prefix: false, extra_class_names: 'fr-mb-2w clearfix') do |c|
         - c.with_body do
-          = t('.external_champ.header')
+          = data.present? ? t('.external_champ.header') : t('.external_champ.waiting_banner')

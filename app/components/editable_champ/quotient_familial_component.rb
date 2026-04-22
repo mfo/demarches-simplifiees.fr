@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EditableChamp::QuotientFamilialComponent < EditableChamp::EditableChampBaseComponent
-  delegate :fetched?, :fc_data_incorrect?, :fc_data_approved?, to: :@champ
+  delegate :fetched?, :fc_data_incorrect?, :fc_data_approved?, :waiting_for_job?, :fetching?, :idle?, :external_error?, to: :@champ
 
   def for_preview?
     @champ.dossier.for_procedure_preview?
@@ -10,13 +10,13 @@ class EditableChamp::QuotientFamilialComponent < EditableChamp::EditableChampBas
   def render_external_champ?
     return render_external_champ_preview? if for_preview?
 
-    fetched?
+    waiting_for_job? || fetching? || fetched?
   end
 
   def render_piece_justificative_champ?
     return render_piece_justificative_champ_preview? if for_preview?
 
-    !fetched? || fc_data_incorrect?
+    idle? || external_error? || fc_data_incorrect?
   end
 
   def render_data_incorrect_callout?
@@ -33,7 +33,7 @@ class EditableChamp::QuotientFamilialComponent < EditableChamp::EditableChampBas
         )
       )
     else
-      @champ.value_json['api_part']
+      @champ.value_json&.dig('api_part')
     end
   end
 
