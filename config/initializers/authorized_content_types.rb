@@ -77,6 +77,7 @@ AUTHORIZED_CONTENT_TYPES = PROCESSABLE_TYPES + AUTHORIZED_SPREADSHEET_TYPES + [
   'application/vnd.oasis.opendocument.text', # text x 46229
   'application/msword', # text x 30167
   'text/plain', # text x 24477
+  'text/markdown', # text .md
   'application/vnd.openxmlformats-officedocument.presentationml.presentation', # text x 3231
   'application/rtf', # text x 1438
   'application/vnd.apple.pages', # text x 609
@@ -110,6 +111,7 @@ FORMAT_FAMILIES = {
     'application/vnd.oasis.opendocument.text',
     'application/msword',
     'text/plain',
+    'text/markdown',
     'application/rtf',
     'application/vnd.apple.pages',
   ],
