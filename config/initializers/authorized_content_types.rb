@@ -28,6 +28,7 @@ AUTHORIZED_SPREADSHEET_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.oasis.opendocument.spreadsheet',
   'application/vnd.ms-excel.sheet.macroenabled.12',
+  'application/vnd.ms-excel.sheet.macroEnabled.12', # .xlsm (variante sensible à la casse renvoyée par MiniMime)
   'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
   'application/vnd.ms-excel.sheet.binary.macroenabled.12',
   'application/vnd.oasis.opendocument.spreadsheet-template',
