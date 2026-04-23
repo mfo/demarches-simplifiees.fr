@@ -23,7 +23,9 @@
             <div class="fr-col-12 fr-col-lg-5">
               <%= render partial: 'shared/france_connect_login', locals: { url: commencer_france_connect_path(path: @procedure.path, prefill_token: @prefilled_dossier&.prefill_token), heading_level: :h3 } %>
 
-              <%# = render ProConnectLoginComponent.new(url: commencer_pro_connect_path(path: @procedure.path, prefill_token: @prefilled_dossier&.prefill_token), heading_level: :h3, title: t('views.shared.france_connect_login.commencer_pc_title')) %>
+              <%- if @procedure.pro_connect_for_moral_procedure? -%>
+                <%= render ProConnectLoginComponent.new(url: commencer_pro_connect_path(path: @procedure.path, prefill_token: @prefilled_dossier&.prefill_token), heading_level: :h3, title: t('views.shared.france_connect_login.commencer_pc_title')) %>
+              <%- end -%>
             </div>
 
             <div class="fr-hidden fr-unhidden-lg fr-col-lg-1">
