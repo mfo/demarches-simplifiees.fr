@@ -328,7 +328,7 @@ GEM
       i18n (>= 0.7)
       multi_json
       request_store (>= 1.0)
-    graphql (2.5.4)
+    graphql (2.5.23)
       base64
       fiber-storage
       logger
