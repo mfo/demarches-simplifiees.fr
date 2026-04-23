@@ -8,7 +8,10 @@ describe 'users/sessions/new', type: :view do
 
   before do
     assign(:user, User.new)
+    params[:with_proconnect] = with_proconnect if with_proconnect
   end
+
+  let(:with_proconnect) { nil }
 
   context 'when FranceConnect and ProConnect are enabled' do
     before do
@@ -27,8 +30,16 @@ describe 'users/sessions/new', type: :view do
       expect(rendered).to have_css('.france-connect-login')
     end
 
-    xit 'renders ProConnect login button' do
-      expect(rendered).to have_css('.pro-connect-login')
+    it 'does not render ProConnect login button by default' do
+      expect(rendered).not_to have_css('.pro-connect-login')
+    end
+
+    context 'when with_proconnect query param is present' do
+      let(:with_proconnect) { 'true' }
+
+      it 'renders ProConnect login button' do
+        expect(rendered).to have_css('.pro-connect-login')
+      end
     end
   end
 
