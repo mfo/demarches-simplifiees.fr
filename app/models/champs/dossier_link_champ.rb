@@ -8,8 +8,11 @@ class Champs::DossierLinkChamp < Champ
   private
 
   def dossier_exists
-    if !Dossier.exists?(value)
+    linked_dossier = Dossier.find_by(id: value)
+    if linked_dossier.nil? && !DeletedDossier.exists?(dossier_id: value)
       errors.add(:value, :not_found)
+    elsif linked_dossier&.brouillon?
+      errors.add(:value, :brouillon_not_allowed)
     end
   end
 
@@ -20,7 +23,10 @@ class Champs::DossierLinkChamp < Champ
     allowed_ids = type_de_champ.dossier_link_procedure_ids
     return if allowed_ids.empty?
 
-    if !Dossier.joins(:revision).exists?(id: value, user: dossier.user, procedure_revisions: { procedure_id: allowed_ids })
+    dossier_matches = Dossier.joins(:revision).exists?(id: value, user: dossier.user, procedure_revisions: { procedure_id: allowed_ids })
+    deleted_dossier_matches = DeletedDossier.exists?(dossier_id: value, user_id: dossier.user_id, procedure_id: allowed_ids)
+
+    if !dossier_matches && !deleted_dossier_matches
       errors.add(:value, :not_in_allowed_procedures)
     end
   end
