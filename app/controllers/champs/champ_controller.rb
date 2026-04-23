@@ -19,6 +19,7 @@ class Champs::ChampController < ApplicationController
     dossier.with_update_stream(current_user) if type_de_champ.public?
 
     if type_de_champ.repetition?
+      DossierPreloader.load_one(dossier, pj_template: true)
       dossier.project_champ(type_de_champ)
     else
       dossier.champ_for_update(type_de_champ, row_id: params_row_id, updated_by: current_user.email)
