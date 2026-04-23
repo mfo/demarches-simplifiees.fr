@@ -1891,6 +1891,37 @@ describe Procedure do
     end
   end
 
+  describe 'enable_pro_connect_for_moral_procedure callback' do
+    context 'when creating a procedure for moral persons' do
+      let(:procedure) { create(:procedure, for_individual: false) }
+
+      it 'enables pro_connect_for_moral_procedure' do
+        expect(procedure.pro_connect_for_moral_procedure).to be true
+      end
+    end
+
+    context 'when creating a procedure for individuals' do
+      let(:procedure) { create(:procedure, for_individual: true) }
+
+      it 'does not enable pro_connect_for_moral_procedure' do
+        expect(procedure.pro_connect_for_moral_procedure).to be false
+      end
+    end
+
+    context 'when updating an existing moral procedure with the flag disabled' do
+      let(:procedure) { create(:procedure, for_individual: false) }
+
+      before do
+        procedure.update_column(:pro_connect_for_moral_procedure, false)
+      end
+
+      it 'does not re-enable the flag on update' do
+        procedure.update!(libelle: 'new libelle')
+        expect(procedure.reload.pro_connect_for_moral_procedure).to be false
+      end
+    end
+  end
+
   describe '#enable_pro_connect_restriction!' do
     let(:procedure) { create(:procedure, opendata: true, robots_indexable: true) }
 

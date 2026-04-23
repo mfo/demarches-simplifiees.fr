@@ -80,6 +80,7 @@ module ProcedureCloneConcern
     'api_particulier_token',
     'no_gender',
     'pro_connect_restriction',
+    'pro_connect_for_moral_procedure',
     'robots_indexable',
     'admin_default_procedure_presentation_active',
     'admin_default_procedure_presentation_id',
