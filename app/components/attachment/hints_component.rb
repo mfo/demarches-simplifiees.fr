@@ -7,11 +7,12 @@ class Attachment::HintsComponent < ApplicationComponent
 
   delegate :max_file_size, :allowed_extensions, to: :validation
 
-  def initialize(champ:, attached_file: nil, show_identity_hint: false, html_id: nil)
+  def initialize(champ:, attached_file: nil, show_identity_hint: false, html_id: nil, max: nil)
     @champ = champ
     @attached_file = attached_file
     @show_identity_hint = show_identity_hint
     @html_id = html_id
+    @max = max
   end
 
   def validation

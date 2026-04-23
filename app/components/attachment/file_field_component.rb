@@ -93,7 +93,8 @@ class Attachment::FileFieldComponent < ApplicationComponent
       champ:,
       attached_file:,
       show_identity_hint: champ&.titre_identite?,
-      html_id: describedby_hint_id
+      html_id: describedby_hint_id,
+      max: @max
     )
   end
 
