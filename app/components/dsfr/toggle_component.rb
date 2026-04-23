@@ -26,25 +26,20 @@ class Dsfr::ToggleComponent < ApplicationComponent
   private
 
   def check_box_options
-    opts = { class: 'fr-toggle__input', id: label_for, disabled: disabled }
+    opts = { class: 'fr-toggle__input', disabled: disabled }
+    opts[:id] = input_id if @form.object.present?
     opts[:checked] = @checked unless @checked.nil?
     opts
   end
 
-  def label_for
-    return input_id if @form.object.present?
-
-    return "#{@form.options[:namespace]}_#{target}" if @form.options[:namespace].present?
-
-    target.to_s
+  def label_options
+    opts = { data: label_data, class: 'fr-toggle__label' }
+    opts[:for] = input_id if @form.object.present?
+    opts
   end
 
   def input_id
-    if @form.object.present?
-      dom_id(@form.object, target)
-    else
-      target.to_s
-    end
+    dom_id(@form.object, target)
   end
 
   def label_data
