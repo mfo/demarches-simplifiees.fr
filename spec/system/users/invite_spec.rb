@@ -133,6 +133,23 @@ describe 'Invitations' do
       expect(page).to have_button('Vérifier le dossier', disabled: true)
       expect(page).to have_button('Prévenir le titulaire de vos modifications', disabled: true)
     end
+
+    scenario 'opening invite modal after session expired redirects to sign in then back to dossier', js: true do
+      log_in(owner)
+      navigate_to_brouillon(dossier)
+
+      # Simulate session expiration (e.g. logged out in another tab, or iOS bfcache)
+      logout(:user)
+
+      click_on "Inviter une personne à modifier ce dossier"
+
+      expect(page).to have_current_path(new_user_session_path, ignore_query: true)
+
+      # After signing in, the user must come back to the dossier page,
+      # not to the orphaned invites modal fragment URL.
+      sign_in_with(owner.email, owner.password)
+      expect(page).to have_current_path(brouillon_dossier_path(dossier))
+    end
   end
 
   context 'when the dossier is en_construction' do
