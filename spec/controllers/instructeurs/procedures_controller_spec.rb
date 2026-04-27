@@ -556,22 +556,28 @@ describe Instructeurs::ProceduresController, type: :controller do
 
         context 'with generated export' do
           render_views
+          let(:exports_seen_at) { nil }
+          let(:legacy_cookie_seen_at) { nil }
+
           before do
             create(:export, :generated, groupe_instructeurs: [gi_2], updated_at: 1.minute.ago)
 
             if exports_seen_at
-              cookies.encrypted["exports_#{procedure.id}_seen_at"] = exports_seen_at.to_datetime.to_s
+              create(:instructeurs_procedure, instructeur:, procedure:, last_export_seen_at: exports_seen_at)
+            end
+
+            if legacy_cookie_seen_at
+              cookies.encrypted["exports_#{procedure.id}_seen_at"] = legacy_cookie_seen_at.to_datetime.to_s
             end
 
             subject
           end
 
-          context 'without cookie' do
-            let(:exports_seen_at) { nil }
+          context 'without instructeur_procedure record' do
             it { expect(assigns(:has_export_notification)).to be(true) }
           end
 
-          context 'with cookie in past' do
+          context 'with last_export_seen_at in the past' do
             let(:exports_seen_at) { 1.hour.ago }
             it do
               expect(assigns(:has_export_notification)).to be(true)
@@ -579,8 +585,13 @@ describe Instructeurs::ProceduresController, type: :controller do
             end
           end
 
-          context 'with cookie set after last generated export' do
+          context 'with last_export_seen_at after the last generated export' do
             let(:exports_seen_at) { 10.seconds.ago }
+            it { expect(assigns(:has_export_notification)).to be(false) }
+          end
+
+          context 'with legacy cookie fallback after the last generated export' do
+            let(:legacy_cookie_seen_at) { 10.seconds.ago }
             it { expect(assigns(:has_export_notification)).to be(false) }
           end
         end
@@ -1123,6 +1134,13 @@ describe Instructeurs::ProceduresController, type: :controller do
     context 'when logged in through super admin' do
       let(:manager) { true }
       it { is_expected.to have_http_status(:forbidden) }
+    end
+
+    it 'records last_export_seen_at on the instructeur_procedure' do
+      freeze_time do
+        subject
+        expect(InstructeursProcedure.find_by(instructeur:, procedure:).last_export_seen_at).to eq(Time.current)
+      end
     end
   end
 

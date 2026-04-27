@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_27_100611) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -887,6 +887,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
     t.boolean "instant_email_new_expert_avis", default: false, null: false
     t.boolean "instant_email_new_message", default: false, null: false
     t.bigint "instructeur_id", null: false
+    t.datetime "last_export_seen_at"
     t.bigint "last_revision_seen_id"
     t.integer "position", null: false
     t.bigint "procedure_id", null: false
