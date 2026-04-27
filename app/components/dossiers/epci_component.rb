@@ -11,13 +11,17 @@ class Dossiers::EpciComponent < ApplicationComponent
     render Dossiers::ExternalChampComponent.new(data:, source:)
   end
 
+  def self.data_labels
+    [I18n.t('shared.dossiers.geo.department'), I18n.t('shared.dossiers.geo.region_code')]
+  end
+
   private
 
   def data
     [
       ['EPCI', name],
-      ['Département', champ.departement_code_and_name],
-      ['Code région', champ.code_region],
+      [I18n.t('shared.dossiers.geo.department'), champ.departement_code_and_name],
+      [I18n.t('shared.dossiers.geo.region_code'), champ.code_region],
     ]
   end
 

@@ -42,6 +42,10 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
+  def info_columns(procedure:)
+    Dossiers::DepartementComponent.data_labels
+  end
+
   private
 
   def paths

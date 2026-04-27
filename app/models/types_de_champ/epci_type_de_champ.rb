@@ -29,6 +29,10 @@ class TypesDeChamp::EpciTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
+  def info_columns(procedure:)
+    Dossiers::EpciComponent.data_labels
+  end
+
   private
 
   def paths

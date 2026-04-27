@@ -138,6 +138,7 @@ ignore_unused:
 - 'clipboard.copy_procedure_link'
 - 'links.main_navigation.doc.expert_title'
 - 'links.main_navigation.doc.instructeur_title'
+- 'shared.dossiers.geo.*'
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
 # - 'simple_form.{placeholders,hints,labels}.*'

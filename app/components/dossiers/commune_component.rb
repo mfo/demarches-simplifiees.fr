@@ -15,7 +15,8 @@ class Dossiers::CommuneComponent < ApplicationComponent
     [
       t('.municipality'),
       t('.insee_code'),
-      t('.department'),
+      I18n.t('shared.dossiers.geo.department'),
+      I18n.t('shared.dossiers.geo.region_code'),
     ]
   end
 
@@ -25,7 +26,8 @@ class Dossiers::CommuneComponent < ApplicationComponent
     [
       [t('.municipality'), champ.to_s],
       [t('.insee_code'), champ.code],
-      [t('.department'), champ.departement_code_and_name],
+      [I18n.t('shared.dossiers.geo.department'), champ.departement_code_and_name],
+      [I18n.t('shared.dossiers.geo.region_code'), champ.code_region],
     ]
   end
 

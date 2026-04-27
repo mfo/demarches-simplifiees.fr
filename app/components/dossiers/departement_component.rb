@@ -11,10 +11,17 @@ class Dossiers::DepartementComponent < ApplicationComponent
     render Dossiers::ExternalChampComponent.new(data:, source:)
   end
 
+  def self.data_labels
+    [I18n.t('shared.dossiers.geo.region_code')]
+  end
+
   private
 
   def data
-    [['Département', champ.to_s], ['Code région', champ.code_region]]
+    [
+      [I18n.t('shared.dossiers.geo.department'), champ.to_s],
+      [I18n.t('shared.dossiers.geo.region_code'), champ.code_region],
+    ]
   end
 
   def source = "référentiels géographiques nationaux"
