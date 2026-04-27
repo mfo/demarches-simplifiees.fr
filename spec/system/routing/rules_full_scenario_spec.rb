@@ -144,7 +144,7 @@ describe 'The routing with rules', js: true do
     expect(procedure.groupe_instructeurs.count).to eq(4)
 
     # add contact_information to all groupes instructeur
-    procedure.groupe_instructeurs.each { |gi| gi.update!(contact_information: create(:contact_information)) }
+    procedure.groupe_instructeurs.each { |gi| gi.update!(contact_information: create(:contact_information, nom: "Contact #{gi.label}")) }
 
     # publish
     publish_procedure(procedure)
@@ -184,7 +184,9 @@ describe 'The routing with rules', js: true do
     log_out
 
     # the scientifiques instructeurs only manage the scientifiques dossiers
-    register_instructeur_and_log_in(marie.email)
+    activate_instructeur(marie.email)
+    visit new_user_session_path
+    sign_in_with marie.user.email, password
     click_on(procedure.libelle, visible: true)
     expect(page).not_to have_text(litteraire_user.email)
     expect(page).to have_text(scientifique_user.email)
@@ -239,7 +241,9 @@ describe 'The routing with rules', js: true do
     log_out
 
     # the instructeurs who belong to scientifique AND litteraire groups manage scientifique and litteraire dossiers
-    register_instructeur_and_log_in(alain.email)
+    activate_instructeur(alain.email)
+    visit new_user_session_path
+    sign_in_with alain.user.email, password
     visit instructeur_procedure_path(procedure, statut: 'tous')
     expect(page).to have_text(litteraire_user.email)
     expect(page).to have_text(scientifique_user.email)
@@ -320,6 +324,12 @@ describe 'The routing with rules', js: true do
     click_on 'Déposer les modifications'
 
     log_out
+  end
+
+  def activate_instructeur(email)
+    user = User.find_by(email:)
+    user.update!(password: password)
+    user.instructeur.update!(bypass_email_login_token: true)
   end
 
   def register_instructeur_and_log_in(email)
