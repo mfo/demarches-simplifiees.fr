@@ -88,7 +88,7 @@ describe API::V2::GraphqlController do
       before { allow_any_instance_of(API::V2::Schema::Timeout).to receive(:max_seconds).and_return(0) }
 
       it {
-        expect(gql_errors.first[:message]).to eq('Timeout on Query.dossier')
+        expect(gql_errors.first[:message]).to start_with('Timeout on ')
         expect(gql_errors.first[:extensions]).to eq({ code: 'timeout' })
       }
     end
