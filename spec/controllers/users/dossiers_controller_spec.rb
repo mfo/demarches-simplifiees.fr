@@ -1505,6 +1505,58 @@ describe Users::DossiersController, type: :controller do
         expect { subject }.to have_enqueued_job(ChampFetchExternalDataJob)
       end
     end
+
+    context 'when the champ is an autocomplete with prefillable private champs' do
+      render_views
+      let(:datasource) { '$.data' }
+      let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, datasource:) }
+      let(:referentiel_stable_id) { 1 }
+      let(:types_de_champ_public) do
+        [
+          {
+            type: :referentiel,
+            referentiel: referentiel,
+            stable_id: referentiel_stable_id,
+            referentiel_mapping: {
+              "$.data[0].finess" => { prefill: "1", prefill_stable_id: 100 },
+            },
+          },
+        ]
+      end
+      let(:types_de_champ_private) do
+        [
+          {
+            type: :text,
+            stable_id: 100,
+          },
+        ]
+      end
+      let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
+      let(:suggestion_value) { 'osf' }
+      let(:suggestion_data) { { finess: "123" } }
+      let(:message_encryptor_service) { MessageEncryptorService.new }
+      let(:submit_payload) do
+        {
+          id: dossier.id,
+          dossier: {
+            champs_public_attributes: {
+              first_champ.public_id => {
+                value: suggestion_value,
+                data: message_encryptor_service.encrypt_and_sign(suggestion_data, purpose: :storage, expires_in: 1.hour),
+              },
+            },
+          },
+        }
+      end
+
+      it 'prefills the private annotation from the referentiel data' do
+        subject
+
+        dossier.reload
+        annotation = dossier.project_champs_private.find { it.stable_id == 100 }
+        expect(annotation.value).to eq(suggestion_data[:finess])
+      end
+    end
   end
 
   describe '#index' do
