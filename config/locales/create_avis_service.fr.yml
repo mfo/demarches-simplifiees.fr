@@ -1,0 +1,4 @@
+fr:
+  create_avis_service:
+    errors:
+      expert_not_allowed: "Cet expert n’est pas autorisé sur cette démarche. Demandez à un administrateur de l’y inviter."

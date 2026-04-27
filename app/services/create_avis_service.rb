@@ -13,9 +13,12 @@ class CreateAvisService
         claimant.follow(dossier)
       end
 
+      emails, restricted_emails = filter_restricted_emails(dossier.procedure, emails)
+
       # create experts
       users, invalids = emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
       failed_emails = invalids.map { { email: it.email, messages: it.errors.full_messages } }
+      failed_emails += restricted_emails.map { { email: it, messages: [I18n.t('create_avis_service.errors.expert_not_allowed')] } }
 
       # list all related dossiers
       dossiers = avis.invite_linked_dossiers.present? ? [dossier, *dossier.linked_dossiers_for(claimant)] : [dossier]
@@ -23,7 +26,7 @@ class CreateAvisService
       # create expert <-> procedure
       experts = users.map(&:expert)
       experts_procedures_h = dossiers.map(&:procedure).uniq
-        .flat_map { |procedure| experts.map { |expert| [[expert, procedure], safely_create_experts_procedure(expert, procedure)] } }
+        .flat_map { |procedure| experts.map { |expert| [[expert, procedure], ExpertsProcedure.find_or_create_by(procedure:, expert:)] } }
         .to_h
 
       # create avis on all related dossiers
@@ -71,6 +74,15 @@ class CreateAvisService
       end
 
       [sent_emails.uniq, failed_emails]
+    end
+
+    private
+
+    def filter_restricted_emails(procedure, emails)
+      return [emails, []] if !procedure.experts_require_administrateur_invitation?
+
+      allowed = Expert.autocomplete_mails(procedure).to_set
+      emails.partition { allowed.include?(it) }
     end
   end
 end
