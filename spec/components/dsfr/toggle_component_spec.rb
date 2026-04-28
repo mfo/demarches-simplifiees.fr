@@ -3,10 +3,10 @@
 require "rails_helper"
 
 RSpec.describe Dsfr::ToggleComponent, type: :component do
-  def render_with_form(**form_options)
+  def render_with_form(component_options: {}, **form_options)
     cmp = nil
     ActionView::Base.empty.form_with(**form_options) do |form|
-      cmp = described_class.new(form:, target: :include_archived, html_title: "Include archived")
+      cmp = described_class.new(form:, target: :include_archived, html_title: "Include archived", **component_options)
     end
     render_inline(cmp).to_html
   end
@@ -48,6 +48,19 @@ RSpec.describe Dsfr::ToggleComponent, type: :component do
     it "produces identical values for the input id and the label for attributes" do
       expect(extract_input_id(html)).to be_present
       expect(extract_input_id(html)).to eq(extract_label_for(html))
+    end
+  end
+
+  context "with opt: data attributes (used as Stimulus targets)" do
+    let(:html) do
+      render_with_form(
+        url: "/fake",
+        component_options: { opt: { "hide-target_target": "source" } }
+      )
+    end
+
+    it "renders the data attributes on the input element" do
+      expect(html).to match(/<input class="fr-toggle__input"[^>]*data-hide-target-target="source"/)
     end
   end
 
