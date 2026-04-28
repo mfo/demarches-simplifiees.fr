@@ -450,7 +450,15 @@ module Instructeurs
     end
 
     def export_template
-      @export_template ||= ExportTemplate.find(params[:export_template_id]) if params[:export_template_id].present?
+      return @export_template if defined?(@export_template)
+      return @export_template = nil if params[:export_template_id].blank?
+
+      template_id = params[:export_template_id].to_i
+      own = current_instructeur.export_templates_for(procedure).find { it.id == template_id }
+      @export_template = own || procedure.export_templates.shareable.find_by(id: template_id)
+      raise ActiveRecord::RecordNotFound if @export_template.nil?
+
+      @export_template
     end
 
     def export_options
