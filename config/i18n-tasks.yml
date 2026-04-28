@@ -99,6 +99,7 @@ search:
 ## Consider these keys used:
 ignore_unused:
 - 'errors.format'
+- 'user_mailer.*.subject'
 - 'activerecord.models.*'
 - 'activerecord.attributes.*'
 - 'activemodel.attributes.map_filter.*'
