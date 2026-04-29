@@ -5,7 +5,6 @@ class ApplicationController < ActionController::Base
   include NavBarProfileConcern
   include Pundit::Authorization
   include Devise::StoreLocationExtension
-  include MigrateCsrfToken
   include ApplicationController::ErrorHandling
   include ProConnectSessionConcern
 
