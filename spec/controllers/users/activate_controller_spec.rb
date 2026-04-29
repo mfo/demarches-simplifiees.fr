@@ -35,15 +35,37 @@ describe Users::ActivateController, type: :controller do
     context 'when the token is ok' do
       before { get :new, params: { token: token } }
 
-      it do
-        expect(user.reload.email_verified_at).to be_present
+      it 'does not silently mark the email as verified on GET' do
+        expect(user.reload.email_verified_at).to be_nil
       end
+
+      it { expect(controller).not_to have_received(:trust_device) }
     end
 
     context 'when the token is bad' do
       before { get :new, params: { token: 'bad' } }
 
       it { expect(controller).not_to have_received(:trust_device) }
+    end
+
+    context 'when the user is an instructeur and the token is valid (GET request)' do
+      let!(:user) { create(:instructeur).user }
+      let(:token) { user.send(:set_reset_password_token) }
+
+      # Override the parent stub so the real implementation runs and
+      # the cookie side-effect is observable.
+      before { allow(controller).to receive(:trust_device).and_call_original }
+
+      it 'does not set the trusted_device cookie' do
+        get :new, params: { token: token }
+
+        expect(cookies.encrypted[TrustedDeviceConcern::TRUSTED_DEVICE_COOKIE_NAME]).to be_nil
+      end
+
+      it 'does not silently mark the email as verified' do
+        expect { get :new, params: { token: token } }
+          .not_to change { user.reload.email_verified_at }
+      end
     end
   end
 
@@ -70,6 +92,8 @@ describe Users::ActivateController, type: :controller do
 
       it 'trusts the device' do
         expect(user.reload.valid_password?(password)).to be true
+        expect(controller).to have_received(:trust_device)
+        expect(user.reload.email_verified_at).to be_present
         expect(response).to redirect_to(root_path)
       end
     end
@@ -80,6 +104,7 @@ describe Users::ActivateController, type: :controller do
 
       it 'trusts the device because admin has an instructeur profile' do
         expect(user.reload.valid_password?(password)).to be true
+        expect(controller).to have_received(:trust_device)
         expect(response).to redirect_to(root_path)
       end
     end
