@@ -4,8 +4,15 @@ class TargetedUserLinksController < ApplicationController
   def show
     erase_user_location!
     store_user_location! if !user_signed_in?
+    # Resolve the target early so an unreachable target (e.g. invite whose dossier is hidden)
+    # surfaces the "expired link" page even for anonymous visitors.
+    targeted_user_link.target_email
     if targeted_user_link.invalid_signed_in_user?(current_user)
-      render
+      if !user_signed_in?
+        authenticate_user!
+      else
+        render
+      end
     else
       redirect_to targeted_user_link.redirect_url(Rails.application.routes.url_helpers, params.permit(:confirmation_token)["confirmation_token"])
     end

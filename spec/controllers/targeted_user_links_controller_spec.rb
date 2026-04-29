@@ -88,8 +88,9 @@ describe TargetedUserLinksController, type: :controller do
       context 'when invite user does not exists' do
         let(:user) { nil }
         before { get :show, params: { id: targeted_user_link.id } }
-        it 'works' do
-          expect(response).to redirect_to(invite_path(target_model, email: target_model.email))
+        it 'requires authentication before exposing the invite' do
+          expect(response).to redirect_to(new_user_session_path)
+          expect(controller.stored_location_for(:user)).to eq(controller.request.fullpath)
         end
       end
 
@@ -145,8 +146,9 @@ describe TargetedUserLinksController, type: :controller do
       context 'when invite user does not exists' do
         let(:user) { nil }
         before { get :show, params: { id: targeted_user_link.id } }
-        it 'works' do
-          expect(response).to redirect_to(invite_path(target_model, email: target_model.email))
+        it 'requires authentication before exposing the invite' do
+          expect(response).to redirect_to(new_user_session_path)
+          expect(controller.stored_location_for(:user)).to eq(controller.request.fullpath)
         end
       end
     end
@@ -158,6 +160,27 @@ describe TargetedUserLinksController, type: :controller do
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to be_present
         expect(flash[:error]).to match(/invitation n’est plus valable/)
+      end
+    end
+
+    context 'anonymous request to an invite-targeted link' do
+      let(:invite_email) { 'guest@example.com' }
+      let(:invite) { create(:invite, user: nil, email: invite_email) }
+      let!(:targeted_user_link) do
+        create(:targeted_user_link, target_context: 'invite', target_model: invite, user: nil)
+      end
+
+      subject(:anonymous_show) { get :show, params: { id: targeted_user_link.id } }
+
+      it 'does not redirect to the invite path with the invite email prefilled' do
+        anonymous_show
+        expect(response).not_to redirect_to(invite_path(invite, email: invite_email))
+      end
+
+      it 'requires authentication and stores the location for return after sign-in' do
+        anonymous_show
+        expect(response).to redirect_to(new_user_session_path)
+        expect(controller.stored_location_for(:user)).to eq(controller.request.fullpath)
       end
     end
   end
