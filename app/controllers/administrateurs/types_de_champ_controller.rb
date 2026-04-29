@@ -137,7 +137,7 @@ module Administrateurs
       type_de_champ.update!(referentiel_id: nil)
 
       @coordinate = draft.coordinate_for(type_de_champ)
-      @morphed = [champ_component_from(@coordinate)]
+      @morphed = champ_components_starting_at(@coordinate)
     end
 
     def import_referentiel
@@ -174,7 +174,7 @@ module Administrateurs
       end
 
       @coordinate = draft.coordinate_for(type_de_champ)
-      @morphed = [champ_component_from(@coordinate)]
+      @morphed = champ_components_starting_at(@coordinate)
     end
 
     private
