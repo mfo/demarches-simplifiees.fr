@@ -65,7 +65,7 @@ class FranceConnectService
   end
 
   # rubocop:disable DS/ApplicationName
-  ALLOWED_HOSTS = %w[demarche.numerique.gouv.fr demarches.numerique.gouv.fr www.demarches-simplifiees.fr].freeze
+  ALLOWED_HOSTS = %w[demarche.numerique.gouv.fr www.demarches-simplifiees.fr].freeze
   # rubocop:enable DS/ApplicationName
 
   def self.conf
