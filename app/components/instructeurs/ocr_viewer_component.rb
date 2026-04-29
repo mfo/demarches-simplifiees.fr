@@ -18,7 +18,7 @@ class Instructeurs::OCRViewerComponent < ApplicationComponent
       h.map { |k, v| [k, v || processing_error_message, copy: v.present?] }
 
     elsif doc.is_a?(JustificatifDomicile)
-      h = doc.attributes.slice('beneficiary', 'address', 'locality', 'postal_code', 'country', 'issue_date')
+      h = doc.attributes.slice('beneficiary', 'label', 'issue_date')
       h['issue_date'] = I18n.l(h['issue_date'], format: :short) if h['issue_date']
       h
     end

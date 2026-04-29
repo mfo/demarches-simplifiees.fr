@@ -19,3 +19,6 @@ en:
     valid: "Our system identified the IBAN %{iban}"
     valid_with_bank: "Our system identified the IBAN %{iban} - <b>%{bank_name}</b>"
     error: "An error occurred while parsing your document.<br>Ignore this message if you are confident about your file."
+    justif_domicile:
+      warning: "We were unable to verify the address contained in the supporting document.<br>Ignore this message if you are confident your file is correct."
+      valid_html: "Proof of residence in the name of <strong>%{beneficiary}</strong> (<strong>%{address}</strong>), issued on <strong>%{issue_date}</strong>."

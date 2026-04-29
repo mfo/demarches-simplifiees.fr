@@ -68,10 +68,7 @@ RSpec.describe Instructeurs::OCRViewerComponent, type: :component do
     let(:doc) do
       JustificatifDomicile.new(
         beneficiary: 'Jane Smith',
-        address: '123 Main St',
-        locality: 'Paris',
-        postal_code: '75001',
-        country: 'France',
+        label: 'a superbe address',
         issue_date: Date.new(2026, 1, 2),
         two_ddoc: true
       )
@@ -79,14 +76,8 @@ RSpec.describe Instructeurs::OCRViewerComponent, type: :component do
 
     it 'renders justificatif domicile data' do
       expect(subject).to have_css('.champ-content', text: 'Jane Smith')
-      expect(subject).to have_css('.champ-content', text: '123 Main St')
-      expect(subject).to have_css('.champ-content', text: 'Paris')
-      expect(subject).to have_css('.champ-content', text: '75001')
-      expect(subject).to have_css('.champ-content', text: 'France')
+      expect(subject).to have_css('.champ-content', text: 'a superbe address')
       expect(subject).to have_css('.champ-content', text: I18n.l(Date.new(2026, 1, 2), format: :short))
-    end
-
-    it 'shows 2D-Doc source' do
       expect(subject).to have_css('acronym', text: '2D-Doc')
     end
 
@@ -94,10 +85,7 @@ RSpec.describe Instructeurs::OCRViewerComponent, type: :component do
       let(:doc) do
         JustificatifDomicile.new(
           beneficiary: 'Jane Smith',
-          address: '123 Main St',
-          locality: 'Paris',
-          postal_code: '75001',
-          country: 'France',
+          label: 'a superbe address',
           two_ddoc: true
         )
       end
