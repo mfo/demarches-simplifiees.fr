@@ -39,6 +39,7 @@ module Administrateurs
     def edit
       @service = service
       @procedure = procedure
+      @other_procedures = @service.procedures.where.not(id: @procedure.id).order(:id)
     end
 
     def update

@@ -16,14 +16,16 @@
   %h1.fr-h2
     Modifier le service
 
-  - other_services = @service.procedures.reject {|procedure| procedure.id == @procedure.id }
-  - if other_services.count > 1
-    = render Dsfr::AlertComponent.new(state: :warning, title: "Modifier ce service impactera la ou les démarches qui sont rattachée/s", extra_class_names: 'fr-mb-3w') do |c|
+  - if @other_procedures.any?
+    = render Dsfr::AlertComponent.new(state: :warning, title: "Modifier ce service impactera également les démarches suivantes", extra_class_names: 'fr-mb-3w') do |c|
       - c.with_body do
         %ul
-          - other_services.each do |proc|
-            %li= "#{proc.libelle} (N° #{proc.id})"
-        %p.fr-mt-6v Si vous souhaitez modifier uniquement les informations pour ce service, créez un nouveau service puis associez-le à la démarche
+          - @other_procedures.each do |proc|
+            %li= procedure_libelle_with_number(proc)
+        %p.fr-mt-6v
+          Si vous souhaitez modifier uniquement les informations pour cette démarche,
+          = link_to "créez un nouveau service", new_admin_service_path(procedure_id: @procedure.id)
+          puis associez-le à la démarche.
 
   = render partial: 'form',
     locals: { service: @service, procedure: @procedure }
