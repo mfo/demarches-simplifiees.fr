@@ -203,7 +203,7 @@ module Instructeurs
 
       @statut_with_notifications = DossierNotification.notifications_sticker_for_instructeur_procedure(groupe_instructeur_ids, current_instructeur)
       @notifications = DossierNotification.notifications_for_instructeur_dossiers(current_instructeur, @filtered_sorted_paginated_ids)
-      @has_export_notification = notify_exports?
+      @has_export_notification = notify_exports?(@instructeur_procedure)
       @has_unseen_revision_notification = notify_unseen_revisions?(@instructeur_procedure)
 
       cache_show_procedure_state # don't move in callback, inherited by Instructeurs::DossiersController
@@ -313,12 +313,7 @@ module Instructeurs
     def exports
       @procedure = procedure
       @exports = Export.for_groupe_instructeurs(groupe_instructeur_ids).ante_chronological
-      cookies.encrypted[cookies_export_key] = {
-        value: DateTime.current,
-        expires: Export::MAX_DUREE_GENERATION + Export::MAX_DUREE_CONSERVATION_EXPORT,
-        httponly: true,
-        secure: Rails.env.production?,
-      }
+      find_or_create_instructeur_procedure(@procedure).update!(last_export_seen_at: Time.current)
 
       respond_to do |format|
         format.turbo_stream
@@ -528,17 +523,19 @@ module Instructeurs
       params.require(:bulk_message).permit(:body)
     end
 
-    def notify_exports?
-      last_seen_at = begin
-                       DateTime.parse(cookies.encrypted[cookies_export_key])
-                     rescue
-                       nil
-                     end
-
+    def notify_exports?(instructeur_procedure)
       scope = Export.generated.for_groupe_instructeurs(groupe_instructeur_ids)
+      # TODO: remove legacy cookie support once deployed (Export retention is 48h)
+      last_seen_at = instructeur_procedure.last_export_seen_at || legacy_cookie_export_seen_at
       scope = scope.where(updated_at: last_seen_at...) if last_seen_at
 
       scope.exists?
+    end
+
+    def legacy_cookie_export_seen_at
+      DateTime.parse(cookies.encrypted["exports_#{@procedure.id}_seen_at"])
+    rescue
+      nil
     end
 
     def notify_unseen_revisions?(instructeur_procedure)
@@ -551,10 +548,6 @@ module Instructeurs
 
     def last_export_for(statut)
       Export.where(user_profile: current_instructeur, statut: statut, updated_at: 1.hour.ago..).last
-    end
-
-    def cookies_export_key
-      "exports_#{@procedure.id}_seen_at"
     end
 
     def ordered_procedure_ids_params
