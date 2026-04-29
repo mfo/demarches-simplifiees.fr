@@ -12,6 +12,10 @@ class EditableChamp::ChampLabelContentComponent < ApplicationComponent
     @attribute = :value
   end
 
+  def render_libelle?
+    !@champ.france_connect?
+  end
+
   def highlight_if_unseen_class
     if highlight?
       'highlighted'

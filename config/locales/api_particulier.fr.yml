@@ -2,5 +2,5 @@ fr:
   api_particulier:
     libelle:
       quotient_familial:
-        fc_data_incorrect: Justificatif de quotient familial
+        piece_justificative: Justificatif de quotient familial
         default: Quotient familial
