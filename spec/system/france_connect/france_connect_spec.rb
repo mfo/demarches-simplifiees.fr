@@ -121,7 +121,7 @@ describe 'FranceConnect Connexion' do
             context 'and the user wants an email that belongs to another account', js: true do
               let!(:another_user) { create(:user, email: 'an_existing_email@a.com', password: SECURE_PASSWORD) }
 
-              scenario 'it uses another email that belongs to another account' do
+              scenario 'it asks for the existing account password before sending the confirmation email' do
                 find('label[for="it-is-not-mine"]').click
 
                 expect(page).to have_css('.new-account', visible: true)
@@ -131,7 +131,30 @@ describe 'FranceConnect Connexion' do
                   click_on 'Utiliser cette adresse électronique'
                 end
 
+                expect(page).to have_content('Confirmer l’association à votre compte')
+
+                fill_in 'Mot de passe', with: SECURE_PASSWORD
+                click_on 'Confirmer'
+
                 expect(page).to have_content('Nous venons de vous envoyer le mail de confirmation')
+              end
+
+              scenario 'it refuses to send the email when the password is wrong' do
+                find('label[for="it-is-not-mine"]').click
+
+                expect(page).to have_css('.new-account', visible: true)
+
+                within '.new-account' do
+                  fill_in 'email', with: 'an_existing_email@a.com'
+                  click_on 'Utiliser cette adresse électronique'
+                end
+
+                expect(page).to have_content('Confirmer l’association à votre compte')
+
+                fill_in 'Mot de passe', with: 'wrong_password'
+                click_on 'Confirmer'
+
+                expect(page).to have_content('Mot de passe incorrect')
               end
             end
           end

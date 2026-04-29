@@ -63,6 +63,21 @@ class FranceConnectController < ApplicationController
   end
 
   def send_email_merge_request
+    user = User.find_by(email: sanitized_email_params)
+
+    if user.present?
+      if params[:password].blank?
+        @merge_email = sanitized_email_params
+        return render :confirm_email_merge_password
+      end
+
+      if !user.valid_for_authentication? { user.valid_password?(params[:password]) }
+        flash.now[:alert] = t('france_connect.flash.invalid_password')
+        @merge_email = sanitized_email_params
+        return render :confirm_email_merge_password
+      end
+    end
+
     @fci.update(requested_email: sanitized_email_params)
 
     @fci.create_email_merge_token!
