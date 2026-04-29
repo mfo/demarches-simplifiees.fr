@@ -376,6 +376,46 @@ describe Users::DossiersController, type: :controller do
         end
       end
     end
+
+    context 'when a for_tiers dossier is updated with an arbitrary email' do
+      let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
+      let(:dossier) { create(:dossier, :for_tiers_without_notification, state: 'brouillon', user: user, procedure: procedure) }
+      let(:other_email) { 'beneficiaire@example.com' }
+      let(:dossier_params) do
+        {
+          for_tiers: 'true',
+          individual_attributes: { gender: 'M', nom: 'Mouse', prenom: 'Mickey', email: other_email, notification_method: 'email' },
+        }
+      end
+
+      it 'does not create a pre-confirmed account for the submitted email' do
+        subject
+        created_user = User.find_by(email: other_email)
+        # The submitted email is third-party data: the resulting account must
+        # not be considered email-verified or confirmed before the owner acts.
+        expect(created_user).to be_present
+        expect(created_user.email_verified_at).to be_nil
+        expect(created_user.confirmed?).to be false
+      end
+
+      context 'when an unverified user already exists for the submitted email' do
+        let!(:existing_user) do
+          create(:user,
+            email: other_email,
+            confirmation_token: 'existing-token',
+            confirmation_sent_at: 2.hours.ago,
+            confirmed_at: nil)
+        end
+
+        it 'does not overwrite the existing confirmation_token' do
+          expect { subject }.not_to change { existing_user.reload.confirmation_token }
+        end
+
+        it 'does not send a new invite_tiers email to the existing user' do
+          expect { subject }.not_to have_enqueued_mail(UserMailer, :invite_tiers)
+        end
+      end
+    end
   end
 
   describe '#siret' do
