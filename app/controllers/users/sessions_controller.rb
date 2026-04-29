@@ -95,6 +95,10 @@ class Users::SessionsController < Devise::SessionsController
       flash[:alert] = 'Votre lien est invalide.'
 
       redirect_to root_path
+    elsif instructeur_signed_in? && current_user != instructeur.user
+      flash[:alert] = 'Votre lien est invalide.'
+
+      redirect_to root_path
     elsif trusted_device_token.token_valid?
       trust_device(trusted_device_token.created_at, trusted_device_token)
 
