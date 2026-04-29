@@ -42,6 +42,6 @@
                     method: :delete,
                     data: { confirm: "Confirmez vous la suppression de #{service.nom}" },
                     class: 'fr-btn fr-btn--sm fr-btn--secondary fr-btn--icon-left fr-icon-delete-line',
-                    disabled: (@procedure.service == service)
+                    disabled: (@procedure.service == service || service.administrateur_id != current_administrateur.id)
 
 = render Procedure::FixedFooterComponent.new(procedure: @procedure)

@@ -332,6 +332,20 @@ describe Administrateurs::ServicesController, type: :controller do
         expect(procedure.reload.service_id).to be_nil
       end
     end
+
+    context 'when a co-administrateur tries to destroy a shared service owned by another admin' do
+      let(:other_admin) { create(:administrateur) }
+      let!(:service) { create(:service, administrateur: other_admin) }
+      let!(:procedure) { create(:procedure, administrateurs: [other_admin, admin]) }
+
+      before { sign_in(admin.user) }
+
+      it 'forbids the destruction even if no procedure references the service' do
+        expect { delete :destroy, params: { id: service.id, procedure_id: procedure.id } }
+          .to raise_error(ActiveRecord::RecordNotFound)
+        expect { service.reload }.not_to raise_error
+      end
+    end
   end
 
   describe "#index" do
@@ -362,6 +376,22 @@ describe Administrateurs::ServicesController, type: :controller do
         expect(procedure.service).to be nil
         expect(flash.alert.first).to eq "Certaines de vos démarches n’ont pas de service associé."
         expect(flash.alert.last).to include "démarche #{procedure.id}"
+      end
+    end
+
+    context 'when listing services on a procedure shared with a co-administrateur' do
+      render_views
+
+      let(:other_admin) { create(:administrateur) }
+      let!(:foreign_service) { create(:service, administrateur: other_admin) }
+      let!(:procedure) { create(:procedure, administrateurs: [other_admin, admin], service: foreign_service) }
+
+      it 'disables the destroy button for services not owned by the current administrateur' do
+        get :index, params: { procedure_id: procedure.id }
+
+        destroy_form = response.parsed_body
+          .css("form[action='#{admin_service_path(foreign_service, procedure_id: procedure.id)}'][method='post']")
+        expect(destroy_form.css("button[disabled]")).not_to be_empty
       end
     end
   end
