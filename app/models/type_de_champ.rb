@@ -494,7 +494,7 @@ class TypeDeChamp < ApplicationRecord
       if drop_down_advanced?
         Array.wrap(referentiel&.options_for_select)
       else
-        drop_down_options.map { [_1, _1] }
+        drop_down_options.uniq.map { [_1, _1] }
       end
     elsif yes_no?
       Champs::YesNoChamp.options
