@@ -165,22 +165,18 @@ class FranceConnectController < ApplicationController
     # rubocop:disable DS/ApplicationName
     ds_dev_redirect_uris = [
       'https://dev.demarches-simplifiees.fr/france_connect/callback',
-      'https://dev.demarches.numerique.gouv.fr/france_connect/callback',
       'https://dev.demarche.numerique.gouv.fr/france_connect/callback',
     ]
 
     ds_prod_redirect_uris = [
       'https://www.demarches-simplifiees.fr/france_connect/callback',
-      'https://demarches.numerique.gouv.fr/france_connect/callback',
       'https://demarche.numerique.gouv.fr/france_connect/callback',
     ]
 
     is_ds_dev = Current.host.include?('dev.demarches-simplifiees.fr') ||
-      Current.host.include?('dev.demarches.numerique.gouv.fr') ||
       Current.host.include?('dev.demarche.numerique.gouv.fr')
 
     is_ds_prod = Current.host.include?('www.demarches-simplifiees.fr') ||
-      Current.host.include?('demarches.numerique.gouv.fr') ||
       Current.host.include?('demarche.numerique.gouv.fr')
     # rubocop:enable DS/ApplicationName
 
