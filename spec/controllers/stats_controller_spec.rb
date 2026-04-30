@@ -3,6 +3,19 @@
 describe StatsController, type: :controller do
   before { travel_to(Date.parse("2021/12/15")) }
 
+  describe "GET #download" do
+    context "when super admin has not enrolled OTP yet" do
+      let(:super_admin) { create(:super_admin, otp_required_for_login: false) }
+
+      before { sign_in super_admin }
+
+      it "redirects to OTP enrollment" do
+        get :download, format: :csv
+        expect(response).to redirect_to(edit_super_admin_otp_path)
+      end
+    end
+  end
+
   describe "#last_four_months_hash" do
     context "while a regular user is logged in" do
       before do
