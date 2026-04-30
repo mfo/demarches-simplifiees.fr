@@ -22,6 +22,7 @@ class SuperAdminDashboard < Administrate::BaseDashboard
     created_at: Field::DateTime,
     updated_at: Field::DateTime,
     failed_attempts: Field::Number,
+    otp_required_for_login: Field::Boolean,
     locked_at: Field::DateTime,
   }.freeze
 
@@ -30,11 +31,11 @@ class SuperAdminDashboard < Administrate::BaseDashboard
   #
   # By default, it's limited to four items to reduce clutter on index pages.
   # Feel free to add, remove, or rearrange items.
-  COLLECTION_ATTRIBUTES = [:id, :email, :created_at, :updated_at, :reset_password_sent_at, :failed_attempts, :locked_at].freeze
+  COLLECTION_ATTRIBUTES = [:id, :email, :created_at, :updated_at, :reset_password_sent_at, :failed_attempts, :otp_required_for_login, :locked_at].freeze
 
   # SHOW_PAGE_ATTRIBUTES
   # an array of attributes that will be displayed on the model's show page.
-  SHOW_PAGE_ATTRIBUTES = [:id, :email, :created_at, :updated_at, :reset_password_sent_at, :failed_attempts, :locked_at].freeze
+  SHOW_PAGE_ATTRIBUTES = [:id, :email, :created_at, :updated_at, :reset_password_sent_at, :failed_attempts, :otp_required_for_login, :locked_at].freeze
 
   COLLECTION_FILTERS = {}.freeze
 end
