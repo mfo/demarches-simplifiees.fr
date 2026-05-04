@@ -20,7 +20,7 @@ module ProConnectSessionConcern
       value:,
       expires: TrustedDeviceConcern::TRUSTED_DEVICE_PERIOD.from_now,
       secure: Rails.env.production?,
-      httponly: true
+      httponly: true,
     }
   end
 
