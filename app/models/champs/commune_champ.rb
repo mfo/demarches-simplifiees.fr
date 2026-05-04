@@ -7,6 +7,21 @@ class Champs::CommuneChamp < Champs::TextChamp
   validates :external_id, presence: true, if: -> { value.present? && should_validate_in_current_context? }
   after_validation :instrument_external_id_error, if: -> { errors.include?(:external_id) }
 
+  def code_postal=(v)
+    super
+    value_json['postal_code'] = v
+  end
+
+  def code_departement=(v)
+    super
+    value_json['department_code'] = v
+  end
+
+  def code_region=(v)
+    super
+    value_json['region_code'] = v
+  end
+
   def departement_name
     APIGeoService.departement_name(code_departement)
   end
@@ -93,11 +108,15 @@ class Champs::CommuneChamp < Champs::TextChamp
       self.code_departement = commune[:departement_code]
       self.code_region = commune[:region_code]
       self.value = commune[:name]
+      value_json['city_name'] = commune[:name]
+      value_json['city_code'] = commune[:code]
     else
       self.code_departement = nil
       self.code_postal = nil
       self.external_id = nil
       self.value = nil
+      value_json['city_name'] = nil
+      value_json['city_code'] = nil
     end
   end
 

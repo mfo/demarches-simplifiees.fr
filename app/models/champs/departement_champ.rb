@@ -7,6 +7,11 @@ class Champs::DepartementChamp < Champs::TextChamp
   validate :external_id_in_departement_codes, if: -> { !external_id.nil? && should_validate_in_current_context? }
   before_save :store_code_region
 
+  def code_region=(v)
+    super
+    value_json['region_code'] = v
+  end
+
   def selected
     code
   end
@@ -57,5 +62,6 @@ class Champs::DepartementChamp < Champs::TextChamp
 
   def store_code_region
     self.code_region = code_region
+    value_json['department_code'] = code
   end
 end

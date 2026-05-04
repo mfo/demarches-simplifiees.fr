@@ -11,6 +11,6 @@ class Logic::NotInDepartementOperator < Logic::InDepartementOperator
 
     return false if l.nil?
 
-    l.fetch(:code_departement) != r
+    l.fetch(:department_code) != r
   end
 end

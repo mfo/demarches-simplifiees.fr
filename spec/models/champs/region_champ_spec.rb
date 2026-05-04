@@ -109,4 +109,13 @@ describe Champs::RegionChamp, type: :model do
       expect(champ.to_s).to eq('Guadeloupe')
     end
   end
+
+  describe 'double-write of canonical value_json keys' do
+    it 'persists region_code in value_json after save' do
+      champ.value = '01'
+      champ.save
+
+      expect(champ.value_json['region_code']).to eq('01')
+    end
+  end
 end
