@@ -37,7 +37,7 @@ class TypesDeChamp::RNFTypeDeChamp < TypesDeChamp::TextTypeDeChamp
 
   def columns(procedure:, displayable: true, prefix: nil)
     super
-      .concat(addressable_columns(procedure:, displayable:, prefix:))
+      .concat(addressable_columns(procedure:, displayable:, prefix:, deprecated_columns: true))
       .concat([
         Columns::JSONPathColumn.new(
           procedure_id: procedure.id,
