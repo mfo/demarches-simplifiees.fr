@@ -12,7 +12,7 @@ describe Columns::ChampColumn do
         expect_type_de_champ_values('civilite', eq(["M."]))
         expect_type_de_champ_values('email', eq(['yoda@beta.gouv.fr']))
         expect_type_de_champ_values('phone', eq(['0666666666']))
-        expect_type_de_champ_values('address', eq(["2 rue des Démarches", "38000", "grenoble", "38", "Auvergne-Rhones-Alpes"]))
+        expect_type_de_champ_values('address', eq(["2 rue des Démarches", "38000", "grenoble", "38", "84", "Auvergne-Rhones-Alpes"]))
         expect_type_de_champ_values('communes', eq(["Coye-la-Forêt", "60580", "60"]))
         expect_type_de_champ_values('departements', eq(['01']))
         expect_type_de_champ_values('regions', eq(['01']))
@@ -21,6 +21,7 @@ describe Columns::ChampColumn do
         expect_type_de_champ_values('iban', eq([nil]))
         expect_type_de_champ_values('siret', match_array(
           [
+            "11",
             "44011762001530",
             "SA à conseil d’administration (s.a.i.)",
             "440117620",
@@ -58,8 +59,8 @@ describe Columns::ChampColumn do
         expect_type_de_champ_values('mesri', eq([nil]))
         expect_type_de_champ_values('cojo', eq([nil]))
         expect_type_de_champ_values('formatted', eq([nil]))
-        expect_type_de_champ_values('rna', eq(["W173847273", "postal_code", "city_name", "department_code", "region_name", nil, nil, nil, nil, nil, nil, "LA PRÉVENTION ROUTIERE"]))
-        expect_type_de_champ_values('rnf', eq(["075-FDD-00003-01", "postal_code", "city_name", "department_code", "region_name", "Fondation SFR"]))
+        expect_type_de_champ_values('rna', eq(["W173847273", "postal_code", "city_name", "department_code", "region_code", "region_name", nil, nil, nil, nil, nil, nil, "LA PRÉVENTION ROUTIERE"]))
+        expect_type_de_champ_values('rnf', eq(["075-FDD-00003-01", "postal_code", "city_name", "department_code", "region_code", "region_name", "Fondation SFR"]))
       end
     end
 

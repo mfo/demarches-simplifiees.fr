@@ -12,7 +12,7 @@ class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def columns(procedure:, displayable: true, prefix: nil)
     super
       .concat(etablissement_columns(procedure:, displayable:, prefix:))
-      .concat(addressable_columns(procedure:, displayable:, prefix:))
+      .concat(addressable_columns(procedure:, displayable:, prefix:, deprecated_columns: true))
   end
 
   def info_columns(procedure:)
