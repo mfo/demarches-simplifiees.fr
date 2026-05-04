@@ -1,2 +1,5 @@
 en:
-  updated_at: "Updated on %{datetime}"
+  updated_at: "Updated on %{datetime} (%{source})"
+  usager: "user"
+  instructeur: "administration"
+  updated_by: "Updated by"
