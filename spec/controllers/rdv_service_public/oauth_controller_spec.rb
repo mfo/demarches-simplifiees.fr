@@ -85,6 +85,16 @@ RSpec.describe RdvServicePublic::OauthController, type: :controller do
           expect(flash[:notice]).to eq('Votre compte RDV Service Public a été connecté avec succès')
         end
       end
+
+      context 'when omniauth.origin points to an external host' do
+        before do
+          request.env['omniauth.origin'] = 'https://evil.example/phish'
+        end
+
+        it 'raises an unsafe redirect error rather than redirecting off-site' do
+          expect { subject }.to raise_error(ActionController::Redirecting::UnsafeRedirectError)
+        end
+      end
     end
   end
 end
