@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  include AddressableColumnConcern
+
   def champ_value_for_export(champ, path = :value)
     case path
     when :value
@@ -28,30 +30,9 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
   end
 
   def columns(procedure:, displayable: true, prefix: nil)
-    super.concat(
-      [
-        Columns::JSONPathColumn.new(
-          procedure_id: procedure.id,
-          stable_id:,
-          tdc_type: type_champ,
-          label: "#{libelle_with_prefix(prefix)} - code postal (5 chiffres)",
-          jsonpath: '$.code_postal',
-          displayable:,
-          type: :text,
-          mandatory: mandatory?
-        ),
-        Columns::JSONPathColumn.new(
-          procedure_id: procedure.id,
-          stable_id:,
-          tdc_type: type_champ,
-          label: "#{libelle_with_prefix(prefix)} - département",
-          jsonpath: '$.code_departement',
-          displayable:,
-          type: :number,
-          mandatory: mandatory?
-        ),
-      ]
-    )
+    super
+      .concat(addressable_columns(procedure:, displayable:, prefix:))
+      .concat(legacy_columns(procedure:, prefix:))
   end
 
   def info_columns(procedure:)
@@ -59,6 +40,27 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
   end
 
   private
+
+  # Anciennes colonnes JSONPath conservées pour rester résolvables par les
+  # ProcedurePresentation / exports / colonnes graphql persistées avant la bascule sur AddressableColumnConcern.
+  def legacy_columns(procedure:, prefix:)
+    [
+      ['code postal (5 chiffres)', '$.code_postal', :text],
+      ['département', '$.code_departement', :number],
+    ].map do |(label, jsonpath, type)|
+      Columns::JSONPathColumn.new(
+        procedure_id: procedure.id,
+        stable_id:,
+        tdc_type: type_champ,
+        label: "#{libelle_with_prefix(prefix)} - #{label}",
+        jsonpath:,
+        displayable: false,
+        filterable: false,
+        type:,
+        mandatory: mandatory?
+      )
+    end
+  end
 
   def paths
     paths = super
