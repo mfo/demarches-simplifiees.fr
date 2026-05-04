@@ -525,17 +525,10 @@ module Instructeurs
 
     def notify_exports?(instructeur_procedure)
       scope = Export.generated.for_groupe_instructeurs(groupe_instructeur_ids)
-      # TODO: remove legacy cookie support once deployed (Export retention is 48h)
-      last_seen_at = instructeur_procedure.last_export_seen_at || legacy_cookie_export_seen_at
+      last_seen_at = instructeur_procedure.last_export_seen_at
       scope = scope.where(updated_at: last_seen_at...) if last_seen_at
 
       scope.exists?
-    end
-
-    def legacy_cookie_export_seen_at
-      DateTime.parse(cookies.encrypted["exports_#{@procedure.id}_seen_at"])
-    rescue
-      nil
     end
 
     def notify_unseen_revisions?(instructeur_procedure)
