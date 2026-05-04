@@ -11,6 +11,6 @@ class Logic::NotInRegionOperator < Logic::InRegionOperator
 
     return false if l.nil?
 
-    l.fetch(:code_region) != r
+    l.fetch(:region_code) != r
   end
 end

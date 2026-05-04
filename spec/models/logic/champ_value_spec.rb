@@ -113,7 +113,7 @@ describe Logic::ChampValue do
 
       it do
         expect(champ_value(champ.stable_id).type([champ.type_de_champ])).to eq(:departement_enum)
-        is_expected.to eq({ value: '02', code_region: '32' })
+        is_expected.to eq({ value: '02', region_code: '32' })
       end
     end
 
@@ -135,7 +135,7 @@ describe Logic::ChampValue do
       let(:external_id) { '92063' }
 
       it do
-        is_expected.to eq({ code_departement: '92', code_region: '11' })
+        is_expected.to eq({ department_code: '92', region_code: '11' })
       end
     end
 
@@ -148,7 +148,7 @@ describe Logic::ChampValue do
       let(:code_departement) { '43' }
       let(:external_id) { '244301016' }
 
-      it { is_expected.to eq({ code_departement: '43', code_region: '84' }) }
+      it { is_expected.to eq({ department_code: '43', region_code: '84' }) }
     end
 
     describe 'errors' do

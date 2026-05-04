@@ -11,7 +11,7 @@ class Logic::InRegionOperator < Logic::BinaryOperator
 
     return false if l.nil?
 
-    l.fetch(:code_region) == r
+    l.fetch(:region_code) == r
   end
 
   def errors(type_de_champs = [])

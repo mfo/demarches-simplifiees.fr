@@ -11,7 +11,7 @@ class Logic::InDepartementOperator < Logic::BinaryOperator
 
     return false if l.nil?
 
-    l.fetch(:code_departement) == r
+    l.fetch(:department_code) == r
   end
 
   def errors(type_de_champs = [])
