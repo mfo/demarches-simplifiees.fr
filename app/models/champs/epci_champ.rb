@@ -9,6 +9,16 @@ class Champs::EpciChamp < Champs::TextChamp
   validate :external_id_in_departement_epci_codes, if: -> { !(code_departement.nil? || external_id.nil?) && should_validate_in_current_context? }
   validate :value_in_departement_epci_names, if: -> { !(code_departement.nil? || external_id.nil? || value.nil?) && should_validate_in_current_context? }
 
+  def code_departement=(v)
+    super
+    value_json['department_code'] = v
+  end
+
+  def code_region=(v)
+    super
+    value_json['region_code'] = v
+  end
+
   def departement_name
     APIGeoService.departement_name(code_departement)
   end
