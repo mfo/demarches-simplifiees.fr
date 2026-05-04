@@ -9,11 +9,6 @@ class SuperAdminsController < ApplicationController
   end
 
   def enable_otp
-    if current_super_admin.otp_required_for_login?
-      flash[:alert] = "L’authentification double-facteur est déjà activée pour ce compte."
-      redirect_to(root_path) and return
-    end
-
     unless current_super_admin.valid_password?(params[:current_password].to_s)
       flash[:alert] = "Mot de passe incorrect."
       redirect_to(edit_super_admin_otp_path) and return
