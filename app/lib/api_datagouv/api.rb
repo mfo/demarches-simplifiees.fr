@@ -94,7 +94,7 @@ class APIDatagouv::API
     def validate_url(url)
       uri = URI.parse(url)
       raise "Invalid host URL" if uri.host != "static.data.gouv.fr"
-      raise "Invalid path URL" if !uri.path.start_with?("/resources/utilisation-du-service-demarches-simplifiees/")
+      raise "Invalid path URL" if !uri.path.start_with?("/resources/utilisation-du-service-demarche-numerique-gouv-fr/")
       raise "Invalid extension URL" if !uri.path.end_with?(".csv")
     rescue URI::InvalidURIError
       raise "Invalid URL"
