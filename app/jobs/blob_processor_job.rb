@@ -17,6 +17,8 @@ class BlobProcessorJob < ApplicationJob
   discard_on ActiveRecord::RecordNotFound
   discard_on ActiveStorage::FileNotFoundError
   discard_on ActiveRecord::InvalidForeignKey
+  require 'fog/openstack/auth/token'
+  discard_on Fog::OpenStack::Auth::Token::URLError
 
   retry_on(ActiveStorage::IntegrityError, attempts: 5, wait: 5.seconds) do |job, _error|
     blob = job.arguments.first

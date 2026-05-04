@@ -8,31 +8,35 @@ module Maintenance
     #
     # Inclut les orphelins (sans attachment) : BlobProcessorJob les marquera
     # simplement comme processed, et PurgeUnattachedBlobsJob les purgera.
-    # On évite ainsi le semi-join sur 103M attachments qui timeout.
     #
-    # On itère via Blob.in_batches (sans filtre WHERE) puis on applique le
-    # filtre virus_scan_result dans process() sur le batch déjà borné par
-    # ids. Itérer directement sur where(virus_scan_result: PENDING) timeout :
-    # avec ~7M lignes pending sur 100M, le cursor `ORDER BY id LIMIT N`
-    # avec ce filtre est trop coûteux si les pending sont concentrés sur
-    # une plage d'ids (PG parcourt l'index PK en filtrant et peut traverser
-    # des dizaines de millions de lignes avant d'en trouver N).
+    # Utilise l'index composite (virus_scan_result, id DESC) pour itérer
+    # efficacement sur les ~7M blobs pending, du plus récent au plus ancien.
 
     include RunnableOnDeployConcern
     include StatementsHelpersConcern
 
+    throttle_on(backoff: 1.minute) do
+      Sidekiq::Queue.new("default").size > 100 || Sidekiq::Queue.new("low").size > 1_000
+    end
+
     def collection
-      ActiveStorage::Blob.in_batches(of: 10_000)
+      ActiveStorage::Blob.where(virus_scan_result: ActiveStorage::VirusScanner::PENDING).in_batches(of: 100, order: :desc)
     end
 
     def process(batch)
-      batch
-        .where(virus_scan_result: ActiveStorage::VirusScanner::PENDING)
-        .find_each do |blob|
-          next if blob.metadata["processed"]
+      excluded_ids = ActiveStorage::Attachment
+        .where(blob_id: batch.select(:id))
+        .where("record_type = ? OR name = ?", "ActiveStorage::Attachment", "preview_image")
+        .pluck(:blob_id)
 
-          BlobProcessorJob.perform_later(blob)
-        end
+      scope = batch
+      scope = scope.where.not(id: excluded_ids) if excluded_ids.any?
+
+      scope.find_each do |blob|
+        next if blob.metadata["processed"]
+
+        BlobProcessorJob.perform_later(blob)
+      end
     end
   end
 end
