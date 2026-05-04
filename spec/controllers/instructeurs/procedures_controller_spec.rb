@@ -557,17 +557,12 @@ describe Instructeurs::ProceduresController, type: :controller do
         context 'with generated export' do
           render_views
           let(:exports_seen_at) { nil }
-          let(:legacy_cookie_seen_at) { nil }
 
           before do
             create(:export, :generated, groupe_instructeurs: [gi_2], updated_at: 1.minute.ago)
 
             if exports_seen_at
               create(:instructeurs_procedure, instructeur:, procedure:, last_export_seen_at: exports_seen_at)
-            end
-
-            if legacy_cookie_seen_at
-              cookies.encrypted["exports_#{procedure.id}_seen_at"] = legacy_cookie_seen_at.to_datetime.to_s
             end
 
             subject
@@ -587,11 +582,6 @@ describe Instructeurs::ProceduresController, type: :controller do
 
           context 'with last_export_seen_at after the last generated export' do
             let(:exports_seen_at) { 10.seconds.ago }
-            it { expect(assigns(:has_export_notification)).to be(false) }
-          end
-
-          context 'with legacy cookie fallback after the last generated export' do
-            let(:legacy_cookie_seen_at) { 10.seconds.ago }
             it { expect(assigns(:has_export_notification)).to be(false) }
           end
         end
