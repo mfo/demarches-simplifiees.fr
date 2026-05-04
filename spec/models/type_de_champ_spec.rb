@@ -702,6 +702,23 @@ describe TypeDeChamp do
     end
   end
 
+  describe '#reset_repetition_limits_if_disabled' do
+    let(:procedure) { create(:procedure) }
+    let(:tdc) { create(:type_de_champ_repetition, procedure:, limit_repetitions: '1', min_repetitions: '1', max_repetitions: '3') }
+
+    context "when limit_repetitions is disabled" do
+      before { tdc.update!(limit_repetitions: '0') }
+
+      it "set min_repetitions to nil" do
+        expect(tdc.reload.min_repetitions).to be_nil
+      end
+
+      it "set max_repetitions to nil" do
+        expect(tdc.reload.max_repetitions).to be_nil
+      end
+    end
+  end
+
   describe '#humanized_conditionable_types_by_category' do
     subject { TypeDeChamp.humanized_conditionable_types_by_category }
 

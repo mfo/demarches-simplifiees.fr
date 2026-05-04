@@ -253,6 +253,33 @@
                     .cell.fr-mt-2w
                       = render TypesDeChampEditor::DossierLinkChampComponent.new(procedures: current_administrateur.procedures, type_de_champ: type_de_champ, form: form, procedure: procedure)
 
+            - if type_de_champ.repetition?
+              .border-left-dark.fr-mt-2w
+                .cell
+                  %legend.fake-label
+                    Limiter le nombre d’éléments
+                  .fr-toggle
+                    = form.check_box :limit_repetitions, id: dom_id(type_de_champ, :limit_repetitions), class: 'fr-toggle__input'
+                    = form.label :limit_repetitions, "Limiter le nombre d’éléments que l’usager peut ajouter", for: dom_id(type_de_champ, :limit_repetitions), class: 'fr-toggle__label fr-label'
+
+                - if form.object.limit_repetitions?
+                  .cell.fr-mt-1w
+                    %fieldset.fr-fieldset
+                      .fr-fieldset__element.fr-fieldset__element--inline.fr-mb-0
+                        .fr-input-group
+                          = form.label :min_repetitions, "Nombre d’éléments minimum", for: dom_id(type_de_champ, :min_repetitions)
+                          = form.number_field :min_repetitions, class: "fr-input", id: dom_id(type_de_champ, :min_repetitions), min: 0
+                      .fr-fieldset__element.fr-fieldset__element--inline.fr-mb-0
+                        .fr-input-group
+                          = form.label :max_repetitions, "Nombre d’éléments maximum", for: dom_id(type_de_champ, :max_repetitions)
+                          = form.number_field :max_repetitions, class: "fr-input", id: dom_id(type_de_champ, :max_repetitions), min: 1
+
+                  - if @errors.present?
+                    .fr-message.fr-message--error.fr-mt-1w
+                      = @errors
+                  .fr-message.fr-message--info.fr-mt-1w
+                    Veuillez indiquer le nombre minimum et / ou maximum d’éléments requis. Une valeur vide correspond à une absence de limite.
+
         .flex.justify-start.fr-mt-1w.flex-gap
           - if type_de_champ.linked_drop_down_list?
             .flex.column.justify-start.width-33

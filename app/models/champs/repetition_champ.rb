@@ -44,6 +44,35 @@ class Champs::RepetitionChamp < Champ
     # The user cannot enter any information here so it doesn’t make much sense to search
   end
 
+  def max_reached?
+    return false if !type_de_champ.limit_repetitions?
+    return false if type_de_champ.max_repetitions.blank?
+    row_ids.count >= type_de_champ.max_repetitions.to_i
+  end
+
+  validate :validate_repetition_limits, if: :should_validate_in_current_context?
+
+  private
+
+  def validate_repetition_limits
+    return if !type_de_champ.limit_repetitions?
+    # Only skip validation when no rows have been filled AND no minimum is required.
+    # When a minimum is configured, always validate so that submitting with 0 rows is caught.
+    return if type_de_champ.min_repetitions.blank? && rows.none? { |row| row.any? { _1.value.present? } }
+
+    count = row_ids.count
+    min = type_de_champ.min_repetitions.to_i
+    max = type_de_champ.max_repetitions.to_i
+
+    if type_de_champ.min_repetitions.present? && count < min
+      errors.add(:value, :repetition_too_few, min: min, libelle: type_de_champ.libelle)
+    end
+
+    if type_de_champ.max_repetitions.present? && count > max
+      errors.add(:value, :repetition_too_many, max: max, libelle: type_de_champ.libelle)
+    end
+  end
+
   class Row < Hashie::Dash
     property :index
     property :row_id

@@ -77,4 +77,56 @@ describe Procedure::RevisionChangesComponent, type: :component do
       end
     end
   end
+
+  describe "repetition limits changes" do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :repetition, libelle: "Bloc" }]) }
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.types_de_champ_public.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    context "when min_repetitions changes to a positive value" do
+      before do
+        tdc.update!(limit_repetitions: "1", min_repetitions: "2")
+        procedure.active_revision.reload
+        updated_tdc = new_revision.find_and_ensure_exclusive_use(tdc.stable_id)
+        updated_tdc.update!(min_repetitions: "3")
+      end
+
+      it "displays the update message with the new value" do
+        expect(subject).to have_text("Le minimum est désormais 3.")
+      end
+    end
+
+    context "when min_repetitions changes to 0 (valid for non-mandatory block)" do
+      before do
+        tdc.update!(limit_repetitions: "1", min_repetitions: "2")
+        procedure.active_revision.reload
+        updated_tdc = new_revision.find_and_ensure_exclusive_use(tdc.stable_id)
+        updated_tdc.update!(min_repetitions: "0")
+      end
+
+      it "displays the update message with 0, not a removal message" do
+        expect(subject).to have_text("Le minimum est désormais 0.")
+        expect(subject).not_to have_text("a été supprimé")
+      end
+    end
+
+    context "when min_repetitions is removed (set to nil)" do
+      before do
+        tdc.update!(limit_repetitions: "1", min_repetitions: "2")
+        procedure.active_revision.reload
+        updated_tdc = new_revision.find_and_ensure_exclusive_use(tdc.stable_id)
+        updated_tdc.update!(min_repetitions: nil)
+      end
+
+      it "displays the removal message" do
+        expect(subject).to have_text("a été supprimé")
+        expect(subject).not_to have_text("désormais")
+      end
+    end
+  end
 end

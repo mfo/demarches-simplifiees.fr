@@ -171,7 +171,10 @@ class TypeDeChamp < ApplicationRecord
                  :pj_format_families,
                  :pj_auto_purge,
                  :procedures_limit,
-                 :dossier_link_procedure_ids
+                 :dossier_link_procedure_ids,
+                 :limit_repetitions,
+                 :min_repetitions,
+                 :max_repetitions
 
   has_many :revision_types_de_champ, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
@@ -233,6 +236,7 @@ class TypeDeChamp < ApplicationRecord
   before_validation :normalize_libelle
   before_validation :set_drop_down_list_options, if: -> { type_champ_changed? }
   before_validation :reset_pj_format_options_if_forced_nature
+  before_validation :reset_repetition_limits_if_disabled
 
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
@@ -351,6 +355,10 @@ class TypeDeChamp < ApplicationRecord
 
   def birthdate?
     birthdate == "1"
+  end
+
+  def limit_repetitions?
+    limit_repetitions == "1"
   end
 
   def date_in_past?
@@ -743,6 +751,7 @@ class TypeDeChamp < ApplicationRecord
     ],
     type_champs.fetch(:referentiel) => [:referentiel_mapping],
     type_champs.fetch(:dossier_link) => [:procedures_limit, :dossier_link_procedure_ids],
+    type_champs.fetch(:repetition) => [:limit_repetitions, :min_repetitions, :max_repetitions],
   }
 
   def clean_options
@@ -925,6 +934,13 @@ class TypeDeChamp < ApplicationRecord
 
   def normalize_libelle
     self.libelle&.strip!
+  end
+
+  def reset_repetition_limits_if_disabled
+    return unless type_champ == TypeDeChamp.type_champs.fetch(:repetition)
+    return if limit_repetitions?
+    self.min_repetitions = nil
+    self.max_repetitions = nil
   end
 
   def reset_pj_format_options_if_forced_nature
