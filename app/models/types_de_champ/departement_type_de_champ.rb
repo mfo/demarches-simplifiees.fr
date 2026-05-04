@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  include AddressableColumnConcern
+
+  def columns(procedure:, displayable: true, prefix: nil)
+    super.concat(addressable_columns(procedure:, displayable:, prefix:, only: [:department_code, :region_code]))
+  end
+
   def filter_to_human(filter_value)
     APIGeoService.departement_name(filter_value).presence || filter_value
   end

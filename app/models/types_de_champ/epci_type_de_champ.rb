@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::EpciTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  include AddressableColumnConcern
+
+  def columns(procedure:, displayable: true, prefix: nil)
+    super.concat(addressable_columns(procedure:, displayable:, prefix:, only: [:department_code, :region_code]))
+  end
+
   def champ_value_for_export(champ, path = :value)
     case path
     when :value

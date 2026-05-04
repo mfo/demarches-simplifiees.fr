@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RegionTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  include AddressableColumnConcern
+
+  def columns(procedure:, displayable: true, prefix: nil)
+    super.concat(addressable_columns(procedure:, displayable:, prefix:, only: [:region_code]))
+  end
+
   def filter_to_human(filter_value)
     APIGeoService.region_name(filter_value).presence || filter_value
   end
