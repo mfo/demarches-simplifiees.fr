@@ -31,5 +31,40 @@ RSpec.describe ProConnectSessionConcern, type: :controller do
         expect(controller.pro_connect_mfa?).to be false
       end
     end
+
+    describe 'when the mfa assertion is older than TRUSTED_DEVICE_PERIOD' do
+      let(:user_id) { 42 }
+
+      it 'is no longer considered valid' do
+        travel_to Time.zone.local(2026, 1, 1) do
+          controller.set_pro_connect_session_info_cookie(42, mfa: true)
+        end
+
+        travel_to Time.zone.local(2026, 2, 5) do
+          expect(controller.pro_connect_mfa?).to be false
+        end
+      end
+    end
+
+    describe 'with a legacy cookie (no mfa_at)' do
+      let(:user_id) { 42 }
+
+      before do
+        legacy = { user_id: 42, mfa: true }.to_json
+        controller.send(:cookies).encrypted[ProConnectSessionConcern::SESSION_INFO_COOKIE_NAME] = legacy
+      end
+
+      it 'is accepted before the deadline' do
+        travel_to(ProConnectSessionConcern::LEGACY_COOKIE_DEADLINE - 1.day) do
+          expect(controller.pro_connect_mfa?).to be true
+        end
+      end
+
+      it 'is refused on or after the deadline' do
+        travel_to(ProConnectSessionConcern::LEGACY_COOKIE_DEADLINE) do
+          expect(controller.pro_connect_mfa?).to be false
+        end
+      end
+    end
   end
 end

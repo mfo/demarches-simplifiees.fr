@@ -133,7 +133,9 @@ describe ProConnectController, type: :controller do
               expect { subject }.to change { instructeur.user.reload.email_verified_at }.from(nil)
               expect(instructeur.user.preferred_domain_demarche_numerique_gouv_fr?).to be_truthy
 
-              expect(cookies.encrypted[ProConnectSessionConcern::SESSION_INFO_COOKIE_NAME]).to eq({ user_id: instructeur.user.id, mfa: false }.to_json)
+              cookie = JSON.parse(cookies.encrypted[ProConnectSessionConcern::SESSION_INFO_COOKIE_NAME])
+              expect(cookie).to include('user_id' => instructeur.user.id, 'mfa' => false)
+              expect(cookie['mfa_at']).to be_present
             end
           end
 
@@ -164,7 +166,9 @@ describe ProConnectController, type: :controller do
 
               subject
 
-              expect(cookies.encrypted[ProConnectSessionConcern::SESSION_INFO_COOKIE_NAME]).to eq({ user_id: instructeur.user.id, mfa: true }.to_json)
+              cookie = JSON.parse(cookies.encrypted[ProConnectSessionConcern::SESSION_INFO_COOKIE_NAME])
+              expect(cookie).to include('user_id' => instructeur.user.id, 'mfa' => true)
+              expect(cookie['mfa_at']).to be_present
             end
           end
         end
