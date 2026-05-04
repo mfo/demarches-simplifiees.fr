@@ -30,8 +30,7 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
   end
 
   def columns(procedure:, displayable: true, prefix: nil)
-    super
-      .concat(addressable_columns(procedure:, displayable:, prefix:))
+    addressable_columns(procedure:, displayable:, prefix:)
       .concat(legacy_columns(procedure:, prefix:))
   end
 
@@ -41,9 +40,22 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
 
   private
 
-  # Anciennes colonnes JSONPath conservées pour rester résolvables par les
+  # Anciennes colonnes conservées pour rester résolvables par les
   # ProcedurePresentation / exports / colonnes graphql persistées avant la bascule sur AddressableColumnConcern.
   def legacy_columns(procedure:, prefix:)
+    [
+      Columns::ChampColumn.new(
+        procedure_id: procedure.id,
+        stable_id:,
+        tdc_type: type_champ,
+        label: libelle_with_prefix(prefix),
+        type: :text,
+        displayable: false,
+        filterable: false,
+        options_for_select:,
+        mandatory: mandatory?
+      ),
+    ] +
     [
       ['code postal (5 chiffres)', '$.code_postal', :text],
       ['département', '$.code_departement', :number],
