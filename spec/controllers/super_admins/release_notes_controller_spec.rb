@@ -80,5 +80,41 @@ describe SuperAdmins::ReleaseNotesController, type: :controller do
         expect { release_note.reload }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
+
+    context 'when super admin has not enrolled OTP yet' do
+      let(:super_admin) { create(:super_admin, otp_required_for_login: false) }
+      let!(:release_note) { create(:release_note, published: false) }
+
+      it 'redirects index to OTP enrollment' do
+        get :index
+        expect(response).to redirect_to(edit_super_admin_otp_path)
+      end
+
+      it 'forbids create' do
+        expect { post :create, params: { release_note: { categories: ['api'], released_on: Date.current, published: "1", body: "phishing" } } }.not_to change(ReleaseNote, :count)
+        expect(response).to redirect_to(edit_super_admin_otp_path)
+      end
+
+      it 'forbids update' do
+        expect {
+          put :update, params: {
+            id: release_note.id,
+            release_note: {
+              released_on: Date.current,
+              published: "1",
+              categories: release_note.categories,
+              body: "hacked body",
+            },
+          }
+        }.not_to change { release_note.reload.body.to_plain_text }
+        expect(response).to redirect_to(edit_super_admin_otp_path)
+      end
+
+      it 'forbids destroy' do
+        delete :destroy, params: { id: release_note.id }
+        expect(release_note.reload).to be_persisted
+        expect(response).to redirect_to(edit_super_admin_otp_path)
+      end
+    end
   end
 end

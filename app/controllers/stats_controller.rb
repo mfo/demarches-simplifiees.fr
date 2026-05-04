@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class StatsController < ApplicationController
+  include RequiresEnrolledSuperAdminOtp
+
   before_action :authenticate_super_admin!, only: [:download]
 
   MEAN_NUMBER_OF_CHAMPS_IN_A_FORM = 24.0

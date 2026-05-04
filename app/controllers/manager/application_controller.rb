@@ -2,6 +2,8 @@
 
 module Manager
   class ApplicationController < Administrate::ApplicationController
+    include RequiresEnrolledSuperAdminOtp
+
     protect_from_forgery with: :exception, store: :cookie
     before_action :authenticate_super_admin!
     before_action :default_params
@@ -15,18 +17,6 @@ module Manager
 
     def message_encryptor_service
       @message_encryptor_service ||= MessageEncryptorService.new
-    end
-
-    protected
-
-    def authenticate_super_admin!
-      if super_admin_signed_in? && current_super_admin.otp_required_for_login?
-        super
-      elsif super_admin_signed_in?
-        SUPER_ADMIN_OTP_ENABLED ? (redirect_to edit_super_admin_otp_path) : super
-      else
-        redirect_to new_super_admin_session_path
-      end
     end
 
     private
