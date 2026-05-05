@@ -62,8 +62,8 @@ class BlobProcessorJob < ApplicationJob
     # Phase 2: OCR (external API call)
     add_ocr_data
 
-    # Phase 3: Representations (ActiveStorage manages its own downloads)
-    create_representations if blob.representation_required?
+    # Phase 3: Representations — delegated to ultra_low queue
+    CreateRepresentationsJob.perform_later(blob) if blob.representation_required?
 
     mark_processed
   end
@@ -134,20 +134,6 @@ class BlobProcessorJob < ApplicationJob
     image.get_fields.include?("interlaced") && image.get("interlaced") != 0
   rescue Vips::Error # unreadable metadata should not abort processing: skip the mutation instead
     false
-  end
-
-  instrument_method
-  def create_representations
-    blob.attachments.each do |att|
-      next if !att.representable?
-      att.representation(resize_to_limit: [400, 400]).processed
-      if att.blob.content_type.in?(RARE_IMAGE_TYPES)
-        att.variant(resize_to_limit: [2000, 2000]).processed
-      end
-      if att.record.class == ActionText::RichText
-        att.variant(resize_to_limit: [1024, 768]).processed
-      end
-    end
   end
 
   instrument_method

@@ -167,34 +167,16 @@ describe BlobProcessorJob, :external_deps, type: :job do
     end
 
     context 'when representation is not required' do
-      it 'does not create blob representation' do
-        expect { described_class.perform_now(blob) }.not_to change { ActiveStorage::VariantRecord.count }
+      it 'does not enqueue CreateRepresentationsJob' do
+        expect { described_class.perform_now(blob) }.not_to have_enqueued_job(CreateRepresentationsJob)
       end
     end
 
     context 'when representation is required' do
       before { allow(blob).to receive(:representation_required?).and_return(true) }
 
-      it 'creates blob representation' do
-        expect { described_class.perform_now(blob) }.to change { ActiveStorage::VariantRecord.count }.by(1)
-      end
-    end
-
-    context 'when type image is rare (TIFF)' do
-      let(:file) { fixture_file_upload('spec/fixtures/files/pencil.tiff', 'image/tiff') }
-      before { allow(blob).to receive(:representation_required?).and_return(true) }
-
-      it 'creates two variants' do
-        expect { described_class.perform_now(blob) }.to change { ActiveStorage::VariantRecord.count }.by(2)
-      end
-    end
-
-    context 'when file is a PDF' do
-      let(:file) { fixture_file_upload('spec/fixtures/files/piece_justificative_0.pdf', 'application/pdf') }
-      before { allow(blob).to receive(:representation_required?).and_return(true) }
-
-      it 'creates blob representation' do
-        expect { described_class.perform_now(blob) }.to change { ActiveStorage::VariantRecord.count }.by(1)
+      it 'enqueues CreateRepresentationsJob' do
+        expect { described_class.perform_now(blob) }.to have_enqueued_job(CreateRepresentationsJob).with(blob)
       end
     end
   end
@@ -360,21 +342,6 @@ describe BlobProcessorJob, :external_deps, type: :job do
 
       it 'marks blob as integrity error after retries' do
         expect(blob.reload.virus_scanner.corrupt?).to be_truthy
-      end
-    end
-
-    context 'when Vips raises an error' do
-      before do
-        allow(ClamavService).to receive(:safe_file?).and_return(true)
-        allow(blob).to receive(:representation_required?).and_return(true)
-        allow_any_instance_of(described_class).to receive(:create_representations)
-          .and_raise(Vips::Error.new("unable to load source"))
-      end
-
-      it 're-enqueues the job for retry' do
-        expect {
-          described_class.perform_now(blob)
-        }.to have_enqueued_job(described_class).with(blob)
       end
     end
 
