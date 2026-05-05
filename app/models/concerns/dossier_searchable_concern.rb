@@ -4,6 +4,8 @@ module DossierSearchableConcern
   extend ActiveSupport::Concern
 
   SEARCH_TERMS_DEBOUNCE = 5.minutes
+  SEARCH_TERMS_DEBOUNCE_LIGHT_USER = 1.hour
+  LIGHT_USER_DOSSIERS_THRESHOLD = 5
 
   included do
     after_commit :index_search_terms_later, if: -> { previously_new_record? || user_previously_changed? || mandataire_first_name_previously_changed? || mandataire_last_name_previously_changed? }
@@ -34,7 +36,14 @@ module DossierSearchableConcern
   def index_search_terms_later
     return if debounce_index_search_terms_flag.marked?
 
-    debounce_index_search_terms_flag.mark(expires_in: SEARCH_TERMS_DEBOUNCE)
-    DossierIndexSearchTermsJob.set(wait: SEARCH_TERMS_DEBOUNCE).perform_later(self)
+    wait = light_user_brouillon? ? SEARCH_TERMS_DEBOUNCE_LIGHT_USER : SEARCH_TERMS_DEBOUNCE
+    debounce_index_search_terms_flag.mark(expires_in: wait)
+    DossierIndexSearchTermsJob.set(wait:).perform_later(self)
+  end
+
+  private
+
+  def light_user_brouillon?
+    brouillon? && user && user.dossiers.count <= LIGHT_USER_DOSSIERS_THRESHOLD
   end
 end
