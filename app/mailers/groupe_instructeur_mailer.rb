@@ -83,7 +83,7 @@ class GroupeInstructeurMailer < ApplicationMailer
   end
 
   def self.critical_email?(action_name)
-    false
+    ["confirm_and_notify_added_instructeur", "confirm_and_notify_added_instructeur_in_many_groupes"].include?(action_name)
   end
 
   def confirm_and_notify_added_instructeur_in_many_groupes(instructeur, groups, current_instructeur_email)

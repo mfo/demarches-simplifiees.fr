@@ -132,6 +132,8 @@ class UserMailer < ApplicationMailer
       "new_account_warning",
       "ask_for_merge",
       "invite_instructeur",
+      "invite_tiers",
+      "resend_confirmation_email",
       "custom_confirmation_instructions",
     ].include?(action_name)
   end
