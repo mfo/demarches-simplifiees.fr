@@ -1380,6 +1380,24 @@ describe Procedure do
     end
   end
 
+  describe "#restore" do
+    let(:super_admin) { create(:super_admin) }
+    let(:procedure) { create(:procedure, :discarded) }
+    let!(:dossier) { create(:dossier, :accepte, procedure:, hidden_by_administration_at: Time.zone.now, hidden_by_reason: :procedure_removed) }
+    let!(:dossier_2) { create(:dossier, :accepte, procedure:, hidden_by_administration_at: Time.zone.now, hidden_by_expired_at: Time.zone.now, hidden_by_reason: :expired) }
+
+    subject { procedure.restore(super_admin) }
+
+    it "restores only dossier that have been hidden by procedure_removed" do
+      subject
+      expect(dossier.reload.hidden_by_administration_at).to be_nil
+      expect(dossier.hidden_by_reason).to be_nil
+      expect(dossier_2.reload.hidden_by_administration_at).not_to be_nil
+      expect(dossier_2.hidden_by_expired_at).not_to be_nil
+      expect(dossier_2.hidden_by_reason).to eq('expired')
+    end
+  end
+
   describe "#organisation_name" do
     subject { procedure.organisation_name }
     context 'when the procedure has a service (and no organization)' do
