@@ -135,7 +135,7 @@ describe "procedure filters" do
         departement_champ.reload
         champ_select_value = "#{departement_champ.external_id} – #{departement_champ.value}"
 
-        add_filter("formulaire-usager", departement_champ.libelle)
+        add_filter("formulaire-usager", "#{departement_champ.libelle} – Département")
         add_filter_value(departement_champ.libelle, champ_select_value)
 
         expect(page).to have_link(new_unfollow_dossier.id.to_s)
@@ -223,8 +223,10 @@ describe "procedure filters" do
   def add_filter_value(column_name, filter_value, type: :text)
     case type
     when :text, :date
-      fill_in column_name, with: filter_value
-      find_field(column_name).send_keys(:enter)
+      within "#editable-filters-component" do
+        fill_in column_name, with: filter_value
+        find_field(column_name).send_keys(:enter)
+      end
     when :multi_select
       select_combobox(column_name, filter_value)
     else
