@@ -65,6 +65,6 @@ class AvisMailer < ApplicationMailer
   end
 
   def self.critical_email?(action_name)
-    false
+    action_name == "avis_invitation_and_confirm_email"
   end
 end
