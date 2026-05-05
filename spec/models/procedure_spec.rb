@@ -1352,27 +1352,30 @@ describe Procedure do
 
   describe "#discard_and_keep_track!" do
     let(:super_admin) { create(:super_admin) }
-    let(:procedure) { create(:procedure) }
-    let!(:dossier) { create(:dossier, procedure: procedure) }
-    let!(:dossier2) { create(:dossier, procedure: procedure) }
-    let(:instructeur) { create(:instructeur) }
 
-    it do
-      expect(Dossier.count).to eq(2)
-      expect(Dossier.all).to include(dossier, dossier2)
+    subject { procedure.discard_and_keep_track!(super_admin) }
+
+    context "when discarding a procedure in brouillon" do
+      let(:procedure) { create(:procedure) }
+      let!(:dossier) { create(:dossier, procedure:) }
+
+      it 'destroys dossiers' do
+        subject
+        expect(procedure.dossiers.count).to eq(0)
+      end
     end
 
-    context "when discarding procedure" do
-      before do
-        instructeur.followed_dossiers << dossier
-        procedure.discard_and_keep_track!(super_admin)
-        instructeur.reload
-      end
+    context "when discarding a published procedure" do
+      let(:procedure) { create(:procedure, :published) }
+      let!(:dossier) { create(:dossier, :en_construction, procedure:, hidden_by_administration_at: nil, hidden_by_reason: nil) }
+      let!(:dossier_2) { create(:dossier, :accepte, procedure:, hidden_by_administration_at: nil, hidden_by_reason: nil) }
 
-      it do
-        expect(procedure.dossiers.count).to eq(0)
-        expect(Dossier.count).to eq(0)
-        expect(instructeur.followed_dossiers).not_to include(dossier)
+      it 'hides dossiers' do
+        subject
+        dossiers = procedure.dossiers
+        expect(dossiers.count).to eq(2)
+        expect(dossiers.pluck(:hidden_by_reason).uniq).to eq(['procedure_removed'])
+        expect(dossiers.pluck(:hidden_by_administration_at)).to all(be_present)
       end
     end
   end
