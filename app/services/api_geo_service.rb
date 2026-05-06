@@ -32,7 +32,9 @@ class APIGeoService
     end
 
     def regions
-      get_from_api_geo(:regions).sort_by { I18n.transliterate(_1[:name]) }
+      memoize(:regions) do
+        get_from_api_geo(:regions).sort_by { I18n.transliterate(_1[:name]) }.freeze
+      end
     end
 
     def region_options = regions.map { [_1[:name], _1[:code]] }
@@ -52,7 +54,9 @@ class APIGeoService
     end
 
     def departements
-      ([{ code: '99', name: 'Etranger' }] + get_from_api_geo(:departements)).sort_by { _1[:code] }
+      memoize(:departements) do
+        ([{ code: '99', name: 'Etranger' }] + get_from_api_geo(:departements)).sort_by { _1[:code] }.freeze
+      end
     end
 
     def departement_options

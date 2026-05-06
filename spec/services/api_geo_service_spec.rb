@@ -215,4 +215,23 @@ describe APIGeoService do
       expect(APIGeoService.send(:get_from_api_geo, :regions)).to be_frozen
     end
   end
+
+  describe 'static lists memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes regions' do
+      first  = APIGeoService.regions
+      second = APIGeoService.regions
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+
+    it 'memoizes departements' do
+      first  = APIGeoService.departements
+      second = APIGeoService.departements
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
 end
