@@ -18,18 +18,21 @@ module Instructeurs
       invalid_emails = emails.filter { |email| email.present? && !(email =~ email_regex) }
 
       avis = Avis.new(avis_create_params.except(:emails))
-      batch = nil
+      email_label = User.human_attribute_name(:email)
 
-      if emails.empty? || invalid_emails.any?
-        avis.errors.add(:email, :blank) if emails.empty?
-        invalid_emails.each { |email| avis.errors.add(:email, "est invalide : #{email}") }
-      else
-        batch = BatchOperation.safe_create!(batch_operation_avis_params)
+      if emails.empty?
+        avis.errors.add(:base, format(I18n.t('errors.format'), attribute: email_label, message: I18n.t('errors.messages.blank')))
       end
+
+      invalid_emails.each do |email|
+        avis.errors.add(:base, format(I18n.t('errors.format'), attribute: email_label, message: "est invalide : #{email}"))
+      end
+
+      batch = avis.errors.empty? ? BatchOperation.safe_create!(batch_operation_avis_params) : nil
 
       respond_to do |format|
         format.turbo_stream do
-          if batch.blank? || avis.errors.any?
+          if batch.nil?
             @ids = Array(params.dig(:batch_operation, :dossier_ids)).flat_map do |value|
               value.is_a?(String) ? value.split(',') : value
             end.compact_blank

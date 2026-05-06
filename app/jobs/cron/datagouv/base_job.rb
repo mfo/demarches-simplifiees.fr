@@ -2,6 +2,9 @@
 
 class Cron::Datagouv::BaseJob < Cron::CronJob
   include DatagouvCronSchedulableConcern
+
+  use_sidekiq_retry
+
   DATASET = '62d677bde7e4ca2c759142ce'
   DATE_FORMAT = "%Y-%m"
 

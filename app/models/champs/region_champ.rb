@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Champs::RegionChamp < Champs::TextChamp
+  store_accessor :value_json, :region_code
+  before_save :store_region_code
+
   validate :value_in_region_names, if: -> { !value.nil? && should_validate_in_current_context? }
   validate :external_id_in_region_codes, if: -> { !external_id.nil? && should_validate_in_current_context? }
 
@@ -41,5 +44,9 @@ class Champs::RegionChamp < Champs::TextChamp
     return if external_id.in?(APIGeoService.regions.pluck(:code))
 
     errors.add(:external_id, :not_in_region_codes)
+  end
+
+  def store_region_code
+    self.region_code = code
   end
 end

@@ -89,7 +89,7 @@ class UserMailer < ApplicationMailer
     @archive = archive
     @procedure = procedure
     @archive_url = case administrateur_or_instructeur
-    when Instructeur then instructeur_archives_url(@procedure)
+    when Instructeur then list_instructeur_archives_url(@procedure)
     when Administrateur then admin_procedure_archives_url(@procedure)
     else raise ArgumentError("send_archive expect either an Instructeur or an Administrateur")
     end
@@ -132,6 +132,8 @@ class UserMailer < ApplicationMailer
       "new_account_warning",
       "ask_for_merge",
       "invite_instructeur",
+      "invite_tiers",
+      "resend_confirmation_email",
       "custom_confirmation_instructions",
     ].include?(action_name)
   end

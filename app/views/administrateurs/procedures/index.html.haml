@@ -1,3 +1,4 @@
+- content_for(:title, "Démarches")
 - if ENV.fetch("ADMIN_TABLEAU_SURVEY_ENABLED", "enabled") == "enabled"
   = render Dsfr::NoticeComponent.new(closable: true, data_attributes: { "data-notice-name" => "admin-sondage-champ-tableau" }) do |c|
     - c.with_title do

@@ -63,5 +63,4 @@ fr:
           desc_expired: Lorsque cette option est désactivée, vous ne recevez plus aucune alerte concernant la suppression définitive à venir des dossiers. Veillez à les télécharger ou à étendre leur durée de conservation avant qu’ils ne soient supprimés définitivement.
 
       apercu:
-        title_with_libelle: Prévisualisation de « %{libelle} »
         title: Prévisualisation de la démarche

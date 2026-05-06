@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -57,7 +57,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
     t.datetime "virus_scanned_at", precision: nil
     t.datetime "watermarked_at", precision: nil
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
-    t.index ["virus_scan_result"], name: "index_active_storage_blobs_on_virus_scan_result"
+    t.index ["virus_scan_result", "id"], name: "index_active_storage_blobs_on_pending_virus_scan", order: { id: :desc }
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
@@ -261,6 +261,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
     t.boolean "private", default: false, null: false
     t.datetime "rebased_at", precision: nil
     t.string "row_id"
+    t.string "source_stream"
     t.bigint "stable_id"
     t.string "stream"
     t.string "type"
@@ -887,6 +888,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
     t.boolean "instant_email_new_expert_avis", default: false, null: false
     t.boolean "instant_email_new_message", default: false, null: false
     t.bigint "instructeur_id", null: false
+    t.datetime "last_export_seen_at"
     t.bigint "last_revision_seen_id"
     t.integer "position", null: false
     t.bigint "procedure_id", null: false
@@ -1011,7 +1013,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_21_120000) do
     t.jsonb "expirant_filters", default: [], null: false, array: true
     t.jsonb "filters", default: {"tous"=>[], "suivis"=>[], "traites"=>[], "a-suivre"=>[], "archives"=>[], "expirant"=>[], "supprimes"=>[]}, null: false
     t.boolean "filters_expanded", default: true, null: false
-    t.jsonb "sort", default: {"order"=>"desc", "table"=>"notifications", "column"=>"notifications"}, null: false
+    t.jsonb "sort", default: {"order" => "desc", "table" => "notifications", "column" => "notifications"}, null: false
     t.jsonb "sorted_column"
     t.jsonb "suivis_filters", default: [], null: false, array: true
     t.jsonb "supprimes_filters", default: [], null: false, array: true

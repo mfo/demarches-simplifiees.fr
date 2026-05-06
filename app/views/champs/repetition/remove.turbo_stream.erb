@@ -1,3 +1,7 @@
+<%= turbo_stream.replace dom_id(@champ, :repetition_actions) do %>
+  <%= render partial: "champs/repetition/actions", locals: { champ: @champ, max_reached: @champ.max_reached? } %>
+<% end %>
+
 <%= turbo_stream.update dom_id(@champ, :rows) do %>
   <% @champ.row_ids.each.with_index(1) do |row_id, row_number| %>
     <%= fields_for @champ.input_name, @champ do |form| %>

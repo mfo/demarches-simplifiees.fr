@@ -32,5 +32,4 @@ en:
         modify_template: Edit
         delete_template: Delete
         delete_template_alert: Are you sure you want to delete this template? It will be removed for all instructors in the group
-        page_title: 'Export templates · %{procedure}'
         actions: Actions

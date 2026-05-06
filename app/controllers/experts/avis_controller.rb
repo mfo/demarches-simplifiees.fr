@@ -91,12 +91,10 @@ module Experts
     def create_avis
       # before_action set_avis_and_dossier
       @procedure = @avis.procedure
-      @new_avis = Avis.new
 
       handle_create_avis(
+        claimant: current_expert,
         dossier: @dossier,
-        user: current_expert,
-        params: avis_create_params,
         success_path: instruction_expert_avis_path(@procedure, @avis),
         error_template: :instruction,
         avis_source: @avis
@@ -144,7 +142,11 @@ module Experts
       procedure_id = params[:procedure_id]
       avis_id = params[:id]
       email = params[:email]
-      confirmation_token = params[:user][:confirmation_token]
+      confirmation_token = params.dig(:user, :confirmation_token).presence
+      if confirmation_token.nil?
+        return redirect_to root_path, alert: "Vous n’avez pas accès à cet avis."
+      end
+
       avis = Avis.joins(:procedure, expert: :user)
         .find_by(id: avis_id, procedure: { id: procedure_id }, user: { email:, confirmation_token: })
       if avis.nil?
@@ -278,17 +280,6 @@ module Experts
 
     def avis_answer_params
       params.require(:avis).permit(:answer, :piece_justificative_file, :question_answer)
-    end
-
-    def avis_create_params
-      params.require(:avis).permit(
-        :introduction_file,
-        :introduction,
-        :confidentiel,
-        :invite_linked_dossiers,
-        :question_label,
-        emails: []
-      )
     end
 
     def commentaire_params

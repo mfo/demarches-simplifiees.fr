@@ -40,4 +40,35 @@ class EditableChamp::RepetitionComponent < EditableChamp::EditableChampBaseCompo
       error.inner_error.base.public_id if error.is_a?(ActiveModel::NestedError) && error.inner_error.base.respond_to?(:public_id)
     end.to_set
   end
+
+  def min_repetitions
+    @champ.type_de_champ.min_repetitions.to_i
+  end
+
+  def max_repetitions
+    @champ.type_de_champ.max_repetitions.to_i
+  end
+
+  def max_reached?
+    @champ.max_reached?
+  end
+
+  def show_limits_description?
+    return false if !@champ.type_de_champ.limit_repetitions?
+    @champ.type_de_champ.min_repetitions.present? || @champ.type_de_champ.max_repetitions.present?
+  end
+
+  def limits_description
+    tdc = @champ.type_de_champ
+    has_min = tdc.min_repetitions.present?
+    has_max = tdc.max_repetitions.present?
+
+    if has_min && has_max
+      t(".limits_description_both", min: min_repetitions, max: max_repetitions)
+    elsif has_min
+      t(".limits_description_min", min: min_repetitions)
+    else
+      t(".limits_description_max", max: max_repetitions)
+    end
+  end
 end

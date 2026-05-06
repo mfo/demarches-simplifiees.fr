@@ -252,11 +252,11 @@ module DossierChampsConcern
     champs.filter(&:history_stream?)
   end
 
-  def set_default_value_for_france_connect_champs
-    revision.types_de_champ_public.filter(&:france_connect?).filter_map do |type_de_champ|
-      champ = project_champ(type_de_champ)
+  def set_default_value_for_france_connect_champs(user_email)
+    revision.types_de_champ_public.filter(&:france_connect?).each do |type_de_champ|
+      champ = champ_for_update(type_de_champ, updated_by: user_email)
 
-      champ.fetch! if champ.may_fetch?
+      champ.fetch_later! if champ.may_fetch_later?
     end
   end
 
@@ -425,7 +425,7 @@ module DossierChampsConcern
     if champ.nil?
       champ = Dossier.no_touching do
         champs
-          .create_with(**type_de_champ.params_for_champ)
+          .create_with(**type_de_champ.params_for_champ, source_stream: stream)
           .create_or_find_by!(stable_id: type_de_champ.stable_id, row_id:, stream:)
       end
     end

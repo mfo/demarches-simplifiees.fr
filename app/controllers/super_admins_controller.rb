@@ -9,6 +9,11 @@ class SuperAdminsController < ApplicationController
   end
 
   def enable_otp
+    if !current_super_admin.valid_password?(params[:current_password].to_s)
+      flash[:alert] = "Mot de passe incorrect."
+      redirect_to(edit_super_admin_otp_path) and return
+    end
+
     current_super_admin.enable_otp!
     @qrcode = generate_qr_code
     sign_out :super_admin

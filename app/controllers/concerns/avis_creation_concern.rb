@@ -3,37 +3,62 @@
 module AvisCreationConcern
   extend ActiveSupport::Concern
 
-  def handle_create_avis(dossier:, user:, params:, success_path:, error_template:, avis_source: nil)
-    result = CreateAvisService.call(
-      dossier: dossier,
-      instructeur_or_expert: user,
+  def handle_create_avis(claimant:, dossier:, success_path:, error_template:, avis_source: nil)
+    return render error_template, status: :unprocessable_content if handle_empty_emails
+
+    sent_emails, failed_emails = CreateAvisService.call(
+      claimant:,
       batch: false,
-      params: params,
-      avis_source: avis_source
+      avis: Avis.new(avis_params.merge(dossier:)),
+      avis_source:,
+      emails: avis_emails
     )
 
-    if result.sent_emails.any?
-      if result.sent_emails.count < 5
-        flash[:notice] = "Une demande d’avis a été envoyée à #{result.sent_emails.join(', ')}"
-      else
-        flash[:notice] = "Une demande d’avis a été envoyée à #{result.sent_emails.count} destinataires"
-      end
-    end
-
-    if result.failed_avis.any?
-      @new_avis = result.avis
-
-      flash.now[:alert] = result.failed_avis.flat_map do |failed_avis|
-        if failed_avis.email.blank?
-          failed_avis.errors.full_messages_for(:email)
-        else
-          "#{failed_avis.email} : #{failed_avis.errors.full_messages_for(:email).join(', ')}"
-        end
-      end.join(' | ')
+    if failed_emails.any?
+      flash.now[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
+      flash.now[:alert] = failed_emails_alert(failed_emails) if failed_emails.any?
 
       render error_template, status: :unprocessable_content
     else
+      flash[:notice] = sent_emails_notice(sent_emails) if sent_emails.any?
+
       redirect_to success_path
     end
+  end
+
+  private
+
+  def handle_empty_emails
+    if avis_emails.empty?
+      email_label = User.human_attribute_name(:email)
+      flash.now[:alert] = format(I18n.t('errors.format'), attribute: email_label, message: I18n.t('errors.messages.blank'))
+      true
+    end
+  end
+
+  def avis_params
+    params.require(:avis).permit(
+      :introduction_file,
+      :introduction,
+      :confidentiel,
+      :invite_linked_dossiers,
+      :question_label
+    )
+  end
+
+  def avis_emails
+    Array(params[:avis][:emails]).map(&:strip).map(&:downcase).compact_blank
+  end
+
+  def sent_emails_notice(sent_emails)
+    if sent_emails.count < 5
+      t('avis_creation_concern.avis_sent.with_emails', emails: sent_emails.join(', '))
+    else
+      t('avis_creation_concern.avis_sent.with_count', count: sent_emails.count)
+    end
+  end
+
+  def failed_emails_alert(failed_emails)
+    failed_emails.map { "#{it[:email]} : #{it[:messages].join(', ')}" }.join(' | ')
   end
 end

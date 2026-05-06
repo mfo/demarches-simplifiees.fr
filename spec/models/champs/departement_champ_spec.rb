@@ -146,4 +146,15 @@ describe Champs::DepartementChamp, type: :model do
       expect(champ.to_s).to eq('2B – Haute-Corse')
     end
   end
+
+  describe 'double-write of canonical value_json keys' do
+    it 'persists department_code and region_code alongside code_region after save' do
+      champ.value = '01'
+      champ.save
+
+      expect(champ.value_json['code_region']).to eq('84')
+      expect(champ.value_json['region_code']).to eq('84')
+      expect(champ.value_json['department_code']).to eq('01')
+    end
+  end
 end

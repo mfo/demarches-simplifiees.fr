@@ -216,6 +216,43 @@ describe User, type: :model do
         end
       end
     end
+
+    context 'when find_or_create_by hits RecordNotUnique inside an outer transaction (concurrent jobs race)' do
+      let!(:existing_user) { create(:user, email: email) }
+
+      before do
+        # Reproducing the production race requires two stubs:
+        #   1. valid? → true bypasses Devise :validatable uniqueness so the
+        #      INSERT actually reaches PG and trips the users.email unique
+        #      index, raising ActiveRecord::RecordNotUnique.
+        #   2. Relation#find_by({email: email}) → nil bypasses
+        #      find_or_create_by's initial find_by short-circuit; otherwise it
+        #      returns existing_user immediately and the buggy rescue path is
+        #      never exercised. find_by! (used in the rescue) is a different
+        #      method and stays live, so the SQL still executes.
+        allow_any_instance_of(User).to receive(:valid?).and_return(true)
+        allow_any_instance_of(ActiveRecord::Relation).to receive(:find_by).and_wrap_original do |original, *args|
+          args.first == { email: email } ? nil : original.call(*args)
+        end
+      end
+
+      it 'recovers via where.lock.find_by! without raising FOR UPDATE on outer join' do
+        # With User.default_scope { eager_load(:instructeur, :administrateur, :expert) },
+        # the rescue path's `where(email:).lock.find_by!(email:)` produces
+        # FOR UPDATE on the nullable side of LEFT OUTER JOINs, which PG
+        # refuses with PG::FeatureNotSupported. The fix neutralises the
+        # default_scope via User.unscope(:eager_load).
+        user = nil
+        expect {
+          ActiveRecord::Base.transaction do
+            user = User.create_or_promote_to_expert(email, password)
+          end
+        }.not_to raise_error
+
+        expect(user).to be_persisted
+        expect(user.id).to eq(existing_user.id)
+      end
+    end
   end
 
   describe '.create_or_promote_to_gestionnaire' do
@@ -613,6 +650,49 @@ describe User, type: :model do
       context 'when value is the classic standard user@domain.ext' do
         let(:email) { 'username@mailserver.domain' }
         it { is_expected.to be_truthy }
+      end
+    end
+  end
+
+  describe '.create_or_promote_to_tiers' do
+    let(:dossier) { create(:dossier) }
+    let(:email) { 'beneficiaire@example.com' }
+
+    subject(:promote) { User.create_or_promote_to_tiers(email, SecureRandom.hex, dossier) }
+
+    context 'when no user exists for that email' do
+      it 'creates a new user without marking the email as verified' do
+        expect { promote }.to change { User.where(email: email).count }.from(0).to(1)
+
+        created_user = User.find_by(email: email)
+        expect(created_user.email_verified_at).to be_nil
+        expect(created_user.unverified_email?).to be true
+      end
+
+      it 'does not authenticate the new user via Devise (confirmation must still happen)' do
+        promote
+        created_user = User.find_by(email: email)
+        # The Devise confirmable contract: a freshly-created tiers account
+        # must not be considered confirmed before its owner clicks the email link.
+        expect(created_user.confirmed?).to be false
+      end
+    end
+
+    context 'when an unverified user already exists for that email' do
+      let!(:existing_user) do
+        create(:user,
+          email: email,
+          confirmation_token: 'existing-token',
+          confirmation_sent_at: 2.hours.ago,
+          confirmed_at: nil)
+      end
+
+      it 'does not overwrite the active confirmation_token of the existing user' do
+        expect { promote }.not_to change { existing_user.reload.confirmation_token }
+      end
+
+      it 'does not enqueue an invite_tiers email for the unverified user' do
+        expect { promote }.not_to have_enqueued_mail(UserMailer, :invite_tiers)
       end
     end
   end

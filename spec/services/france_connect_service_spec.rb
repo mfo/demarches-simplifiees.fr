@@ -47,11 +47,6 @@ describe FranceConnectService do
       it { is_expected.to eq('https://www.demarches-simplifiees.fr/france_connect/particulier/callback') }
     end
 
-    context 'when Current.host is the legacy demarches.numerique.gouv.fr' do
-      let(:host) { 'demarches.numerique.gouv.fr' }
-      it { is_expected.to eq('https://demarches.numerique.gouv.fr/france_connect/particulier/callback') }
-    end
-
     context 'when Current.host is a malicious lookalike (substring attack)' do
       let(:host) { 'demarche.numerique.gouv.fr.evil.com' }
       it 'does not substitute the host' do

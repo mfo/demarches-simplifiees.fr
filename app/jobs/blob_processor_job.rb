@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class BlobProcessorJob < ApplicationJob
+  include Skylight::Helpers
+
   queue_as do
     blob = self.arguments.first
     attachment = blob&.attachments&.includes(:record)&.first
@@ -15,6 +17,8 @@ class BlobProcessorJob < ApplicationJob
   discard_on ActiveRecord::RecordNotFound
   discard_on ActiveStorage::FileNotFoundError
   discard_on ActiveRecord::InvalidForeignKey
+  require 'fog/openstack/auth/token'
+  discard_on Fog::OpenStack::Auth::Token::URLError
 
   retry_on(ActiveStorage::IntegrityError, attempts: 5, wait: 5.seconds) do |job, _error|
     blob = job.arguments.first
@@ -44,11 +48,13 @@ class BlobProcessorJob < ApplicationJob
     processable = blob.content_type.in?(PROCESSABLE_TYPES)
 
     # Phase 1: Virus scan + image mutations in a single blob.open to minimize downloads
-    blob.open do |tempfile|
-      scan_virus(tempfile) if !blob.virus_scanner.done?
+    Skylight.instrument(title: "blob.open (download)", category: "app.blob_processor") do
+      blob.open do |tempfile|
+        scan_virus(tempfile) if !blob.virus_scanner.done?
 
-      if attachment && blob.virus_scanner.safe? && processable && needs_mutations?
-        apply_mutations(tempfile)
+        if attachment && blob.virus_scanner.safe? && processable && needs_mutations?
+          apply_mutations(tempfile)
+        end
       end
     end
 
@@ -58,14 +64,15 @@ class BlobProcessorJob < ApplicationJob
     # Phase 2: OCR (external API call)
     add_ocr_data
 
-    # Phase 3: Representations (ActiveStorage manages its own downloads)
-    create_representations if blob.representation_required?
+    # Phase 3: Representations — delegated to ultra_low queue
+    CreateRepresentationsJob.perform_later(blob) if blob.representation_required?
 
     mark_processed
   end
 
   private
 
+  instrument_method
   def scan_virus(tempfile)
     if ClamavService.safe_file?(tempfile.path)
       blob.update_columns(virus_scan_result: ActiveStorage::VirusScanner::SAFE, virus_scanned_at: Time.current)
@@ -74,6 +81,7 @@ class BlobProcessorJob < ApplicationJob
     end
   end
 
+  instrument_method
   def apply_mutations(tempfile)
     autorotate_needed = jpeg? && autorotate_needed?(tempfile)
     uninterlace_needed = png_embeddable_in_pdf? && interlaced?(tempfile)
@@ -130,19 +138,7 @@ class BlobProcessorJob < ApplicationJob
     false
   end
 
-  def create_representations
-    blob.attachments.each do |att|
-      next if !att.representable?
-      att.representation(resize_to_limit: [400, 400]).processed
-      if att.blob.content_type.in?(RARE_IMAGE_TYPES)
-        att.variant(resize_to_limit: [2000, 2000]).processed
-      end
-      if att.record.class == ActionText::RichText
-        att.variant(resize_to_limit: [1024, 768]).processed
-      end
-    end
-  end
-
+  instrument_method
   def add_ocr_data
     champ = attachment.record
     return if !ocr_compatible?(champ)

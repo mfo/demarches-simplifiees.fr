@@ -62,5 +62,4 @@ en:
           desc_expiration: When this option is disabled, you will no longer receive alerts about files expiring before they are automatically moved to the trash.
           desc_expired: When this option is disabled, you will no longer receive alerts about the upcoming permanent deletion of files. Be sure to download them or extend their retention period before they are permanently deleted.
       apercu:
-        title_with_libelle: Preview of « %{libelle} »
         title: Procedure preview

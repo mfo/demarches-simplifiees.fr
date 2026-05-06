@@ -460,7 +460,7 @@ describe Experts::AvisController, type: :controller do
 
         it do
           expect(response).to render_template :instruction
-          expect(flash.alert).to eq("toto.fr : Le champ « Email » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
+          expect(flash.alert).to eq("toto.fr : Le champ « Adresse électronique » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
           expect(Avis.last).to eq(previous_avis)
           expect(dossier.last_avis_updated_at).to eq(nil)
         end
@@ -491,7 +491,7 @@ describe Experts::AvisController, type: :controller do
 
         it do
           expect(response).to render_template :instruction
-          expect(flash.alert).to eq("toto.fr : Le champ « Email » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
+          expect(flash.alert).to eq("toto.fr : Le champ « Adresse électronique » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
           expect(flash.notice).to eq("Une demande d’avis a été envoyée à titi@titimail.com")
           expect(Avis.count).to eq(old_avis_count + 1)
         end
@@ -541,7 +541,7 @@ describe Experts::AvisController, type: :controller do
 
         context 'when the expert also shares the linked dossiers' do
           context 'and the expert can access the linked dossiers' do
-            let(:created_avis) { create(:avis, dossier: dossier, claimant: claimant, email: "toto3@gmail.com") }
+            let(:created_avis) { create(:avis, dossier: dossier, claimant: claimant) }
             let(:linked_dossier) { Dossier.find_by(id: dossier.reload.project_champs_public.filter(&:dossier_link?).filter_map(&:value)) }
             let(:linked_avis) { create(:avis, dossier: linked_dossier, claimant: claimant) }
             let(:invite_linked_dossiers) { true }
@@ -663,7 +663,7 @@ describe Experts::AvisController, type: :controller do
         end
 
         context 'and the expert does not belong to the invitation' do
-          let(:avis) { create(:avis, email: 'another_expert@avis.com', dossier: dossier, experts_procedure: experts_procedure) }
+          let(:avis) { create(:avis, dossier: dossier, experts_procedure: experts_procedure) }
 
           before { sign_in(expert.user) }
           # redirected to dossier but then the instructeur gonna be banished !
@@ -695,6 +695,43 @@ describe Experts::AvisController, type: :controller do
         let(:confirmation_token) { "kthxbye" }
 
         it { is_expected.to redirect_to(root_path) }
+      end
+
+      # Sécurité: un confirmation_token absent ou vide ne doit jamais matcher,
+      # même si un expert déjà confirmé a confirmation_token = NULL en base
+      # (cas d’un user créé via User.create_or_promote_to_expert avec confirmed_at).
+      context 'when the expert user has a NULL confirmation_token in database' do
+        let(:password) { '{Another-$3cure-p4ssWord}' }
+        before { avis.expert.user.update_column(:confirmation_token, nil) }
+
+        context 'when the confirmation_token param is omitted' do
+          subject do
+            post :update_expert, params: {
+              id: avis_id,
+              procedure_id:,
+              email:,
+              user: { password: },
+            }
+          end
+
+          it { is_expected.to redirect_to(root_path) }
+
+          it 'does not change the expert password' do
+            subject
+            expect(avis.expert.user.reload.valid_password?(password)).to be false
+          end
+        end
+
+        context 'when the confirmation_token param is empty' do
+          let(:confirmation_token) { "" }
+
+          it { is_expected.to redirect_to(root_path) }
+
+          it 'does not change the expert password' do
+            subject
+            expect(avis.expert.user.reload.valid_password?(password)).to be false
+          end
+        end
       end
 
       context 'when valid token is provided' do

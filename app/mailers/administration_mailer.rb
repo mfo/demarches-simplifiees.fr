@@ -28,6 +28,6 @@ class AdministrationMailer < ApplicationMailer
   end
 
   def self.critical_email?(action_name)
-    false
+    action_name == "invite_admin"
   end
 end

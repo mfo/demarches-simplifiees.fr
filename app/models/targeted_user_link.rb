@@ -7,7 +7,13 @@ class TargetedUserLink < ApplicationRecord
   enum :target_context, { avis: 'avis', invite: 'invite' }
 
   def invalid_signed_in_user?(signed_in_user)
+    return true if requires_authenticated_user? && signed_in_user.nil?
+
     signed_in_user && signed_in_user.email != target_email
+  end
+
+  def requires_authenticated_user?
+    target_context == 'invite'
   end
 
   def target_email

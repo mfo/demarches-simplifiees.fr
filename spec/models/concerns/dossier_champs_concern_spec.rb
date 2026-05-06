@@ -410,6 +410,7 @@ RSpec.describe DossierChampsConcern do
       expect(champ_99.value).to eq("Hello")
       expect(champ_991.value).to eq("World")
       expect(champ_994.value).to eq("Greer")
+      expect(champ_99.source_stream).to be_nil
     }
 
     context "missing champs" do
@@ -636,6 +637,7 @@ RSpec.describe DossierChampsConcern do
         expect(main_champ_99.stream).to eq(Champ::MAIN_STREAM)
         expect(main_champ_991.stream).to eq(Champ::MAIN_STREAM)
         expect(main_champ_994.stream).to eq(Champ::MAIN_STREAM)
+        expect(main_champ_99.source_stream).to be_nil
 
         expect(main_champ_99.value).to be_nil
         expect(main_champ_991.value).to be_nil
@@ -977,6 +979,10 @@ RSpec.describe DossierChampsConcern do
         expect(user_history_champ_99.value).to eq("Hello???")
         expect(user_history_champ_991.value).to eq("World")
         expect(user_history_champ_994.value).to eq("Greer")
+
+        expect(user_history_champ_99.source_stream).to eq(Champ::USER_BUFFER_STREAM)
+        expect(user_history_champ_991.source_stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
+        expect(user_history_champ_994.source_stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
       }
     end
   end
@@ -988,13 +994,13 @@ RSpec.describe DossierChampsConcern do
     let(:champ_qf) { dossier.champs.first }
     let!(:fci) { create(:france_connect_information, user: dossier.user) }
 
-    subject { dossier.set_default_value_for_france_connect_champs }
+    subject { dossier.set_default_value_for_france_connect_champs(dossier.user.email) }
 
     context 'when the user starts a new dossier' do
-      before { allow(champ_qf).to receive(:fetch!).and_return(nil) }
+      before { allow(champ_qf).to receive(:fetch_later!).and_return(nil) }
       it 'set a default value for the quotient_familial champ' do
         subject
-        expect(champ_qf).to have_received(:fetch!)
+        expect(champ_qf).to have_received(:fetch_later!)
       end
     end
 
@@ -1002,12 +1008,12 @@ RSpec.describe DossierChampsConcern do
       before do
         champ_qf.update(external_state: 'fetched')
         dossier.reload
-        allow(champ_qf).to receive(:fetch!).and_return(nil)
+        allow(champ_qf).to receive(:fetch_later!).and_return(nil)
       end
 
       it 'does not attempt to set the champ again' do
         subject
-        expect(champ_qf).not_to have_received(:fetch!)
+        expect(champ_qf).not_to have_received(:fetch_later!)
       end
     end
 
@@ -1028,7 +1034,7 @@ RSpec.describe DossierChampsConcern do
         @fetched_instances = []
 
         allow_any_instance_of(Champs::QuotientFamilialChamp)
-          .to receive(:fetch!) do |instance|
+          .to receive(:fetch_later!) do |instance|
             @fetched_instances << instance
             nil
           end

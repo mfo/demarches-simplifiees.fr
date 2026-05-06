@@ -41,6 +41,7 @@ module DossierStateConcern
     process_declarative!
     process_sva_svr!
 
+    debounce_index_search_terms_flag.remove
     index_search_terms_later
   end
 

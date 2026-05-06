@@ -29,6 +29,7 @@ class Dsfr::ToggleComponent < ApplicationComponent
     opts = { class: 'fr-toggle__input', disabled: disabled }
     opts[:id] = input_id if @form.object.present?
     opts[:checked] = @checked unless @checked.nil?
+    opts[:data] = @data if @data.present?
     opts
   end
 

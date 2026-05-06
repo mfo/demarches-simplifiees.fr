@@ -287,6 +287,25 @@ describe Users::SessionsController, type: :controller do
         end
       end
     end
+
+    context 'when a different instructeur is signed in than the one bound to the token' do
+      let(:link_instructeur) { create(:instructeur) }
+      let(:other_instructeur) { create(:instructeur) }
+      let!(:link_token) { link_instructeur.create_trusted_device_token }
+
+      before do
+        sign_in(other_instructeur.user)
+        allow_any_instance_of(TrustedDeviceToken).to receive(:token_valid?).and_return(true)
+      end
+
+      subject(:cross_instructeur_request) do
+        post :sign_in_by_link, params: { id: link_instructeur.id, jeton: link_token }
+      end
+
+      it 'does not mark the signed-in user email as verified using another instructeur token' do
+        expect { cross_instructeur_request }.not_to change { other_instructeur.user.reload.email_verified_at }
+      end
+    end
   end
 
   describe '#trust_device and #trusted_device?' do

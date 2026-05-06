@@ -118,6 +118,7 @@ ignore_unused:
 - 'helpers.page_entries_info.*'
 - 'combo_search_component.result_slot_html.*'
 - 'combo_search_component.screen_reader_instructions'
+- 'editable_champ.repetition_component.*'
 - 'links.common.*'
 - 'views.instructeurs.dossiers.acts_on_behalf'
 - 'views.shared.dossiers.identite_entreprise.non_diffusible'

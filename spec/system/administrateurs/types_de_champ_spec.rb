@@ -439,6 +439,25 @@ describe 'As an administrateur I can edit types de champ', js: true do
           expect(page).to have_selector("##{ActionView::RecordIdentifier.dom_id(coordinate, :type_de_champ_editor)} .position", text: coordinate.position + 1)
         end
       end
+
+      scenario 'can configure limit repetitions on repetition champ' do
+        repetition_tdc = initial_second_coordinate.type_de_champ
+
+        find("label[for='#{dom_id(repetition_tdc, :limit_repetitions)}']").click
+        wait_until { repetition_tdc.reload.limit_repetitions == "1" }
+        expect(page).to have_content('Formulaire enregistré')
+
+        fill_in dom_id(repetition_tdc, :min_repetitions), with: '2'
+        wait_until { repetition_tdc.reload.min_repetitions == "2" }
+
+        fill_in dom_id(repetition_tdc, :max_repetitions), with: '5'
+        wait_until { repetition_tdc.reload.max_repetitions == "5" }
+
+        find("label[for='#{dom_id(repetition_tdc, :limit_repetitions)}']").click
+        wait_until { repetition_tdc.reload.limit_repetitions == "0" }
+        expect(repetition_tdc.reload.min_repetitions).to be_nil
+        expect(repetition_tdc.reload.max_repetitions).to be_nil
+      end
     end
   end
 

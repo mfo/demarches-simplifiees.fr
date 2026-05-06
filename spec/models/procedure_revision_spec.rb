@@ -802,6 +802,48 @@ describe ProcedureRevision do
         end
       end
     end
+
+    context 'when repetition limits are changed' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, libelle: 'bloc' }]) }
+      let(:repetition_tdc) { draft.types_de_champ_public.first }
+
+      before do
+        updated_tdc = new_draft.find_and_ensure_exclusive_use(repetition_tdc.stable_id)
+        updated_tdc.update(limit_repetitions: "1", min_repetitions: "2", max_repetitions: "5")
+      end
+
+      it do
+        is_expected.to eq([
+          {
+            op: :update,
+            attribute: :limit_repetitions,
+            label: "bloc",
+            private: false,
+            from: nil,
+            to: "1",
+            stable_id: repetition_tdc.stable_id,
+          },
+          {
+            op: :update,
+            attribute: :min_repetitions,
+            label: "bloc",
+            private: false,
+            from: nil,
+            to: "2",
+            stable_id: repetition_tdc.stable_id,
+          },
+          {
+            op: :update,
+            attribute: :max_repetitions,
+            label: "bloc",
+            private: false,
+            from: nil,
+            to: "5",
+            stable_id: repetition_tdc.stable_id,
+          },
+        ])
+      end
+    end
   end
 
   describe 'compare_ineligibilite_rules' do

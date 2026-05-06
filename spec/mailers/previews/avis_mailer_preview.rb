@@ -9,8 +9,7 @@ class AvisMailerPreview < ActionMailer::Preview
     AvisMailer.avis_invitation_and_confirm_email(
       avis_with_unconfirmed_user.expert.user,
       avis_with_unconfirmed_user.expert.user.confirmation_token,
-      avis_with_unconfirmed_user,
-      avis_with_unconfirmed_user.targeted_user_links.first
+      avis_with_unconfirmed_user
     )
   end
 
@@ -21,20 +20,18 @@ class AvisMailerPreview < ActionMailer::Preview
     AvisMailer.avis_invitation_and_confirm_email(
       avis_with_unverified_user.expert.user,
       avis_with_unverified_user.expert.user.confirmation_token,
-      avis_with_unverified_user,
-      avis_with_unverified_user.targeted_user_links.first
+      avis_with_unverified_user
     )
   end
 
   def avis_invitation_and_confirm_email_with_confirmed_and_verified_user_email
     avis_with_verified_user = Avis.joins(expert: :user).where.not(users: { last_sign_in_at: nil }).where.not(users: { email_verified_at: nil }).first
-    raise if avis_with_unverified_user.nil?
+    raise if avis_with_verified_user.nil?
 
     AvisMailer.avis_invitation_and_confirm_email(
-      avis_with_unverified_user.expert.user,
-      avis_with_unverified_user.expert.user.confirmation_token,
-      avis_with_unverified_user,
-      avis_with_unverified_user.targeted_user_links.first
+      avis_with_verified_user.expert.user,
+      avis_with_verified_user.expert.user.confirmation_token,
+      avis_with_verified_user
     )
   end
 end

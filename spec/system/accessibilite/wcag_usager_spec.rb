@@ -80,8 +80,8 @@ describe 'wcag rules for usager', chrome: true do
 
     context 'password edit for experts' do
       let(:procedure) { create(:procedure, :published) }
-      let(:avis) { create(:avis, dossier: create(:dossier, procedure: procedure), expert: nil, email: 'k@thx.bye') }
-      let(:path) { sign_up_expert_avis_path(procedure_id: procedure.id, id: avis.id, email: avis.email) }
+      let(:avis) { create(:avis, dossier: create(:dossier, procedure: procedure)) }
+      let(:path) { sign_up_expert_avis_path(procedure_id: procedure.id, id: avis.id, email: avis.expert.email) }
       it 'pass wcag tests' do
         test_aria_label_do_not_mix_with_title_attribute
         test_expect_axe_clean_without_main_navigation

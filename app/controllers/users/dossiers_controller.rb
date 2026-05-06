@@ -785,7 +785,7 @@ module Users
     end
 
     def set_default_value_for_france_connect_champs
-      @dossier.set_default_value_for_france_connect_champs
+      @dossier.set_default_value_for_france_connect_champs(current_user.email)
     end
   end
 end

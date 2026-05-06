@@ -164,4 +164,18 @@ describe Champs::EpciChamp, type: :model do
       expect(champ.to_s).to eq(epci[:name])
     end
   end
+
+  describe 'double-write of canonical value_json keys' do
+    it 'mirrors code_departement to department_code' do
+      champ.code_departement = '01'
+      expect(champ.value_json['code_departement']).to eq('01')
+      expect(champ.value_json['department_code']).to eq('01')
+    end
+
+    it 'mirrors code_region to region_code' do
+      champ.code_region = '84'
+      expect(champ.value_json['code_region']).to eq('84')
+      expect(champ.value_json['region_code']).to eq('84')
+    end
+  end
 end

@@ -63,6 +63,21 @@ class FranceConnectController < ApplicationController
   end
 
   def send_email_merge_request
+    user = User.find_by(email: sanitized_email_params)
+
+    if user.present?
+      if params[:password].blank?
+        @merge_email = sanitized_email_params
+        return render :confirm_email_merge_password
+      end
+
+      if !user.valid_for_authentication? { user.valid_password?(params[:password]) }
+        flash.now[:alert] = t('france_connect.flash.invalid_password')
+        @merge_email = sanitized_email_params
+        return render :confirm_email_merge_password
+      end
+    end
+
     @fci.update(requested_email: sanitized_email_params)
 
     @fci.create_email_merge_token!
@@ -150,22 +165,18 @@ class FranceConnectController < ApplicationController
     # rubocop:disable DS/ApplicationName
     ds_dev_redirect_uris = [
       'https://dev.demarches-simplifiees.fr/france_connect/callback',
-      'https://dev.demarches.numerique.gouv.fr/france_connect/callback',
       'https://dev.demarche.numerique.gouv.fr/france_connect/callback',
     ]
 
     ds_prod_redirect_uris = [
       'https://www.demarches-simplifiees.fr/france_connect/callback',
-      'https://demarches.numerique.gouv.fr/france_connect/callback',
       'https://demarche.numerique.gouv.fr/france_connect/callback',
     ]
 
     is_ds_dev = Current.host.include?('dev.demarches-simplifiees.fr') ||
-      Current.host.include?('dev.demarches.numerique.gouv.fr') ||
       Current.host.include?('dev.demarche.numerique.gouv.fr')
 
     is_ds_prod = Current.host.include?('www.demarches-simplifiees.fr') ||
-      Current.host.include?('demarches.numerique.gouv.fr') ||
       Current.host.include?('demarche.numerique.gouv.fr')
     # rubocop:enable DS/ApplicationName
 

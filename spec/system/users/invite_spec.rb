@@ -27,7 +27,7 @@ describe 'Invitations' do
     context 'when inviting someone without an existing account' do
       let(:invite) { create(:invite, dossier: dossier, user: nil) }
 
-      scenario 'an invited user can register using the targeted_user_link sent in the invitation email', js: true do
+      scenario 'an invited user receiving the targeted_user_link is asked to authenticate first', js: true do
         log_in(owner)
         navigate_to_brouillon(dossier)
 
@@ -45,7 +45,7 @@ describe 'Invitations' do
 
         page.reset_session!
         visit URI.parse(targeted_user_link_url(targeted_user_link)).request_uri
-        expect(page).to have_current_path("/users/sign_up?user%5Bemail%5D=user_invite%40exemple.fr")
+        expect(page).to have_current_path("/users/sign_in")
       end
     end
 
@@ -132,6 +132,23 @@ describe 'Invitations' do
       expect(page).to have_css('.autosave-status.failed')
       expect(page).to have_button('Vérifier le dossier', disabled: true)
       expect(page).to have_button('Prévenir le titulaire de vos modifications', disabled: true)
+    end
+
+    scenario 'opening invite modal after session expired redirects to sign in then back to dossier', js: true do
+      log_in(owner)
+      navigate_to_brouillon(dossier)
+
+      # Simulate session expiration (e.g. logged out in another tab, or iOS bfcache)
+      logout(:user)
+
+      click_on "Inviter une personne à modifier ce dossier"
+
+      expect(page).to have_current_path(new_user_session_path, ignore_query: true)
+
+      # After signing in, the user must come back to the dossier page,
+      # not to the orphaned invites modal fragment URL.
+      sign_in_with(owner.email, owner.password)
+      expect(page).to have_current_path(brouillon_dossier_path(dossier))
     end
   end
 

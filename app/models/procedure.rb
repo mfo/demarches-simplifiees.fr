@@ -249,6 +249,7 @@ class Procedure < ApplicationRecord
     'types_de_champ/libelle': true,
     'types_de_champ/number': true,
     'types_de_champ/date': true,
+    'types_de_champ/repetition': true,
     on: [:types_de_champ_public_editor, :publication]
 
   validates :draft_types_de_champ_private,
@@ -261,6 +262,7 @@ class Procedure < ApplicationRecord
     'types_de_champ/libelle': true,
     'types_de_champ/number': true,
     'types_de_champ/date': true,
+    'types_de_champ/repetition': true,
     on: [:types_de_champ_private_editor, :publication]
 
   validate :check_juridique, on: [:create, :publication]
@@ -649,7 +651,7 @@ class Procedure < ApplicationRecord
 
   def restore(author)
     if discarded? && undiscard
-      dossiers.hidden_by_administration.find_each do |dossier|
+      dossiers.hidden_by_procedure_removed.find_each do |dossier|
         dossier.restore(author)
       end
     end
@@ -750,7 +752,7 @@ class Procedure < ApplicationRecord
     label_ids_positions = ordered_label_ids.each.with_index.to_h
     Label.transaction do
       label_ids_positions.each do |label_id, position|
-        Label.where(id: label_id).update(position:)
+        labels.where(id: label_id).update(position:)
       end
     end
   end

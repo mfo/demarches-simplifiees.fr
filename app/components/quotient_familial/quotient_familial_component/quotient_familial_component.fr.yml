@@ -2,3 +2,4 @@
 fr:
   external_champ:
     header: Les données suivantes ont été récupérées de façon sécurisée auprès des administrations en charge.
+    waiting_banner: Vos données sont en cours de récupération auprès des administrations en charge.

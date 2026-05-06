@@ -67,12 +67,12 @@ class Logic::ChampValue < Logic::Term
     when "Champs::DepartementChamp"
       {
         value: targeted_champ.code,
-        code_region: targeted_champ.code_region,
+        region_code: targeted_champ.code_region,
       }
     when "Champs::CommuneChamp", "Champs::EpciChamp", "Champs::AddressChamp"
       {
-        code_departement: targeted_champ.code_departement,
-        code_region: targeted_champ.code_region,
+        department_code: targeted_champ.code_departement,
+        region_code: targeted_champ.code_region,
       }
     end
   end

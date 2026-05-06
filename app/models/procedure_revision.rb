@@ -665,6 +665,25 @@ class ProcedureRevision < ApplicationRecord
           from_type_de_champ.max_character_length,
           to_type_de_champ.max_character_length)
       end
+    elsif to_type_de_champ.repetition?
+      if from_type_de_champ.limit_repetitions != to_type_de_champ.limit_repetitions
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :limit_repetitions,
+          from_type_de_champ.limit_repetitions,
+          to_type_de_champ.limit_repetitions)
+      end
+      if from_type_de_champ.min_repetitions != to_type_de_champ.min_repetitions
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :min_repetitions,
+          from_type_de_champ.min_repetitions,
+          to_type_de_champ.min_repetitions)
+      end
+      if from_type_de_champ.max_repetitions != to_type_de_champ.max_repetitions
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :max_repetitions,
+          from_type_de_champ.max_repetitions,
+          to_type_de_champ.max_repetitions)
+      end
     elsif to_type_de_champ.referentiel?
       compare_referentiel_changes(from_type_de_champ, to_type_de_champ).each do |change|
         changes << change

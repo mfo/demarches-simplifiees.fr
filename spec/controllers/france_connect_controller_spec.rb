@@ -531,19 +531,66 @@ describe FranceConnectController, type: :controller do
     let(:merge_token) { fci.create_merge_token! }
     let(:email) { 'requested_email@.a.com' }
 
-    subject { post :send_email_merge_request, params: { merge_token: merge_token, email: } }
+    subject { post :send_email_merge_request, params: { merge_token: merge_token, email: }.merge(extra_params) }
+    let(:extra_params) { {} }
 
-    it 'renew token' do
-      allow(UserMailer).to receive_message_chain(:france_connect_merge_confirmation, :deliver_later)
-      subject
+    context 'when no account exists at the requested email' do
+      it 'sends the confirmation email and redirects' do
+        allow(UserMailer).to receive_message_chain(:france_connect_merge_confirmation, :deliver_later)
+        subject
 
-      fci.reload
-      expect(fci.requested_email).to eq(email)
-      expect(fci.email_merge_token).to be_present
+        fci.reload
+        expect(fci.requested_email).to eq(email)
+        expect(fci.email_merge_token).to be_present
 
-      expect(UserMailer).to have_received(:france_connect_merge_confirmation).with(email, fci.email_merge_token, fci.email_merge_token_created_at)
+        expect(UserMailer).to have_received(:france_connect_merge_confirmation).with(email, fci.email_merge_token, fci.email_merge_token_created_at)
 
-      expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when an account already exists at the requested email' do
+      let(:email) { 'existing_user@a.com' }
+      let!(:user) { create(:user, email:, password: SECURE_PASSWORD) }
+
+      context 'and no password is provided' do
+        it 'renders the password confirmation page and does not send the email' do
+          expect(UserMailer).not_to receive(:france_connect_merge_confirmation)
+          subject
+
+          expect(response).to render_template(:confirm_email_merge_password)
+          expect(fci.reload.email_merge_token).to be_nil
+          expect(fci.reload.requested_email).to be_nil
+        end
+      end
+
+      context 'and the password is invalid' do
+        let(:extra_params) { { password: 'wrong_password' } }
+
+        it 'renders the password confirmation page with an error and does not send the email' do
+          expect(UserMailer).not_to receive(:france_connect_merge_confirmation)
+          subject
+
+          expect(response).to render_template(:confirm_email_merge_password)
+          expect(flash[:alert]).to eq(I18n.t('france_connect.flash.invalid_password'))
+          expect(fci.reload.email_merge_token).to be_nil
+        end
+      end
+
+      context 'and the password is valid' do
+        let(:extra_params) { { password: SECURE_PASSWORD } }
+
+        it 'sends the confirmation email and redirects' do
+          allow(UserMailer).to receive_message_chain(:france_connect_merge_confirmation, :deliver_later)
+          subject
+
+          fci.reload
+          expect(fci.requested_email).to eq(email)
+          expect(fci.email_merge_token).to be_present
+          expect(UserMailer).to have_received(:france_connect_merge_confirmation).with(email, fci.email_merge_token, fci.email_merge_token_created_at)
+          expect(response).to redirect_to(root_path)
+        end
+      end
     end
   end
 end

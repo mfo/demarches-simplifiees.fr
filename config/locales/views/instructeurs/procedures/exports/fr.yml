@@ -32,5 +32,4 @@ fr:
         modify_template: Modifier
         delete_template: Supprimer
         delete_template_alert: Voulez-vous vraiment supprimer ce modèle ? Il sera supprimé pour tous les instructeurs qui y ont accès.
-        page_title: 'Modèles d’export · %{procedure}'
         actions: Actions

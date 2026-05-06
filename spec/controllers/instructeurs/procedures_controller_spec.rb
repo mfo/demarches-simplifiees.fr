@@ -556,22 +556,23 @@ describe Instructeurs::ProceduresController, type: :controller do
 
         context 'with generated export' do
           render_views
+          let(:exports_seen_at) { nil }
+
           before do
             create(:export, :generated, groupe_instructeurs: [gi_2], updated_at: 1.minute.ago)
 
             if exports_seen_at
-              cookies.encrypted["exports_#{procedure.id}_seen_at"] = exports_seen_at.to_datetime.to_s
+              create(:instructeurs_procedure, instructeur:, procedure:, last_export_seen_at: exports_seen_at)
             end
 
             subject
           end
 
-          context 'without cookie' do
-            let(:exports_seen_at) { nil }
+          context 'without instructeur_procedure record' do
             it { expect(assigns(:has_export_notification)).to be(true) }
           end
 
-          context 'with cookie in past' do
+          context 'with last_export_seen_at in the past' do
             let(:exports_seen_at) { 1.hour.ago }
             it do
               expect(assigns(:has_export_notification)).to be(true)
@@ -579,7 +580,7 @@ describe Instructeurs::ProceduresController, type: :controller do
             end
           end
 
-          context 'with cookie set after last generated export' do
+          context 'with last_export_seen_at after the last generated export' do
             let(:exports_seen_at) { 10.seconds.ago }
             it { expect(assigns(:has_export_notification)).to be(false) }
           end
@@ -979,7 +980,7 @@ describe Instructeurs::ProceduresController, type: :controller do
       it { expect { subject }.to change { Export.where(user_profile: instructeur).count }.by(1) }
 
       context 'with an export template' do
-        let(:export_template) { create(:export_template) }
+        let(:export_template) { create(:export_template, groupe_instructeur: gi_0) }
         subject do
           get :download_export, params: { export_template_id: export_template.id, procedure_id: procedure.id }
         end
@@ -1041,6 +1042,31 @@ describe Instructeurs::ProceduresController, type: :controller do
         expect(response.media_type).to eq('text/vnd.turbo-stream.html')
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(polling_last_export_instructeur_procedure_path(procedure))
+      end
+    end
+
+    context 'when an export_template_id from another procedure is supplied' do
+      let(:other_procedure) { create(:procedure) }
+      let(:other_groupe_instructeur) { create(:groupe_instructeur, procedure: other_procedure) }
+      let(:other_export_template) do
+        create(:export_template, kind: 'csv', groupe_instructeur: other_groupe_instructeur)
+      end
+      let!(:other_export) do
+        export = create(:export,
+          groupe_instructeurs: [other_groupe_instructeur],
+          export_template: other_export_template,
+          format: Export.formats.fetch(:csv),
+          job_status: 'generated')
+        export.file.attach(io: StringIO.new('other procedure export'), filename: 'other.csv')
+        export
+      end
+
+      subject do
+        get :download_export, params: { procedure_id: procedure.id, export_template_id: other_export_template.id }
+      end
+
+      it 'does not resolve the export template to one bound to a procedure the instructeur cannot access' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 
@@ -1123,6 +1149,13 @@ describe Instructeurs::ProceduresController, type: :controller do
     context 'when logged in through super admin' do
       let(:manager) { true }
       it { is_expected.to have_http_status(:forbidden) }
+    end
+
+    it 'records last_export_seen_at on the instructeur_procedure' do
+      freeze_time do
+        subject
+        expect(InstructeursProcedure.find_by(instructeur:, procedure:).last_export_seen_at).to eq(Time.current)
+      end
     end
   end
 

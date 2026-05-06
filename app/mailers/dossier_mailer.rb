@@ -216,7 +216,7 @@ class DossierMailer < ApplicationMailer
   end
 
   def self.critical_email?(action_name)
-    false
+    action_name == "notify_transfer"
   end
 
   protected
