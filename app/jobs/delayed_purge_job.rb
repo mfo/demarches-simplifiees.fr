@@ -4,7 +4,7 @@ class DelayedPurgeJob < ApplicationJob
   queue_as :low
 
   # when storage is down, errors come in a variety of forms
-  with_options(wait: :polynomially_longer) do
+  with_options(wait: :polynomially_longer, attempts: MAX_ATTEMPTS_JOBS) do
     retry_on Excon::Error::BadGateway
     retry_on Excon::Error::ServiceUnavailable
     retry_on Excon::Error::InternalServerError
@@ -18,7 +18,7 @@ class DelayedPurgeJob < ApplicationJob
   end
 
   # rate limit reached
-  retry_on Excon::Error::TooManyRequests, wait: 10.minutes
+  retry_on Excon::Error::TooManyRequests, wait: 10.minutes, attempts: MAX_ATTEMPTS_JOBS
 
   # can discard
   discard_on ActiveRecord::RecordNotFound
