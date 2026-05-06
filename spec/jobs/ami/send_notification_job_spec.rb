@@ -23,7 +23,7 @@ RSpec.describe Ami::SendNotificationJob, type: :job do
     allow(client).to receive(:send_notification).and_return(Dry::Monads::Failure(non_retryable_error))
     allow(Sentry).to receive(:capture_exception)
 
-    expect { described_class.perform_now(payload, context) }.not_to raise_error
+    expect { described_class.perform_now(payload, context) }.to raise_error
     expect(Sentry).to have_received(:capture_exception).with(instance_of(RuntimeError), anything).once
   end
 end

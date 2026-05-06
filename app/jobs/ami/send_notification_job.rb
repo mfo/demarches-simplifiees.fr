@@ -5,6 +5,8 @@ class Ami::SendNotificationJob < ApplicationJob
 
   discard_on ActiveRecord::RecordNotFound
 
+  use_sidekiq_retry
+
   queue_as :default
 
   def perform(payload, context = {})
