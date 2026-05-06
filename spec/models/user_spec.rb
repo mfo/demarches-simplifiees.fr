@@ -216,6 +216,43 @@ describe User, type: :model do
         end
       end
     end
+
+    context 'when find_or_create_by hits RecordNotUnique inside an outer transaction (concurrent jobs race)' do
+      let!(:existing_user) { create(:user, email: email) }
+
+      before do
+        # Reproducing the production race requires two stubs:
+        #   1. valid? → true bypasses Devise :validatable uniqueness so the
+        #      INSERT actually reaches PG and trips the users.email unique
+        #      index, raising ActiveRecord::RecordNotUnique.
+        #   2. Relation#find_by({email: email}) → nil bypasses
+        #      find_or_create_by's initial find_by short-circuit; otherwise it
+        #      returns existing_user immediately and the buggy rescue path is
+        #      never exercised. find_by! (used in the rescue) is a different
+        #      method and stays live, so the SQL still executes.
+        allow_any_instance_of(User).to receive(:valid?).and_return(true)
+        allow_any_instance_of(ActiveRecord::Relation).to receive(:find_by).and_wrap_original do |original, *args|
+          args.first == { email: email } ? nil : original.call(*args)
+        end
+      end
+
+      it 'recovers via where.lock.find_by! without raising FOR UPDATE on outer join' do
+        # With User.default_scope { eager_load(:instructeur, :administrateur, :expert) },
+        # the rescue path's `where(email:).lock.find_by!(email:)` produces
+        # FOR UPDATE on the nullable side of LEFT OUTER JOINs, which PG
+        # refuses with PG::FeatureNotSupported. The fix neutralises the
+        # default_scope via User.unscope(:eager_load).
+        user = nil
+        expect {
+          ActiveRecord::Base.transaction do
+            user = User.create_or_promote_to_expert(email, password)
+          end
+        }.not_to raise_error
+
+        expect(user).to be_persisted
+        expect(user.id).to eq(existing_user.id)
+      end
+    end
   end
 
   describe '.create_or_promote_to_gestionnaire' do

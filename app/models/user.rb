@@ -174,7 +174,7 @@ class User < ApplicationRecord
   end
 
   def self.create_or_promote_to_expert(email, password)
-    user = User
+    user = User.unscope(:eager_load)
       .create_with(password: password, confirmed_at: Time.zone.now)
       .find_or_create_by(email: email)
 
