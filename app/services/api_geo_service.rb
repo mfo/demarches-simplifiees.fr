@@ -370,9 +370,7 @@ class APIGeoService
     end
 
     def get_from_api_geo(scope)
-      Rails.cache.fetch("api_geo_#{scope}", expires_in: 1.day, version: 3) do
-        JSON.parse(Rails.root.join('lib', 'data', 'api_geo', "#{scope}.json").read, symbolize_names: true)
-      end
+      JSON.parse(Rails.root.join('lib', 'data', 'api_geo', "#{scope}.json").read, symbolize_names: true).freeze
     end
 
     def countries_index_fr
@@ -393,6 +391,15 @@ class APIGeoService
     end
 
     private
+
+    def reset_memo!
+      @memo = nil
+    end
+
+    def memoize(*key)
+      @memo ||= Concurrent::Map.new
+      @memo.compute_if_absent(key) { yield }
+    end
 
     def fetch_by_name(name)
       if degraded_mode?

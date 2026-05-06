@@ -182,4 +182,37 @@ describe APIGeoService do
       expect(results[0]["nom"]).to eq("Blois")
     end
   end
+
+  describe 'memoization helper' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'caches the block result for repeated calls with the same key' do
+      counter = 0
+      first  = APIGeoService.send(:memoize, :test_key) { counter += 1; counter }
+      second = APIGeoService.send(:memoize, :test_key) { counter += 1; counter }
+      expect(first).to eq(1)
+      expect(second).to eq(1)
+      expect(counter).to eq(1)
+    end
+
+    it 'is keyed by the variadic argument list' do
+      a = APIGeoService.send(:memoize, :ns, 'a') { 'value-a' }
+      b = APIGeoService.send(:memoize, :ns, 'b') { 'value-b' }
+      expect(a).to eq('value-a')
+      expect(b).to eq('value-b')
+    end
+
+    it 'is cleared by reset_memo!' do
+      counter = 0
+      APIGeoService.send(:memoize, :test_key) { counter += 1 }
+      APIGeoService.send(:reset_memo!)
+      APIGeoService.send(:memoize, :test_key) { counter += 1 }
+      expect(counter).to eq(2)
+    end
+
+    it 'returns frozen data from get_from_api_geo' do
+      expect(APIGeoService.send(:get_from_api_geo, :regions)).to be_frozen
+    end
+  end
 end
