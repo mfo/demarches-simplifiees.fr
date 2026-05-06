@@ -54,6 +54,39 @@ describe APIParticulier::QuotientFamilial do
       end
     end
 
+    context "when success response with reduced scopes" do
+      let(:status) { 200 }
+      let(:body) {
+        {
+          data:
+            {
+              "adresse": {
+                "pays": "FRANCE",
+                "lieu_dit": nil,
+                "destinataire": "Madame ROUX Jeanne",
+                "code_postal_ville": "75002 PARIS",
+                "numero_libelle_voie": "1 RUE MONTORGUEIL",
+                "complement_information": nil,
+                "complement_information_geographique": nil,
+              },
+              "allocataires": [
+                {
+                  "sexe": "F",
+                  "prenoms": "JEANNE STEPHANIE",
+                  "nom_usage": "ROUX",
+                  "nom_naissance": "ROUX",
+                  "date_naissance": "1987-06-27",
+                },
+              ],
+            },
+        }.to_json
+      }
+
+      it 'returns a Success' do
+        expect(subject).to be_success
+      end
+    end
+
     context "when success response with not valid schema" do
       let(:status) { 200 }
       let(:body) {

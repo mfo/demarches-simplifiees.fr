@@ -6,11 +6,11 @@
   "properties": {
     "data": {
       "type": "object",
-      "required": [
-        "allocataires",
-        "enfants",
-        "adresse",
-        "quotient_familial"
+      "anyOf": [
+        { "required": ["allocataires"] },
+        { "required": ["enfants"] },
+        { "required": ["adresse"] },
+        { "required": ["quotient_familial"] }
       ],
       "properties": {
         "allocataires": {
