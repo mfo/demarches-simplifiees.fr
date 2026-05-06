@@ -3,4 +3,8 @@
     %h2.huge-title Espace Manager
     %p Munissez-vous de votre téléphone sur lequel vous avez installé une application cliente 2FA (Google Authenticator, Authy, AndOTP, ...)
     %br
-    %p= link_to "Activer l’authentification double-facteur", enable_super_admin_otp_path, method: :put, class: 'fr-btn fr-btn--lg'
+    = form_with url: enable_super_admin_otp_path, method: :put, local: true do |f|
+      .fr-input-group
+        = f.label :current_password, "Mot de passe actuel", class: 'fr-label'
+        = f.password_field :current_password, autocomplete: 'current-password', required: true, class: 'fr-input'
+      = f.submit "Activer l’authentification double-facteur", class: 'fr-btn fr-btn--lg'
