@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Champs::QuotientFamilialChamp < Champ
+  REFRESH_DELAY = 24.hours
+
   attr_accessor :preview_state
 
   def fc_data_approved? = ActiveModel::Type::Boolean.new.cast(value)
