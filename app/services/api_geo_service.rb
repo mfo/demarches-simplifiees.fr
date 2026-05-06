@@ -100,10 +100,11 @@ class APIGeoService
     end
 
     def communes_by_postal_code(postal_code)
-      Rails.cache.fetch("api_geo_communes_by_pc_#{postal_code}", expires_in: 1.week, version: 3) do
+      memoize(:communes_by_postal_code, postal_code) do
         communes_by_postal_code_map.fetch(postal_code, [])
           .filter { !_1[:code].in?(['75056', '13055', '69123']) }
           .sort_by { I18n.transliterate([_1[:name], _1[:postal_code]].join(' ')) }
+          .freeze
       end
     end
 
@@ -367,11 +368,12 @@ class APIGeoService
     end
 
     def communes_by_postal_code_map
-      Rails.cache.fetch('api_geo_communes', expires_in: 1.day, version: 3) do
+      memoize(:communes_by_postal_code_map) do
         departements
           .filter { _1[:code] != '99' }
           .flat_map { communes(_1[:code]) }
           .group_by { _1[:postal_code] }
+          .freeze
       end
     end
 
@@ -404,7 +406,11 @@ class APIGeoService
 
     def memoize(*key)
       @memo ||= Concurrent::Map.new
-      @memo.compute_if_absent(key) { yield }
+      cached = @memo[key]
+      return cached if !cached.nil?
+
+      computed = yield
+      @memo.put_if_absent(key, computed) || computed
     end
 
     def fetch_by_name(name)

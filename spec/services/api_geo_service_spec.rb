@@ -253,4 +253,23 @@ describe APIGeoService do
       expect(first).to be_frozen
     end
   end
+
+  describe 'postal-code index memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes communes_by_postal_code' do
+      first  = APIGeoService.communes_by_postal_code('75019')
+      second = APIGeoService.communes_by_postal_code('75019')
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+
+    it 'memoizes the postal-code inverted index map' do
+      first  = APIGeoService.send(:communes_by_postal_code_map)
+      second = APIGeoService.send(:communes_by_postal_code_map)
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
 end
