@@ -443,11 +443,11 @@ class APIGeoService
     end
 
     def prepare_departements_data
-      Rails.cache.fetch('api_geo_degraded_departements_data', expires_in: 1.day, version: 1) do
+      memoize(:departements_data) do
         departements.each_with_object({}) do |departement, data|
           next if departement[:code] == '99'
           data[departement[:code]] = get_from_api_geo("communes-#{departement[:code]}")
-        end
+        end.freeze
       end
     end
 
