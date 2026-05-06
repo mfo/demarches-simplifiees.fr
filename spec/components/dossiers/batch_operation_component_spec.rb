@@ -25,7 +25,11 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
 
     context 'statut traite' do
       let(:statut) { 'traites' }
-      it { is_expected.to have_button('Archiver les dossiers', disabled: true) }
+      it do
+        is_expected.to have_button('Archiver les dossiers', disabled: true)
+        is_expected.to have_button('Mettre les dossiers à la corbeille', disabled: true)
+        is_expected.to have_button('Envoyer un message aux usagers', disabled: true)
+      end
     end
 
     context 'statut suivis' do
@@ -58,13 +62,26 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
 
     context 'statut a-suivre' do
       let(:statut) { 'a-suivre' }
-      it { is_expected.to have_button('Suivre les dossiers', disabled: true) }
+      it do
+        is_expected.to have_button('Passer les dossiers en instruction', disabled: true)
+        is_expected.to have_button('Suivre les dossiers', disabled: true)
+        is_expected.to have_button('Envoyer un message aux usagers', disabled: true)
+      end
     end
 
     context 'statut tous' do
       let(:statut) { 'tous' }
       it do
         is_expected.to have_button('Envoyer un message aux usagers', disabled: true)
+        is_expected.to have_button('Instruire les dossiers', disabled: true)
+        is_expected.to have_button('Autres actions multiples', disabled: true)
+        is_expected.to have_button('Suivre les dossiers', disabled: true)
+        is_expected.to have_button('Ne plus suivre les dossiers', disabled: true)
+        is_expected.to have_button('Passer les dossiers en instruction', disabled: true)
+        is_expected.to have_button('Repasser les dossiers en construction', disabled: true)
+        is_expected.to have_button('Archiver les dossiers', disabled: true)
+        is_expected.to have_button('Mettre les dossiers à la corbeille', disabled: true)
+        is_expected.to have_button('Demander un avis externe', disabled: true)
       end
     end
 
