@@ -2,3 +2,4 @@
 en:
   external_champ:
     header: The following data has been securely retrieved from the relevant authorities.
+    waiting_banner: Your data is being retrieved from the relevant authorities.

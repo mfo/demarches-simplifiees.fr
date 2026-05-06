@@ -20,21 +20,22 @@
   .fr-mb-2w
     = render QuotientFamilial::QuotientFamilialComponent.new(qf_data:, with_header: true)
 
-  .fr-fieldset
-    .fr-fieldset__legend--regular.fr-fieldset__legend
-      = t('.external_champ.confirmation.question')
-      = render EditableChamp::AsteriskMandatoryComponent.new
-    .fr-fieldset__element.fr-fieldset__element--inline
-      .fr-radio-group
-        = @form.radio_button :value, true, id: "#{@champ.stable_id}_correct", aria: labelledby_id_attr(input_label_id(@champ, :correct))
-        %label.fr-label{ for: "#{@champ.stable_id}_correct", id: input_label_id(@champ, :correct) }
-          = t('.external_champ.confirmation.true')
+  - if fetched?
+    .fr-fieldset
+      .fr-fieldset__legend--regular.fr-fieldset__legend
+        = t('.external_champ.confirmation.question')
+        = render EditableChamp::AsteriskMandatoryComponent.new
+      .fr-fieldset__element.fr-fieldset__element--inline
+        .fr-radio-group
+          = @form.radio_button :value, true, id: "#{@champ.stable_id}_correct", aria: labelledby_id_attr(input_label_id(@champ, :correct))
+          %label.fr-label{ for: "#{@champ.stable_id}_correct", id: input_label_id(@champ, :correct) }
+            = t('.external_champ.confirmation.true')
 
-    .fr-fieldset__element.fr-fieldset__element--inline
-      .fr-radio-group
-        = @form.radio_button :value, false, id: "#{@champ.stable_id}_incorrect", aria: labelledby_id_attr(input_label_id(@champ, :incorrect))
-        %label.fr-label{ for: "#{@champ.stable_id}_incorrect", id: input_label_id(@champ, :incorrect) }
-          = t('.external_champ.confirmation.false')
+      .fr-fieldset__element.fr-fieldset__element--inline
+        .fr-radio-group
+          = @form.radio_button :value, false, id: "#{@champ.stable_id}_incorrect", aria: labelledby_id_attr(input_label_id(@champ, :incorrect))
+          %label.fr-label{ for: "#{@champ.stable_id}_incorrect", id: input_label_id(@champ, :incorrect) }
+            = t('.external_champ.confirmation.false')
 
   - if render_data_incorrect_callout?
     .fr-callout.fr-callout--yellow-moutarde

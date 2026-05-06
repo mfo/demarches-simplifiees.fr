@@ -90,4 +90,12 @@ describe EditableChamp::QuotientFamilialComponent, type: :component do
       end
     end
   end
+
+  context 'when data is being retrieved' do
+    before { champ.update(external_state: 'waiting_for_job') }
+
+    it 'informs the user that their data is being retrieved' do
+      expect(subject).to have_text('Vos données sont en cours de récupération auprès des administrations en charge.')
+    end
+  end
 end

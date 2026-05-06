@@ -13,6 +13,8 @@ class QuotientFamilial::QuotientFamilialComponent < ApplicationComponent
   end
 
   def data
+    return [] if qf_data.nil?
+
     qf = qf_data["quotient_familial"]
     allocataires = qf_data["allocataires"]
     enfants = qf_data["enfants"]
