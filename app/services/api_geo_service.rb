@@ -78,7 +78,9 @@ class APIGeoService
     end
 
     def epcis(departement_code)
-      get_from_api_geo("epcis-#{departement_code}").sort_by { I18n.transliterate(_1[:name]) }
+      memoize(:epcis, departement_code) do
+        get_from_api_geo("epcis-#{departement_code}").sort_by { I18n.transliterate(_1[:name]) }.freeze
+      end
     end
 
     def epci_name(departement_code, code)
@@ -92,8 +94,8 @@ class APIGeoService
     def communes(departement_code)
       return [] if departement_code.blank? || departement_code == '99'
 
-      Rails.cache.fetch("api_geo_communes_by_dpt_#{departement_code}", expires_in: 1.week, version: 1) do
-        get_from_api_geo("communes-#{departement_code}").sort_by { I18n.transliterate([_1[:name], _1[:postal_code]].join(' ')) }
+      memoize(:communes, departement_code) do
+        get_from_api_geo("communes-#{departement_code}").sort_by { I18n.transliterate([_1[:name], _1[:postal_code]].join(' ')) }.freeze
       end
     end
 

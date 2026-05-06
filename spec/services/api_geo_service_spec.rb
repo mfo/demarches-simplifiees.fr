@@ -234,4 +234,23 @@ describe APIGeoService do
       expect(first).to be_frozen
     end
   end
+
+  describe 'per-departement memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes communes per departement code' do
+      first  = APIGeoService.communes('01')
+      second = APIGeoService.communes('01')
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+
+    it 'memoizes epcis per departement code' do
+      first  = APIGeoService.epcis('01')
+      second = APIGeoService.epcis('01')
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
 end
