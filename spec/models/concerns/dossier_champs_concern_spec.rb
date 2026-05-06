@@ -410,6 +410,7 @@ RSpec.describe DossierChampsConcern do
       expect(champ_99.value).to eq("Hello")
       expect(champ_991.value).to eq("World")
       expect(champ_994.value).to eq("Greer")
+      expect(champ_99.source_stream).to be_nil
     }
 
     context "missing champs" do
@@ -636,6 +637,7 @@ RSpec.describe DossierChampsConcern do
         expect(main_champ_99.stream).to eq(Champ::MAIN_STREAM)
         expect(main_champ_991.stream).to eq(Champ::MAIN_STREAM)
         expect(main_champ_994.stream).to eq(Champ::MAIN_STREAM)
+        expect(main_champ_99.source_stream).to be_nil
 
         expect(main_champ_99.value).to be_nil
         expect(main_champ_991.value).to be_nil
@@ -977,6 +979,10 @@ RSpec.describe DossierChampsConcern do
         expect(user_history_champ_99.value).to eq("Hello???")
         expect(user_history_champ_991.value).to eq("World")
         expect(user_history_champ_994.value).to eq("Greer")
+
+        expect(user_history_champ_99.source_stream).to eq(Champ::USER_BUFFER_STREAM)
+        expect(user_history_champ_991.source_stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
+        expect(user_history_champ_994.source_stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
       }
     end
   end

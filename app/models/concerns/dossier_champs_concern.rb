@@ -425,7 +425,7 @@ module DossierChampsConcern
     if champ.nil?
       champ = Dossier.no_touching do
         champs
-          .create_with(**type_de_champ.params_for_champ)
+          .create_with(**type_de_champ.params_for_champ, source_stream: stream)
           .create_or_find_by!(stable_id: type_de_champ.stable_id, row_id:, stream:)
       end
     end

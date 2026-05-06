@@ -261,6 +261,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
     t.boolean "private", default: false, null: false
     t.datetime "rebased_at", precision: nil
     t.string "row_id"
+    t.string "source_stream"
     t.bigint "stable_id"
     t.string "stream"
     t.string "type"
@@ -1012,7 +1013,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
     t.jsonb "expirant_filters", default: [], null: false, array: true
     t.jsonb "filters", default: {"tous"=>[], "suivis"=>[], "traites"=>[], "a-suivre"=>[], "archives"=>[], "expirant"=>[], "supprimes"=>[]}, null: false
     t.boolean "filters_expanded", default: true, null: false
-    t.jsonb "sort", default: {"order"=>"desc", "table"=>"notifications", "column"=>"notifications"}, null: false
+    t.jsonb "sort", default: {"order" => "desc", "table" => "notifications", "column" => "notifications"}, null: false
     t.jsonb "sorted_column"
     t.jsonb "suivis_filters", default: [], null: false, array: true
     t.jsonb "supprimes_filters", default: [], null: false, array: true
