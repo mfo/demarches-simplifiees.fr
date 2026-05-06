@@ -3,21 +3,27 @@
 module Maintenance
   class T20260504BackfillCanonicalKeysInDepartementChampsTask < MaintenanceTasks::Task
     include RunnableOnDeployConcern
+    include StatementsHelpersConcern
+
+    RANGE_SIZE = 50_000
 
     def collection
-      Champs::DepartementChamp.all
+      min_id = Champ.minimum(:id) || 0
+      max_id = Champ.maximum(:id) || 0
+      (min_id..max_id).step(RANGE_SIZE).map { |from| from...(from + RANGE_SIZE) }
     end
 
-    def process(champ)
-      current = champ.value_json || {}
+    def process(range)
+      Champs::DepartementChamp.where(id: range).update_all(<<~SQL.squish)
+        value_json = COALESCE(value_json, '{}'::jsonb) || jsonb_strip_nulls(jsonb_build_object(
+          'department_code', external_id,
+          'region_code',     value_json->>'code_region'
+        ))
+      SQL
+    end
 
-      additions = {
-        'department_code' => champ.code,
-        'region_code' => current['code_region'],
-      }.compact
-
-      result = current.merge(additions)
-      champ.update_column(:value_json, result) if result != current
+    def count
+      collection.size
     end
   end
 end
