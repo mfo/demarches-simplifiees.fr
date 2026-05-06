@@ -1027,61 +1027,116 @@ RSpec.describe DossierChampsConcern do
   describe '#set_default_value_for_france_connect_champs' do
     let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, types_de_champ_public:, for_individual: true) }
     let(:types_de_champ_public) { [{ type: :quotient_familial }] }
-    let(:dossier) { create(:dossier, procedure:, for_procedure_preview: false, for_tiers: false) }
     let(:champ_qf) { dossier.champs.first }
     let!(:fci) { create(:france_connect_information, user: dossier.user) }
 
-    subject { dossier.set_default_value_for_france_connect_champs(dossier.user.email) }
+    context 'when dossier is in a brouillon' do
+      let(:dossier) { create(:dossier, :brouillon, procedure:, for_procedure_preview: false, for_tiers: false) }
 
-    context 'when the user starts a new dossier' do
-      before { allow(champ_qf).to receive(:fetch_later!).and_return(nil) }
-      it 'set a default value for the quotient_familial champ' do
-        subject
-        expect(champ_qf).to have_received(:fetch_later!)
+      subject { dossier.set_default_value_for_france_connect_champs(dossier.user.email) }
+
+      context 'when the user starts a new dossier' do
+        before { allow(champ_qf).to receive(:fetch_later!).and_return(nil) }
+
+        it 'set a default value for the quotient_familial champ' do
+          subject
+          expect(champ_qf).to have_received(:fetch_later!)
+        end
+      end
+
+      context "when the champ was attempted to be fetched, and later the user returns to their dossier" do
+        before do
+          champ_qf.update(external_state: 'fetched')
+          dossier.reload
+          allow(champ_qf).to receive(:fetch_later!).and_return(nil)
+        end
+
+        it 'does not attempt to fetch the champ again' do
+          subject
+          expect(champ_qf).not_to have_received(:fetch_later!)
+        end
+      end
+
+      context 'when the admin add a new quotient_familial tdc' do
+        before do
+          champ_qf.update(external_state: 'fetched')
+          procedure.draft_revision.add_type_de_champ({
+            type_champ: TypeDeChamp.type_champs.fetch(:quotient_familial),
+            libelle: "QF 2",
+          })
+          procedure.publish_revision!(procedure.administrateurs.first)
+          dossier.reload
+          dossier.rebase!
+
+          @old_qf = dossier.project_champs_public.sort_by(&:stable_id).first
+          @new_qf = dossier.project_champs_public.sort_by(&:stable_id).last
+
+          @fetched_instances = []
+
+          allow_any_instance_of(Champs::QuotientFamilialChamp)
+            .to receive(:fetch_later!) do |instance|
+              @fetched_instances << instance
+              nil
+            end
+        end
+
+        it 'does not attempt to fetch the old champ again, but does attempt to set the new champ' do
+          subject
+          fetched_ids = @fetched_instances.map(&:stable_id)
+          expect(fetched_ids).to include(@new_qf.stable_id)
+          expect(fetched_ids).not_to include(@old_qf.stable_id)
+        end
       end
     end
 
-    context "when the user returns to their dossier" do
-      before do
-        champ_qf.update(external_state: 'fetched')
-        dossier.reload
-        allow(champ_qf).to receive(:fetch_later!).and_return(nil)
+    context 'when the dossier is in en_construction' do
+      let(:dossier) { create(:dossier, :en_construction, procedure:, for_procedure_preview: false, for_tiers: false) }
+
+      subject { dossier.with_update_stream(dossier.user).set_default_value_for_france_connect_champs(dossier.user.email) }
+
+      context 'when the user wants to modify their dossier' do
+        before do
+          allow(champ_qf).to receive(:may_fetch_later!).and_return(nil)
+        end
+
+        it 'does not set a default champ on user_buffer, and does not attempt to fetch the main_stream_champ again' do
+          subject
+          expect(champ_qf).not_to have_received(:may_fetch_later!)
+          expect(dossier.send(:champs_on_user_buffer_stream)).to be_empty
+        end
       end
 
-      it 'does not attempt to set the champ again' do
-        subject
-        expect(champ_qf).not_to have_received(:fetch_later!)
-      end
-    end
+      context 'when the admin add a new quotient_familial tdc' do
+        before do
+          champ_qf.update(external_state: 'idle')
+          procedure.draft_revision.add_type_de_champ({
+            type_champ: TypeDeChamp.type_champs.fetch(:quotient_familial),
+            libelle: "QF 2",
+          })
+          procedure.publish_revision!(procedure.administrateurs.first)
+          dossier.reload
+          dossier.rebase!
 
-    context 'when the admin add a new quotient_familial tdc' do
-      before do
-        champ_qf.update(external_state: 'fetched')
-        procedure.draft_revision.add_type_de_champ({
-          type_champ: TypeDeChamp.type_champs.fetch(:quotient_familial),
-          libelle: "QF 2",
-        })
-        procedure.publish_revision!(procedure.administrateurs.first)
-        dossier.reload
-        dossier.rebase!
+          @old_qf = dossier.project_champs_public.sort_by(&:stable_id).first
+          @new_qf = dossier.project_champs_public.sort_by(&:stable_id).last
 
-        @old_qf = dossier.project_champs_public.last
-        @new_qf = dossier.project_champs_public.first
+          @fetched_instances = []
 
-        @fetched_instances = []
+          allow_any_instance_of(Champs::QuotientFamilialChamp)
+            .to receive(:fetch_later!) do |instance|
+              @fetched_instances << instance
+              nil
+            end
+        end
 
-        allow_any_instance_of(Champs::QuotientFamilialChamp)
-          .to receive(:fetch_later!) do |instance|
-            @fetched_instances << instance
-            nil
-          end
-      end
-
-      it 'does not attempt to set the old champ again, but does attempt to set the new champ' do
-        subject
-        fetched_ids = @fetched_instances.map(&:stable_id)
-        expect(fetched_ids).to include(@new_qf.stable_id)
-        expect(fetched_ids).not_to include(@old_qf.stable_id)
+        it 'does not attempt to fetch the old champ again, but does attempt to set the new champ on user_buffer_stream' do
+          subject
+          fetched_ids = @fetched_instances.map(&:stable_id)
+          expect(fetched_ids).to include(@new_qf.stable_id)
+          expect(fetched_ids).not_to include(@old_qf.stable_id)
+          expect(dossier.send(:champs_on_user_buffer_stream).count).to eq(1)
+          expect(dossier.send(:champs_on_user_buffer_stream).first.stable_id).to eq(dossier.revision.types_de_champ.sort_by(&:created_at).last.stable_id)
+        end
       end
     end
   end

@@ -273,6 +273,10 @@ module DossierChampsConcern
 
   def set_default_value_for_france_connect_champs(user_email)
     revision.types_de_champ_public.filter(&:france_connect?).each do |type_de_champ|
+      existing_champ_on_main_stream = champs_on_main_stream.any? { _1.stable_id == type_de_champ.stable_id }
+
+      next if existing_champ_on_main_stream && en_construction?
+
       champ = champ_for_update(type_de_champ, updated_by: user_email)
 
       champ.fetch_later! if champ.may_fetch_later?
