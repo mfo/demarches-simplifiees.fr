@@ -10,11 +10,14 @@ class APIGeoService
     end
 
     def countries(locale: I18n.locale)
-      I18nData.countries(locale)
-        .merge(get_localized_additional_countries(locale))
-        .reject { |code, _name| code.in?(EXCLUDED_COUNTRY_CODES) }
-        .map { |(code, name)| { name:, code: } }
-        .sort_by { I18n.transliterate(_1[:name].tr('î', 'Î')) }
+      memoize(:countries, locale) do
+        I18nData.countries(locale)
+          .merge(get_localized_additional_countries(locale))
+          .reject { |code, _name| code.in?(EXCLUDED_COUNTRY_CODES) }
+          .map { |(code, name)| { name:, code: } }
+          .sort_by { I18n.transliterate(_1[:name].tr('î', 'Î')) }
+          .freeze
+      end
     end
 
     def country_name(code, locale: I18n.locale)
@@ -382,8 +385,8 @@ class APIGeoService
     end
 
     def countries_index_fr
-      Rails.cache.fetch('countries_index_fr', expires_in: 1.week) do
-        countries(locale: 'FR').index_by { I18n.transliterate(_1[:name]).upcase }
+      memoize(:countries_index_fr) do
+        countries(locale: 'FR').index_by { I18n.transliterate(_1[:name]).upcase }.freeze
       end
     end
 

@@ -272,4 +272,25 @@ describe APIGeoService do
       expect(first).to be_frozen
     end
   end
+
+  describe 'countries memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes countries per locale' do
+      fr_first  = APIGeoService.countries(locale: 'FR')
+      fr_second = APIGeoService.countries(locale: 'FR')
+      en_first  = APIGeoService.countries(locale: 'EN')
+      expect(fr_second).to be(fr_first)
+      expect(en_first).not_to be(fr_first)
+      expect(fr_first).to be_frozen
+    end
+
+    it 'memoizes the countries_index_fr lookup' do
+      first  = APIGeoService.send(:countries_index_fr)
+      second = APIGeoService.send(:countries_index_fr)
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
 end
