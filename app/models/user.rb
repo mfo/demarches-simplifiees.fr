@@ -148,11 +148,14 @@ class User < ApplicationRecord
   end
 
   def self.create_or_promote_to_tiers(email, password, dossier = nil)
+    # The email comes from the dossier owner and is therefore third-party data:
+    # we must not pre-confirm the account, nor disrupt a pending confirmation
+    # flow already in progress for an existing user.
     user = User
-      .create_with(password: password, confirmed_at: Time.zone.now)
+      .create_with(password: password)
       .find_or_create_by(email: email)
 
-    if user.valid? && user.unverified_email?
+    if user.valid? && user.previously_new_record?
       user.invite_tiers!(dossier)
     end
     user

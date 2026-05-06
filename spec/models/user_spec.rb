@@ -616,4 +616,47 @@ describe User, type: :model do
       end
     end
   end
+
+  describe '.create_or_promote_to_tiers' do
+    let(:dossier) { create(:dossier) }
+    let(:email) { 'beneficiaire@example.com' }
+
+    subject(:promote) { User.create_or_promote_to_tiers(email, SecureRandom.hex, dossier) }
+
+    context 'when no user exists for that email' do
+      it 'creates a new user without marking the email as verified' do
+        expect { promote }.to change { User.where(email: email).count }.from(0).to(1)
+
+        created_user = User.find_by(email: email)
+        expect(created_user.email_verified_at).to be_nil
+        expect(created_user.unverified_email?).to be true
+      end
+
+      it 'does not authenticate the new user via Devise (confirmation must still happen)' do
+        promote
+        created_user = User.find_by(email: email)
+        # The Devise confirmable contract: a freshly-created tiers account
+        # must not be considered confirmed before its owner clicks the email link.
+        expect(created_user.confirmed?).to be false
+      end
+    end
+
+    context 'when an unverified user already exists for that email' do
+      let!(:existing_user) do
+        create(:user,
+          email: email,
+          confirmation_token: 'existing-token',
+          confirmation_sent_at: 2.hours.ago,
+          confirmed_at: nil)
+      end
+
+      it 'does not overwrite the active confirmation_token of the existing user' do
+        expect { promote }.not_to change { existing_user.reload.confirmation_token }
+      end
+
+      it 'does not enqueue an invite_tiers email for the unverified user' do
+        expect { promote }.not_to have_enqueued_mail(UserMailer, :invite_tiers)
+      end
+    end
+  end
 end
