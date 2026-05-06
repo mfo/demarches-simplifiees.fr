@@ -1,8 +1,8 @@
 fr:
   zero_selected: "0 dossier sélectionné"
   operations:
-    archiver: 'Archiver les dossiers'
-    desarchiver: 'Désarchiver les dossiers'
+    archiver: 'Déplacer les dossiers dans “à archiver“'
+    desarchiver: 'Replacer les dossiers dans “traités”'
     passer_en_instruction: 'Passer les dossiers en instruction'
     instruction: Instruire les dossiers
     repousser_expiration: Conserver un mois de plus
