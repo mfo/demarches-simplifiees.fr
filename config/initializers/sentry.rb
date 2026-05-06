@@ -55,6 +55,4 @@ Sentry.init do |config|
   # for a per-field-off custom trace (only execute_multiplex/execute_query).
 
   config.delayed_job.report_after_job_retries = false # don't wait for all attempts before reporting
-
-  config.rails.active_job_report_on_retry_error = true # https://github.com/getsentry/sentry-ruby/pull/2617
 end
