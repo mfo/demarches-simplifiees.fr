@@ -3,6 +3,8 @@
 class ExportJob < ApplicationJob
   queue_as :exports
 
+  use_sidekiq_retry
+
   discard_on ActiveRecord::RecordNotFound
 
   def max_run_time

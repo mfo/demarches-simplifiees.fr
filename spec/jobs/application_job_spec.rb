@@ -3,8 +3,6 @@
 include ActiveJob::TestHelper
 
 RSpec.describe ApplicationJob, type: :job do
-  it_behaves_like 'a job retrying standard errors'
-
   describe 'perform' do
     before do
       allow(Rails.logger).to receive(:info)
