@@ -5,6 +5,16 @@ module ActiveJob::RetryOnStandardError
 
   MAX_ATTEMPTS_JOBS = ENV.fetch("MAX_ATTEMPTS_JOBS", 25).to_i
 
+  class_methods do
+    # Opt out of Active Job's retry_on StandardError and rely on Sidekiq's
+    # native retry mechanism instead. Useful for long-running jobs where
+    # Sidekiq's retry semantics (server-side, surviving deploys) fit better.
+    def use_sidekiq_retry
+      self.rescue_handlers = rescue_handlers.reject { |klass_name, _| klass_name == "StandardError" }
+      sidekiq_options retry: MAX_ATTEMPTS_JOBS
+    end
+  end
+
   included do
     # Disable Sidekiq retries so only Active Job's retry_on applies.
     # Without this, Sidekiq would retry the job after Active Job exhausts retries,
