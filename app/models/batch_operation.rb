@@ -116,18 +116,19 @@ class BatchOperation < ApplicationRecord
     when BatchOperation.operations.fetch(:restaurer)
       dossier.restore(instructeur)
     when BatchOperation.operations.fetch(:create_avis)
+      avis = Avis.new(
+        dossier:,
+        introduction:,
+        introduction_file:,
+        confidentiel:,
+        question_label:,
+        invite_linked_dossiers: payload['invite_linked_dossiers']
+      )
       CreateAvisService.call(
-        dossier: dossier,
-        instructeur_or_expert: instructeur,
+        claimant: instructeur,
         batch: true,
-        params: {
-          emails: emails || [],
-          introduction: introduction,
-          introduction_file: introduction_file,
-          confidentiel: confidentiel,
-          invite_linked_dossiers: payload['invite_linked_dossiers'],
-          question_label: question_label,
-        }.with_indifferent_access
+        avis:,
+        emails: emails || []
       )
     when BatchOperation.operations.fetch(:create_commentaire)
       commentaire = CommentaireService.create(instructeur, dossier, { email: dossier.user.email, body:, piece_jointe: })

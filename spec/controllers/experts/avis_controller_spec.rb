@@ -460,7 +460,7 @@ describe Experts::AvisController, type: :controller do
 
         it do
           expect(response).to render_template :instruction
-          expect(flash.alert).to eq("toto.fr : Le champ « Email » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
+          expect(flash.alert).to eq("toto.fr : Le champ « Adresse électronique » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
           expect(Avis.last).to eq(previous_avis)
           expect(dossier.last_avis_updated_at).to eq(nil)
         end
@@ -491,7 +491,7 @@ describe Experts::AvisController, type: :controller do
 
         it do
           expect(response).to render_template :instruction
-          expect(flash.alert).to eq("toto.fr : Le champ « Email » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
+          expect(flash.alert).to eq("toto.fr : Le champ « Adresse électronique » est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
           expect(flash.notice).to eq("Une demande d’avis a été envoyée à titi@titimail.com")
           expect(Avis.count).to eq(old_avis_count + 1)
         end
@@ -541,7 +541,7 @@ describe Experts::AvisController, type: :controller do
 
         context 'when the expert also shares the linked dossiers' do
           context 'and the expert can access the linked dossiers' do
-            let(:created_avis) { create(:avis, dossier: dossier, claimant: claimant, email: "toto3@gmail.com") }
+            let(:created_avis) { create(:avis, dossier: dossier, claimant: claimant) }
             let(:linked_dossier) { Dossier.find_by(id: dossier.reload.project_champs_public.filter(&:dossier_link?).filter_map(&:value)) }
             let(:linked_avis) { create(:avis, dossier: linked_dossier, claimant: claimant) }
             let(:invite_linked_dossiers) { true }
@@ -663,7 +663,7 @@ describe Experts::AvisController, type: :controller do
         end
 
         context 'and the expert does not belong to the invitation' do
-          let(:avis) { create(:avis, email: 'another_expert@avis.com', dossier: dossier, experts_procedure: experts_procedure) }
+          let(:avis) { create(:avis, dossier: dossier, experts_procedure: experts_procedure) }
 
           before { sign_in(expert.user) }
           # redirected to dossier but then the instructeur gonna be banished !

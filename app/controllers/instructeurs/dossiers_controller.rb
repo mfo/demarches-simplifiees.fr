@@ -356,12 +356,9 @@ module Instructeurs
       @dossier = dossier
       @procedure = dossier.procedure
 
-      @new_avis = Avis.new(dossier: @dossier) # <- utilisé si le form échoue
-
       handle_create_avis(
-        dossier: @dossier,
-        user: current_instructeur,
-        params: avis_create_params,
+        claimant: current_instructeur,
+        dossier:,
         success_path: avis_instructeur_dossier_path(@procedure, @dossier, statut: statut),
         error_template: :avis_new
       )
@@ -498,17 +495,6 @@ module Instructeurs
       else
         flash.notice = t('instructeurs.dossiers.message_sent')
       end
-    end
-
-    def avis_create_params
-      params.require(:avis).permit(
-        :introduction_file,
-        :introduction,
-        :confidentiel,
-        :invite_linked_dossiers,
-        :question_label,
-        emails: []
-      )
     end
 
     def navigate_through_dossiers_list

@@ -1,92 +1,88 @@
 # frozen_string_literal: true
 
 class CreateAvisService
-  Result = Data.define(:avis, :sent_emails, :failed_avis)
+  class << self
+    def call(claimant:, batch:, avis:, emails:, avis_source: nil)
+      dossier = avis.dossier
+      confidentiel = avis_source&.confidentiel || avis.confidentiel || false
+      introduction_file_change = avis.attachment_changes["introduction_file"]
+      introduction_file = introduction_file_change.attachable if introduction_file_change.is_a?(ActiveStorage::Attached::Changes::CreateOne)
 
-  def self.call(dossier:, instructeur_or_expert:, batch:, params:, avis_source: nil)
-    new(dossier, instructeur_or_expert, batch, params, avis_source).call
-  end
+      if claimant.is_a?(Instructeur) &&
+          !claimant.follows.exists?(dossier:)
+        claimant.follow(dossier)
+      end
 
-  def initialize(dossier, instructeur_or_expert, batch, params, avis_source = nil)
-    @dossier = dossier
-    @instructeur_or_expert = instructeur_or_expert
-    @batch = batch
-    @params = params
-    @avis_source = avis_source
-  end
+      emails, restricted_emails = filter_restricted_emails(dossier.procedure, emails)
 
-  def call
-    if @params[:emails].blank? || @params[:emails].all?(&:blank?)
-      avis = Avis.new(@params)
-      avis.errors.add(:email, :blank)
-      return Result.new(avis, [], [avis])
-    end
+      # create experts
+      users, invalids = emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
+      failed_emails = invalids.map { { email: it.email, messages: it.errors.full_messages } }
+      failed_emails += restricted_emails.map { { email: it, messages: [I18n.t('create_avis_service.errors.expert_not_allowed')] } }
 
-    confidentiel = @avis_source&.confidentiel || @params[:confidentiel] || false
+      # list all related dossiers
+      dossiers = avis.invite_linked_dossiers.present? ? [dossier, *dossier.linked_dossiers_for(claimant)] : [dossier]
 
-    emails = Array(@params[:emails]).map(&:strip).map(&:downcase).compact_blank
-    allowed_dossiers = [@dossier]
+      # create expert <-> procedure
+      experts = users.map(&:expert)
+      experts_procedures_h = dossiers.map(&:procedure).uniq
+        .flat_map { |procedure| experts.map { |expert| [[expert, procedure], ExpertsProcedure.find_or_create_by(procedure:, expert:)] } }
+        .to_h
 
-    if @params[:invite_linked_dossiers].present?
-      allowed_dossiers += @dossier.linked_dossiers_for(@instructeur_or_expert)
-    end
-
-    if @instructeur_or_expert.is_a?(Instructeur) &&
-       !@instructeur_or_expert.follows.exists?(dossier: @dossier)
-      @instructeur_or_expert.follow(@dossier)
-    end
-
-    sent_emails = []
-
-    create_results = Avis.create(
-      emails.flat_map do |email|
-        user = User.create_or_promote_to_expert(email, SecureRandom.hex)
-        allowed_dossiers.map do |dossier|
-          experts_procedure = user.valid? ? ExpertsProcedure.find_or_create_by(procedure: dossier.procedure, expert: user.expert) : nil
-
+      # create avis on all related dossiers
+      persisted, failed = experts.flat_map do |expert|
+        dossiers.map do |dossier|
           {
-            email: email,
-            introduction: @params[:introduction],
-            introduction_file: @params[:introduction_file],
-            claimant: @instructeur_or_expert,
-            dossier: dossier,
-            confidentiel: confidentiel,
-            experts_procedure: experts_procedure,
-            question_label: @params[:question_label],
+            introduction: avis.introduction,
+            introduction_file:,
+            claimant:,
+            dossier:,
+            confidentiel:,
+            experts_procedure: experts_procedures_h[[expert, dossier.procedure]],
+            question_label: avis.question_label,
           }
         end
       end
-    )
+        .map { |params| Avis.create(params) }
+        .partition(&:persisted?)
 
-    persisted, failed = create_results.partition(&:persisted?)
+      failed_emails += failed.map { |avis| { email: avis.expert.email, messages: avis.errors.full_messages } }
 
-    if persisted.any?
-      @dossier.touch(:last_avis_updated_at)
+      # notifications
+      if persisted.any?
+        dossier.touch(:last_avis_updated_at)
 
-      if @instructeur_or_expert.is_a?(Instructeur)
-        follow = @instructeur_or_expert.follows.find_by(dossier: @dossier)
-        follow&.update_column(:avis_seen_at, Time.current)
+        if claimant.is_a?(Instructeur)
+          follow = claimant.follows.find_by(dossier:)
+          follow&.update_column(:avis_seen_at, Time.current)
 
-        DossierNotification.create_notification(@dossier, :attente_avis)
-        @instructeur_or_expert.mark_tab_as_seen(@dossier, :avis)
+          DossierNotification.create_notification(dossier, :attente_avis)
+          claimant.mark_tab_as_seen(dossier, :avis)
+        end
       end
-    end
 
-    @dossier.avis.reload
+      dossier.avis.reload
 
-    persisted.each do |avis|
-      avis.dossier.demander_un_avis!(avis)
-      if avis.dossier == @dossier
-        if avis.experts_procedure.notify_on_new_avis? && !@batch
+      # log operation
+      persisted.each { |avis| avis.dossier.demander_un_avis!(avis) }
+
+      sent_emails = persisted.filter { it.dossier == dossier }.map do |avis|
+        if avis.experts_procedure.notify_on_new_avis? && !batch
           avis.expert.user.invite_expert_and_send_avis!(avis)
         end
-        sent_emails << avis.expert.email
-        avis.update_column(:email, nil)
+        avis.expert.email
       end
+
+      [sent_emails.uniq, failed_emails]
     end
 
-    avis_result = persisted.first || failed.first || Avis.new(@params)
+    private
 
-    Result.new(avis_result, sent_emails.uniq, failed)
+    def filter_restricted_emails(procedure, emails)
+      return [emails, []] if !procedure.experts_require_administrateur_invitation?
+
+      allowed = Expert.autocomplete_mails(procedure).to_set
+      emails.partition { allowed.include?(it) }
+    end
   end
 end

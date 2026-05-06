@@ -1,0 +1,5 @@
+en:
+  avis_creation_concern:
+    avis_sent:
+      with_emails: "An avis request has been sent to %{emails}"
+      with_count: "An avis request has been sent to %{count} recipients"

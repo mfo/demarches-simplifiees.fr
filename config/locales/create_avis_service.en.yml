@@ -1,0 +1,4 @@
+en:
+  create_avis_service:
+    errors:
+      expert_not_allowed: "This expert is not allowed on this procedure. Ask an administrateur to invite them."
