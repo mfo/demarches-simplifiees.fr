@@ -1,7 +1,3 @@
-const AUTO_DISMISS_DELAY = 10_000;
-
-let dismissTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
 /**
  * Trouve le container attachment field depuis un input
  */
@@ -12,7 +8,7 @@ function findContainer(input: HTMLInputElement): Element | null {
 /**
  * Affiche une liste de messages d'erreur inline
  * Chaque message sera affiché dans un <p class="fr-message fr-message--error">
- * Les erreurs disparaissent automatiquement après 10 secondes.
+ * Les erreurs restent visibles jusqu'à ce que l'utilisateur sélectionne un nouveau fichier.
  */
 export function showAttachmentError(
   input: HTMLInputElement,
@@ -30,9 +26,6 @@ export function showAttachmentError(
     return;
   }
 
-  // Annuler un éventuel timeout précédent
-  clearTimeout(dismissTimeoutId);
-
   // Vider le contenu précédent
   errorZone.innerHTML = '';
 
@@ -46,12 +39,6 @@ export function showAttachmentError(
 
   // Afficher la zone
   errorZone.classList.remove('hidden');
-
-  // Auto-dismiss après délai
-  dismissTimeoutId = setTimeout(() => {
-    errorZone.classList.add('hidden');
-    errorZone.innerHTML = '';
-  }, AUTO_DISMISS_DELAY);
 }
 
 /**
