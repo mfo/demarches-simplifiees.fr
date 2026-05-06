@@ -9,7 +9,7 @@ class SuperAdminsController < ApplicationController
   end
 
   def enable_otp
-    unless current_super_admin.valid_password?(params[:current_password].to_s)
+    if !current_super_admin.valid_password?(params[:current_password].to_s)
       flash[:alert] = "Mot de passe incorrect."
       redirect_to(edit_super_admin_otp_path) and return
     end
