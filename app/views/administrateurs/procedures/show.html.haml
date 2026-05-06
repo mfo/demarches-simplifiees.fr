@@ -1,3 +1,4 @@
+- content_for(:title, "Gestion")
 - render_procedure_sticky_title(@procedure)
 = render partial: 'administrateurs/breadcrumbs',
     locals: { steps: [['Démarches', admin_procedures_back_path(@procedure)],

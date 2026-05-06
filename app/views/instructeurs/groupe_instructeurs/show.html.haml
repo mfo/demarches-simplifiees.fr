@@ -9,7 +9,7 @@
                           [@groupe_instructeur.label]] }
 
     - else
-      - content_for(:title, "Instructeurs de la démarche #{@procedure.libelle}")
+      - content_for(:title, "Instructeurs")
 
       = render partial: 'instructeurs/breadcrumbs',
         locals: { steps: [[@procedure.libelle, instructeur_procedure_path(@procedure)],
