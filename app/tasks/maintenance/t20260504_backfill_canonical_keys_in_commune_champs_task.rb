@@ -3,24 +3,30 @@
 module Maintenance
   class T20260504BackfillCanonicalKeysInCommuneChampsTask < MaintenanceTasks::Task
     include RunnableOnDeployConcern
+    include StatementsHelpersConcern
+
+    RANGE_SIZE = 50_000
 
     def collection
-      Champs::CommuneChamp.all
+      min_id = Champ.minimum(:id) || 0
+      max_id = Champ.maximum(:id) || 0
+      (min_id..max_id).step(RANGE_SIZE).map { |from| from...(from + RANGE_SIZE) }
     end
 
-    def process(champ)
-      current = champ.value_json || {}
+    def process(range)
+      Champs::CommuneChamp.where(id: range).update_all(<<~SQL.squish)
+        value_json = COALESCE(value_json, '{}'::jsonb) || jsonb_strip_nulls(jsonb_build_object(
+          'postal_code',     value_json->>'code_postal',
+          'department_code', value_json->>'code_departement',
+          'region_code',     value_json->>'code_region',
+          'city_name',       value,
+          'city_code',       external_id
+        ))
+      SQL
+    end
 
-      additions = {
-        'postal_code' => current['code_postal'],
-        'department_code' => current['code_departement'],
-        'region_code' => current['code_region'],
-        'city_name' => champ.value,
-        'city_code' => champ.external_id,
-      }.compact
-
-      result = current.merge(additions)
-      champ.update_column(:value_json, result) if result != current
+    def count
+      collection.size
     end
   end
 end
