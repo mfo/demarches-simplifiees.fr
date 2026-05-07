@@ -823,8 +823,9 @@ fr:
         forbidden_html: "Seul-e-s les usagers peuvent se connecter via FranceConnect. En tant qu’instructeur ou administrateur, veuillez vous identifier avec ProConnect ou vous connecter avec votre compte %{app_name}."
         internal_error: "Une erreur est survenue lors de la connexion avec FranceConnect. Veuillez essayer un autre mode de connexion."
       siret:
-        network_error: 'Désolé, la récupération des informations SIRET est temporairement indisponible. Veuillez réessayer dans quelques instants.'
-        not_found: 'Nous n’avons pas trouvé d’établissement correspondant à ce numéro SIRET.'
+        network_error: ‘Désolé, la récupération des informations SIRET est temporairement indisponible. Veuillez réessayer dans quelques instants.’
+        not_found: ‘Nous n’avons pas trouvé d’établissement correspondant à ce numéro SIRET.’
+        unavailable_for_legal_reasons: ‘Les informations de cet établissement ne sont pas disponibles (entité non diffusible).’
       missing_range_rules: Les valeurs minimale et/ou maximale doivent être renseignées.
       invalid_range_rules: La valeur minimale doit être inférieure à la valeur maximale.
       invalid_repetition_range: La valeur minimale doit être inférieure ou égale à la valeur maximale.
