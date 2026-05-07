@@ -7,6 +7,46 @@ describe Users::ProfilController, type: :controller do
 
   before { sign_in(user) }
 
+  describe '#nav_bar_profile' do
+    subject(:show_request) { get :show, params: params }
+    let(:params) { {} }
+
+    context 'with explicit ?context=instructeur' do
+      let!(:user) { create(:instructeur).user }
+      let(:params) { { context: 'instructeur' } }
+
+      it 'returns :instructeur' do
+        show_request
+        expect(controller.nav_bar_profile).to eq(:instructeur)
+      end
+    end
+
+    context 'with explicit ?context=invalid' do
+      let(:params) { { context: 'pirate' } }
+
+      it 'falls back to :user' do
+        show_request
+        expect(controller.nav_bar_profile).to eq(:user)
+      end
+    end
+
+    context 'without context, multi-role admin user' do
+      let!(:user) { create(:administrateur).user }
+
+      it 'falls back to :administrateur (predominant role)' do
+        show_request
+        expect(controller.nav_bar_profile).to eq(:administrateur)
+      end
+    end
+
+    context 'without context, simple user' do
+      it 'returns :user' do
+        show_request
+        expect(controller.nav_bar_profile).to eq(:user)
+      end
+    end
+  end
+
   describe 'GET #show' do
     render_views
 
