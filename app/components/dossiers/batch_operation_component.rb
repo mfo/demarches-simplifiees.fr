@@ -185,7 +185,78 @@ class Dossiers::BatchOperationComponent < ApplicationComponent
               operation: BatchOperation.operations.fetch(:create_commentaire),
               modal_data: { action: 'batch-operation#injectSelectedIdsIntoModal', 'fr-opened': "false", 'modal-type': 'commentaire' },
               aria:  'modal-commentaire-batch',
+
             },
+
+            {
+              instruction:
+                            [
+                              {
+                                label: t(".operations.accepter"),
+                                operation_description: t(".operations.accepter_description"),
+                                operation: BatchOperation.operations.fetch(:accepter),
+                                operation_class_name: 'fr-icon-checkbox-circle-fill fr-text-default--success',
+                                placeholder: t(".placeholders.accepter"),
+                                instruction_operation: 'accept',
+                              },
+
+                              {
+                                label: t(".operations.classer_sans_suite"),
+                                operation_description: t(".operations.classer_sans_suite_description"),
+                                operation: BatchOperation.operations.fetch(:classer_sans_suite),
+                                operation_class_name: 'fr-icon-intermediate-circle-fill fr-text-mention--grey',
+                                placeholder: t(".placeholders.classer_sans_suite"),
+                                instruction_operation: 'without-continuation',
+                              },
+
+                              {
+                                label: t(".operations.refuser"),
+                                operation_description: t(".operations.refuser_description"),
+                                operation: BatchOperation.operations.fetch(:refuser),
+                                operation_class_name: 'fr-icon-close-circle-fill fr-text-default--warning',
+                                placeholder: t(".placeholders.refuser"),
+                                instruction_operation: 'refuse',
+                              },
+                            ],
+            },
+
+            {
+              label: t(".operations.follow"),
+              operation: BatchOperation.operations.fetch(:follow),
+            },
+
+            {
+              label: t(".operations.unfollow"),
+              operation: BatchOperation.operations.fetch(:unfollow),
+            },
+
+            {
+              label: t(".operations.passer_en_instruction"),
+              operation: BatchOperation.operations.fetch(:passer_en_instruction),
+            },
+
+            {
+              label: t(".operations.repasser_en_construction"),
+              operation: BatchOperation.operations.fetch(:repasser_en_construction),
+            },
+
+            {
+              label: t(".operations.archiver"),
+              operation: BatchOperation.operations.fetch(:archiver),
+            },
+            {
+              label: t(".operations.supprimer"),
+              operation: BatchOperation.operations.fetch(:supprimer),
+            },
+
+            {
+              label: t(".operations.create_avis"),
+              operation: BatchOperation.operations.fetch(:create_avis),
+              modal_data: { action: 'batch-operation#injectSelectedIdsIntoModal', 'fr-opened': "false", 'modal-type': 'avis' },
+              aria:  'modal-avis-batch',
+
+            },
+
           ],
       }
     else

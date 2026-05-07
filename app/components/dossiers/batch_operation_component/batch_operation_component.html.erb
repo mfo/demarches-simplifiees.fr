@@ -34,7 +34,7 @@
             data-menu-button-target="menu"
             aria-labelledby="batch_operation_others"
           >
-            <ul class="dropdown-items">
+            <ul class="dropdown-items no-wrap">
               <% available_operations[:options][2, available_operations[:options].count].each do |opt| -%>
                 <% unless expert_review_disallowed?(opt[:operation]) -%>
                   <li>
