@@ -2,7 +2,7 @@
 - content_for(:root_class, 'scroll-margins-for-sticky-footer')
 
 = render partial: 'shared/breadcrumbs_section',
-  locals: { steps: [['Démarches', admin_procedures_back_path(@procedure)],
+  locals: { steps: [[admin_procedures_back_label(@procedure), admin_procedures_back_path(@procedure)],
                     ['Nouvelle']] }
 
 = render NestedForms::FormOwnerComponent.new

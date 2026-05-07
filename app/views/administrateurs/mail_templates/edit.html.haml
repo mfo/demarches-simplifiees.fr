@@ -13,7 +13,7 @@
 
 
 = render partial: 'shared/breadcrumbs_section',
-  locals: { steps: [['Démarches', admin_procedures_path],
+  locals: { steps: [[admin_procedures_back_label(@procedure), admin_procedures_back_path(@procedure)],
                     [@procedure.libelle.truncate_words(10), admin_procedure_path(@procedure)],
                     ["Modèles d’email", admin_procedure_mail_templates_path(@procedure)],
                     [@mail_template.class.const_get(:DISPLAYED_NAME)]] }

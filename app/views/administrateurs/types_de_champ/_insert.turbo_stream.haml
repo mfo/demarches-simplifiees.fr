@@ -7,7 +7,7 @@
   = turbo_stream.replace(c.block_id) do
     = render c
 = turbo_stream.replace 'breadcrumbs' , render(partial: 'shared/breadcrumbs_section',
-  locals: { steps: [['Démarches', admin_procedures_path],
+  locals: { steps: [[admin_procedures_back_label(@procedure), admin_procedures_back_path(@procedure)],
                     [@procedure.libelle.truncate_words(10), admin_procedure_path(@procedure)],
                     ['Configuration des champs']],
   preview: @procedure.validate(@coordinate&.private? ? :types_de_champ_private_editor : :types_de_champ_public_editor) })
