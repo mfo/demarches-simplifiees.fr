@@ -2,31 +2,37 @@
 
 class APIEntrepriseService
   class << self
+    include Dry::Monads[:result]
+
     # create etablissement with EtablissementAdapter
     # enqueue api_entreprise jobs to retrieve
     # all informations we can get about a SIRET.
     #
-    # Returns nil if the SIRET is unknown
-    #
-    # Raises a APIEntreprise::API::Error::RequestFailed exception on transient errors
-    # (timeout, 5XX HTTP error code, etc.)
+    # Returns Success(etablissement) on success
+    # Returns Failure(type: :not_found, ...) if the SIRET is unknown
+    # Returns Failure(type:, code:, retryable:, raw_response:) on API errors
     #
     def create_etablissement(dossier_or_champ, siret, user_id = nil)
       procedure_id = dossier_or_champ.procedure.id
 
-      etablissement_params = APIEntreprise::EtablissementAdapter.new(siret, procedure_id).to_params
-      return nil if etablissement_params.empty?
+      etablissement_result = APIEntreprise::EtablissementAdapter.new(siret, procedure_id).to_params
+      return etablissement_result if etablissement_result.failure?
 
-      entreprise_params = APIEntreprise::EntrepriseAdapter.new(siret, procedure_id).to_params
-      etablissement_params.merge!(entreprise_params) if entreprise_params.any?
+      etablissement_params = etablissement_result.value!
+      return Failure(type: :not_found, code: 404, retryable: false, raw_response: nil) if etablissement_params.empty?
+
+      # Entreprise enrichment is best-effort
+      case APIEntreprise::EntrepriseAdapter.new(siret, procedure_id).to_params
+      in Success(entreprise_params) if entreprise_params.any? then etablissement_params.merge!(entreprise_params)
+      else nil
+      end
 
       etablissement = dossier_or_champ.build_etablissement(etablissement_params)
       etablissement.save!
       etablissement.update_champ_value_json!
-
       perform_later_fetch_jobs(etablissement, procedure_id, user_id)
 
-      etablissement
+      Success(etablissement)
     end
 
     def create_etablissement_as_degraded_mode(dossier_or_champ, siret, user_id = nil)
@@ -40,15 +46,29 @@ class APIEntrepriseService
       etablissement
     end
 
+    # Tries to create an etablissement; falls back to degraded mode if API is unavailable.
+    #
+    # Returns Success(etablissement) on success or degraded fallback
+    # Returns Failure(type: :not_found, ...) if SIRET not found
+    # Returns Failure(type:, code:, retryable:, raw_response:) on non-recoverable errors
+    def create_etablissement_with_fallback(dossier_or_champ, siret, user_id = nil)
+      case create_etablissement(dossier_or_champ, siret, user_id)
+      in Failure(retryable: true, **) => failure if degraded_mode?(failure.failure, target: :insee)
+        Success(create_etablissement_as_degraded_mode(dossier_or_champ, siret, user_id))
+      in result
+        result
+      end
+    end
+
     def update_etablissement_from_degraded_mode(etablissement, procedure_id)
-      siret = etablissement.siret
-      etablissement_params = APIEntreprise::EtablissementAdapter.new(siret, procedure_id).to_params
-      return nil if etablissement_params.empty?
-
-      etablissement.update!(etablissement_params)
-      etablissement.update_champ_value_json!
-
-      etablissement
+      case APIEntreprise::EtablissementAdapter.new(etablissement.siret, procedure_id).to_params
+      in Success(etablissement_params) if etablissement_params.present?
+        etablissement.update!(etablissement_params)
+        etablissement.update_champ_value_json!
+        etablissement
+      else
+        nil
+      end
     end
 
     def perform_later_fetch_jobs(etablissement, procedure_id, user_id, wait: nil)
@@ -68,6 +88,19 @@ class APIEntrepriseService
       APIEntreprise::AttestationFiscaleJob.set(wait:).perform_later(etablissement.id, procedure_id, user_id)
     end
 
+    def report_error(failure, extra = {})
+      Sentry.capture_message(
+        "API Entreprise error: #{failure[:type]}",
+        level: :error,
+        extra: extra.merge(code: failure[:code], raw_body: failure[:raw_response]&.body&.truncate(1000))
+      )
+    end
+
+    def degraded_mode?(failure, target: :insee)
+      return false unless failure[:retryable]
+      target == :insee ? !api_insee_up? : !api_djepva_up?
+    end
+
     # See: https://entreprise.api.gouv.fr/developpeurs#surveillance-etat-fournisseurs
     def api_insee_up?
       api_up?("https://entreprise.api.gouv.fr/ping/insee/sirene")
@@ -75,13 +108,6 @@ class APIEntrepriseService
 
     def api_djepva_up?
       api_up?("https://entreprise.api.gouv.fr/ping/djepva/api-association")
-    end
-
-    def service_unavailable_error?(error, target:)
-      return false if !error.try(:network_error?)
-      return true if target == :insee && !APIEntrepriseService.api_insee_up?
-      return true if target == :djepva && !APIEntrepriseService.api_djepva_up?
-      error.is_a?(APIEntreprise::API::Error::ServiceUnavailable)
     end
 
     private
