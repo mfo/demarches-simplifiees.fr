@@ -19,11 +19,11 @@ RSpec.describe Cron::Datagouv::ExportAndPublishDemarchesPubliquesJob, type: :job
       expect(stub).to have_been_requested
     end
 
-    it 'removes gzip file even if an error occurred and job is renqueued' do
+    it 'removes gzip file even if an error occurred (re-raises for sidekiq retry)' do
       procedure.libelle = nil
       procedure.save(validate: false)
 
-      expect { subject }.to have_enqueued_job(described_class)
+      expect { subject }.to raise_error(DemarchesPubliquesExportService::Error)
       expect(Dir.glob("*demarches.json.gz", base: 'tmp').empty?).to be_truthy
     end
   end

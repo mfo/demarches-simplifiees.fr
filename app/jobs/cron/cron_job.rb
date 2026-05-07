@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Cron::CronJob < ApplicationJob
+  use_sidekiq_retry
+
   queue_as :default
   class_attribute :schedule_expression
 
