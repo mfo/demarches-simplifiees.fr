@@ -12,7 +12,7 @@
                      mail_type: 'refus', attestation_template_v1: false }
 
 
-= render partial: 'administrateurs/breadcrumbs',
+= render partial: 'shared/breadcrumbs_section',
   locals: { steps: [['Démarches', admin_procedures_path],
                     [@procedure.libelle.truncate_words(10), admin_procedure_path(@procedure)],
                     ["Modèles d’email", admin_procedure_mail_templates_path(@procedure)],

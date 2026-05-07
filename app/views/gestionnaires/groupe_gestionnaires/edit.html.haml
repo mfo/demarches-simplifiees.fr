@@ -1,9 +1,8 @@
 - content_for(:root_class, 'scroll-margins-for-sticky-footer')
 = render 'main_navigation'
 
-= render partial: 'gestionnaires/breadcrumbs',
-  locals: { steps: [['Groupes gestionnaires', gestionnaire_groupe_gestionnaires_path],
-                    ["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
+= render partial: 'shared/breadcrumbs_section',
+  locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
                     ['Edit']] }
 
 = render  NestedForms::FormOwnerComponent.new

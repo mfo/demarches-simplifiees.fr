@@ -1,6 +1,6 @@
 - content_for :title, 'Nouveau jeton dʼAPI'
 
-= render partial: 'administrateurs/breadcrumbs',
+= render partial: 'shared/breadcrumbs_section',
   locals: { steps: [['Tableau de bord', tableau_de_bord_helper_path],
     [t('users.profil.show.profile'), profil_path],
     [t('administrateurs.api_tokens.nom.new_token')]] }

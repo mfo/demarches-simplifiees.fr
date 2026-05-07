@@ -1,6 +1,5 @@
-= render partial: 'gestionnaires/breadcrumbs',
-  locals: { steps: [['Groupes gestionnaire', gestionnaire_groupe_gestionnaires_path],
-                    ["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
+= render partial: 'shared/breadcrumbs_section',
+  locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
                     ["Messagerie", gestionnaire_groupe_gestionnaire_commentaires_path(@groupe_gestionnaire)],
                     ["Messages avec le groupe gestionnaire parent (#{@groupe_gestionnaire.parent.name})"]], preview: false }
 

@@ -1,8 +1,7 @@
 = render 'main_navigation'
 
-= render partial: 'gestionnaires/breadcrumbs',
-    locals: { steps: [['Groupes gestionnaires', gestionnaire_groupe_gestionnaires_path],
-                      ["#{@groupe_gestionnaire.name.truncate_words(10)}"]],
+= render partial: 'shared/breadcrumbs_section',
+    locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}"]],
               metadatas: true }
 
 .fr-container.procedure-admin-container
