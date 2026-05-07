@@ -6,7 +6,7 @@ class UserMailer < ApplicationMailer
 
   def new_account_warning(user, procedure = nil)
     @user = user
-    @subject = "Demande de création de compte"
+    @subject = default_i18n_subject
     @procedure = procedure
 
     mail(to: user.email, subject: @subject, procedure: @procedure)
@@ -15,7 +15,7 @@ class UserMailer < ApplicationMailer
   def ask_for_merge(user, requested_email)
     @user = user
     @requested_email = requested_email
-    @subject = "Fusion de compte"
+    @subject = default_i18n_subject
 
     mail(to: requested_email, subject: @subject)
   end
@@ -23,7 +23,7 @@ class UserMailer < ApplicationMailer
   def france_connect_merge_confirmation(email, email_merge_token, email_merge_token_created_at)
     @email_merge_token = email_merge_token
     @email_merge_token_created_at = email_merge_token_created_at
-    @subject = "Veuillez confirmer la fusion de compte"
+    @subject = default_i18n_subject
 
     mail(to: email, subject: @subject)
   end
@@ -32,18 +32,16 @@ class UserMailer < ApplicationMailer
     @user = user
 
     @token = token
-    mail(to: @user.email, subject: 'Confirmez votre adresse électronique')
+    mail(to: @user.email, subject: default_i18n_subject)
   end
 
   def invite_instructeur(user, reset_password_token)
     @reset_password_token = reset_password_token
     @user = user
-    subject = "Activez votre compte instructeur"
-
     bypass_unverified_mail_protection!
 
     mail(to: user.email,
-      subject: subject,
+      subject: default_i18n_subject,
       reply_to: CONTACT_EMAIL)
   end
 
@@ -51,24 +49,22 @@ class UserMailer < ApplicationMailer
     @token = token
     @user = user
     @dossier = dossier
-    subject = "Vérification de votre adresse électronique"
 
     bypass_unverified_mail_protection!
 
     mail(to: user.email,
-      subject: subject,
+      subject: default_i18n_subject,
       reply_to: CONTACT_EMAIL)
   end
 
   def resend_confirmation_email(user, token)
     @token = token
     @user = user
-    subject = "Vérification de votre adresse électronique"
 
     bypass_unverified_mail_protection!
 
     mail(to: user.email,
-      subject: subject,
+      subject: default_i18n_subject,
       reply_to: CONTACT_EMAIL)
   end
 
@@ -76,12 +72,11 @@ class UserMailer < ApplicationMailer
     @reset_password_token = reset_password_token
     @user = user
     @groupe_gestionnaire = groupe_gestionnaire
-    subject = "Activez votre compte gestionnaire"
 
     bypass_unverified_mail_protection!
 
     mail(to: user.email,
-      subject: subject,
+      subject: default_i18n_subject,
       reply_to: CONTACT_EMAIL)
   end
 
@@ -98,21 +93,19 @@ class UserMailer < ApplicationMailer
     when Administrateur then admin_procedure_url(@procedure)
     else raise ArgumentError("send_archive expect either an Instructeur or an Administrateur")
     end
-    subject = "Votre archive est disponible"
-
-    mail(to: administrateur_or_instructeur.email, subject: subject)
+    mail(to: administrateur_or_instructeur.email, subject: default_i18n_subject)
   end
 
   def notify_inactive_close_to_deletion(user)
     @user = user
-    @subject = "Votre compte sera supprimé dans #{Expired::REMAINING_WEEKS_BEFORE_EXPIRATION} semaines"
+    @subject = default_i18n_subject(remaining_weeks: Expired::REMAINING_WEEKS_BEFORE_EXPIRATION)
 
     mail(to: user.email, subject: @subject)
   end
 
   def notify_after_closing(user, content, procedure = nil)
     @user = user
-    @subject = "Clôture d’une démarche sur #{APPLICATION_NAME}"
+    @subject = default_i18n_subject(application_name: APPLICATION_NAME)
     @procedure = procedure
     @content = content
 
@@ -121,7 +114,7 @@ class UserMailer < ApplicationMailer
 
   def account_reactivated(user)
     @user = user
-    @subject = "Votre compte a été réactivé"
+    @subject = default_i18n_subject
 
     mail(to: user.email, subject: @subject)
   end

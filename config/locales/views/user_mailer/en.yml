@@ -1,0 +1,26 @@
+en:
+  user_mailer:
+    new_account_warning:
+      subject: Account creation request
+    ask_for_merge:
+      subject: Account merge
+    france_connect_merge_confirmation:
+      subject: Please confirm the account merge
+    custom_confirmation_instructions:
+      subject: Confirm your email address
+    invite_instructeur:
+      subject: Activate your instructor account
+    invite_tiers:
+      subject: Verify your email address
+    resend_confirmation_email:
+      subject: Verify your email address
+    invite_gestionnaire:
+      subject: Activate your manager account
+    send_archive:
+      subject: Your archive is available
+    notify_inactive_close_to_deletion:
+      subject: "Your account will be deleted in %{remaining_weeks} weeks"
+    notify_after_closing:
+      subject: "Closing of a procedure on %{application_name}"
+    account_reactivated:
+      subject: Your account has been reactivated
