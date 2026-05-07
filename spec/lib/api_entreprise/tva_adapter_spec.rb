@@ -18,11 +18,12 @@ describe APIEntreprise::TvaAdapter do
     let(:status) { 200 }
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
     it 'L’entreprise contient bien un numero_tva_intracommunautaire' do
-      expect(subject[:entreprise_numero_tva_intracommunautaire]).to eq("FR48672039971")
+      expect(subject.value![:entreprise_numero_tva_intracommunautaire]).to eq("FR48672039971")
     end
   end
 end

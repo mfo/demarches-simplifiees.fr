@@ -18,12 +18,13 @@ describe APIEntreprise::EffectifsAnnuelsAdapter do
     let(:body) { File.read('spec/fixtures/files/api_entreprise/effectifs_annuels.json') }
     let(:status) { 200 }
 
-    it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+    it '#to_params returns a Success wrapping a Hash' do
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
-    it "renvoie les effectifs de l’année antérieure" do
-      expect(subject[:entreprise_effectif_annuel]).to eq(100.5)
+    it "renvoie les effectifs de l'année antérieure" do
+      expect(subject.value![:entreprise_effectif_annuel]).to eq(100.5)
     end
   end
 end

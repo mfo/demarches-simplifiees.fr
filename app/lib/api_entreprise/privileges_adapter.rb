@@ -6,12 +6,7 @@ class APIEntreprise::PrivilegesAdapter < APIEntreprise::Adapter
   end
 
   def valid?
-    begin
-      get_resource
-      true
-    rescue
-      false
-    end
+    get_resource.success?
   end
 
   private

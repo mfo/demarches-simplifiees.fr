@@ -11,14 +11,17 @@ describe APIEntreprise::ExercicesAdapter do
     allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
   end
 
-  it { is_expected.to be_an_instance_of(Hash) }
+  it 'returns a successful result with a Hash' do
+    expect(subject).to be_success
+    expect(subject.value!).to be_an_instance_of(Hash)
+  end
 
   it 'contains several exercices attributes' do
-    expect(subject[:exercices_attributes].size).to eq(2)
+    expect(subject.value![:exercices_attributes].size).to eq(2)
   end
 
   it 'contains informations in each exercices_attributes' do
-    expect(subject[:exercices_attributes][0][:ca]).to eq('900001')
-    expect(subject[:exercices_attributes][0][:date_fin_exercice].year).to eq(2015)
+    expect(subject.value![:exercices_attributes][0][:ca]).to eq('900001')
+    expect(subject.value![:exercices_attributes][0][:date_fin_exercice].year).to eq(2015)
   end
 end

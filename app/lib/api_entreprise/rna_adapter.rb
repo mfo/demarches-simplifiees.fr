@@ -7,7 +7,7 @@ class APIEntreprise::RNAAdapter < APIEntreprise::Adapter
   private
 
   def get_resource
-    return if siren_or_rna.blank?
+    return Failure(type: :not_found, code: 404, retryable: false, raw_response: nil) if siren_or_rna.blank?
     api(@procedure_id).rna(siren_or_rna)
   end
 

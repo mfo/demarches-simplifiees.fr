@@ -19,67 +19,68 @@ describe APIEntreprise::EtablissementAdapter do
     end
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_a_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_a_instance_of(Hash)
     end
 
     context 'Attributs Etablissements' do
       it 'L’entreprise contient bien un siret' do
-        expect(subject[:siret]).to eq(siret)
+        expect(subject.value![:siret]).to eq(siret)
       end
 
       it 'L’entreprise contient bien un siege_social' do
-        expect(subject[:siege_social]).to eq(true)
+        expect(subject.value![:siege_social]).to eq(true)
       end
 
       it 'L’entreprise contient bien un naf' do
-        expect(subject[:naf]).to eq('8411Z')
+        expect(subject.value![:naf]).to eq('8411Z')
       end
 
       it 'L’entreprise contient bien un libelle_naf' do
-        expect(subject[:libelle_naf]).to eq('Administration publique générale')
+        expect(subject.value![:libelle_naf]).to eq('Administration publique générale')
       end
 
       it 'L’entreprise contient bien un diffusable_commercialement qui vaut true' do
-        expect(subject[:diffusable_commercialement]).to eq(true)
+        expect(subject.value![:diffusable_commercialement]).to eq(true)
       end
 
       context 'Concaténation lignes adresse' do
         it 'L’entreprise contient bien une adresse sur plusieurs lignes' do
-          expect(subject[:adresse]).to eq("DIRECTION INTERMINISTERIELLE DU NUMERIQUE\r\nJEAN MARIE DURAND\r\nZAE SAINT GUENAULT\r\n51 BIS RUE DE LA PAIX\r\nCS 72809\r\n75256 PARIX CEDEX 12\r\nFRANCE")
+          expect(subject.value![:adresse]).to eq("DIRECTION INTERMINISTERIELLE DU NUMERIQUE\r\nJEAN MARIE DURAND\r\nZAE SAINT GUENAULT\r\n51 BIS RUE DE LA PAIX\r\nCS 72809\r\n75256 PARIX CEDEX 12\r\nFRANCE")
         end
       end
 
       context 'Détails adresse' do
         it 'L’entreprise contient bien un numero_voie' do
-          expect(subject[:numero_voie]).to eq('22')
+          expect(subject.value![:numero_voie]).to eq('22')
         end
 
         it 'L’entreprise contient bien un type_voie' do
-          expect(subject[:type_voie]).to eq('RUE')
+          expect(subject.value![:type_voie]).to eq('RUE')
         end
 
         it 'L’entreprise contient bien un nom_voie' do
-          expect(subject[:nom_voie]).to eq('DE LA PAIX')
+          expect(subject.value![:nom_voie]).to eq('DE LA PAIX')
         end
 
         it 'L’entreprise contient bien un complement_adresse' do
-          expect(subject[:complement_adresse]).to eq('ZAE SAINT GUENAULT')
+          expect(subject.value![:complement_adresse]).to eq('ZAE SAINT GUENAULT')
         end
 
         it 'L’entreprise contient bien un code_postal' do
-          expect(subject[:code_postal]).to eq('75016')
+          expect(subject.value![:code_postal]).to eq('75016')
         end
 
         it 'L’entreprise contient bien une localite' do
-          expect(subject[:localite]).to eq('PARIS 12')
+          expect(subject.value![:localite]).to eq('PARIS 12')
         end
 
         it 'L’entreprise ne contient pas de nom de pays' do
-          expect(subject[:nom_pays]).to be_nil
+          expect(subject.value![:nom_pays]).to be_nil
         end
 
         it 'L’entreprise contient bien un code_insee_localite' do
-          expect(subject[:code_insee_localite]).to eq('75112')
+          expect(subject.value![:code_insee_localite]).to eq('75112')
         end
       end
 
@@ -87,11 +88,11 @@ describe APIEntreprise::EtablissementAdapter do
         let(:fixture) { 'spec/fixtures/files/api_entreprise/etablissements-uk.json' }
 
         it 'L’entreprise contient bien une localite' do
-          expect(subject[:localite]).to eq('LONDRES')
+          expect(subject.value![:localite]).to eq('LONDRES')
         end
 
         it 'L’entreprise contient bien un nom de pays' do
-          expect(subject[:nom_pays]).to eq('ROYAUME-UNI')
+          expect(subject.value![:nom_pays]).to eq('ROYAUME-UNI')
         end
       end
     end
@@ -100,15 +101,15 @@ describe APIEntreprise::EtablissementAdapter do
       let(:siret) { '17310120500719' }
       let(:fixture) { 'spec/fixtures/files/api_entreprise/etablissements-non-siege.json' }
       it 'L’entreprise contient bien un siret' do
-        expect(subject[:siret]).to eq(siret)
+        expect(subject.value![:siret]).to eq(siret)
       end
 
       it 'L’etablissement contient bien un siege_social à false' do
-        expect(subject[:siege_social]).to eq(false)
+        expect(subject.value![:siege_social]).to eq(false)
       end
 
       it 'L’etablissement contient bien une enseigne' do
-        expect(subject[:enseigne]).to eq("SERVICE PENITENTIAIRE D'INSERTION ET DE PROBATION, DE LA HAUTE-GARONNE")
+        expect(subject.value![:enseigne]).to eq("SERVICE PENITENTIAIRE D'INSERTION ET DE PROBATION, DE LA HAUTE-GARONNE")
       end
     end
   end
@@ -123,7 +124,7 @@ describe APIEntreprise::EtablissementAdapter do
     end
 
     it 'L’entreprise contient bien un diffusable_commercialement qui vaut false' do
-      expect(subject[:diffusable_commercialement]).to eq(false)
+      expect(subject.value![:diffusable_commercialement]).to eq(false)
     end
   end
 
@@ -136,6 +137,9 @@ describe APIEntreprise::EtablissementAdapter do
         .to_return(body: 'Fake body', status: 404)
     end
 
-    it { expect(subject).to eq({}) }
+    it 'returns a Success with empty hash' do
+      expect(subject).to be_success
+      expect(subject.value!).to eq({})
+    end
   end
 end

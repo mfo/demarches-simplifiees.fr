@@ -17,12 +17,13 @@ describe APIEntreprise::AttestationSocialeAdapter do
     let(:body) { File.read('spec/fixtures/files/api_entreprise/attestation_sociale.json') }
     let(:status) { 200 }
 
-    it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+    it '#to_params returns a Success wrapping a Hash' do
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
-    it "renvoie l’url de l’attestation sociale" do
-      expect(subject[:entreprise_attestation_sociale_url]).to eq("https://storage.entreprise.api.gouv.fr/siade/1569139162-b99824d9c764aae19a862a0af-attestation_vigilance_acoss.pdf")
+    it "renvoie l'url de l'attestation sociale" do
+      expect(subject.value![:entreprise_attestation_sociale_url]).to eq("https://storage.entreprise.api.gouv.fr/siade/1569139162-b99824d9c764aae19a862a0af-attestation_vigilance_acoss.pdf")
     end
   end
 end
