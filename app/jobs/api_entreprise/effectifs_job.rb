@@ -2,9 +2,11 @@
 
 class APIEntreprise::EffectifsJob < APIEntreprise::Job
   def perform(etablissement_id, procedure_id)
-    etablissement = Etablissement.find(etablissement_id)
-    etablissement_params = APIEntreprise::EffectifsAdapter.new(etablissement.siret, procedure_id, *get_current_valid_month_for_effectif).to_params
-    etablissement.update!(etablissement_params)
+    find_etablissement(etablissement_id)
+    year, month = get_current_valid_month_for_effectif
+    with_adapter(APIEntreprise::EffectifsAdapter.new(etablissement.siret, procedure_id, year, month)) do |params|
+      etablissement.update!(params)
+    end
   end
 
   private

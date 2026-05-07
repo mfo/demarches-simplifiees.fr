@@ -3,8 +3,9 @@
 class APIEntreprise::EffectifsAnnuelsJob < APIEntreprise::Job
   def perform(etablissement_id, procedure_id, year = default_year)
     find_etablissement(etablissement_id)
-    etablissement_params = APIEntreprise::EffectifsAnnuelsAdapter.new(etablissement.siret, procedure_id, year).to_params
-    etablissement.update!(etablissement_params)
+    with_adapter(APIEntreprise::EffectifsAnnuelsAdapter.new(etablissement.siret, procedure_id, year)) do |params|
+      etablissement.update!(params)
+    end
   end
 
   private
