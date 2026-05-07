@@ -1,6 +1,6 @@
 = render partial: 'shared/breadcrumbs_section',
   locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
-                    ['Arborescence']], preview: false }
+                    ['Arborescence']] }
 
 .fr-container
   %h1 Arborescence de « #{@groupe_gestionnaire.name} »

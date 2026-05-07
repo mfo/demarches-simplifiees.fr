@@ -1,6 +1,6 @@
 = render partial: 'shared/breadcrumbs_section',
   locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
-                    ["Messagerie"]], preview: false }
+                    ["Messagerie"]] }
 
 .container
   %h1 Messagerie de « #{@groupe_gestionnaire.name} »
