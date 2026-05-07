@@ -1,0 +1,19 @@
+<div class="field-unit__label field-unit--required">
+  <%= label_tag :otp_attempt, "Code OTP" %>
+</div>
+
+<div class="field-unit__field">
+  <%= text_field_tag :otp_attempt, nil,
+        inputmode: "numeric",
+        pattern: "[0-9]*",
+        autocomplete: "one-time-code",
+        autocapitalize: "off",
+        spellcheck: "false",
+        required: true,
+        "aria-describedby": "otp_attempt_hint" %>
+</div>
+
+<div id="otp_attempt_hint" class="field-unit__hint">
+  Saisissez le code à 6 chiffres généré par votre application d'authentification
+  pour confirmer cette action.
+</div>
