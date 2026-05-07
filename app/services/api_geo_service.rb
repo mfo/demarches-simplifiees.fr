@@ -20,6 +20,8 @@ class APIGeoService
       end
     end
 
+    def country_options = countries.map { [_1[:name], _1[:code]] }
+
     def country_name(code, locale: I18n.locale)
       countries(locale:).find { _1[:code] == code }&.dig(:name)
     end
