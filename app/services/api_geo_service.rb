@@ -10,11 +10,14 @@ class APIGeoService
     end
 
     def countries(locale: I18n.locale)
-      I18nData.countries(locale)
-        .merge(get_localized_additional_countries(locale))
-        .reject { |code, _name| code.in?(EXCLUDED_COUNTRY_CODES) }
-        .map { |(code, name)| { name:, code: } }
-        .sort_by { I18n.transliterate(_1[:name].tr('î', 'Î')) }
+      memoize(:countries, locale) do
+        I18nData.countries(locale)
+          .merge(get_localized_additional_countries(locale))
+          .reject { |code, _name| code.in?(EXCLUDED_COUNTRY_CODES) }
+          .map { |(code, name)| { name:, code: } }
+          .sort_by { I18n.transliterate(_1[:name].tr('î', 'Î')) }
+          .freeze
+      end
     end
 
     def country_name(code, locale: I18n.locale)
@@ -32,7 +35,9 @@ class APIGeoService
     end
 
     def regions
-      get_from_api_geo(:regions).sort_by { I18n.transliterate(_1[:name]) }
+      memoize(:regions) do
+        get_from_api_geo(:regions).sort_by { I18n.transliterate(_1[:name]) }.freeze
+      end
     end
 
     def region_options = regions.map { [_1[:name], _1[:code]] }
@@ -52,7 +57,9 @@ class APIGeoService
     end
 
     def departements
-      ([{ code: '99', name: 'Etranger' }] + get_from_api_geo(:departements)).sort_by { _1[:code] }
+      memoize(:departements) do
+        ([{ code: '99', name: 'Etranger' }] + get_from_api_geo(:departements)).sort_by { _1[:code] }.freeze
+      end
     end
 
     def departement_options
@@ -74,7 +81,9 @@ class APIGeoService
     end
 
     def epcis(departement_code)
-      get_from_api_geo("epcis-#{departement_code}").sort_by { I18n.transliterate(_1[:name]) }
+      memoize(:epcis, departement_code) do
+        get_from_api_geo("epcis-#{departement_code}").sort_by { I18n.transliterate(_1[:name]) }.freeze
+      end
     end
 
     def epci_name(departement_code, code)
@@ -88,16 +97,17 @@ class APIGeoService
     def communes(departement_code)
       return [] if departement_code.blank? || departement_code == '99'
 
-      Rails.cache.fetch("api_geo_communes_by_dpt_#{departement_code}", expires_in: 1.week, version: 1) do
-        get_from_api_geo("communes-#{departement_code}").sort_by { I18n.transliterate([_1[:name], _1[:postal_code]].join(' ')) }
+      memoize(:communes, departement_code) do
+        get_from_api_geo("communes-#{departement_code}").sort_by { I18n.transliterate([_1[:name], _1[:postal_code]].join(' ')) }.freeze
       end
     end
 
     def communes_by_postal_code(postal_code)
-      Rails.cache.fetch("api_geo_communes_by_pc_#{postal_code}", expires_in: 1.week, version: 3) do
+      memoize(:communes_by_postal_code, postal_code) do
         communes_by_postal_code_map.fetch(postal_code, [])
           .filter { !_1[:code].in?(['75056', '13055', '69123']) }
           .sort_by { I18n.transliterate([_1[:name], _1[:postal_code]].join(' ')) }
+          .freeze
       end
     end
 
@@ -361,23 +371,22 @@ class APIGeoService
     end
 
     def communes_by_postal_code_map
-      Rails.cache.fetch('api_geo_communes', expires_in: 1.day, version: 3) do
+      memoize(:communes_by_postal_code_map) do
         departements
           .filter { _1[:code] != '99' }
           .flat_map { communes(_1[:code]) }
           .group_by { _1[:postal_code] }
+          .freeze
       end
     end
 
     def get_from_api_geo(scope)
-      Rails.cache.fetch("api_geo_#{scope}", expires_in: 1.day, version: 3) do
-        JSON.parse(Rails.root.join('lib', 'data', 'api_geo', "#{scope}.json").read, symbolize_names: true)
-      end
+      JSON.parse(Rails.root.join('lib', 'data', 'api_geo', "#{scope}.json").read, symbolize_names: true).freeze
     end
 
     def countries_index_fr
-      Rails.cache.fetch('countries_index_fr', expires_in: 1.week) do
-        countries(locale: 'FR').index_by { I18n.transliterate(_1[:name]).upcase }
+      memoize(:countries_index_fr) do
+        countries(locale: 'FR').index_by { I18n.transliterate(_1[:name]).upcase }.freeze
       end
     end
 
@@ -393,6 +402,19 @@ class APIGeoService
     end
 
     private
+
+    def reset_memo!
+      @memo = nil
+    end
+
+    def memoize(*key)
+      @memo ||= Concurrent::Map.new
+      cached = @memo[key]
+      return cached if !cached.nil?
+
+      computed = yield
+      @memo.put_if_absent(key, computed) || computed
+    end
 
     def fetch_by_name(name)
       if degraded_mode?
@@ -421,11 +443,11 @@ class APIGeoService
     end
 
     def prepare_departements_data
-      Rails.cache.fetch('api_geo_degraded_departements_data', expires_in: 1.day, version: 1) do
+      memoize(:departements_data) do
         departements.each_with_object({}) do |departement, data|
           next if departement[:code] == '99'
           data[departement[:code]] = get_from_api_geo("communes-#{departement[:code]}")
-        end
+        end.freeze
       end
     end
 

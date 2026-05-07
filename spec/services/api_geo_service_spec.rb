@@ -182,4 +182,115 @@ describe APIGeoService do
       expect(results[0]["nom"]).to eq("Blois")
     end
   end
+
+  describe 'memoization helper' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'caches the block result for repeated calls with the same key' do
+      counter = 0
+      first  = APIGeoService.send(:memoize, :test_key) { counter += 1; counter }
+      second = APIGeoService.send(:memoize, :test_key) { counter += 1; counter }
+      expect(first).to eq(1)
+      expect(second).to eq(1)
+      expect(counter).to eq(1)
+    end
+
+    it 'is keyed by the variadic argument list' do
+      a = APIGeoService.send(:memoize, :ns, 'a') { 'value-a' }
+      b = APIGeoService.send(:memoize, :ns, 'b') { 'value-b' }
+      expect(a).to eq('value-a')
+      expect(b).to eq('value-b')
+    end
+
+    it 'is cleared by reset_memo!' do
+      counter = 0
+      APIGeoService.send(:memoize, :test_key) { counter += 1 }
+      APIGeoService.send(:reset_memo!)
+      APIGeoService.send(:memoize, :test_key) { counter += 1 }
+      expect(counter).to eq(2)
+    end
+
+    it 'returns frozen data from get_from_api_geo' do
+      expect(APIGeoService.send(:get_from_api_geo, :regions)).to be_frozen
+    end
+  end
+
+  describe 'static lists memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes regions' do
+      first  = APIGeoService.regions
+      second = APIGeoService.regions
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+
+    it 'memoizes departements' do
+      first  = APIGeoService.departements
+      second = APIGeoService.departements
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
+
+  describe 'per-departement memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes communes per departement code' do
+      first  = APIGeoService.communes('01')
+      second = APIGeoService.communes('01')
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+
+    it 'memoizes epcis per departement code' do
+      first  = APIGeoService.epcis('01')
+      second = APIGeoService.epcis('01')
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
+
+  describe 'postal-code index memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes communes_by_postal_code' do
+      first  = APIGeoService.communes_by_postal_code('75019')
+      second = APIGeoService.communes_by_postal_code('75019')
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+
+    it 'memoizes the postal-code inverted index map' do
+      first  = APIGeoService.send(:communes_by_postal_code_map)
+      second = APIGeoService.send(:communes_by_postal_code_map)
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
+
+  describe 'countries memoization' do
+    before { APIGeoService.send(:reset_memo!) }
+    after  { APIGeoService.send(:reset_memo!) }
+
+    it 'memoizes countries per locale' do
+      fr_first  = APIGeoService.countries(locale: 'FR')
+      fr_second = APIGeoService.countries(locale: 'FR')
+      en_first  = APIGeoService.countries(locale: 'EN')
+      expect(fr_second).to be(fr_first)
+      expect(en_first).not_to be(fr_first)
+      expect(fr_first).to be_frozen
+    end
+
+    it 'memoizes the countries_index_fr lookup' do
+      first  = APIGeoService.send(:countries_index_fr)
+      second = APIGeoService.send(:countries_index_fr)
+      expect(second).to be(first)
+      expect(first).to be_frozen
+    end
+  end
 end
