@@ -115,6 +115,28 @@ describe AttestationTemplate, type: :model do
         expect(subject.title).to eq('title libelle1')
         expect(subject.pdf).to be_attached
       end
+
+      context 'when a tag value contains a < character' do
+        before do
+          dossier.project_champs_public
+            .find { |champ| champ.libelle == 'libelleB' }
+            .update(value: 'age < 18')
+        end
+
+        it 'renders < literally in the PDF body, not as &lt;' do
+          text_calls = []
+          allow_any_instance_of(Prawn::Document).to receive(:text).and_wrap_original do |m, text, *args|
+            text_calls << text
+            m.call(text, *args)
+          end
+
+          attestation_template.generate_attestation_for(dossier)
+
+          body_call = text_calls.find { _1.include?('age') }
+          expect(body_call).to include('age < 18')
+          expect(body_call).not_to include('&lt;')
+        end
+      end
     end
 
     context 'when dossier is not in accepte or refuse state' do
