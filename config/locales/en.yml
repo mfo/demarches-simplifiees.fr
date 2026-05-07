@@ -73,6 +73,11 @@ en:
     modal_close: "Close"
     modal_close_alt: "Close this modal"
   helpers:
+    admin_procedures_back_label:
+      publiee: 'Published procedures'
+      brouillon: 'Procedures in test'
+      close: 'Closed procedures'
+      discarded: 'Deleted procedures'
     commentaire:
       send_message_to_instructeur: "Send a message to the instructor"
       reply_in_mailbox: "Reply in mailbox"
