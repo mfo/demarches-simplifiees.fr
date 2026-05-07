@@ -4,6 +4,8 @@
 # BlobProcessorJob handles virus scanning + image processing in a single pipeline.
 # Remove once Sidekiq queues are fully drained of old ImageProcessorJob entries.
 class ImageProcessorJob < ApplicationJob
+  use_sidekiq_retry
+
   discard_on ActiveRecord::RecordNotFound
   discard_on ActiveStorage::FileNotFoundError
 

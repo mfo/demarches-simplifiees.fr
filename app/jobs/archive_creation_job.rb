@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ArchiveCreationJob < ApplicationJob
+  use_sidekiq_retry
+
   discard_on ActiveRecord::RecordNotFound
 
   queue_as :archives
