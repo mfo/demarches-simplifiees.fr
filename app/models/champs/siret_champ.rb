@@ -33,23 +33,15 @@ class Champs::SiretChamp < Champ
   end
 
   def fetch_external_data
-    etablissement = APIEntrepriseService.create_etablissement(self, external_id.delete(" "), dossier.user&.id)
-    if etablissement.blank?
-      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
-    else
+    case APIEntrepriseService.create_etablissement_with_fallback(self, external_id.delete(" "), dossier.user&.id)
+    in Success(etablissement) if etablissement.as_degraded_mode?
+      Failure(retryable: true, error: StandardError.new("API Entreprise: degraded mode"), code: 503)
+    in Success(etablissement)
       Success(etablissement:, value: external_id)
-    end
-  rescue APIEntrepriseToken::TokenError => error
-    Failure(retryable: false, error:, code: 401)
-  rescue APIEntreprise::API::Error => error
-    if APIEntrepriseService.service_unavailable_error?(error, target: :insee)
-      update!(
-        etablissement: APIEntrepriseService.create_etablissement_as_degraded_mode(self, external_id.delete(" "), dossier.user&.id)
-      )
-      Failure(retryable: true, error:, code: 503)
-    else
-      Sentry.capture_exception(error, extra: { dossier_id:, siret: external_id })
-      Failure(retryable: false, error:, code: 500)
+    in Failure(type: :not_found, **)
+      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
+    in Failure(type:, code:, retryable:, **)
+      Failure(retryable:, error: StandardError.new("API Entreprise: #{type}"), code:)
     end
   end
 

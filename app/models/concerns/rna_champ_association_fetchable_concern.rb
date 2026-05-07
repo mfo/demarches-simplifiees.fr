@@ -2,19 +2,22 @@
 
 module RNAChampAssociationFetchableConcern
   extend ActiveSupport::Concern
+  include Dry::Monads[:result]
 
   def fetch_association!(rna)
     value = rna
-    data = APIEntreprise::RNAAdapter.new(rna, procedure_id).to_params
-    update_external_data!(data:, value:)
-    true
-  rescue APIEntreprise::API::Error, APIEntrepriseToken::TokenError => error
-    update_external_data!(data: nil, value:)
-    if APIEntrepriseService.service_unavailable_error?(error, target: :djepva)
+    case APIEntreprise::RNAAdapter.new(rna, procedure_id).to_params
+    in Success(data)
+      update_external_data!(data: data.presence, value:)
+      true
+    in Failure(retryable: true, **) => result if APIEntrepriseService.degraded_mode?(result.failure, target: :djepva)
+      update_external_data!(data: nil, value:)
       errors.add(:value, :network_error)
-    else
-      Sentry.capture_exception(error, extra: { dossier_id:, rna: })
+      false
+    in Failure => result
+      update_external_data!(data: nil, value:)
+      APIEntrepriseService.report_error(result.failure, dossier_id:, rna:)
+      false
     end
-    false
   end
 end
