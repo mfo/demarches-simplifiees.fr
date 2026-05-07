@@ -1,6 +1,9 @@
 en:
   shared:
     dossiers:
+      geo:
+        department: Department
+        region_code: Region Code
       beneficiaire: '%{mandataire} (for %{beneficiaire})'
       france_connect_informations:
         details_no_name: "The file was submitted by a FranceConnect authenticated account."

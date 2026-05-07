@@ -1,6 +1,9 @@
 fr:
   shared:
     dossiers:
+      geo:
+        department: Département
+        region_code: Code région
       beneficiaire: '%{mandataire} (pour %{beneficiaire})'
       france_connect_informations:
         details_no_name: "Le dossier a été déposé par un compte authentifié par FranceConnect."

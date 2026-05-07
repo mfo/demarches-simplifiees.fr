@@ -19,7 +19,7 @@ class Dossiers::AddressComponent < ApplicationComponent
     [
       t('.address'),
       t('.insee_code'),
-      t('.department'),
+      I18n.t('shared.dossiers.geo.department'),
     ]
   end
 
@@ -37,7 +37,7 @@ class Dossiers::AddressComponent < ApplicationComponent
     [
       [t('.address'), champ.to_s],
       [t('.insee_code'), champ.city_code],
-      [t('.department'), champ.departement_code_and_name],
+      [I18n.t('shared.dossiers.geo.department'), champ.departement_code_and_name],
     ]
   end
 

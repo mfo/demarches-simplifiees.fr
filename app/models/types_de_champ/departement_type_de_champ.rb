@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  include AddressableColumnConcern
+
+  def columns(procedure:, displayable: true, prefix: nil)
+    addressable_columns(procedure:, displayable:, prefix:, only: [:department_code, :region_code])
+      .concat(legacy_columns(procedure:, prefix:))
+  end
+
   def filter_to_human(filter_value)
     APIGeoService.departement_name(filter_value).presence || filter_value
   end
@@ -36,7 +43,29 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
+  def info_columns(procedure:)
+    Dossiers::DepartementComponent.data_labels
+  end
+
   private
+
+  # ChampColumn par défaut conservé pour rester résolvable par les ProcedurePresentation /
+  # exports / colonnes graphql persistées avant la bascule sur AddressableColumnConcern.
+  def legacy_columns(procedure:, prefix:)
+    [
+      Columns::ChampColumn.new(
+        procedure_id: procedure.id,
+        stable_id:,
+        tdc_type: type_champ,
+        label: libelle_with_prefix(prefix),
+        type: :enum,
+        displayable: false,
+        filterable: false,
+        options_for_select:,
+        mandatory: mandatory?
+      ),
+    ]
+  end
 
   def paths
     paths = super
