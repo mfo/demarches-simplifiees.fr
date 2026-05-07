@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class AttestationPdfGenerationJob < ApplicationJob
+  use_sidekiq_retry
+
   queue_as :critical
 
   discard_on ActiveRecord::RecordNotFound
