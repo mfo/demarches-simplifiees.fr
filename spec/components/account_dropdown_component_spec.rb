@@ -85,4 +85,24 @@ describe AccountDropdownComponent, type: :component do
       expect(subject).to have_text('via FranceConnect')
     end
   end
+
+  describe 'profil link context propagation' do
+    context 'when nav_bar_profile is a valid role' do
+      let(:nav_bar_profile) { :administrateur }
+
+      it 'propagates ?context= on the profil link' do
+        expect(subject.to_html).to include('/profil?context=administrateur')
+      end
+    end
+
+    context 'when nav_bar_profile is :guest' do
+      let(:nav_bar_profile) { :guest }
+      let(:user) { nil }
+
+      it 'does not propagate ?context= on the profil link' do
+        expect(subject.to_html).not_to include('context=guest')
+        expect(subject.to_html).to include('href="/profil"')
+      end
+    end
+  end
 end

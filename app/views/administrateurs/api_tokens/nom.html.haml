@@ -2,7 +2,7 @@
 
 = render partial: 'shared/breadcrumbs_section',
   locals: { steps: [['Tableau de bord', tableau_de_bord_helper_path],
-    [t('users.profil.show.profile'), profil_path],
+    [t('users.profil.show.profile'), profil_path(context: :administrateur)],
     [t('administrateurs.api_tokens.nom.new_token')]] }
 
 .fr-container.fr-mt-2w{ 'data-turbo': 'true' }
@@ -19,4 +19,4 @@
         = f.button type: :submit, class: "fr-btn fr-btn--primary" do
           = t('.continue')
       %li
-        = link_to t('.cancel'), profil_path, class: "fr-btn fr-btn--secondary"
+        = link_to t('.cancel'), profil_path(context: :administrateur), class: "fr-btn fr-btn--secondary"
