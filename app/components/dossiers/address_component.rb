@@ -42,6 +42,6 @@ class Dossiers::AddressComponent < ApplicationComponent
   end
 
   def source
-    tag.acronym(title: 'Base Adresse Nationale') { 'BAN' } if champ.ban?
+    tag.acronym(title: t('.ban_title')) { 'BAN' } if champ.ban?
   end
 end
