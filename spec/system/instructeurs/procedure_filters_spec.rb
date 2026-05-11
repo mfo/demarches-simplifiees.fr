@@ -62,6 +62,14 @@ describe "procedure filters" do
       expect(page).to have_link(champ.value)
     end
 
+    # Add a column whose natural position in `procedure.columns` precedes both
+    # Demandeur and the custom type_de_champ. Columns must follow the order the
+    # instructeur picked them, not the underlying collection order.
+    add_column("Date de création")
+    within ".dossiers-table thead" do
+      expect(page).to have_content(/Demandeur.*#{Regexp.escape(type_de_champ.libelle)}.*Date de création/)
+    end
+
     remove_column(type_de_champ.libelle)
     within ".dossiers-table" do
       expect(page).not_to have_button(type_de_champ.libelle)
