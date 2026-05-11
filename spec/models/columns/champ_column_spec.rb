@@ -16,7 +16,7 @@ describe Columns::ChampColumn do
         expect_type_de_champ_values('communes', eq(["60580", "Coye-la-Forêt", "60", "32", "Coye-la-Forêt", "60580", "60"]))
         expect_type_de_champ_values('departements', eq(["01", "84", "01"]))
         expect_type_de_champ_values('regions', eq(['01', '01']))
-        expect_type_de_champ_values('pays', eq(['France']))
+        expect_type_de_champ_values('pays', eq(['FR']))
         expect_type_de_champ_values('epci', eq([nil, nil, nil]))
         expect_type_de_champ_values('iban', eq([nil]))
         expect_type_de_champ_values('siret', match_array(
@@ -349,6 +349,28 @@ describe Columns::ChampColumn do
 
         it "returns the correct ids" do
           expect(subject).to match_array([dossier_with_fromage.id, dossier_with_dessert.id])
+        end
+      end
+    end
+
+    context "with a pays champ" do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pays, libelle: "pays" }]) }
+      let(:dossier_fr) { create(:dossier, :en_instruction, procedure:) }
+      let(:dossier_de) { create(:dossier, :en_instruction, procedure:) }
+
+      before do
+        dossier_fr.champs.first.update!(value: 'FR')
+        dossier_de.champs.first.update!(value: 'DE')
+      end
+
+      let(:column) { procedure.find_column(label: "pays") }
+      let(:dossiers) { procedure.dossiers }
+
+      context "when filtering by country code" do
+        let(:search_terms) { ["FR"] }
+
+        it "matches only the dossier with this code" do
+          expect(subject).to match_array([dossier_fr.id])
         end
       end
     end

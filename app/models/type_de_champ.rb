@@ -498,6 +498,8 @@ class TypeDeChamp < ApplicationRecord
       APIGeoService.departement_options
     elsif regions?
       APIGeoService.region_options
+    elsif pays?
+      APIGeoService.country_options
     elsif any_drop_down_list?
       if drop_down_advanced?
         Array.wrap(referentiel&.options_for_select)
@@ -590,7 +592,7 @@ class TypeDeChamp < ApplicationRecord
       :decimal
     when type_champs.fetch(:multiple_drop_down_list)
       :enums
-    when type_champs.fetch(:drop_down_list), type_champs.fetch(:departements), type_champs.fetch(:regions), type_champs.fetch(:civilite)
+    when type_champs.fetch(:drop_down_list), type_champs.fetch(:departements), type_champs.fetch(:regions), type_champs.fetch(:civilite), type_champs.fetch(:pays)
       :enum
     when type_champs.fetch(:checkbox), type_champs.fetch(:yes_no)
       :boolean

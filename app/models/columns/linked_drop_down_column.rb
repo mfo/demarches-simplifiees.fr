@@ -23,6 +23,8 @@ class Columns::LinkedDropDownColumn < Columns::ChampColumn
   end
 
   def filtered_ids_for_values(dossiers, search_terms)
+    return dossiers.ids if search_terms.blank?
+
     relation = dossiers.with_type_de_champ(@stable_id)
 
     search_terms = Array(search_terms).compact.reject(&:empty?)
