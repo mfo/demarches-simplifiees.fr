@@ -1177,12 +1177,19 @@ class Dossier < ApplicationRecord
     submitted_revision_id.present? && submitted_revision_id != revision_id
   end
 
-  def enqueue_fetch_external_data_jobs
-    project_champs.each do |champ|
+  def enqueue_fetch_external_data_jobs(prefilled_champs)
+    prefilled_champs.each do |champ|
       if champ.has_async_external_data? && champ.may_fetch_later?
         champ.fetch_later!
       end
     end
+  end
+
+  def prefill_and_enqueue_fetch_external_data_jobs(champs, types_de_champ)
+    prefilled_champs = Array.wrap(champs).flat_map do |champ|
+      champ.propagate_prefill(types_de_champ)
+    end
+    enqueue_fetch_external_data_jobs(prefilled_champs)
   end
 
   private

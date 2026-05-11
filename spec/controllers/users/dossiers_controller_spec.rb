@@ -1594,7 +1594,18 @@ describe Users::DossiersController, type: :controller do
 
         dossier.reload
         annotation = dossier.project_champs_private.find { it.stable_id == 100 }
+        expect(annotation.value).to be_nil
+
+        dossier.with_update_stream(dossier.user) do
+          referentiel = dossier.project_champs_public.find { it.stable_id == referentiel_stable_id }
+          expect(referentiel.data.deep_symbolize_keys).to eq(data: [suggestion_data])
+        end
+
+        dossier.merge_user_buffer_stream!
+        dossier.reload
+        annotation = dossier.project_champs_private.find { it.stable_id == 100 }
         expect(annotation.value).to eq(suggestion_data[:finess])
+        expect(annotation.stream).to eq(Champ::MAIN_STREAM)
       end
     end
   end

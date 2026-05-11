@@ -21,11 +21,12 @@ class Champs::ReferentielChamp < Champ
   end
 
   def update_external_data!(hash)
+    dossier.with_champ_stream(self)
+
     transaction do
       update!(hash.merge(fetch_external_data_exceptions: [])) # void previous errors
-      propagate_prefill(hash[:data])
+      dossier.prefill_and_enqueue_fetch_external_data_jobs(self, prefillable_types_de_champ)
     end
-    dossier.with_champ_stream(self).enqueue_fetch_external_data_jobs
   end
 
   def data=(data)
@@ -39,9 +40,8 @@ class Champs::ReferentielChamp < Champ
 
       super(data)
       self.value_json = cast_displayable_values(data)
-      propagate_prefill(data)
 
-      dossier.with_champ_stream(self).enqueue_fetch_external_data_jobs
+      dossier.prefill_and_enqueue_fetch_external_data_jobs(self, prefillable_types_de_champ)
     end
   end
 
@@ -81,7 +81,31 @@ class Champs::ReferentielChamp < Champ
     end
   end
 
+  def propagate_prefill(types_de_champ)
+    types_de_champ_by_stable_id = types_de_champ.index_by(&:stable_id)
+    referentiel_mapping_prefillable_with_stable_id
+      .transform_values do |mapping|
+        types_de_champ_by_stable_id[mapping[:prefill_stable_id].to_i]
+      end.compact.group_by do |_, type_de_champ|
+        dossier.revision.parent_of(type_de_champ)
+      end.flat_map do |repetition_type_de_champ, mappings|
+        if repetition_type_de_champ.present?
+          update_repetition_prefillable_champs(data, repetition_type_de_champ, mappings)
+        else
+          update_simple_prefillable_champs(data, mappings)
+        end
+      end
+  end
+
   private
+
+  def prefillable_types_de_champ
+    if stream == Champ::MAIN_STREAM
+      dossier.revision.types_de_champ
+    else
+      dossier.types_de_champ_public_all
+    end
+  end
 
   def clear_previous_result
     self.value = nil
@@ -150,41 +174,27 @@ class Champs::ReferentielChamp < Champ
     end
   end
 
-  def propagate_prefill(data)
-    # the champ is on the right stream, but the dossier might not be. We set dossier stream from the champ
-    dossier.with_champ_stream(self)
-
-    types_de_champ_by_stable_id = dossier.revision.types_de_champ.index_by(&:stable_id)
-    referentiel_mapping_prefillable_with_stable_id
-      .transform_values do |mapping|
-        types_de_champ_by_stable_id.fetch(mapping[:prefill_stable_id].to_i)
-      end.group_by do |_, type_de_champ|
-        dossier.revision.parent_of(type_de_champ)
-      end.each do |repetition_type_de_champ, mappings|
-        if repetition_type_de_champ.present?
-          update_repetition_prefillable_champs(data, repetition_type_de_champ, mappings)
-        else
-          update_simple_prefillable_champs(data, mappings)
-        end
-      end
-  end
-
   def update_repetition_prefillable_champs(data, repetition_type_de_champ, mappings)
-    group_mappings_by_json_array(mappings).each do |array_key, array_mappings|
+    group_mappings_by_json_array(mappings).flat_map do |array_key, array_mappings|
       json_array = Array(JSONPathUtil.on_safe(data.with_indifferent_access, array_key).first)
-      next unless json_array.is_a?(Array)
-
-      json_array.each do |json_value|
-        next if json_value.blank?
-        row_id = determine_row_id(repetition_type_de_champ)
-        array_mappings.each do |jsonpath, type_de_champ|
-          if JSONPathUtil.json_path_contains_array?(jsonpath)
-            raw_value = JSONPathUtil.on_safe(json_value, JSONPathUtil.extract_key_after_array(jsonpath)).first
+      if json_array.is_a?(Array)
+        json_array.flat_map do |json_value|
+          if json_value.blank?
+            []
           else
-            raw_value = json_value
+            row_id = determine_row_id(repetition_type_de_champ)
+            array_mappings.map do |jsonpath, type_de_champ|
+              raw_value = if JSONPathUtil.json_path_contains_array?(jsonpath)
+                JSONPathUtil.on_safe(json_value, JSONPathUtil.extract_key_after_array(jsonpath)).first
+              else
+                json_value
+              end
+              update_prefillable_champ(type_de_champ:, raw_value:, row_id:)
+            end
           end
-          update_prefillable_champ(type_de_champ:, raw_value:, row_id:)
         end
+      else
+        []
       end
     end
   end
@@ -196,7 +206,7 @@ class Champs::ReferentielChamp < Champ
     if type_de_champ.child?(dossier.revision)
       self.row_id
     else
-      dossier.repetition_add_row(repetition_type_de_champ, updated_by: :api)
+      dossier.repetition_add_row(repetition_type_de_champ, updated_by:)
     end
   end
 
@@ -205,22 +215,16 @@ class Champs::ReferentielChamp < Champ
   end
 
   def update_simple_prefillable_champs(data, mappings)
-    mappings.each do |jsonpath, type_de_champ|
+    mappings.map do |jsonpath, type_de_champ|
       raw_value = JSONPathUtil.on_safe(data, jsonpath).first
       update_prefillable_champ(type_de_champ:, raw_value:)
     end
   end
 
   def update_prefillable_champ(type_de_champ:, raw_value:, row_id: nil)
-    if type_de_champ.private?
-      dossier.with_main_stream do
-        prefill_champ = dossier.champ_for_update(type_de_champ, row_id:, updated_by: :api)
-        prefill_champ.update(cast_value_for_type_de_champ(raw_value, type_de_champ))
-      end
-    else
-      prefill_champ = dossier.champ_for_update(type_de_champ, row_id:, updated_by: :api)
-      prefill_champ.update(cast_value_for_type_de_champ(raw_value, type_de_champ))
-    end
+    prefill_champ = dossier.champ_for_update(type_de_champ, row_id:, updated_by:)
+    prefill_champ.update(cast_value_for_type_de_champ(raw_value, type_de_champ))
+    prefill_champ
   end
 
   def rewrap_selected_object_in_datasource(data)
