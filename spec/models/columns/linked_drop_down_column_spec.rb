@@ -19,15 +19,17 @@ describe Columns::LinkedDropDownColumn do
     context "when filter value is nil" do
       let(:column) { procedure.find_column(label: 'linked') }
       let(:search_terms) { nil }
+      before { kept_dossier; discarded_dossier }
 
-      it { expect { subject }.not_to raise_error }
+      it { is_expected.to match_array([kept_dossier.id, discarded_dossier.id]) }
     end
 
     context "when filter value is missing" do
       let(:column) { procedure.find_column(label: 'linked') }
       subject { column.filtered_ids(Dossier.all, { operator: 'match' }) }
+      before { kept_dossier; discarded_dossier }
 
-      it { expect { subject }.not_to raise_error }
+      it { is_expected.to match_array([kept_dossier.id, discarded_dossier.id]) }
     end
 
     context 'when path is :value' do
