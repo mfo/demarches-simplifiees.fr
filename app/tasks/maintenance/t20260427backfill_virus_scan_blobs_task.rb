@@ -34,8 +34,11 @@ module Maintenance
 
       scope.find_each do |blob|
         next if blob.metadata["processed"]
-
-        BlobProcessorJob.perform_later(blob)
+        begin
+          BlobProcessorJob.perform_later(blob)
+        rescue RuntimeError
+          # Type De Champ 2945644 not found in Revision 263352
+        end
       end
     end
   end
