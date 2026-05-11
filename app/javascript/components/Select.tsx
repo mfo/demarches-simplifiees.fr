@@ -163,6 +163,7 @@ export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
   const {
     value: initialValue,
     className,
+    name,
     ...props
   } = useMemo(() => s.create(maybeProps, MultipleSelectProps), [maybeProps]);
   const [value, setValue] = useState<string[]>(() => initialValue);
@@ -181,6 +182,11 @@ export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
     dispatchChange();
   };
 
+  // `name` is destructured out above so the `{...props}` spread no longer carries
+  // it into <Select>. Otherwise react-aria's hidden <select multiple> picks up the
+  // name and the browser submits its selected options in DOM (collection) order —
+  // losing the user's selection order. The explicit hidden inputs below carry the
+  // form value in selection order instead.
   return (
     <>
       <Select
@@ -190,12 +196,19 @@ export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
         onChange={onChange}
         {...props}
       />
-      <input
-        ref={changeDispatchRef}
-        type="hidden"
-        name={value.length > 0 ? undefined : props.name}
-        value=""
-      />
+      {value.length === 0 ? (
+        <input ref={changeDispatchRef} type="hidden" name={name} value="" />
+      ) : (
+        value.map((v, i) => (
+          <input
+            key={v}
+            ref={i === 0 ? changeDispatchRef : undefined}
+            type="hidden"
+            name={name}
+            value={v}
+          />
+        ))
+      )}
     </>
   );
 }
