@@ -50,6 +50,10 @@
       </div>
     </div>
 
+    <div class="field-unit field-unit--string field-unit--required">
+      <%= render Manager::OtpAttemptInputComponent.new %>
+    </div>
+
     <div class="form-actions"><%= f.submit "Transférer le dossier" %></div>
   <% end %>
 </section>
