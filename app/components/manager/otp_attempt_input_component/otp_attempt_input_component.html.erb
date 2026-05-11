@@ -1,5 +1,5 @@
 <div class="field-unit__label field-unit--required">
-  <%= label_tag :otp_attempt, "Code OTP" %>
+  <%= label_tag :otp_attempt, t('.label') %>
 </div>
 
 <div class="field-unit__field">
@@ -14,6 +14,5 @@
 </div>
 
 <div id="otp_attempt_hint" class="field-unit__hint">
-  Saisissez le code à 6 chiffres généré par votre application d'authentification
-  pour confirmer cette action.
+  <%= t('.hint') %>
 </div>
