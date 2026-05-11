@@ -22,20 +22,16 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
     label: 'UNESCO',
     id: 'unesco',
     layers: [
-      ['Aires protégées Géoparcs', 'PROTECTEDAREAS.GP', 'normal'],
-      ['Réserves de biosphère', 'PROTECTEDAREAS.BIOS', 'PROTECTEDAREAS.BIOS']
+      ['Aires protégées Géoparcs', 'Patrinat_GEOPARC', 'normal'],
+      ['Réserves de biosphère', 'Patrinat_BIOS', 'normal']
     ]
   },
   {
     label: 'Arrêtés de protection',
     id: 'arretes_protection',
     layers: [
-      [
-        'Arrêtés de protection de biotope',
-        'PROTECTEDAREAS.APB',
-        'PROTECTEDAREAS.APB'
-      ],
-      ['Arrêtés de protection de géotope', 'PROTECTEDAREAS.APG', 'normal']
+      ['Arrêtés de protection de biotope', 'Patrinat_APB', 'normal'],
+      ['Arrêtés de protection de géotope', 'Patrinat_APG', 'normal']
     ]
   },
   {
@@ -44,12 +40,12 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
     layers: [
       [
         'Conservatoire du littoral : parcelles protégées',
-        'PROTECTEDAREAS.MNHN.CDL.PARCELS',
-        'PROTECTEDAREAS.MNHN.CDL.PARCELS'
+        'CONSERVATOIRE_LITTORAL.PARCELLES',
+        'normal'
       ],
       [
         'Conservatoire du littoral : périmètres d’intervention',
-        'PROTECTEDAREAS.MNHN.CDL.PERIMETER',
+        'CONSERVATOIRE_LITTORAL.PERIMETRES',
         'normal'
       ]
     ]
@@ -60,7 +56,7 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
     layers: [
       [
         'Réserves nationales de chasse et de faune sauvage',
-        'PROTECTEDAREAS.RNCF',
+        'Patrinat_RNCFS',
         'normal'
       ]
     ]
@@ -68,59 +64,35 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
   {
     label: 'Réserves biologiques',
     id: 'reserves_biologiques',
-    layers: [['Réserves biologiques', 'PROTECTEDAREAS.RB', 'normal']]
+    layers: [['Réserves biologiques', 'Patrinat_RB', 'normal']]
   },
   {
     label: 'Réserves naturelles',
     id: 'reserves_naturelles',
     layers: [
-      [
-        'Réserves naturelles nationales',
-        'PROTECTEDAREAS.RN',
-        'PROTECTEDAREAS.RN'
-      ],
+      ['Réserves naturelles nationales', 'Patrinat_RNN', 'normal'],
       [
         'Périmètres de protection de réserves naturelles',
-        'PROTECTEDAREAS.MNHN.RN.PERIMETER',
+        'Patrinat_PPRNN',
         'normal'
       ],
-      [
-        'Réserves naturelles de Corse',
-        'PROTECTEDAREAS.RNC',
-        'PROTECTEDAREAS.RNC'
-      ],
-      [
-        'Réserves naturelles régionales',
-        'PROTECTEDSITES.MNHN.RESERVES-REGIONALES',
-        'PROTECTEDSITES.MNHN.RESERVES-REGIONALES'
-      ]
+      ['Réserves naturelles de Corse', 'Patrinat_RNC', 'normal'],
+      ['Réserves naturelles régionales', 'Patrinat_RNR', 'normal']
     ]
   },
   {
     label: 'Natura 2000',
     id: 'natura_2000',
     layers: [
-      [
-        'Sites Natura 2000 (Directive Habitats)',
-        'PROTECTEDAREAS.SIC',
-        'PROTECTEDAREAS.SIC'
-      ],
-      [
-        'Sites Natura 2000 (Directive Oiseaux)',
-        'PROTECTEDAREAS.ZPS',
-        'PROTECTEDAREAS.ZPS'
-      ]
+      ['Sites Natura 2000 (Directive Habitats)', 'Patrinat_SIC', 'normal'],
+      ['Sites Natura 2000 (Directive Oiseaux)', 'Patrinat_ZPS', 'normal']
     ]
   },
   {
     label: 'Zones humides d’importance internationale',
     id: 'zones_humides',
     layers: [
-      [
-        'Zones humides d’importance internationale',
-        'PROTECTEDAREAS.RAMSAR',
-        'PROTECTEDAREAS.RAMSAR'
-      ]
+      ['Zones humides d’importance internationale', 'Patrinat_RAMSAR', 'normal']
     ]
   },
   {
@@ -129,23 +101,23 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
     layers: [
       [
         'Zones naturelles d’intérêt écologique faunistique et floristique de type 1 (ZNIEFF 1 mer)',
-        'PROTECTEDAREAS.ZNIEFF1.SEA',
+        'Patrinat_ZNIEFF1_MER',
         'normal'
       ],
       [
         'Zones naturelles d’intérêt écologique faunistique et floristique de type 1 (ZNIEFF 1)',
-        'PROTECTEDAREAS.ZNIEFF1',
-        'PROTECTEDAREAS.ZNIEFF1'
+        'Patrinat_ZNIEFF1',
+        'normal'
       ],
       [
         'Zones naturelles d’intérêt écologique faunistique et floristique de type 2 (ZNIEFF 2 mer)',
-        'PROTECTEDAREAS.ZNIEFF2.SEA',
+        'Patrinat_ZNIEFF2_MER',
         'normal'
       ],
       [
         'Zones naturelles d’intérêt écologique faunistique et floristique de type 2 (ZNIEFF 2)',
-        'PROTECTEDAREAS.ZNIEFF2',
-        'PROTECTEDAREAS.ZNIEFF2'
+        'Patrinat_ZNIEFF2',
+        'normal'
       ]
     ]
   },
