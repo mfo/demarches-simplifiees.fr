@@ -6,7 +6,7 @@ class Columns::ChampColumn < Column
   def initialize(procedure_id:, label:, stable_id:, tdc_type:, displayable: true, filterable: true, type: :text, options_for_select: [], mandatory:)
     @stable_id = stable_id
     @tdc_type = tdc_type
-    column = tdc_type.in?(['departements', 'regions']) ? :external_id : :value
+    column = tdc_type.in?(['departements', 'regions', 'pays']) ? :external_id : :value
 
     super(
       procedure_id:,
