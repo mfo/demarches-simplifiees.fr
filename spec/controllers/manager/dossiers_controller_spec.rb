@@ -39,14 +39,20 @@ describe Manager::DossiersController, type: :controller do
 
   describe "POST #transfer" do
     let(:otp_attempt) { current_otp_for(super_admin) }
+    let(:email) { "chouette.gars@laposte.net" }
 
     subject do
       post :transfer, params: { id: @dossier.id, email:, otp_attempt: }
     end
 
-    context 'with valid email' do
-      let(:email) { "chouette.gars@laposte.net" }
+    it_behaves_like "a manager action gated by a fresh super-admin OTP" do
+      let(:action_matcher) { have_enqueued_mail(DossierMailer, :notify_transfer) }
+      let(:replay_subject) do
+        -> { post :transfer, params: { id: @dossier.id, email: "second.gars@laposte.net", otp_attempt: otp_attempt } }
+      end
+    end
 
+    context 'with valid email' do
       it do
         expect { subject }.to have_enqueued_mail(DossierMailer, :notify_transfer)
         expect(flash[:notice]).to eq("Une invitation de transfert a été envoyée à chouette.gars@laposte.net")
@@ -59,54 +65,6 @@ describe Manager::DossiersController, type: :controller do
       it do
         expect { subject }.not_to have_enqueued_mail(DossierMailer, :notify_transfer)
         expect(flash[:alert]).to eq("L’adresse électronique est invalide. Saisissez une adresse électronique valide. Exemple : adresse@mail.com")
-      end
-    end
-
-    context 'when the OTP code is missing' do
-      let(:email) { "chouette.gars@laposte.net" }
-      let(:otp_attempt) { nil }
-
-      it 'does not enqueue a transfer and sets a flash error' do
-        expect { subject }.not_to have_enqueued_mail(DossierMailer, :notify_transfer)
-        expect(flash[:error]).to include("Code OTP invalide ou manquant")
-      end
-    end
-
-    context 'when the OTP code is invalid' do
-      let(:email) { "chouette.gars@laposte.net" }
-      let(:otp_attempt) { (current_otp_for(super_admin).to_i + 1).to_s.rjust(6, '0') }
-
-      it 'does not enqueue a transfer and sets a flash error' do
-        expect { subject }.not_to have_enqueued_mail(DossierMailer, :notify_transfer)
-        expect(flash[:error]).to include("Code OTP invalide ou manquant")
-      end
-    end
-
-    context 'when the same OTP code is replayed within its drift window' do
-      let(:email) { "chouette.gars@laposte.net" }
-      let(:second_email) { "second.gars@laposte.net" }
-      let(:code) { current_otp_for(super_admin) }
-
-      it 'accepts the first submission and rejects the replay' do
-        expect {
-          post :transfer, params: { id: @dossier.id, email:, otp_attempt: code }
-        }.to have_enqueued_mail(DossierMailer, :notify_transfer)
-
-        expect {
-          post :transfer, params: { id: @dossier.id, email: second_email, otp_attempt: code }
-        }.not_to have_enqueued_mail(DossierMailer, :notify_transfer)
-        expect(flash[:error]).to include("Code OTP invalide ou manquant")
-      end
-    end
-
-    context 'when SUPER_ADMIN_OTP_ENABLED is false' do
-      let(:email) { "chouette.gars@laposte.net" }
-      let(:otp_attempt) { nil }
-
-      before { stub_const('SUPER_ADMIN_OTP_ENABLED', false) }
-
-      it 'enqueues the transfer without requiring an OTP code' do
-        expect { subject }.to have_enqueued_mail(DossierMailer, :notify_transfer)
       end
     end
   end
