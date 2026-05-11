@@ -166,6 +166,26 @@ describe Instructeurs::GroupeInstructeursController, type: :controller do
         expect(GroupeInstructeurMailer).not_to have_received(:notify_added_instructeurs)
       end
     end
+
+    context 'IDOR: when the group belongs to a different procedure' do
+      let(:procedure_b) { create(:procedure, :published, instructeurs_self_management_enabled: false) }
+      let!(:gi_b) { create(:groupe_instructeur, label: 'groupe of procedure b', procedure: procedure_b) }
+
+      before { gi_b.instructeurs << instructeur }
+
+      it 'raises RecordNotFound instead of adding an instructeur to the foreign group' do
+        expect {
+          post :add_instructeurs,
+            params: {
+              procedure_id: procedure.id,
+              id: gi_b.id,
+              emails: ['attacker@example.com'],
+            }
+        }.to raise_error(ActiveRecord::RecordNotFound)
+
+        expect(gi_b.reload.instructeurs.map(&:email)).not_to include('attacker@example.com')
+      end
+    end
   end
 
   describe '#remove_instructeur' do
@@ -209,6 +229,29 @@ describe Instructeurs::GroupeInstructeursController, type: :controller do
         expect(gi_1_1.instructeurs.count).to eq(1)
         expect(flash.alert).to eq('Suppression impossible : il doit y avoir au moins un instructeur dans le groupe')
         expect(response).to redirect_to(instructeur_groupe_path(procedure, gi_1_1))
+      end
+    end
+
+    context 'IDOR: when the group belongs to a different procedure' do
+      let(:procedure_b) { create(:procedure, :published, instructeurs_self_management_enabled: false) }
+      let!(:gi_b) { create(:groupe_instructeur, label: 'groupe of procedure b', procedure: procedure_b) }
+      let(:victim_instructeur) { create(:instructeur) }
+
+      before do
+        gi_b.instructeurs << instructeur << victim_instructeur
+      end
+
+      it 'raises RecordNotFound instead of removing an instructeur from the foreign group' do
+        expect {
+          delete :remove_instructeur,
+            params: {
+              procedure_id: procedure.id,
+              id: gi_b.id,
+              instructeur: { id: victim_instructeur.id },
+            }
+        }.to raise_error(ActiveRecord::RecordNotFound)
+
+        expect(gi_b.reload.instructeurs).to include(victim_instructeur)
       end
     end
 
