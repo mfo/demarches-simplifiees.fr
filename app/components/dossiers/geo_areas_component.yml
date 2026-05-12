@@ -1,0 +1,14 @@
+fr:
+  selections_utilisateur: "Sélections utilisateur"
+  cadastres: "Parcelles cadastrales"
+  rpgs: "Parcelles agricoles"
+  more_areas:
+    one: "et %{count} autre point, ligne ou polygone."
+    other: "et %{count} autres points, lignes ou polygones."
+en:
+  selections_utilisateur: "User selections"
+  cadastres: "Cadastral parcels"
+  rpgs: "Agricultural parcels"
+  more_areas:
+    one: "and %{count} other point, line or polygon."
+    other: "and %{count} other points, lines or polygons."
