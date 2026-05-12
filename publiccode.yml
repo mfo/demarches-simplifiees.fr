@@ -1,13 +1,12 @@
 # This repository adheres to the publiccode.yml standard by including this
 # metadata file that makes public software easily discoverable.
-# More info at https://github.com/italia/publiccode.yml
+# More info at https://github.com/publiccodeyml/publiccode.yml
 
-publiccodeYmlVersion: '0.2'
+publiccodeYmlVersion: '0'
 name: Démarche Numérique
 url: 'https://github.com/demarche-numerique/demarche.numerique.gouv.fr'
 landingURL: 'https://demarche.numerique.gouv.fr'
-roadmap: 'https://github.com/demarche-numerique/demarche.numerique.gouv.fr/wiki/Feuille-de-route'
-releaseDate: 'https://github.com/demarche-numerique/demarche.numerique.gouv.fr/releases/latest'
+roadmap: 'https://github.com/demarche-numerique/demarche.numerique.gouv.fr/wiki/Feuille-de-route-2026'
 developmentStatus: beta
 softwareType: standalone/backend
 categories:
@@ -16,6 +15,10 @@ platforms:
   - web
 logo: |-
   https://demarche.numerique.gouv.fr/logo-icon.png
+maintenance:
+  type: internal
+  contacts:
+    - name: Équipe Démarche Numérique
 legal:
   license: GPL-3.0-or-later
 localisation:
@@ -25,9 +28,9 @@ localisation:
     - en
 description:
   fr:
-    documentation: 'https://doc.demarches-simplifiees.fr/'
+    documentation: 'https://doc.demarche.numerique.gouv.fr/'
     apiDocumentation: |-
-      https://doc.demarches-simplifiees.fr/api-graphql
+      https://doc.demarche.numerique.gouv.fr/api-graphql
     awards:
       - Prix spécial du Jury Acteurs du Libre (CNLL)  2021
     shortDescription: |-
@@ -41,7 +44,6 @@ description:
       - améliorer les temps de traitement.
 
       Il doit être générateur d’efficience, tout en garantissant l’autonomie personnelle des utilisateurs. Le choix des priorités de développement est donc guidé par les retours des ses utilisateurs (usagers et agents administratifs).
-    genericName: Générateur de formulaire
     features:
       - réaliser une démarche en ligne
       - instuire les dossiers
