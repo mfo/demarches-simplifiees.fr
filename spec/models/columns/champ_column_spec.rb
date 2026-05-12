@@ -53,7 +53,6 @@ describe Columns::ChampColumn do
         champ = dossier.send(:filled_champ, type_de_champ)
         columns = type_de_champ.columns(procedure:)
         expect(columns.map { _1.value(champ) }).to be_an_instance_of(Array)
-        expect_type_de_champ_values('pole_emploi', eq([nil]))
         expect_type_de_champ_values('mesri', eq([nil]))
         expect_type_de_champ_values('cojo', eq([nil]))
         expect_type_de_champ_values('formatted', eq([nil]))

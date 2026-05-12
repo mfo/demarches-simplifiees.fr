@@ -19,12 +19,6 @@ en:
           refuse: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
           sans_suite: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
     champs:
-      pole_emploi:
-        show:
-          not_filled: not filled
-          fetching_data: "Fetching data for identifier %{identifiant}."
-          data_fetched: "Data concerning %{sources} linked to the identifier %{identifiant} has been received from Pôle emploi."
-          data_fetched_title: "Data received from Pôle emploi"
       mesri:
         show:
           not_filled: not filled
