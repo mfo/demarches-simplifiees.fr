@@ -27,9 +27,11 @@ describe Manager::UsersController, type: :controller do
   end
 
   describe '#update' do
+    let(:super_admin) { create(:super_admin, :with_otp) }
     let(:user) { create(:user, email: 'ancien.email@domaine.fr', password: '{My-$3cure-p4ssWord}') }
+    let(:otp_attempt) { current_otp_for(super_admin) }
 
-    subject { patch :update, params: { id: user.id, user: { email: nouvel_email } } }
+    subject { patch :update, params: { id: user.id, user: { email: nouvel_email }, otp_attempt: otp_attempt } }
 
     context 'when the targeted email does not exist' do
       describe 'with a valid email' do
@@ -67,6 +69,66 @@ describe Manager::UsersController, type: :controller do
         expect(flash[:notice]).to match("Le compte « email.existant@domaine.fr » a absorbé le compte « ancien.email@domaine.fr ».")
         expect(response).to redirect_to(edit_manager_user_path(targeted_user))
       end
+    end
+
+    context 'when the OTP code is missing' do
+      let(:nouvel_email) { 'nouvel.email@domaine.fr' }
+      let(:otp_attempt) { nil }
+
+      it 'does not change the email and sets a flash error' do
+        expect { subject }.not_to change { user.reload.email }
+        expect(flash[:error]).to include("Code OTP invalide ou manquant")
+      end
+    end
+
+    context 'when the OTP code is invalid' do
+      let(:nouvel_email) { 'nouvel.email@domaine.fr' }
+      let(:otp_attempt) { (current_otp_for(super_admin).to_i + 1).to_s.rjust(6, '0') }
+
+      it 'does not change the email and sets a flash error' do
+        expect { subject }.not_to change { user.reload.email }
+        expect(flash[:error]).to include("Code OTP invalide ou manquant")
+      end
+    end
+
+    context 'when the same OTP code is replayed within its drift window' do
+      let(:nouvel_email) { 'nouvel.email@domaine.fr' }
+      let(:second_email) { 'second.email@domaine.fr' }
+      let(:code) { current_otp_for(super_admin) }
+
+      it 'accepts the first submission and rejects the replay' do
+        patch :update, params: { id: user.id, user: { email: nouvel_email }, otp_attempt: code }
+        expect(user.reload.email).to eq(nouvel_email)
+
+        patch :update, params: { id: user.id, user: { email: second_email }, otp_attempt: code }
+        expect(user.reload.email).to eq(nouvel_email)
+        expect(flash[:error]).to include("Code OTP invalide ou manquant")
+      end
+    end
+
+    context 'when SUPER_ADMIN_OTP_ENABLED is false' do
+      let(:nouvel_email) { 'nouvel.email@domaine.fr' }
+      let(:otp_attempt) { nil }
+
+      before { stub_const('SUPER_ADMIN_OTP_ENABLED', false) }
+
+      it 'updates the email without requiring an OTP code' do
+        subject
+        expect(user.reload.email).to eq(nouvel_email)
+      end
+    end
+  end
+
+  describe '#edit' do
+    render_views
+
+    let(:user) { create(:user) }
+
+    it 'renders the OTP step-up input alongside the email field' do
+      get :edit, params: { id: user.id }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('name="otp_attempt"')
     end
   end
 

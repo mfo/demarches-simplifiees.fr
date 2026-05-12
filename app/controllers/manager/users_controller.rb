@@ -2,6 +2,15 @@
 
 module Manager
   class UsersController < Manager::ApplicationController
+    include RequiresFreshSuperAdminOtp
+
+    before_action :verify_fresh_super_admin_otp!, only: [:update]
+
+    def edit
+      requested_resource.define_singleton_method(:otp_attempt) { nil }
+      super
+    end
+
     def update
       user = User.find(params[:id])
       targeted_user = User.find_by(email: targeted_email)

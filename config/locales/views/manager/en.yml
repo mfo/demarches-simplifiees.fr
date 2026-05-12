@@ -1,4 +1,6 @@
 en:
   manager:
+    fresh_otp:
+      invalid_code: "Invalid or missing OTP code. The operation has been cancelled."
     gestionnaires:
       manage_root_groupe_gestionnaire: Root group management

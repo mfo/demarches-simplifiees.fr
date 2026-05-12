@@ -1,0 +1,3 @@
+fr:
+  label: 'Code OTP'
+  hint: 'Saisissez le code à 6 chiffres généré par votre application d’authentification pour confirmer cette action.'

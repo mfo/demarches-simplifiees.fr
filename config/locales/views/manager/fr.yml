@@ -1,5 +1,7 @@
 fr:
   manager:
+    fresh_otp:
+      invalid_code: "Code OTP invalide ou manquant. L’opération a été annulée."
     gestionnaires:
       manage_root_groupe_gestionnaire: Gestion du groupe racine
     groupe_gestionnaires:

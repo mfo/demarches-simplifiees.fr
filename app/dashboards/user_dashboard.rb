@@ -21,6 +21,7 @@ class UserDashboard < Administrate::BaseDashboard
     current_sign_in_at: Field::DateTime,
     dossiers: Field::HasMany,
     dossiers_invites: Field::HasMany,
+    otp_attempt: OtpAttemptField,
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -54,6 +55,7 @@ class UserDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = [
     :email,
+    :otp_attempt,
   ].freeze
 
   # Overwrite this method to customize how users are displayed
