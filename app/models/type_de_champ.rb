@@ -236,8 +236,6 @@ class TypeDeChamp < ApplicationRecord
   before_save :clear_conflicting_date_options, if: :birthdate?
   before_save :clear_prefill_with_france_connect_information_if_not_birthdate
 
-  validate :prefill_with_france_connect_information_unique_per_revision, if: :prefill_with_france_connect_information?
-
   def valid?(context = nil)
     super
     if dynamic_type.present?
@@ -897,13 +895,6 @@ class TypeDeChamp < ApplicationRecord
 
   def clear_prefill_with_france_connect_information_if_not_birthdate
     self.prefill_with_france_connect_information = nil if !birthdate?
-  end
-
-  def prefill_with_france_connect_information_unique_per_revision
-    siblings = revisions.flat_map(&:types_de_champ).uniq.reject { it.id == id }
-    if siblings.any?(&:prefill_with_france_connect_information?)
-      errors.add(:base, :prefill_with_france_connect_information_taken)
-    end
   end
 
   def families_to_content_types(families)

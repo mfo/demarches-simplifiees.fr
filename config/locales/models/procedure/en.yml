@@ -92,6 +92,7 @@ en:
               missing_libelle: "field label in position %{position} must be filled"
               expression_reguliere_invalid: "is invalid"
               referentiel_not_ready: "is not configured"
+              prefill_with_france_connect_information_taken: "cannot be prefilled by FranceConnect because another date field already has this option enabled"
             draft_types_de_champ_private:
               format: 'Private field %{message}'
               invalid_condition: "have an invalid logic"

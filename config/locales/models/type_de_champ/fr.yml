@@ -86,9 +86,6 @@ fr:
           rib: "Relevé d’identité bancaire (RIB)"
           justificatif_domicile: "Justificatif de domicile"
     errors:
-      models:
-        type_de_champ:
-          prefill_with_france_connect_information_taken: "Un champ date a déjà l’option « Préremplir avec FranceConnect » activée. Il ne peut y avoir qu’un seul champ date prérempli par FranceConnect par démarche."
       type_de_champ:
         attributes:
           header_section_level:

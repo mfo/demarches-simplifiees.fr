@@ -2,12 +2,24 @@
 
 class TypesDeChamp::DateValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
-    types_de_champ.filter { |tdc| tdc.date? || tdc.datetime? }.each do |tdc|
+    date_tdcs = types_de_champ.filter { |tdc| tdc.date? || tdc.datetime? }
+    date_tdcs.each do |tdc|
       validate_range(procedure, attribute, tdc) if tdc.range_date?
     end
+    validate_prefill_with_france_connect_information_uniqueness(procedure, attribute, date_tdcs)
   end
 
   private
+
+  def validate_prefill_with_france_connect_information_uniqueness(procedure, attribute, date_tdcs)
+    with_option = date_tdcs.filter(&:prefill_with_france_connect_information?)
+    return if with_option.size <= 1
+
+    with_option.each do |tdc|
+      # i18n-tasks-use t('activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.prefill_with_france_connect_information_taken')
+      procedure.errors.add(attribute, :prefill_with_france_connect_information_taken, type_de_champ: tdc)
+    end
+  end
 
   def validate_range(procedure, attribute, tdc)
     start_str = tdc.start_date

@@ -88,4 +88,39 @@ RSpec.describe TypesDeChamp::DateValidator do
     include_examples "date range validation", scope: :types_de_champ_private, type: :date
     include_examples "date range validation", scope: :types_de_champ_private, type: :datetime
   end
+
+  describe "prefill_with_france_connect_information uniqueness" do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :date }, { type: :date }, { type: :text }]) }
+    let(:tdcs) { procedure.active_revision.types_de_champ_public }
+
+    subject { procedure.validate(:types_de_champ_public_editor) }
+
+    context "when no date field has the option enabled" do
+      it "does not add errors" do
+        expect { subject }.not_to change { procedure.errors.count }
+      end
+    end
+
+    context "when a single date field has the option enabled" do
+      before { tdcs.first.update!(options: { 'birthdate' => '1', 'prefill_with_france_connect_information' => '1' }) }
+
+      it "does not add errors" do
+        expect { subject }.not_to change { procedure.errors.count }
+      end
+    end
+
+    context "when two date fields have the option enabled" do
+      before do
+        tdcs[0].update!(options: { 'birthdate' => '1', 'prefill_with_france_connect_information' => '1' })
+        tdcs[1].update!(options: { 'birthdate' => '1', 'prefill_with_france_connect_information' => '1' })
+      end
+
+      it "adds an error for each conflicting field" do
+        subject
+        conflicting_errors = procedure.errors.where(:draft_types_de_champ_public, :prefill_with_france_connect_information_taken)
+        expect(conflicting_errors.size).to eq(2)
+        expect(conflicting_errors.map { it.options[:type_de_champ] }).to match_array([tdcs[0], tdcs[1]])
+      end
+    end
+  end
 end
