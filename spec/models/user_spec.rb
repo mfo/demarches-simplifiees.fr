@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 describe User, type: :model do
+  describe 'email normalization' do
+    it 'sanitizes the email on assignment' do
+      user = User.new(email: '  Foo@Example.COM ')
+      expect(user.email).to eq('foo@example.com')
+    end
+  end
+
   describe '#after_confirmation' do
     let(:email) { 'mail@beta.gouv.fr' }
     let!(:invite) { create(:invite, email: email) }
