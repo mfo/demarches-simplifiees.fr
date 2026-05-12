@@ -180,6 +180,8 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   end
 
   def prefill_with_france_connect_information_locked_by_sibling?
+    return false if type_de_champ.prefill_with_france_connect_information?
+
     coordinate.revision.types_de_champ.any? do |tdc|
       tdc.date? && tdc.prefill_with_france_connect_information? && tdc.id != type_de_champ.id
     end
