@@ -88,6 +88,9 @@ describe Instructeurs::ProcedurePresentationController, type: :controller do
     end
 
     context 'with an admin who set presentation as default for other instructeurs' do
+      let(:administrateur) { create(:administrateur, user: instructeur.user) }
+      let(:procedure) { create(:procedure, administrateurs: [administrateur], types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
+
       before { sign_in(instructeur.user) }
 
       let(:presentation_params) do
@@ -111,6 +114,24 @@ describe Instructeurs::ProcedurePresentationController, type: :controller do
         expect(procedure_presentation.displayed_columns).to eq([state_column])
         expect(procedure_presentation.procedure.admin_default_procedure_presentation_id).to eq(instructeur.procedure_presentation_for_procedure_id(procedure.id).id)
         expect(procedure_presentation.procedure.admin_default_procedure_presentation_active).to eq(true)
+      end
+    end
+
+    context 'when the signed-in instructeur is not an administrateur of the procedure' do
+      before { sign_in(instructeur.user) }
+
+      let(:presentation_params) do
+        {
+          procedure_presentation: { admin_default_procedure_presentation_active_virtual: true },
+        }
+      end
+
+      it 'does not change the procedure-level admin default presentation' do
+        expect {
+          subject
+          procedure.reload
+        }.to not_change { procedure.admin_default_procedure_presentation_id }
+          .and not_change { procedure.admin_default_procedure_presentation_active }
       end
     end
   end
