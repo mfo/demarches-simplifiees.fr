@@ -26,7 +26,7 @@ class GroupeInstructeur < ApplicationRecord
   validates :label, uniqueness: { scope: :procedure }
   validates :closed, acceptance: { accept: [false] }, if: -> { (self == procedure.defaut_groupe_instructeur) }
 
-  before_validation -> { label&.strip! }
+  normalizes :label, with: -> (value) { value.strip }
 
   scope :without_group, -> (group) { where.not(id: group) }
   scope :for_api_v2, -> { includes(procedure: [:administrateurs]) }
