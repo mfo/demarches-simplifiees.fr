@@ -90,8 +90,7 @@ module Instructeurs
     end
 
     def current_instructeur_administrates_procedure?
-      administrateur = current_instructeur.user.administrateur
-      administrateur.present? && administrateur.owns?(procedure)
+      current_instructeur.user.administrateur&.owns?(procedure)
     end
 
     def set_admin_pp_default
