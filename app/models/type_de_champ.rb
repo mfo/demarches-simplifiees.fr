@@ -140,7 +140,7 @@ class TypeDeChamp < ApplicationRecord
                  :max_number,
                  :range_number,
                  :birthdate,
-                 :prefill_with_france_connect,
+                 :prefill_with_france_connect_information,
                  :date_in_past,
                  :range_date,
                  :start_date,
@@ -234,9 +234,9 @@ class TypeDeChamp < ApplicationRecord
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
   before_save :clear_conflicting_date_options, if: :birthdate?
-  before_save :clear_prefill_with_france_connect_if_not_birthdate
+  before_save :clear_prefill_with_france_connect_information_if_not_birthdate
 
-  validate :prefill_with_france_connect_unique_per_revision, if: :prefill_with_france_connect?
+  validate :prefill_with_france_connect_information_unique_per_revision, if: :prefill_with_france_connect_information?
 
   def valid?(context = nil)
     super
@@ -357,8 +357,8 @@ class TypeDeChamp < ApplicationRecord
     limit_repetitions == "1"
   end
 
-  def prefill_with_france_connect?
-    prefill_with_france_connect == "1"
+  def prefill_with_france_connect_information?
+    prefill_with_france_connect_information == "1"
   end
 
   def date_in_past?
@@ -732,7 +732,7 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:textarea) => [:character_limit],
     type_champs.fetch(:integer_number) => [:positive_number, :min_number, :max_number, :range_number],
     type_champs.fetch(:decimal_number) => [:positive_number, :min_number, :max_number, :range_number],
-    type_champs.fetch(:date) => [:birthdate, :prefill_with_france_connect, :date_in_past, :start_date, :end_date, :range_date],
+    type_champs.fetch(:date) => [:birthdate, :prefill_with_france_connect_information, :date_in_past, :start_date, :end_date, :range_date],
     type_champs.fetch(:datetime) => [:date_in_past, :start_date, :end_date, :range_date],
     type_champs.fetch(:carte) => TypesDeChamp::CarteTypeDeChamp::LAYERS,
     type_champs.fetch(:drop_down_list) => [:drop_down_other, :drop_down_options, :drop_down_mode],
@@ -895,14 +895,14 @@ class TypeDeChamp < ApplicationRecord
     self.end_date = nil
   end
 
-  def clear_prefill_with_france_connect_if_not_birthdate
-    self.prefill_with_france_connect = nil if !birthdate?
+  def clear_prefill_with_france_connect_information_if_not_birthdate
+    self.prefill_with_france_connect_information = nil if !birthdate?
   end
 
-  def prefill_with_france_connect_unique_per_revision
+  def prefill_with_france_connect_information_unique_per_revision
     siblings = revisions.flat_map(&:types_de_champ).uniq.reject { it.id == id }
-    if siblings.any?(&:prefill_with_france_connect?)
-      errors.add(:base, :prefill_with_france_connect_taken)
+    if siblings.any?(&:prefill_with_france_connect_information?)
+      errors.add(:base, :prefill_with_france_connect_information_taken)
     end
   end
 

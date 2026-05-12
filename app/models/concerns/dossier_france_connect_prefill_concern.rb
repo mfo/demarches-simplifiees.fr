@@ -34,7 +34,7 @@ module DossierFranceConnectPrefillConcern
 
     revision.types_de_champ_public.each do |tdc|
       next if !tdc.date?
-      next if !tdc.prefill_with_france_connect?
+      next if !tdc.prefill_with_france_connect_information?
 
       champ = champ_for_update(tdc, updated_by:)
       next if champ.value.present?

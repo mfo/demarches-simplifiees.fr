@@ -70,7 +70,7 @@ fr:
           rna: Numéro RNA
           rnf: Numéro RNF
         not_filled: Non renseigné
-        prefill_with_france_connect: "Préremplir avec FranceConnect"
+        prefill_with_france_connect_information: "Préremplir avec FranceConnect"
         format_families:
           document_texte: "Document texte"
           tableur: "Tableur"
@@ -88,7 +88,7 @@ fr:
     errors:
       models:
         type_de_champ:
-          prefill_with_france_connect_taken: "Un champ date a déjà l’option « Préremplir avec FranceConnect » activée. Il ne peut y avoir qu’un seul champ date prérempli par FranceConnect par démarche."
+          prefill_with_france_connect_information_taken: "Un champ date a déjà l’option « Préremplir avec FranceConnect » activée. Il ne peut y avoir qu’un seul champ date prérempli par FranceConnect par démarche."
       type_de_champ:
         attributes:
           header_section_level:
