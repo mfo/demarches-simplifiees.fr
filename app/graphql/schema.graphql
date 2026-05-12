@@ -1631,7 +1631,7 @@ input DemarchePublierInput {
   lienSiteWeb: String
 
   """
-  Chemin de la démarche
+  Chemin de la démarche (ne doit pas être utilisé par une autre démarche)
   """
   path: String!
 
