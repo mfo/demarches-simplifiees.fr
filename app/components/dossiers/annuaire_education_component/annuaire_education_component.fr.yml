@@ -1,0 +1,15 @@
+fr:
+  nom_etablissement: Nom de l’établissement
+  identifiant_etablissement: L’identifiant de l’etablissement
+  siren_siret: SIREN/SIRET
+  commune: Commune
+  academie: Académie
+  nature_etablissement: Nature de l’établissement
+  type_contrat_prive: Type de contrat privé
+  nombre_eleves: Nombre d’élèves
+  adresse: Adresse
+  telephone: Téléphone
+  email: Email
+  site_internet: Site internet
+  non_renseignee: Non renseignée
+  source: Annuaire de l’Éducation Nationale
