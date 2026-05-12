@@ -99,7 +99,6 @@ fr:
               missing_libelle:  "Le libellé du champ en position %{position} doit être rempli"
               expression_reguliere_invalid: "est invalide, veuillez la corriger"
               referentiel_not_ready: "n’est pas configuré"
-              prefill_with_france_connect_information_taken: "ne peut être prérempli par FranceConnect car un autre champ date utilise déjà cette option"
             draft_types_de_champ_private:
               format: 'L’annotation privée %{message}'
               invalid_condition: "a une logique conditionnelle invalide"

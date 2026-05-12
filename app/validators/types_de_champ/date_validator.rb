@@ -16,7 +16,7 @@ class TypesDeChamp::DateValidator < ActiveModel::EachValidator
     return if with_option.size <= 1
 
     with_option.each do |tdc|
-      # i18n-tasks-use t('activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.prefill_with_france_connect_information_taken')
+      # i18n-tasks-use t('errors.messages.prefill_with_france_connect_information_taken')
       procedure.errors.add(attribute, :prefill_with_france_connect_information_taken, type_de_champ: tdc)
     end
   end
