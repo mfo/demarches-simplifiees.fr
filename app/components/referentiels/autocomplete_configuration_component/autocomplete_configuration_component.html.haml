@@ -12,7 +12,7 @@
           .fr-table__wrapper
             .fr-table__container
               .fr-table__content
-                %table
+                %table.referentiel-table
                   %caption Sélectionnez la source de données à exploiter pour les autosuggestions
                   %thead
                     %tr
@@ -22,7 +22,7 @@
                   %tbody
                     - maybe_datasources.each do |jsonpath, value|
                       %tr
-                        %td.fr-cell--fixed= jsonpath
+                        %td.fr-cell--fixed.referentiel-cell-truncate{ title: jsonpath }= jsonpath
                         %td.fr-cell--multiline
                           %pre= JSON.pretty_generate(value)
                         %td.fr-cell--center= select_datasource_radio_tag(jsonpath)

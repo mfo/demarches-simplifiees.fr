@@ -7,7 +7,7 @@
         .fr-table__wrapper
           .fr-table__container
             .fr-table__content
-              %table
+              %table.referentiel-table
                 %caption Complétez le tableau de mapping ci-dessous en fonction des données que vous souhaitez exploiter
                 %thead
                   %tr
@@ -29,11 +29,11 @@
                 %tbody
                   - last_request_keys.each do |jsonpath, example_value|
                     %tr{ data: { controller: "referentiel-mapping" } }
-                      %td.fr-cell--multiline.fr-cell--fixed
+                      %td.fr-cell--multiline.fr-cell--fixed.referentiel-cell-truncate{ title: jsonpath }
                         %span.hidden{ id: label_check_prefill(jsonpath) }= "Utiliser #{jsonpath} pour préremplir le formulaire"
                         = jsonpath
                         = hidden_field_tag attribute_name(jsonpath, "example_value"), example_value
-                      %td.fr-cell--multiline= example_value
+                      %td.fr-cell--multiline.referentiel-cell-truncate{ title: example_value }= example_value
                       %td= cast_tag(jsonpath, example_value)
                       %td.text-center= prefill_tag(jsonpath)
                       %td
