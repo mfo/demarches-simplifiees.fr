@@ -34,7 +34,7 @@ module Instructeurs
     def update
       if @procedure_presentation.update(procedure_presentation_params)
         toggle_admin_default = params.dig(:procedure_presentation, :admin_default_procedure_presentation_active_virtual)
-        set_admin_pp_default if toggle_admin_default.present?
+        set_admin_pp_default if toggle_admin_default.present? && current_instructeur_administrates_procedure?
       else
         # complicated way to display inner error messages
         flash.alert = @procedure_presentation.errors
@@ -87,6 +87,10 @@ module Instructeurs
       end
 
       FilteredColumnType.new.cast(params_hash)
+    end
+
+    def current_instructeur_administrates_procedure?
+      current_instructeur.user.administrateur&.owns?(procedure)
     end
 
     def set_admin_pp_default
