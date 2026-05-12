@@ -1,0 +1,11 @@
+.referentiel-table {
+  td,
+  th {
+    &.referentiel-cell-truncate {
+      max-width: 30ch;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
