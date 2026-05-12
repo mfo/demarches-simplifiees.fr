@@ -8,14 +8,10 @@ class ProcedureArchiveService
   end
 
   def make_and_upload_archive(archive)
-    dossiers = Dossier.visible_by_administration
+    dossiers = Dossier.archivable
       .where(groupe_instructeur: archive.groupe_instructeurs)
 
-    dossiers = if archive.time_span_type == 'everything'
-      dossiers.state_termine
-    else
-      dossiers.processed_in_month(archive.month)
-    end
+    dossiers = dossiers.where(processed_at: archive.month.to_datetime.all_month) if archive.monthly?
 
     attachments = ActiveStorage::DownloadableFile.create_list_from_dossiers(dossiers:, user_profile: archive.user_profile)
 
