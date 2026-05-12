@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class ContactInformation < ApplicationRecord
-  include EmailSanitizableConcern
-
   belongs_to :groupe_instructeur
 
   validates :nom, presence: { message: 'doit être renseigné' }, allow_nil: false
@@ -12,7 +10,7 @@ class ContactInformation < ApplicationRecord
   validates :horaires, presence: { message: 'doivent être renseignés' }, allow_nil: false
   validates :adresse, presence: { message: 'doit être renseignée' }, allow_nil: false
   validates :groupe_instructeur, presence: { message: 'doit être renseigné' }, allow_nil: false
-  before_validation -> { sanitize_email(:email) }
+  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
 
   def pretty_nom
     nom
