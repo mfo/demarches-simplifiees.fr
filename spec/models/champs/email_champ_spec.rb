@@ -51,8 +51,8 @@ describe Champs::EmailChamp do
     context 'when value contains white spaces plus a standard email' do
       let(:value) { "\r\n\t username@mailserver.domain\r\n\t " }
       it { is_expected.to be_truthy }
-      it 'normalize value' do
-        expect { subject }.to change { champ.value }.from(value).to('username@mailserver.domain')
+      it 'normalizes value on assignment' do
+        expect(champ.value).to eq('username@mailserver.domain')
       end
     end
 
