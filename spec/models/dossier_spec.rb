@@ -2695,7 +2695,31 @@ describe Dossier, type: :model do
     end
   end
 
-  describe '#processed_in_month' do
+  describe '#archivable' do
+    let(:procedure) { create(:procedure, :published) }
+
+    it 'includes visible termine dossiers' do
+      dossier = create(:dossier, :accepte, procedure:)
+      expect(Dossier.archivable).to include(dossier)
+    end
+
+    it 'excludes dossiers hidden by administration' do
+      dossier = create(:dossier, :accepte, :hidden_by_administration, procedure:)
+      expect(Dossier.archivable).not_to include(dossier)
+    end
+
+    it 'excludes dossiers hidden by expired' do
+      dossier = create(:dossier, :accepte, :hidden_by_expired, procedure:)
+      expect(Dossier.archivable).not_to include(dossier)
+    end
+
+    it 'excludes dossiers en construction' do
+      dossier = create(:dossier, :en_construction, procedure:)
+      expect(Dossier.archivable).not_to include(dossier)
+    end
+  end
+
+  describe '#archivable_in_month' do
     let(:dossier_accepte_at) { DateTime.new(2022, 3, 31, 12, 0) }
     before do
       travel_to(dossier_accepte_at) do
@@ -2706,19 +2730,31 @@ describe Dossier, type: :model do
     context 'given a date' do
       let(:archive_date) { Date.new(2022, 3, 1) }
       it 'includes a dossier processed_at at last day of month' do
-        expect(Dossier.processed_in_month(archive_date).count).to eq(1)
+        expect(Dossier.archivable_in_month(archive_date).count).to eq(1)
       end
     end
 
     context 'given a datetime' do
       let(:archive_date) { DateTime.new(2022, 3, 1, 12, 0) }
       it 'includes a dossier processed_at at last day of month' do
-        expect(Dossier.processed_in_month(archive_date).count).to eq(1)
+        expect(Dossier.archivable_in_month(archive_date).count).to eq(1)
+      end
+    end
+
+    context 'with a dossier hidden by administration' do
+      before do
+        travel_to(dossier_accepte_at) do
+          create(:dossier, :accepte, :hidden_by_administration)
+        end
+      end
+
+      it 'excludes hidden dossiers' do
+        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1)).count).to eq(1)
       end
     end
   end
 
-  describe '#processed_by_month' do
+  describe '#archivable_by_month' do
     let(:procedure) { create(:procedure, :published, groupe_instructeurs: [groupe_instructeurs]) }
     let(:groupe_instructeurs) { create(:groupe_instructeur) }
 
@@ -2731,7 +2767,7 @@ describe Dossier, type: :model do
 
     subject do
       travel_to(Time.zone.local(2021, 3, 5)) do
-        Dossier.processed_by_month(groupe_instructeurs).count
+        Dossier.archivable_by_month(groupe_instructeurs).count
       end
     end
 
@@ -2743,6 +2779,18 @@ describe Dossier, type: :model do
     it 'returns descending order by month' do
       expect(subject.keys.first.month).to eq 3
       expect(subject.keys.last.month).to eq 2
+    end
+
+    context 'with a dossier hidden by administration' do
+      before do
+        travel_to(Time.zone.local(2021, 3, 5)) do
+          create(:dossier, :accepte, :hidden_by_administration, procedure:)
+        end
+      end
+
+      it 'excludes hidden dossiers from count' do
+        expect(count_for_month(subject, 3)).to eq 3
+      end
     end
   end
 
@@ -2894,8 +2942,8 @@ describe Dossier, type: :model do
 
   private
 
-  def count_for_month(processed_by_month, month)
-    processed_by_month.find { |date, _count| date.month == month }[1]
+  def count_for_month(archivable_by_month, month)
+    archivable_by_month.find { |date, _count| date.month == month }[1]
   end
 
   def create_dossier_for_month(procedure, year, month)

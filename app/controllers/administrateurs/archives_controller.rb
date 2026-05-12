@@ -14,7 +14,7 @@ module Administrateurs
         .dossiers
         .visible_by_administration
         .where(processed_at: ...Date.current.beginning_of_month)
-        .processed_by_month(all_groupe_instructeurs)
+        .archivable_by_month(all_groupe_instructeurs)
         .count
       @archives = Archive.for_groupe_instructeur(all_groupe_instructeurs).to_a
     end
