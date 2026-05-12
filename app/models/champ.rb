@@ -106,7 +106,7 @@ class Champ < ApplicationRecord
   end
 
   def prefilled_from_fc?
-    data.is_a?(Hash) && data["prefilled_from_fc"]
+    data&.dig("prefilled_from_fc") == true
   end
 
   def child?
