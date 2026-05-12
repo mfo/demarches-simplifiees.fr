@@ -145,7 +145,6 @@ module Users
         @prefilled_dossier.prefill_individual_from_france_connect
         @prefilled_dossier.individual.save!
       end
-      @prefilled_dossier.prefill_champs_from_france_connect
       DossierMailer.with(dossier: @prefilled_dossier).notify_new_draft.deliver_later
       Ami::CreateNotificationService.call(dossier: @prefilled_dossier)
     end
