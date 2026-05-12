@@ -79,7 +79,9 @@ class GroupeInstructeur < ApplicationRecord
   end
 
   def can_delete?
-    dossiers.empty? && (procedure.groupe_instructeurs.active.many? || (procedure.groupe_instructeurs.active.one? && closed))
+    id != procedure.defaut_groupe_instructeur_id &&
+      dossiers.empty? &&
+      (procedure.groupe_instructeurs.active.many? || (procedure.groupe_instructeurs.active.one? && closed))
   end
 
   def can_close?

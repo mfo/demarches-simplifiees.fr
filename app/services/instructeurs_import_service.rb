@@ -69,6 +69,10 @@ class InstructeursImportService
         if groupe.dossiers.any? && administrateur&.instructeur
           groupe.add(administrateur.instructeur)
           preserved_groupes << groupe.label
+        elsif groupe.id == procedure.defaut_groupe_instructeur_id
+          new_defaut = procedure.groupe_instructeurs.where(label: target_labels).first
+          procedure.update!(defaut_groupe_instructeur: new_defaut)
+          groupe.destroy
         elsif groupe.can_delete?
           groupe.destroy
         end
