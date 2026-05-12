@@ -65,6 +65,15 @@ describe Invite do
     end
   end
 
+  describe "email normalization" do
+    let(:dossier) { create(:dossier) }
+
+    it "sanitizes the email on assignment" do
+      invite = build(:invite, email: "  Foo@Example.COM ", dossier: dossier)
+      expect(invite.email).to eq("foo@example.com")
+    end
+  end
+
   describe "#default_scope" do
     let!(:dossier) { create(:dossier, hidden_by_user_at: hidden_by_user_at) }
     let!(:invite) { create(:invite, email: "email@totor.com", dossier: dossier) }
