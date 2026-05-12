@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 describe API::V2::GraphqlController do
-  let(:admin) { administrateurs(:default_admin) }
-  let(:generated_token) { APIToken.generate(admin) }
+  let_it_be(:admin) { Administrateur.first }
+  let_it_be(:generated_token) { APIToken.generate(admin) }
   let(:token) { generated_token.second }
-  let(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_public:) }
-  let(:types_de_champ_public) { [{}, { type: :piece_justificative }, { type: :siret }, { type: :repetition, mandatory: true, children: [{}, { type: :piece_justificative }, { type: :siret }] }] }
+  let_it_be(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_public: [{}, { type: :piece_justificative }, { type: :siret }, { type: :repetition, mandatory: true, children: [{}, { type: :piece_justificative }, { type: :siret }] }]) }
   let(:authorization_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 
   let(:query_id) { 'ds-query-v2' }
