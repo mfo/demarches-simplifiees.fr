@@ -27,6 +27,7 @@ module Users
     before_action :show_demarche_en_test_banner
     before_action :store_user_location!, only: :new
     before_action :set_default_value_for_france_connect_champs, only: [:brouillon, :modifier]
+    before_action :prefill_champs_from_france_connect, only: [:brouillon, :modifier]
 
     around_action only: :submit_en_construction do |_controller, action|
       lock_action("lock-submit-en-construction-#{@dossier.id}", &action)
@@ -782,6 +783,10 @@ module Users
 
     def set_default_value_for_france_connect_champs
       @dossier.set_default_value_for_france_connect_champs(current_user.email)
+    end
+
+    def prefill_champs_from_france_connect
+      @dossier.prefill_champs_from_france_connect
     end
   end
 end
