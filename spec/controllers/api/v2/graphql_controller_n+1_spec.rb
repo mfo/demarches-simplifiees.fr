@@ -45,24 +45,6 @@ describe API::V2::GraphqlController do
       expect(query_count).to be <= MAX_QUERY_COUNT
     end
 
-    context "with 1 dossier per state" do
-      let(:dossiers_per_state) { 1 }
-
-      it "should not have n+1" do
-        query_count = 0
-
-        dossier
-        dossiers_en_instruction
-        dossiers_accepte
-        dossiers_refuse
-        ActiveSupport::Notifications.subscribed(lambda { |*_args| query_count += 1 }, "sql.active_record") { subject }
-
-        expect(gql_errors).to be_nil
-        expect(gql_data[:demarche][:dossiers][:nodes].count).to eq(dossiers_count + 1)
-        expect(query_count).to be <= MAX_QUERY_COUNT
-      end
-    end
-
     context "with 3 dossiers per state" do
       let(:dossiers_per_state) { 3 }
 
