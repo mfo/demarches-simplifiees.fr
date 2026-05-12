@@ -148,8 +148,6 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     case type_champ
     when TypeDeChamp.type_champs.fetch(:number)
       has_legacy_number?
-    when TypeDeChamp.type_champs.fetch(:cnaf)
-      procedure.cnaf_enabled?
     when TypeDeChamp.type_champs.fetch(:dgfip)
       procedure.dgfip_enabled?
     when TypeDeChamp.type_champs.fetch(:pole_emploi)

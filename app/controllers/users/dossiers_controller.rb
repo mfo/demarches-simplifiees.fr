@@ -618,8 +618,6 @@ module Users
         :code,
         :primary_value,
         :secondary_value,
-        :numero_allocataire,
-        :code_postal,
         :identifiant,
         :numero_fiscal,
         :reference_avis,

@@ -771,13 +771,6 @@ fr:
           attributes:
             value:
               format: "%{message}"
-
-        "champs/cnaf_champ":
-          attributes:
-            numero_allocataire:
-              invalid: "doit être composé au maximum de 7 chiffres"
-            code_postal:
-              invalid: "doit posséder 5 caractères"
         "champs/dgfip_champ":
           attributes:
             numero_fiscal:

@@ -21,12 +21,6 @@ fr:
 
 
     champs:
-      cnaf:
-        show:
-          not_filled: non renseigné
-          fetching_data: "La récupération automatique des données pour l’allocataire n° %{numero_allocataire} avec le code postal %{code_postal} est en cours."
-          data_fetched: "Des données concernant %{sources} liées au compte n° %{numero_allocataire} avec le code postal %{code_postal} ont été reçues depuis la CAF."
-          data_fetched_title: "Données obtenues de la Caisse nationale d’allocations familiales"
       rna:
         show:
           not_filled: non renseigné

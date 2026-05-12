@@ -142,9 +142,6 @@ FactoryBot.define do
     factory :champ_do_not_use_annuaire_education, class: 'Champs::AnnuaireEducationChamp' do
     end
 
-    factory :champ_do_not_use_cnaf, class: 'Champs::CnafChamp' do
-    end
-
     factory :champ_do_not_use_dgfip, class: 'Champs::DgfipChamp' do
     end
 
