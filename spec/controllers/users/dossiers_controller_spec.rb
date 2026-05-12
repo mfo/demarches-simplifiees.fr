@@ -2462,15 +2462,15 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when user is not ProConnected' do
-      it 'does not allow create new dossier and redirects to pro_connect' do
+      it 'does not allow create new dossier and redirects to pro_connect_required' do
         expect { post :new, params: { procedure_id: procedure.id } }.not_to change { Dossier.count }
-        expect(response).to redirect_to(new_user_session_path)
+        expect(response).to redirect_to(pro_connect_required_path)
         expect(flash[:alert]).to include("ProConnect")
       end
 
-      it 'redirects to pro_connect' do
+      it 'redirects to pro_connect_required' do
         post :submit_brouillon, params: { id: brouillon.id, dossier: {} }
-        expect(response).to redirect_to(new_user_session_path)
+        expect(response).to redirect_to(pro_connect_required_path)
         expect(flash[:alert]).to include("ProConnect")
         brouillon.reload
         expect(brouillon).to be_brouillon
