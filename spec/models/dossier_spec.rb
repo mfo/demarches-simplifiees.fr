@@ -438,7 +438,7 @@ describe Dossier, type: :model do
         tdc.update!(options: { 'birthdate' => '1', 'prefill_with_france_connect' => '1' })
       end
 
-      subject { dossier.prefill_champs_from_france_connect }
+      subject { dossier.prefill_champs_from_france_connect(updated_by: user.email) }
 
       it 'prefills the date champ with the FranceConnect birthdate' do
         subject

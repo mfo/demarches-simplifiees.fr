@@ -25,7 +25,7 @@ module DossierFranceConnectPrefillConcern
     )
   end
 
-  def prefill_champs_from_france_connect
+  def prefill_champs_from_france_connect(updated_by:)
     return if for_tiers?
     return if !france_connected_with_one_identity?
 
@@ -36,7 +36,7 @@ module DossierFranceConnectPrefillConcern
       next if !tdc.date?
       next if !tdc.prefill_with_france_connect?
 
-      champ = project_champ(tdc)
+      champ = champ_for_update(tdc, updated_by:)
       next if champ.value.present?
 
       champ.prefilled_from_france_connect = true

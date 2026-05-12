@@ -192,7 +192,7 @@ module Users
         end
 
         @dossier.update!(autorisation_donnees: true, identity_updated_at: Time.zone.now)
-        @dossier.prefill_champs_from_france_connect
+        @dossier.prefill_champs_from_france_connect(updated_by: current_user.email)
 
         flash.notice = t('.identity_saved')
 
@@ -786,7 +786,7 @@ module Users
     end
 
     def prefill_champs_from_france_connect
-      @dossier.prefill_champs_from_france_connect
+      @dossier.prefill_champs_from_france_connect(updated_by: current_user.email)
     end
   end
 end
