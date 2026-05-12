@@ -30,6 +30,9 @@
       method: :delete,
       data: { confirm: t('.delete_confirmation', group_name: @groupe_instructeur.label) } do
         Supprimer ce groupe
+    - elsif @groupe_instructeur.id == @procedure.defaut_groupe_instructeur.id
+      .fr-mt-3w
+        %em Vous ne pouvez pas supprimer le groupe d’instructeurs par défaut.
     - else
       .fr-mt-3w
         %em Vous ne pouvez pas supprimer ce groupe car des dossiers lui sont affectés.

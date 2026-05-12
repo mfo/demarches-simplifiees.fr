@@ -735,6 +735,23 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
           expect(GroupeInstructeurMailer).not_to have_received(:notify_added_instructeurs)
         end
       end
+
+      context 'with overwrite and multiple new groups not including the default group' do
+        let(:csv_file) { fixture_file_upload('spec/fixtures/files/groupe-import-overwrite-two-groups.csv', 'text/csv') }
+
+        before do
+          allow(GroupeInstructeurMailer).to receive(:confirm_and_notify_added_instructeur_in_many_groupes)
+            .and_return(double(deliver_later: true))
+          allow(GroupeInstructeurMailer).to receive(:notify_removed_instructeur_from_many_groupes)
+            .and_return(double(deliver_later: true))
+          post :import, params: { procedure_id: procedure.id, csv_file: csv_file, overwrite: '1' }
+        end
+
+        it 'ensures defaut_groupe_instructeur is never nil after overwrite' do
+          expect(response.status).to eq(302)
+          expect(procedure.reload.defaut_groupe_instructeur).not_to be_nil
+        end
+      end
     end
 
     context 'unrouted procedures' do
