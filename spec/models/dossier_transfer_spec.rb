@@ -105,5 +105,13 @@ RSpec.describe DossierTransfer, type: :model do
         expect(subject).to be_invalid
       end
     end
+
+    context "when email contains spaces and uppercase characters" do
+      let(:email) { "  Foo@Example.COM " }
+
+      it "sanitizes the email on assignment" do
+        expect(subject.email).to eq("foo@example.com")
+      end
+    end
   end
 end
