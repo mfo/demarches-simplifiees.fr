@@ -16,7 +16,6 @@ describe ProcedureCloneConcern, type: :model do
         types_de_champ_public:,
         types_de_champ_private:,
         api_particulier_token: '123456789012345',
-        api_particulier_scopes: ['cnaf_famille'],
         estimated_dossiers_count: 4,
         template: true)
     end
@@ -259,9 +258,8 @@ describe ProcedureCloneConcern, type: :model do
         expect(subject.groupe_instructeurs.where(label: "groupe_1").first).to be nil
       end
 
-      it "should discard api_particulier_scopes and token" do
+      it "should discard the existing token" do
         expect(subject.encrypted_api_particulier_token).to be_nil
-        expect(subject.api_particulier_scopes).to be_empty
       end
 
       it 'should not route the procedure' do

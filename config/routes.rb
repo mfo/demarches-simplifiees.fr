@@ -698,10 +698,6 @@ Rails.application.routes.draw do
         delete 'api_entreprise', action: :destroy_entreprise
       end
 
-      resource :api_particulier, only: [], as: :api_particulier do
-        resource :sources, only: [:show, :update], controller: 'sources_particulier'
-      end
-
       resources :conditions, only: [:update, :destroy], param: :stable_id do
         patch :add_row, on: :member
         patch :change_targeted_champ, on: :member

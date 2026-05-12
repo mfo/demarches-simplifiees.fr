@@ -17,7 +17,7 @@ class Procedure < ApplicationRecord
   include Discard::Model
   self.discard_column = :hidden_at
 
-  self.ignored_columns += ["api_entreprise_token_expires_at", "pro_connect_restricted"]
+  self.ignored_columns += ["api_entreprise_token_expires_at", "pro_connect_restricted", 'api_particulier_scopes', 'api_particulier_sources']
 
   default_scope -> { kept }
 
@@ -669,22 +669,6 @@ class Procedure < ApplicationRecord
     else
       nil
     end
-  end
-
-  def cnaf_enabled?
-    api_particulier_sources['cnaf'].present?
-  end
-
-  def dgfip_enabled?
-    api_particulier_sources['dgfip'].present?
-  end
-
-  def pole_emploi_enabled?
-    api_particulier_sources['pole_emploi'].present?
-  end
-
-  def mesri_enabled?
-    api_particulier_sources['mesri'].present?
   end
 
   def published_or_created_at
