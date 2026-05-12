@@ -60,7 +60,6 @@ class TypeDeChamp < ApplicationRecord
     rna: REFERENTIEL_EXTERNE,
     rnf: REFERENTIEL_EXTERNE,
     carte: REFERENTIEL_EXTERNE,
-    mesri: REFERENTIEL_EXTERNE,
     cojo: REFERENTIEL_EXTERNE,
     quotient_familial: FRANCE_CONNECT,
   }
@@ -100,7 +99,6 @@ class TypeDeChamp < ApplicationRecord
     rna: 'rna',
     rnf: 'rnf',
     carte: 'carte',
-    mesri: 'mesri',
     epci: 'epci',
     cojo: 'cojo',
     referentiel: 'referentiel',

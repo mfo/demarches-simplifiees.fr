@@ -563,7 +563,6 @@ module Instructeurs
         :code,
         :primary_value,
         :secondary_value,
-        :ine,
         :piece_justificative_file,
         :code_departement,
         :accreditation_number,

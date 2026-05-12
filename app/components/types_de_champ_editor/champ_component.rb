@@ -148,8 +148,6 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     case type_champ
     when TypeDeChamp.type_champs.fetch(:number)
       has_legacy_number?
-    when TypeDeChamp.type_champs.fetch(:mesri)
-      procedure.mesri_enabled?
     else
       true
     end

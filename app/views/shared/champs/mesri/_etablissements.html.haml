@@ -1,7 +1,0 @@
-%table.mesri
-  %caption #{t("api_particulier.providers.mesri.scopes.#{scope}.libelle")} :
-  - etablissements.each do |etablissement|
-    - etablissement.slice('uai', 'nom').keys.each do |key|
-      %tr
-        %th= t("api_particulier.providers.mesri.scopes.#{scope}.#{key}")
-        %td= etablissement[key]
