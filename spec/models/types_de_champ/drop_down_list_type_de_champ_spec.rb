@@ -3,11 +3,25 @@
 describe TypesDeChamp::DropDownListTypeDeChamp do
   describe '#columns' do
     let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
+    let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: }] }
     let(:referentiel) { create(:csv_referentiel, :with_items) }
+    let(:dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+    subject { dropdown_list_tdc.columns(procedure:) }
 
-    context 'when referentiel_mode is true' do
-      let(:dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+    context 'when drop_down_mode is advanced (referentiel)' do
+      let(:drop_down_mode) { 'advanced' }
+
+      it 'includes value column and referentiel columns' do
+        labels = subject.map(&:label)
+        expect(labels).to include(dropdown_list_tdc.libelle)
+        expect(labels).to include("#{dropdown_list_tdc.libelle} – Référentiel calorie (kcal)")
+        expect(labels).to include("#{dropdown_list_tdc.libelle} – Référentiel poids (g)")
+      end
+
+      it 'returns a ChampColumn for value followed by JSONPathColumns for referentiel' do
+        expect(subject.first).to be_a(Columns::ChampColumn)
+        expect(subject.drop(1)).to all(be_a(Columns::JSONPathColumn))
+      end
 
       context 'when an item has nil for a specific header' do
         before do
@@ -17,9 +31,20 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
           item.update(data:)
         end
 
-        let(:calorie_column) { dropdown_list_tdc.columns(procedure:).find { _1.label =~ /calorie/ } }
+        let(:calorie_column) { subject.find { _1.label =~ /calorie/ } }
 
         it { expect(calorie_column.options_for_select).to eq([["100", "100"], ["170", "170"]]) }
+      end
+    end
+
+    context 'when drop_down_mode is simple' do
+      let(:drop_down_mode) { 'simple' }
+      let(:referentiel) { nil }
+
+      it 'returns only the value column' do
+        expect(subject.size).to eq(1)
+        expect(subject.first).to be_a(Columns::ChampColumn)
+        expect(subject.first.label).to eq(dropdown_list_tdc.libelle)
       end
     end
   end

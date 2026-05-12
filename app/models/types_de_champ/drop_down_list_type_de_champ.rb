@@ -28,19 +28,25 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
 
   def columns(procedure:, displayable: true, prefix: nil)
     if drop_down_advanced?
-      referentiel.present? ? referentiel.headers_with_path.map do |(header, path)|
-        Columns::JSONPathColumn.new(
-          procedure_id: procedure.id,
-          stable_id:,
-          tdc_type: type_champ,
-          label: "#{libelle_with_prefix(prefix)} – Référentiel #{header}",
-          type: :enum,
-          jsonpath: "$.referentiel.data.row.#{path}",
-          displayable:,
-          options_for_select: referentiel.options_for_path(path),
-          mandatory: mandatory?
-        )
-      end : []
+      referentiel_columns = if referentiel.present?
+        referentiel.headers_with_path.map do |(header, path)|
+          Columns::JSONPathColumn.new(
+            procedure_id: procedure.id,
+            stable_id:,
+            tdc_type: type_champ,
+            label: "#{libelle_with_prefix(prefix)} – Référentiel #{header}",
+            type: :enum,
+            jsonpath: "$.referentiel.data.row.#{path}",
+            displayable:,
+            options_for_select: referentiel.options_for_path(path),
+            mandatory: mandatory?
+          )
+        end
+      else
+        []
+      end
+
+      super + referentiel_columns
     else
       super
     end
