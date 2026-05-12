@@ -2,7 +2,7 @@
 
 class DataSources::ReferentielController < ApplicationController
   before_action :authenticate_user!
-  before_action :mark_as_retryable, :referentiel_service, :referentiel, :set_dossier
+  before_action :mark_as_retryable, :set_dossier, :referentiel, :referentiel_service
   MIN_QUERY_LENGTH = 3
   MAX_QUERY_SIZE = 100
 
@@ -60,7 +60,16 @@ class DataSources::ReferentielController < ApplicationController
   def referentiel
     return @referentiel if defined?(@referentiel)
 
-    @referentiel = Referentiel.find_by(id: params[:referentiel_id])
+    @referentiel = authorized_referentiel
+  end
+
+  def authorized_referentiel
+    return nil if @dossier.nil? || params[:referentiel_id].blank?
+
+    candidate = Referentiel.find_by(id: params[:referentiel_id])
+    return nil if candidate.nil?
+
+    candidate if @dossier.procedure.active_revision.types_de_champ.any? { it.referentiel_id == candidate.id }
   end
 
   def set_dossier

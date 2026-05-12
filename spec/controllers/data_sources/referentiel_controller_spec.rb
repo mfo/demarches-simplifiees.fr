@@ -7,6 +7,7 @@ describe DataSources::ReferentielController, type: :controller do
   describe 'GET #search' do
       let(:user) { create(:user) }
       let(:procedure) { create(:procedure, types_de_champ_public:) }
+      let(:dossier) { create(:dossier, procedure:, user:) }
       let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
       let(:referentiel) do
         create(:api_referentiel,
@@ -28,7 +29,7 @@ describe DataSources::ReferentielController, type: :controller do
                test_data_tiptap: { "{query}" => "010002699" })
       end
       before { sign_in(user) }
-      subject { post :search, params: { q: '010002699', referentiel_id: referentiel.id } }
+      subject { post :search, params: { q: '010002699', referentiel_id: referentiel.id, dossier_id: dossier.id } }
 
       context 'when success params' do
         context 'when referentiel/datagouv-finess' do
@@ -44,7 +45,7 @@ describe DataSources::ReferentielController, type: :controller do
         end
 
         context 'when referentiel/api.apprentissage.beta.gouv.fr' do
-          subject { post :search, params: { q: '50022137', referentiel_id: referentiel.id } }
+          subject { post :search, params: { q: '50022137', referentiel_id: referentiel.id, dossier_id: dossier.id } }
           let(:referentiel) do
             create(:api_referentiel,
                   :autocomplete,
@@ -126,6 +127,51 @@ describe DataSources::ReferentielController, type: :controller do
 
           it 'returns empty array (dossier not found for current user)' do
             expect(subject).to have_http_status(:ok)
+            expect(response.parsed_body).to eq([])
+          end
+        end
+      end
+
+      context "when current_user has no link to the referentiel's procedure" do
+        let(:owner_administrateur) { create(:administrateur) }
+        let!(:owned_procedure) do
+          create(:procedure,
+                 administrateurs: [owner_administrateur],
+                 types_de_champ_public: [{ type: :referentiel, referentiel: }])
+        end
+        let(:referentiel) do
+          create(:api_referentiel,
+                 :autocomplete,
+                 :with_autocomplete_response,
+                 :with_authentication_data,
+                 datasource: '$.data',
+                 test_data_tiptap: { "{query}" => "010002699" })
+        end
+        let(:unrelated_user) { create(:user) }
+
+        before { sign_in(unrelated_user) }
+
+        subject(:cross_tenant_request) do
+          post :search, params: { q: '010002699', referentiel_id: referentiel.id }
+        end
+
+        it 'does not invoke the outbound referentiel service' do
+          expect_any_instance_of(ReferentielService).not_to receive(:call)
+          cross_tenant_request
+          expect(response.parsed_body).to eq([])
+        end
+
+        context 'when a dossier_id of the unrelated user is provided' do
+          let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+          let(:unrelated_dossier) { create(:dossier, procedure: other_procedure, user: unrelated_user) }
+
+          subject(:cross_tenant_request) do
+            post :search, params: { q: '010002699', referentiel_id: referentiel.id, dossier_id: unrelated_dossier.id }
+          end
+
+          it 'does not invoke the outbound referentiel service' do
+            expect_any_instance_of(ReferentielService).not_to receive(:call)
+            cross_tenant_request
             expect(response.parsed_body).to eq([])
           end
         end
