@@ -4,8 +4,8 @@ module Instructeurs
   class ChampsController < InstructeurController
     before_action :set_dossier
     before_action :set_dossier_stream
-    before_action :set_champ, only: [:edit]
-    before_action :set_champ_for_update, only: [:update]
+    before_action :set_rib_champ, only: [:edit]
+    before_action :set_rib_champ_for_update, only: [:update]
 
     def edit
       render layout: "empty_layout"
@@ -14,11 +14,11 @@ module Instructeurs
     def update
       rib = RIB.new(rib_params).to_h
 
-      @champ_for_update.update!(value_json: { rib:, hint: 'rib' })
+      @rib_champ_for_update.update!(value_json: { rib:, hint: 'rib' })
 
       @dossier.merge_instructeur_buffer_stream!
 
-      redirect_to instructeur_dossier_path(@dossier.procedure, @dossier), notice: t(".success", libelle: @champ_for_update.libelle)
+      redirect_to instructeur_dossier_path(@dossier.procedure, @dossier), notice: t(".success", libelle: @rib_champ_for_update.libelle)
     end
 
     private
@@ -33,16 +33,21 @@ module Instructeurs
       @dossier.with_instructeur_buffer_stream
     end
 
-    def set_champ
-      stable_id, row_id = params[:public_id].split("-")
-      type_de_champ = @dossier.find_type_de_champ_by_stable_id(stable_id)
-      @champ = @dossier.project_champ(type_de_champ, row_id:)
+    def set_rib_champ
+      type_de_champ, row_id = find_rib_type_de_champ!
+      @rib_champ = @dossier.project_champ(type_de_champ, row_id:)
     end
 
-    def set_champ_for_update
+    def set_rib_champ_for_update
+      type_de_champ, row_id = find_rib_type_de_champ!
+      @rib_champ_for_update = @dossier.champ_for_update(type_de_champ, row_id:, updated_by: current_instructeur.email)
+    end
+
+    def find_rib_type_de_champ!
       stable_id, row_id = params[:public_id].split("-")
       type_de_champ = @dossier.find_type_de_champ_by_stable_id(stable_id)
-      @champ_for_update = @dossier.champ_for_update(type_de_champ, row_id:, updated_by: current_instructeur.email)
+      raise ActiveRecord::RecordNotFound unless type_de_champ&.rib?
+      [type_de_champ, row_id]
     end
 
     def rib_params = params.require(:rib).permit(:account_holder, :bank_name, :bic, :iban)

@@ -17,10 +17,10 @@
 
   <div class="fr-container flex-grow flex fr-py-2w">
     <div class="fr-col flex column fr-pr-2w width-50">
-      <p><%= @champ.libelle %></p>
+      <p><%= @rib_champ.libelle %></p>
 
       <embed
-        src="<%= @champ.piece_justificative_file.blobs.first.url %>"
+        src="<%= @rib_champ.piece_justificative_file.blobs.first.url %>"
         type="application/pdf"
         scrolling="auto"
         class="border-background-contrast-grey"
@@ -30,8 +30,8 @@
     <div class="fr-col fr-pl-2w">
       <p><%= t('.attachment_data') %></p>
 
-      <%= form_with model: RIB.new(@champ.value_json&.dig('rib')),
-        url: instructeurs_dossier_champ_path(@champ.dossier_id, @champ.public_id), 
+      <%= form_with model: RIB.new(@rib_champ.value_json&.dig('rib')),
+        url: instructeurs_dossier_champ_path(@rib_champ.dossier_id, @rib_champ.public_id), 
         method: :patch,
         html: { id: 'attachment-data-form', class: 'border-background-contrast-grey fr-p-2w' } do |f| %>
         <div class="fr-input-group">
