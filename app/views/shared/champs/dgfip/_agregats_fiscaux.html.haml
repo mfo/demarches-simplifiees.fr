@@ -1,6 +1,0 @@
-%table.dgfip
-  %caption #{t("api_particulier.providers.dgfip.scopes.#{scope}.libelle")} :
-  - agregats_fiscaux.slice('revenuBrutGlobal', 'revenuImposable', 'impotRevenuNetAvantCorrections', 'montantImpot', 'revenuFiscalReference', 'anneeImpots', 'anneeRevenus', 'erreurCorrectif', 'situationPartielle').keys.each do |key|
-    %tr
-      %th= t("api_particulier.providers.dgfip.scopes.#{scope}.#{key}")
-      %td= agregats_fiscaux[key]

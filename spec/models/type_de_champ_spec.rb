@@ -340,7 +340,6 @@ describe TypeDeChamp do
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_header_section
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_explication
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_piece_justificative
-    it_behaves_like "a non-prefillable type de champ", :type_de_champ_dgfip
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_pole_emploi
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_mesri
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_carte

@@ -98,7 +98,6 @@ describe ProcedureExportService do
             "iban",
             "siret",
             "annuaire_education",
-            "dgfip",
             "pole_emploi",
             "mesri",
             "text",

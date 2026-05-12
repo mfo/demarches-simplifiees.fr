@@ -37,8 +37,6 @@
             = render partial: "shared/champs/iban/show", locals: { champ: champ }
           - when TypeDeChamp.type_champs.fetch(:annuaire_education)
             = render Dossiers::AnnuaireEducationComponent.new(champ:)
-          - when TypeDeChamp.type_champs.fetch(:dgfip)
-            = render partial: "shared/champs/dgfip/show", locals: { champ: champ, profile: @profile }
           - when TypeDeChamp.type_champs.fetch(:pole_emploi)
             = render partial: "shared/champs/pole_emploi/show", locals: { champ: champ, profile: @profile }
           - when TypeDeChamp.type_champs.fetch(:mesri)

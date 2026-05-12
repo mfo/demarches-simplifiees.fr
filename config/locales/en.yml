@@ -766,12 +766,6 @@ en:
           attributes:
             value:
               format: "%{message}"
-        "champs/dgfip_champ":
-          attributes:
-            numero_fiscal:
-              invalid: "must be 13 or 14 characters long"
-            reference_avis:
-              invalid: "must be 13 or 14 characters long"
         "champs/drop_down_list_champ":
           attributes:
             value:

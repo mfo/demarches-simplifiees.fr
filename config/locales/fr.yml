@@ -771,12 +771,6 @@ fr:
           attributes:
             value:
               format: "%{message}"
-        "champs/dgfip_champ":
-          attributes:
-            numero_fiscal:
-              invalid: "doit posséder 13 ou 14 caractères"
-            reference_avis:
-              invalid: "doit posséder 13 ou 14 caractères"
         "champs/drop_down_list_champ":
           attributes:
             value:

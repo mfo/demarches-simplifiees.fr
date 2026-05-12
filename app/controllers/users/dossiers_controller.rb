@@ -619,8 +619,6 @@ module Users
         :primary_value,
         :secondary_value,
         :identifiant,
-        :numero_fiscal,
-        :reference_avis,
         :ine,
         :piece_justificative_file,
         :code_departement,

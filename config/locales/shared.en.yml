@@ -19,12 +19,6 @@ en:
           refuse: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
           sans_suite: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
     champs:
-      dgfip:
-        show:
-          not_filled: not filled
-          fetching_data: "Fetching data for declarant no. %{numero_fiscal} with tax notice reference %{reference_avis}."
-          data_fetched: "Data concerning %{sources} linked to the declarant Nº %{numero_fiscal} with tax notice reference %{reference_avis} has been received from the DGFiP."
-          data_fetched_title: "Data received from la Direction générale des Finances publiques"
       pole_emploi:
         show:
           not_filled: not filled
