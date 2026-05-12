@@ -91,14 +91,6 @@ module Types
           Types::Champs::Descriptor::SiretChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:annuaire_education)
           Types::Champs::Descriptor::AnnuaireEducationChampDescriptorType
-        when TypeDeChamp.type_champs.fetch(:cnaf)
-          Types::Champs::Descriptor::CnafChampDescriptorType
-        when TypeDeChamp.type_champs.fetch(:dgfip)
-          Types::Champs::Descriptor::DgfipChampDescriptorType
-        when TypeDeChamp.type_champs.fetch(:pole_emploi)
-          Types::Champs::Descriptor::PoleEmploiChampDescriptorType
-        when TypeDeChamp.type_champs.fetch(:mesri)
-          Types::Champs::Descriptor::MesriChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:epci)
           Types::Champs::Descriptor::EpciChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:cojo)
