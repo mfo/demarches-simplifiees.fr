@@ -6,9 +6,10 @@ class ContactForm < ApplicationRecord
   belongs_to :user, optional: true
 
   after_initialize :set_options
-  before_validation :normalize_strings
-  before_validation :sanitize_email
   before_save :add_default_tags
+
+  normalizes :subject, :text, with: -> (value) { value.strip }
+  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
 
   PG_BIGINT_MAX = (2**63) - 1
   PG_BIGINT_MIN = -(2**63)
@@ -74,15 +75,6 @@ class ContactForm < ApplicationRecord
   def require_email? = user.blank?
 
   private
-
-  def normalize_strings
-    self.subject = subject&.strip
-    self.text = text&.strip
-  end
-
-  def sanitize_email
-    self.email = EmailSanitizableConcern::EmailSanitizer.sanitize(email) if email.present?
-  end
 
   def add_default_tags
     self.tags = tags.push('contact form', question_type).uniq

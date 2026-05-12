@@ -22,4 +22,17 @@ describe ContactForm do
       expect(form.errors[:question_type]).to be_present
     end
   end
+
+  describe 'normalization' do
+    it 'strips subject and text' do
+      form = ContactForm.new(subject: '  Hello  ', text: "  world\n")
+      expect(form.subject).to eq('Hello')
+      expect(form.text).to eq('world')
+    end
+
+    it 'sanitizes email' do
+      form = ContactForm.new(email: '  Foo@Example.COM ')
+      expect(form.email).to eq('foo@example.com')
+    end
+  end
 end
