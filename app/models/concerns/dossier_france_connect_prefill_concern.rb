@@ -39,10 +39,10 @@ module DossierFranceConnectPrefillConcern
       champ = champ_for_update(tdc, updated_by:)
       next if champ.value.present?
 
-      champ.prefilled_from_france_connect = true
+      champ.prefilling_from_france_connect_information = true
       champ.value = fc_info.birthdate.iso8601
       champ.data ||= {}
-      champ.data["prefilled_from_fc"] = true
+      champ.data["prefilled_from_france_connect_information"] = true
       champ.save!
     end
   end

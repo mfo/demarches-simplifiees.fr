@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class Champs::DateChamp < Champ
-  attr_accessor :prefilled_from_france_connect
+  attr_accessor :prefilling_from_france_connect_information
 
   validates_with DateLimitValidator, if: :should_validate_in_current_context?
   before_validation :convert_to_iso8601_date, unless: -> { validation_context == :prefill }
-  before_save :clear_prefilled_from_fc_flag_if_modified
+  before_save :clear_prefilled_from_france_connect_information_flag_if_modified
   validate :iso_8601
 
   def search_terms
@@ -14,12 +14,12 @@ class Champs::DateChamp < Champ
 
   private
 
-  def clear_prefilled_from_fc_flag_if_modified
-    return if prefilled_from_france_connect
+  def clear_prefilled_from_france_connect_information_flag_if_modified
+    return if prefilling_from_france_connect_information
     return if !value_changed?
     return if data.blank?
 
-    data.delete("prefilled_from_fc")
+    data.delete("prefilled_from_france_connect_information")
   end
 
   def convert_to_iso8601_date

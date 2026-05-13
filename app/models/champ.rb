@@ -105,8 +105,8 @@ class Champ < ApplicationRecord
     !private?
   end
 
-  def prefilled_from_fc?
-    data&.dig("prefilled_from_fc") == true
+  def prefilled_from_france_connect_information?
+    data&.dig("prefilled_from_france_connect_information") == true
   end
 
   def child?

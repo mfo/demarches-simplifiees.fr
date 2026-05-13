@@ -26,7 +26,7 @@ describe 'Prefill date champ from FranceConnect:', js: true do
 
     champ = dossier.project_champ(tdc)
     expect(champ.value).to eq('1976-02-24')
-    expect(champ.data['prefilled_from_fc']).to be true
+    expect(champ.data['prefilled_from_france_connect_information']).to be true
 
     # Soumission du dossier (raccourci)
     dossier.passer_en_construction!
@@ -41,7 +41,7 @@ describe 'Prefill date champ from FranceConnect:', js: true do
 
     # Si l'usager modifie la valeur, le flag disparaît
     champ.update!(value: '2000-01-01')
-    expect(champ.reload.data['prefilled_from_fc']).to be_nil
+    expect(champ.reload.data['prefilled_from_france_connect_information']).to be_nil
 
     visit instructeur_dossier_path(procedure, dossier)
     expect(page).not_to have_text('Source : FranceConnect')

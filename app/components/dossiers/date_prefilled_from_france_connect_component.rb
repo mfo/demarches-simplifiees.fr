@@ -6,7 +6,7 @@ class Dossiers::DatePrefilledFromFranceConnectComponent < ApplicationComponent
   end
 
   def render?
-    @champ.prefilled_from_fc?
+    @champ.prefilled_from_france_connect_information?
   end
 
   def call

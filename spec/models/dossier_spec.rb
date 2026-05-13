@@ -444,7 +444,7 @@ describe Dossier, type: :model do
         subject
         champ = dossier.reload.project_champ(tdc)
         expect(champ.value).to eq('1976-02-24')
-        expect(champ.data['prefilled_from_fc']).to be true
+        expect(champ.data['prefilled_from_france_connect_information']).to be true
       end
 
       context 'when the champ already has a value' do
@@ -487,13 +487,13 @@ describe Dossier, type: :model do
         end
       end
 
-      context 'clears the prefilled_from_fc flag if the user later modifies the value' do
+      context 'clears the prefilled_from_france_connect_information flag if the user later modifies the value' do
         it do
           subject
           champ = dossier.reload.project_champ(tdc)
           champ.value = '2010-05-15'
           champ.save!
-          expect(champ.reload.data['prefilled_from_fc']).to be_nil
+          expect(champ.reload.data['prefilled_from_france_connect_information']).to be_nil
         end
       end
     end
