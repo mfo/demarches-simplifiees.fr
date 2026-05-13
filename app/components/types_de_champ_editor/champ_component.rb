@@ -179,6 +179,14 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     options
   end
 
+  def prefill_with_france_connect_information_locked_by_sibling?
+    return false if type_de_champ.prefill_with_france_connect_information?
+
+    coordinate.revision.types_de_champ.any? do |tdc|
+      tdc.date? && tdc.prefill_with_france_connect_information? && tdc.id != type_de_champ.id
+    end
+  end
+
   def turbo_confirm
     if coordinate.prefilled_by_type_de_champ
       "Vous avez configuré un pré remplissage de ce champ à partir des données du référentiel du champ « #{coordinate.prefilled_by_type_de_champ.libelle} ». Voulez-vous vraiment le supprimer ?"

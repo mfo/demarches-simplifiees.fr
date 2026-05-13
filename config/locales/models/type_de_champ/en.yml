@@ -67,6 +67,7 @@ en:
           rna: RNA number
           rnf: RNF number
         not_filled: Not filled
+        prefill_with_france_connect_information: "Prefill with FranceConnect"
         format_families:
           document_texte: "Text document"
           tableur: "Spreadsheet"

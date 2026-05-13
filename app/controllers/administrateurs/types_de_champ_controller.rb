@@ -26,6 +26,7 @@ module Administrateurs
 
       type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
       @coordinate = draft.coordinate_for(type_de_champ)
+      was_prefill_with_fc_information = type_de_champ.prefill_with_france_connect_information?
 
       if @coordinate.used_by_routing_rules? && changing_of_type?(type_de_champ)
         errors = "« #{type_de_champ.libelle} » est utilisé pour le routage, vous ne pouvez pas modifier son type."
@@ -37,7 +38,11 @@ module Administrateurs
         flash.alert = errors
       elsif type_de_champ.update(type_de_champ_update_params)
         reload_procedure_with_includes
-        @morphed = champ_components_starting_at(@coordinate)
+        @morphed = if was_prefill_with_fc_information != type_de_champ.prefill_with_france_connect_information?
+          draft.revision_types_de_champ.map { |c| champ_component_from(c) }
+        else
+          champ_components_starting_at(@coordinate)
+        end
       else
         flash.alert = type_de_champ.errors.full_messages
       end
@@ -229,6 +234,7 @@ module Administrateurs
         :limit_repetitions,
         :min_repetitions,
         :max_repetitions,
+        :prefill_with_france_connect_information,
         :date_in_past,
         :range_date,
         :start_date,

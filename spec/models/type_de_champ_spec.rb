@@ -20,6 +20,16 @@ describe TypeDeChamp do
       end
     end
 
+    context 'prefill_with_france_connect_information' do
+      let(:procedure) { create(:procedure) }
+      let(:tdc) { create(:type_de_champ_date, procedure:) }
+
+      it 'clears prefill_with_france_connect_information when birthdate is disabled' do
+        tdc.update!(options: { 'birthdate' => '0', 'prefill_with_france_connect_information' => '1' })
+        expect(tdc.prefill_with_france_connect_information).to be_nil
+      end
+    end
+
     context 'description' do
       it do
         is_expected.to allow_value(nil).for(:description)

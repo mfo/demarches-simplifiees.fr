@@ -105,6 +105,10 @@ class Champ < ApplicationRecord
     !private?
   end
 
+  def prefilled_from_france_connect_information?
+    data&.dig("prefilled_from_france_connect_information") == true
+  end
+
   def child?
     row_id.present? && !is_type?(TypeDeChamp.type_champs.fetch(:repetition))
   end

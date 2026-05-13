@@ -70,6 +70,7 @@ fr:
           rna: Numéro RNA
           rnf: Numéro RNF
         not_filled: Non renseigné
+        prefill_with_france_connect_information: "Préremplir avec FranceConnect"
         format_families:
           document_texte: "Document texte"
           tableur: "Tableur"

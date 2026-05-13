@@ -1,22 +1,4 @@
-.champ-repetition {
-  .external-champ {
-    background-color: var(--background-default-grey);
-  }
-}
-
 .external-champ {
-  overflow: auto;
-
-  &.trusted-data {
-    background-color: var(--blue-cumulus-975-75);
-  }
-
-  .source {
-    background-color: var(--blue-cumulus-925-125);
-    margin-left: 1rem;
-    margin-bottom: 1rem;
-  }
-
   dl {
     padding-left: 0;
 
