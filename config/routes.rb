@@ -392,6 +392,9 @@ Rails.application.routes.draw do
         post 'transferer', to: 'transfers#create', as: :transfer
         get 'attestation_depot', format: :pdf
         get 'papertrail', to: 'dossiers#attestation_depot', format: :pdf
+        post 'set_accuse_lecture_agreement_at'
+        # Deploy transition: legacy GET kept for in-flight pages still rendering the old form.
+        # TODO: remove once the deploy is stable (and un-pend the matching controller spec).
         get 'set_accuse_lecture_agreement_at'
         get 'corbeille', to: 'dossiers#show_in_trash'
         get 'supprime', to: 'dossiers#show_deleted'
