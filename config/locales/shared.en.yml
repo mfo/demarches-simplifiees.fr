@@ -19,30 +19,6 @@ en:
           refuse: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
           sans_suite: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
     champs:
-      cnaf:
-        show:
-          not_filled: not filled
-          fetching_data: "Fetching data for recipient no. %{numero_allocataire} with postal code %{code_postal}."
-          data_fetched: "Data concerning %{sources} linked to the account Nº %{numero_allocataire} with the postal code %{code_postal} has been received from the CAF."
-          data_fetched_title: "Data received from la Caisse nationale d’allocations familiales"
-      dgfip:
-        show:
-          not_filled: not filled
-          fetching_data: "Fetching data for declarant no. %{numero_fiscal} with tax notice reference %{reference_avis}."
-          data_fetched: "Data concerning %{sources} linked to the declarant Nº %{numero_fiscal} with tax notice reference %{reference_avis} has been received from the DGFiP."
-          data_fetched_title: "Data received from la Direction générale des Finances publiques"
-      pole_emploi:
-        show:
-          not_filled: not filled
-          fetching_data: "Fetching data for identifier %{identifiant}."
-          data_fetched: "Data concerning %{sources} linked to the identifier %{identifiant} has been received from Pôle emploi."
-          data_fetched_title: "Data received from Pôle emploi"
-      mesri:
-        show:
-          not_filled: not filled
-          fetching_data: "Fetching data for INE %{ine}."
-          data_fetched: "Data concerning %{sources} linked to the INE %{ine} has been received from the MESRI."
-          data_fetched_title: "Data received from the MESRI"
       drop_down_list:
         other: Enter another option
         other_label: Enter your option

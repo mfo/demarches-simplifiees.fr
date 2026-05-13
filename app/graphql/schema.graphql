@@ -628,34 +628,6 @@ type CiviliteChampDescriptor implements ChampDescriptor {
   type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
 }
 
-type CnafChampDescriptor implements ChampDescriptor {
-  """
-  Description des champs d’un bloc répétable.
-  """
-  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
-
-  """
-  Description du champ.
-  """
-  description: String
-  id: ID!
-
-  """
-  Libellé du champ.
-  """
-  label: String!
-
-  """
-  Est-ce que le champ est obligatoire ?
-  """
-  required: Boolean!
-
-  """
-  Type de la valeur du champ.
-  """
-  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
-}
-
 interface Column {
   id: ID!
 
@@ -1663,34 +1635,6 @@ type DepartementChampDescriptor implements ChampDescriptor {
   List des departements.
   """
   options: [Departement!]
-
-  """
-  Est-ce que le champ est obligatoire ?
-  """
-  required: Boolean!
-
-  """
-  Type de la valeur du champ.
-  """
-  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
-}
-
-type DgfipChampDescriptor implements ChampDescriptor {
-  """
-  Description des champs d’un bloc répétable.
-  """
-  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
-
-  """
-  Description du champ.
-  """
-  description: String
-  id: ID!
-
-  """
-  Libellé du champ.
-  """
-  label: String!
 
   """
   Est-ce que le champ est obligatoire ?
@@ -3902,34 +3846,6 @@ type LinkedDropDownListChampDescriptor implements ChampDescriptor {
   type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
 }
 
-type MesriChampDescriptor implements ChampDescriptor {
-  """
-  Description des champs d’un bloc répétable.
-  """
-  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
-
-  """
-  Description du champ.
-  """
-  description: String
-  id: ID!
-
-  """
-  Libellé du champ.
-  """
-  label: String!
-
-  """
-  Est-ce que le champ est obligatoire ?
-  """
-  required: Boolean!
-
-  """
-  Type de la valeur du champ.
-  """
-  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
-}
-
 type Message {
   attachment: File @deprecated(reason: "Utilisez le champ `attachments` à la place.")
   attachments: [File!]!
@@ -4597,34 +4513,6 @@ type PieceJustificativeChampDescriptor implements ChampDescriptor {
   Modèle de la pièce justificative.
   """
   fileTemplate: File
-  id: ID!
-
-  """
-  Libellé du champ.
-  """
-  label: String!
-
-  """
-  Est-ce que le champ est obligatoire ?
-  """
-  required: Boolean!
-
-  """
-  Type de la valeur du champ.
-  """
-  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
-}
-
-type PoleEmploiChampDescriptor implements ChampDescriptor {
-  """
-  Description des champs d’un bloc répétable.
-  """
-  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
-
-  """
-  Description du champ.
-  """
-  description: String
   id: ID!
 
   """
@@ -5424,11 +5312,6 @@ enum TypeDeChamp {
   civilite
 
   """
-  Données de la Caisse nationale des allocations familiales
-  """
-  cnaf
-
-  """
   Accréditation Paris 2024
   """
   cojo
@@ -5457,11 +5340,6 @@ enum TypeDeChamp {
   Départements
   """
   departements
-
-  """
-  Données de la Direction générale des Finances publiques
-  """
-  dgfip
 
   """
   Lien vers un autre dossier
@@ -5519,11 +5397,6 @@ enum TypeDeChamp {
   linked_drop_down_list
 
   """
-  Données du Ministère de l’Enseignement Supérieur, de la Recherche et de l’Innovation
-  """
-  mesri
-
-  """
   Choix multiple
   """
   multiple_drop_down_list
@@ -5547,11 +5420,6 @@ enum TypeDeChamp {
   Pièce à joindre
   """
   piece_justificative
-
-  """
-  Situation Pôle emploi
-  """
-  pole_emploi
 
   """
   Quotient familial

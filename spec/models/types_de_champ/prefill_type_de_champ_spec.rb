@@ -91,7 +91,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
       end
 
       context 'when the type de champ does not have a description' do
-        let(:type_de_champ) { build(:type_de_champ_mesri) }
+        let(:type_de_champ) { build(:type_de_champ_quotient_familial) }
 
         it { expect(possible_values).not_to include(I18n.t("views.prefill_descriptions.edit.possible_values.#{type_de_champ.type_champ}_html")) }
       end
@@ -129,7 +129,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
     end
 
     context 'when the type de champ is not prefillable' do
-      let(:type_de_champ) { build(:type_de_champ_mesri, procedure: procedure) }
+      let(:type_de_champ) { build(:type_de_champ_quotient_familial, procedure: procedure) }
 
       it { expect(possible_values).to be_empty }
     end
@@ -139,7 +139,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
     subject(:example_value) { described_class.build(type_de_champ, procedure.active_revision).example_value }
 
     context 'when the type de champ is not prefillable' do
-      let(:type_de_champ) { build(:type_de_champ_mesri, procedure: procedure) }
+      let(:type_de_champ) { build(:type_de_champ_quotient_familial, procedure: procedure) }
 
       it { expect(example_value).to be_nil }
     end

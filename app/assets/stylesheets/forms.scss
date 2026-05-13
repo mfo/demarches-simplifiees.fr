@@ -470,15 +470,6 @@
     }
   }
 
-  .cnaf-inputs,
-  .dgfip-inputs,
-  .pole-emploi-inputs,
-  .mesri-inputs {
-    label {
-      font-weight: 400;
-    }
-  }
-
   .fr-input-group.address-ban {
     // A11y wants it as a label, but UI as hint, so we remove the label style
     label.fr-hint-text {

@@ -142,18 +142,6 @@ FactoryBot.define do
     factory :champ_do_not_use_annuaire_education, class: 'Champs::AnnuaireEducationChamp' do
     end
 
-    factory :champ_do_not_use_cnaf, class: 'Champs::CnafChamp' do
-    end
-
-    factory :champ_do_not_use_dgfip, class: 'Champs::DgfipChamp' do
-    end
-
-    factory :champ_do_not_use_pole_emploi, class: 'Champs::PoleEmploiChamp' do
-    end
-
-    factory :champ_do_not_use_mesri, class: 'Champs::MesriChamp' do
-    end
-
     factory :champ_do_not_use_siret, class: 'Champs::SiretChamp' do
       association :etablissement, factory: [:etablissement]
       value { '44011762001530' }
