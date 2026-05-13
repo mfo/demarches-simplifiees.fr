@@ -36,6 +36,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
         it "renders the statut message" do
           allow(champ).to receive(:title).and_return("Title")
           allow(champ).to receive(:address).and_return("123 Street")
+          allow(champ).to receive(:external_id).and_return("123")
 
           expect(subject).to have_css(".fr-message--info") # , text: I18n.t(".rna.data_fetched", title: "Title", address: "123 Street"))
         end
@@ -95,7 +96,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
         let(:state) { :external_error }
 
         it "renders the error message 'KC'" do
-          expect(subject).to have_css(".fr-message--info", text: "Aucun élément trouvé pour la référence : ")
+          expect(subject).to have_css(".fr-message--warning", text: "Aucun élément trouvé pour la référence : ")
         end
       end
 
