@@ -25,6 +25,18 @@ ActiveSupport.on_load(:active_storage_blob) do
     self.metadata = metadata.merge("analyzed" => true)
   end
 
+  # Marcel maps legacy JPEG extensions (.jfif/.jfi/.jif/.jpe — emitted by older
+  # Outlook/Edge/Office builds) to image/jpeg, but libvips has no saver for them
+  # so variants fail at write time. We rewrite the filename to .jpg at upload:
+  # the file content is bit-for-bit a JPEG already, only the extension is
+  # legacy. Also makes the downloaded original portable on Windows/Office where
+  # those extensions are still poorly supported.
+  before_create do
+    if content_type == "image/jpeg" && filename.extension.to_s.downcase.in?(%w[jfif jfi jif jpe])
+      self.filename = "#{filename.base}.jpg"
+    end
+  end
+
   ActiveStorage::Blob.class_eval do
     def purge_later
       DelayedPurgeJob.perform_later(self)

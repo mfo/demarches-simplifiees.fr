@@ -48,4 +48,39 @@ describe "ActiveStorage configuration" do
       expect(blob_updates).to be_empty
     end
   end
+
+  describe "JPEG filename normalization on upload" do
+    let(:image_path) { Rails.root.join("spec/fixtures/files/image-no-rotation.jpg") }
+
+    def create_blob(filename:, content_type: "image/jpeg")
+      ActiveStorage::Blob.create_and_upload!(
+        io: File.open(image_path),
+        filename:,
+        content_type:
+      )
+    end
+
+    %w[jfif jfi jif jpe].each do |ext|
+      it "rewrites a .#{ext} JPEG filename to .jpg at upload" do
+        expect(create_blob(filename: "photo.#{ext}").filename.to_s).to eq("photo.jpg")
+      end
+    end
+
+    it "is case-insensitive on the extension" do
+      expect(create_blob(filename: "photo.JFIF").filename.to_s).to eq("photo.jpg")
+    end
+
+    it "leaves a standard .jpg filename untouched" do
+      expect(create_blob(filename: "photo.jpg").filename.to_s).to eq("photo.jpg")
+    end
+
+    it "does not rewrite when the content-type is not image/jpeg" do
+      pdf_blob = ActiveStorage::Blob.create_and_upload!(
+        io: Rails.root.join("spec/fixtures/files/dossierPDF.pdf").open,
+        filename: "weird.jfif",
+        content_type: "application/pdf"
+      )
+      expect(pdf_blob.filename.to_s).to eq("weird.jfif")
+    end
+  end
 end
