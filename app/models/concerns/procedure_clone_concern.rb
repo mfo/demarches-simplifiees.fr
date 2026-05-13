@@ -44,7 +44,6 @@ module ProcedureCloneConcern
     'published_revision_id',
     'allow_expert_review',
     'experts_require_administrateur_invitation',
-    'encrypted_api_particulier_token',
     'routing_enabled',
     'instructeurs_self_management_enabled',
     'procedure_expires_when_termine_enabled',
@@ -253,7 +252,7 @@ module ProcedureCloneConcern
     end
 
     if !same_admin?(admin)
-      procedure.encrypted_api_particulier_token = nil
+      procedure.api_particulier_token = nil
       procedure.opendata = true
     end
 

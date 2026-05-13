@@ -259,7 +259,7 @@ describe ProcedureCloneConcern, type: :model do
       end
 
       it "should discard the existing token" do
-        expect(subject.encrypted_api_particulier_token).to be_nil
+        expect(subject.api_particulier_token).to be_nil
       end
 
       it 'should not route the procedure' do
