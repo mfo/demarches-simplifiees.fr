@@ -189,10 +189,12 @@ module Users
         if @dossier.for_tiers?
           email = sanitized_params.dig(:individual_attributes, :email)
           User.create_or_promote_to_tiers(email, SecureRandom.hex, @dossier) if email.present?
+          @dossier.reset_champs_from_france_connect(updated_by: current_user.email)
+        else
+          @dossier.prefill_champs_from_france_connect(updated_by: current_user.email)
         end
 
         @dossier.update!(autorisation_donnees: true, identity_updated_at: Time.zone.now)
-        @dossier.prefill_champs_from_france_connect(updated_by: current_user.email)
 
         flash.notice = t('.identity_saved')
 

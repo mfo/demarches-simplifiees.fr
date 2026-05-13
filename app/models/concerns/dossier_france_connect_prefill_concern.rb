@@ -47,6 +47,19 @@ module DossierFranceConnectPrefillConcern
     end
   end
 
+  def reset_champs_from_france_connect(updated_by:)
+    return if !for_tiers?
+
+    revision.types_de_champ_public.filter(&:prefill_with_france_connect_information?).each do |tdc|
+      champ = champ_for_update(tdc, updated_by:)
+      next if !champ.prefilled_from_france_connect_information?
+
+      champ.value = nil
+      champ.data = nil
+      champ.save!
+    end
+  end
+
   private
 
   def prefill_mandataire_from_france_connect
