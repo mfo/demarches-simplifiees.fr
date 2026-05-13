@@ -2087,6 +2087,31 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe '#set_accuse_lecture_agreement_at' do
+    let(:dossier) { create(:dossier, :en_instruction, :with_individual, user: user) }
+
+    before { sign_in(user) }
+
+    context 'on a state-changing verb (POST)' do
+      it 'updates accuse_lecture_agreement_at' do
+        expect { post :set_accuse_lecture_agreement_at, params: { id: dossier.id } }
+          .to change { dossier.reload.accuse_lecture_agreement_at }.from(nil)
+      end
+    end
+
+    context 'on a safe HTTP verb (GET)' do
+      # Pending: the legacy GET route is intentionally kept during the deploy
+      # transition so in-flight pages rendering the old form keep working.
+      # Once the GET route is removed in the follow-up, un-pend this example
+      # — it should pass without further changes.
+      it 'does not update accuse_lecture_agreement_at via a GET request' do
+        pending 'GET route is kept during deploy transition; remove route then un-pend'
+        expect { get :set_accuse_lecture_agreement_at, params: { id: dossier.id } }
+          .not_to change { dossier.reload.accuse_lecture_agreement_at }
+      end
+    end
+  end
+
   describe '#restore' do
     before { sign_in(user) }
     subject { patch :restore, params: { id: dossier.id } }
