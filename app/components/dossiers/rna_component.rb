@@ -8,13 +8,7 @@ class Dossiers::RNAComponent < ApplicationComponent
   end
 
   def call
-    if champ.value.blank?
-      tag.p(t('not_filled', scope: 'activerecord.attributes.type_de_champ'), class: "fr-mt-1w")
-    elsif champ.data.blank?
-      tag.p(t('not_found', value: champ.value, scope: 'activerecord.errors.models.champs/rna_champ.attributes.value'), class: "fr-mt-1w")
-    else
-      render Dossiers::ExternalChampComponent.new(data:, details:, source:)
-    end
+    render Dossiers::ExternalChampComponent.new(data:, details:, source:)
   end
 
   private
