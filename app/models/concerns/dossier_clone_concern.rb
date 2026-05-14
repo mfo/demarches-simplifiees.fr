@@ -15,9 +15,10 @@ module DossierCloneConcern
     discarded_row_ids = champs_on_main_stream
       .filter { _1.row? && _1.discarded? }
       .to_set(&:row_id)
-    cloned_champs = champs_on_main_stream
+    champs_to_clone = champs_on_main_stream
       .reject { discarded_row_ids.member?(_1.row_id) }
-      .map(&:clone)
+    ActiveRecord::Associations::Preloader.new(records: champs_to_clone, associations: [:geo_areas, :etablissement]).call
+    cloned_champs = champs_to_clone.map(&:clone)
 
     cloned_dossier = deep_clone(only: dossier_attributes, include: relationships) do |original, kopy|
       ClonePiecesJustificativesService.clone_attachments(original, kopy)
