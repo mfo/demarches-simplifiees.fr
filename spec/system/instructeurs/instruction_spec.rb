@@ -37,9 +37,9 @@ describe 'Instructing a dossier:', js: true do
   end
 
   scenario 'A instructeur can accept a dossier and add annotations' do
-    log_in(instructeur.email, password)
+    login_as(instructeur.user, scope: :user)
 
-    expect(page).to have_current_path(instructeur_procedures_path)
+    visit instructeur_procedures_path
 
     click_on(procedure.libelle, visible: true)
     expect(page).to have_current_path(instructeur_procedure_path(procedure))
@@ -106,7 +106,8 @@ describe 'Instructing a dossier:', js: true do
   end
 
   scenario 'A instructeur can follow/unfollow a dossier and request an export' do
-    log_in(instructeur.email, password)
+    login_as(instructeur.user, scope: :user)
+    visit instructeur_procedures_path
 
     click_on(procedure.libelle, visible: true)
     test_statut_bar(a_suivre: 1, tous_les_dossiers: 1)
@@ -159,7 +160,8 @@ describe 'Instructing a dossier:', js: true do
     expect(InstructeurMailer).to receive(:send_dossier).and_return(send_dossier).twice
     expect(send_dossier).to receive(:deliver_later).twice
 
-    log_in(instructeur.email, password)
+    login_as(instructeur.user, scope: :user)
+    visit instructeur_procedures_path
 
     click_on(procedure.libelle, visible: true)
     click_on 'Suivre'
@@ -194,7 +196,7 @@ describe 'Instructing a dossier:', js: true do
     archivable_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs: [instructeur])
     create(:dossier, :accepte, procedure: archivable_procedure)
 
-    log_in(instructeur.email, password)
+    login_as(instructeur.user, scope: :user)
     visit list_instructeur_archives_path(archivable_procedure)
 
     expect {
@@ -219,7 +221,7 @@ describe 'Instructing a dossier:', js: true do
                 content_type: "application/pdf",
                 metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE })
 
-      log_in(instructeur.email, password)
+      login_as(instructeur.user, scope: :user)
       visit instructeur_dossier_path(procedure, dossier)
     end
 
@@ -273,7 +275,7 @@ describe 'Instructing a dossier:', js: true do
     let(:procedure) { create(:procedure, :with_labels, :published, instructeurs: [instructeur]) }
 
     scenario 'An instructeur can add and remove labels to a dossier' do
-      log_in(instructeur.email, password)
+      login_as(instructeur.user, scope: :user)
 
       visit instructeur_dossier_path(procedure, dossier)
       click_on 'Ajouter un label'
@@ -324,7 +326,7 @@ describe 'Instructing a dossier:', js: true do
     end
 
     scenario 'can see original dossier' do
-      log_in(instructeur.email, password)
+      login_as(instructeur.user, scope: :user)
 
       visit instructeur_dossier_path(procedure, dossier)
 
