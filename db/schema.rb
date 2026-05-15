@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_15_085008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -1076,8 +1076,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
     t.string "api_entreprise_token"
     t.datetime "api_entreprise_token_expiration_notice_sent_at"
     t.datetime "api_entreprise_token_expires_at", precision: nil
-    t.text "api_particulier_scopes", default: [], array: true
-    t.jsonb "api_particulier_sources", default: {}
     t.string "api_particulier_token"
     t.boolean "ask_birthday", default: false, null: false
     t.date "auto_archive_on"
@@ -1100,7 +1098,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
     t.bigint "draft_revision_id"
     t.integer "duree_conservation_dossiers_dans_ds"
     t.boolean "duree_conservation_etendue_par_ds", default: false, null: false
-    t.string "encrypted_api_particulier_token"
     t.integer "estimated_dossiers_count"
     t.boolean "estimated_duration_visible", default: true, null: false
     t.boolean "euro_flag", default: false
@@ -1146,7 +1143,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_04_090452) do
     t.datetime "whitelisted_at", precision: nil
     t.bigint "zone_id"
     t.index ["admin_default_procedure_presentation_id"], name: "index_procedures_on_admin_default_procedure_presentation_id"
-    t.index ["api_particulier_sources"], name: "index_procedures_on_api_particulier_sources", using: :gin
     t.index ["declarative_with_state"], name: "index_procedures_on_declarative_with_state"
     t.index ["defaut_groupe_instructeur_id"], name: "index_procedures_on_defaut_groupe_instructeur_id"
     t.index ["draft_revision_id"], name: "index_procedures_on_draft_revision_id"
