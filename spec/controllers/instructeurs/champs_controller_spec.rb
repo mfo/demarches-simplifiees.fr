@@ -54,5 +54,32 @@ describe Instructeurs::ChampsController, type: :controller do
       history_champ = others.first
       expect(history_champ.stream).to start_with('history:')
     end
+
+    context 'when the public_id points to a public champ that is not a RIB' do
+      let(:types_de_champ_public) do
+        [
+          { type: :piece_justificative, nature: 'rib' },
+          { type: :address, libelle: 'Adresse' },
+        ]
+      end
+
+      let(:address_champ) { dossier.champs.find { _1.type_champ == TypeDeChamp.type_champs.fetch(:address) } }
+      let(:original_address) { { 'label' => '12 rue du Test, 75000 Paris', 'postal_code' => '75000', 'city_name' => 'Paris' } }
+
+      before { address_champ.update!(value: original_address['label'], value_json: original_address) }
+
+      subject(:cross_type_request) do
+        put :update, params: { dossier_id: dossier.id, public_id: address_champ.public_id, rib: rib_params }
+      end
+
+      it 'rejects the request and does not overwrite the address champ' do
+        expect { cross_type_request }.to raise_error(ActiveRecord::RecordNotFound)
+
+        main_address = Champ.find_by!(dossier_id: dossier.id, stable_id: address_champ.stable_id, stream: Champ::MAIN_STREAM)
+        expect(main_address.value_json).not_to have_key('rib')
+        expect(main_address.value_json).to include('label' => original_address['label'])
+        expect(main_address.type).to eq('Champs::AddressChamp')
+      end
+    end
   end
 end
