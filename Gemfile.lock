@@ -675,11 +675,11 @@ GEM
     rails-i18n (7.0.10)
       i18n (>= 0.7, < 2)
       railties (>= 6.0.0, < 8)
-    rails-pg-extras (5.6.13)
+    rails-pg-extras (5.6.18)
       actionpack
       activerecord
       railties
-      ruby-pg-extras (= 5.6.13)
+      ruby-pg-extras (= 5.6.18)
     railties (7.2.3.1)
       actionpack (= 7.2.3.1)
       activesupport (= 7.2.3.1)
@@ -786,7 +786,7 @@ GEM
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
-    ruby-pg-extras (5.6.13)
+    ruby-pg-extras (5.6.18)
       pg
       terminal-table
     ruby-progressbar (1.13.0)
