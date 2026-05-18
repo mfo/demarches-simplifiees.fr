@@ -4,9 +4,9 @@
 class Dsfr::AlertComponent < ApplicationComponent
   renders_one :body
 
-  attr_reader :state, :title, :size, :block, :extra_class_names, :heading_level
+  attr_reader :state, :title, :size, :block, :extra_class_names, :heading_level, :data
 
-  def initialize(state:, title: '', with_prefix: true, size: '', extra_class_names: nil, heading_level: 'h3')
+  def initialize(state:, title: '', with_prefix: true, size: '', extra_class_names: nil, heading_level: 'h3', data: {})
     @state = state
     @title = title
     @with_prefix = with_prefix
@@ -14,6 +14,7 @@ class Dsfr::AlertComponent < ApplicationComponent
     @block = block
     @extra_class_names = extra_class_names
     @heading_level = heading_level
+    @data = data
   end
 
   def prefix_for_state
