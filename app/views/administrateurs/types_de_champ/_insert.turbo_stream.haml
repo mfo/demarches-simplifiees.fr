@@ -17,9 +17,7 @@
 = turbo_stream.replace 'summary', render(TypesDeChampEditor::HeaderSectionsSummaryComponent.new(procedure: @procedure, is_private: @coordinate&.private?))
 
 - unless flash.alert
-  = turbo_stream.show 'autosave-notice'
-  = turbo_stream.replace 'autosave-notice', render(AutosaveNoticeComponent.new(success: true, label_scope: :form))
-  = turbo_stream.hide 'autosave-notice', delay: 30000
+  = render AutosaveNoticeTurboStreamComponent.new
 
 - if @destroyed.present?
   = turbo_stream.remove dom_id(@destroyed, :type_de_champ_editor)
