@@ -131,12 +131,12 @@ GEM
       ruby-next-core (~> 1.0)
     ast (2.4.3)
     attr_required (1.0.2)
-    axe-core-api (4.10.3)
+    axe-core-api (4.11.3)
       dumb_delegator
       ostruct
       virtus
-    axe-core-rspec (4.10.3)
-      axe-core-api (= 4.10.3)
+    axe-core-rspec (4.11.3)
+      axe-core-api (= 4.11.3)
       dumb_delegator
       ostruct
       virtus
