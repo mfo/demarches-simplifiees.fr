@@ -55,8 +55,8 @@ class UserDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = [
     :email,
-    :otp_attempt,
-  ].freeze
+    (:otp_attempt if SUPER_ADMIN_OTP_ENABLED),
+  ].compact.freeze
 
   # Overwrite this method to customize how users are displayed
   # across all pages of the admin dashboard.
