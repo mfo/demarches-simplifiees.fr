@@ -808,7 +808,7 @@ GEM
       tilt
     securerandom (0.4.1)
     selectize-rails (0.12.6)
-    selenium-devtools (0.139.0)
+    selenium-devtools (0.148.0)
       selenium-webdriver (~> 4.2)
     selenium-webdriver (4.35.0)
       base64 (~> 0.2)
