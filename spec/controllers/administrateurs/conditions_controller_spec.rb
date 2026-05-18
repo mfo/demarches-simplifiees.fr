@@ -21,6 +21,8 @@ describe Administrateurs::ConditionsController, type: :controller do
     end
 
     describe '#update' do
+      render_views
+
       before { post :update, params: params, format: :turbo_stream }
 
       let(:params) { default_params.merge(type_de_champ: { condition_form: condition_form }) }
@@ -41,6 +43,7 @@ describe Administrateurs::ConditionsController, type: :controller do
         expect(third_tdc.reload.condition).to eq(ds_eq(champ_value(first_tdc.stable_id), constant(2)))
         expect(assigns(:coordinate)).to eq(procedure.draft_revision.coordinate_for(third_tdc))
         expect(assigns(:upper_tdcs)).to eq([first_tdc, second_tdc])
+        expect(response.body).to include('<turbo-stream action="replace" target="autosave-notice">')
       end
     end
 
