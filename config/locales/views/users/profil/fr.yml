@@ -10,13 +10,13 @@ fr:
         transfer_title: Transférer tous vos dossiers
         transfer_explication_html: "<p>Cette fonctionnalité vous permet de changer le propriétaire de tous vos dossiers. C’est généralement utile lors d’un changement de poste ou si vous souhaitez fusionner plusieurs comptes.</p>"
         transfer_next_owner_label: "Adresse électronique du prochain propriétaire de tous vos dossiers"
-        waiting_transfers: "Transfert en attente :"
+        waiting_transfers: "Transfert en attente :"
         one_waiting_transfer:
           one: "Le nouveau propriétaire %{email} doit confirmer le transfert d’un dossier en suivant les instructions reçues dans son mail."
           other: "Le nouveau propriétaire %{email} doit confirmer le transfert de vos %{count} dossiers en suivant les instructions reçues dans son mail."
         transfer_confirmation: "Confirmez-vous le transfert ?"
         transfer_my_files: Transférer tous mes dossiers
-        pending_change: 'Changement en attente :'
+        pending_change: 'Changement en attente :'
         finalize_email_change: Pour finaliser votre changement d’adresse, vérifiez vos emails et cliquez sur le lien de confirmation.
         email_same_domain_explication_html: >
           Pour des raisons de traçabilité, vous ne pouvez modifier votre adresse électronique
@@ -25,7 +25,7 @@ fr:
           <br>
           <br>
           Pour changer d’organisation, déposez un nouveau dossier d’ouverture de compte
-          ou contactez le support :
+          ou contactez le support :
           <a href="mailto:%{contact_email}">%{contact_email}</a>
         identities:
           one: Identité FranceConnect
@@ -36,7 +36,7 @@ fr:
         unlink_confirmation: 'le compte FranceConnect « %{full_name} » ne pourra plus accéder à vos dossiers.'
         forbid_access: Interdire l’accès
       ensure_update_email_is_authorized:
-        email_not_allowed: "L’email %{requested_email} ne peut être utilisé, contactez le support : <a href='mailto:%{contact_email}'>%{contact_email}</a>"
+        email_not_allowed: "L’email %{requested_email} ne peut être utilisé, contactez le support : <a href='mailto:%{contact_email}'>%{contact_email}</a>"
       transfer_all_dossiers:
         new_transfer:
           one: "Le transfert d’un dossier à %{email} est en cours"
