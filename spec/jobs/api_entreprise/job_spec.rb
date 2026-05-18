@@ -3,8 +3,6 @@
 include ActiveJob::TestHelper
 
 RSpec.describe APIEntreprise::Job, type: :job do
-  # https://api.rubyonrails.org/classes/ActiveJob/Exceptions/ClassMethods.html
-  # #method-i-retry_on
   describe '#perform' do
     let(:dossier) { create(:dossier, :with_entreprise) }
 
@@ -13,15 +11,14 @@ RSpec.describe APIEntreprise::Job, type: :job do
       let(:types_de_champ_public) { [{ type: :siret }] }
       let(:dossier) { create(:dossier, procedure:) }
 
-      it "retries 25 times" do
+      it "re-raises so sidekiq can retry" do
         champ = dossier.champs.first
         champ.update!(value: '12345678901234')
 
         etablissement = create(:etablissement, champ:)
 
-        assert_performed_jobs(25) do
-          ErrorJob.perform_later(:service_unavailable, etablissement) rescue StandardError
-        end
+        expect { ErrorJob.perform_now(:service_unavailable, etablissement) }
+          .to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
 
         expect(champ.reload.value).not_to be_nil
       end
