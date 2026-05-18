@@ -97,14 +97,15 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
   describe "operations_for_dossier" do
     let(:procedure) { create(:procedure) }
     let(:statut) { 'whatever' }
+    let(:instructeur) { create(:instructeur) }
 
-    subject { described_class.new(statut: statut, procedure: procedure).operations_for_dossier(dossier) }
+    subject { described_class.new(statut: statut, procedure: procedure).operations_for_dossier(dossier, instructeur) }
 
     context "when the dossier is en_construction" do
       let(:dossier) { create(:dossier, :en_construction) }
 
       it do
-        expect(subject).to match_array(["passer_en_instruction", "repousser_expiration", "create_avis", "restaurer_repousser_expiration", "follow", "unfollow", "create_commentaire"])
+        expect(subject).to match_array(["passer_en_instruction", "repousser_expiration", "create_avis", "restaurer_repousser_expiration", "follow", "create_commentaire"])
       end
     end
 
@@ -113,7 +114,7 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
         let(:dossier) { create(:dossier, :accepte) }
 
         it do
-          expect(subject).to match_array(["archiver", "desarchiver", "supprimer", "repousser_expiration", "restaurer", "follow", "unfollow", "create_commentaire"])
+          expect(subject).to match_array(["archiver", "desarchiver", "supprimer", "repousser_expiration", "restaurer", "follow", "create_commentaire"])
         end
       end
 
@@ -121,7 +122,7 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
         let(:dossier) { create(:dossier, :accepte, hidden_by_administration_at: Time.zone.now) }
 
         it do
-          expect(subject).to match_array(["archiver", "desarchiver", "supprimer", "repousser_expiration", "restaurer", "follow", "unfollow", "create_commentaire"])
+          expect(subject).to match_array(["archiver", "desarchiver", "supprimer", "repousser_expiration", "restaurer", "follow", "create_commentaire"])
         end
       end
 
@@ -129,7 +130,17 @@ RSpec.describe Dossiers::BatchOperationComponent, type: :component do
         let(:dossier) { create(:dossier, :accepte, hidden_by_expired_at: Time.zone.now) }
 
         it do
-          expect(subject).to match_array(["archiver", "desarchiver", "supprimer", "repousser_expiration", "restaurer_repousser_expiration", "follow", "unfollow", "create_commentaire"])
+          expect(subject).to match_array(["archiver", "desarchiver", "supprimer", "repousser_expiration", "restaurer_repousser_expiration", "follow", "create_commentaire"])
+        end
+      end
+
+      context "and followed by instructeur" do
+        let(:dossier) { create(:dossier, :accepte) }
+
+        before { instructeur.follow(dossier) }
+
+        it do
+          expect(subject).to match_array(["archiver", "desarchiver", "repousser_expiration", "restaurer", "supprimer", "unfollow", "create_commentaire"])
         end
       end
     end

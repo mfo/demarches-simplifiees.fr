@@ -8,26 +8,37 @@ class Dossiers::BatchOperationComponent < ApplicationComponent
     @procedure = procedure
   end
 
-  def operations_for_dossier(dossier)
-    case dossier.state
-    when Dossier.states.fetch(:en_construction)
-      [
-        BatchOperation.operations.fetch(:passer_en_instruction), BatchOperation.operations.fetch(:repousser_expiration), BatchOperation.operations.fetch(:create_avis),
-        BatchOperation.operations.fetch(:restaurer_repousser_expiration),
-      ]
-    when Dossier.states.fetch(:en_instruction)
-      [
-        BatchOperation.operations.fetch(:accepter), BatchOperation.operations.fetch(:refuser),
-        BatchOperation.operations.fetch(:classer_sans_suite), BatchOperation.operations.fetch(:repasser_en_construction), BatchOperation.operations.fetch(:create_avis),
-      ]
-    when Dossier.states.fetch(:accepte), Dossier.states.fetch(:refuse), Dossier.states.fetch(:sans_suite)
-      [
-        BatchOperation.operations.fetch(:archiver), BatchOperation.operations.fetch(:desarchiver), BatchOperation.operations.fetch(:supprimer),
-        BatchOperation.operations.fetch(:repousser_expiration), restore_operation_for(dossier),
-      ]
+  def operations_for_dossier(dossier, current_instructeur)
+    allowed_operations =
+      case dossier.state
+      when Dossier.states.fetch(:en_construction)
+        [
+          BatchOperation.operations.fetch(:passer_en_instruction), BatchOperation.operations.fetch(:repousser_expiration), BatchOperation.operations.fetch(:create_avis),
+          BatchOperation.operations.fetch(:restaurer_repousser_expiration),
+        ]
+      when Dossier.states.fetch(:en_instruction)
+        [
+          BatchOperation.operations.fetch(:accepter), BatchOperation.operations.fetch(:refuser),
+          BatchOperation.operations.fetch(:classer_sans_suite), BatchOperation.operations.fetch(:repasser_en_construction), BatchOperation.operations.fetch(:create_avis),
+        ]
+      when Dossier.states.fetch(:accepte), Dossier.states.fetch(:refuse), Dossier.states.fetch(:sans_suite)
+        [
+          BatchOperation.operations.fetch(:archiver), BatchOperation.operations.fetch(:desarchiver), BatchOperation.operations.fetch(:supprimer),
+          BatchOperation.operations.fetch(:repousser_expiration), restore_operation_for(dossier),
+        ]
+      else
+        []
+      end.append(BatchOperation.operations.fetch(:create_commentaire))
+
+    allowed_operations + follow_operations_for(dossier, current_instructeur)
+  end
+
+  def follow_operations_for(dossier, current_instructeur)
+    if current_instructeur.follow?(dossier)
+      [BatchOperation.operations.fetch(:unfollow)]
     else
-      []
-    end.append(BatchOperation.operations.fetch(:follow), BatchOperation.operations.fetch(:unfollow), BatchOperation.operations.fetch(:create_commentaire))
+      [BatchOperation.operations.fetch(:follow)]
+    end
   end
 
   private
