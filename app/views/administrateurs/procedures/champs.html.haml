@@ -1,6 +1,6 @@
-- if @procedure.draft_changed?
-  - content_for(:sticky_header) do
-    = render partial: 'administrateurs/procedures/unpublished_changes_sticky_header', locals: { procedure: @procedure }
+- content_for(:sticky_header) do
+  = render partial: 'administrateurs/procedures/unpublished_changes_sticky_header', locals: { procedure: @procedure }
+
 - render_procedure_sticky_title(@procedure)
 = render partial: 'administrateurs/breadcrumbs',
   locals: { steps: [['Démarches', admin_procedures_back_path(@procedure)],

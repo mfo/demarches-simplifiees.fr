@@ -4,6 +4,9 @@
                     ['Configuration des champs']],
   preview: @procedure.draft_revision.valid? })
 
+= turbo_stream.update "sticky-header" do
+  = render partial: "administrateurs/procedures/unpublished_changes_sticky_header", locals: { procedure: @procedure }
+
 = turbo_stream.replace 'errors-summary', render(Procedure::ErrorsSummary.new(procedure: @procedure, validation_context: @tdc.public? ? :types_de_champ_public_editor : :types_de_champ_private_editor))
 
 - rendered = render @condition_component
