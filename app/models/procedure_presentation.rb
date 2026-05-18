@@ -37,6 +37,7 @@ class ProcedurePresentation < ApplicationRecord
 
   before_create { self.displayed_columns = procedure.default_displayed_columns }
   before_create :set_default_filters
+  before_destroy :unset_admin_default_on_procedure
 
   validates_associated :displayed_columns, :sorted_column, :a_suivre_filters, :suivis_filters,
     :traites_filters, :tous_filters, :supprimes_filters, :expirant_filters, :archives_filters
@@ -120,5 +121,14 @@ class ProcedurePresentation < ApplicationRecord
     else
       displayed_columns
     end
+  end
+
+  def unset_admin_default_on_procedure
+    Procedure
+      .where(admin_default_procedure_presentation_id: id)
+      .update_all(
+        admin_default_procedure_presentation_active: false,
+        admin_default_procedure_presentation_id: nil
+      )
   end
 end
