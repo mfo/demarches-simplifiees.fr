@@ -170,7 +170,7 @@ GEM
     capybara-email (3.0.2)
       capybara (>= 2.4, < 4.0)
       mail
-    capybara-playwright-driver (0.5.7)
+    capybara-playwright-driver (0.5.9)
       addressable
       capybara
       playwright-ruby-client (>= 1.16.0)
