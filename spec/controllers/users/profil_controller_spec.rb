@@ -93,7 +93,7 @@ describe Users::ProfilController, type: :controller do
     end
 
     context 'when the user has an instructeur role' do
-      let(:instructeur_email) { 'instructeur_email@a.com' }
+      let(:instructeur_email) { 'agent@interieur.gouv.fr' }
       let!(:user) { create(:instructeur, email: instructeur_email).user }
 
       before do
@@ -101,27 +101,48 @@ describe Users::ProfilController, type: :controller do
         user.reload
       end
 
-      context 'when the requested email is allowed' do
-        let(:requested_email) { 'legit@gouv.fr' }
+      context 'when the requested email has the same domain' do
+        let(:requested_email) { 'other@interieur.gouv.fr' }
 
         it do
-          expect(user.unconfirmed_email).to eq('legit@gouv.fr')
+          expect(user.unconfirmed_email).to eq('other@interieur.gouv.fr')
           expect(response).to redirect_to(profil_path)
           expect(flash.notice).to eq(I18n.t('devise.registrations.update_needs_confirmation'))
         end
       end
 
-      context 'when the requested email is not allowed' do
-        let(:requested_email) { 'weird@gmail.com' }
+      context 'when the requested email has the same domain with different case' do
+        let(:requested_email) { 'Other@INTERIEUR.gouv.fr' }
 
         it do
+          expect(user.unconfirmed_email).to eq('other@interieur.gouv.fr')
+          expect(response).to redirect_to(profil_path)
+          expect(flash.notice).to eq(I18n.t('devise.registrations.update_needs_confirmation'))
+        end
+      end
+
+      context 'when the requested email has a different domain' do
+        let(:requested_email) { 'agent@finances.gouv.fr' }
+
+        it 'rejects the email change' do
+          expect(user.unconfirmed_email).to be_nil
           expect(response).to redirect_to(profil_path)
           expect(flash.alert).to include('contactez le support')
         end
       end
 
-      context 'when the requested email is on a domain that only matches a legit suffix without an `@` boundary' do
-        let(:requested_email) { 'admin@evilgouv.fr' }
+      context 'when the requested email adds a subdomain' do
+        let(:requested_email) { 'agent@sg.interieur.gouv.fr' }
+
+        it 'rejects the email change' do
+          expect(user.unconfirmed_email).to be_nil
+          expect(response).to redirect_to(profil_path)
+          expect(flash.alert).to include('contactez le support')
+        end
+      end
+
+      context 'when the requested email tries a boundary attack' do
+        let(:requested_email) { 'agent@interieur.gouv.fr.evil.com' }
 
         it 'rejects the email change' do
           expect(user.unconfirmed_email).to be_nil
@@ -132,7 +153,7 @@ describe Users::ProfilController, type: :controller do
     end
 
     context 'when the user has an administrateur role but no instructeur role' do
-      let(:administrateur_email) { 'administrateur_email@a.com' }
+      let(:administrateur_email) { 'admin@interieur.gouv.fr' }
       let!(:user) { create(:administrateur, email: administrateur_email, instructeur: nil).user }
 
       before do
@@ -140,20 +161,20 @@ describe Users::ProfilController, type: :controller do
         user.reload
       end
 
-      context 'when the requested email is allowed' do
-        let(:requested_email) { 'legit@gouv.fr' }
+      context 'when the requested email has the same domain' do
+        let(:requested_email) { 'admin2@interieur.gouv.fr' }
 
         it do
-          expect(user.unconfirmed_email).to eq('legit@gouv.fr')
+          expect(user.unconfirmed_email).to eq('admin2@interieur.gouv.fr')
           expect(response).to redirect_to(profil_path)
           expect(flash.notice).to eq(I18n.t('devise.registrations.update_needs_confirmation'))
         end
       end
 
-      context 'when the requested email is not allowed' do
-        let(:requested_email) { 'weird@gmail.com' }
+      context 'when the requested email has a different domain' do
+        let(:requested_email) { 'admin@finances.gouv.fr' }
 
-        it do
+        it 'rejects the email change' do
           expect(user.unconfirmed_email).to be_nil
           expect(response).to redirect_to(profil_path)
           expect(flash.alert).to include('contactez le support')
