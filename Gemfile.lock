@@ -174,7 +174,7 @@ GEM
       addressable
       capybara
       playwright-ruby-client (>= 1.16.0)
-    capybara-screenshot (1.0.26)
+    capybara-screenshot (1.0.27)
       capybara (>= 1.0, < 4)
       launchy
     case_transform (0.2)
