@@ -131,6 +131,8 @@ GEM
       ruby-next-core (~> 1.0)
     ast (2.4.3)
     attr_required (1.0.2)
+    auth-sanitizer (0.1.2)
+      version_gem (~> 1.1, >= 1.1.9)
     axe-core-api (4.11.3)
       dumb_delegator
       ostruct
@@ -529,7 +531,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.2-x86_64-linux-musl)
       racc (~> 1.4)
-    oauth2 (2.0.17)
+    oauth2 (2.0.19)
+      auth-sanitizer (~> 0.1)
       faraday (>= 0.17.3, < 4.0)
       jwt (>= 1.0, < 4.0)
       logger (~> 1.2)
