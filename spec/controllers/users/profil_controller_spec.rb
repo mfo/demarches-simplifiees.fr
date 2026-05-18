@@ -34,6 +34,14 @@ describe Users::ProfilController, type: :controller do
   end
 
   describe 'PATCH #update_email' do
+    shared_examples 'rejects the email change' do
+      it 'rejects the email change' do
+        expect(user.unconfirmed_email).to be_nil
+        expect(response).to redirect_to(profil_path)
+        expect(flash.alert).to include('contactez le support')
+      end
+    end
+
     context 'when email is same as user' do
       it 'fails' do
         patch :update_email, params: { user: { email: user.email } }
@@ -124,31 +132,19 @@ describe Users::ProfilController, type: :controller do
       context 'when the requested email has a different domain' do
         let(:requested_email) { 'agent@finances.gouv.fr' }
 
-        it 'rejects the email change' do
-          expect(user.unconfirmed_email).to be_nil
-          expect(response).to redirect_to(profil_path)
-          expect(flash.alert).to include('contactez le support')
-        end
+        it_behaves_like 'rejects the email change'
       end
 
       context 'when the requested email adds a subdomain' do
         let(:requested_email) { 'agent@sg.interieur.gouv.fr' }
 
-        it 'rejects the email change' do
-          expect(user.unconfirmed_email).to be_nil
-          expect(response).to redirect_to(profil_path)
-          expect(flash.alert).to include('contactez le support')
-        end
+        it_behaves_like 'rejects the email change'
       end
 
       context 'when the requested email tries a boundary attack' do
         let(:requested_email) { 'agent@interieur.gouv.fr.evil.com' }
 
-        it 'rejects the email change' do
-          expect(user.unconfirmed_email).to be_nil
-          expect(response).to redirect_to(profil_path)
-          expect(flash.alert).to include('contactez le support')
-        end
+        it_behaves_like 'rejects the email change'
       end
     end
 
@@ -174,11 +170,7 @@ describe Users::ProfilController, type: :controller do
       context 'when the requested email has a different domain' do
         let(:requested_email) { 'admin@finances.gouv.fr' }
 
-        it 'rejects the email change' do
-          expect(user.unconfirmed_email).to be_nil
-          expect(response).to redirect_to(profil_path)
-          expect(flash.alert).to include('contactez le support')
-        end
+        it_behaves_like 'rejects the email change'
       end
     end
   end
