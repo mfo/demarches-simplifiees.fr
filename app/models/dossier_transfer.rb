@@ -6,7 +6,7 @@ class DossierTransfer < ApplicationRecord
   EXPIRATION_LIMIT = 2.weeks
 
   validates :email, strict_email: true, presence: true
-  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
+  normalizes :email, with: -> (value) { EmailSanitizableConcern::EmailSanitizer.sanitize(value) }
 
   scope :pending, -> { where('created_at > ?', (Time.zone.now - EXPIRATION_LIMIT)) }
   scope :stale, -> { where(created_at: ...(Time.zone.now - EXPIRATION_LIMIT)) }

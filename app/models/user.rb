@@ -38,7 +38,7 @@ class User < ApplicationRecord
 
   default_scope { eager_load(:instructeur, :administrateur, :expert) }
 
-  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
+  normalizes :email, with: -> (value) { EmailSanitizableConcern::EmailSanitizer.sanitize(value) }
 
   validate :does_not_merge_on_self, if: :requested_merge_into_id_changed?
 

@@ -5,7 +5,7 @@ class Invite < ApplicationRecord
   belongs_to :user, optional: true
   has_one :targeted_user_link, as: :target_model, dependent: :destroy, inverse_of: :target_model
 
-  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
+  normalizes :email, with: -> (value) { EmailSanitizableConcern::EmailSanitizer.sanitize(value) }
 
   after_create_commit :send_notification
 

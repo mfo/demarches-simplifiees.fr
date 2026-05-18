@@ -9,7 +9,7 @@ class ContactForm < ApplicationRecord
   before_save :add_default_tags
 
   normalizes :subject, :text, with: -> (value) { value.strip }
-  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
+  normalizes :email, with: -> (value) { EmailSanitizableConcern::EmailSanitizer.sanitize(value) }
 
   PG_BIGINT_MAX = (2**63) - 1
   PG_BIGINT_MIN = -(2**63)

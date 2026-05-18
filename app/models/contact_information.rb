@@ -10,7 +10,7 @@ class ContactInformation < ApplicationRecord
   validates :horaires, presence: { message: 'doivent être renseignés' }, allow_nil: false
   validates :adresse, presence: { message: 'doit être renseignée' }, allow_nil: false
   validates :groupe_instructeur, presence: { message: 'doit être renseigné' }, allow_nil: false
-  normalizes :email, with: -> (value) { value.present? ? EmailSanitizableConcern::EmailSanitizer.sanitize(value) : value }
+  normalizes :email, with: -> (value) { EmailSanitizableConcern::EmailSanitizer.sanitize(value) }
 
   def pretty_nom
     nom
