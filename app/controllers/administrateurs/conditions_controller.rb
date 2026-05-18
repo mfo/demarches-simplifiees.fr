@@ -10,6 +10,7 @@ module Administrateurs
       condition = condition_form.to_condition
       @tdc.update!(condition: condition)
 
+      @procedure.reload
       @condition_component = build_condition_component
     end
 
@@ -17,6 +18,7 @@ module Administrateurs
       condition = Logic.add_empty_condition_to(@tdc.condition)
       @tdc.update!(condition: condition)
 
+      @procedure.reload
       @condition_component = build_condition_component
     end
 
@@ -24,12 +26,14 @@ module Administrateurs
       condition = condition_form.delete_row(row_index).to_condition
       @tdc.update!(condition: condition)
 
+      @procedure.reload
       @condition_component = build_condition_component
     end
 
     def destroy
       @tdc.update!(condition: nil)
 
+      @procedure.reload
       @condition_component = build_condition_component
     end
 
@@ -37,6 +41,7 @@ module Administrateurs
       condition = condition_form.change_champ(row_index).to_condition
       @tdc.update!(condition: condition)
 
+      @procedure.reload
       @condition_component = build_condition_component
     end
 

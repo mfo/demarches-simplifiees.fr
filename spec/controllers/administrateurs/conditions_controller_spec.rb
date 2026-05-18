@@ -42,6 +42,16 @@ describe Administrateurs::ConditionsController, type: :controller do
         expect(assigns(:coordinate)).to eq(procedure.draft_revision.coordinate_for(third_tdc))
         expect(assigns(:upper_tdcs)).to eq([first_tdc, second_tdc])
       end
+
+      context 'when procedure is published' do
+        render_views
+
+        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :integer_number }] * 3) }
+
+        it 'renders the unpublished changes banner' do
+          expect(response.body).to include('sticky-header-warning')
+        end
+      end
     end
 
     describe '#add_row' do
