@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class AutosaveNoticeComponent < ApplicationComponent
+class AutosaveNoticeTurboStreamComponent < ApplicationComponent
   attr_reader :label_scope
 
-  def initialize(success:, label_scope:)
+  def initialize(success: true, label_scope: :form)
     @success = success
     @label_scope = label_scope
   end
