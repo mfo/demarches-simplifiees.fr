@@ -196,6 +196,27 @@ describe GroupeInstructeur, type: :model do
         expect { second_group.destroy! }.not_to raise_error
       end
     end
+
+    context 'when an instructeur of the group has set the admin default procedure presentation' do
+      let(:second_group) { create(:groupe_instructeur, procedure:) }
+      let(:second_instructeur) { create(:instructeur) }
+      let(:assign_to_in_second_group) { create(:assign_to, instructeur: second_instructeur, procedure:, groupe_instructeur: second_group) }
+      let!(:procedure_presentation) { create(:procedure_presentation, assign_to: assign_to_in_second_group) }
+
+      before do
+        procedure.update!(
+          admin_default_procedure_presentation_active: true,
+          admin_default_procedure_presentation_id: procedure_presentation.id
+        )
+      end
+
+      it 'destroys without foreign key error and clears the admin default on procedure' do
+        expect { second_group.destroy! }.not_to raise_error
+        procedure.reload
+        expect(procedure.admin_default_procedure_presentation_id).to be_nil
+        expect(procedure.admin_default_procedure_presentation_active).to be(false)
+      end
+    end
   end
 
   describe 'routing rule validity' do
