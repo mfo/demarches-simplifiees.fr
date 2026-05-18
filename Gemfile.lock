@@ -152,7 +152,7 @@ GEM
     bigdecimal (4.1.1)
     bindata (2.5.1)
     bindex (0.8.1)
-    bootsnap (1.18.6)
+    bootsnap (1.24.4)
       msgpack (~> 1.2)
     brakeman (7.1.0)
       racc
