@@ -872,8 +872,8 @@ GEM
     snaky_hash (2.0.3)
       hashie (>= 0.1.0, < 6)
       version_gem (>= 1.1.8, < 3)
-    spreadsheet_architect (5.1.0)
-      caxlsx (<= 4.0)
+    spreadsheet_architect (5.1.1)
+      caxlsx (>= 4.0)
       csv
       rodf
     spring (4.4.0)
