@@ -910,7 +910,7 @@ GEM
     timeout (0.6.1)
     tsort (0.2.0)
     ttfunk (1.7.0)
-    turbo-rails (2.0.16)
+    turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
     typhoeus (1.4.1)
