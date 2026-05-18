@@ -49,6 +49,7 @@ module TransientModelsWithPurgeableJobConcern
   end
 
   def compute_with_safe_stale_for_purge(&block)
+    return if generated? # idempotent on retry after success
     restart! if failed? # restart for AASM
     yield
     make_available!
