@@ -1,5 +1,6 @@
 ---
 fr:
+  repetition_heading: "%{libelle} %{row_number} :"
   blank: 'non saisi'
   blank_attachment: 'pièce justificative non saisie'
   blank_optional: 'non saisi (facultatif)'
