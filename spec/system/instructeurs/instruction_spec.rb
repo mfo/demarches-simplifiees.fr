@@ -36,16 +36,25 @@ describe 'Instructing a dossier:', js: true do
     end
   end
 
-  scenario 'A instructeur can accept a dossier' do
-    log_in(instructeur.email, password)
+  scenario 'A instructeur can accept a dossier and add annotations' do
+    login_as(instructeur.user, scope: :user)
 
-    expect(page).to have_current_path(instructeur_procedures_path)
+    visit instructeur_procedures_path
 
     click_on(procedure.libelle, visible: true)
     expect(page).to have_current_path(instructeur_procedure_path(procedure))
 
     click_on dossier.user.email
     expect(page).to have_current_path(instructeur_dossier_path(procedure, dossier, statut: 'a-suivre'))
+
+    # Verify annotations (inlined from "An instructeur can add annotations")
+    click_on 'Annotations privées'
+    expect(page).not_to have_field 'Nom', visible: true
+    check 'Yes/No', allow_label_click: true
+    expect(page).to have_field 'Nom'
+    fill_in 'Nom', with: 'John Doe'
+    expect(page).to have_text 'Annotations enregistrées'
+
     page.find('.back-btn').click
 
     click_on 'Suivre'
@@ -96,21 +105,9 @@ describe 'Instructing a dossier:', js: true do
     expect(page).not_to have_button('Repasser en instruction')
   end
 
-  scenario 'An instructeur can add annotations' do
-    log_in(instructeur.email, password)
-
-    visit instructeur_dossier_path(procedure, dossier)
-    click_on 'Annotations privées'
-
-    expect(page).not_to have_field 'Nom', visible: true
-    check 'Yes/No', allow_label_click: true
-    expect(page).to have_field 'Nom'
-    fill_in 'Nom', with: 'John Doe'
-    expect(page).to have_text 'Annotations enregistrées'
-  end
-
-  scenario 'A instructeur can follow/unfollow a dossier' do
-    log_in(instructeur.email, password)
+  scenario 'A instructeur can follow/unfollow a dossier and request an export' do
+    login_as(instructeur.user, scope: :user)
+    visit instructeur_procedures_path
 
     click_on(procedure.libelle, visible: true)
     test_statut_bar(a_suivre: 1, tous_les_dossiers: 1)
@@ -129,13 +126,9 @@ describe 'Instructing a dossier:', js: true do
     expect(page).to have_current_path(instructeur_procedure_path(procedure, statut: 'suivis'))
     test_statut_bar(a_suivre: 1, tous_les_dossiers: 1)
     expect(page).to have_text('Aucun dossier')
-  end
 
-  scenario 'A instructeur can request an export' do
-    log_in(instructeur.email, password)
-
-    click_on(procedure.libelle, visible: true)
-    test_statut_bar(a_suivre: 1, tous_les_dossiers: 1)
+    # Export (navigate back to default view)
+    click_on 'à suivre'
 
     click_on "Télécharger un dossier"
     within(:css, '#tabpanel-standard1-panel') do
@@ -158,10 +151,17 @@ describe 'Instructing a dossier:', js: true do
     expect(page).to have_text('Télécharger l’export')
   end
 
-  scenario 'A instructeur can see the personnes impliquées and statut is maintened over avis/personnes impliquee paths' do
-    instructeur2 = create(:instructeur, password: password)
+  scenario 'A instructeur can see personnes impliquees, request avis, and send dossier to instructeurs' do
+    instructeur_2 = create(:instructeur)
+    instructeur_3 = create(:instructeur)
+    procedure.defaut_groupe_instructeur.instructeurs << [instructeur_2, instructeur_3]
 
-    log_in(instructeur.email, password)
+    send_dossier = double()
+    expect(InstructeurMailer).to receive(:send_dossier).and_return(send_dossier).twice
+    expect(send_dossier).to receive(:deliver_later).twice
+
+    login_as(instructeur.user, scope: :user)
+    visit instructeur_procedures_path
 
     click_on(procedure.libelle, visible: true)
     click_on 'Suivre'
@@ -176,30 +176,14 @@ describe 'Instructing a dossier:', js: true do
     expert_email = 'expert@tps.com'
     ask_confidential_avis(expert_email, 'a good introduction')
 
-    ask_confidential_avis(instructeur2.email, 'a good introduction')
+    ask_confidential_avis(instructeur_2.email, 'a good introduction')
 
     click_on 'Personnes impliquées'
     expect(page).to have_current_path(personnes_impliquees_instructeur_dossier_path(procedure, dossier, statut: 'suivis'))
     expect(page).to have_text(expert_email)
-    expect(page).to have_text(instructeur2.email)
-  end
+    expect(page).to have_text(instructeur_2.email)
 
-  scenario 'A instructeur can send a dossier to several instructeurs' do
-    instructeur_2 = create(:instructeur)
-    instructeur_3 = create(:instructeur)
-    procedure.defaut_groupe_instructeur.instructeurs << [instructeur_2, instructeur_3]
-
-    send_dossier = double()
-    expect(InstructeurMailer).to receive(:send_dossier).and_return(send_dossier).twice
-    expect(send_dossier).to receive(:deliver_later).twice
-
-    log_in(instructeur.email, password)
-
-    click_on(procedure.libelle, visible: true)
-    click_on dossier.user.email
-
-    click_on 'Personnes impliquées'
-
+    # Send dossier to instructeurs (inlined)
     select_autocomplete('Emails', instructeur_2.email)
     select_autocomplete('Emails', instructeur_3.email)
 
@@ -212,7 +196,7 @@ describe 'Instructing a dossier:', js: true do
     archivable_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs: [instructeur])
     create(:dossier, :accepte, procedure: archivable_procedure)
 
-    log_in(instructeur.email, password)
+    login_as(instructeur.user, scope: :user)
     visit list_instructeur_archives_path(archivable_procedure)
 
     expect {
@@ -237,7 +221,7 @@ describe 'Instructing a dossier:', js: true do
                 content_type: "application/pdf",
                 metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE })
 
-      log_in(instructeur.email, password)
+      login_as(instructeur.user, scope: :user)
       visit instructeur_dossier_path(procedure, dossier)
     end
 
@@ -291,7 +275,7 @@ describe 'Instructing a dossier:', js: true do
     let(:procedure) { create(:procedure, :with_labels, :published, instructeurs: [instructeur]) }
 
     scenario 'An instructeur can add and remove labels to a dossier' do
-      log_in(instructeur.email, password)
+      login_as(instructeur.user, scope: :user)
 
       visit instructeur_dossier_path(procedure, dossier)
       click_on 'Ajouter un label'
@@ -342,7 +326,7 @@ describe 'Instructing a dossier:', js: true do
     end
 
     scenario 'can see original dossier' do
-      log_in(instructeur.email, password)
+      login_as(instructeur.user, scope: :user)
 
       visit instructeur_dossier_path(procedure, dossier)
 
