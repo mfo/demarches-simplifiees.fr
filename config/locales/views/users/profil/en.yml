@@ -18,16 +18,12 @@ en:
         transfer_my_files: Transfer all my files
         pending_change: 'Pending change:'
         finalize_email_change: To finalise your change of email address, check your emails and click on the confirmation link.
-        email_explications_html: >
-          <b class="bold">%{application_name}</b> must ensure that your account is used for professional purposes.
+        email_same_domain_explication_html: >
+          For traceability reasons, you can only change your email to another one
+          on the <code>@%{current_domain}</code> domain.
           <br>
           <br>
-          We can only automatically allow email changes to the following domains:
-          <br>
-          %{legit_admin_domains}
-          <br>
-          <br>
-          If this is not the case for you, contact support:
+          To change organization, submit a new account opening request or contact support:
           <a href="mailto:%{contact_email}">%{contact_email}</a>
         identities:
           one: FranceConnect Identity

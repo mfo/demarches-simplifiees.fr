@@ -35,12 +35,11 @@
         %br
         = t('.finalize_email_change')
 
-    - if current_user.instructeur?
+    - if current_user.instructeur? || current_user.administrateur?
       %p.fr-mb-8v
-        = t('.email_explications_html',
-          contact_email: Current.contact_email,
-          application_name: Current.application_name,
-          legit_admin_domains: LEGIT_ADMIN_DOMAINS.join(', '))
+        = t('.email_same_domain_explication_html',
+            current_domain: current_user.email.split('@').last,
+            contact_email: Current.contact_email)
 
     = form_for current_user, url: update_email_path, method: :patch do |f|
       = render Dsfr::InputComponent.new(form: f, attribute: :email, input_type: :email_field, opts: { value: nil, placeholder: t('.new_email_address') })

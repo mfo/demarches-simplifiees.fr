@@ -18,24 +18,22 @@ fr:
         transfer_my_files: Transférer tous mes dossiers
         pending_change: 'Changement en attente :'
         finalize_email_change: Pour finaliser votre changement d’adresse, vérifiez vos emails et cliquez sur le lien de confirmation.
-        email_explications_html: >
-          <b class="bold">%{application_name}</b> doit s’assurer que votre compte est utilisé dans un cadre professionnel.
+        email_same_domain_explication_html: >
+          Pour des raisons de traçabilité, vous ne pouvez modifier votre adresse électronique
+          que vers une autre du domaine
+          <code>@%{current_domain}</code>.
           <br>
           <br>
-          Nous pouvons autoriser automatiquement les changements d’email vers les domaines suivants :
-          <br>
-          %{legit_admin_domains}
-          <br>
-          <br>
-          Si ce n’est pas votre cas, contactez le support :
+          Pour changer d’organisation, déposez un nouveau dossier d’ouverture de compte
+          ou contactez le support :
           <a href="mailto:%{contact_email}">%{contact_email}</a>
         identities:
           one: Identité FranceConnect
           other: Identités FranceConnect
         linked_identities:
-          one: 'Votre compte sur %{application_name} est actuellement lié à l’identité suivante :'
-          other: 'Votre compte sur %{application_name} est actuellement lié aux %{count} identité suivantes :'
-        unlink_confirmation: 'le compte FranceConnect « %{full_name} » ne pourra plus accéder à vos dossiers.'
+          one: 'Votre compte sur %{application_name} est actuellement lié à l’identité suivante :'
+          other: 'Votre compte sur %{application_name} est actuellement lié aux %{count} identité suivantes :'
+        unlink_confirmation: 'le compte FranceConnect « %{full_name} » ne pourra plus accéder à vos dossiers.'
         forbid_access: Interdire l’accès
       ensure_update_email_is_authorized:
         email_not_allowed: "L’email %{requested_email} ne peut être utilisé, contactez le support : <a href='mailto:%{contact_email}'>%{contact_email}</a>"
