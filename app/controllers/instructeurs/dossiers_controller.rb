@@ -342,11 +342,11 @@ module Instructeurs
             @dossier = dossier
             @connected_user = current_instructeur
             @form_url = commentaire_instructeur_dossier_path(procedure, dossier, statut: statut)
-            render template: 'shared/dossiers/create_commentaire', status: :unprocessable_entity
+            render template: 'shared/dossiers/create_commentaire', status: :unprocessable_content
           end
           format.html do
             flash.alert = @commentaire.errors.full_messages
-            render :messagerie, status: :unprocessable_entity
+            render :messagerie, status: :unprocessable_content
           end
         end
       end
