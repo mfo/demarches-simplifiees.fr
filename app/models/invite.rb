@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 class Invite < ApplicationRecord
-  include EmailSanitizableConcern
-
   belongs_to :dossier, optional: false
   belongs_to :user, optional: true
   has_one :targeted_user_link, as: :target_model, dependent: :destroy, inverse_of: :target_model
 
-  before_validation -> { sanitize_email(:email) }
+  normalizes :email, with: -> (value) { EmailSanitizableConcern::EmailSanitizer.sanitize(value) }
 
   after_create_commit :send_notification
 

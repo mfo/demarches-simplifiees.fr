@@ -61,4 +61,11 @@ describe ContactInformation, type: :model do
       end
     end
   end
+
+  describe 'email normalization' do
+    it 'sanitizes the email on assignment' do
+      contact = ContactInformation.new(email: '  Foo@Example.COM ')
+      expect(contact.email).to eq('foo@example.com')
+    end
+  end
 end

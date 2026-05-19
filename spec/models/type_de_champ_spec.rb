@@ -355,10 +355,10 @@ describe TypeDeChamp do
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_annuaire_education
   end
 
-  describe '#normalize_libelle' do
-    it do
-      expect(create(:type_de_champ, :header_section, libelle: " 2.3 Test").libelle).to eq("2.3 Test")
-      expect(create(:type_de_champ, libelle: " fix me ").libelle).to eq("fix me")
+  describe 'libelle normalization' do
+    it 'strips surrounding whitespace on assignment' do
+      expect(build(:type_de_champ, :header_section, libelle: " 2.3 Test").libelle).to eq("2.3 Test")
+      expect(build(:type_de_champ, libelle: " fix me ").libelle).to eq("fix me")
     end
   end
 

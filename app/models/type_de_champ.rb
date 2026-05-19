@@ -226,10 +226,11 @@ class TypeDeChamp < ApplicationRecord
 
   before_validation :check_mandatory
   before_validation :set_default_libelle, if: -> { type_champ_changed? }
-  before_validation :normalize_libelle
   before_validation :set_drop_down_list_options, if: -> { type_champ_changed? }
   before_validation :reset_pj_format_options_if_forced_nature
   before_validation :reset_repetition_limits_if_disabled
+
+  normalizes :libelle, with: -> (value) { value.strip }
 
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
@@ -934,10 +935,6 @@ class TypeDeChamp < ApplicationRecord
     elsif linked_drop_down_list? && drop_down_options.none?(/^--.*--$/)
       self.drop_down_options = ['--Fromage--', 'bleu de sassenage', 'picodon', '--Dessert--', 'éclair', 'tarte aux pommes']
     end
-  end
-
-  def normalize_libelle
-    self.libelle&.strip!
   end
 
   def reset_repetition_limits_if_disabled
