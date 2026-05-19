@@ -6,9 +6,9 @@ en:
     data_not_fetched: User not connected with FranceConnect or date not retrieved
     preview_simulation:
       quotient_familial: "Data simulation for 2 parents and 2 children:"
-      etudiant_boursier: todo
-      aah: todo
-      aeeh: todo
+      etudiant_boursier: "Data simulation for a scholarship student:"
+      aah: "Data simulation for an AAH recipient:"
+      aeeh: "Data simulation for an AEEH recipient:"
   external_champ:
     confirmation:
       question: Is this information correct?

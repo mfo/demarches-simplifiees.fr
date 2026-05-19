@@ -6,9 +6,9 @@ fr:
     data_not_fetched: Usager non connecté via FranceConnect ou données non récupérées
     preview_simulation:
       quotient_familial: "Simulation de données pour 2 parents et 2 enfants à charge :"
-      etudiant_boursier: todo
-      aah: todo
-      aeeh: todo
+      etudiant_boursier: "Simulation de données pour un étudiant boursier :"
+      aah: "Simulation de données pour un bénéficaire de l'AAH :"
+      aeeh: "Simulation de données pour un bénéficaire de l'AEEH :"
   external_champ:
     confirmation:
       question: Ces informations sont-elles correctes ?

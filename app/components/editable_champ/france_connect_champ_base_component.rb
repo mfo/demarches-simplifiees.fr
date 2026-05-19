@@ -71,9 +71,7 @@ class EditableChamp::FranceConnectChampBaseComponent < EditableChamp::EditableCh
   end
 
   def api_part_preview_data_file_name
-    if @champ.quotient_familial?
-      "france_connect_champ_base_component/api_part_preview_data/preview_quotient_familial_data.json"
-    end
+    "france_connect_champ_base_component/api_part_preview_data/preview_#{@champ.type_champ}_data.json"
   end
 
   def justificatif_label
