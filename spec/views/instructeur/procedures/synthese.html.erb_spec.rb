@@ -22,12 +22,12 @@ describe 'instructeurs/procedures/synthese', type: :view do
   end
 
   it do
-    is_expected.to match(/2.+à suivre/m)
+    is_expected.to match(/à suivre.+2/m)
     is_expected.not_to have_text('suivis par moi')
-    is_expected.to match(/1.+traité/m)
-    is_expected.to match(/3.+au total/m)
-    is_expected.to match(/1.+expirant/m)
-    is_expected.to match(/4.+à archiver/m)
-    is_expected.to match(/2.+corbeille/m)
+    is_expected.to match(/traité.+1/m)
+    is_expected.to match(/au total.+3/m)
+    is_expected.to match(/expirant.+1/m)
+    is_expected.to match(/à archiver.+4/m)
+    is_expected.to match(/corbeille.+2/m)
   end
 end
