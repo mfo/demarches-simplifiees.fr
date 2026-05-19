@@ -7,5 +7,5 @@ fr:
       Ces informations seront publiées sur data.gouv.fr et seront mises à jour régulièrement."
       opendata: "Autorisez-vous la publication du descriptif de la démarche ?"
     duree_conservation_dossiers_dans_ds:
-      notice: Durée en mois après le début de l’instruction.
+      notice: Durée en mois après la date de traitement d’un dossier
       new_duration_constraint: Pour les démarches classiques, cette durée ne peut exceder %{new_duration_in_month} mois. Si vous avez besoin d’une durée supérieure à %{new_duration_in_month} mois, merci d’en faire la demande à notre support.
