@@ -8,7 +8,7 @@
       </div>
     <% end %>
   <% else %>
-    <%= render Dossiers::RowShowComponent.new(label: champ.libelle, seen_at:, profile:, content_class: champ.type_champ, updated_at: updated_at_after_deposer(champ)) do |c| %>
+    <%= render Dossiers::RowShowComponent.new(label: champ.libelle, seen_at:, profile:, content_class: champ.type_champ, updated_at: updated_at_after_deposer(champ), updated_by: champ.updated_by, source_stream: champ.source_stream) do |c| %>
       <% if champ.blank? %>
         <% c.with_blank do %>
           <%= t(blank_key(champ)) %>

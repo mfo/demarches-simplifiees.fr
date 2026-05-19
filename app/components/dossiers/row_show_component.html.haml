@@ -2,7 +2,7 @@
   %p.champ-label
     - if label.present?
       = "#{label} :"
-    = render Dossiers::ChampUpdatedComponent.new(updated_at:, seen_at:)
+    = render Dossiers::ChampUpdatedComponent.new(updated_at:, updated_by:, source_stream:, seen_at:)
 
   - if blank?
     .champ-content.fr-text-mention--grey{ class: content_class }

@@ -1,2 +1,5 @@
 fr:
-  updated_at: "Modifié le %{datetime}"
+  updated_at: "Modifié le %{datetime} (%{source})"
+  usager: "usager"
+  instructeur: "instructeur"
+  updated_by: "Modifié par"
