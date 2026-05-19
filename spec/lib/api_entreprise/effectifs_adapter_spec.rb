@@ -21,11 +21,12 @@ describe APIEntreprise::EffectifsAdapter do
     let(:status) { 200 }
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
     it "renvoie les effectifs du mois demandé" do
-      expect(subject[:entreprise_effectif_mensuel]).to eq(12.34)
+      expect(subject.value![:entreprise_effectif_mensuel]).to eq(12.34)
     end
   end
 end

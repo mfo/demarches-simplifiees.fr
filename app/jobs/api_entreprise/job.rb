@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class APIEntreprise::Job < ApplicationJob
+  include Dry::Monads[:result]
+
   queue_as :default
 
   use_sidekiq_retry
@@ -23,5 +25,39 @@ class APIEntreprise::Job < ApplicationJob
 
   def find_etablissement(etablissement_id)
     @etablissement = Etablissement.find(etablissement_id)
+  end
+
+  # Centralizes monad unwrap for adapter results.
+  # Success(params) with data → yields params to block
+  # Success({}) → no-op (resource not found, nothing to update)
+  # Failure(retryable: true) → re-raises to trigger job retry
+  # Failure(retryable: false) → logs and no-op (forbidden, 451, etc.)
+  def with_adapter(adapter)
+    result = adapter.to_params
+
+    case result
+    in Success(params) if params.present?
+      yield params
+    in Success
+      nil
+    in Failure(retryable: true, type:, code:, raw_response:, **)
+      raise StandardError, format_error(type, code, raw_response)
+    in Failure(retryable: false, type:, code:, **)
+      Rails.logger.info("APIEntreprise non-retryable failure: type=#{type} code=#{code}")
+      nil
+    else
+      raise "Unexpected adapter result: #{result.inspect}"
+    end
+  end
+
+  private
+
+  def format_error(type, code, raw_response)
+    message = "API Entreprise error: type=#{type} code=#{code}"
+    if raw_response.present?
+      uri = URI.parse(raw_response.effective_url) rescue nil
+      message += " url=#{uri&.host}#{uri&.path} body=#{raw_response.body.truncate(500)}"
+    end
+    message
   end
 end

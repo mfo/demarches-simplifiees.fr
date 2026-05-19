@@ -21,50 +21,51 @@ describe APIEntreprise::ServiceAdapter do
     end
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_a_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
     context 'Attributs Etablissements' do
       it 'should contains a SIRET' do
-        expect(subject[:siret]).to eq(siret)
+        expect(subject.value![:siret]).to eq(siret)
       end
 
       it 'should not return siege_social information' do
-        expect(subject[:siege_social]).to be_nil
+        expect(subject.value![:siege_social]).to be_nil
       end
 
       context 'Concaténation lignes adresse' do
         it 'service contains a multi lines adress' do
-          expect(subject[:adresse]).to eq("DIRECTION INTERMINISTERIELLE DU NUMERIQUE\r\nJEAN MARIE DURAND\r\nZAE SAINT GUENAULT\r\n51 BIS RUE DE LA PAIX\r\nCS 72809\r\n75256 PARIX CEDEX 12\r\nFRANCE")
+          expect(subject.value![:adresse]).to eq("DIRECTION INTERMINISTERIELLE DU NUMERIQUE\r\nJEAN MARIE DURAND\r\nZAE SAINT GUENAULT\r\n51 BIS RUE DE LA PAIX\r\nCS 72809\r\n75256 PARIX CEDEX 12\r\nFRANCE")
         end
       end
 
       context 'adress details' do
         it 'service contains a numero_voie' do
-          expect(subject[:numero_voie]).to eq('22')
+          expect(subject.value![:numero_voie]).to eq('22')
         end
 
         it 'service contains a type_voie' do
-          expect(subject[:type_voie]).to eq('RUE')
+          expect(subject.value![:type_voie]).to eq('RUE')
         end
 
         it 'service contains a nom_voie' do
-          expect(subject[:nom_voie]).to eq('DE LA PAIX')
+          expect(subject.value![:nom_voie]).to eq('DE LA PAIX')
         end
         it 'service contains a complement_adresse' do
-          expect(subject[:complement_adresse]).to eq('ZAE SAINT GUENAULT')
+          expect(subject.value![:complement_adresse]).to eq('ZAE SAINT GUENAULT')
         end
 
         it 'service contains a code_postal' do
-          expect(subject[:code_postal]).to eq('75016')
+          expect(subject.value![:code_postal]).to eq('75016')
         end
 
         it 'service contains a localite' do
-          expect(subject[:localite]).to eq('PARIS 12')
+          expect(subject.value![:localite]).to eq('PARIS 12')
         end
 
         it 'service contains a code_insee_localite' do
-          expect(subject[:code_insee_localite]).to eq('75112')
+          expect(subject.value![:code_insee_localite]).to eq('75112')
         end
       end
     end
@@ -73,7 +74,7 @@ describe APIEntreprise::ServiceAdapter do
       let(:siret) { '17310120500719' }
       let(:fixture) { 'spec/fixtures/files/api_entreprise/etablissements-non-siege.json' }
       it 'service contains a siret' do
-        expect(subject[:siret]).to eq(siret)
+        expect(subject.value![:siret]).to eq(siret)
       end
     end
   end
@@ -88,6 +89,9 @@ describe APIEntreprise::ServiceAdapter do
         .to_return(body: 'Fake body', status: 404)
     end
 
-    it { expect(subject).to eq({}) }
+    it 'returns a Success with empty hash' do
+      expect(subject).to be_success
+      expect(subject.value!).to eq({})
+    end
   end
 end

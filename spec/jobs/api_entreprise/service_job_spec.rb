@@ -45,15 +45,11 @@ RSpec.describe APIEntreprise::ServiceJob, type: :job do
   end
 
   context "errors responses" do
-    it "clear attributes when no address match" do
+    it "does not modify service when API returns 404" do
       stub_request(:get, %r{https://entreprise.api.gouv.fr/v3\/insee\/sirene\/etablissements\/#{siret}})
         .to_return(body: "{}", status: 404)
-      subject
-      service.reload
 
-      expect(service.etablissement_infos).to be_empty
-      expect(service.etablissement_lat).to be_nil
-      expect(service.etablissement_lng).to be_nil
+      expect { subject }.not_to change { service.reload.attributes }
     end
 
     it "supports empty geocode result" do

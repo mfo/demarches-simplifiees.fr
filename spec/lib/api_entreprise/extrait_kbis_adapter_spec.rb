@@ -17,15 +17,16 @@ describe APIEntreprise::ExtraitKbisAdapter do
     let(:status) { 200 }
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
     it 'L’entreprise contient bien un capital_social' do
-      expect(subject[:entreprise_capital_social]).to eq(50123.6)
+      expect(subject.value![:entreprise_capital_social]).to eq(50123.6)
     end
 
     it 'L’entreprise contient bien un nom_commercial' do
-      expect(subject[:entreprise_nom_commercial]).to eq('DECATHLON')
+      expect(subject.value![:entreprise_nom_commercial]).to eq('DECATHLON')
     end
   end
 end

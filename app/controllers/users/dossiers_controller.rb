@@ -6,6 +6,7 @@ module Users
     include TurboChampsConcern
     include LockableConcern
     include ProConnectSessionConcern
+    include Dry::Monads[:result]
 
     layout 'procedure_context', only: [:identite, :update_identite, :siret, :update_siret]
 
@@ -233,28 +234,17 @@ module Users
         return render_siret_error(siret_model.errors.full_messages)
       end
 
-      etablissement = begin
-                        APIEntrepriseService.create_etablissement(@dossier, sanitized_siret, current_user.id)
-                      rescue APIEntreprise::API::Error, APIEntrepriseToken::TokenError => error
-                        if APIEntrepriseService.service_unavailable_error?(error, target: :insee)
-                          # TODO: notify ops
-                          APIEntrepriseService.create_etablissement_as_degraded_mode(@dossier, sanitized_siret, current_user.id)
-                        else
-                          Sentry.capture_exception(error, extra: { dossier_id: @dossier.id, siret: })
-
-                          # probably random error, invite user to retry
-                          return render_siret_error(t('errors.messages.siret.network_error'))
-                        end
-                      end
-
-      if etablissement.nil?
-        return render_siret_error(t('errors.messages.siret.not_found'))
+      case APIEntrepriseService.create_etablissement_with_fallback(@dossier, sanitized_siret, current_user.id)
+      in Success
+        current_user.update!(siret: sanitized_siret)
+        @dossier.update!(autorisation_donnees: true, last_champ_updated_at: Time.zone.now)
+        redirect_to etablissement_dossier_path
+      in Failure(type: (:not_found | :unavailable_for_legal_reasons) => type, **)
+        render_siret_error(t("errors.messages.siret.#{type}"))
+      in Failure => failure
+        APIEntrepriseService.report_error(failure.failure, dossier_id: @dossier.id, siret: sanitized_siret)
+        render_siret_error(t('errors.messages.siret.network_error'))
       end
-
-      current_user.update!(siret: sanitized_siret)
-      @dossier.update!(autorisation_donnees: true, last_champ_updated_at: Time.zone.now)
-
-      redirect_to etablissement_dossier_path
     end
 
     def etablissement

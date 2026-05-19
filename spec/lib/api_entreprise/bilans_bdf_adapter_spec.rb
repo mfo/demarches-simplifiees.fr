@@ -19,11 +19,12 @@ describe APIEntreprise::BilansBdfAdapter do
     let(:status) { 200 }
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
     it "returns bilans bdf" do
-      expect(subject[:entreprise_bilans_bdf][0][:data][:valeurs_calculees][0][:excedent_brut_exploitation][:valeur]).to eq "9001"
+      expect(subject.value![:entreprise_bilans_bdf][0][:data][:valeurs_calculees][0][:excedent_brut_exploitation][:valeur]).to eq "9001"
     end
   end
 end

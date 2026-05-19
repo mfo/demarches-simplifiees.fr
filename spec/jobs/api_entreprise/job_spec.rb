@@ -17,40 +17,93 @@ RSpec.describe APIEntreprise::Job, type: :job do
 
         etablissement = create(:etablissement, champ:)
 
-        expect { ErrorJob.perform_now(:service_unavailable, etablissement) }
-          .to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+        expect { ErrorJob.perform_now(etablissement) }
+          .to raise_error(StandardError, /API Entreprise error/)
 
         expect(champ.reload.value).not_to be_nil
       end
     end
   end
 
-  class ErrorJob < APIEntreprise::Job
-    def perform(error, etablissement)
-      @etablissement = etablissement
+  describe '#with_adapter' do
+    let(:job) { described_class.new }
+    let(:adapter) { instance_double(APIEntreprise::Adapter) }
 
-      response = Typhoeus::Response.new(
-        effective_url: 'http://host.com/path',
-        code: '666',
-        body: 'body',
-        return_message: 'return_message',
-        total_time: 10,
-        connect_time: 20,
-        headers: 'headers'
-      )
+    context 'when adapter returns Success with data' do
+      before { allow(adapter).to receive(:to_params).and_return(Dry::Monads::Success({ siret: '123' })) }
 
-      case error
-      when :service_unavailable
-        raise APIEntreprise::API::Error::ServiceUnavailable.new(response)
-      when :bad_gateway
-        raise APIEntreprise::API::Error::BadGateway.new(response)
-      when :timed_out
-        raise APIEntreprise::API::Error::TimedOut.new(response)
-      when :internal_server_error
-        raise APIEntreprise::API::Error::InternalServerError.new(response)
-      else
-        raise StandardError
+      it 'yields the params' do
+        result = nil
+        job.send(:with_adapter, adapter) { |params| result = params }
+        expect(result).to eq({ siret: '123' })
       end
+    end
+
+    context 'when adapter returns Failure with forbidden (privilege not available)' do
+      before { allow(adapter).to receive(:to_params).and_return(Dry::Monads::Failure(type: :forbidden, code: 403, retryable: false, raw_response: nil)) }
+
+      it 'does not yield and logs' do
+        yielded = false
+        job.send(:with_adapter, adapter) { |_| yielded = true }
+        expect(yielded).to be false
+      end
+    end
+
+    context 'when adapter returns Failure with retryable error' do
+      let(:response) do
+        Typhoeus::Response.new(
+          effective_url: 'http://host.com/path', code: '503', body: 'error',
+          return_message: 'timeout', total_time: 10, connect_time: 20, headers: ''
+        )
+      end
+
+      before do
+        allow(adapter).to receive(:to_params)
+          .and_return(Dry::Monads::Failure(type: :service_unavailable, code: 503, retryable: true, raw_response: response))
+      end
+
+      it 're-raises to trigger job retry' do
+        expect { job.send(:with_adapter, adapter) { |_| } }.to raise_error(StandardError, /API Entreprise error:/)
+      end
+    end
+
+    context 'when adapter returns Failure with retryable error but nil response' do
+      before do
+        allow(adapter).to receive(:to_params)
+          .and_return(Dry::Monads::Failure(type: :token, code: 401, retryable: true, raw_response: nil))
+      end
+
+      it 'raises a StandardError with diagnostic message' do
+        expect { job.send(:with_adapter, adapter) { |_| } }
+          .to raise_error(StandardError, /API Entreprise error: type=token code=401/)
+      end
+    end
+
+    context 'when adapter returns Failure with non-retryable error' do
+      before do
+        allow(adapter).to receive(:to_params)
+          .and_return(Dry::Monads::Failure(type: :unavailable_for_legal_reasons, code: 451, retryable: false, raw_response: nil))
+      end
+
+      it 'does not raise and returns nil' do
+        result = job.send(:with_adapter, adapter) { |_| 'should not reach' }
+        expect(result).to be_nil
+      end
+
+      it 'logs the non-retryable failure' do
+        expect(Rails.logger).to receive(:info).with(/non-retryable.*type=unavailable_for_legal_reasons.*code=451/)
+        job.send(:with_adapter, adapter) { |_| }
+      end
+    end
+  end
+
+  class ErrorJob < APIEntreprise::Job
+    include Dry::Monads[:result]
+
+    def perform(etablissement)
+      @etablissement = etablissement
+      adapter = Struct.new(:to_params).new(Failure(type: :service_unavailable, code: 503, retryable: true, raw_response: nil))
+      with_adapter(adapter) { |_| }
     end
   end
 end

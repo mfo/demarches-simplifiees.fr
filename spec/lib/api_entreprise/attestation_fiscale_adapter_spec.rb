@@ -20,11 +20,12 @@ describe APIEntreprise::AttestationFiscaleAdapter do
     let(:status) { 200 }
 
     it '#to_params class est une Hash ?' do
-      expect(subject).to be_an_instance_of(Hash)
+      expect(subject).to be_success
+      expect(subject.value!).to be_an_instance_of(Hash)
     end
 
     it "returns url of attestation_fiscale" do
-      expect(subject[:entreprise_attestation_fiscale_url]).to eq("https://storage.entreprise.api.gouv.fr/siade/1569139162-b99824d9c764aae19a862a0af-attestation_fiscale_dgfip.pdf")
+      expect(subject.value![:entreprise_attestation_fiscale_url]).to eq("https://storage.entreprise.api.gouv.fr/siade/1569139162-b99824d9c764aae19a862a0af-attestation_fiscale_dgfip.pdf")
     end
   end
 end

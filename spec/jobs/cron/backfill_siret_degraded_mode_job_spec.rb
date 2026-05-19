@@ -11,7 +11,7 @@ RSpec.describe Cron::BackfillSiretDegradedModeJob, type: :job do
         dossier
       end
       it 'works' do
-        allow_any_instance_of(APIEntreprise::EtablissementAdapter).to receive(:to_params).and_return({ adresse: new_adresse })
+        allow_any_instance_of(APIEntreprise::EtablissementAdapter).to receive(:to_params).and_return(Dry::Monads::Success({ adresse: new_adresse }))
         expect { Cron::BackfillSiretDegradedModeJob.perform_now }.to change { etablissement.reload.adresse }.from(nil).to(new_adresse)
       end
     end
@@ -27,7 +27,7 @@ RSpec.describe Cron::BackfillSiretDegradedModeJob, type: :job do
         champ_siret.update_column(:etablissement_id, etablissement.id)
       end
       it 'works' do
-        allow_any_instance_of(APIEntreprise::EtablissementAdapter).to receive(:to_params).and_return({ adresse: new_adresse })
+        allow_any_instance_of(APIEntreprise::EtablissementAdapter).to receive(:to_params).and_return(Dry::Monads::Success({ adresse: new_adresse }))
         expect { Cron::BackfillSiretDegradedModeJob.perform_now }.to change { etablissement.reload.adresse }.from(nil).to(new_adresse)
       end
     end

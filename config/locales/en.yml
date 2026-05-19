@@ -818,6 +818,7 @@ en:
       siret:
         network_error: 'Sorry, SIRET information retrieval is temporarily unavailable. Please try again shortly.'
         not_found: "We haven't found an establishment corresponding to this SIRET number."
+        unavailable_for_legal_reasons: 'Information for this establishment is not available (non-diffusable entity).'
       france_connect:
         connexion: "Error trying to connect to FranceConnect."
         forbidden_html: "Only citizen can use FranceConnect. As an instructor or administrator, please identify yourself with ProConnect or log in with your %{app_name} account."

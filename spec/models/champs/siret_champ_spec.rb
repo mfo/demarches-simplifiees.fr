@@ -100,9 +100,9 @@ describe Champs::SiretChamp do
 
       it_behaves_like 'an error occured'
 
-      it 'sends the error to Sentry' do
-        expect(Sentry).to receive(:capture_exception)
-        fetch_external_data
+      it 'returns a retryable failure' do
+        expect(fetch_external_data).to be_failure
+        expect(fetch_external_data.failure[:retryable]).to be true
       end
     end
 
@@ -118,7 +118,10 @@ describe Champs::SiretChamp do
 
       it { expect { fetch_external_data }.to change { Etablissement.count }.by(1) }
 
-      it { expect(fetch_external_data).to be_failure }
+      it 'returns a retryable failure to trigger job retry' do
+        expect(fetch_external_data).to be_failure
+        expect(fetch_external_data.failure[:retryable]).to be true
+      end
     end
 
     context 'when the SIRET is valid but unknown' do

@@ -19,8 +19,9 @@ describe APIEntreprise::API do
       let(:status) { 502 }
       let(:body) { fixture_file('entreprises_unavailable.json') }
 
-      it 'raises APIEntreprise::API::Error::BadGateway' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::BadGateway)
+      it 'returns a Failure with type :server_error' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :server_error, code: 502, retryable: true)
       end
     end
 
@@ -28,8 +29,9 @@ describe APIEntreprise::API do
       let(:status) { 502 }
       let(:body) { fixture_file('error_code_01000.json') }
 
-      it 'raises APIEntreprise::API::Error::ServiceUnavailable' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
       end
     end
 
@@ -37,8 +39,9 @@ describe APIEntreprise::API do
       let(:status) { 502 }
       let(:body) { fixture_file('error_code_01001.json') }
 
-      it 'raises APIEntreprise::API::Error::ServiceUnavailable' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
       end
     end
 
@@ -46,8 +49,9 @@ describe APIEntreprise::API do
       let(:status) { 504 }
       let(:body) { fixture_file('error_code_01002.json') }
 
-      it 'raises APIEntreprise::API::Error::ServiceUnavailable' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
       end
     end
 
@@ -55,8 +59,9 @@ describe APIEntreprise::API do
       let(:status) { 504 }
       let(:body) { fixture_file('error_code_02002.json') }
 
-      it 'raises APIEntreprise::API::Error::ServiceUnavailable' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
       end
     end
 
@@ -64,8 +69,9 @@ describe APIEntreprise::API do
       let(:status) { 504 }
       let(:body) { fixture_file('error_code_03002.json') }
 
-      it 'raises APIEntreprise::API::Error::ServiceUnavailable' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
       end
     end
 
@@ -73,8 +79,9 @@ describe APIEntreprise::API do
       let(:status) { 503 }
       let(:body) { fixture_file('error_code_03020.json') }
 
-      it 'raises APIEntreprise::API::Error::ServiceUnavailable' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ServiceUnavailable)
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
       end
     end
 
@@ -82,8 +89,9 @@ describe APIEntreprise::API do
       let(:status) { 404 }
       let(:body) { fixture_file('entreprises_not_found.json') }
 
-      it 'raises APIEntreprise::API::Error::ResourceNotFound' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ResourceNotFound)
+      it 'returns a Failure with type :not_found' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :not_found, code: 404, retryable: false)
       end
     end
 
@@ -91,8 +99,9 @@ describe APIEntreprise::API do
       let(:status) { 400 }
       let(:body) { fixture_file('entreprises_not_found.json') }
 
-      it 'raises APIEntreprise::API::Error::BadFormatRequest' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::BadFormatRequest)
+      it 'returns a Failure with type :server_error for undocumented code' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :server_error, code: 400, retryable: true)
       end
     end
 
@@ -100,8 +109,29 @@ describe APIEntreprise::API do
       let(:status) { 403 }
       let(:body) { fixture_file('entreprises_private.json') }
 
-      it 'raises APIEntreprise::API::Error::ResourceNotFound' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ResourceNotFound)
+      it 'returns a Failure with type :forbidden' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :forbidden, code: 403, retryable: false)
+      end
+    end
+
+    context 'when rate limited (429)' do
+      let(:status) { 429 }
+      let(:body) { '{"errors":[{"code":"00429","title":"Trop de requêtes"}]}' }
+
+      it 'returns a Failure with type :rate_limited' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :rate_limited, code: 429, retryable: true)
+      end
+    end
+
+    context 'when unavailable for legal reasons (451)' do
+      let(:status) { 451 }
+      let(:body) { '{"errors":[{"code":"00451","title":"Indisponible pour raisons légales"}]}' }
+
+      it 'returns a Failure with type :unavailable_for_legal_reasons' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :unavailable_for_legal_reasons, code: 451, retryable: false)
       end
     end
 
@@ -110,8 +140,9 @@ describe APIEntreprise::API do
       let(:status) { 200 }
       let(:body) { fixture_file('entreprises.json') }
 
-      it 'returns response body' do
-        expect(subject).to eq(JSON.parse(body, symbolize_names: true))
+      it 'returns Success with response body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
       end
 
       context 'with a service without siret' do
@@ -152,8 +183,29 @@ describe APIEntreprise::API do
       let(:status) { 500 }
       let(:body) { fixture_file('error_500.html') }
 
-      it 'raises APIEntreprise::API::Error::InternalServerError' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::InternalServerError)
+      it 'returns a Failure with type :server_error' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :server_error, code: 500, retryable: true)
+      end
+    end
+  end
+
+  describe '.entreprise network errors' do
+    subject { described_class.new(procedure_id).entreprise(siren) }
+
+    context 'when the request times out' do
+      before do
+        # Stub at Client level since WebMock.to_timeout doesn't simulate Typhoeus timeout properly
+        allow_any_instance_of(API::Client).to receive(:call).and_return(
+          Dry::Monads::Failure(API::Client::Error[:timeout, 0, true, API::Client::HTTPError.new(
+            Typhoeus::Response.new(effective_url: 'https://entreprise.api.gouv.fr/v3/path', code: 0, body: '', return_message: 'Timeout', total_time: 20, connect_time: 1, headers: '')
+          )])
+        )
+      end
+
+      it 'returns a Failure with type :timeout and retryable true' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :timeout, retryable: true)
       end
     end
   end
@@ -172,8 +224,9 @@ describe APIEntreprise::API do
       let(:status) { 404 }
       let(:body) { '' }
 
-      it 'raises APIEntreprise::API::Error::ResourceNotFound' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ResourceNotFound)
+      it 'returns a Failure with type :not_found' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :not_found, code: 404)
       end
     end
 
@@ -182,8 +235,9 @@ describe APIEntreprise::API do
       let(:status) { 200 }
       let(:body) { fixture_file('etablissements.json') }
 
-      it 'returns body' do
-        expect(subject).to eq(JSON.parse(body, symbolize_names: true))
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
       end
     end
   end
@@ -201,8 +255,9 @@ describe APIEntreprise::API do
       let(:status) { 404 }
       let(:body) { '' }
 
-      it 'raises APIEntreprise::API::Error::ResourceNotFound' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ResourceNotFound)
+      it 'returns a Failure with type :not_found' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :not_found, code: 404)
       end
     end
 
@@ -213,8 +268,9 @@ describe APIEntreprise::API do
       let(:status) { 200 }
       let(:body) { fixture_file('exercices.json') }
 
-      it 'success' do
-        expect(subject).to eq(JSON.parse(body, symbolize_names: true))
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
       end
     end
   end
@@ -232,8 +288,9 @@ describe APIEntreprise::API do
       let(:status) { 404 }
       let(:body) { '' }
 
-      it 'raises APIEntreprise::API::Error::ResourceNotFound' do
-        expect { subject }.to raise_error(APIEntreprise::API::Error::ResourceNotFound)
+      it 'returns a Failure with type :not_found' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :not_found, code: 404)
       end
     end
 
@@ -242,7 +299,10 @@ describe APIEntreprise::API do
       let(:status) { 200 }
       let(:body) { fixture_file('associations.json') }
 
-      it { expect(subject).to eq(JSON.parse(body, symbolize_names: true)) }
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
     end
   end
 
@@ -262,13 +322,19 @@ describe APIEntreprise::API do
     context 'when token not authorized' do
       let(:can_fetch) { false }
 
-      it { expect(subject).to eq(nil) }
+      it 'returns a Failure with type :forbidden' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :forbidden, code: 403, retryable: false)
+      end
     end
 
     context 'when token is authorized' do
       let(:can_fetch) { true }
 
-      it { expect(subject).to eq(JSON.parse(body, symbolize_names: true)) }
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
     end
   end
 
@@ -289,13 +355,19 @@ describe APIEntreprise::API do
     context 'when token not authorized' do
       let(:can_fetch) { false }
 
-      it { expect(subject).to eq(nil) }
+      it 'returns a Failure with type :forbidden' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :forbidden, code: 403, retryable: false)
+      end
     end
 
     context 'when token is authorized' do
       let(:can_fetch) { true }
 
-      it { expect(subject).to eq(JSON.parse(body, symbolize_names: true)) }
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
     end
   end
 
@@ -315,13 +387,19 @@ describe APIEntreprise::API do
     context 'when token not authorized' do
       let(:can_fetch) { false }
 
-      it { expect(subject).to eq(nil) }
+      it 'returns a Failure with type :forbidden' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :forbidden, code: 403, retryable: false)
+      end
     end
 
     context 'when token is authorized' do
       let(:can_fetch) { true }
 
-      it { expect(subject).to eq(JSON.parse(body, symbolize_names: true)) }
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
     end
   end
 
@@ -345,21 +423,30 @@ describe APIEntreprise::API do
       let(:blank) { true }
       let(:expired) { false }
 
-      it { expect { subject }.to raise_error(APIEntrepriseToken::TokenError) }
+      it 'returns a Failure with type :token_missing' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :token_missing, code: 401, retryable: false)
+      end
     end
 
     context 'with a expired token' do
       let(:blank) { false }
       let(:expired) { true }
 
-      it { expect { subject }.to raise_error(APIEntrepriseToken::TokenError) }
+      it 'returns a Failure with type :token_expired' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :token_expired, code: 401, retryable: false)
+      end
     end
 
     context 'with a valid token' do
       let(:blank) { false }
       let(:expired) { false }
 
-      it { expect(subject).to eq(JSON.parse(body, symbolize_names: true)) }
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
     end
   end
 
@@ -371,8 +458,9 @@ describe APIEntreprise::API do
       allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(true)
     end
 
-    it 'makes no call to api-entreprise' do
-      expect { subject }.to raise_error(APIEntrepriseToken::TokenError)
+    it 'returns a Failure with type :token_expired and makes no call to api-entreprise' do
+      expect(subject).to be_failure
+      expect(subject.failure).to include(type: :token_expired, code: 401, retryable: false)
       expect(WebMock).not_to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v2\/entreprises\/#{siren}/)
     end
   end

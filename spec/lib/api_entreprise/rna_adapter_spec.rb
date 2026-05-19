@@ -19,7 +19,10 @@ describe APIEntreprise::RNAAdapter do
       let(:body) { '' }
       let(:status) { 404 }
 
-      it { is_expected.to eq({}) }
+      it 'returns a Success with empty hash' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq({})
+      end
     end
 
     context "when responds with valid schema" do
@@ -27,13 +30,13 @@ describe APIEntreprise::RNAAdapter do
       let(:status) { 200 }
 
       it '#to_params return valid hash' do
-        expect(subject).to be_an_instance_of(Hash)
-        expect(subject["association_rna"]).to eq("W751080001")
-        expect(subject["association_titre"]).to eq("LA PRÉVENTION ROUTIERE")
-        expect(subject["association_objet"]).to eq("L’association a pour objet de promouvoir la pratique du sport de haut niveau et de contribuer à la formation des jeunes sportifs.")
-        expect(subject["association_date_declaration"]).to eq("2019-01-01")
-        expect(subject["association_date_publication"]).to eq("2018-01-01")
-        expect(subject["adresse"]).to eq({
+        expect(subject.value!).to be_an_instance_of(Hash)
+        expect(subject.value!["association_rna"]).to eq("W751080001")
+        expect(subject.value!["association_titre"]).to eq("LA PRÉVENTION ROUTIERE")
+        expect(subject.value!["association_objet"]).to eq("L’association a pour objet de promouvoir la pratique du sport de haut niveau et de contribuer à la formation des jeunes sportifs.")
+        expect(subject.value!["association_date_declaration"]).to eq("2019-01-01")
+        expect(subject.value!["association_date_publication"]).to eq("2018-01-01")
+        expect(subject.value!["adresse"]).to eq({
           complement: "",
           numero_voie: "33",
           type_voie: "rue",
@@ -61,13 +64,13 @@ describe APIEntreprise::RNAAdapter do
     end
 
     it '#to_params return valid hash' do
-      expect(subject).to be_an_instance_of(Hash)
-      expect(subject["association_rna"]).to eq("W751080001")
-      expect(subject["association_titre"]).to eq("LA PRÉVENTION ROUTIERE")
-      expect(subject["association_objet"]).to eq("L’association a pour objet de promouvoir la pratique du sport de haut niveau et de contribuer à la formation des jeunes sportifs.")
-      expect(subject["association_date_declaration"]).to eq("2019-01-01")
-      expect(subject["association_date_publication"]).to eq("2018-01-01")
-      expect(subject["adresse"]).to eq({
+      expect(subject.value!).to be_an_instance_of(Hash)
+      expect(subject.value!["association_rna"]).to eq("W751080001")
+      expect(subject.value!["association_titre"]).to eq("LA PRÉVENTION ROUTIERE")
+      expect(subject.value!["association_objet"]).to eq("L’association a pour objet de promouvoir la pratique du sport de haut niveau et de contribuer à la formation des jeunes sportifs.")
+      expect(subject.value!["association_date_declaration"]).to eq("2019-01-01")
+      expect(subject.value!["association_date_publication"]).to eq("2018-01-01")
+      expect(subject.value!["adresse"]).to eq({
         complement: "",
         numero_voie: "33",
         type_voie: "rue",
