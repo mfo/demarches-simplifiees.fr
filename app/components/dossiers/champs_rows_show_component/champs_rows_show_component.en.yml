@@ -1,5 +1,6 @@
 ---
 en:
+  repetition_heading: "%{libelle} %{row_number}:"
   blank: 'empty'
   blank_attachment: 'document not supplied'
   blank_optional: 'empty (optional)'
