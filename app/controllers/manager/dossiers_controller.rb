@@ -2,6 +2,10 @@
 
 module Manager
   class DossiersController < Manager::ApplicationController
+    include RequiresFreshSuperAdminOtp
+
+    before_action :verify_fresh_super_admin_otp!, only: [:transfer]
+
     #
     # Administrate overrides
     #

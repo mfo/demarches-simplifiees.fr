@@ -50,6 +50,12 @@
       </div>
     </div>
 
+    <% if SUPER_ADMIN_OTP_ENABLED %>
+      <div class="field-unit field-unit--string field-unit--required">
+        <%= render Manager::OtpAttemptInputComponent.new %>
+      </div>
+    <% end %>
+
     <div class="form-actions"><%= f.submit "Transférer le dossier" %></div>
   <% end %>
 </section>
