@@ -36,7 +36,7 @@ class Champs::MultipleDropDownListChamp < Champ
   end
 
   def checkbox_id(value)
-    "#{input_id}-#{Digest::MD5.hexdigest(value)}"
+    "#{input_id}-#{Digest::MD5.hexdigest(value.to_s)}"
   end
 
   def checkbox_label_id(value)
