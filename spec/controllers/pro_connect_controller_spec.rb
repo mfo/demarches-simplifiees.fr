@@ -223,9 +223,10 @@ describe ProConnectController, type: :controller do
           expect(ProConnectService).to receive(:user_info).and_raise(Rack::OAuth2::Client::Error.new(500, error: 'Unknown'))
         end
 
-        it 'aborts the process' do
+        it 'aborts the process with the ProConnect error message' do
           expect { subject }.to change { User.count }.by(0).and change { Instructeur.count }.by(0)
           expect(response).to redirect_to(new_user_session_path)
+          expect(flash.alert).to eq(I18n.t('errors.messages.pro_connect.connexion'))
           expect(Instructeur.count).to eq(initial_instructeur_count)
         end
       end
@@ -238,9 +239,10 @@ describe ProConnectController, type: :controller do
 
       before { subject }
 
-      it 'aborts the process' do
+      it 'aborts the process with the ProConnect error message' do
         expect { subject }.to change { User.count }.by(0).and change { Instructeur.count }.by(0)
         expect(response).to redirect_to(new_user_session_path)
+        expect(flash.alert).to eq(I18n.t('errors.messages.pro_connect.connexion'))
         expect(Instructeur.count).to eq(initial_instructeur_count)
       end
     end
