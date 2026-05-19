@@ -7,9 +7,7 @@ module Types::Champs
     field :value, GraphQL::Types::BigInt, null: true
 
     def value
-      if object.value.present?
-        object.value.to_i
-      end
+      object.value.presence&.to_i
     end
   end
 end

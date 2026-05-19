@@ -24,9 +24,7 @@ class Attachment::Validation
   end
 
   def accept_attribute
-    content_types = if champ.present?
-      champ.allowed_content_types
-    end
+    content_types = champ.presence&.allowed_content_types
 
     return content_types_with_extensions(content_types) if content_types.present?
     accept_from_attached_type_de_champ || (has_content_type_validator? ? accept_content_type : nil)
