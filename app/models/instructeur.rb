@@ -67,9 +67,9 @@ class Instructeur < ApplicationRecord
   scope :with_instant_email_dossier_deletion, -> (procedure) {
     where.not(
       id: InstructeursProcedure
-            .select(:instructeur_id)
-            .where(procedure:)
-            .where(instant_email_dossier_deletion: false)
+        .select(:instructeur_id)
+        .where(procedure:)
+        .where(instant_email_dossier_deletion: false)
     )
   }
 
