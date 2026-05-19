@@ -29,7 +29,7 @@ class InvitesController < ApplicationController
           flash.alert = @invite.errors.full_messages
         end
 
-        redirect_back(fallback_location: helpers.url_for_dossier(@dossier))
+        redirect_back_or_to(helpers.url_for_dossier(@dossier))
       end
 
       format.turbo_stream { render layout: 'application' }
@@ -65,7 +65,7 @@ class InvitesController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_back(fallback_location: @dossier.present? ? helpers.url_for_dossier(@dossier) : root_url) }
+      format.html { redirect_back_or_to(@dossier.present? ? helpers.url_for_dossier(@dossier) : root_url) }
       format.turbo_stream { render layout: 'application' }
     end
   end

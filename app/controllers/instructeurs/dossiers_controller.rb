@@ -32,13 +32,13 @@ module Instructeurs
     def extend_conservation
       dossier.extend_conservation(1.month)
       flash[:notice] = t('views.instructeurs.dossiers.archived_dossier')
-      redirect_back(fallback_location: instructeur_dossier_path(@dossier.procedure, @dossier))
+      redirect_back_or_to(instructeur_dossier_path(@dossier.procedure, @dossier))
     end
 
     def extend_conservation_and_restore
       dossier.extend_conservation_and_restore(1.month, current_instructeur)
       flash[:notice] = t('views.instructeurs.dossiers.archived_dossier')
-      redirect_back(fallback_location: instructeur_dossier_path(@dossier.procedure, @dossier))
+      redirect_back_or_to(instructeur_dossier_path(@dossier.procedure, @dossier))
     end
 
     def geo_data
@@ -166,7 +166,7 @@ module Instructeurs
 
       flash.notice = 'Dossier suivi'
 
-      redirect_back(fallback_location: instructeur_procedure_path(procedure))
+      redirect_back_or_to(instructeur_procedure_path(procedure))
     end
 
     def unfollow
@@ -174,7 +174,7 @@ module Instructeurs
 
       flash.notice = "Vous ne suivez plus le dossier n° #{dossier.id}"
 
-      redirect_back(fallback_location: instructeur_procedure_path(procedure))
+      redirect_back_or_to(instructeur_procedure_path(procedure))
     end
 
     def archive
@@ -183,12 +183,12 @@ module Instructeurs
       else
         dossier.archiver!(current_instructeur)
       end
-      redirect_back(fallback_location: instructeur_procedure_path(procedure))
+      redirect_back_or_to(instructeur_procedure_path(procedure))
     end
 
     def unarchive
       dossier.desarchiver!
-      redirect_back(fallback_location: instructeur_procedure_path(procedure))
+      redirect_back_or_to(instructeur_procedure_path(procedure))
     end
 
     def passer_en_instruction
@@ -207,7 +207,7 @@ module Instructeurs
         end
 
         format.html do
-          redirect_back(fallback_location: instructeur_procedure_path(procedure))
+          redirect_back_or_to(instructeur_procedure_path(procedure))
         end
       end
     end
@@ -227,7 +227,7 @@ module Instructeurs
         end
 
         format.html do
-          redirect_back(fallback_location: instructeur_procedure_path(procedure))
+          redirect_back_or_to(instructeur_procedure_path(procedure))
         end
       end
     end
@@ -247,7 +247,7 @@ module Instructeurs
         end
 
         format.html do
-          redirect_back(fallback_location: instructeur_procedure_path(procedure))
+          redirect_back_or_to(instructeur_procedure_path(procedure))
         end
       end
     end
@@ -311,7 +311,7 @@ module Instructeurs
         end
 
         format.html do
-          redirect_back(fallback_location: instructeur_procedure_path(procedure))
+          redirect_back_or_to(instructeur_procedure_path(procedure))
         end
       end
     end
@@ -429,7 +429,7 @@ module Instructeurs
       else
         flash.alert = t('instructeurs.dossiers.impossible_deletion')
       end
-      redirect_back(fallback_location: instructeur_procedure_path(procedure))
+      redirect_back_or_to(instructeur_procedure_path(procedure))
     end
 
     def restore
@@ -440,7 +440,7 @@ module Instructeurs
       if dossier.termine?
         redirect_to instructeur_procedure_path(procedure, statut: :traites)
       else
-        redirect_back(fallback_location: instructeur_procedure_path(procedure))
+        redirect_back_or_to(instructeur_procedure_path(procedure))
       end
     end
 
@@ -507,7 +507,7 @@ module Instructeurs
       if next_or_previous_dossier_id
         redirect_to instructeur_dossier_path(procedure_id: procedure.id, dossier_id: next_or_previous_dossier_id, statut: params[:statut])
       else
-        redirect_back fallback_location: instructeur_dossier_path(procedure_id: procedure.id, dossier_id: dossier.id, statut: params[:statut]), alert: "Une erreur est survenue"
+        redirect_back_or_to(instructeur_dossier_path(procedure_id: procedure.id, dossier_id: dossier.id, statut: params[:statut]), alert: "Une erreur est survenue")
       end
     rescue ActiveRecord::RecordNotFound
       Sentry.capture_message(
@@ -630,7 +630,7 @@ module Instructeurs
       end
       if dossier_in_batch.batch_operation.present?
         flash.alert = "Votre action n’a pas été effectuée, ce dossier fait parti d’un traitement de masse."
-        redirect_back(fallback_location: instructeur_dossier_path(procedure, dossier_in_batch))
+        redirect_back_or_to(instructeur_dossier_path(procedure, dossier_in_batch))
       end
     end
 

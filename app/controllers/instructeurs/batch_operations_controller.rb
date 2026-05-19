@@ -8,7 +8,7 @@ module Instructeurs
     def create
       batch = BatchOperation.safe_create!(batch_operation_params)
       flash[:alert] = "Le traitement de masse n’a pas été lancé. Vérifiez que l’action demandée est possible pour les dossiers sélectionnés" if batch.blank?
-      redirect_back(fallback_location: instructeur_procedure_url(@procedure.id))
+      redirect_back_or_to(instructeur_procedure_url(@procedure.id))
     end
 
     def create_batch_avis
@@ -60,7 +60,7 @@ module Instructeurs
 
         format.html do
           flash[:alert] = "Le traitement de masse n’a pas été lancé. Vérifiez que l’action demandée est possible pour les dossiers sélectionnés" if batch.blank?
-          redirect_back(fallback_location: instructeur_procedure_url(@procedure.id))
+          redirect_back_or_to(instructeur_procedure_url(@procedure.id))
         end
       end
     end
@@ -87,7 +87,7 @@ module Instructeurs
 
         format.html do
           flash[:alert] = t('.batch_creation_failed') if batch.blank?
-          redirect_back(fallback_location: instructeur_procedure_url(@procedure.id))
+          redirect_back_or_to(instructeur_procedure_url(@procedure.id))
         end
       end
     end

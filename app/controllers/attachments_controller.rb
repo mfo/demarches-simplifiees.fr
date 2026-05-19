@@ -15,7 +15,7 @@ class AttachmentsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream
-      format.html { redirect_back(fallback_location: root_url) }
+      format.html { redirect_back_or_to(root_url) }
     end
   end
 
@@ -36,7 +36,7 @@ class AttachmentsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream
-      format.html { redirect_back(fallback_location: root_url) }
+      format.html { redirect_back_or_to(root_url) }
     end
   end
 
