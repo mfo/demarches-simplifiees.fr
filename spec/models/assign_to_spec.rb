@@ -31,7 +31,7 @@ describe AssignTo, type: :model do
       let!(:procedure_presentation) do
         pp = ProcedurePresentation.create(assign_to: assign_to)
 
-        sql = <<-SQL.squish
+        sql = <<~SQL.squish
           UPDATE procedure_presentations
           SET displayed_columns =  ARRAY['{\"procedure_id\":666}'::jsonb]
           WHERE id = #{pp.id} ;
