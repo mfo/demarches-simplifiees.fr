@@ -72,11 +72,18 @@ export class Clipboard2Controller extends Controller {
     ).trim();
 
     if (document.hasFocus() && textToCopy) {
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        if (button) {
-          this.setCopiedState(button);
-        }
-      });
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          if (button) {
+            this.setCopiedState(button);
+          }
+        })
+        .catch(() => {
+          // Intentional no-op. writeText() can reject when the browser refuses
+          // to honor the gesture (synthetic click, focus loss, permission).
+          // The badge stays in "Copy" state, so the user simply retries.
+        });
     }
   }
 
