@@ -1,6 +1,6 @@
-= render partial: 'gestionnaires/breadcrumbs',
+= render partial: 'shared/breadcrumbs_section',
   locals: { steps: [['Mon groupe gestionnaire', admin_groupe_gestionnaire_path],
-                    ['Messagerie']], preview: false }
+                    ['Messagerie']] }
 
 .fr-container
   %h1 Messagerie de « #{@groupe_gestionnaire.name} »

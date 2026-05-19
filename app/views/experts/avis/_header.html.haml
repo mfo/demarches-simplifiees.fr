@@ -1,13 +1,9 @@
 .sub-header
   .fr-container
-    %nav.fr-breadcrumb.fr-mt-0.fr-mb-1w{ "aria-label" => "vous êtes ici :", role: "navigation" }
-      %button.fr-breadcrumb__button{ "aria-controls" => "breadcrumb-1", "aria-expanded" => "false" } Voir le fil d’Ariane
-      #breadcrumb-1.fr-collapse
-        %ol.fr-breadcrumb__list
-          %li= link_to('Avis', expert_all_avis_path, class: 'fr-breadcrumb__link')
-          %li
-            = link_to(dossier.procedure.libelle.truncate_words(10), procedure_expert_avis_index_path(dossier.procedure), class: "fr-breadcrumb__link")
-          %li= content_tag("a","Dossier n° #{dossier.id}", class: 'fr-breadcrumb__link', 'aria-current': 'page')
+    = render partial: 'shared/breadcrumbs',
+      locals: { profile: :expert,
+                steps: [[dossier.procedure.libelle.truncate_words(10), procedure_expert_avis_index_path(dossier.procedure)],
+                        ["Dossier n° #{dossier.id}"]] }
 
 
     .flex

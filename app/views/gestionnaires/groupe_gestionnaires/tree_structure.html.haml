@@ -1,7 +1,6 @@
-= render partial: 'gestionnaires/breadcrumbs',
-  locals: { steps: [['Groupes gestionnaire', gestionnaire_groupe_gestionnaires_path],
-                    ["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
-                    ['Arborescence']], preview: false }
+= render partial: 'shared/breadcrumbs_section',
+  locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
+                    ['Arborescence']] }
 
 .fr-container
   %h1 Arborescence de « #{@groupe_gestionnaire.name} »

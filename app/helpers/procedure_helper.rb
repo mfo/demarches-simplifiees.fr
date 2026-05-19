@@ -83,6 +83,18 @@ module ProcedureHelper
     admin_procedures_path(statut:)
   end
 
+  def admin_procedures_back_label(procedure)
+    return t('helpers.admin_procedures_back_label.discarded') if procedure.discarded?
+    case procedure.aasm_state
+    when 'brouillon'
+      t('helpers.admin_procedures_back_label.brouillon')
+    when 'close', 'depubliee'
+      t('helpers.admin_procedures_back_label.close')
+    else
+      t('helpers.admin_procedures_back_label.publiee')
+    end
+  end
+
   def can_recreate_a_dossier_from_a_procedure?(procedure)
     procedure.closing_reason_internal_procedure? &&
     procedure.replaced_by_procedure.present? &&

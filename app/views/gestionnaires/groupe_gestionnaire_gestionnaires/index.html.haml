@@ -1,8 +1,7 @@
 = render 'gestionnaires/groupe_gestionnaires/main_navigation'
-= render partial: 'gestionnaires/breadcrumbs',
-  locals: { steps: [['Groupes gestionnaires', gestionnaire_groupe_gestionnaires_path],
-                    ["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
-                    ['Gestionnaires']], preview: false }
+= render partial: 'shared/breadcrumbs_section',
+  locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}", gestionnaire_groupe_gestionnaire_path(@groupe_gestionnaire)],
+                    ['Gestionnaires']] }
 
 .container
   %h1 Gérer les gestionnaires de « #{@groupe_gestionnaire.name} »

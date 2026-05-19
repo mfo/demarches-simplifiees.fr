@@ -51,4 +51,33 @@ RSpec.describe ProcedureHelper, type: :helper do
       end
     end
   end
+
+  describe '#admin_procedures_back_label' do
+    subject { helper.admin_procedures_back_label(procedure) }
+
+    context 'with a published procedure' do
+      let(:procedure) { build(:procedure, :published) }
+      it { is_expected.to eq('Démarches publiées') }
+    end
+
+    context 'with a draft procedure' do
+      let(:procedure) { build(:procedure) }
+      it { is_expected.to eq('Démarches en test') }
+    end
+
+    context 'with a closed procedure' do
+      let(:procedure) { build(:procedure, :closed) }
+      it { is_expected.to eq('Démarches terminées') }
+    end
+
+    context 'with a depubliee procedure' do
+      let(:procedure) { build(:procedure, :unpublished) }
+      it { is_expected.to eq('Démarches terminées') }
+    end
+
+    context 'with a discarded procedure' do
+      let(:procedure) { build(:procedure, :discarded) }
+      it { is_expected.to eq('Démarches supprimées') }
+    end
+  end
 end

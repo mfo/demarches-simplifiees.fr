@@ -1,5 +1,5 @@
 - content_for(:title, "Contact")
-= render partial: 'administrateurs/breadcrumbs',
+= render partial: 'shared/breadcrumbs_section',
   locals: { steps: [[@procedure.libelle.truncate_words(10), instructeur_procedure_path(@procedure)],
     ['Groupes d’instructeurs', instructeur_groupes_path(@procedure)],
       [@groupe_instructeur.label, instructeur_groupe_path(@groupe_instructeur, procedure_id: @procedure.id) ],

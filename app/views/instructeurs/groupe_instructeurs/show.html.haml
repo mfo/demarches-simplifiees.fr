@@ -3,7 +3,7 @@
     - if @procedure.routing_enabled?
       - content_for(:title, "Instructeurs du groupe #{@groupe_instructeur.label}")
 
-      = render partial: 'instructeurs/breadcrumbs',
+      = render partial: 'shared/breadcrumbs',
         locals: { steps: [[@procedure.libelle.truncate_words(10), instructeur_procedure_path(@procedure)],
                           ['Groupes d’instructeurs', instructeur_groupes_path(@procedure)],
                           [@groupe_instructeur.label]] }
@@ -11,7 +11,7 @@
     - else
       - content_for(:title, "Instructeurs")
 
-      = render partial: 'instructeurs/breadcrumbs',
+      = render partial: 'shared/breadcrumbs',
         locals: { steps: [[@procedure.libelle, instructeur_procedure_path(@procedure)],
                           ['Instructeurs']] }
 

@@ -1,5 +1,5 @@
 - content_for(:title, "Modèle d'export")
-= render partial: 'administrateurs/breadcrumbs',
+= render partial: 'shared/breadcrumbs_section',
   locals: { steps: [[@procedure.libelle.truncate_words(10), [:instructeur, @procedure]],
                       [t('instructeurs.dossiers.header.banner.export_templates'), [:export_templates, :instructeur, @procedure]],
                       [t('.title')]] }
