@@ -115,11 +115,16 @@ module Users
     end
 
     def target_email_allowed?
-      requested_domain = requested_email.to_s.split('@', 2).last&.downcase
+      requested_domain = downcased_domain(requested_email)
       return false if requested_domain.blank?
 
-      current_domain = current_user.email.split('@', 2).last.downcase
-      requested_domain == current_domain
+      requested_domain == downcased_domain(current_user.email)
+    end
+
+    def downcased_domain(email)
+      Mail::Address.new(email).domain&.downcase
+    rescue Mail::Field::IncompleteParseError
+      nil
     end
 
     def next_owner_email
