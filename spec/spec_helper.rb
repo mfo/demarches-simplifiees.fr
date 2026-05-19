@@ -24,6 +24,10 @@ require 'simplecov' if ENV["CI"] || ENV["COVERAGE"] # see config in .simplecov f
 
 require 'test_prof/recipes/rspec/let_it_be'
 
+TestProf::BeforeAll.configure do |config|
+  config.setup_fixtures = true
+end
+
 require 'rspec/retry'
 
 SECURE_PASSWORD = '{My-$3cure-p4ssWord}'
