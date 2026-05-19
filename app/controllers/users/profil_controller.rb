@@ -75,6 +75,8 @@ module Users
 
     def destroy_fci
       fci = current_user.france_connect_informations.find_by(id: params[:fci_id])
+      return redirect_to profil_path if fci.nil?
+
       fci.destroy!
 
       flash.notice = "Le compte FranceConnect de « #{fci.full_name} » ne peut plus accéder à vos dossiers"

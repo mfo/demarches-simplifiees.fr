@@ -275,6 +275,15 @@ describe Users::ProfilController, type: :controller do
       expect(response).to redirect_to(profil_path)
     end
 
+    context 'when the fci does not exist (already deleted or unknown id)' do
+      subject { delete :destroy_fci, params: { fci_id: 'unknown' } }
+
+      it 'redirects without raising' do
+        expect { subject }.not_to raise_error
+        expect(response).to redirect_to(profil_path)
+      end
+    end
+
     context 'when the user is logged in with FranceConnect' do
       before do
         stub_const('FRANCE_CONNECT', { end_session_endpoint: 'https://logout.franceconnect.gouv.fr' })
