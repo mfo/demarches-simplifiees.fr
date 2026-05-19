@@ -66,4 +66,15 @@ describe Champs::MultipleDropDownListChamp do
     let(:value) { ["val1", "val2"] }
     it { expect(champ.type_de_champ.champ_value_for_tag(champ).to_s).to eq("val1, val2") }
   end
+
+  describe "#focusable_input_id" do
+    context "when drop_down_options is empty" do
+      before { champ.type_de_champ.update_column(:options, {}) }
+
+      it "does not raise" do
+        expect(champ.drop_down_options).to be_empty
+        expect { champ.focusable_input_id }.not_to raise_error
+      end
+    end
+  end
 end
