@@ -22,17 +22,12 @@ describe 'dropdown list with other option activated', js: true do
       ]
     end
 
-    scenario 'Select other option and the other input hidden must appear' do
+    scenario "Select other, fill it, then switch back saves correctly", :aggregate_failures do
       fill_individual
 
       choose I18n.t('shared.champs.drop_down_list.other'), allow_label_click: true
       expect(page).to have_selector('.drop_down_other', visible: true)
-    end
 
-    scenario "Getting back from other save the new option" do
-      fill_individual
-
-      choose I18n.t('shared.champs.drop_down_list.other'), allow_label_click: true
       fill_in(I18n.t('shared.champs.drop_down_list.other_label'), with: "My choice")
 
       wait_until { user_dossier.reload.project_champs_public.first.value == "My choice" }
