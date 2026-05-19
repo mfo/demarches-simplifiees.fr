@@ -152,7 +152,7 @@ module Users
       @dossier = dossier
       @dossier.update!(accuse_lecture_agreement_at: Time.zone.now)
       flash.notice = 'Accusé de lecture accepté'
-      redirect_back(fallback_location: demande_dossier_path(@dossier))
+      redirect_back_or_to(demande_dossier_path(@dossier))
     end
 
     def identite
@@ -301,13 +301,13 @@ module Users
     def extend_conservation
       dossier.extend_conservation(dossier.procedure.duree_conservation_dossiers_dans_ds.months)
       flash[:notice] = t('views.users.dossiers.archived_dossier', duree_conservation_dossiers_dans_ds: dossier.procedure.duree_conservation_dossiers_dans_ds)
-      redirect_back(fallback_location: dossier_path(@dossier))
+      redirect_back_or_to(dossier_path(@dossier))
     end
 
     def extend_conservation_and_restore
       dossier.extend_conservation_and_restore(dossier.procedure.duree_conservation_dossiers_dans_ds.months, current_user)
       flash[:notice] = t('views.users.dossiers.archived_dossier', duree_conservation_dossiers_dans_ds: dossier.procedure.duree_conservation_dossiers_dans_ds)
-      redirect_back(fallback_location: dossier_path(@dossier))
+      redirect_back_or_to(dossier_path(@dossier))
     end
 
     def modifier
@@ -429,11 +429,11 @@ module Users
             @dossier = dossier
             @connected_user = current_user
             @form_url = commentaire_dossier_path(dossier)
-            render template: 'shared/dossiers/create_commentaire', status: :unprocessable_entity
+            render template: 'shared/dossiers/create_commentaire', status: :unprocessable_content
           end
           format.html do
             flash.now.alert = @commentaire.errors.full_messages
-            render :messagerie, status: :unprocessable_entity
+            render :messagerie, status: :unprocessable_content
           end
         end
       end

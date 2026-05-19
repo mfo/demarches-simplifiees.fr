@@ -6,7 +6,7 @@ class Champs::PieceJustificativeController < Champs::ChampController
   def show
     respond_to do |format|
       format.turbo_stream
-      format.html { redirect_back(fallback_location: root_url) }
+      format.html { redirect_back_or_to(root_url) }
     end
   end
 

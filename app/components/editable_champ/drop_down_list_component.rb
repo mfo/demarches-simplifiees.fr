@@ -30,7 +30,7 @@ class EditableChamp::DropDownListComponent < EditableChamp::EditableChampBaseCom
     describedby = []
     describedby << @champ.describedby_id if @champ.description.present?
     describedby << @champ.error_id(:value) if errors_on_attribute?
-    describedby.present? ? describedby.join(' ') : nil
+    describedby.presence&.join(' ')
   end
 
   def other_input_aria_labelledby_prefix

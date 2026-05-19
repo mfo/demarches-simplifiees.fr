@@ -22,7 +22,7 @@ class ProceduresFilter
   end
 
   def zone_ids
-    params[:zone_ids].compact_blank if params[:zone_ids].present?
+    params[:zone_ids].presence&.compact_blank
   end
 
   def selected_zones
@@ -30,7 +30,7 @@ class ProceduresFilter
   end
 
   def statuses
-    params[:statuses].compact_blank if params[:statuses].present?
+    params[:statuses].presence&.compact_blank
   end
 
   def tags
@@ -38,7 +38,7 @@ class ProceduresFilter
   end
 
   def kind_usagers
-    params[:kind_usagers].compact_blank if params[:kind_usagers].present?
+    params[:kind_usagers].presence&.compact_blank
   end
 
   def kind_usager_filtered?(kind_usager)

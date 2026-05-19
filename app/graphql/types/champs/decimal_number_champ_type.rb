@@ -7,9 +7,7 @@ module Types::Champs
     field :value, Float, null: true
 
     def value
-      if object.value.present?
-        object.value.to_f
-      end
+      object.value.presence&.to_f
     end
   end
 end

@@ -49,7 +49,7 @@ class Attachment::FileInputComponent < ApplicationComponent
         turbo_force: :server,
         'enable-submit-if-uploaded-target': 'input',
       }.merge(validation.max_file_size.present? ? { max_file_size: validation.max_file_size } : {})
-        .merge(as_multiple? && @max ? { max: @max } : {}),
+          .merge(as_multiple? && @max ? { max: @max } : {}),
     }
 
     describedby = []

@@ -10,9 +10,7 @@ class EtablissementUpdateJob < ApplicationJob
     end
 
     if etablissement_attributes.present?
-      if dossier.etablissement.present?
-        dossier.etablissement.destroy
-      end
+      dossier.etablissement.presence&.destroy
       etablissement_attributes = ActionController::Parameters.new(etablissement_attributes).permit!
       etablissement = dossier.build_etablissement(etablissement_attributes)
       etablissement.save

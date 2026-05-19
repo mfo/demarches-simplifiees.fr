@@ -39,7 +39,7 @@ module Administrateurs
 
     def ensure_not_super_admin!
       if administrateur_as_manager?
-        redirect_back fallback_location: root_url, alert: "Interdit aux super admins", status: 403
+        redirect_back_or_to(root_url, alert: "Interdit aux super admins", status: 403)
       end
     end
 

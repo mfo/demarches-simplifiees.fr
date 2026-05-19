@@ -8,8 +8,6 @@ class LogicSerializer
   end
 
   def self.dump(logic)
-    if logic.present?
-      logic.to_h
-    end
+    logic.presence&.to_h
   end
 end

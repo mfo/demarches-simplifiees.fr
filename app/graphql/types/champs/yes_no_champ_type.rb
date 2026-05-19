@@ -7,11 +7,7 @@ module Types::Champs
     field :value, Boolean, null: true
 
     def value
-      if object.blank?
-        nil
-      else
-        object.true?
-      end
+      object.presence&.true?
     end
   end
 end

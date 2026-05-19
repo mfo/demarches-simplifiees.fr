@@ -37,7 +37,7 @@ module Database::MigrationHelpers
     columns = str_column_names.join(', ')
     t_columns = str_column_names.map { |c| "t.#{c}" }.join(', ')
 
-    duplicates = execute <<-SQL.squish
+    duplicates = execute <<~SQL.squish
       SELECT t.id, #{t_columns}
       FROM #{table_name} t
       INNER JOIN (

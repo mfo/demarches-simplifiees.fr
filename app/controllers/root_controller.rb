@@ -89,6 +89,6 @@ class RootController < ApplicationController
 
   def save_locale
     set_locale(params[:locale])
-    redirect_back(fallback_location: root_path)
+    redirect_back_or_to(root_path)
   end
 end

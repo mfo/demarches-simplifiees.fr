@@ -588,7 +588,7 @@ module Administrateurs
     def draft_valid?
       if procedure_without_control.draft_revision.invalid?
         flash.alert = t('preview_unavailable', scope: 'administrateurs.procedures')
-        redirect_back(fallback_location: champs_admin_procedure_path(procedure_without_control))
+        redirect_back_or_to(champs_admin_procedure_path(procedure_without_control))
       end
     end
 
