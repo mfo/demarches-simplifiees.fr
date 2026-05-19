@@ -17,9 +17,9 @@ class Dossiers::AnnuaireEducationComponent < ApplicationComponent
     return [] if champ.data.blank?
 
     [
-      ['Nom de l’établissement', champ.data['nom_etablissement']],
-      ['L’identifiant de l’etablissement', champ.data['identifiant_de_l_etablissement']],
-      ['SIREN/SIRET', champ.data['siren_siret']],
+      [t('.nom_etablissement'), champ.data['nom_etablissement']],
+      [t('.identifiant_etablissement'), champ.data['identifiant_de_l_etablissement']],
+      [t('.siren_siret'), champ.data['siren_siret']],
     ]
   end
 
@@ -27,15 +27,15 @@ class Dossiers::AnnuaireEducationComponent < ApplicationComponent
     return [] if champ.data.blank?
 
     [
-      ['Commune', commune],
-      ['Académie', "#{champ.data['libelle_academie']} (#{champ.data['code_academie']})"],
-      ['Nature de l’établissement', "#{champ.data['libelle_nature']} (#{champ.data['code_nature']})"],
-      ['Type de contrat privé', type_de_contrat],
-      ['Nombre d’élèves', champ.data['nombre_d_eleves']],
-      ['Adresse', adresse],
-      ['Téléphone', champ.data['telephone']],
-      ['Email', champ.data['mail']],
-      ['Site internet', champ.data['web']],
+      [t('.commune'), commune],
+      [t('.academie'), "#{champ.data['libelle_academie']} (#{champ.data['code_academie']})"],
+      [t('.nature_etablissement'), "#{champ.data['libelle_nature']} (#{champ.data['code_nature']})"],
+      [t('.type_contrat_prive'), type_de_contrat],
+      [t('.nombre_eleves'), champ.data['nombre_d_eleves']],
+      [t('.adresse'), adresse],
+      [t('.telephone'), champ.data['telephone']],
+      [t('.email'), champ.data['mail']],
+      [t('.site_internet'), champ.data['web']],
     ]
   end
 
@@ -45,11 +45,11 @@ class Dossiers::AnnuaireEducationComponent < ApplicationComponent
     elsif champ.data['nom_commune'].present?
       champ.data['nom_commune']
     else
-      'Non renseignée'
+      t('.non_renseignee')
     end
   end
 
-  def source = "Annuaire de l’Éducation Nationale"
+  def source = t('.source')
 
   def type_de_contrat
     champ.data['type_contrat_prive'] if champ.data['type_contrat_prive'] != 'SANS OBJET'

@@ -37,24 +37,24 @@ RSpec.describe Dossiers::AnnuaireEducationComponent, type: :component do
     it 'renders ExternalChampComponent with correct arguments' do
       expect(Dossiers::ExternalChampComponent).to have_received(:new) do |data:, details:, source:|
         expected_data = [
-          ["Nom de l’établissement", "Lycée Jean Moulin"],
-          ["L’identifiant de l’etablissement", "0123456A"],
+          ["Nom de l\u2019\u00e9tablissement", "Lycée Jean Moulin"],
+          ["L\u2019identifiant de l\u2019etablissement", "0123456A"],
           ["SIREN/SIRET", "12345678901234"],
         ]
 
         expected_details = [
           ["Commune", "Paris (75001)"],
-          ["Académie", "Paris (01)"],
-          ["Nature de l’établissement", "Lycée général (LGT)"],
-          ["Type de contrat privé", nil],
-          ["Nombre d’élèves", "450"],
+          ["Acad\u00e9mie", "Paris (01)"],
+          ["Nature de l\u2019\u00e9tablissement", "Lycée général (LGT)"],
+          ["Type de contrat priv\u00e9", nil],
+          ["Nombre d\u2019\u00e9l\u00e8ves", "450"],
           ["Adresse", "123 rue de la République<br>75001 Paris<br>Île-de-France (11)"],
-          ["Téléphone", "0145123456"],
+          ["T\u00e9l\u00e9phone", "0145123456"],
           ["Email", "contact@lycee-moulin.fr"],
           ["Site internet", "https://lycee-moulin.fr"],
         ]
 
-        expected_source = "Annuaire de l’Éducation Nationale"
+        expected_source = "Annuaire de l\u2019\u00c9ducation Nationale"
 
         expect(data).to eq(expected_data)
         expect(details).to eq(expected_details)
@@ -71,7 +71,7 @@ RSpec.describe Dossiers::AnnuaireEducationComponent, type: :component do
         expect(Dossiers::ExternalChampComponent).to have_received(:new) do |args|
           details = args[:details]
           expect(details.find { |label, _| label == 'Commune' }[1]).to eq('Paris')
-          expect(details.find { |label, _| label == 'Type de contrat privé' }[1]).to eq('SOUS CONTRAT')
+          expect(details.find { |label, _| label == "Type de contrat priv\u00e9" }[1]).to eq('SOUS CONTRAT')
         end
       end
     end
@@ -82,7 +82,7 @@ RSpec.describe Dossiers::AnnuaireEducationComponent, type: :component do
       it do
         expect(Dossiers::ExternalChampComponent).to have_received(:new) do |args|
           details = args[:details]
-          expect(details.find { |label, _| label == 'Commune' }[1]).to eq('Non renseignée')
+          expect(details.find { |label, _| label == 'Commune' }[1]).to eq("Non renseign\u00e9e")
         end
       end
     end

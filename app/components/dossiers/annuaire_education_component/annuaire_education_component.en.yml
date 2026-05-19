@@ -1,0 +1,15 @@
+en:
+  nom_etablissement: School name
+  identifiant_etablissement: School identifier
+  siren_siret: SIREN/SIRET
+  commune: Municipality
+  academie: Academy
+  nature_etablissement: Type of school
+  type_contrat_prive: Private contract type
+  nombre_eleves: Number of students
+  adresse: Address
+  telephone: Phone
+  email: Email
+  site_internet: Website
+  non_renseignee: Not provided
+  source: National Education Directory
