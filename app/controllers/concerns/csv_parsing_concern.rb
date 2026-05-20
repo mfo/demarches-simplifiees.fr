@@ -8,13 +8,21 @@ module CsvParsingConcern
   CSV_ACCEPTED_CONTENT_TYPES = [
     "text/csv",
     "application/vnd.ms-excel",
-  ]
+  ].freeze
+
+  def validate_csv_upload(file)
+    return :too_large if file.size > CSV_MAX_SIZE
+    return :not_csv unless CSV_ACCEPTED_CONTENT_TYPES.include?(sniff_content_type(file))
+    :ok
+  end
 
   private
 
-  def csv_file?
-    CSV_ACCEPTED_CONTENT_TYPES.include?(referentiel_file.content_type) ||
-      CSV_ACCEPTED_CONTENT_TYPES.include?(marcel_content_type)
+  def sniff_content_type(file)
+    io = file.tempfile.tap(&:rewind)
+    Marcel::MimeType.for(io, name: file.original_filename, declared_type: file.content_type)
+  ensure
+    file.tempfile&.rewind
   end
 
   def parse_csv(file, strings_as_keys: true, keep_original_headers: false, convert_values_to_numeric: false)

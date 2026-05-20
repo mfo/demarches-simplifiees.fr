@@ -401,12 +401,11 @@ module Administrateurs
     end
 
     def import
-      if !CSV_ACCEPTED_CONTENT_TYPES.include?(csv_file.content_type) && !CSV_ACCEPTED_CONTENT_TYPES.include?(marcel_content_type)
+      case validate_csv_upload(csv_file)
+      when :not_csv
         flash[:alert] = "Importation impossible : veuillez importer un fichier CSV"
-
-      elsif csv_file.size > CSV_MAX_SIZE
+      when :too_large
         flash[:alert] = "Importation impossible : le poids du fichier est supérieur à #{number_to_human_size(CSV_MAX_SIZE)}"
-
       else
         csv_content = parse_csv(csv_file)
 
@@ -501,9 +500,10 @@ module Administrateurs
     end
 
     def import_contact_informations
-      if !CSV_ACCEPTED_CONTENT_TYPES.include?(csv_file.content_type) && !CSV_ACCEPTED_CONTENT_TYPES.include?(marcel_content_type)
+      case validate_csv_upload(csv_file)
+      when :not_csv
         flash[:alert] = "Importation impossible : veuillez importer un fichier CSV"
-      elsif csv_file.size > CSV_MAX_SIZE
+      when :too_large
         flash[:alert] = "Importation impossible : le poids du fichier est supérieur à #{number_to_human_size(CSV_MAX_SIZE)}"
       else
         csv_content = parse_csv(csv_file)
@@ -640,10 +640,6 @@ module Administrateurs
 
     def csv_file
       params[:csv_file]
-    end
-
-    def marcel_content_type
-      Marcel::MimeType.for(csv_file.read, name: csv_file.original_filename, declared_type: csv_file.content_type)
     end
 
     def instructeurs_self_management_enabled_params

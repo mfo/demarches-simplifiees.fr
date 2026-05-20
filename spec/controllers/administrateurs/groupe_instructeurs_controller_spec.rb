@@ -697,6 +697,16 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         end
       end
 
+      context 'when a binary file is uploaded with a spoofed text/csv content type' do
+        let(:csv_file) { fixture_file_upload('spec/fixtures/files/french-flag.gif', 'text/csv') }
+
+        before { subject }
+
+        it 'rejects the file based on sniffed content type, not declared content type' do
+          expect(flash.alert).to eq("Importation impossible : veuillez importer un fichier CSV")
+        end
+      end
+
       context 'when the headers are wrong' do
         let(:csv_file) { fixture_file_upload('spec/fixtures/files/invalid-group-file.csv', 'text/csv') }
 
@@ -828,6 +838,16 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
 
         it 'validates file format and displays a flash alert' do
           expect(flash.alert).to be_present
+          expect(flash.alert).to eq("Importation impossible : veuillez importer un fichier CSV")
+        end
+      end
+
+      context 'when a binary file is uploaded with a spoofed text/csv content type' do
+        let(:csv_file) { fixture_file_upload('spec/fixtures/files/french-flag.gif', 'text/csv') }
+
+        before { subject }
+
+        it 'rejects the file based on sniffed content type, not declared content type' do
           expect(flash.alert).to eq("Importation impossible : veuillez importer un fichier CSV")
         end
       end
@@ -1016,6 +1036,15 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
       it 'shows an error message' do
         subject
         expect(flash[:alert]).to include('colonnes')
+      end
+    end
+
+    context 'when a binary file is uploaded with a spoofed text/csv content type' do
+      let(:csv_file) { fixture_file_upload('spec/fixtures/files/french-flag.gif', 'text/csv') }
+
+      it 'rejects the file based on sniffed content type, not declared content type' do
+        subject
+        expect(flash[:alert]).to eq("Importation impossible : veuillez importer un fichier CSV")
       end
     end
   end
