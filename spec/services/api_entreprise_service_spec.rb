@@ -3,7 +3,7 @@
 describe APIEntrepriseService do
   shared_examples 'schedule fetch of all etablissement params' do
     [
-      APIEntreprise::EntrepriseJob, APIEntreprise::ExtraitKbisJob, APIEntreprise::TvaJob,
+      APIEntreprise::ExtraitKbisJob, APIEntreprise::TvaJob,
       APIEntreprise::AssociationJob, APIEntreprise::ExercicesJob,
       APIEntreprise::EffectifsJob, APIEntreprise::EffectifsAnnuelsJob, APIEntreprise::AttestationSocialeJob,
       APIEntreprise::BilansBdfJob,
@@ -16,18 +16,14 @@ describe APIEntrepriseService do
 
   describe '#create_etablissement' do
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
         .to_return(body: etablissements_body, status: etablissements_status)
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siret[0..8]}/)
-        .to_return(body: entreprises_body, status: entreprises_status)
     end
 
     let(:siret) { '30613890001294' }
     let(:raison_sociale) { "DIRECTION INTERMINISTERIELLE DU NUMERIQUE" }
     let(:etablissements_status) { 200 }
     let(:etablissements_body) { File.read('spec/fixtures/files/api_entreprise/etablissements.json') }
-    let(:entreprises_status) { 200 }
-    let(:entreprises_body) { File.read('spec/fixtures/files/api_entreprise/entreprises.json') }
     let(:valid_token) { "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" }
     let(:procedure) { create(:procedure, api_entreprise_token: valid_token) }
     let(:dossier) { create(:dossier, procedure: procedure) }
@@ -127,10 +123,8 @@ describe APIEntrepriseService do
 
     context 'when API succeeds' do
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body: File.read('spec/fixtures/files/api_entreprise/etablissements.json'), status: 200)
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siret[0..8]}/)
-          .to_return(body: File.read('spec/fixtures/files/api_entreprise/entreprises.json'), status: 200)
       end
 
       it 'returns Success with etablissement' do
@@ -141,7 +135,7 @@ describe APIEntrepriseService do
 
     context 'when API is down and degraded mode activates' do
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body: '', status: 503)
         allow(APIEntrepriseService).to receive(:api_insee_up?).and_return(false)
       end
@@ -155,7 +149,7 @@ describe APIEntrepriseService do
 
     context 'when API is down but degraded mode does not activate' do
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body: '', status: 503)
         allow(APIEntrepriseService).to receive(:api_insee_up?).and_return(true)
       end
@@ -168,7 +162,7 @@ describe APIEntrepriseService do
 
     context 'when API returns 451' do
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body: '', status: 451)
       end
 

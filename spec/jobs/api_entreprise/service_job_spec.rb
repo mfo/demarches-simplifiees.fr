@@ -10,7 +10,7 @@ RSpec.describe APIEntreprise::ServiceJob, type: :job do
   let (:adresse) { "DIRECTION INTERMINISTERIELLE DU NUMERIQUE\r\nJEAN MARIE DURAND\r\nZAE SAINT GUENAULT\r\n51 BIS RUE DE LA PAIX\r\nCS 72809\r\n75256 PARIX CEDEX 12\r\nFRANCE" }
 
   before do
-    stub_request(:get, %r{https://entreprise.api.gouv.fr/v3\/insee\/sirene\/etablissements\/#{siret}})
+    stub_request(:get, %r{https://entreprise.api.gouv.fr/v4\/insee\/sirene\/etablissements\/#{siret}})
       .to_return(body: entreprise_body, status: status)
 
     allow(ENV).to receive(:[]).and_call_original
@@ -46,7 +46,7 @@ RSpec.describe APIEntreprise::ServiceJob, type: :job do
 
   context "errors responses" do
     it "does not modify service when API returns 404" do
-      stub_request(:get, %r{https://entreprise.api.gouv.fr/v3\/insee\/sirene\/etablissements\/#{siret}})
+      stub_request(:get, %r{https://entreprise.api.gouv.fr/v4\/insee\/sirene\/etablissements\/#{siret}})
         .to_return(body: "{}", status: 404)
 
       expect { subject }.not_to change { service.reload.attributes }

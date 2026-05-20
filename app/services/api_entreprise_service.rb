@@ -21,12 +21,6 @@ class APIEntrepriseService
       etablissement_params = etablissement_result.value!
       return Failure(type: :not_found, code: 404, retryable: false, raw_response: nil) if etablissement_params.empty?
 
-      # Entreprise enrichment is best-effort
-      case APIEntreprise::EntrepriseAdapter.new(siret, procedure_id).to_params
-      in Success(entreprise_params) if entreprise_params.any? then etablissement_params.merge!(entreprise_params)
-      else nil
-      end
-
       etablissement = dossier_or_champ.build_etablissement(etablissement_params)
       etablissement.save!
       etablissement.update_champ_value_json!
@@ -73,7 +67,7 @@ class APIEntrepriseService
 
     def perform_later_fetch_jobs(etablissement, procedure_id, user_id, wait: nil)
       jobs = [
-        APIEntreprise::EntrepriseJob, APIEntreprise::ExtraitKbisJob, APIEntreprise::TvaJob,
+        APIEntreprise::ExtraitKbisJob, APIEntreprise::TvaJob,
         APIEntreprise::AssociationJob, APIEntreprise::ExercicesJob,
         APIEntreprise::EffectifsJob, APIEntreprise::EffectifsAnnuelsJob, APIEntreprise::AttestationSocialeJob,
         APIEntreprise::BilansBdfJob,
