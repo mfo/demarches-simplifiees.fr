@@ -32,6 +32,6 @@ class Dossiers::CommuneComponent < ApplicationComponent
   end
 
   def source
-    "référentiels géographiques nationaux"
+    t('.source')
   end
 end
