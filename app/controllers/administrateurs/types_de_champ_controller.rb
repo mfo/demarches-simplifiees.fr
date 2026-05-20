@@ -146,8 +146,12 @@ module Administrateurs
     end
 
     def import_referentiel
-      return flash[:alert] = "Importation impossible : veuillez importer un fichier CSV" unless csv_file?
-      return flash[:alert] = "Importation impossible : le poids du fichier est supérieur à #{number_to_human_size(CSV_MAX_SIZE)}" if referentiel_file.size > CSV_MAX_SIZE
+      case validate_csv_upload(referentiel_file)
+      when :not_csv
+        return flash[:alert] = "Importation impossible : veuillez importer un fichier CSV"
+      when :too_large
+        return flash[:alert] = "Importation impossible : le poids du fichier est supérieur à #{number_to_human_size(CSV_MAX_SIZE)}"
+      end
 
       type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
       csv_content = parse_csv(referentiel_file, keep_original_headers: true)
@@ -278,10 +282,6 @@ module Administrateurs
 
     def referentiel_file
       params["referentiel_file"]
-    end
-
-    def marcel_content_type
-      Marcel::MimeType.for(referentiel_file.read, name: referentiel_file.original_filename, declared_type: referentiel_file.content_type)
     end
   end
 end

@@ -197,6 +197,17 @@ describe Administrateurs::TypesDeChampController, type: :controller do
         end
       end
 
+      context 'when a binary file is uploaded with a spoofed text/csv content type' do
+        let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/french-flag.gif', 'text/csv') }
+
+        before { subject }
+
+        it 'rejects the file based on sniffed content type, not declared content type' do
+          expect(flash.alert).to eq("Importation impossible : veuillez importer un fichier CSV")
+          expect(Referentiel.count).to eq(0)
+        end
+      end
+
       context 'when the csv file has a bom' do
         let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/modele-import-referentiel-with-bom.csv', 'text/csv') }
 
