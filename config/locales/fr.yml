@@ -458,6 +458,12 @@ fr:
         batch_operation:
           enabled: "Ajouter le dossier %{dossier_id} à la sélection pour un traitement de masse"
           disabled: "Impossible d’ajouter le dossier %{dossier_id} à la selection car il est déjà dans un traitement de masse"
+          and_more:
+            one: "(et %{count} autre)"
+            other: "(et %{count} autres)"
+          error_message:
+            one: "Dossier %{ids} : %{message}"
+            other: "Dossiers %{ids} : %{message}"
         show_deleted_dossiers: Historique des dossiers supprimés
         customize: Personnaliser le tableau
         passer_en_instruction: Passer en instruction
@@ -1017,7 +1023,11 @@ fr:
         close_to_expiration: expirants
         to_archive: à archiver
         trash: corbeille
+      aasm_error_originating_state: Le dossier est déjà %{state}.
+      aasm_error_etablissement_as_degraded_mode: "Les données relatives au SIRET de ce dossier n’ont pas pu encore être vérifiées : il n’est pas possible de le passer en %{state}."
+      aasm_error_annotations_no_url: Les annotations privées ne sont pas remplis correctement, il n’est pas possible de passer le dossier en %{state}.
       aasm_error_annotations: Les annotations privées ne sont pas remplis correctement, il n’est pas possible de passer le dossier en %{state}. <a href="%{url}">Modifier les annotations</a>.
+      aasm_error_other: "Le dossier est en ce moment %{originating_state} : il n’est pas possible de le passer %{target_state}."
       alert_error_annotations: Les annotations privées n’ont pas été correctement renseignées. Elles sont indispensables à l’instruction du dossier.
       alert_error_annotations_link: Compléter les annotations privées
       alert_unspecified_attestation_champs: 'Attention, les valeurs suivantes n’ont pas été renseignées mais sont nécessaires pour pouvoir envoyer une attestation valide :'

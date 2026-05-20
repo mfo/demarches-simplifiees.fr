@@ -226,7 +226,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
       it 'warns about the error' do
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include('Le dossier est en ce moment accepté&nbsp;: il n’est pas possible de le passer en&nbsp;instruction.')
+        expect(response.body).to include('Le dossier est en ce moment accepté : il n’est pas possible de le passer en&nbsp;instruction.')
       end
     end
 

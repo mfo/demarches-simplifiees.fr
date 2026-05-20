@@ -3,3 +3,6 @@
     = content_tag(heading_level, class: 'fr-alert__title') do
       = "#{prefix_for_state}#{title}"
   = body
+  - if closable?
+    %button.fr-btn--close.fr-btn{ title: t('utils.modal_close'), data: { action: "element-remove#remove" } }
+      = t('utils.modal_close')

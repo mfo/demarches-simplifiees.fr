@@ -92,7 +92,7 @@ describe BatchOperation, type: :model do
     let(:batch_operation) { create(:batch_operation, operation: :archiver, instructeur: instructeur, dossiers: [dossier]) }
 
     it 'unlock the dossier' do
-      expect { batch_operation.track_processed_dossier(true, dossier) }
+      expect { batch_operation.track_processed_dossier(true, dossier, nil) }
         .to change { dossier.reload.batch_operation }
         .from(batch_operation)
         .to(nil)
@@ -100,7 +100,7 @@ describe BatchOperation, type: :model do
 
     context 'when it succeed' do
       it 'pushes dossier_job id to batch_operation.success_dossier_ids' do
-        expect { batch_operation.track_processed_dossier(true, dossier) }
+        expect { batch_operation.track_processed_dossier(true, dossier, nil) }
           .to change { batch_operation.dossier_operations.success.pluck(:dossier_id) }
           .from([])
           .to([dossier.id])
@@ -110,10 +110,10 @@ describe BatchOperation, type: :model do
     context 'when it succeed after a failure' do
       let(:batch_operation) { create(:batch_operation, operation: :archiver, instructeur: instructeur, dossiers: [dossier]) }
       before do
-        batch_operation.track_processed_dossier(false, dossier)
+        batch_operation.track_processed_dossier(false, dossier, nil)
       end
       it 'remove former dossier id from failed_dossier_ids' do
-        expect { batch_operation.track_processed_dossier(true, dossier) }
+        expect { batch_operation.track_processed_dossier(true, dossier, nil) }
           .to change { batch_operation.dossier_operations.error.pluck(:dossier_id) }
           .from([dossier.id])
           .to([])
@@ -122,7 +122,7 @@ describe BatchOperation, type: :model do
 
     context 'when it fails' do
       it 'pushes dossier_job id to batch_operation.failed_dossier_ids' do
-        expect { batch_operation.track_processed_dossier(false, dossier) }
+        expect { batch_operation.track_processed_dossier(false, dossier, nil) }
           .to change { batch_operation.dossier_operations.error.pluck(:dossier_id) }
           .from([])
           .to([dossier.id])

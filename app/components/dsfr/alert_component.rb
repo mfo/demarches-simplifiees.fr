@@ -6,7 +6,7 @@ class Dsfr::AlertComponent < ApplicationComponent
 
   attr_reader :state, :title, :size, :block, :extra_class_names, :heading_level, :data
 
-  def initialize(state:, title: '', with_prefix: true, size: '', extra_class_names: nil, heading_level: 'h3', data: {})
+  def initialize(state:, title: '', with_prefix: true, size: '', extra_class_names: nil, heading_level: 'h3', data: {}, closable: false)
     @state = state
     @title = title
     @with_prefix = with_prefix
@@ -15,6 +15,7 @@ class Dsfr::AlertComponent < ApplicationComponent
     @extra_class_names = extra_class_names
     @heading_level = heading_level
     @data = data
+    @closable = closable
   end
 
   def prefix_for_state
@@ -36,5 +37,9 @@ class Dsfr::AlertComponent < ApplicationComponent
       "fr-alert--sm" => size == :sm,
       extra_class_names => true
     )
+  end
+
+  def closable?
+    !!@closable
   end
 end
