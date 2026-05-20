@@ -8,7 +8,7 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
   let(:options) { ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"] }
   let(:procedure) do
     create(:procedure, :published, :for_individual, types_de_champ_public: [
-      { type: :multiple_drop_down_list, libelle: 'Zonage(s)', drop_down_options: options, mandatory: true }
+      { type: :multiple_drop_down_list, libelle: 'Zonage(s)', drop_down_options: options, mandatory: true },
     ])
   end
   let(:dossier) { create(:dossier, :en_construction, :with_individual, user:, procedure:) }
