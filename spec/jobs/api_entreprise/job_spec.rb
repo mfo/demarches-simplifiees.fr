@@ -79,6 +79,52 @@ RSpec.describe APIEntreprise::Job, type: :job do
       end
     end
 
+    context 'when adapter returns Failure with rate_limited and RateLimit-Reset header' do
+      let(:reset_timestamp) { Time.current.to_i + 30 }
+      let(:response) do
+        Typhoeus::Response.new(
+          effective_url: 'http://host.com/path', code: 429, body: '{"errors":[]}',
+          return_message: 'too many requests', total_time: 1, connect_time: 0,
+          headers: { 'RateLimit-Remaining' => '0', 'RateLimit-Reset' => reset_timestamp.to_s }
+        )
+      end
+
+      before do
+        allow(adapter).to receive(:to_params)
+          .and_return(Dry::Monads::Failure(type: :rate_limited, code: 429, retryable: true, raw_response: response))
+      end
+
+      it 're-enqueues the job with wait based on RateLimit-Reset header' do
+        expect(described_class).to receive(:set).with(wait: a_value_between(2.seconds, 30.seconds)).and_return(described_class)
+        expect(described_class).to receive(:perform_later)
+        job.send(:with_adapter, adapter) { |_| }
+      end
+
+      it 'does not raise' do
+        allow(described_class).to receive(:set).and_return(described_class)
+        allow(described_class).to receive(:perform_later)
+        expect { job.send(:with_adapter, adapter) { |_| } }.not_to raise_error
+      end
+    end
+
+    context 'when adapter returns Failure with rate_limited but no RateLimit-Reset header' do
+      let(:response) do
+        Typhoeus::Response.new(
+          effective_url: 'http://host.com/path', code: 429, body: '{"errors":[]}',
+          return_message: 'too many requests', total_time: 1, connect_time: 0, headers: ''
+        )
+      end
+
+      before do
+        allow(adapter).to receive(:to_params)
+          .and_return(Dry::Monads::Failure(type: :rate_limited, code: 429, retryable: true, raw_response: response))
+      end
+
+      it 'falls back to raising for Sidekiq retry' do
+        expect { job.send(:with_adapter, adapter) { |_| } }.to raise_error(StandardError, /rate_limited/)
+      end
+    end
+
     context 'when adapter returns Failure with non-retryable error' do
       before do
         allow(adapter).to receive(:to_params)

@@ -40,6 +40,13 @@ class APIEntreprise::Job < ApplicationJob
       yield params
     in Success
       nil
+    in Failure(retryable: true, type: :rate_limited, code:, raw_response:, **)
+      wait = rate_limit_wait_from(raw_response)
+      if wait
+        self.class.set(wait: wait).perform_later(*arguments)
+      else
+        raise StandardError, format_error(:rate_limited, code, raw_response)
+      end
     in Failure(retryable: true, type:, code:, raw_response:, **)
       raise StandardError, format_error(type, code, raw_response)
     in Failure(retryable: false, type:, code:, **)
@@ -51,6 +58,17 @@ class APIEntreprise::Job < ApplicationJob
   end
 
   private
+
+  def rate_limit_wait_from(raw_response)
+    return nil if raw_response.nil?
+    headers = raw_response.try(:headers)
+    return nil if headers.nil?
+
+    reset = headers['RateLimit-Reset']&.to_i
+    return nil if reset.nil? || reset == 0
+
+    [reset - Time.current.to_i, 2].max.seconds
+  end
 
   def format_error(type, code, raw_response)
     message = "API Entreprise error: type=#{type} code=#{code}"
