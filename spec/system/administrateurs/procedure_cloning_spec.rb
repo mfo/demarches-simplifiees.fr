@@ -16,7 +16,7 @@ describe 'As an administrateur I wanna clone a procedure', js: true do
       published_at: Time.zone.now)
     login_as administrateur.user, scope: :user
   end
-  context 'Visit all admin procedures' do
+  context 'Visit all admin procedures and clone from this page' do
     let(:download_dir) { Rails.root.join('tmp/capybara') }
     let(:download_file_pattern) { download_dir.join('*.xlsx') }
 
@@ -30,6 +30,14 @@ describe 'As an administrateur I wanna clone a procedure', js: true do
                      "File download timeout! can't download procedure/all.xlsx") do
         sleep 0.1 until !Dir[download_file_pattern].empty?
       end
+
+      expect(page).to have_content(Procedure.last.libelle)
+      find('.button_to>button').click
+      click_on 'Cloner'
+      check 'Instructeurs', allow_label_click: true
+      click_on 'Cloner la démarche'
+      visit admin_procedures_path(statut: "brouillons")
+      expect(page.find_by_id('procedures')['data-item-count']).to eq('1')
     end
   end
   context 'Cloning a procedure owned by the current admin' do
@@ -69,19 +77,6 @@ describe 'As an administrateur I wanna clone a procedure', js: true do
       expect(page.find_by_id('procedures')['data-item-count']).to eq('1')
       visit admin_procedures_path(statut: "brouillons")
       expect(page.find_by_id('procedures')['data-item-count']).to eq('0')
-    end
-  end
-
-  context 'Cloning a procedure from the all procedure page' do
-    scenario do
-      visit all_admin_procedures_path
-      expect(page).to have_content(Procedure.last.libelle)
-      find('.button_to>button').click
-      click_on 'Cloner'
-      check 'Instructeurs', allow_label_click: true
-      click_on 'Cloner la démarche'
-      visit admin_procedures_path(statut: "brouillons")
-      expect(page.find_by_id('procedures')['data-item-count']).to eq('1')
     end
   end
 end
