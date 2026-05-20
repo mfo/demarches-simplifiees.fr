@@ -310,7 +310,11 @@ class Champ < ApplicationRecord
     self.data = champ.data
     self.external_state = champ.external_state
 
-    self.geo_areas = champ.geo_areas.map(&:dup)
+    self.geo_areas = champ.geo_areas.map do |ga|
+      duped = ga.dup
+      duped.properties = duped.properties.merge('source_id' => ga.id)
+      duped
+    end
 
     ClonePiecesJustificativesService.clone_attachments(champ, self)
 

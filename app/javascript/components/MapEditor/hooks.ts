@@ -143,10 +143,25 @@ export function useFeatureCollection(
         for (const feature of features) {
           const id = feature.properties?.id;
           if (id) {
-            await httpRequest(endpointWithId(url, id), {
+            const result = await httpRequest(endpointWithId(url, id), {
               method: 'patch',
               json: { feature }
-            }).json();
+            }).json<{ geo_area_id?: number } | null>();
+            if (result?.geo_area_id) {
+              const newId = result.geo_area_id;
+              fire(document, 'map:internal:draw:setId', {
+                lid: String(id),
+                id: String(newId)
+              });
+              setFeatureCollection(({ features }) => ({
+                type: 'FeatureCollection',
+                features: features.map((f) =>
+                  f.properties?.id == id
+                    ? { ...f, properties: { ...f.properties, id: newId } }
+                    : f
+                )
+              }));
+            }
           } else {
             const data = await httpRequest(url, {
               method: 'post',
@@ -171,7 +186,14 @@ export function useFeatureCollection(
         onError('Le polygone dessiné n’est pas valide.');
       }
     },
-    [url, refreshFeatureList, updateFeatureCollection, addFeatures, onError]
+    [
+      url,
+      refreshFeatureList,
+      updateFeatureCollection,
+      setFeatureCollection,
+      addFeatures,
+      onError
+    ]
   );
 
   const deleteFeatures = useCallback<DeleteFeatures>(

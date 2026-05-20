@@ -28,19 +28,23 @@ class Champs::CarteController < Champs::ChampController
   end
 
   def update
-    geo_area = @champ.geo_areas.find(params[:id])
+    geo_area = find_geo_area(params[:id])
 
     if save_feature(geo_area, update_params_feature)
       @champ.update_timestamps
       FetchCadastreRealGeometryJob.perform_later(geo_area) if geo_area.cadastre?
-      head :no_content
+      if @source_id_used
+        render json: { geo_area_id: geo_area.id }, status: :ok
+      else
+        head :no_content
+      end
     else
       render json: { errors: geo_area.errors.full_messages }, status: :unprocessable_content
     end
   end
 
   def destroy
-    @champ.geo_areas.find(params[:id]).destroy!
+    find_geo_area(params[:id]).destroy!
     @champ.update_timestamps
 
     head :no_content
@@ -86,6 +90,16 @@ class Champs::CarteController < Champs::ChampController
       geo_area.properties.merge!(feature[:properties])
     end
     geo_area.save
+  end
+
+  def find_geo_area(id)
+    @champ.geo_areas.find_by(id:) || find_geo_area_by_source_id(id)
+  end
+
+  def find_geo_area_by_source_id(id)
+    geo_area = @champ.geo_areas.find_by!("properties->>'source_id' = ?", id.to_s)
+    @source_id_used = true
+    geo_area
   end
 
   def ensure_legitimate_access
