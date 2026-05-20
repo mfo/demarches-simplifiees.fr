@@ -28,7 +28,7 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
     dossier.reload
   end
 
-  scenario 'user selects a valid option but submission fails because removed option persists' do
+  scenario 'user selects a valid option and submission succeeds (removed option is filtered out)' do
     login_as(user, scope: :user)
     visit modifier_dossier_path(dossier)
 
@@ -40,7 +40,12 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
 
     click_on 'Déposer les modifications'
 
-    # BUG: validation error because "Bravo" is still in the champ value
-    expect(page).to have_content('« Zonage(s) » doit être dans les options proposées')
+    # No validation error: removed option "Bravo" was filtered out by the component
+    expect(page).to have_content('Votre dossier est déposé')
+    expect(page).not_to have_content('« Zonage(s) » doit être dans les options proposées')
+
+    # After submit, champ value contains only valid options: "Bravo" was dropped, "Alpha" was added
+    champ = dossier.reload.project_champs_public.find { _1.stable_id == stable_id }
+    expect(champ.selected_options).to match_array(["Alpha", "Charlie"])
   end
 end
