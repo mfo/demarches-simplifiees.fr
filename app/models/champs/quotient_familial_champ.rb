@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 class Champs::QuotientFamilialChamp < Champs::FranceConnectChamp
-  def fetch_external_data
-    fci = dossier.user.france_connect_informations.first
-    api = APIParticulier::QuotientFamilial.new(procedure)
-    api.quotient_familial(fci)
-  end
-
   def libelle
     if fc_data_correct?
       ""

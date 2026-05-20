@@ -23,6 +23,12 @@ class Champs::FranceConnectChamp < Champ
     dossier.user_from_france_connect? && !dossier.for_tiers? && dossier.procedure.for_individual? && !dossier.for_procedure_preview?
   end
 
+  def fetch_external_data
+    fci = dossier.user.france_connect_informations.first
+    api = api_class.new(procedure)
+    api.call_with_fci(fci)
+  end
+
   def update_external_data!(data)
     hash = {
       data: { api_part: data },
@@ -36,4 +42,12 @@ class Champs::FranceConnectChamp < Champ
       self.piece_justificative_file.purge_later
     end
   end
+
+  private
+
+  def api_class
+    "APIParticulier::#{self.type_champ.camelcase}Adapter".constantize
+  end
+
+  def extract_value_json(data:)= data
 end

@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-class APIParticulier::QuotientFamilial
+class APIParticulier::API
   include Dry::Monads[:result]
 
-  QUOTIENT_FAMILIAL = "v3/dss/quotient_familial/identite"
   TIMEOUT = 20
 
   def initialize(procedure)
@@ -11,19 +10,15 @@ class APIParticulier::QuotientFamilial
     @token = procedure.api_particulier_token
   end
 
-  def quotient_familial(fci)
-    call_with_fci(QUOTIENT_FAMILIAL, fci)
-  end
-
-  private
-
-  def call_with_fci(resource_name, fci)
-    url = [API_PARTICULIER_URL, resource_name].join("/")
+  def call_with_fci(fci)
+    url = [API_PARTICULIER_URL, self.class::RESSOURCE].join("/")
 
     params = build_params(fci)
 
     call(url, params)
   end
+
+  private
 
   def build_params(fci)
     {
@@ -72,6 +67,6 @@ class APIParticulier::QuotientFamilial
   end
 
   def schema
-    JSONSchemer.schema(Rails.root.join('app/schemas/quotient-familial.json'))
+    JSONSchemer.schema(Rails.root.join(self.class::SCHEMA))
   end
 end
