@@ -199,6 +199,51 @@ describe Administrateurs::ReferentielsController, type: :controller do
         end
       end
     end
+
+    context 'cloning an existing referentiel whose auth fields were rendered disabled' do
+      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:original_authentication_data) { { 'header' => 'Authorization', 'value' => 'Bearer secret-token' } }
+      let!(:existing_referentiel) do
+        create(:api_referentiel, :exact_match,
+               types_de_champ: [type_de_champ],
+               authentication_method: 'header_token',
+               authentication_data: original_authentication_data)
+      end
+      let(:url_tiptap_json) do
+        {
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "https://rnb-api.beta.gouv.fr/api/alpha/buildings/" },
+                { type: "mention", attrs: { id: "{query}", label: "Valeur saisie par l'usager" } },
+              ],
+            },
+          ],
+        }
+      end
+      let(:referentiel_params) do
+        {
+          type: 'Referentiels::APIReferentiel',
+          mode: 'exact_match',
+          url_tiptap: url_tiptap_json.to_json,
+          hint: 'Identifiant unique du bâtiment dans le RNB',
+          test_data_tiptap: { "{query}" => "PG46YY6YWCX8" },
+          authentication_method: 'header_token',
+          referentiel_id: existing_referentiel.id.to_s,
+        }
+      end
+
+      it 'carries over authentication_data from the source referentiel' do
+        post :create, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream
+
+        new_referentiel = type_de_champ.reload.referentiel
+        expect(new_referentiel).to be_present
+        expect(new_referentiel.authentication_method).to eq('header_token')
+        expect(new_referentiel.authentication_data.with_indifferent_access).to eq(original_authentication_data.with_indifferent_access)
+      end
+    end
   end
 
   describe '#create with tiptap' do
