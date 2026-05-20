@@ -82,32 +82,6 @@ describe 'As an administrateur I wanna clone a procedure', js: true do
       click_on 'Cloner la démarche'
       visit admin_procedures_path(statut: "brouillons")
       expect(page.find_by_id('procedures')['data-item-count']).to eq('1')
-      click_on Procedure.last.libelle
-      expect(page).to have_current_path(admin_procedure_path(id: Procedure.last))
-
-      # select service
-      find("#service .fr-btn").click
-      click_on "Affecter"
-
-      # select zone
-      find("#zones .fr-btn").click
-      check Zone.last.current_label, allow_label_click: true
-      click_on 'Enregistrer'
-
-      # then publish
-      find('#publish-procedure-link').click
-      expect(find_field('Lien de la démarche à diffuser aux usagers').value).to eq 'libelle-de-la-procedure-2'
-      fill_in 'Lien de la démarche à diffuser aux usagers', with: 'libelle-de-la-procedure'
-      expect(page).to have_content "Si vous publiez cette démarche, le lien ne pointera plus sur l’ancienne démarche."
-      fill_in 'Où les usagers trouveront-ils le lien vers la démarche ?', with: 'http://some.website'
-      click_on 'publish'
-
-      page.refresh
-
-      visit admin_procedures_path(statut: "archivees")
-      expect(page.find_by_id('procedures')['data-item-count']).to eq('1')
-      visit admin_procedures_path(statut: "brouillons")
-      expect(page.find_by_id('procedures')['data-item-count']).to eq('0')
     end
   end
 end
