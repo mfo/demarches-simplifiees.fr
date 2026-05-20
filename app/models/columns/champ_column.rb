@@ -224,6 +224,10 @@ class Columns::ChampColumn < Column
     [:multiple_drop_down_list, :text] => -> (v) { v.join(', ') },
     [:multiple_drop_down_list, :textarea] => -> (v) { v.join("\n") },
     [:multiple_drop_down_list, :formatted] => -> (v) { v.join(', ') },
+    # communes
+    [:communes, :text] => -> (v) { v },
+    [:communes, :textarea] => -> (v) { v },
+    [:communes, :formatted] => -> (v) { v },
   }
 
   def parse_boolean(value)

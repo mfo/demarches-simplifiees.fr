@@ -146,6 +146,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
       expect(described_class::ACCEPTED_TYPES).to include(
         "checkbox" => ["yes_no", "text", "textarea", "formatted"],
         "civilite" => ["text", "textarea", "formatted"],
+        "communes" => ["text", "textarea", "formatted"],
         "date" => ["datetime", "text", "textarea", "formatted"],
         "datetime" => ["date", "text", "textarea", "formatted"],
         "decimal_number" => ["integer_number", "text", "textarea", "formatted"],

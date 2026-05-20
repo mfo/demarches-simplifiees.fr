@@ -152,6 +152,22 @@ describe Columns::ChampColumn do
           expect(column('textarea').value(champ)).to eq("val1\nval2")
         end
       end
+
+      context 'from a communes' do
+        let(:champ) do
+          Champs::CommuneChamp.new(
+            value: 'Coye-la-Forêt',
+            external_id: '60172',
+            code_postal: '60580'
+          )
+        end
+
+        it do
+          expect(column('text').value(champ)).to eq('Coye-la-Forêt')
+          expect(column('textarea').value(champ)).to eq('Coye-la-Forêt')
+          expect(column('formatted').value(champ)).to eq('Coye-la-Forêt')
+        end
+      end
     end
   end
 
