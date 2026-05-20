@@ -19,10 +19,7 @@
   "email": "georges@moustaki.fr",
   "identite": {
     "nom": "Moustaki",
-    "prenoms": [
-      "PIERRE",
-      "RICHARD"
-    ],
+    "prenoms": "PIERRE RICHARD",
     "date_naissance": "1992-11-29",
     "nom_commune_naissance": "Poitiers",
     "sexe": "M"

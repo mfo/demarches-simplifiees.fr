@@ -73,7 +73,7 @@ module FranceConnectChamp
     def individual_values(individual)
       {
         "Nom" => individual["nom"],
-        "Prénoms" => Array(individual["prenoms"]).join(" "),
+        "Prénoms" => individual["prenoms"],
         "Date de naissance" => format_date(individual["date_naissance"]),
         "Commune de naissance" => individual["nom_commune_naissance"],
         "Sexe" => individual["sexe"],
