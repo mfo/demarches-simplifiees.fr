@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_085008) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_20_122559) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -617,8 +617,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_085008) do
     t.string "entreprise_siren"
     t.string "entreprise_siret_siege_social"
     t.string "libelle_naf"
+    t.string "libelle_naf_2025"
     t.string "localite"
     t.string "naf"
+    t.string "naf_2025"
     t.string "nom_pays"
     t.string "nom_voie"
     t.string "numero_voie"
