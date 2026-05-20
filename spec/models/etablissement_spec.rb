@@ -133,6 +133,15 @@ describe Etablissement do
     end
   end
 
+  describe '#search_terms' do
+    let(:etablissement) { build(:etablissement, naf_2025: '84.11', libelle_naf_2025: 'Administration publique générale') }
+
+    it 'includes naf_2025 and libelle_naf_2025' do
+      expect(etablissement.search_terms).to include('84.11')
+      expect(etablissement.search_terms).to include('Administration publique générale')
+    end
+  end
+
   describe 'update search terms' do
     let(:etablissement) { create(:etablissement, dossier: build(:dossier)) }
 
