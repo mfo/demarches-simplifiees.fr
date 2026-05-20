@@ -17,7 +17,9 @@ class APIEntreprise::API
   PRIVILEGES_RESOURCE_NAME = "privileges"
 
   TIMEOUT = 20
-  DEFAULT_API_ENTREPRISE_DELAY = 0.0
+
+  RATE_LIMIT_REMAINING_KEY = "api_entreprise:rate_limit:remaining"
+  RATE_LIMIT_RESET_KEY = "api_entreprise:rate_limit:reset"
 
   attr_reader :procedure
   attr_accessor :token
@@ -107,12 +109,14 @@ class APIEntreprise::API
     return Failure(type: :token_missing, code: 401, retryable: false, raw_response: nil) if token_missing?
     return Failure(type: :token_expired, code: 401, retryable: false, raw_response: nil) if token_expired?
 
-    sleep api_entreprise_delay if api_entreprise_delay != 0.0
+    wait_if_rate_limited!
 
     case client.call(url:, params:, headers: { 'Authorization' => "Bearer #{token.jwt_token}" }, timeout: TIMEOUT)
     in Success(body:, response:)
+      update_rate_limit_from_headers!(response)
       Success(body)
     in Failure(type: :http, code:, error:)
+      update_rate_limit_from_headers!(error.try(:response)) if code == 429
       classify_http_error(code, error.try(:response))
     in Failure(type:, code:, retryable:, error:)
       Failure(type:, code:, retryable:, raw_response: error.try(:response))
@@ -191,8 +195,29 @@ class APIEntreprise::API
     }
   end
 
-  def api_entreprise_delay
-    ENV.fetch("API_ENTREPRISE_DELAY", DEFAULT_API_ENTREPRISE_DELAY).to_f
+  def wait_if_rate_limited!
+    remaining = Kredis.redis.get(RATE_LIMIT_REMAINING_KEY)
+    reset_at = Kredis.redis.get(RATE_LIMIT_RESET_KEY)
+    return if remaining.nil? || reset_at.nil?
+
+    if remaining.to_i <= 0
+      wait_seconds = [reset_at.to_i - Time.current.to_i, 0].max
+      sleep(wait_seconds) if wait_seconds > 0
+    end
+  end
+
+  def update_rate_limit_from_headers!(response)
+    return if response.nil?
+    headers = response.try(:headers)
+    return if headers.nil?
+
+    remaining = headers['RateLimit-Remaining']
+    reset = headers['RateLimit-Reset']
+    return if remaining.nil? || reset.nil?
+
+    ttl = [reset.to_i - Time.current.to_i, 1].max
+    Kredis.redis.set(RATE_LIMIT_REMAINING_KEY, remaining.to_i, ex: ttl)
+    Kredis.redis.set(RATE_LIMIT_RESET_KEY, reset.to_i, ex: ttl)
   end
 
   def token_missing? = token.nil? || token.jwt_token.blank?
