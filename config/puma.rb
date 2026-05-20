@@ -30,13 +30,24 @@ if ENV.fetch("RAILS_ENV") == "production"
   # processes).
   #
   workers ENV.fetch("WEB_CONCURRENCY") { 2 }
+end
 
-  # Use the `preload_app!` method when specifying a `workers` number.
-  # This directive tells Puma to first boot the application and load code
-  # before forking the application. This takes advantage of Copy On Write
-  # process behavior so workers use less memory.
-  #
+# `cluster do` (Puma 8): the block is evaluated only when `workers > 0`.
+# It replaces the `if RAILS_ENV == "production"` guard for cluster-only settings
+# and keeps mode-specific config co-located.
+cluster do
+  # Load the application BEFORE forking workers. Linux's Copy-on-Write then lets
+  # workers share the parent's memory pages (gems, eager-loaded constants, ...)
+  # until they write to them, lowering the overall RAM footprint.
   preload_app!
+
+  # On graceful shutdown (SIGTERM, deploy), Puma waits for in-flight requests
+  # to finish. If a request stalls past `worker_shutdown_timeout` (30s default)
+  # the master force-kills the worker. With `on_force: true` Puma logs a full
+  # thread backtrace ONLY in that forced case, so we get visibility on what
+  # was stuck without spamming the logs on every normal deploy. Pre-Puma 8 the
+  # equivalent option logged backtraces on every shutdown.
+  shutdown_debug on_force: true
 end
 
 # Allow puma to be restarted by `rails restart` command.
