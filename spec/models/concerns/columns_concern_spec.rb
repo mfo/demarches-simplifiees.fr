@@ -124,6 +124,7 @@ describe ColumnsConcern do
           { label: 'Date de création', table: 'etablissement', column: 'entreprise_date_creation', displayable: true, type: :date, filterable: true },
           { label: 'SIRET', table: 'etablissement', column: 'siret', displayable: true, type: :text, filterable: true },
           { label: 'Libellé NAF', table: 'etablissement', column: 'libelle_naf', displayable: true, type: :text, filterable: true },
+          { label: 'Libellé NAF 2025', table: 'etablissement', column: 'libelle_naf_2025', displayable: true, type: :text, filterable: true },
           { label: 'Code postal', table: 'etablissement', column: 'code_postal', displayable: true, type: :text, filterable: true },
           { label: tdc_1.libelle, table: 'type_de_champ', column: tdc_1.stable_id.to_s, displayable: true, type: :text, filterable: true },
           { label: tdc_2.libelle, table: 'type_de_champ', column: tdc_2.stable_id.to_s, displayable: true, type: :text, filterable: true },
