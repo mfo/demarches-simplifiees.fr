@@ -38,11 +38,7 @@ class Attachment::Validation
         return sorted.size > 5 ? (sorted.first(5) + ['…']) : sorted
       end
 
-      raw = if has_content_type_validator?
-        content_type_validator.options[:in]
-      else
-        []
-      end
+      raw = has_content_type_validator? ? content_type_validator_list : []
 
       extensions = raw.filter_map { |ct| MiniMime.lookup_by_content_type(ct)&.extension }.uniq
       sorted = extensions.sort_by { |e| EXTENSIONS_ORDER.index(e) || 999 }
@@ -87,10 +83,18 @@ class Attachment::Validation
   end
 
   def accept_content_type
-    list = content_type_validator.options[:in].dup
+    list = content_type_validator_list.dup
     # Special case: acidcsa files are detected as octet-stream
     list << ".acidcsa" if list.include?("application/octet-stream")
     content_types_with_extensions(list)
+  end
+
+  # ASV accepts either an Array (options[:in]) or a Proc that returns an Array
+  # (options[:with]). Normalize to an Array here.
+  def content_type_validator_list
+    options = content_type_validator.options
+    raw = options[:in] || options[:with]
+    raw.is_a?(Proc) ? Array.wrap(raw.call(record)) : Array.wrap(raw)
   end
 
   def accept_from_attached_type_de_champ
