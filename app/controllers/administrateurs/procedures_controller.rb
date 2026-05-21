@@ -67,7 +67,12 @@ module Administrateurs
     def show
       @procedure = current_administrateur
         .procedures
+        .with_attached_logo
+        .with_attached_notice
+        .with_attached_deliberation
         .includes(
+          :published_dossier_submitted_message,
+          :draft_dossier_submitted_message,
           published_revision: {
             revision_types_de_champ: { type_de_champ: { piece_justificative_template_attachment: :blob } },
           },
@@ -306,6 +311,9 @@ module Administrateurs
       @procedure = current_administrateur
         .procedures
         .with_active_revision
+        .with_attached_logo
+        .with_attached_notice
+        .with_attached_deliberation
         .find(params[:procedure_id])
 
       if @procedure.auto_archive_on && !@procedure.auto_archive_on.future?
