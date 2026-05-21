@@ -45,6 +45,13 @@ describe Users::ProfilController, type: :controller do
         expect(controller.nav_bar_profile).to eq(:user)
       end
     end
+
+    context 'when called without a request (controller introspection by NavBarProfileConcern)' do
+      it 'does not raise and returns a valid profile' do
+        bare_controller = Users::ProfilController.new
+        expect { bare_controller.nav_bar_profile }.not_to raise_error
+      end
+    end
   end
 
   describe 'GET #show' do
