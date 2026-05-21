@@ -14,7 +14,7 @@ describe APIEntreprise::EtablissementAdapter do
     subject { described_class.new(siret, procedure_id).to_params }
 
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
         .to_return(body: File.read(fixture, status: 200))
     end
 
@@ -40,7 +40,15 @@ describe APIEntreprise::EtablissementAdapter do
         expect(subject.value![:libelle_naf]).to eq('Administration publique générale')
       end
 
-      it 'L’entreprise contient bien un diffusable_commercialement qui vaut true' do
+      it "L’entreprise contient bien un naf_2025" do
+        expect(subject.value![:naf_2025]).to eq('84.11')
+      end
+
+      it "L’entreprise contient bien un libelle_naf_2025" do
+        expect(subject.value![:libelle_naf_2025]).to eq('Administration publique générale')
+      end
+
+      it "L’entreprise contient bien un diffusable_commercialement qui vaut true" do
         expect(subject.value![:diffusable_commercialement]).to eq(true)
       end
 
@@ -97,6 +105,48 @@ describe APIEntreprise::EtablissementAdapter do
       end
     end
 
+    context 'Attributs Entreprise (extraits de unite_legale)' do
+      it 'contient le siren' do
+        expect(subject.value![:entreprise_siren]).to eq('130025265')
+      end
+
+      it 'contient le siret_siege_social' do
+        expect(subject.value![:entreprise_siret_siege_social]).to eq('13002526500013')
+      end
+
+      it 'contient la raison_sociale' do
+        expect(subject.value![:entreprise_raison_sociale]).to eq('DIRECTION INTERMINISTERIELLE DU NUMERIQUE')
+      end
+
+      it 'contient la forme_juridique' do
+        expect(subject.value![:entreprise_forme_juridique]).to eq("Service central d\u2019un ministère")
+      end
+
+      it 'contient le forme_juridique_code' do
+        expect(subject.value![:entreprise_forme_juridique_code]).to eq('7120')
+      end
+
+      it 'contient le code_effectif_entreprise' do
+        expect(subject.value![:entreprise_code_effectif_entreprise]).to eq('51')
+      end
+
+      it "contient l'etat_administratif" do
+        expect(subject.value![:entreprise_etat_administratif]).to eq('actif')
+      end
+
+      it 'contient la date_creation' do
+        expect(subject.value![:entreprise_date_creation]).to eq(Time.zone.at(1634103818).to_datetime)
+      end
+
+      it 'contient le nom (personne physique)' do
+        expect(subject.value![:entreprise_nom]).to eq('Dupont (Martin)')
+      end
+
+      it 'contient le prenom (personne physique)' do
+        expect(subject.value![:entreprise_prenom]).to eq('Jean')
+      end
+    end
+
     context 'Attributs Etablissements pour etablissement non siege' do
       let(:siret) { '17310120500719' }
       let(:fixture) { 'spec/fixtures/files/api_entreprise/etablissements-non-siege.json' }
@@ -119,7 +169,7 @@ describe APIEntreprise::EtablissementAdapter do
     subject { described_class.new(siret, procedure_id).to_params }
 
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
         .to_return(body: File.read('spec/fixtures/files/api_entreprise/etablissements_private.json', status: 200))
     end
 
@@ -133,7 +183,7 @@ describe APIEntreprise::EtablissementAdapter do
     subject { described_class.new(bad_siret, procedure_id).to_params }
 
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{bad_siret}/)
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{bad_siret}/)
         .to_return(body: 'Fake body', status: 404)
     end
 

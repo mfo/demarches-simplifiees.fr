@@ -2,7 +2,7 @@
 
 class APIEntreprise::EtablissementAdapter < APIEntreprise::Adapter
   # Doc Métier : https://entreprise.api.gouv.fr/catalogue/insee/etablissements
-  # Swagger : https://entreprise.api.gouv.fr/developpeurs/openapi#tag/Informations-generales/paths/~1v3~1insee~1sirene~1etablissements~1%7Bsiret%7D/get
+  # Swagger : https://entreprise.api.gouv.fr/developpeurs/openapi#tag/Informations-generales/paths/~1v4~1insee~1sirene~1etablissements~1%7Bsiret%7D/get
 
   private
 
@@ -16,26 +16,73 @@ class APIEntreprise::EtablissementAdapter < APIEntreprise::Adapter
       scope.set_tags(siret: @siret)
       scope.set_extras(source: raw_data)
 
-      params = raw_data.slice(*attr_to_fetch)
-      params[:naf] = raw_data.dig(:activite_principale, :code)
-      params[:libelle_naf] = raw_data.dig(:activite_principale, :libelle)
+      etablissement_params = extract_etablissement_params(raw_data)
+      return {} unless valid_params?(etablissement_params)
 
-      if valid_params?(params)
-        adresse_line = raw_data[:adresse][:acheminement_postal].slice(*address_lines_to_fetch).values.compact.join("\r\n")
-        params.merge!(params[:adresse].slice(*address_attr_to_fetch))
-        params[:nom_voie] = raw_data[:adresse][:libelle_voie]
-        params[:code_insee_localite] = raw_data[:adresse][:code_commune]
-        if raw_data[:adresse][:libelle_pays_etranger].present?
-          params[:localite] = raw_data[:adresse][:libelle_commune_etranger]
-          params[:nom_pays] = raw_data[:adresse][:libelle_pays_etranger]
-        else
-          params[:localite] = raw_data[:adresse][:libelle_commune]
-        end
-        params[:adresse] = adresse_line
-        params
-      else
-        {}
-      end
+      enterprise_params = extract_enterprise_params(raw_data[:unite_legale])
+      enterprise_params = {} unless valid_params?(enterprise_params)
+
+      etablissement_params.merge(enterprise_params)
+    end
+  end
+
+  def extract_etablissement_params(raw_data)
+    params = raw_data.slice(*attr_to_fetch)
+
+    params[:naf_2025] = raw_data.dig(:activite_principale, :code)
+    params[:libelle_naf_2025] = raw_data.dig(:activite_principale, :libelle)
+    params[:naf] = raw_data.dig(:activite_principale_naf_rev2, :code)
+    params[:libelle_naf] = raw_data.dig(:activite_principale_naf_rev2, :libelle)
+
+    adresse_line = raw_data[:adresse][:acheminement_postal].slice(*address_lines_to_fetch).values.compact.join("\r\n")
+    params.merge!(params[:adresse].slice(*address_attr_to_fetch))
+    params[:nom_voie] = raw_data[:adresse][:libelle_voie]
+    params[:code_insee_localite] = raw_data[:adresse][:code_commune]
+    if raw_data[:adresse][:libelle_pays_etranger].present?
+      params[:localite] = raw_data[:adresse][:libelle_commune_etranger]
+      params[:nom_pays] = raw_data[:adresse][:libelle_pays_etranger]
+    else
+      params[:localite] = raw_data[:adresse][:libelle_commune]
+    end
+    params[:adresse] = adresse_line
+
+    params
+  end
+
+  def extract_enterprise_params(unite_legale)
+    return {} if unite_legale.nil?
+
+    params = {}
+    params[:siren] = unite_legale[:siren]
+    params[:siret_siege_social] = unite_legale[:siret_siege_social]
+    params[:date_creation] = Time.zone.at(unite_legale[:date_creation]).to_datetime if unite_legale[:date_creation].present?
+    params[:etat_administratif] = map_etat_administratif(unite_legale[:etat_administratif])
+    params[:forme_juridique] = unite_legale.dig(:forme_juridique, :libelle)
+    params[:forme_juridique_code] = unite_legale.dig(:forme_juridique, :code)
+    params[:raison_sociale] = unite_legale.dig(:personne_morale_attributs, :raison_sociale)
+
+    if unite_legale[:personne_physique_attributs].present?
+      params[:nom] = build_nom(unite_legale[:personne_physique_attributs])
+      params[:prenom] = unite_legale.dig(:personne_physique_attributs, :prenom_usuel)
+    end
+
+    params[:code_effectif_entreprise] = unite_legale.dig(:tranche_effectif_salarie, :code)
+
+    params.transform_keys { |k| :"entreprise_#{k}" }
+  end
+
+  def build_nom(attrs)
+    nom_usage = attrs[:nom_usage]&.strip
+    nom_naissance = attrs[:nom_naissance]&.strip
+    return nom_usage if nom_naissance.blank? || nom_usage == nom_naissance
+    return nom_naissance if nom_usage.blank?
+    "#{nom_usage} (#{nom_naissance})"
+  end
+
+  def map_etat_administratif(raw_value)
+    case raw_value
+    when 'A' then 'actif'
+    when 'F', 'C' then 'fermé'
     end
   end
 
