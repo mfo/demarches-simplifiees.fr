@@ -75,7 +75,7 @@ fr:
     options_label: "Options de la liste"
     hidden_label: "Masquer ce champ dans le formulaire usager"
   france_connect:
-    quotient_familial: "Ce champ permet de récupérer automatiquement et de façon fiable les données d'identité, le quotient familial CAF ou MSA et la composition familiale de l'usager connecté via FranceConnect"
-    etudiant_boursier: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut et de l'échelon boursier d'un étudiant connecté via FranceConnect"
-    aah: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l'allocation adulte handicapé (AAH) de l'usager connecté via FranceConnect"
-    aeeh: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l'allocation d'éducation de l'enfant handicapé (AEEH) de l'usager connecté via FranceConnect"
+    quotient_familial: "Ce champ permet de récupérer automatiquement et de façon fiable les données d’identité, le quotient familial CAF ou MSA et la composition familiale de l’usager connecté via FranceConnect"
+    etudiant_boursier: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut et de l’échelon boursier d’un étudiant connecté via FranceConnect"
+    aah: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation adulte handicapé (AAH) de l’usager connecté via FranceConnect"
+    aeeh: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation d’éducation de l’enfant handicapé (AEEH) de l’usager connecté via FranceConnect"
