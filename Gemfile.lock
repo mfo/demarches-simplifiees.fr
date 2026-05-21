@@ -326,11 +326,11 @@ GEM
       csv (>= 3.0.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    gon (6.5.0)
+    gon (7.0.0)
       actionpack (>= 3.0.20)
+      activesupport
       i18n (>= 0.7)
       multi_json
-      request_store (>= 1.0)
     graphql (2.5.23)
       base64
       fiber-storage
