@@ -60,15 +60,22 @@ class APIParticulier::API
       params_encoding: :multi,
       timeout: TIMEOUT)
 
-    body = JSON.parse(response.body, symbolize_names: true)
+    body = parse_response_body(response.body)
 
     if response.success?
       return Failure(retryable: false, error: StandardError.new("Not retryable: invalid schema"), code: :invalid_schema) if !schema.valid?(body)
 
       Success(body[:data])
     else
-      Failure(retryable: false, error: StandardError.new("Not retryable: #{body.dig(:errors)}"), code: response.code)
+      error_message = body&.dig(:errors) || response.body.presence || "HTTP #{response.code}"
+      Failure(retryable: false, error: StandardError.new("Not retryable: #{error_message}"), code: response.code)
     end
+  end
+
+  def parse_response_body(body)
+    JSON.parse(body, symbolize_names: true)
+  rescue JSON::ParserError
+    nil
   end
 
   def schema
