@@ -90,10 +90,9 @@ class Procedure < ApplicationRecord
   end
 
   def all_revisions_types_de_champ(parent: nil, with_header_section: false)
-    types_de_champ_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
     if brouillon?
       if parent.nil?
-        types_de_champ_scope
+        (with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable)
           .joins(:revision_types_de_champ)
           .where(revision_types_de_champ: { revision_id: draft_revision_id, parent_id: nil })
           .order(:private, :position)

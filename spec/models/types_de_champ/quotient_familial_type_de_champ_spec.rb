@@ -47,7 +47,7 @@ describe TypesDeChamp::QuotientFamilialTypeDeChamp do
   describe '#columns' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial, libelle: 'qf' }]) }
     let(:tdc_quotient_familial) { procedure.active_revision.types_de_champ.first }
-    let(:columns) { tdc_quotient_familial.columns(procedure:) }
+    let(:columns) { tdc_quotient_familial.columns(procedure_id: procedure.id) }
 
     it 'adds QF columns' do
       expected_columns = [

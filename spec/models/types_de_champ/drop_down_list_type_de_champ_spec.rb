@@ -6,7 +6,7 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
     let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: }] }
     let(:referentiel) { create(:csv_referentiel, :with_items) }
     let(:dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
-    subject { dropdown_list_tdc.columns(procedure:) }
+    subject { dropdown_list_tdc.columns(procedure_id: procedure.id) }
 
     context 'when drop_down_mode is advanced (referentiel)' do
       let(:drop_down_mode) { 'advanced' }

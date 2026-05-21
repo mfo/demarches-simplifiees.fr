@@ -3,9 +3,9 @@
 class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   include AddressableColumnConcern
 
-  def columns(procedure:, displayable: true, prefix: nil)
-    addressable_columns(procedure:, displayable:, prefix:, only: [:department_code, :region_code])
-      .concat(legacy_columns(procedure:, prefix:))
+  def columns(procedure_id:, displayable: true, prefix: nil)
+    addressable_columns(procedure_id:, displayable:, prefix:, only: [:department_code, :region_code])
+      .concat(legacy_columns(procedure_id:, prefix:))
   end
 
   def filter_to_human(filter_value)
@@ -51,10 +51,10 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
 
   # ChampColumn par défaut conservé pour rester résolvable par les ProcedurePresentation /
   # exports / colonnes graphql persistées avant la bascule sur AddressableColumnConcern.
-  def legacy_columns(procedure:, prefix:)
+  def legacy_columns(procedure_id:, prefix:)
     [
       Columns::ChampColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),

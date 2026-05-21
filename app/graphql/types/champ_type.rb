@@ -20,7 +20,7 @@ module Types
       if object.repetition?
         []
       else
-        object.type_de_champ.columns(procedure: object.procedure)
+        object.type_de_champ.columns(procedure_id: object.procedure.id)
       end
     end
 

@@ -9,10 +9,10 @@ class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
 
   def champ_blank_or_invalid?(champ) = Siret.new(siret: champ.value).invalid?
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     super
-      .concat(etablissement_columns(procedure:, displayable:, prefix:))
-      .concat(addressable_columns(procedure:, displayable:, prefix:, deprecated_columns: true))
+      .concat(etablissement_columns(procedure_id:, displayable:, prefix:))
+      .concat(addressable_columns(procedure_id:, displayable:, prefix:, deprecated_columns: true))
   end
 
   def info_columns(procedure:)
@@ -29,12 +29,12 @@ class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
 
   private
 
-  def etablissement_columns(procedure:, displayable:, prefix:)
+  def etablissement_columns(procedure_id:, displayable:, prefix:)
     i18n_scope = [:activerecord, :attributes, :procedure_presentation, :fields, :etablissement]
 
     Etablissement::DISPLAYABLE_COLUMNS.map do |(column, attributes)|
       Columns::JSONPathColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: [prefix, libelle, I18n.t(column, scope: i18n_scope)].compact.join(' – '),

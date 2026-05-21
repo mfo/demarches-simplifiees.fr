@@ -125,11 +125,11 @@ module ColumnsConcern
   end
 
   def form_filterable_columns
-    all_revisions_types_de_champ.public_only.flat_map { _1.columns(procedure: self) }.filter(&:filterable)
+    all_revisions_types_de_champ.public_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
   end
 
   def annotation_privees_filterable_columns
-    all_revisions_types_de_champ.private_only.flat_map { _1.columns(procedure: self) }.filter(&:filterable)
+    all_revisions_types_de_champ.private_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
   end
 
   private
@@ -233,7 +233,7 @@ module ColumnsConcern
   end
 
   def types_de_champ_columns
-    all_revisions_types_de_champ.flat_map { _1.columns(procedure: self) }
+    all_revisions_types_de_champ.flat_map { _1.columns(procedure_id: id) }
   end
 
   def dossier_col(**args) = Columns::DossierColumn.new(**(args.merge(procedure_id: id)))

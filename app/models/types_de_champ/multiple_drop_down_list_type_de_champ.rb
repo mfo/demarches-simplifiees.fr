@@ -17,11 +17,11 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampB
     ChampPresentations::MultipleDropDownListPresentation.new(selected_options(champ))
   end
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     if drop_down_advanced?
       referentiel.present? ? referentiel.headers_with_path.map do |(header, path)|
         Columns::MultipleDropDownColumn.new(
-          procedure_id: procedure.id,
+          procedure_id:,
           stable_id:,
           tdc_type: type_champ,
           label: "#{libelle_with_prefix(prefix)} – Référentiel #{header}",

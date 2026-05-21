@@ -31,12 +31,12 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
 
   def champ_blank?(champ) = champ.piece_justificative_file.blank?
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     cs = []
 
     if !titre_identite?
       cs << Columns::AttachedManyColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),
@@ -55,7 +55,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         ['Nom de la Banque', '$.rib.bank_name'],
       ].map do |label, jsonpath|
         Columns::JSONPathColumn.new(
-         procedure_id: procedure.id,
+         procedure_id:,
          stable_id:,
          tdc_type: type_champ,
          label: "#{libelle_with_prefix(prefix)} – #{label}",
@@ -71,7 +71,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         .map do |attr, type|
         jsonpath = "$.#{attr}"
         Columns::JSONPathColumn.new(
-          procedure_id: procedure.id,
+          procedure_id:,
           stable_id:,
           tdc_type: type_champ,
           label: "#{libelle_with_prefix(prefix)} – #{attr}",
@@ -84,7 +84,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
     elsif titre_identite?
       cs += [
         Columns::TitreIdentiteColumn.new(
-          procedure_id: procedure.id,
+          procedure_id:,
           stable_id:,
           tdc_type: type_champ,
           label: "#{libelle_with_prefix(prefix)} – filled",
