@@ -81,7 +81,7 @@ class Champs::PieceJustificativeChamp < Champ
     piece_justificative_file.attachments.each do |attachment|
       if allowed_types.present? && !allowed_types.include?(attachment.content_type)
         log_content_type_rejection(attachment.content_type, allowed_types, attachment)
-        errors.add(:piece_justificative_file, :content_type_invalid, content_type: attachment.content_type)
+        errors.add(:piece_justificative_file, :content_type_invalid, content_type: attachment.content_type, count: 1)
       end
 
       if max_size.present? && attachment.byte_size > max_size

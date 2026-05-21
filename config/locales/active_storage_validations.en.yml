@@ -1,5 +1,7 @@
 en:
   errors:
     messages:
-      content_type_invalid: is not of an accepted type (%{content_type}).
+      content_type_invalid:
+        one: is not of an accepted type (%{content_type}).
+        other: is not of an accepted type (%{content_type}).
       file_size_out_of_range: is too big. The file must be at most %{max_size}.
