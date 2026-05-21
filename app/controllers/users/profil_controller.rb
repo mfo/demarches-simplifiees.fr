@@ -10,6 +10,8 @@ module Users
     before_action :find_transfers, only: [:show]
 
     def nav_bar_profile
+      return super if request.blank? # Controller introspection does not contain params/request, see NavBarProfileConcern
+
       context = params[:context]&.to_sym
       return context if ALLOWED_NAV_BAR_PROFILES.include?(context)
       fallback_nav_bar_profile.presence || :user
