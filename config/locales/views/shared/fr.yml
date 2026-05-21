@@ -17,7 +17,7 @@ fr:
         signup_title: "Se créer un compte avec FranceConnect"
         # signup_pc_title: "Se créer un compte avec ProConnect"
         commencer_title: "Vous êtes un particulier ?"
-        # commencer_pc_title: "Vous êtes un professionnel ?"
+        commencer_pc_title: "Vous êtes un professionnel ?"
         login_button: "S’identifier avec"
         help_link: "Qu’est-ce que FranceConnect ?"
         separator: ou

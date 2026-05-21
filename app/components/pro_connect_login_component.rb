@@ -15,7 +15,7 @@ class ProConnectLoginComponent < ApplicationComponent
 
   def resolved_title
     if @title == :default
-      t('.title')
+      t('views.shared.france_connect_login.commencer_pc_title')
     else
       @title
     end
