@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 describe 'Referentiel API:' do
-  let(:zone) { create(:zone) }
-  let(:user) { create(:user) }
-  let(:administrateur) { create(:administrateur, user:) }
-  let(:instructeur) { administrateur.instructeur }
-  let(:service) { create(:service, administrateur:) }
+  let_it_be(:zone) { create(:zone) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:administrateur) { create(:administrateur, user:) }
+  let_it_be(:instructeur) { administrateur.instructeur }
+  let_it_be(:service) { create(:service, administrateur:) }
   let!(:procedure) { create(:procedure, :for_individual, types_de_champ_public:, types_de_champ_private:, zones: [zone], service:, administrateurs: [administrateur], instructeurs: [instructeur]) }
   let(:referentiel_stable_id) { 21 }
   let(:prefill_text_stable_id) { 42 }
@@ -24,34 +24,24 @@ describe 'Referentiel API:' do
 
     before { visit champs_admin_procedure_path(procedure) }
 
-    scenario 'Setup as admin, fails with invalid url (tiptap)', js: true do
+    scenario 'Setup as admin, invalid url validation and auth checkbox state', js: true do
       click_on('Configurer le champ')
+      expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
 
       fill_in_tiptap_url('http://google.com')
 
-      expect(page).to have_content('Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
-      expect(page).to have_content('doit commencer par https://')
-      expect(page).to have_content('doit contenir au moins un paramètre dynamique (tag)')
-      expect(page).to have_content('doit être autorisée par notre équipe.')
+      aggregate_failures 'invalid url errors' do
+        expect(page).to have_content('Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
+        expect(page).to have_content('doit commencer par https://')
+        expect(page).to have_content('doit contenir au moins un paramètre dynamique (tag)')
+        expect(page).to have_content('doit être autorisée par notre équipe.')
+      end
+      expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
 
       fill_in_tiptap_url('https://rnb-api.beta.gouv.fr/api/alpha/buildings/')
       insert_tiptap_tag("Valeur saisie par l’usager", insert_after: '/')
 
       expect(page).to have_content('Attention si vous appelez une API qui renvoie de la donnée personnelle, vous devez en informer votre DPO.')
-    end
-
-    scenario 'Setup as admin, back/forth auth does not changes preselected option', js: true do
-      visit champs_admin_procedure_path(procedure)
-      click_on('Configurer le champ')
-      expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
-
-      fill_in_tiptap_url('http://google.com')
-
-      expect(page).to have_content('Seuls les domaines se terminant par .gouv.fr sont automatiquement autorisés')
-      expect(page).to have_content('doit commencer par https://')
-      expect(page).to have_content('doit contenir au moins un paramètre dynamique (tag)')
-      expect(page).to have_content('doit être autorisée par notre équipe.')
-      expect(page).to have_unchecked_field("Ajouter une méthode d’authentification")
     end
   end
 
