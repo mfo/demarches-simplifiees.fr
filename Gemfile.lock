@@ -124,8 +124,9 @@ GEM
     after_commit_everywhere (1.6.0)
       activerecord (>= 4.2)
       activesupport
-    ancestry (4.3.3)
+    ancestry (5.1.0)
       activerecord (>= 5.2.6)
+      logger
     anchored (1.1.0)
     anyway_config (2.7.2)
       ruby-next-core (~> 1.0)
