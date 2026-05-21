@@ -19,7 +19,7 @@ describe 'Inviting an expert:', js: true do
   end
 
   context 'as an Instructeur' do
-    scenario 'I can invite an expert' do
+    scenario 'I can invite experts, attach files, and paste email lists' do
       allow(ClamavService).to receive(:safe_file?).and_return(true)
 
       # assign instructeur to linked dossier
@@ -33,6 +33,7 @@ describe 'Inviting an expert:', js: true do
       within('.fr-sidemenu') { click_on 'Demander un avis' }
       expect(page).to have_current_path(avis_new_instructeur_dossier_path(procedure, dossier))
 
+      # Invite multiple experts
       fill_in 'Emails', with: "#{expert3.email},#{expert4.email}"
       fill_in 'Emails', with: "#{expert.email},"
       fill_in 'Emails', with: expert2.email
@@ -60,26 +61,17 @@ describe 'Inviting an expert:', js: true do
       targeted_user_link = TargetedUserLink.joins(:user).where(user: { email: expert.email.to_s }).first
       targeted_user_url = targeted_user_link_url(targeted_user_link)
       expect(invitation_email.body).to include(targeted_user_url)
-    end
 
-    scenario 'I can invite an expert with an introduction file' do
-      allow(ClamavService).to receive(:safe_file?).and_return(true)
-
+      # Invite with introduction file (reuse same login + navigation)
       blob = ActiveStorage::Blob.create_and_upload!(
         io: Rails.root.join('spec/fixtures/files/piece_justificative_0.pdf').open,
         filename: 'piece_justificative_0.pdf',
         content_type: 'application/pdf'
       )
 
-      instructeur.assign_to_procedure(linked_dossier.procedure)
-
-      login_as instructeur.user, scope: :user
-      visit instructeur_dossier_path(procedure, dossier)
-
-      click_on 'Avis externes'
       within('.fr-sidemenu') { click_on 'Demander un avis' }
 
-      fill_in 'Emails', with: "#{expert.email},"
+      fill_in 'Emails', with: "expert-file@test.fr,"
       fill_in 'avis_introduction', with: 'Veuillez consulter le document ci-joint.'
       choose 'confidentiel_false', allow_label_click: true
 
@@ -95,26 +87,14 @@ describe 'Inviting an expert:', js: true do
         form.appendChild(hidden);
       JS
 
-      within('form#new_avis') { click_on "Envoyer la demande d\u2019avis" }
+      within('form#new_avis') { click_on "Envoyer la demande d’avis" }
       perform_enqueued_jobs
 
-      expect(page).to have_content("Une demande d\u2019avis a \u00e9t\u00e9 envoy\u00e9e")
+      expect(page).to have_content("Une demande d’avis a été envoyée")
       expect(Avis.last.introduction_file).to be_attached
-    end
 
-    scenario 'I can paste a list of experts emails' do
-      allow(ClamavService).to receive(:safe_file?).and_return(true)
-
-      # assign instructeur to linked dossier
-      instructeur.assign_to_procedure(linked_dossier.procedure)
-
-      login_as instructeur.user, scope: :user
-      visit instructeur_dossier_path(procedure, dossier)
-
-      click_on 'Avis externes'
-      expect(page).to have_current_path(avis_instructeur_dossier_path(procedure, dossier))
+      # Paste a list of expert emails (reuse same login + navigation)
       within('.fr-sidemenu') { click_on 'Demander un avis' }
-      expect(page).to have_current_path(avis_new_instructeur_dossier_path(procedure, dossier))
 
       fill_in 'Emails', with: "expert1@gouv.fr; expert2@gouv.fr; test@test.fr; email-invalide"
       fill_in 'avis_introduction', with: 'Bonjour, merci de me donner votre avis sur ce dossier.'
@@ -172,15 +152,19 @@ describe 'Inviting an expert:', js: true do
       end
     end
 
-    context 'when avis is pending' do
+    context 'when managing expert responses' do
       let(:experts_procedure) { create(:experts_procedure, expert:, procedure:) }
+      let(:experts_procedure2) { create(:experts_procedure, expert: expert2, procedure:) }
       let!(:pending_avis) { create(:avis, dossier:, claimant: instructeur, experts_procedure:) }
+      let!(:answered_avis) { create(:avis, :with_answer, dossier:, claimant: instructeur, experts_procedure: experts_procedure2) }
 
-      scenario 'I can remind the expert' do
+      scenario 'I can remind a pending expert and read an answered response' do
         login_as instructeur.user, scope: :user
         visit instructeur_dossier_path(procedure, dossier)
 
         click_on 'Avis externes'
+
+        # Remind pending expert
         expect(page).to have_content(expert.email)
         accept_confirm("Souhaitez-vous relancer #{expert.email}") do
           click_on "Relancer l’expert"
@@ -189,20 +173,9 @@ describe 'Inviting an expert:', js: true do
         expect(page).to have_content("Un mail de relance a été envoyé à #{expert.email}")
         expect(page).to have_content('Relance effectuée le')
         expect(pending_avis.reload.reminded_at).to be_present
-      end
-    end
 
-    context 'when experts submitted their answer' do
-      let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
-      let!(:answered_avis) { create(:avis, :with_answer, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure) }
-
-      scenario 'I can read the expert answer' do
-        login_as instructeur.user, scope: :user
-        visit instructeur_dossier_path(procedure, dossier)
-
-        click_on 'Avis externes'
-
-        expect(page).to have_content(answered_avis.expert.email)
+        # Read answered expert's response
+        expect(page).to have_content(expert2.email)
         answered_avis.answer.split("\n").map { |line| line.gsub("- ", "") }.map do |answer_line|
           expect(page).to have_content(answer_line)
         end
