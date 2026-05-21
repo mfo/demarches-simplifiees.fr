@@ -67,6 +67,11 @@ module Experts
     end
 
     def avis_list
+      @avis_for_expert = @dossier
+        .avis_for_expert(current_expert)
+        .includes(:claimant, experts_procedure: :expert)
+        .with_attached_piece_justificative_file
+        .with_attached_introduction_file
     end
 
     def expert_procedure
