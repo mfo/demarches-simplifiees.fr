@@ -149,6 +149,7 @@ describe ColumnsConcern do
         let(:referentiel) { create(:csv_referentiel, :with_items) }
         let(:types_de_champ_private) { [] }
         it {
+          expect(subject.map(&:label)).to include('liste csv')
           expect(subject.map(&:label)).to include('liste csv – Référentiel calorie (kcal)')
           expect(subject.map(&:label)).to include('liste csv – Référentiel poids (g)')
         }
