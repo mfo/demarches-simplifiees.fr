@@ -15,7 +15,7 @@ describe APIEntreprise::ServiceAdapter do
     subject { described_class.new(siret, service.id).to_params }
 
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
         .with(query: hash_including({ 'object' => "service_id: #{service.id}" }))
         .to_return(body: File.read(fixture, status: 200))
     end
@@ -84,7 +84,7 @@ describe APIEntreprise::ServiceAdapter do
     subject { described_class.new(bad_siret, service.id).to_params }
 
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{bad_siret}/)
+      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{bad_siret}/)
         .with(query: hash_including({ 'object' => "service_id: #{service.id}" }))
         .to_return(body: 'Fake body', status: 404)
     end

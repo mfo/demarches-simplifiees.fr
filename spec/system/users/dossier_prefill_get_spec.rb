@@ -82,11 +82,8 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
   }
 
   before do
-    stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\//)
+    stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\//)
       .to_return(status: 200, body: File.read('spec/fixtures/files/api_entreprise/etablissements.json'))
-
-    stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siret_value[0..8]}/)
-      .to_return(status: 200, body: File.read('spec/fixtures/files/api_entreprise/entreprises.json'))
   end
 
   context 'when authenticated' do

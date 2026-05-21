@@ -177,10 +177,8 @@ describe 'Creating a new dossier:', js: true do
       let(:dossier) { procedure.dossiers.last }
 
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/etablissements\/#{siret}/)
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(status: 200, body: File.read('spec/fixtures/files/api_entreprise/etablissements.json'))
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/)
-          .to_return(status: 200, body: File.read('spec/fixtures/files/api_entreprise/entreprises.json'))
         stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v2\/exercices\/#{siret}/)
           .to_return(status: 200, body: File.read('spec/fixtures/files/api_entreprise/exercices.json'))
         stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v2\/associations\/#{siret}/)
