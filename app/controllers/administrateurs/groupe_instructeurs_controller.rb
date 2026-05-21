@@ -454,7 +454,7 @@ module Administrateurs
     end
 
     def export_groupe_instructeurs
-      groupe_instructeurs = procedure.groupe_instructeurs
+      groupe_instructeurs = procedure.groupe_instructeurs.includes(instructeurs: :user)
 
       data = CSV.generate(headers: true) do |csv|
         column_names = ["Groupe", "Email"]
@@ -620,6 +620,7 @@ module Administrateurs
       end
 
       groupes
+        .includes(:contact_information)
         .page(params[:page])
         .per(ITEMS_PER_PAGE)
     end
