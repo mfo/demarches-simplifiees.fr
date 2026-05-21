@@ -2504,7 +2504,7 @@ describe Dossier, type: :model do
               champ_id: champ_carte.stable_id,
               champ_private: false,
               dossier_id: dossier.id,
-              id: geo_area.id,
+              id: geo_area.uuid,
               source: 'selection_utilisateur',
             },
           },

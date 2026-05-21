@@ -108,7 +108,7 @@ describe Champs::CarteController, type: :controller do
         {
           dossier_id: champ.dossier_id,
           stable_id: champ.stable_id,
-          id: geo_area.id,
+          id: geo_area.to_feature[:properties][:id],
           feature: feature,
         }
       end
@@ -153,15 +153,31 @@ describe Champs::CarteController, type: :controller do
         {
           dossier_id: champ.dossier_id,
           stable_id: champ.stable_id,
-          id: geo_area.id,
+          id: geo_area.to_feature[:properties][:id],
         }
       end
+
+      before { geo_area }
 
       subject { delete :destroy, params: params }
 
       it do
-        expect { subject } .to change { dossier.reload.last_champ_updated_at }
+        expect { subject }.to change { dossier.reload.last_champ_updated_at }
         expect(response).to have_http_status(:no_content)
+      end
+
+      it { expect { subject }.to change { GeoArea.count }.by(-1) }
+
+      context 'en_construction' do
+        before do
+          dossier.reload
+          dossier.passer_en_construction!
+        end
+
+        it do
+          expect { subject }.to change { GeoArea.count }.by(0) # +1 clone, -1 delete = net 0
+          expect(response).to have_http_status(:no_content)
+        end
       end
     end
 

@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -12,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_085008) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_21_105001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -791,6 +790,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_085008) do
     t.jsonb "properties"
     t.string "source"
     t.datetime "updated_at", precision: nil
+    t.string "uuid"
     t.index ["cadastre_state"], name: "index_geo_areas_on_cadastre_state"
     t.index ["champ_id"], name: "index_geo_areas_on_champ_id"
     t.index ["source"], name: "index_geo_areas_on_source"

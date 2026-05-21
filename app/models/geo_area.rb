@@ -3,6 +3,7 @@
 class GeoArea < ApplicationRecord
   include ActionView::Helpers::NumberHelper
   belongs_to :champ, optional: false
+  before_create :set_default_uuid
 
   enum :cadastre_state, %w[cadastre_fetched cadastre_error].index_by(&:itself)
 
@@ -57,7 +58,7 @@ class GeoArea < ApplicationRecord
         length: length,
         description: description,
         filename: filename,
-        id: id,
+        id: (uuid || id).to_s,
         champ_label: champ.libelle,
         champ_id: champ.stable_id,
         champ_row: champ.row_id,
@@ -252,5 +253,11 @@ class GeoArea < ApplicationRecord
   def surface_hectares
     return if surface.nil?
     surface.round / 10_000
+  end
+
+  def set_default_uuid
+    if champ.stream == Champ::MAIN_STREAM
+      self.uuid ||= SecureRandom.uuid
+    end
   end
 end

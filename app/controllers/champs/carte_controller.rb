@@ -28,7 +28,7 @@ class Champs::CarteController < Champs::ChampController
   end
 
   def update
-    geo_area = @champ.geo_areas.find(params[:id])
+    geo_area = find_geo_area(params[:id])
 
     if save_feature(geo_area, update_params_feature)
       @champ.update_timestamps
@@ -40,13 +40,17 @@ class Champs::CarteController < Champs::ChampController
   end
 
   def destroy
-    @champ.geo_areas.find(params[:id]).destroy!
+    find_geo_area(params[:id]).destroy!
     @champ.update_timestamps
 
     head :no_content
   end
 
   private
+
+  def find_geo_area(id)
+    @champ.geo_areas.find_by!('id = ? or uuid = ?', id.to_i, id)
+  end
 
   def params_source
     params[:source]
