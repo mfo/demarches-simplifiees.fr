@@ -16,7 +16,7 @@
         - else
           .fr-grid-row.fr-grid-row--gutters
             .fr-col-12.fr-col-lg-5
-              = render partial: 'shared/france_connect_login', locals: { url: commencer_france_connect_path(path: @procedure.path, prefill_token: @prefilled_dossier&.prefill_token), heading_level: :h3, title: t('views.shared.france_connect_login.commencer_title') }
+              = render partial: 'shared/france_connect_login', locals: { url: commencer_france_connect_path(path: @procedure.path, prefill_token: @prefilled_dossier&.prefill_token), heading_level: :h3 }
               -# = render ProConnectLoginComponent.new(url: commencer_pro_connect_path(path: @procedure.path, prefill_token: @prefilled_dossier&.prefill_token), heading_level: :h3, title: t('views.shared.france_connect_login.commencer_pc_title'))
             .fr-hidden.fr-unhidden-lg.fr-col-lg-1
               .fr-vr-or{ role: "separator", "aria-orientation": "vertical" }
