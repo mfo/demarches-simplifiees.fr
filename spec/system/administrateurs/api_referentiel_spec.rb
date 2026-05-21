@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 describe 'Referentiel API:' do
-  let(:zone) { create(:zone) }
-  let(:user) { create(:user) }
-  let(:administrateur) { create(:administrateur, user:) }
-  let(:instructeur) { administrateur.instructeur }
-  let(:service) { create(:service, administrateur:) }
+  let_it_be(:zone) { create(:zone) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:administrateur) { create(:administrateur, user:) }
+  let_it_be(:instructeur) { administrateur.instructeur }
+  let_it_be(:service) { create(:service, administrateur:) }
   let!(:procedure) { create(:procedure, :for_individual, types_de_champ_public:, types_de_champ_private:, zones: [zone], service:, administrateurs: [administrateur], instructeurs: [instructeur]) }
   let(:referentiel_stable_id) { 21 }
   let(:prefill_text_stable_id) { 42 }
