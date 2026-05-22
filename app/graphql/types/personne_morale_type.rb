@@ -101,6 +101,9 @@ module Types
     field :address, Types::AddressType, null: false
 
     field :naf, String, null: true # see: https://sentry.io/organizations/demarches-simplifiees/issues/2839832517/activity/?environment=production&project=1429550&query=is%3Aunresolved&referrer=issue-stream#
+    field :naf_2025, String, null: true
+    field :libelle_naf_2025, String, null: true
+
     field :entreprise, EntrepriseType, null: true
     field :association, AssociationType, null: true
 
