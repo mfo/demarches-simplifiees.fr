@@ -17,7 +17,6 @@ class APIEntreprise::API
   PRIVILEGES_RESOURCE_NAME = "privileges"
 
   TIMEOUT = 20
-  DEFAULT_API_ENTREPRISE_DELAY = 0.0
 
   attr_reader :procedure
   attr_accessor :token
@@ -107,12 +106,14 @@ class APIEntreprise::API
     return Failure(type: :token_missing, code: 401, retryable: false, raw_response: nil) if token_missing?
     return Failure(type: :token_expired, code: 401, retryable: false, raw_response: nil) if token_expired?
 
-    sleep api_entreprise_delay if api_entreprise_delay != 0.0
+    APIEntreprise::RateLimiter.consume!
 
     case client.call(url:, params:, headers: { 'Authorization' => "Bearer #{token.jwt_token}" }, timeout: TIMEOUT)
     in Success(body:, response:)
+      APIEntreprise::RateLimiter.calibrate!(response) if rand < 0.1
       Success(body)
     in Failure(type: :http, code:, error:)
+      APIEntreprise::RateLimiter.calibrate!(error.try(:response)) if code == 429
       classify_http_error(code, error.try(:response))
     in Failure(type:, code:, retryable:, error:)
       Failure(type:, code:, retryable:, raw_response: error.try(:response))
@@ -189,10 +190,6 @@ class APIEntreprise::API
       recipient: recipient_for(siret_or_siren),
       non_diffusables: true,
     }
-  end
-
-  def api_entreprise_delay
-    ENV.fetch("API_ENTREPRISE_DELAY", DEFAULT_API_ENTREPRISE_DELAY).to_f
   end
 
   def token_missing? = token.nil? || token.jwt_token.blank?

@@ -450,6 +450,110 @@ describe APIEntreprise::API do
     end
   end
 
+  describe 'rate limiting' do
+    let(:siren) { '418166096' }
+    let(:body) { fixture_file('entreprises.json') }
+    let(:rate_limit_headers) { { 'RateLimit-Remaining' => '47', 'RateLimit-Limit' => '50', 'RateLimit-Reset' => reset_timestamp.to_s } }
+    let(:reset_timestamp) { Time.current.to_i + 30 }
+
+    before do
+      Kredis.redis.del(APIEntreprise::RateLimiter::REMAINING_KEY, APIEntreprise::RateLimiter::RESET_KEY)
+    end
+
+    describe 'RateLimiter.calibrate! via response headers' do
+      before do
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/)
+          .to_return(body:, status:, headers: rate_limit_headers)
+      end
+
+      context 'when API returns 200 with RateLimit headers' do
+        let(:status) { 200 }
+
+        it 'stores remaining in Redis when calibration triggers (reset not stored when remaining > 0)' do
+          allow_any_instance_of(described_class).to receive(:rand).and_return(0.05) # force calibration
+          described_class.new(procedure_id).entreprise(siren)
+
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(47)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::RESET_KEY)).to be_nil
+        end
+
+        it 'sets TTL on Redis keys' do
+          allow_any_instance_of(described_class).to receive(:rand).and_return(0.05)
+          described_class.new(procedure_id).entreprise(siren)
+
+          ttl = Kredis.redis.ttl(APIEntreprise::RateLimiter::REMAINING_KEY)
+          expect(ttl).to be_between(1, 30)
+        end
+
+        it 'skips calibration ~90% of the time' do
+          allow_any_instance_of(described_class).to receive(:rand).and_return(0.5)
+          described_class.new(procedure_id).entreprise(siren)
+
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY)).to be_nil
+        end
+      end
+
+      context 'when API returns 200 without RateLimit headers' do
+        let(:status) { 200 }
+        let(:rate_limit_headers) { {} }
+
+        it 'does not write to Redis' do
+          described_class.new(procedure_id).entreprise(siren)
+
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY)).to be_nil
+        end
+      end
+
+      context 'when API returns 429 with RateLimit-Reset header' do
+        let(:status) { 429 }
+        let(:body) { '{"errors":[{"code":"00429","title":"Trop de requêtes"}]}' }
+        let(:rate_limit_headers) { { 'RateLimit-Remaining' => '0', 'RateLimit-Reset' => reset_timestamp.to_s } }
+
+        it 'always calibrates on 429 (broadcast stop signal)' do
+          described_class.new(procedure_id).entreprise(siren)
+
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(0)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::RESET_KEY).to_i).to eq(reset_timestamp)
+        end
+      end
+    end
+
+    describe 'RateLimiter.consume! decrements counter' do
+      before do
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/)
+          .to_return(body:, status: 200)
+      end
+
+      context 'when Redis has no rate limit state' do
+        it 'skips decrement and makes the call' do
+          expect { described_class.new(procedure_id).entreprise(siren) }.not_to raise_error
+        end
+      end
+
+      context 'when remaining > 0' do
+        before do
+          Kredis.redis.set(APIEntreprise::RateLimiter::REMAINING_KEY, 10, ex: 60)
+        end
+
+        it 'decrements remaining' do
+          described_class.new(procedure_id).entreprise(siren)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(9)
+        end
+      end
+
+      context 'when remaining = 0' do
+        before do
+          Kredis.redis.set(APIEntreprise::RateLimiter::REMAINING_KEY, 0, ex: 60)
+        end
+
+        it 'decrements to negative (caller handles throttling)' do
+          described_class.new(procedure_id).entreprise(siren)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(-1)
+        end
+      end
+    end
+  end
+
   describe 'with expired token' do
     let(:siren) { '111111111' }
     subject { described_class.new(procedure_id).entreprise(siren) }
