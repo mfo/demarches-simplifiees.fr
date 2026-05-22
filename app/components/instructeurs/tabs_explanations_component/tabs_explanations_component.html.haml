@@ -1,5 +1,5 @@
 - if render_button?
-  %button{ aria: {controls: 'modal-tabs-explanations' }, data: {'fr-opened': "false" }, class: 'fr-btn fr-btn--sm fr-btn--tertiary-no-outline fr-btn--icon-left fr-icon-question-line fr-ml-2v' }
+  %button{ aria: {controls: 'modal-tabs-explanations', haspopup: 'dialog'}, data: {'fr-opened': "false" }, class: 'fr-btn fr-btn--sm fr-btn--tertiary-no-outline fr-btn--icon-left fr-icon-question-line fr-ml-2v' }
     = t('.modal.title')
 
 - if render_dialog?
