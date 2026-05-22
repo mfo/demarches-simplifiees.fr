@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-include ActiveJob::TestHelper
-
 RSpec.describe APIEntreprise::Job, type: :job do
+  include ActiveJob::TestHelper
+  before do
+    Kredis.redis.del(APIEntreprise::RateLimiter::REMAINING_KEY, APIEntreprise::RateLimiter::RESET_KEY)
+  end
+
   describe '#perform' do
     let(:dossier) { create(:dossier, :with_entreprise) }
 
@@ -21,6 +24,47 @@ RSpec.describe APIEntreprise::Job, type: :job do
           .to raise_error(StandardError, /API Entreprise error/)
 
         expect(champ.reload.value).not_to be_nil
+      end
+    end
+  end
+
+  describe 'before_perform rate limit check' do
+    context 'when not throttled' do
+      before { allow(APIEntreprise::RateLimiter).to receive(:throttled?).and_return(false) }
+
+      it 'runs the job normally' do
+        dossier = create(:dossier, :with_entreprise)
+        etablissement = dossier.etablissement
+
+        expect { ErrorJob.perform_now(etablissement) }.to raise_error(StandardError, /API Entreprise error/)
+      end
+    end
+
+    context 'when throttled' do
+      before do
+        allow(APIEntreprise::RateLimiter).to receive(:throttled?).and_return(true)
+        allow(APIEntreprise::RateLimiter).to receive(:wait_duration).and_return(15)
+      end
+
+      it 're-enqueues the job with delay and aborts' do
+        dossier = create(:dossier, :with_entreprise)
+        etablissement = dossier.etablissement
+
+        expect(ErrorJob).to receive(:set).with(wait: 15.seconds).and_return(ErrorJob)
+        expect(ErrorJob).to receive(:perform_later).with(etablissement)
+
+        ErrorJob.perform_now(etablissement)
+      end
+
+      it 'does not execute the job body' do
+        dossier = create(:dossier, :with_entreprise)
+        etablissement = dossier.etablissement
+
+        allow(ErrorJob).to receive(:set).and_return(ErrorJob)
+        allow(ErrorJob).to receive(:perform_later)
+
+        # If the job body ran, it would raise — no raise means abort worked
+        expect { ErrorJob.perform_now(etablissement) }.not_to raise_error
       end
     end
   end
@@ -76,6 +120,26 @@ RSpec.describe APIEntreprise::Job, type: :job do
       it 'raises a StandardError with diagnostic message' do
         expect { job.send(:with_adapter, adapter) { |_| } }
           .to raise_error(StandardError, /API Entreprise error: type=token code=401/)
+      end
+    end
+
+    context 'when adapter returns Failure with rate_limited' do
+      before do
+        allow(adapter).to receive(:to_params)
+          .and_return(Dry::Monads::Failure(type: :rate_limited, code: 429, retryable: true, raw_response: nil))
+      end
+
+      it 're-enqueues the job with wait from RateLimiter.wait_duration' do
+        allow(APIEntreprise::RateLimiter).to receive(:wait_duration).and_return(20)
+        expect(described_class).to receive(:set).with(wait: 20.seconds).and_return(described_class)
+        expect(described_class).to receive(:perform_later)
+        job.send(:with_adapter, adapter) { |_| }
+      end
+
+      it 'does not raise' do
+        allow(described_class).to receive(:set).and_return(described_class)
+        allow(described_class).to receive(:perform_later)
+        expect { job.send(:with_adapter, adapter) { |_| } }.not_to raise_error
       end
     end
 

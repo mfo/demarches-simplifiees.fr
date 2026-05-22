@@ -11,6 +11,15 @@ class APIEntreprise::Job < ApplicationJob
   # (it can happen through EtablissementUpdateJob for instance), ignore the job
   discard_on ActiveRecord::RecordNotFound
 
+  # If rate limited, re-enqueue with delay and free the worker immediately.
+  before_perform do
+    if APIEntreprise::RateLimiter.throttled?
+      wait = APIEntreprise::RateLimiter.wait_duration
+      self.class.set(wait: wait.seconds).perform_later(*arguments)
+      throw :abort
+    end
+  end
+
   def log_job_exception(exception)
     if etablissement.present?
       if etablissement.dossier.present?
@@ -40,6 +49,9 @@ class APIEntreprise::Job < ApplicationJob
       yield params
     in Success
       nil
+    in Failure(retryable: true, type: :rate_limited, code:, **)
+      wait = APIEntreprise::RateLimiter.wait_duration(api_pool)
+      self.class.set(wait: wait.seconds).perform_later(*arguments)
     in Failure(retryable: true, type:, code:, raw_response:, **)
       raise StandardError, format_error(type, code, raw_response)
     in Failure(retryable: false, type:, code:, **)
