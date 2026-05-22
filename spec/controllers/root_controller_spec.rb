@@ -71,7 +71,7 @@ describe RootController, type: :controller do
     end
 
     it "won't have instructeur login link" do
-      expect(response.body).to have_css("a[href='#{new_user_session_path}']")
+      expect(response.body).to have_css("a[href='#{new_user_session_path(with_proconnect: true)}']")
     end
   end
 end

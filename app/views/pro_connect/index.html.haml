@@ -14,12 +14,12 @@
 
             .fr-mb-0.fr-fieldset
               .fr-fieldset__legend
-                %h2.fr-h6= t('.cta')
+                %h2.fr-h6= t('views.shared.france_connect_login.commencer_pc_title')
 
               .fr-fieldset__element
                 %p= t('.explanation')
 
-                = render ProConnectLoginComponent.new
+                = render ProConnectLoginComponent.new(title: nil)
 
             - if !params[:force_pro_connect]
               %p.fr-hr-or= t('views.shared.france_connect_login.separator')
