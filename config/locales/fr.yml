@@ -822,7 +822,6 @@ fr:
       procedure_not_found: "La démarche n’existe pas"
       pro_connect:
         connexion: "Une erreur est survenue lors de la connexion avec ProConnect. Veuillez réessayer."
-        email_domain_not_allowed: "Votre domaine d’email n’est pas autorisé à utiliser ProConnect sur cette plateforme."
       france_connect:
         connexion: "Une erreur est survenue lors de la connexion avec FranceConnect. Veuillez réessayer."
         forbidden_html: "Seul-e-s les usagers peuvent se connecter via FranceConnect. En tant qu’instructeur ou administrateur, veuillez vous identifier avec ProConnect ou vous connecter avec votre compte %{app_name}."

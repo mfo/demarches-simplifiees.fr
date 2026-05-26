@@ -76,7 +76,7 @@ class ProConnectController < ApplicationController
 
   rescue Rack::OAuth2::Client::Error => e
     Rails.logger.error e.message
-    redirect_france_connect_error_connection
+    redirect_pro_connect_error_connection
   end
 
   private
@@ -91,15 +91,15 @@ class ProConnectController < ApplicationController
     end
   end
 
-  def redirect_france_connect_error_connection
-    flash.alert = t('errors.messages.france_connect.connexion')
+  def redirect_pro_connect_error_connection
+    flash.alert = t('errors.messages.pro_connect.connexion')
     redirect_to(new_user_session_path)
   end
 
   def check_state
     expected_state = cookies.encrypted[STATE_COOKIE_NAME]
     if expected_state.blank? || expected_state != params[:state]
-      flash.alert = t('errors.messages.france_connect.connexion')
+      flash.alert = t('errors.messages.pro_connect.connexion')
       redirect_to(new_user_session_path)
     else
       cookies.delete STATE_COOKIE_NAME
