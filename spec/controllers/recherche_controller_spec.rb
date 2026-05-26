@@ -42,6 +42,18 @@ describe RechercheController, type: :controller do
         end
       end
 
+      context 'when the expert avis on the dossier has been revoked' do
+        let(:user) { avis.experts_procedure.expert.user }
+        let(:query) { dossier_with_expert.id }
+
+        before { avis.update!(revoked_at: 1.day.ago) }
+
+        it 'does not return the dossier' do
+          is_expected.to have_http_status(200)
+          expect(assigns(:projected_dossiers)).to be_empty
+        end
+      end
+
       context 'when instructeur do not own the dossier' do
         let(:dossier2) { create(:dossier, :en_construction) }
         let(:query) { dossier2.id }
