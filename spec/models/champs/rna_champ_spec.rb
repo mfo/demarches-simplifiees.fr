@@ -37,6 +37,45 @@ describe Champs::RNAChamp do
     end
   end
 
+  describe '#fetch_external_data' do
+    include Dry::Monads[:result]
+
+    let(:adapter) { instance_double(APIEntreprise::RNAAdapter, to_params:) }
+
+    subject { with_external_id("W182736273").send(:fetch_external_data) }
+
+    before do
+      allow(APIEntreprise::RNAAdapter).to receive(:new).and_return(adapter)
+    end
+
+    context 'when the association is found' do
+      let(:to_params) { Success({ "association_titre" => "Super asso", "adresse" => {} }) }
+
+      it 'returns a Success with data, value_json and value' do
+        expect(subject).to be_success
+        expect(subject.value!).to include(data: { "association_titre" => "Super asso", "adresse" => {} }, value: "W182736273")
+      end
+    end
+
+    context 'when the association is not found (empty hash)' do
+      let(:to_params) { Success({}) }
+
+      it 'returns a non-retryable 404 Failure' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: false, code: 404)
+      end
+    end
+
+    context 'when the API returns a retryable failure' do
+      let(:to_params) { Failure(type: :network_error, code: 503, retryable: true, raw_response: nil) }
+
+      it 'propagates a retryable Failure' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: true, code: 503)
+      end
+    end
+  end
+
   describe "#export" do
     context "with association title" do
       before do

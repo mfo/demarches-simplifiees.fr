@@ -57,22 +57,13 @@ class Champs::RNAChamp < Champ
   end
 
   def fetch_external_data
-    data = APIEntreprise::RNAAdapter.new(external_id, procedure_id).to_params
-
-    if data.blank?
-      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
-    else
+    case APIEntreprise::RNAAdapter.new(external_id, procedure_id).to_params
+    in Success(data) if data.present?
       Success(data:, value_json: extract_value_json(data:), value: external_id)
-    end
-
-  rescue APIEntrepriseToken::TokenError => error
-    Failure(retryable: false, error:, code: 401)
-  rescue APIEntreprise::API::Error => error
-    if APIEntrepriseService.service_unavailable_error?(error, target: :djepva)
-      Failure(retryable: true, error:, code: 503)
-    else
-      Sentry.capture_exception(error, extra: { dossier_id:, rna: external_id })
-      Failure(retryable: false, error:, code: 500)
+    in Success # not found returns an empty hash
+      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
+    in Failure(type:, code:, retryable:, **)
+      Failure(retryable:, error: StandardError.new("API Entreprise: #{type}"), code:)
     end
   end
 
