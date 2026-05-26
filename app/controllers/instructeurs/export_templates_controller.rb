@@ -88,7 +88,7 @@ module Instructeurs
     end
 
     def set_export_template
-      @export_template = current_instructeur.export_templates.find(params[:id])
+      @export_template = ExportTemplate.where(groupe_instructeur: @groupe_instructeurs).find(params[:id])
     end
 
     def ensure_legitimate_groupe_instructeur

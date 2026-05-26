@@ -158,6 +158,15 @@ describe Instructeurs::ExportTemplatesController, type: :controller do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
+
+    context "with export_template belonging to another procedure of the current instructeur" do
+      let(:other_procedure) { create(:procedure, instructeurs: [instructeur]) }
+      let(:export_template) { create(:export_template, groupe_instructeur: other_procedure.defaut_groupe_instructeur) }
+
+      it 'raise exception' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
   end
 
   describe '#update' do
@@ -197,6 +206,16 @@ describe Instructeurs::ExportTemplatesController, type: :controller do
         subject
         expect(export_template.export_pdf.template_json).not_to eq(item_params(text: "exPort_")["template"])
         expect(flash.alert).to be_present
+      end
+    end
+
+    context "with export_template belonging to another procedure of the current instructeur" do
+      let(:other_procedure) { create(:procedure, instructeurs: [instructeur]) }
+      let(:export_template) { create(:export_template, groupe_instructeur: other_procedure.defaut_groupe_instructeur) }
+
+      it 'does not move the export template into the URL procedure' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+        expect(export_template.reload.groupe_instructeur).to eq(other_procedure.defaut_groupe_instructeur)
       end
     end
 
@@ -240,6 +259,17 @@ describe Instructeurs::ExportTemplatesController, type: :controller do
         subject
         expect(response).to redirect_to(export_templates_instructeur_procedure_path(procedure))
         expect(flash.notice).to eq "Le modèle d’export Mon export a bien été supprimé"
+      end
+    end
+
+    context "with export_template belonging to another procedure of the current instructeur" do
+      let(:other_procedure) { create(:procedure, instructeurs: [instructeur]) }
+      let(:export_template) { create(:export_template, groupe_instructeur: other_procedure.defaut_groupe_instructeur) }
+
+      it 'does not destroy the export template of the other procedure' do
+        export_template
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+        expect(ExportTemplate.exists?(export_template.id)).to be(true)
       end
     end
   end
