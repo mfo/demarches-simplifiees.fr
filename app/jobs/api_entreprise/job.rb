@@ -23,7 +23,6 @@ class APIEntreprise::Job < ApplicationJob
   # See https://entreprise.api.gouv.fr/developpeurs#surveillance-etat-fournisseurs
   PING_KEY_BY_JOB = {
     'EtablissementJob' => APIEntreprise::HealthChecker::PROVIDERS[:insee_sirene],
-    'EntrepriseJob' => APIEntreprise::HealthChecker::PROVIDERS[:insee_sirene],
     'ExtraitKbisJob' => APIEntreprise::HealthChecker::PROVIDERS[:infogreffe_rcs],
     'TvaJob' => APIEntreprise::HealthChecker::PROVIDERS[:european_commission_tva],
     'AssociationJob' => APIEntreprise::HealthChecker::PROVIDERS[:djepva_association],

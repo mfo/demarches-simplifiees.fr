@@ -97,7 +97,6 @@ RSpec.describe APIEntreprise::Job, type: :job do
   describe '#api_pool' do
     it 'returns the correct pool for each job class' do
       expect(APIEntreprise::EtablissementJob.new.api_pool).to eq(250)
-      expect(APIEntreprise::EntrepriseJob.new.api_pool).to eq(250)
       expect(APIEntreprise::ExtraitKbisJob.new.api_pool).to eq(250)
       expect(APIEntreprise::TvaJob.new.api_pool).to eq(250)
       expect(APIEntreprise::ExercicesJob.new.api_pool).to eq(250)
@@ -118,7 +117,6 @@ RSpec.describe APIEntreprise::Job, type: :job do
   describe '#ping_key_for_job' do
     it 'returns the correct ping key for each job class' do
       expect(APIEntreprise::EtablissementJob.new.ping_key_for_job).to eq('insee/sirene')
-      expect(APIEntreprise::EntrepriseJob.new.ping_key_for_job).to eq('insee/sirene')
       expect(APIEntreprise::ExtraitKbisJob.new.ping_key_for_job).to eq('infogreffe/rcs')
       expect(APIEntreprise::TvaJob.new.ping_key_for_job).to eq('european_commission/numero_tva')
       expect(APIEntreprise::AssociationJob.new.ping_key_for_job).to eq('djepva/api-association')

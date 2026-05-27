@@ -3,7 +3,6 @@
 class APIEntreprise::API
   include Dry::Monads[:result]
 
-  ENTREPRISE_RESOURCE_NAME = "v3/insee/sirene/unites_legales/%{id}"
   ETABLISSEMENT_RESOURCE_NAME = "v4/insee/sirene/etablissements/%{id}"
   EXTRAIT_KBIS_NAME = "v3/infogreffe/rcs/unites_legales/%{id}/extrait_kbis"
   TVA_NAME = "v3/european_commission/unites_legales/%{id}/numero_tva"
@@ -38,10 +37,6 @@ class APIEntreprise::API
 
     @procedure = Procedure.find(procedure_id)
     @token = @procedure.api_entreprise_token
-  end
-
-  def entreprise(siren)
-    call_with_siret(ENTREPRISE_RESOURCE_NAME, siren)
   end
 
   def etablissement(siret)
