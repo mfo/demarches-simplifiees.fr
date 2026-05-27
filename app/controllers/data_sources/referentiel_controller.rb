@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-class DataSources::ReferentielController < ApplicationController
-  before_action :authenticate_user!
+class DataSources::ReferentielController < DataSources::BaseController
   before_action :mark_as_retryable, :set_dossier, :referentiel, :referentiel_service
   MIN_QUERY_LENGTH = 3
   MAX_QUERY_SIZE = 100
@@ -36,6 +35,10 @@ class DataSources::ReferentielController < ApplicationController
   end
 
   private
+
+  def authenticate_data_source_user!
+    authenticate_user!
+  end
 
   def mark_as_retryable
     @retryable = true

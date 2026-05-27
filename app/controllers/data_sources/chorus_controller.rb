@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-class DataSources::ChorusController < ApplicationController
-  before_action :authenticate_administrateur!
-
+class DataSources::ChorusController < DataSources::BaseController
   def search_domaine_fonct
     result = APIBretagneService.new.search_domaine_fonct(code_or_label: params[:q])
     render json: format_or_error(result:,
@@ -22,6 +20,10 @@ class DataSources::ChorusController < ApplicationController
   end
 
   private
+
+  def authenticate_data_source_user!
+    authenticate_administrateur!
+  end
 
   def format_or_error(result:, label_formatter:)
     if result.is_a?(Dry::Monads::Failure)

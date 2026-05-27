@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DataSources::AdresseController < ApplicationController
+class DataSources::AdresseController < DataSources::BaseController
   def search
     query = clean_query(params[:q])
 

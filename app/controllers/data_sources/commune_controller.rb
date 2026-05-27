@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DataSources::CommuneController < ApplicationController
+class DataSources::CommuneController < DataSources::BaseController
   def search
     if params[:q].present? && params[:q].length > 1
       response = APIGeoService.commune_by_name_or_postal_code(params[:q])
