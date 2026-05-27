@@ -7,9 +7,29 @@ class APIEntreprise::Job < ApplicationJob
 
   use_sidekiq_retry
 
+  # Rate limit pool per job class (matches API Entreprise pools).
+  # Jobs not listed here default to DEFAULT_POOL (250).
+  POOL_BY_JOB = {
+    'AttestationFiscaleJob' => 5,
+    'EffectifsJob' => 50,
+    'EffectifsAnnuelsJob' => 50,
+    'AttestationSocialeJob' => 100,
+  }.freeze
+
   # If by the time the job runs the Etablissement has been deleted
   # (it can happen through EtablissementUpdateJob for instance), ignore the job
   discard_on ActiveRecord::RecordNotFound
+
+  # If rate limited for this pool, re-enqueue with delay and free the worker immediately.
+  before_perform do
+    pool = api_pool
+    if APIEntreprise::RateLimiter.throttled?(pool)
+      wait = APIEntreprise::RateLimiter.wait_duration(pool)
+      jitter = rand(0..wait)
+      self.class.set(wait: (wait + jitter).seconds).perform_later(*arguments)
+      throw :abort
+    end
+  end
 
   def log_job_exception(exception)
     if etablissement.present?
@@ -40,6 +60,9 @@ class APIEntreprise::Job < ApplicationJob
       yield params
     in Success
       nil
+    in Failure(retryable: true, type: :rate_limited, code:, **)
+      wait = APIEntreprise::RateLimiter.wait_duration(api_pool)
+      self.class.set(wait: wait.seconds).perform_later(*arguments)
     in Failure(retryable: true, type:, code:, raw_response:, **)
       raise StandardError, format_error(type, code, raw_response)
     in Failure(retryable: false, type:, code:, **)
@@ -48,6 +71,11 @@ class APIEntreprise::Job < ApplicationJob
     else
       raise "Unexpected adapter result: #{result.inspect}"
     end
+  end
+
+  # Pool derived from job class name via POOL_BY_JOB.
+  def api_pool
+    POOL_BY_JOB.fetch(self.class.name.demodulize, APIEntreprise::API::DEFAULT_POOL)
   end
 
   private

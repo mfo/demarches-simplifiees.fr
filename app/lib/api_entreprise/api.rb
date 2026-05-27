@@ -16,8 +16,18 @@ class APIEntreprise::API
   BILANS_BDF_RESOURCE_NAME = "v3/banque_de_france/unites_legales/%{id}/bilans"
   PRIVILEGES_RESOURCE_NAME = "privileges"
 
+  # Rate limit pools (req/min) — keyed by ratelimit-limit header value.
+  # Endpoints not listed here default to DEFAULT_POOL (250).
+  POOL_BY_RESOURCE = {
+    ATTESTATION_FISCALE_RESOURCE_NAME => 5,
+    EFFECTIFS_RESOURCE_NAME => 50,
+    EFFECTIFS_ANNUELS_RESOURCE_NAME => 50,
+    ATTESTATION_SOCIALE_RESOURCE_NAME => 100,
+  }.freeze
+  DEFAULT_POOL = 250
+  POOL_BY_PREFIX = POOL_BY_RESOURCE.transform_keys { |k| k.split('%').first }.freeze
+
   TIMEOUT = 20
-  DEFAULT_API_ENTREPRISE_DELAY = 0.0
 
   attr_reader :procedure
   attr_accessor :token
@@ -97,22 +107,24 @@ class APIEntreprise::API
 
   def call_with_siret(resource_name, siret_or_siren, user_id: nil)
     url = make_url(resource_name, siret_or_siren)
-
     params = build_params(user_id, siret_or_siren)
+    pool = pool_for(resource_name)
 
-    call(url, params)
+    call(url, params, pool:)
   end
 
-  def call(url, params = nil)
+  def call(url, params = nil, pool: DEFAULT_POOL)
     return Failure(type: :token_missing, code: 401, retryable: false, raw_response: nil) if token_missing?
     return Failure(type: :token_expired, code: 401, retryable: false, raw_response: nil) if token_expired?
 
-    sleep api_entreprise_delay if api_entreprise_delay != 0.0
+    APIEntreprise::RateLimiter.consume!(pool)
 
     case client.call(url:, params:, headers: { 'Authorization' => "Bearer #{token.jwt_token}" }, timeout: TIMEOUT)
     in Success(body:, response:)
+      APIEntreprise::RateLimiter.calibrate!(response, pool) if rand < 0.1
       Success(body)
     in Failure(type: :http, code:, error:)
+      APIEntreprise::RateLimiter.calibrate!(error.try(:response), pool) if code == 429
       classify_http_error(code, error.try(:response))
     in Failure(type:, code:, retryable:, error:)
       Failure(type:, code:, retryable:, raw_response: error.try(:response))
@@ -191,8 +203,11 @@ class APIEntreprise::API
     }
   end
 
-  def api_entreprise_delay
-    ENV.fetch("API_ENTREPRISE_DELAY", DEFAULT_API_ENTREPRISE_DELAY).to_f
+  def pool_for(resource_name)
+    POOL_BY_PREFIX.each do |prefix, pool|
+      return pool if resource_name.start_with?(prefix)
+    end
+    DEFAULT_POOL
   end
 
   def token_missing? = token.nil? || token.jwt_token.blank?
