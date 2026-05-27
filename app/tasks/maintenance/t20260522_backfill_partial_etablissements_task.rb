@@ -13,10 +13,11 @@ module Maintenance
     # Reserve quota for normal traffic — backfill pauses when < 200 remaining.
     # Jobs get the full 0-200 range, backfill only uses the 200+ surplus.
     BACKFILL_REMAINING_THRESHOLD = 200
+    BACKFILL_POOL = APIEntreprise::API::DEFAULT_POOL # etablissement endpoint = pool 250
 
     throttle_on(backoff: 1.minute) do
-      remaining = Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY)
-      remaining.present? && remaining.to_i < BACKFILL_REMAINING_THRESHOLD
+      remaining = APIEntreprise::RateLimiter.remaining(BACKFILL_POOL)
+      remaining.present? && remaining < BACKFILL_REMAINING_THRESHOLD
     end
 
     def collection

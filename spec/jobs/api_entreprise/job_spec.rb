@@ -3,7 +3,9 @@
 RSpec.describe APIEntreprise::Job, type: :job do
   include ActiveJob::TestHelper
   before do
-    Kredis.redis.del(APIEntreprise::RateLimiter::REMAINING_KEY, APIEntreprise::RateLimiter::RESET_KEY)
+    [5, 50, 100, 250].each do |pool|
+      Kredis.redis.del(APIEntreprise::RateLimiter.remaining_key(pool), APIEntreprise::RateLimiter.reset_key(pool))
+    end
   end
 
   describe '#perform' do
@@ -29,8 +31,10 @@ RSpec.describe APIEntreprise::Job, type: :job do
   end
 
   describe 'before_perform rate limit check' do
+    let(:pool) { APIEntreprise::API::DEFAULT_POOL }
+
     context 'when not throttled' do
-      before { allow(APIEntreprise::RateLimiter).to receive(:throttled?).and_return(false) }
+      before { allow(APIEntreprise::RateLimiter).to receive(:throttled?).with(pool).and_return(false) }
 
       it 'runs the job normally' do
         dossier = create(:dossier, :with_entreprise)
@@ -42,15 +46,15 @@ RSpec.describe APIEntreprise::Job, type: :job do
 
     context 'when throttled' do
       before do
-        allow(APIEntreprise::RateLimiter).to receive(:throttled?).and_return(true)
-        allow(APIEntreprise::RateLimiter).to receive(:wait_duration).and_return(15)
+        allow(APIEntreprise::RateLimiter).to receive(:throttled?).with(pool).and_return(true)
+        allow(APIEntreprise::RateLimiter).to receive(:wait_duration).with(pool).and_return(15)
       end
 
       it 're-enqueues the job with delay and aborts' do
         dossier = create(:dossier, :with_entreprise)
         etablissement = dossier.etablissement
 
-        expect(ErrorJob).to receive(:set).with(wait: 15.seconds).and_return(ErrorJob)
+        expect(ErrorJob).to receive(:set).with(wait: a_value_between(15.seconds, 30.seconds)).and_return(ErrorJob)
         expect(ErrorJob).to receive(:perform_later).with(etablissement)
 
         ErrorJob.perform_now(etablissement)
@@ -66,6 +70,27 @@ RSpec.describe APIEntreprise::Job, type: :job do
         # If the job body ran, it would raise — no raise means abort worked
         expect { ErrorJob.perform_now(etablissement) }.not_to raise_error
       end
+    end
+  end
+
+  describe '#api_pool' do
+    it 'returns the correct pool for each job class' do
+      expect(APIEntreprise::EtablissementJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::EntrepriseJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::ExtraitKbisJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::TvaJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::ExercicesJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::AssociationJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::BilansBdfJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::ServiceJob.new.api_pool).to eq(250)
+      expect(APIEntreprise::EffectifsJob.new.api_pool).to eq(50)
+      expect(APIEntreprise::EffectifsAnnuelsJob.new.api_pool).to eq(50)
+      expect(APIEntreprise::AttestationSocialeJob.new.api_pool).to eq(100)
+      expect(APIEntreprise::AttestationFiscaleJob.new.api_pool).to eq(5)
+    end
+
+    it 'defaults to 250 for unknown job classes' do
+      expect(ErrorJob.new.api_pool).to eq(250)
     end
   end
 

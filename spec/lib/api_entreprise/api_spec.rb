@@ -453,11 +453,12 @@ describe APIEntreprise::API do
   describe 'rate limiting' do
     let(:siren) { '418166096' }
     let(:body) { fixture_file('entreprises.json') }
-    let(:rate_limit_headers) { { 'RateLimit-Remaining' => '47', 'RateLimit-Limit' => '50', 'RateLimit-Reset' => reset_timestamp.to_s } }
+    let(:pool) { APIEntreprise::API::DEFAULT_POOL }
+    let(:rate_limit_headers) { { 'RateLimit-Remaining' => '47', 'RateLimit-Limit' => pool.to_s, 'RateLimit-Reset' => reset_timestamp.to_s } }
     let(:reset_timestamp) { Time.current.to_i + 30 }
 
     before do
-      Kredis.redis.del(APIEntreprise::RateLimiter::REMAINING_KEY, APIEntreprise::RateLimiter::RESET_KEY)
+      Kredis.redis.del(APIEntreprise::RateLimiter.remaining_key(pool), APIEntreprise::RateLimiter.reset_key(pool))
     end
 
     describe 'RateLimiter.calibrate! via response headers' do
@@ -473,15 +474,15 @@ describe APIEntreprise::API do
           allow_any_instance_of(described_class).to receive(:rand).and_return(0.05) # force calibration
           described_class.new(procedure_id).entreprise(siren)
 
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(47)
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::RESET_KEY)).to be_nil
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(47)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.reset_key(pool))).to be_nil
         end
 
         it 'sets TTL on Redis keys' do
           allow_any_instance_of(described_class).to receive(:rand).and_return(0.05)
           described_class.new(procedure_id).entreprise(siren)
 
-          ttl = Kredis.redis.ttl(APIEntreprise::RateLimiter::REMAINING_KEY)
+          ttl = Kredis.redis.ttl(APIEntreprise::RateLimiter.remaining_key(pool))
           expect(ttl).to be_between(1, 30)
         end
 
@@ -489,7 +490,7 @@ describe APIEntreprise::API do
           allow_any_instance_of(described_class).to receive(:rand).and_return(0.5)
           described_class.new(procedure_id).entreprise(siren)
 
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY)).to be_nil
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool))).to be_nil
         end
       end
 
@@ -500,7 +501,7 @@ describe APIEntreprise::API do
         it 'does not write to Redis' do
           described_class.new(procedure_id).entreprise(siren)
 
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY)).to be_nil
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool))).to be_nil
         end
       end
 
@@ -512,8 +513,8 @@ describe APIEntreprise::API do
         it 'always calibrates on 429 (broadcast stop signal)' do
           described_class.new(procedure_id).entreprise(siren)
 
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(0)
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::RESET_KEY).to_i).to eq(reset_timestamp)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(0)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.reset_key(pool)).to_i).to eq(reset_timestamp)
         end
       end
     end
@@ -532,23 +533,23 @@ describe APIEntreprise::API do
 
       context 'when remaining > 0' do
         before do
-          Kredis.redis.set(APIEntreprise::RateLimiter::REMAINING_KEY, 10, ex: 60)
+          Kredis.redis.set(APIEntreprise::RateLimiter.remaining_key(pool), 10, ex: 60)
         end
 
         it 'decrements remaining' do
           described_class.new(procedure_id).entreprise(siren)
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(9)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(9)
         end
       end
 
       context 'when remaining = 0' do
         before do
-          Kredis.redis.set(APIEntreprise::RateLimiter::REMAINING_KEY, 0, ex: 60)
+          Kredis.redis.set(APIEntreprise::RateLimiter.remaining_key(pool), 0, ex: 60)
         end
 
         it 'decrements to negative (caller handles throttling)' do
           described_class.new(procedure_id).entreprise(siren)
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter::REMAINING_KEY).to_i).to eq(-1)
+          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(-1)
         end
       end
     end
