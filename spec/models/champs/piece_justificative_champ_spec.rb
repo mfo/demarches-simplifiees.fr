@@ -43,13 +43,32 @@ describe Champs::PieceJustificativeChamp do
     context "when validation is disabled" do
       before { champ.type_de_champ.update(skip_pj_validation: true) }
 
-      it { is_expected.not_to validate_size_of(:piece_justificative_file).on(:champs_public_value).less_than(Champs::PieceJustificativeChamp::FILE_MAX_SIZE) }
+      it "does not enforce file size on :champs_public_value" do
+        champ.piece_justificative_file.purge
+        blob = ActiveStorage::Blob.create_and_upload!(
+          io: StringIO.new('x'),
+          filename: 'big.pdf',
+          content_type: 'application/pdf'
+        )
+        blob.update_column(:byte_size, Champs::PieceJustificativeChamp::FILE_MAX_SIZE + 1)
+        champ.piece_justificative_file.attach(blob)
+
+        expect(champ.valid?(:champs_public_value)).to be true
+      end
     end
 
     context "when content-type validation is disabled" do
       before { champ.type_de_champ.update(skip_content_type_pj_validation: true) }
 
-      it { is_expected.not_to validate_content_type_of(:piece_justificative_file).on(:champs_public_value).rejecting('application/x-ms-dos-executable') }
+      it "does not enforce content_type on :champs_public_value" do
+        champ.piece_justificative_file.attach(
+          io: StringIO.new('x'),
+          filename: 'bad.exe',
+          content_type: 'application/x-ms-dos-executable'
+        )
+
+        expect(champ.valid?(:champs_public_value)).to be true
+      end
     end
   end
 

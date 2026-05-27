@@ -305,7 +305,6 @@ class Procedure < ApplicationRecord
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "image/jpeg",
-    "image/jpg",
     "image/png",
     "text/plain",
   ], size: { less_than: FILE_MAX_SIZE }, if: -> { new_record? || created_at > Date.new(2020, 2, 28) }
@@ -316,13 +315,12 @@ class Procedure < ApplicationRecord
     "application/vnd.oasis.opendocument.text",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "image/jpeg",
-    "image/jpg",
     "image/png",
     "text/plain",
   ], size: { less_than: FILE_MAX_SIZE }, if: -> { new_record? || created_at > Date.new(2020, 4, 29) }
 
   LOGO_MAX_SIZE = 5.megabytes
-  validates :logo, content_type: ['image/png', 'image/jpg', 'image/jpeg'],
+  validates :logo, content_type: ['image/png', 'image/jpeg'],
     size: { less_than: LOGO_MAX_SIZE },
     if: -> { new_record? || created_at > Date.new(2020, 11, 13) }
 

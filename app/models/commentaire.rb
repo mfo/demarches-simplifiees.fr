@@ -20,7 +20,7 @@ class Commentaire < ApplicationRecord
   SYSTEM_EMAILS = [CONTACT_EMAIL, OLD_CONTACT_EMAIL.split(",")].flatten
 
   validates :piece_jointe,
-    content_type: AUTHORIZED_CONTENT_TYPES,
+    content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
     size: { less_than: FILE_MAX_SIZE }
 
   scope :chronological, -> { order(created_at: :asc) }

@@ -72,11 +72,12 @@ GEM
       activemodel (>= 4.1)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
-    active_storage_validations (1.1.4)
-      activejob (>= 5.2.0)
-      activemodel (>= 5.2.0)
-      activestorage (>= 5.2.0)
-      activesupport (>= 5.2.0)
+    active_storage_validations (3.0.5)
+      activejob (>= 6.1.4)
+      activemodel (>= 6.1.4)
+      activestorage (>= 6.1.4)
+      activesupport (>= 6.1.4)
+      marcel (>= 1.0.3)
     activejob (7.2.3.1)
       activesupport (= 7.2.3.1)
       globalid (>= 0.3.6)
@@ -124,8 +125,9 @@ GEM
     after_commit_everywhere (1.6.0)
       activerecord (>= 4.2)
       activesupport
-    ancestry (4.3.3)
+    ancestry (5.1.0)
       activerecord (>= 5.2.6)
+      logger
     anchored (1.1.0)
     anyway_config (2.7.2)
       ruby-next-core (~> 1.0)
@@ -326,11 +328,11 @@ GEM
       csv (>= 3.0.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    gon (6.5.0)
+    gon (7.0.0)
       actionpack (>= 3.0.20)
+      activesupport
       i18n (>= 0.7)
       multi_json
-      request_store (>= 1.0)
     graphql (2.5.23)
       base64
       fiber-storage

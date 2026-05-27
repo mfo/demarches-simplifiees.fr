@@ -16,11 +16,11 @@ class Avis < ApplicationRecord
 
   FILE_MAX_SIZE = 20.megabytes
   validates :piece_justificative_file,
-    content_type: AUTHORIZED_CONTENT_TYPES,
+    content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
     size: { less_than: FILE_MAX_SIZE }
 
   validates :introduction_file,
-    content_type: AUTHORIZED_CONTENT_TYPES,
+    content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
     size: { less_than: FILE_MAX_SIZE }
 
   validates :question_answer, inclusion: { in: [true, false] }, on: :update, if: -> { question_label.present? }
