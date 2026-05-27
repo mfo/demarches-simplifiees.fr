@@ -304,3 +304,8 @@ input[type='radio'] {
     flex-basis: 100%;
   }
 }
+
+// Supprime l'ombre du composant fr-tabs pour que l'onglet actif s'affiche sans ombre
+.fr-tabs {
+  box-shadow: none;
+}
