@@ -159,6 +159,17 @@ describe Instructeurs::CommentairesController, type: :controller do
           expect(subject.body).to include('Votre message a été supprimé')
         end
       end
+
+      context 'when the expert avis has been revoked' do
+        let!(:avis) { create(:avis, dossier:, experts_procedure:, claimant: instructeur, revoked_at: 1.day.ago) }
+        let!(:commentaire) { create(:commentaire, expert: expert, dossier: dossier) }
+        subject { delete :destroy, params: { dossier_id: dossier.id, procedure_id: procedure.id, id: commentaire.id, statut: 'a-suivre' }, format: :turbo_stream }
+
+        it 'returns 404 and does not delete the commentaire' do
+          expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+          expect(commentaire.reload).not_to be_discarded
+        end
+      end
     end
   end
 end

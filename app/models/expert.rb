@@ -14,6 +14,11 @@ class Expert < ApplicationRecord
     user.email
   end
 
+  # Dossiers the expert can currently access, excluding those whose avis has been revoked.
+  def dossiers_from_not_revoked_avis
+    Dossier.where(id: avis.not_revoked.select(:dossier_id))
+  end
+
   def self.by_email(email)
     Expert.eager_load(:user).find_by(users: { email: email })
   end
