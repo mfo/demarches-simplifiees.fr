@@ -5,7 +5,7 @@ class APIEntreprise::Job < ApplicationJob
 
   queue_as :default
 
-  use_sidekiq_retry
+  use_sidekiq_retry(report_after_attempts: 8)
 
   # Rate limit pool per job class (matches API Entreprise pools).
   # Jobs not listed here default to DEFAULT_POOL (250).
