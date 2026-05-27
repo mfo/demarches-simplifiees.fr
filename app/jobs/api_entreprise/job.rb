@@ -5,7 +5,7 @@ class APIEntreprise::Job < ApplicationJob
 
   queue_as :default
 
-  use_sidekiq_retry
+  use_sidekiq_retry(report_after_attempts: 8)
 
   # If by the time the job runs the Etablissement has been deleted
   # (it can happen through EtablissementUpdateJob for instance), ignore the job

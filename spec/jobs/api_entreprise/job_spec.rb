@@ -97,6 +97,15 @@ RSpec.describe APIEntreprise::Job, type: :job do
     end
   end
 
+  describe 'sidekiq retry configuration' do
+    subject(:options) { described_class.get_sidekiq_options }
+
+    it 'defers Sentry reporting until the 8th attempt while keeping native retry' do
+      expect(options["attempt_threshold"]).to eq(8)
+      expect(options["retry"]).to eq(ActiveJob::RetryOnStandardError::MAX_ATTEMPTS_JOBS)
+    end
+  end
+
   class ErrorJob < APIEntreprise::Job
     include Dry::Monads[:result]
 
