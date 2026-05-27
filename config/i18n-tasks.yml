@@ -30,8 +30,8 @@ data:
   # External locale data (e.g. gems).
   # This data is not considered unused and is never written to.
   external:
-    - "<%= %x[bundle info --path administrate].chomp %>/config/locales/*%{locale}.yml"
-    - "<%= %x[bundle info --path devise-i18n].chomp %>/rails/locales/*%{locale}.yml"
+    - '<%= %x[bundle info --path administrate].chomp %>/config/locales/*%{locale}.yml'
+    - '<%= %x[bundle info --path devise-i18n].chomp %>/rails/locales/*%{locale}.yml'
 
   ## Specify the router (see Readme for details). Valid values: conservative_router, pattern_router, or a custom class.
   # router: conservative_router
@@ -98,47 +98,47 @@ search:
 
 ## Consider these keys used:
 ignore_unused:
-- 'errors.format'
-- 'user_mailer.*.subject'
-- 'activerecord.models.*'
-- 'activerecord.attributes.*'
-- 'activemodel.attributes.map_filter.*'
-- 'activemodel.attributes.justificatif_domicile.*' # used in ocr_viewer_component
-- 'activemodel.errors.models.*'
-- 'activerecord.errors.*'
-- 'errors.messages.blank'
-- 'errors.messages.content_type_invalid.*'
-- 'errors.messages.file_size_out_of_range'
-- 'pluralize.*'
-- 'views.pagination.*'
-- 'time.formats.*'
-- 'date.formats.*'
-- 'datetime.formats.*'
-- 'instructeurs.dossiers.filterable_state.*'
-- 'views.prefill_descriptions.edit.possible_values.*'
-- 'helpers.page_entries_info.*'
-- 'combo_search_component.result_slot_html.*'
-- 'combo_search_component.screen_reader_instructions'
-- 'editable_champ.repetition_component.*'
-- 'links.common.*'
-- 'views.instructeurs.dossiers.acts_on_behalf'
-- 'views.shared.dossiers.identite_entreprise.non_diffusible'
-- 'views.components.*'
-- 'utils.array'
-- 'utils.boolean'
-- 'utils.date'
-- 'utils.datetime'
-- 'utils.decimal_number'
-- 'utils.integer_entier'
-- 'utils.string'
-- 'views.shared.avis.avis_non_rendu'
-- 'views.shared.avis.en_attente'
-- 'views.shared.actions.edit'
-- 'insee_down'
-- 'clipboard.copy_procedure_link'
-- 'links.main_navigation.doc.expert_title'
-- 'links.main_navigation.doc.instructeur_title'
-- 'shared.dossiers.geo.*'
+  - 'errors.format'
+  - 'user_mailer.*.subject'
+  - 'activerecord.models.*'
+  - 'activerecord.attributes.*'
+  - 'activemodel.attributes.map_filter.*'
+  - 'activemodel.attributes.justificatif_domicile.*' # used in ocr_viewer_component
+  - 'activemodel.errors.models.*'
+  - 'activerecord.errors.*'
+  - 'errors.messages.blank'
+  - 'errors.messages.content_type_invalid.*'
+  - 'errors.messages.file_size_out_of_range'
+  - 'pluralize.*'
+  - 'views.pagination.*'
+  - 'time.formats.*'
+  - 'date.formats.*'
+  - 'datetime.formats.*'
+  - 'instructeurs.dossiers.filterable_state.*'
+  - 'views.prefill_descriptions.edit.possible_values.*'
+  - 'helpers.page_entries_info.*'
+  - 'combo_search_component.result_slot_html.*'
+  - 'combo_search_component.screen_reader_instructions'
+  - 'editable_champ.repetition_component.*'
+  - 'links.common.*'
+  - 'views.instructeurs.dossiers.acts_on_behalf'
+  - 'views.shared.dossiers.identite_entreprise.non_diffusible'
+  - 'views.components.*'
+  - 'utils.array'
+  - 'utils.boolean'
+  - 'utils.date'
+  - 'utils.datetime'
+  - 'utils.decimal_number'
+  - 'utils.integer_entier'
+  - 'utils.string'
+  - 'views.shared.avis.avis_non_rendu'
+  - 'views.shared.avis.en_attente'
+  - 'views.shared.actions.edit'
+  - 'insee_down'
+  - 'clipboard.copy_procedure_link'
+  - 'links.main_navigation.doc.expert_title'
+  - 'links.main_navigation.doc.instructeur_title'
+  - 'shared.dossiers.geo.*'
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
 # - 'simple_form.{placeholders,hints,labels}.*'
@@ -157,7 +157,7 @@ ignore_unused:
 
 ## Ignore these keys completely:
 ignore:
-- 'shared.champs.drop_down_list{,.other,.other_label}' # pluralization "other" false positive
+  - 'shared.champs.drop_down_list{,.other,.other_label}' # pluralization "other" false positive
 
 ## Sometimes, it isn't possible for i18n-tasks to match the key correctly,
 ## e.g. in case of a relative key defined in a helper method.
