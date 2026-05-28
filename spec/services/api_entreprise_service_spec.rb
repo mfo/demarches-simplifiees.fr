@@ -160,6 +160,20 @@ describe APIEntrepriseService do
       end
     end
 
+    context 'when API returns 429 (rate limited)' do
+      before do
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
+          .to_return(body: '{"errors":[]}', status: 429)
+      end
+
+      it 'falls back to degraded mode without checking ping' do
+        expect(APIEntrepriseService).not_to receive(:api_insee_up?)
+        expect(subject).to be_success
+        expect(subject.value!.siret).to eq(siret)
+        expect(subject.value!).to be_as_degraded_mode
+      end
+    end
+
     context 'when API returns 451' do
       before do
         stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)

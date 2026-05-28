@@ -47,6 +47,8 @@ class APIEntrepriseService
     # Returns Failure(type:, code:, retryable:, raw_response:) on non-recoverable errors
     def create_etablissement_with_fallback(dossier_or_champ, siret, user_id = nil)
       case create_etablissement(dossier_or_champ, siret, user_id)
+      in Failure(type: :rate_limited, retryable: true, **)
+        Success(create_etablissement_as_degraded_mode(dossier_or_champ, siret, user_id))
       in Failure(retryable: true, **) => failure if degraded_mode?(failure.failure, target: :insee)
         Success(create_etablissement_as_degraded_mode(dossier_or_champ, siret, user_id))
       in result
