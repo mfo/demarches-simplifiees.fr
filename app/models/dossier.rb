@@ -327,11 +327,6 @@ class Dossier < ApplicationRecord
       .visible_by_user
       .where(expired_at: ..(Time.zone.now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
-  scope :en_construction_close_to_expiration, -> do
-    state_en_construction
-      .visible_by_user_or_administration
-      .where(expired_at: ..(Time.zone.now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
-  end
   scope :termine_close_to_expiration, -> do
     state_termine
       .visible_by_user_or_administration
@@ -347,23 +342,11 @@ class Dossier < ApplicationRecord
     end
   end
 
-  scope :termine_or_en_construction_close_to_expiration, -> do
-    joins(:procedure).scoping do
-      en_construction_close_to_expiration
-        .or(termine_close_to_expiration)
-    end
-  end
-
   scope :never_touched_brouillon_expired, -> { visible_by_user.brouillon.where.missing(:etablissement, :individual).where(last_champ_updated_at: nil, identity_updated_at: nil, parent_dossier: nil, last_commentaire_updated_at: nil).where(created_at: ..2.weeks.ago) }
   scope :brouillon_expired, -> do
     state_brouillon
       .visible_by_user
       .where(brouillon_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
-  end
-  scope :en_construction_expired, -> do
-    state_en_construction
-      .visible_by_user_or_administration
-      .where(en_construction_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
   scope :termine_expired, -> do
     state_termine
@@ -372,7 +355,6 @@ class Dossier < ApplicationRecord
   end
 
   scope :without_brouillon_expiration_notice_sent, -> { where(brouillon_close_to_expiration_notice_sent_at: nil) }
-  scope :without_en_construction_expiration_notice_sent, -> { where(en_construction_close_to_expiration_notice_sent_at: nil) }
   scope :without_termine_expiration_notice_sent, -> { where(termine_close_to_expiration_notice_sent_at: nil) }
   scope :without_dossier_expirant_notification, -> do
     where.not(

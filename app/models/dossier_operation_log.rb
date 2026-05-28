@@ -25,7 +25,6 @@ class DossierOperationLog < ApplicationRecord
   scope :not_deletion, -> { where.not(operation: operations.fetch(:supprimer)) }
   scope :with_data, -> { where.not(data: nil) }
   scope :brouillon_expired, -> { where(dossier: Dossier.brouillon_expired).not_deletion }
-  scope :en_construction_expired, -> { where(dossier: Dossier.en_construction_expired).not_deletion }
   scope :termine_expired, -> { where(dossier: Dossier.termine_expired).not_deletion }
 
   def move_to_cold_storage!
