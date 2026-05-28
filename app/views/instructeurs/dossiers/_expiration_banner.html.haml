@@ -21,6 +21,6 @@
           = button_to repousser_expiration_instructeur_dossier_path(dossier.procedure, dossier), class: 'fr-btn', id: 'test-instructeur-repousser-expiration' do
             = t('instructeurs.dossiers.header.banner.button_delay_expiration', count: dossier.procedure.duree_conservation_dossiers_dans_ds)
 
-- elsif dossier.en_instruction? && dossier.procedure.procedure_expires_when_termine_enabled
+- elsif (dossier.en_instruction? || dossier.en_construction?) && dossier.procedure.procedure_expires_when_termine_enabled
   %p.expires_at_en_instruction.fr-text--sm
-    = t("shared.dossiers.header.expires_at.en_instruction")
+    = t("shared.dossiers.header.expires_at.#{dossier.state}")

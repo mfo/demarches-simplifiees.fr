@@ -214,6 +214,33 @@ describe Dossier, type: :model do
     end
   end
 
+  describe "en_construction never expires (#13178)" do
+    let(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 2) }
+    let(:dossier) { create(:dossier, :en_construction, procedure:, en_construction_at: 50.days.ago) }
+
+    it "is not expirable" do
+      expect(dossier.expirable?).to be(false)
+    end
+
+    it "is never close_to_expiration" do
+      dossier.update_column(:expired_at, 3.days.from_now)
+      expect(dossier.close_to_expiration?).to be(false)
+    end
+
+    it "has no expiration_date" do
+      expect(dossier.expiration_date).to be_nil
+    end
+
+    it "has not expired" do
+      dossier.update_column(:en_construction_close_to_expiration_notice_sent_at, 1.month.ago)
+      expect(dossier.has_expired?).to be(false)
+    end
+
+    it "cannot extend conservation" do
+      expect(dossier.expiration_can_be_extended?).to be(false)
+    end
+  end
+
   describe 'termine_close_to_expiration' do
     let_it_be(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 6, procedure_expires_when_termine_enabled: true) }
     let_it_be(:young_dossier) { create(:dossier, state: :accepte, procedure:, processed_at: 2.days.ago) }
@@ -889,6 +916,8 @@ describe Dossier, type: :model do
         let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [new_instructeur]) }
 
         context "when notification is dossier_expirant" do
+          let(:procedure) { create(:procedure, procedure_expires_when_termine_enabled: true) }
+          let(:dossier) { create(:dossier, :accepte, procedure:) }
           before { dossier.update(expired_at: 1.week.from_now) }
 
           it "refreshes notifications for new instructeur" do

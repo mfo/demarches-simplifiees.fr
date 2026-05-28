@@ -630,24 +630,21 @@ class Dossier < ApplicationRecord
   def expirable?
     [
       brouillon?,
-      en_construction?,
       termine? && procedure.procedure_expires_when_termine_enabled,
     ].any?
   end
 
   def close_to_expiration?
-    return false if en_instruction?
+    return false if en_instruction? || en_construction?
     expired_at < Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now && Time.zone.now < expired_at
   end
 
   def has_expired?
-    return false if en_instruction?
+    return false if en_instruction? || en_construction?
 
     notice_sent_at =
       if brouillon?
         brouillon_close_to_expiration_notice_sent_at
-      elsif en_construction?
-        en_construction_close_to_expiration_notice_sent_at
       elsif termine?
         termine_close_to_expiration_notice_sent_at
       end
@@ -690,7 +687,7 @@ class Dossier < ApplicationRecord
   end
 
   def expiration_date
-    return nil if en_instruction?
+    return nil if en_instruction? || en_construction?
 
     after_notification_expiration_date.presence || expiration_date_with_extension
   end
@@ -698,7 +695,7 @@ class Dossier < ApplicationRecord
   def update_expired_at = update_column(:expired_at, expiration_date)
 
   def expiration_can_be_extended?
-    brouillon? || en_construction?
+    brouillon?
   end
 
   def extend_conservation(conservation_extension)

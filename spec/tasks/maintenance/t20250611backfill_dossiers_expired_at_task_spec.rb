@@ -20,8 +20,8 @@ module Maintenance
         let(:dossier) { create(:dossier, :en_construction) }
         before { dossier.update_column(:expired_at, nil) }
 
-        it "updates dossier expired_at attribute" do
-          expect { process }.to change { dossier.reload.expired_at }.from(nil).to be_within(1.second).of(dossier.expiration_date)
+        it "does not update dossier expired_at attribute (#13178: en_construction never expires)" do
+          expect { process }.not_to change { dossier.reload.expired_at }
         end
       end
 
