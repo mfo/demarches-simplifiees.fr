@@ -7,7 +7,7 @@ module Maintenance
     describe "#collection" do
       subject(:collection) { described_class.collection }
 
-      let!(:dossier) { create(:dossier, :en_construction) }
+      let!(:dossier) { create(:dossier, :accepte) }
 
       context 'when dossier is not close to expiration' do
         before { dossier.update(expired_at: 1.month.from_now) }
@@ -39,7 +39,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { described_class.process(dossier) }
 
-      let!(:dossier) { create(:dossier, :en_construction, groupe_instructeur:) }
+      let!(:dossier) { create(:dossier, :accepte, groupe_instructeur:) }
       let(:groupe_instructeur) { create(:groupe_instructeur, instructeurs: [instructeur]) }
       let(:instructeur) { create(:instructeur) }
 

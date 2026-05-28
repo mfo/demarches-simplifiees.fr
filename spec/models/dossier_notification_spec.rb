@@ -235,14 +235,17 @@ RSpec.describe DossierNotification, type: :model do
 
     context "when notification_type is dossier_expirant" do
       let(:notification_type) { :dossier_expirant }
-      let!(:dossier_to_notify) { create(:dossier, :accepte) }
-      let!(:dossier_to_notify_2) { create(:dossier, :en_construction) }
-      let!(:dossier_not_to_notify) { create(:dossier, :en_construction) }
+      let(:procedure) { create(:procedure, :published, procedure_expires_when_termine_enabled: true) }
+      let!(:dossier_to_notify) { create(:dossier, :accepte, procedure:) }
+      let!(:dossier_en_construction) { create(:dossier, :en_construction, procedure:) }
 
-      before { [dossier_to_notify, dossier_to_notify_2].each { |d| d.update(expired_at: 2.weeks.from_now) } }
+      before do
+        dossier_to_notify.update(expired_at: 2.weeks.from_now)
+        dossier_en_construction.update(expired_at: 2.weeks.from_now)
+      end
 
-      it "returns only dossiers termine or en_construction close to expiration" do
-        expect(subject).to contain_exactly(dossier_to_notify, dossier_to_notify_2)
+      it "returns only termine dossiers close to expiration, not en_construction" do
+        expect(subject).to contain_exactly(dossier_to_notify)
       end
     end
 

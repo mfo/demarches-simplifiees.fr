@@ -456,11 +456,13 @@ describe Instructeurs::ProceduresController, type: :controller do
         let(:statut) { 'expirant' }
         let!(:expiring_dossier_termine_deleted) { create(:dossier, :accepte, procedure: procedure, processed_at: 175.days.ago, hidden_by_administration_at: 2.days.ago).tap(&:update_expired_at) }
         let!(:expiring_dossier_termine) { create(:dossier, :accepte, procedure: procedure, processed_at: 175.days.ago).tap(&:update_expired_at) }
-        let!(:expiring_dossier_en_construction) { create(:dossier, :en_construction, procedure: procedure, en_construction_at: 175.days.ago).tap(&:update_expired_at) }
+        let!(:dossier_en_construction_not_expiring) { create(:dossier, :en_construction, procedure: procedure, en_construction_at: 175.days.ago).tap(&:update_expired_at) }
 
         before { subject }
 
-        it { expect(assigns(:filtered_sorted_paginated_ids)).to match_array([expiring_dossier_termine, expiring_dossier_en_construction].map(&:id)) }
+        it 'only lists termine dossiers close to expiration (en_construction never expires)' do
+          expect(assigns(:filtered_sorted_paginated_ids)).to match_array([expiring_dossier_termine].map(&:id))
+        end
       end
 
       describe 'statut' do

@@ -343,7 +343,6 @@ class Dossier < ApplicationRecord
   scope :close_to_expiration, -> do
     joins(:procedure).scoping do
       brouillon_close_to_expiration
-        .or(en_construction_close_to_expiration)
         .or(termine_close_to_expiration)
     end
   end
@@ -449,7 +448,7 @@ class Dossier < ApplicationRecord
     when 'archives'
       visible_by_administration.archived
     when 'expirant'
-      visible_by_administration.termine_or_en_construction_close_to_expiration
+      visible_by_administration.termine_close_to_expiration
     end
   end
 

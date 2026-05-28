@@ -14,7 +14,7 @@ module Maintenance
 
     def collection
       Dossier
-        .termine_or_en_construction_close_to_expiration
+        .termine_close_to_expiration
         .includes(groupe_instructeur: :instructeurs)
     end
 
