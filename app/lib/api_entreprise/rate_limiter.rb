@@ -8,11 +8,10 @@
 #   -   50 req/min: gip_mds/effectifs
 #   -    5 req/min: dgfip/attestation_fiscale
 #
-# Hybrid approach: Redis DECR for proactive counting + server headers for calibration.
+# Server-driven approach: every HTTP response calibrates the local state from RateLimit-* headers.
 #
-#   consume!(pool)    — DECR before each HTTP call (API#call)
-#   calibrate!(response, pool) — SET from RateLimit-* headers (~10% of 200s, 100% of 429s)
-#   throttled?(pool)  — read-only check (Job#before_perform, BackfillTask#throttle_on)
+#   calibrate!(response, pool) — SET remaining/reset from RateLimit-* headers (every response)
+#   throttled?(pool)           — read-only check (Job#before_perform, BackfillTask#throttle_on)
 #
 # Redis keys: api_entreprise:rate_limit:{remaining|reset}:{pool}
 # Keys auto-expire (TTL = reset window), so no stale state after window ends.
@@ -29,12 +28,6 @@ module APIEntreprise::RateLimiter
 
   def self.remaining(pool)
     Kredis.redis.get(remaining_key(pool))&.to_i
-  end
-
-  def self.consume!(pool)
-    return if remaining(pool).nil?
-
-    Kredis.redis.decr(remaining_key(pool))
   end
 
   def self.calibrate!(response, pool)

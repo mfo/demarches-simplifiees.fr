@@ -470,8 +470,7 @@ describe APIEntreprise::API do
       context 'when API returns 200 with RateLimit headers' do
         let(:status) { 200 }
 
-        it 'stores remaining in Redis when calibration triggers (reset not stored when remaining > 0)' do
-          allow_any_instance_of(described_class).to receive(:rand).and_return(0.05) # force calibration
+        it 'stores remaining in Redis (reset not stored when remaining > 0)' do
           described_class.new(procedure_id).entreprise(siren)
 
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(47)
@@ -479,18 +478,10 @@ describe APIEntreprise::API do
         end
 
         it 'sets TTL on Redis keys' do
-          allow_any_instance_of(described_class).to receive(:rand).and_return(0.05)
           described_class.new(procedure_id).entreprise(siren)
 
           ttl = Kredis.redis.ttl(APIEntreprise::RateLimiter.remaining_key(pool))
           expect(ttl).to be_between(1, 30)
-        end
-
-        it 'skips calibration ~90% of the time' do
-          allow_any_instance_of(described_class).to receive(:rand).and_return(0.5)
-          described_class.new(procedure_id).entreprise(siren)
-
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool))).to be_nil
         end
       end
 
@@ -510,46 +501,11 @@ describe APIEntreprise::API do
         let(:body) { '{"errors":[{"code":"00429","title":"Trop de requêtes"}]}' }
         let(:rate_limit_headers) { { 'RateLimit-Remaining' => '0', 'RateLimit-Reset' => reset_timestamp.to_s } }
 
-        it 'always calibrates on 429 (broadcast stop signal)' do
+        it 'calibrates remaining to 0 and stores reset timestamp' do
           described_class.new(procedure_id).entreprise(siren)
 
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(0)
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.reset_key(pool)).to_i).to eq(reset_timestamp)
-        end
-      end
-    end
-
-    describe 'RateLimiter.consume! decrements counter' do
-      before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/)
-          .to_return(body:, status: 200)
-      end
-
-      context 'when Redis has no rate limit state' do
-        it 'skips decrement and makes the call' do
-          expect { described_class.new(procedure_id).entreprise(siren) }.not_to raise_error
-        end
-      end
-
-      context 'when remaining > 0' do
-        before do
-          Kredis.redis.set(APIEntreprise::RateLimiter.remaining_key(pool), 10, ex: 60)
-        end
-
-        it 'decrements remaining' do
-          described_class.new(procedure_id).entreprise(siren)
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(9)
-        end
-      end
-
-      context 'when remaining = 0' do
-        before do
-          Kredis.redis.set(APIEntreprise::RateLimiter.remaining_key(pool), 0, ex: 60)
-        end
-
-        it 'decrements to negative (caller handles throttling)' do
-          described_class.new(procedure_id).entreprise(siren)
-          expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(-1)
         end
       end
     end

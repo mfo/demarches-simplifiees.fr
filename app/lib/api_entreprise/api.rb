@@ -117,16 +117,15 @@ class APIEntreprise::API
     return Failure(type: :token_missing, code: 401, retryable: false, raw_response: nil) if token_missing?
     return Failure(type: :token_expired, code: 401, retryable: false, raw_response: nil) if token_expired?
 
-    APIEntreprise::RateLimiter.consume!(pool)
-
     case client.call(url:, params:, headers: { 'Authorization' => "Bearer #{token.jwt_token}" }, timeout: TIMEOUT)
     in Success(body:, response:)
-      APIEntreprise::RateLimiter.calibrate!(response, pool) if rand < 0.1
+      APIEntreprise::RateLimiter.calibrate!(response, pool)
       Success(body)
     in Failure(type: :http, code:, error:)
-      APIEntreprise::RateLimiter.calibrate!(error.try(:response), pool) if code == 429
+      APIEntreprise::RateLimiter.calibrate!(error.try(:response), pool)
       classify_http_error(code, error.try(:response))
     in Failure(type:, code:, retryable:, error:)
+      APIEntreprise::RateLimiter.calibrate!(error.try(:response), pool)
       Failure(type:, code:, retryable:, raw_response: error.try(:response))
     end
   end

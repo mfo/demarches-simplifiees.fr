@@ -57,46 +57,6 @@ describe APIEntreprise::RateLimiter do
     end
   end
 
-  describe '.consume!' do
-    context 'when Redis has no state (not yet calibrated)' do
-      it 'does nothing' do
-        expect { described_class.consume!(pool) }.not_to raise_error
-        expect(Kredis.redis.get(described_class.remaining_key(pool))).to be_nil
-      end
-    end
-
-    context 'when remaining is set' do
-      before { Kredis.redis.set(described_class.remaining_key(pool), 5, ex: 60) }
-
-      it 'decrements the counter' do
-        described_class.consume!(pool)
-        expect(Kredis.redis.get(described_class.remaining_key(pool)).to_i).to eq(4)
-      end
-
-      it 'is safe under concurrent calls' do
-        3.times { described_class.consume!(pool) }
-        expect(Kredis.redis.get(described_class.remaining_key(pool)).to_i).to eq(2)
-      end
-    end
-
-    context 'does not affect other pools' do
-      before do
-        Kredis.redis.set(described_class.remaining_key(250), 10, ex: 60)
-        Kredis.redis.set(described_class.remaining_key(50), 5, ex: 60)
-      end
-
-      after do
-        Kredis.redis.del(described_class.remaining_key(250), described_class.remaining_key(50))
-      end
-
-      it 'decrements only the specified pool' do
-        described_class.consume!(250)
-        expect(Kredis.redis.get(described_class.remaining_key(250)).to_i).to eq(9)
-        expect(Kredis.redis.get(described_class.remaining_key(50)).to_i).to eq(5)
-      end
-    end
-  end
-
   describe '.calibrate!' do
     let(:reset_timestamp) { Time.current.to_i + 30 }
 
