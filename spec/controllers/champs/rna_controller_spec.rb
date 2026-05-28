@@ -113,7 +113,7 @@ describe Champs::RNAController, type: :controller do
         let(:body) { File.read('spec/fixtures/files/api_entreprise/associations.json') }
 
         before do
-          expect(APIEntrepriseService).to receive(:api_djepva_up?).and_return(false)
+          allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(:djepva_association).and_return(false)
         end
 
         subject! { get :show, params: params, format: :turbo_stream }

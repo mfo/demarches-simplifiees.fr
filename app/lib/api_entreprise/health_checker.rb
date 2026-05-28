@@ -14,7 +14,7 @@ module APIEntreprise::HealthChecker
     dgfip_attestation_fiscale: 'dgfip/attestation_fiscale',
     gip_mds_effectifs: 'gip_mds/effectifs',
     urssaf_attestation_sociale: 'urssaf/attestation_sociale',
-    banque_de_france_bilans: 'banque_de_france/bilans'
+    banque_de_france_bilans: 'banque_de_france/bilans',
   }.freeze
 
   # ok = provider works correctly

@@ -434,7 +434,7 @@ describe Users::DossiersController, type: :controller do
     let(:api_etablissement_status) { 200 }
     let(:api_etablissement_body) { Rails.root.join('spec/fixtures/files/api_entreprise/etablissements.json').read }
     let(:token_expired) { false }
-    let(:api_insee_status_response) { nil }
+    let(:provider_up) { true }
 
     before do
       sign_in(user)
@@ -443,11 +443,7 @@ describe Users::DossiersController, type: :controller do
       allow_any_instance_of(APIEntrepriseToken).to receive(:roles)
         .and_return(["attestations_fiscales", "attestations_sociales", "bilans_entreprise_bdf"])
       allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(token_expired)
-
-      if api_insee_status_response
-        stub_request(:get, "https://entreprise.api.gouv.fr/ping/insee/sirene")
-          .to_return(body: api_insee_status_response)
-      end
+      allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(:insee_sirene).and_return(provider_up)
       travel_to(2.minutes.ago)
     end
 
@@ -492,14 +488,13 @@ describe Users::DossiersController, type: :controller do
 
       context 'When API-Entreprise is ponctually down' do
         let(:api_etablissement_status) { 502 }
-        let(:api_insee_status_response) { Rails.root.join('spec/fixtures/files/api_entreprise/ping.json').read }
 
         it_behaves_like 'the request fails with an error', I18n.t('errors.messages.siret.network_error')
       end
 
       context 'When API-Entreprise is globally down' do
         let(:api_etablissement_status) { 502 }
-        let(:api_insee_status_response) { Rails.root.join('spec/fixtures/files/api_entreprise/ping.json').read.gsub('ok', 'HASISSUES') }
+        let(:provider_up) { false }
 
         it "create an etablissement only with SIRET as degraded mode" do
           dossier.reload
@@ -516,7 +511,6 @@ describe Users::DossiersController, type: :controller do
 
       context 'when default token has expired' do
         let(:api_etablissement_status) { 200 }
-        let(:api_insee_status_response) { Rails.root.join('spec/fixtures/files/api_entreprise/ping.json').read }
         let(:token_expired) { true }
 
         it_behaves_like 'the request fails with an error', I18n.t('errors.messages.siret.network_error')

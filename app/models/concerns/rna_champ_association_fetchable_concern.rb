@@ -10,7 +10,7 @@ module RNAChampAssociationFetchableConcern
     in Success(data)
       update_external_data!(data: data.presence, value:)
       true
-    in Failure(retryable: true, **) => result if APIEntrepriseService.degraded_mode?(result.failure, target: :djepva)
+    in Failure(retryable: true, **) => result if !APIEntreprise::HealthChecker.provider_up?(:djepva_association)
       update_external_data!(data: nil, value:)
       errors.add(:value, :network_error)
       false

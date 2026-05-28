@@ -94,7 +94,7 @@ describe Champs::SiretChamp do
       let(:siret) { '82161143100015' }
       let(:api_etablissement_status) { 503 }
 
-      before { expect(APIEntrepriseService).to receive(:api_insee_up?).and_return(true) }
+      before { allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(:insee_sirene).and_return(true) }
 
       it_behaves_like 'an error occured'
 
@@ -108,7 +108,7 @@ describe Champs::SiretChamp do
       let(:siret) { '82161143100015' }
       let(:api_etablissement_status) { 502 }
 
-      before { expect(APIEntrepriseService).to receive(:api_insee_up?).and_return(false) }
+      before { allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(:insee_sirene).and_return(false) }
 
       it { expect { fetch_external_data }.to change { champ.reload.etablissement } }
 

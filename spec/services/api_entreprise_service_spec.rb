@@ -137,7 +137,7 @@ describe APIEntrepriseService do
       before do
         stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body: '', status: 503)
-        allow(APIEntrepriseService).to receive(:api_insee_up?).and_return(false)
+        allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(:insee_sirene).and_return(false)
       end
 
       it 'returns Success with degraded etablissement' do
@@ -151,7 +151,7 @@ describe APIEntrepriseService do
       before do
         stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body: '', status: 503)
-        allow(APIEntrepriseService).to receive(:api_insee_up?).and_return(true)
+        allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(:insee_sirene).and_return(true)
       end
 
       it 'returns the original Failure' do
@@ -163,11 +163,11 @@ describe APIEntrepriseService do
     context 'when API returns 429 (rate limited)' do
       before do
         stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
-          .to_return(body: '{"errors":[]}', status: 429)
+          .to_return(body: '', status: 429)
       end
 
-      it 'falls back to degraded mode without checking ping' do
-        expect(APIEntrepriseService).not_to receive(:api_insee_up?)
+      it 'falls back to degraded mode without checking provider health' do
+        expect(APIEntreprise::HealthChecker).not_to receive(:provider_up?)
         expect(subject).to be_success
         expect(subject.value!.siret).to eq(siret)
         expect(subject.value!).to be_as_degraded_mode
@@ -211,38 +211,6 @@ describe APIEntrepriseService do
       )
 
       APIEntrepriseService.report_error(failure, siret: '123')
-    end
-  end
-
-  describe "#api_insee_up?" do
-    subject { described_class.api_insee_up? }
-    let(:body) { Rails.root.join('spec/fixtures/files/api_entreprise/ping.json').read }
-    let(:status) { 200 }
-
-    before do
-      stub_request(:get, "https://entreprise.api.gouv.fr/ping/insee/sirene")
-        .to_return(body: body, status: status)
-    end
-
-    it "returns true when api etablissement is up" do
-      expect(subject).to be_truthy
-    end
-
-    context "when api entreprise is down" do
-      let(:body) { Rails.root.join('spec/fixtures/files/api_entreprise/ping.json').read.gsub('ok', 'HASISSUES') }
-
-      it "returns false" do
-        expect(subject).to be_falsey
-      end
-    end
-
-    context "when api entreprise status is unknown" do
-      let(:body) { "" }
-      let(:status) { 0 }
-
-      it "returns nil" do
-        expect(subject).to be_falsey
-      end
     end
   end
 end
