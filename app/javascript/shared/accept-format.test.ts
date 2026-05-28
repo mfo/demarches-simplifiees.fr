@@ -4,8 +4,8 @@ import { parseAcceptForDisplay } from './accept-format';
 
 suite('@accept-format', () => {
   suite('parseAcceptForDisplay', () => {
-    test('returns uppercase extensions for a .ext-only accept', () => {
-      expect(parseAcceptForDisplay('.pdf, .docx')).toBe('PDF, DOCX');
+    test('returns lowercase dotted extensions for a .ext-only accept', () => {
+      expect(parseAcceptForDisplay('.pdf, .docx')).toBe('.pdf, .docx');
     });
 
     test('returns a family label for a wildcard MIME category', () => {
@@ -39,7 +39,7 @@ suite('@accept-format', () => {
       // aucun mapping family ne le couvre, il doit donc rester dans le rendu.
       const accept = 'application/pdf, .pdf, .acidcsa';
 
-      expect(parseAcceptForDisplay(accept)).toContain('ACIDCSA');
+      expect(parseAcceptForDisplay(accept)).toContain('.acidcsa');
     });
   });
 });

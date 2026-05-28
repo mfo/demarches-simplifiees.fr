@@ -104,7 +104,7 @@ function extensionsFromLabel(label: string): string[] {
  * fois, on émet d'abord les labels famille (issus des MIME types), puis on
  * n'ajoute que les .ext qui ne sont couvertes par aucun label.
  *
- * @example ".pdf, .docx" → "PDF, DOCX"
+ * @example ".pdf, .docx" → ".pdf, .docx"
  * @example "image/*" → ".jpg, .jpeg, .png"
  * @example "application/pdf, .pdf" → ".pdf, .doc, .docx, .odt, .txt"
  */
@@ -146,7 +146,7 @@ export function parseAcceptForDisplay(accept: string): string {
 
   const uncoveredExtensions = standaloneExtensions
     .filter((ext) => !coveredExtensions.has(ext))
-    .map((ext) => ext.toUpperCase());
+    .map((ext) => `.${ext}`);
 
   const displayItems = [...familyLabels, ...uncoveredExtensions];
 
