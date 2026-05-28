@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class APIEntreprise::Job < ApplicationJob
+  class RetryableError < StandardError; end
+
   include Dry::Monads[:result]
 
   queue_as :default
@@ -16,18 +18,39 @@ class APIEntreprise::Job < ApplicationJob
     'AttestationSocialeJob' => 100,
   }.freeze
 
+  # Maps each job to its API Entreprise provider ping key.
+  # Used by before_perform to skip jobs when provider is down.
+  # See https://entreprise.api.gouv.fr/developpeurs#surveillance-etat-fournisseurs
+  PING_KEY_BY_JOB = {
+    'EtablissementJob' => APIEntreprise::HealthChecker::PROVIDERS[:insee_sirene],
+    'EntrepriseJob' => APIEntreprise::HealthChecker::PROVIDERS[:insee_sirene],
+    'ExtraitKbisJob' => APIEntreprise::HealthChecker::PROVIDERS[:infogreffe_rcs],
+    'TvaJob' => APIEntreprise::HealthChecker::PROVIDERS[:european_commission_tva],
+    'AssociationJob' => APIEntreprise::HealthChecker::PROVIDERS[:djepva_association],
+    'ExercicesJob' => APIEntreprise::HealthChecker::PROVIDERS[:dgfip_chiffre_affaires],
+    'EffectifsJob' => APIEntreprise::HealthChecker::PROVIDERS[:gip_mds_effectifs],
+    'EffectifsAnnuelsJob' => APIEntreprise::HealthChecker::PROVIDERS[:gip_mds_effectifs],
+    'AttestationSocialeJob' => APIEntreprise::HealthChecker::PROVIDERS[:urssaf_attestation_sociale],
+    'AttestationFiscaleJob' => APIEntreprise::HealthChecker::PROVIDERS[:dgfip_attestation_fiscale],
+    'BilansBdfJob' => APIEntreprise::HealthChecker::PROVIDERS[:banque_de_france_bilans],
+    'ServiceJob' => APIEntreprise::HealthChecker::PROVIDERS[:insee_sirene],
+  }.freeze
+
   # If by the time the job runs the Etablissement has been deleted
   # (it can happen through EtablissementUpdateJob for instance), ignore the job
   discard_on ActiveRecord::RecordNotFound
 
-  # If rate limited for this pool, re-enqueue with delay and free the worker immediately.
+  # Skip job if provider is known to be down, then check rate limit.
+  # Health check first (cheap Redis read), rate limiter second.
   before_perform do
+    ping_key = ping_key_for_job
+    if ping_key && !APIEntreprise::HealthChecker.provider_up?(ping_key)
+      raise RetryableError, "Provider #{ping_key} is down, retrying later"
+    end
+
     pool = api_pool
     if APIEntreprise::RateLimiter.throttled?(pool)
-      wait = APIEntreprise::RateLimiter.wait_duration(pool)
-      jitter = rand(0..wait)
-      self.class.set(wait: (wait + jitter).seconds).perform_later(*arguments)
-      throw :abort
+      raise RetryableError, "Rate limited on pool #{pool}, retrying later"
     end
   end
 
@@ -61,8 +84,7 @@ class APIEntreprise::Job < ApplicationJob
     in Success
       nil
     in Failure(retryable: true, type: :rate_limited, code:, **)
-      wait = APIEntreprise::RateLimiter.wait_duration(api_pool)
-      self.class.set(wait: wait.seconds).perform_later(*arguments)
+      raise RetryableError, "Rate limited on pool #{api_pool}, retrying later"
     in Failure(retryable: true, type:, code:, raw_response:, **)
       raise StandardError, format_error(type, code, raw_response)
     in Failure(retryable: false, type:, code:, **)
@@ -76,6 +98,12 @@ class APIEntreprise::Job < ApplicationJob
   # Pool derived from job class name via POOL_BY_JOB.
   def api_pool
     POOL_BY_JOB.fetch(self.class.name.demodulize, APIEntreprise::API::DEFAULT_POOL)
+  end
+
+  # Ping key derived from job class name via PING_KEY_BY_JOB.
+  # Returns nil for unknown jobs (fail-open).
+  def ping_key_for_job
+    PING_KEY_BY_JOB[self.class.name.demodulize]
   end
 
   private

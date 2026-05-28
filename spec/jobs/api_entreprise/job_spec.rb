@@ -30,10 +30,14 @@ RSpec.describe APIEntreprise::Job, type: :job do
     end
   end
 
-  describe 'before_perform rate limit check' do
+  describe 'before_perform checks' do
     let(:pool) { APIEntreprise::API::DEFAULT_POOL }
 
-    context 'when not throttled' do
+    before do
+      allow(APIEntreprise::HealthChecker).to receive(:provider_up?).and_return(true)
+    end
+
+    context 'when provider is up and not throttled' do
       before { allow(APIEntreprise::RateLimiter).to receive(:throttled?).with(pool).and_return(false) }
 
       it 'runs the job normally' do
@@ -44,31 +48,48 @@ RSpec.describe APIEntreprise::Job, type: :job do
       end
     end
 
-    context 'when throttled' do
+    context 'when provider is down' do
+      let(:ping_key) { 'insee/sirene' }
+
+      before do
+        allow_any_instance_of(ErrorJob).to receive(:ping_key_for_job).and_return(ping_key)
+        allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(ping_key).and_return(false)
+      end
+
+      it 'raises RetryableError without checking rate limit' do
+        dossier = create(:dossier, :with_entreprise)
+        etablissement = dossier.etablissement
+
+        expect(APIEntreprise::RateLimiter).not_to receive(:throttled?)
+        expect { ErrorJob.perform_now(etablissement) }
+          .to raise_error(APIEntreprise::Job::RetryableError, /Provider #{ping_key} is down/)
+      end
+    end
+
+    context 'when provider is up but throttled' do
       before do
         allow(APIEntreprise::RateLimiter).to receive(:throttled?).with(pool).and_return(true)
-        allow(APIEntreprise::RateLimiter).to receive(:wait_duration).with(pool).and_return(15)
       end
 
-      it 're-enqueues the job with delay and aborts' do
+      it 'raises RetryableError for rate limit' do
         dossier = create(:dossier, :with_entreprise)
         etablissement = dossier.etablissement
 
-        expect(ErrorJob).to receive(:set).with(wait: a_value_between(15.seconds, 30.seconds)).and_return(ErrorJob)
-        expect(ErrorJob).to receive(:perform_later).with(etablissement)
-
-        ErrorJob.perform_now(etablissement)
+        expect { ErrorJob.perform_now(etablissement) }
+          .to raise_error(APIEntreprise::Job::RetryableError, /Rate limited on pool #{pool}/)
       end
+    end
 
-      it 'does not execute the job body' do
+    context 'when job is not in PING_KEY_BY_JOB (fail-open)' do
+      it 'skips health check and proceeds' do
+        # ErrorJob is not in PING_KEY_BY_JOB, so ping_key_for_job returns nil
+        allow(APIEntreprise::RateLimiter).to receive(:throttled?).and_return(false)
+
         dossier = create(:dossier, :with_entreprise)
         etablissement = dossier.etablissement
 
-        allow(ErrorJob).to receive(:set).and_return(ErrorJob)
-        allow(ErrorJob).to receive(:perform_later)
-
-        # If the job body ran, it would raise — no raise means abort worked
-        expect { ErrorJob.perform_now(etablissement) }.not_to raise_error
+        # Job runs (raises from adapter, not from before_perform)
+        expect { ErrorJob.perform_now(etablissement) }.to raise_error(StandardError, /API Entreprise error/)
       end
     end
   end
@@ -91,6 +112,37 @@ RSpec.describe APIEntreprise::Job, type: :job do
 
     it 'defaults to 250 for unknown job classes' do
       expect(ErrorJob.new.api_pool).to eq(250)
+    end
+  end
+
+  describe '#ping_key_for_job' do
+    it 'returns the correct ping key for each job class' do
+      expect(APIEntreprise::EtablissementJob.new.ping_key_for_job).to eq('insee/sirene')
+      expect(APIEntreprise::EntrepriseJob.new.ping_key_for_job).to eq('insee/sirene')
+      expect(APIEntreprise::ExtraitKbisJob.new.ping_key_for_job).to eq('infogreffe/rcs')
+      expect(APIEntreprise::TvaJob.new.ping_key_for_job).to eq('european_commission/numero_tva')
+      expect(APIEntreprise::AssociationJob.new.ping_key_for_job).to eq('djepva/api-association')
+      expect(APIEntreprise::ExercicesJob.new.ping_key_for_job).to eq('dgfip/chiffre_affaires')
+      expect(APIEntreprise::EffectifsJob.new.ping_key_for_job).to eq('gip_mds/effectifs')
+      expect(APIEntreprise::EffectifsAnnuelsJob.new.ping_key_for_job).to eq('gip_mds/effectifs')
+      expect(APIEntreprise::AttestationSocialeJob.new.ping_key_for_job).to eq('urssaf/attestation_sociale')
+      expect(APIEntreprise::AttestationFiscaleJob.new.ping_key_for_job).to eq('dgfip/attestation_fiscale')
+      expect(APIEntreprise::BilansBdfJob.new.ping_key_for_job).to eq('banque_de_france/bilans')
+      expect(APIEntreprise::ServiceJob.new.ping_key_for_job).to eq('insee/sirene')
+    end
+
+    it 'returns nil for unknown job classes (fail-open)' do
+      expect(ErrorJob.new.ping_key_for_job).to be_nil
+    end
+  end
+
+  describe 'PING_KEY_BY_JOB completeness' do
+    it 'covers all job classes in app/jobs/api_entreprise/' do
+      job_files = Rails.root.glob('app/jobs/api_entreprise/*_job.rb')
+      job_class_names = job_files.map { |f| File.basename(f, '.rb').camelize }
+
+      mapped = described_class::PING_KEY_BY_JOB.keys
+      expect(mapped).to match_array(job_class_names)
     end
   end
 
@@ -154,17 +206,9 @@ RSpec.describe APIEntreprise::Job, type: :job do
           .and_return(Dry::Monads::Failure(type: :rate_limited, code: 429, retryable: true, raw_response: nil))
       end
 
-      it 're-enqueues the job with wait from RateLimiter.wait_duration' do
-        allow(APIEntreprise::RateLimiter).to receive(:wait_duration).and_return(20)
-        expect(described_class).to receive(:set).with(wait: 20.seconds).and_return(described_class)
-        expect(described_class).to receive(:perform_later)
-        job.send(:with_adapter, adapter) { |_| }
-      end
-
-      it 'does not raise' do
-        allow(described_class).to receive(:set).and_return(described_class)
-        allow(described_class).to receive(:perform_later)
-        expect { job.send(:with_adapter, adapter) { |_| } }.not_to raise_error
+      it 'raises RetryableError for Sidekiq exponential backoff' do
+        expect { job.send(:with_adapter, adapter) { |_| } }
+          .to raise_error(APIEntreprise::Job::RetryableError, /Rate limited on pool/)
       end
     end
 
