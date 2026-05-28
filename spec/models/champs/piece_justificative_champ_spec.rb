@@ -29,6 +29,13 @@ describe Champs::PieceJustificativeChamp do
         expect(champ.errors[:piece_justificative_file]).to be_present
       end
 
+      it "accepts a markdown file declared as the legacy text/x-markdown content type" do
+        champ.piece_justificative_file.purge
+        champ.piece_justificative_file.attach(io: StringIO.new('# titre'), filename: 'notes.md', content_type: 'text/x-markdown')
+
+        expect(champ.valid?(:champs_public_value)).to be true
+      end
+
       it "does not validate public PJ when validating private context" do
         champ.piece_justificative_file.attach(
           io: StringIO.new('x'),
@@ -121,6 +128,12 @@ describe Champs::PieceJustificativeChamp do
         champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'arc.zip', content_type: 'application/zip')
         expect(champ.valid?(:champs_public_value)).to be false
         expect(champ.errors[:piece_justificative_file]).to be_present
+      end
+
+      it 'accepts markdown declared as the legacy text/x-markdown content type' do
+        champ.piece_justificative_file.purge
+        champ.piece_justificative_file.attach(io: StringIO.new('# titre'), filename: 'notes.md', content_type: 'text/x-markdown')
+        expect(champ.valid?(:champs_public_value)).to be true
       end
     end
 
