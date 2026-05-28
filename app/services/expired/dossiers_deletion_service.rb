@@ -10,12 +10,6 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
     delete_expired_brouillons_and_notify
   end
 
-  def process_expired_dossiers_en_construction
-    send_en_construction_expiration_notices
-    delete_expired_en_construction_and_notify
-    update_notifications_dossiers_en_construction
-  end
-
   def process_expired_dossiers_termine
     send_termine_expiration_notices
     delete_expired_termine_and_notify
@@ -44,13 +38,6 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
     end
   end
 
-  def send_en_construction_expiration_notices
-    send_expiration_notices(
-      Dossier.en_construction_close_to_expiration.without_en_construction_expiration_notice_sent,
-      :en_construction_close_to_expiration_notice_sent_at
-    )
-  end
-
   def send_termine_expiration_notices
     send_expiration_notices(
       Dossier.termine_close_to_expiration.without_termine_expiration_notice_sent,
@@ -77,18 +64,8 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
     end
   end
 
-  def delete_expired_en_construction_and_notify
-    delete_expired_and_notify(Dossier.en_construction_expired)
-  end
-
   def delete_expired_termine_and_notify
     delete_expired_and_notify(Dossier.termine_expired, notify_on_closed_procedures_to_user: true)
-  end
-
-  def update_notifications_dossiers_en_construction
-    DossierNotification.create_notifications_for_non_customisable_type(Dossier.en_construction_close_to_expiration.without_dossier_expirant_notification, :dossier_expirant)
-    DossierNotification.destroy_notifications_by_dossier_and_type(Dossier.en_construction_expired, :dossier_expirant)
-    DossierNotification.create_notifications_for_non_customisable_type(Dossier.en_construction_expired, :dossier_suppression)
   end
 
   def update_notifications_dossiers_termine

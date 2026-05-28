@@ -35,8 +35,6 @@ module Expired
       "every day at 10 pm"
     when 'Cron::ExpiredUsersDeletionJob'
       "every day at 11 pm"
-    when 'Cron::ExpiredDossiersEnConstructionDeletionJob'
-      "every day at 3 pm"
     when 'Cron::EnableProcedureExpiresWhenTermineEnabledJob'
       "every day at 2 am"
     else
