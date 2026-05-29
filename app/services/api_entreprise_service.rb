@@ -47,9 +47,9 @@ class APIEntrepriseService
     # Returns Failure(type:, code:, retryable:, raw_response:) on non-recoverable errors
     def create_etablissement_with_fallback(dossier_or_champ, siret, user_id = nil)
       case create_etablissement(dossier_or_champ, siret, user_id)
-      in Failure(type: :rate_limited, retryable: true, **)
+      in Failure(type: :rate_limited, **)
         Success(create_etablissement_as_degraded_mode(dossier_or_champ, siret, user_id))
-      in Failure(retryable: true, **) => failure if degraded_mode?(failure.failure, target: :insee)
+      in Failure(retryable: true, **) if !APIEntreprise::HealthChecker.provider_up?(:insee_sirene)
         Success(create_etablissement_as_degraded_mode(dossier_or_champ, siret, user_id))
       in result
         result
@@ -90,34 +90,6 @@ class APIEntrepriseService
         level: :error,
         extra: extra.merge(code: failure[:code], raw_body: failure[:raw_response]&.body&.truncate(1000))
       )
-    end
-
-    def degraded_mode?(failure, target: :insee)
-      return false unless failure[:retryable]
-      target == :insee ? !api_insee_up? : !api_djepva_up?
-    end
-
-    # See: https://entreprise.api.gouv.fr/developpeurs#surveillance-etat-fournisseurs
-    def api_insee_up?
-      api_up?("https://entreprise.api.gouv.fr/ping/insee/sirene")
-    end
-
-    def api_djepva_up?
-      api_up?("https://entreprise.api.gouv.fr/ping/djepva/api-association")
-    end
-
-    private
-
-    def api_up?(url)
-      response = Typhoeus.get(url, timeout: 1)
-      if response.success?
-        JSON.parse(response.body).fetch('status') == 'ok'
-      else
-        false
-      end
-    rescue => e
-      Sentry.capture_exception(e)
-      false
     end
   end
 end
