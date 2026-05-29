@@ -45,7 +45,7 @@
               %tbody{ 'data-controller': 'expand' }
                 %tr.procedure{ 'data-action': 'click->expand#toggle' }
                   %th.fr-cell--center{ scope: 'row' }
-                    %button.fr-icon-add-line.fr-icon--sm.fr-mb-1w.fr-text-action-high--blue-france.fr-btn.fr-btn--tertiary-no-outline{ 'aria-hidden': 'true', 'data-expand-target': 'icon' }
+                    %span.fr-icon-add-line.fr-icon--sm.fr-mb-1w.fr-text-action-high--blue-france{ 'aria-hidden': 'true', 'data-expand-target': 'icon' }
                   %td= admin.email
                   %td.fr-cell--right.fr-cell--numeric= admin.procedures.size
                   %td.fr-cell--numeric= l(admin.created_at.to_date, format: :short)
