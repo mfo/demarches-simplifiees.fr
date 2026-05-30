@@ -168,6 +168,14 @@ RSpec.describe Users::DossierFilterService do
       end
     end
 
+    it 'counts only the user own alerts, not other users matching dossiers' do
+      other_dossier_with_correction = create(:dossier, :en_construction)
+      create(:dossier_correction, dossier: other_dossier_with_correction)
+
+      service = described_class.new(user: user, params: ActionController::Parameters.new)
+      expect(service.counts[:alerts]['a_corriger']).to eq(1)
+    end
+
     it 'runs a constant number of queries regardless of dossier volume (no N+1)' do
       queries_for = lambda do |volume|
         owner = create(:user)
@@ -244,6 +252,7 @@ RSpec.describe Users::DossierFilterService do
     def touch_partial_associations(dossiers)
       dossiers.each do |d|
         d.procedure.libelle
+        d.procedure.path
         d.invites.to_a
         d.transfer
         d.pending_correction?
