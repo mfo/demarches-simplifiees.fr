@@ -62,6 +62,22 @@ describe 'linked dropdown lists', js: true do
       # Secondary menu gets updated
       expect(page).to have_select("Valeur secondaire dépendant de la première", options: ['Sélectionnez', 'Secondary 1.1', 'Secondary 1.2'])
     end
+
+    scenario 'missing value error references the contextual label' do
+      log_in(user.email, password, procedure)
+
+      fill_individual
+
+      # Submit with nothing selected: error references the primary label.
+      click_on 'Déposer le dossier'
+      expect(page).to have_content('« linked dropdown » doit être rempli')
+
+      # Select a primary value, leave the secondary empty, submit again:
+      # error now references the secondary label.
+      select('Primary 1', from: 'linked dropdown')
+      click_on 'Déposer le dossier'
+      expect(page).to have_content('« Valeur secondaire dépendant de la première » doit être rempli')
+    end
   end
 
   private
