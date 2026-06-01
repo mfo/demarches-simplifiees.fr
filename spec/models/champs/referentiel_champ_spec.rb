@@ -88,6 +88,29 @@ describe Champs::ReferentielChamp, type: :model do
           expect { subject }.to raise_error(StandardError)
         end
       end
+
+      describe 'prefilled_original_value tracking' do
+        let(:data) { { "ok" => "hello" } }
+        let(:prefilled_type_de_champ_type) { :text }
+
+        it 'writes prefilled_original_value on the prefilled champ' do
+          subject
+          prefilled_champ = dossier.champs.find { it.stable_id == prefillable_stable_id }
+          expect(prefilled_champ.prefilled_original_value).to eq({ "value" => "hello" })
+          expect(prefilled_champ.value).to eq("hello")
+          expect(prefilled_champ.prefilled?).to be true
+        end
+
+        context 'when re-prefilling overwrites the original value' do
+          it 'updates prefilled_original_value with new value' do
+            subject
+            referentiel_champ.reload
+            referentiel_champ.update_external_data!(data: { "ok" => "world" })
+            prefilled_champ = dossier.reload.champs.find { it.stable_id == prefillable_stable_id }
+            expect(prefilled_champ.prefilled_original_value).to eq({ "value" => "world" })
+          end
+        end
+      end
     end
   end
 

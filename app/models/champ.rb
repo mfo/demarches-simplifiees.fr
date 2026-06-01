@@ -5,6 +5,7 @@ class Champ < ApplicationRecord
   include ChampValidateConcern
   include ChampRevisionConcern
   include ChampExternalDataConcern
+  include ChampPrefillTrackingConcern
 
   self.ignored_columns += [:type_de_champ_id, :parent_id]
 
@@ -259,7 +260,7 @@ class Champ < ApplicationRecord
 
   def clone
     champ_attributes = [:private, :row_id, :type, :stable_id, :stream]
-    value_attributes = !private? ? [:value, :value_json, :data, :external_id] : []
+    value_attributes = !private? ? [:value, :value_json, :data, :external_id, :prefilled, :prefilled_original_value] : []
     relationships = !private? ? [:etablissement, :geo_areas] : []
 
     deep_clone(only: champ_attributes + value_attributes, include: relationships, validate: true) do |original, kopy|
@@ -326,6 +327,8 @@ class Champ < ApplicationRecord
     self.value_json = champ.value_json
     self.data = champ.data
     self.external_state = champ.external_state
+    self.prefilled = champ.prefilled
+    self.prefilled_original_value = champ.prefilled_original_value
 
     self.geo_areas = champ.geo_areas.map(&:dup)
 
