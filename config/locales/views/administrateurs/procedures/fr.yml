@@ -1,6 +1,17 @@
 fr:
   administrateurs:
     procedures:
+      administrateurs:
+        title: Administrateurs
+        search_label: Rechercher des administrateurs par adresse électronique
+        view_procedures: Voir la liste des démarches
+        since_date: "Depuis le %{date}"
+        admin_count:
+          one: "%{count} administrateur"
+          other: "%{count} administrateurs"
+        col_administrators: Administrateurs
+        col_procedures_count: Nb démarches
+        col_registered_at: Inscrit le
       api_champ_columns:
         title: 'Informations complémentaires au champ %{type_de_champ}'
         hint_html: |
