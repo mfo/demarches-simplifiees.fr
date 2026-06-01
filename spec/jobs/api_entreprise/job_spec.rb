@@ -56,13 +56,13 @@ RSpec.describe APIEntreprise::Job, type: :job do
         allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(ping_key).and_return(false)
       end
 
-      it 'raises RetryableError without checking rate limit' do
+      it 'raises ProviderDownError without checking rate limit' do
         dossier = create(:dossier, :with_entreprise)
         etablissement = dossier.etablissement
 
         expect(APIEntreprise::RateLimiter).not_to receive(:throttled?)
         expect { ErrorJob.perform_now(etablissement) }
-          .to raise_error(APIEntreprise::Job::RetryableError, /Provider #{ping_key} is down/)
+          .to raise_error(APIEntreprise::Job::ProviderDownError, /provider #{ping_key} is down/)
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
         etablissement = dossier.etablissement
 
         expect { ErrorJob.perform_now(etablissement) }
-          .to raise_error(APIEntreprise::Job::RetryableError, /Rate limited on pool #{pool}/)
+          .to raise_error(APIEntreprise::Job::RetryableError, /rate limited \(pool #{pool}\)/)
       end
     end
 
@@ -206,7 +206,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
 
       it 'raises RetryableError for Sidekiq exponential backoff' do
         expect { job.send(:with_adapter, adapter) { |_| } }
-          .to raise_error(APIEntreprise::Job::RetryableError, /Rate limited on pool/)
+          .to raise_error(APIEntreprise::Job::RetryableError, /rate limited by API/)
       end
     end
 

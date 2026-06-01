@@ -2,6 +2,7 @@
 
 class APIEntreprise::Job < ApplicationJob
   class RetryableError < StandardError; end
+  class ProviderDownError < RetryableError; end
 
   include Dry::Monads[:result]
 
@@ -44,12 +45,12 @@ class APIEntreprise::Job < ApplicationJob
   before_perform do
     ping_key = ping_key_for_job
     if ping_key && !APIEntreprise::HealthChecker.provider_up?(ping_key)
-      raise RetryableError, "Provider #{ping_key} is down, retrying later"
+      raise ProviderDownError, "#{self.class.name}: provider #{ping_key} is down, retrying later"
     end
 
     pool = api_pool
     if APIEntreprise::RateLimiter.throttled?(pool)
-      raise RetryableError, "Rate limited on pool #{pool}, retrying later"
+      raise RetryableError, "#{self.class.name}: rate limited (pool #{pool}), retrying later"
     end
   end
 
@@ -83,7 +84,7 @@ class APIEntreprise::Job < ApplicationJob
     in Success
       nil
     in Failure(retryable: true, type: :rate_limited, code:, **)
-      raise RetryableError, "Rate limited on pool #{api_pool}, retrying later"
+      raise RetryableError, "#{self.class.name}: rate limited by API (pool #{api_pool}), retrying later"
     in Failure(retryable: true, type:, code:, raw_response:, **)
       raise StandardError, format_error(type, code, raw_response)
     in Failure(retryable: false, type:, code:, **)
