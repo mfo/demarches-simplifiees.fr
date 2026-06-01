@@ -181,8 +181,6 @@
       "
     >
       <%= link_to instructeur_procedure_path(p, statut: 'a-suivre') do %>
-        <span id="procedure-<%= p.id %>-a-suivre-notification"></span>
-
         <div class="center fr-text--bold">
           <span id="procedure-<%= p.id %>-a-suivre-count">
             <%= placeholder_span %>
@@ -192,6 +190,8 @@
         <div class="center fr-text--sm">
           <%= t('instructeurs.dossiers.labels.to_follow') %>
         </div>
+
+        <span id="procedure-<%= p.id %>-a-suivre-notification"></span>
       <% end %>
     </li>
 
@@ -202,8 +202,6 @@
       "
     >
       <%= link_to(instructeur_procedure_path(p, statut: 'suivis')) do %>
-        <span id="procedure-<%= p.id %>-suivis-notification"></span>
-
         <div class="center fr-text--bold">
           <span id="procedure-<%= p.id %>-followed-count">
             <%= placeholder_span %>
@@ -213,6 +211,8 @@
         <div class="center fr-text--sm">
           <%= t('instructeurs.dossiers.labels.followed') %>
         </div>
+
+        <span id="procedure-<%= p.id %>-suivis-notification"></span>
       <% end %>
     </li>
 
@@ -223,7 +223,6 @@
       "
     >
       <%= link_to(instructeur_procedure_path(p, statut: 'traites')) do %>
-        <span id="procedure-<%= p.id %>-traites-notification"></span>
 
         <div class="center fr-text--bold">
           <span id="procedure-<%= p.id %>-termines-count">
@@ -234,6 +233,8 @@
         <div class="center fr-text--sm">
           <%= t('instructeurs.dossiers.labels.processed') %>
         </div>
+
+        <span id="procedure-<%= p.id %>-traites-notification"></span>
       <% end %>
     </li>
 
