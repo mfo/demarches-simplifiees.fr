@@ -1,6 +1,13 @@
 en:
   administrateurs:
     labels:
+      order_positions:
+        title: Labels
+        back_to_labels: Labels list
+        heading_html: Customize the order of %{count} labels
+        description: "Move labels in the list to set their display order for instructors:"
+        cancel: Cancel
+        submit: Submit
       delete_labels:
         zero: Are you sure you want to remove the label “%{label_name}”?
         one: The label “%{label_name}” is already assigned to a file, are you sure you want to remove it?

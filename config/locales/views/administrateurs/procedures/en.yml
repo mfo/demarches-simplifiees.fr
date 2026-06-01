@@ -1,6 +1,18 @@
 en:
   administrateurs:
     procedures:
+      administrateurs:
+        title: Administrators
+        search_label: Search administrators by email address
+        view_procedures: View procedures list
+        since_date: "Since %{date}"
+        admin_count:
+          one: "%{count} administrator"
+          other: "%{count} administrators"
+        col_administrators: Administrators
+        col_procedures_count: Procedures count
+        col_registered_at: Registered on
+        expand_admin: View procedures
       api_champ_columns:
         title: 'Informations complementary to the champ %{type_de_champ}'
         hint_html: |
