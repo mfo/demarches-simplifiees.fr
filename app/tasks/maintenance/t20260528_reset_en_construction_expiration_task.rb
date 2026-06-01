@@ -6,11 +6,10 @@ module Maintenance
     # notifications dossier_expirant déjà créées sur ces dossiers continueraient
     # de s'afficher (l'affichage ne revérifie pas close_to_expiration?). Cette
     # tâche les détruit. La colonne en_construction_close_to_expiration_notice_sent_at
-    # et expired_at résiduels ne sont plus lus pour en_construction : on les ignore
-    # (la colonne sera supprimée dans une MEP ultérieure).
+    # n'est plus lue pour en_construction : on l'ignore (la colonne sera
+    # supprimée dans une MEP ultérieure).
 
     include RunnableOnDeployConcern
-    include StatementsHelpersConcern
 
     # Uncomment only if this task MUST run imperatively on its first deployment.
     # If possible, leave commented for manual execution later.
@@ -20,16 +19,11 @@ module Maintenance
       DossierNotification
         .where(notification_type: :dossier_expirant)
         .where(dossier_id: Dossier.state_en_construction.select(:id))
+        .in_batches
     end
 
-    def process(notification)
-      notification.destroy
-    end
-
-    def count
-      with_statement_timeout("5min") do
-        collection.count
-      end
+    def process(batch)
+      batch.delete_all
     end
   end
 end

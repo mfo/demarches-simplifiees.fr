@@ -20,7 +20,8 @@ module Maintenance
       end
 
       it "targets only dossier_expirant notifications on en_construction dossiers" do
-        expect(described_class.new.collection).to contain_exactly(notification)
+        ids = described_class.new.collection.flat_map { it.pluck(:id) }
+        expect(ids).to contain_exactly(notification.id)
       end
     end
 
@@ -29,9 +30,10 @@ module Maintenance
       let!(:notification) do
         create(:dossier_notification, dossier:, notification_type: :dossier_expirant)
       end
+      let(:batch) { DossierNotification.where(id: notification.id) }
 
-      it "destroys the dossier_expirant notification" do
-        expect { described_class.process(notification) }
+      it "deletes the dossier_expirant notifications in the batch" do
+        expect { described_class.process(batch) }
           .to change { DossierNotification.exists?(notification.id) }.from(true).to(false)
       end
     end
