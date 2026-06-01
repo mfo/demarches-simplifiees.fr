@@ -3,6 +3,7 @@ fr:
     avis:
       index:
         title: "Avis"
+        notification: "présence d’une ou plusieurs notifications non lues"
         to_give:
           zero: "avis à donner"
           one: "avis à donner"

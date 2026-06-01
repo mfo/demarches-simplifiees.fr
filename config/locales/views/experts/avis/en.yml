@@ -3,6 +3,7 @@ en:
     avis:
       index:
         title: "Opinions"
+        notification: "presence of one or more unread notifications"
         to_give:
           zero: "opinion to give"
           one: "opinion to give"
