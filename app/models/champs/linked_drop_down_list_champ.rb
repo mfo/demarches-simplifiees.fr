@@ -45,6 +45,14 @@ class Champs::LinkedDropDownListChamp < Champ
     primary_value.present? && secondary_options[primary_value]&.any?(&:present?)
   end
 
+  def libelle_for_error
+    if primary_value.blank?
+      libelle
+    else
+      drop_down_secondary_libelle.presence || I18n.t('shared.champs.linked_drop_down_list.secondary_default_libelle')
+    end
+  end
+
   private
 
   def pack_value(primary, secondary)
