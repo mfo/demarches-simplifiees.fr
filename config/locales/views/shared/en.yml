@@ -1,6 +1,7 @@
 en:
   views:
     shared:
+      notification: "presence of one or more unread notifications"
       dossiers:
         identite_entreprise:
           warning_for_private_info: "The establishment SIRET %{siret} applied his right to not publish information regarding his identity. These informaiton won't be visible from instructor services."
