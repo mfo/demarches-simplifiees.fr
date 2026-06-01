@@ -39,7 +39,11 @@ module CsvParsingConcern
           tempfile.path,
           strings_as_keys:,
           keep_original_headers:,
-          convert_values_to_numeric:
+          convert_values_to_numeric:,
+          # smarter_csv 1.17.x's accelerated C parser crashes with a SIGILL
+          # ([BUG] Illegal instruction in new_parse_context_c) on x86_64 under
+          # certain heap states. Use the pure-Ruby parser to avoid the native crash.
+          acceleration: false
         )
       rescue *[CSV::MalformedCSVError, SmarterCSV::NoColSepDetected, ArgumentError]
         []
