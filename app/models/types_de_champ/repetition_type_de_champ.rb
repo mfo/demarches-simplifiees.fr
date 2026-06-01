@@ -25,12 +25,12 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
     ActiveStorage::Filename.new(str.delete('[]*?')).sanitized
   end
 
-  def columns(procedure:, displayable: nil, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     prefix = prefix.present? ? "(#{prefix} #{libelle})" : libelle
 
-    procedure
+    Procedure.find(procedure_id)
       .all_revisions_types_de_champ(parent: @type_de_champ)
-      .flat_map { _1.columns(procedure:, displayable: false, prefix:) }
+      .flat_map { _1.columns(procedure_id:, displayable: false, prefix:) }
   end
 
   def champ_blank?(champ) = champ.dossier.repetition_row_ids(@type_de_champ).blank?

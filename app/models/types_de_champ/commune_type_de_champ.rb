@@ -29,9 +29,9 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
     champ.code_postal? ? "#{champ.name} (#{champ.code_postal})" : champ.name
   end
 
-  def columns(procedure:, displayable: true, prefix: nil)
-    addressable_columns(procedure:, displayable:, prefix:)
-      .concat(legacy_columns(procedure:, prefix:))
+  def columns(procedure_id:, displayable: true, prefix: nil)
+    addressable_columns(procedure_id:, displayable:, prefix:)
+      .concat(legacy_columns(procedure_id:, prefix:))
   end
 
   def info_columns(procedure:)
@@ -42,10 +42,10 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
 
   # Anciennes colonnes conservées pour rester résolvables par les
   # ProcedurePresentation / exports / colonnes graphql persistées avant la bascule sur AddressableColumnConcern.
-  def legacy_columns(procedure:, prefix:)
+  def legacy_columns(procedure_id:, prefix:)
     [
       Columns::ChampColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),
@@ -61,7 +61,7 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
       ['département', '$.code_departement', :number],
     ].map do |(label, jsonpath, type)|
       Columns::JSONPathColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: "#{libelle_with_prefix(prefix)} - #{label}",

@@ -292,6 +292,54 @@ describe TypeDeChamp do
     end
   end
 
+  describe '#column' do
+    context 'with a fillable type de champ' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'Mon texte' }]) }
+      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+
+      it 'returns the column matching the given column_id' do
+        column = type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}")
+
+        expect(column).to be_a(Columns::ChampColumn)
+        expect(column.label).to eq('Mon texte')
+        expect(column.h_id[:column_id]).to eq("type_de_champ/#{type_de_champ.stable_id}")
+      end
+
+      it 'returns nil when no column matches' do
+        expect(type_de_champ.column('type_de_champ/unknown')).to be_nil
+      end
+    end
+
+    context 'with an addressable type de champ exposing several columns' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes, libelle: 'Ma commune' }]) }
+      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+
+      it 'returns the jsonpath column matching the given column_id' do
+        column = type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}-$.postal_code")
+
+        expect(column).to be_a(Columns::JSONPathColumn)
+        expect(column.jsonpath).to eq('$.postal_code')
+      end
+
+      it 'resolves legacy (non displayable) columns too' do
+        column = type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}-$.code_postal")
+
+        expect(column).to be_a(Columns::JSONPathColumn)
+        expect(column.jsonpath).to eq('$.code_postal')
+        expect(column.displayable).to be(false)
+      end
+    end
+
+    context 'with a non fillable type de champ' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :header_section, libelle: 'Titre' }]) }
+      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+
+      it 'returns nil since it exposes no column' do
+        expect(type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}")).to be_nil
+      end
+    end
+  end
+
   describe '#public_only' do
     let(:procedure) { create(:procedure, :with_type_de_champ, :with_type_de_champ_private) }
 

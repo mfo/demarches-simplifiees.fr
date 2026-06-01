@@ -6,7 +6,7 @@ describe TypesDeChamp::PieceJustificativeTypeDeChamp do
 
     it 'adds RIB columns' do
       tdc = create(:type_de_champ_piece_justificative, procedure:, nature: 'rib')
-      cols = tdc.dynamic_type.columns(procedure:, displayable: true)
+      cols = tdc.dynamic_type.columns(procedure_id: procedure.id, displayable: true)
       labels = cols.map(&:label)
       expect(labels.any? { _1.include?('Titulaire') }).to be true
       expect(labels.any? { _1.include?('IBAN') }).to be true

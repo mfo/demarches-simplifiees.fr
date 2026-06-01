@@ -95,11 +95,11 @@ class TypesDeChamp::TypeDeChampBase
   def champ_blank?(champ) = champ.value.blank?
   def champ_blank_or_invalid?(champ) = champ_blank?(champ)
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     if fillable?
       [
         Columns::ChampColumn.new(
-          procedure_id: procedure.id,
+          procedure_id:,
           stable_id:,
           tdc_type: type_champ,
           label: libelle_with_prefix(prefix),
@@ -119,9 +119,13 @@ class TypesDeChamp::TypeDeChampBase
     # Example: "Commune - code postal" => "code postal"
     regex_prefix = /^#{Regexp.escape(libelle)}[^\p{L}]+/
 
-    columns(procedure:).filter_map do |column|
+    columns(procedure_id: procedure.id).filter_map do |column|
       column.label.sub(regex_prefix, '')
     end
+  end
+
+  def column(column_id)
+    columns(procedure_id: nil).find { it.h_id[:column_id] == column_id }
   end
 
   private

@@ -14,10 +14,10 @@ class TypesDeChamp::QuotientFamilialTypeDeChamp < TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     Columns::QuotientFamilialColumn::QUOTIENT_FAMILIAL_COLUMNS.map do |label, jsonpath, type|
       Columns::QuotientFamilialColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: "#{libelle_with_prefix(prefix)} – #{label}",

@@ -5,7 +5,7 @@ describe TypesDeChamp::SiretTypeDeChamp do
   let(:procedure) { build(:procedure) }
 
   describe "#columns" do
-    subject(:columns) { tdc_siret.columns(procedure: procedure) }
+    subject(:columns) { tdc_siret.columns(procedure_id: procedure.id) }
 
     it "returns base column without duplicating SIRET when already in libelle" do
       expect(columns[0].label).to eq("Numéro SIRET")

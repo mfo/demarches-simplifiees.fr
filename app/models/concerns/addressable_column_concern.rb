@@ -3,7 +3,7 @@
 module AddressableColumnConcern
   extend ActiveSupport::Concern
 
-  def addressable_columns(procedure:, displayable: true, prefix: nil, deprecated_columns: false, only: nil)
+  def addressable_columns(procedure_id:, displayable: true, prefix: nil, deprecated_columns: false, only: nil)
     column_specs = [
       [:postal_code, "Code postal (5 chiffres)", '$.postal_code', :text, [], displayable, true],
       [:city_name, "Commune", '$.city_name', :text, [], displayable, true],
@@ -20,7 +20,7 @@ module AddressableColumnConcern
 
     column_specs.map do |(_key, label, jsonpath, type, options_for_select, column_displayable, column_filterable)|
       Columns::JSONPathColumn.new(
-        procedure_id: procedure.id,
+        procedure_id:,
         stable_id:,
         tdc_type: type_champ,
         label: "#{libelle_with_prefix(prefix)} – #{label}",

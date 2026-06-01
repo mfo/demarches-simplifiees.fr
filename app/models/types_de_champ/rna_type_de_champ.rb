@@ -21,15 +21,15 @@ class TypesDeChamp::RNATypeDeChamp < TypesDeChamp::TypeDeChampBase
     column_labels
   end
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     i18n_scope = [:activerecord, :attributes, :procedure_presentation, :fields, :etablissement]
 
     super
-      .concat(addressable_columns(procedure:, displayable:, prefix:, deprecated_columns: true))
+      .concat(addressable_columns(procedure_id:, displayable:, prefix:, deprecated_columns: true))
       .concat(
         Etablissement::EXPORTABLE_ASSOCIATION_COLUMNS.map do |(column, attributes)|
           Columns::JSONPathColumn.new(
-            procedure_id: procedure.id,
+            procedure_id:,
             stable_id:,
             tdc_type: type_champ,
             label: [prefix, libelle, I18n.t(column, scope: i18n_scope)].compact.join(' – '),
@@ -43,7 +43,7 @@ class TypesDeChamp::RNATypeDeChamp < TypesDeChamp::TypeDeChampBase
       )
       .concat([
         Columns::JSONPathColumn.new(
-          procedure_id: procedure.id,
+          procedure_id:,
           stable_id:,
           tdc_type: type_champ,
           label: "#{libelle_with_prefix(prefix)} – Titre au répertoire national des associations",

@@ -35,12 +35,12 @@ class TypesDeChamp::RNFTypeDeChamp < TypesDeChamp::TextTypeDeChamp
 
   def champ_blank?(champ) = champ.external_id.blank?
 
-  def columns(procedure:, displayable: true, prefix: nil)
+  def columns(procedure_id:, displayable: true, prefix: nil)
     super
-      .concat(addressable_columns(procedure:, displayable:, prefix:, deprecated_columns: true))
+      .concat(addressable_columns(procedure_id:, displayable:, prefix:, deprecated_columns: true))
       .concat([
         Columns::JSONPathColumn.new(
-          procedure_id: procedure.id,
+          procedure_id:,
           stable_id:,
           tdc_type: type_champ,
           label: "#{libelle_with_prefix(prefix)} – Titre au répertoire national des fondations ",
