@@ -2255,7 +2255,7 @@ describe Users::DossiersController, type: :controller do
 
   describe '#extend_conservation' do
     let(:procedure) { create(:procedure, duree_conservation_dossiers_dans_ds: 3) }
-    let(:dossier) { create(:dossier, :en_construction, procedure:, user:) }
+    let(:dossier) { create(:dossier, procedure:, user:) }
     subject { post :extend_conservation, params: { dossier_id: dossier.id } }
     context 'when user logged in' do
       before { sign_in(user) }
