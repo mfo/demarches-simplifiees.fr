@@ -12,7 +12,7 @@ module Users
     layout 'procedure_context', only: [:identite, :update_identite, :siret, :update_siret]
 
     ACTIONS_ALLOWED_TO_ANY_USER = [:index, :new, :deleted_dossiers, :trash, :transfer_requests]
-    ACTIONS_ALLOWED_TO_OWNER_OR_INVITE = [:show, :destroy, :demande, :messagerie, :brouillon, :modifier, :update, :create_commentaire, :attestation_depot, :restore, :champ, :check_completude, :notify_owner_for_changes]
+    ACTIONS_ALLOWED_TO_OWNER_OR_INVITE = [:show, :destroy, :demande, :messagerie, :brouillon, :modifier, :update, :create_commentaire, :attestation_depot, :restore, :champ, :check_completude, :notify_owner_for_changes, :revert_prefill]
     TRASH_ACTIONS = [:show_in_trash, :show_deleted]
     ITEMS_PER_PAGE = 25
     SIMPLE_LIST_THRESHOLD = 5
@@ -22,14 +22,14 @@ module Users
     before_action :ensure_ownership!, except: ACTIONS_ALLOWED_TO_ANY_USER + ACTIONS_ALLOWED_TO_OWNER_OR_INVITE + TRASH_ACTIONS
     before_action :redirect_if_hidden_or_deleted_dossier, only: [:show]
     before_action :ensure_ownership_or_invitation!, only: ACTIONS_ALLOWED_TO_OWNER_OR_INVITE
-    before_action :ensure_dossier_can_be_updated, only: [:update_identite, :update_siret, :brouillon, :submit_brouillon, :submit_en_construction, :modifier, :update, :champ]
+    before_action :ensure_dossier_can_be_updated, only: [:update_identite, :update_siret, :brouillon, :submit_brouillon, :submit_en_construction, :modifier, :update, :champ, :revert_prefill]
     before_action :ensure_dossier_can_be_filled, only: [:brouillon, :modifier, :submit_brouillon, :submit_en_construction, :update]
     before_action :ensure_dossier_can_be_viewed, only: [:show]
     before_action :ensure_pro_connect_for_procedure, only: [:brouillon, :modifier, :submit_brouillon, :submit_en_construction, :update]
     before_action :ensure_editing_brouillon, only: [:brouillon]
     before_action :forbid_closed_submission!, only: [:submit_brouillon]
     before_action :ensure_dossier_has_changes, only: [:submit_en_construction], if: :update_with_stream?
-    before_action :set_dossier_stream, only: [:modifier, :update, :submit_en_construction, :check_completude, :champ], if: :update_with_stream?
+    before_action :set_dossier_stream, only: [:modifier, :update, :submit_en_construction, :check_completude, :champ, :revert_prefill], if: :update_with_stream?
     before_action :show_demarche_en_test_banner
     before_action :store_user_location!, only: :new
     before_action :set_default_value_for_france_connect_champs, only: [:brouillon, :modifier]
@@ -359,6 +359,21 @@ module Users
         format.turbo_stream do
           @to_show, @to_hide, @to_update = champ_to_turbo_update(champ, dossier.project_champs_public_all)
 
+          render :update, layout: false
+        end
+      end
+    end
+
+    def revert_prefill
+      @dossier = dossier_with_champs(pj_template: false)
+      champ = @dossier.public_champ_for_update(params[:stable_id], updated_by: current_user.email)
+
+      champ.revert_to_prefilled_value! if champ.prefilled_original_value.present?
+
+      respond_to do |format|
+        format.turbo_stream do
+          @to_show, @to_hide = []
+          @to_update = [champ]
           render :update, layout: false
         end
       end

@@ -8,7 +8,7 @@
 #   see: from attribute & formaction
 
 class NestedForms::FormOwnerComponent < ApplicationComponent
-  HTTP_METHODS = [:create, :delete]
+  HTTP_METHODS = [:create, :delete, :patch]
 
   private
 

@@ -79,10 +79,14 @@ class EditableChamp::EditableChampComponent < ApplicationComponent
   end
 
   def fieldset_element_attributes
-    {
+    attributes = {
       id: @champ.input_group_id,
       "hidden": !@champ.visible?,
     }
+    if @champ.prefilled?
+      attributes[:data] = { turbo_force: :server }
+    end
+    attributes
   end
 
   def stimulus_values
