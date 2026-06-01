@@ -1,6 +1,13 @@
 fr:
   administrateurs:
     labels:
+      order_positions:
+        title: Labels
+        back_to_labels: Liste des labels
+        heading_html: Personnaliser l’ordre des %{count} labels
+        description: "Déplacez les labels dans la liste pour définir leur ordre d’affichage pour les instructeurs :"
+        cancel: Annuler
+        submit: Valider
       delete_labels:
         zero: Êtes-vous sûr de vouloir supprimer le label « %{label_name} » ?
         one: Le label « %{label_name} » est déjà assigné à un dossier, êtes-vous sûr de vouloir le supprimer ?
