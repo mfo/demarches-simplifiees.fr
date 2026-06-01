@@ -20,7 +20,8 @@
                   <%= button_tag("Liste des informations remontées", type: :button, class: "fr-btn fr-icon-info-line fr-btn--icon-left fr-btn--tertiary-no-outline fr-btn--sm",
                     data: { "fr-opened" => "false", "turbo-frame" => "api-champ-columns", action: "lazy-modal#load" },
                     src: api_champ_columns_admin_procedure_path(id: procedure.id, stable_id: type_de_champ.stable_id),
-                    "aria-controls" => "api-champ-columns-modal") %>
+                    "aria-controls" => "api-champ-columns-modal",
+                    "aria-haspopup" => "dialog") %>
                 </div>
               <% end %>
 

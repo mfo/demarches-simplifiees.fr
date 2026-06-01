@@ -18,7 +18,7 @@
 
   .card
     .card-title Choisissez un thème pour personnaliser l’apparence du site
-    = link_to t('links.footer.display_params'),'#', { aria: {controls: "fr-theme-modal" }, data: {'fr-opened': "false" }, class: 'fr-icon-theme-fill fr-link--icon-left fr-link' }
+    = link_to t('links.footer.display_params'),'#', { aria: {controls: "fr-theme-modal", haspopup: "dialog" }, data: {'fr-opened': "false" }, class: 'fr-icon-theme-fill fr-link--icon-left fr-link', role: :button }
 
   .card
     .card-title= t('.contact')

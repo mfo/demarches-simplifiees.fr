@@ -1,8 +1,8 @@
 - if @procedure.routing_enabled?
-  %button.fr-btn.fr-btn--secondary.fr-icon-upload-line.fr-btn--icon-left.fr-mb-3w.fr-ml-2w{ 'aria-controls': 'modal-import', 'data-fr-opened': 'false' }
+  %button.fr-btn.fr-btn--secondary.fr-icon-upload-line.fr-btn--icon-left.fr-mb-3w.fr-ml-2w{ 'aria-controls': 'modal-import', 'aria-haspopup': 'dialog', 'data-fr-opened': 'false' }
     = t('.button_groupes')
 - else
-  %button.fr-btn.fr-btn--secondary.fr-icon-upload-line.fr-btn--icon-left.fr-mb-3w{ 'aria-controls': 'modal-import', 'data-fr-opened': 'false' }
+  %button.fr-btn.fr-btn--secondary.fr-icon-upload-line.fr-btn--icon-left.fr-mb-3w{ 'aria-controls': 'modal-import', 'aria-haspopup': 'dialog', 'data-fr-opened': 'false' }
     = t('.button_instructeurs')
 
 %dialog#modal-import.fr-modal{ aria: { labelledby: 'fr-modal-title-import' }, role: 'dialog' }
