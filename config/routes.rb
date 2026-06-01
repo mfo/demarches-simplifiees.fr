@@ -384,6 +384,7 @@ Rails.application.routes.draw do
         post 'check_completude', to: 'dossiers#check_completude'
         post 'notify_owner_for_changes', to: 'dossiers#notify_owner_for_changes'
         get 'champs/:stable_id', to: 'dossiers#champ', as: :champ
+        patch 'champs/:stable_id/revert_prefill', to: 'dossiers#revert_prefill', as: :revert_prefill_champ
         get 'merci'
         get 'demande'
         get 'messagerie'

@@ -2875,6 +2875,48 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe '#revert_prefill' do
+    before { sign_in(user) }
+
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{}]) }
+    let(:dossier) { create(:dossier, user:, procedure:) }
+    let(:champ) { dossier.project_champs_public.first }
+
+    subject { patch :revert_prefill, params: { id: dossier.id, stable_id: champ.stable_id }, format: :turbo_stream }
+
+    context 'when champ has prefilled_original_value' do
+      before do
+        champ.update!(prefilled: true, value: 'modified', prefilled_original_value: { 'value' => 'original' })
+      end
+
+      it 'restores the original value and responds with turbo_stream' do
+        subject
+        expect(champ.reload.value).to eq('original')
+        expect(response).to have_http_status(:success)
+        expect(response.media_type).to eq('text/vnd.turbo-stream.html')
+      end
+    end
+
+    context 'when champ has no prefilled_original_value' do
+      before { champ.update!(value: 'some_value') }
+
+      it 'does not change the value' do
+        subject
+        expect(champ.reload.value).to eq('some_value')
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'when dossier is not editable (en_instruction)' do
+      let(:dossier) { create(:dossier, :en_instruction, user:, procedure:) }
+
+      it 'redirects' do
+        subject
+        expect(response).to redirect_to(dossier_path(dossier))
+      end
+    end
+  end
+
   private
 
   def find_champ_by_stable_id(dossier, stable_id)

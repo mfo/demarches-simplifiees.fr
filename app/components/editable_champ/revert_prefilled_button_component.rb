@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+class EditableChamp::RevertPrefilledButtonComponent < ApplicationComponent
+  def initialize(champ:)
+    @champ = champ
+  end
+
+  def render?
+    @champ.prefilled_value_modified?
+  end
+
+  def revert_path
+    revert_prefill_champ_dossier_path(@champ.dossier, stable_id: @champ.stable_id)
+  end
+end
