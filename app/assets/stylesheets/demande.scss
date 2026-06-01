@@ -29,6 +29,10 @@
     ul {
       margin-block-start: 0;
     }
+
+    .copy-zone > p:last-child {
+      margin-bottom: 0;
+    }
   }
 
   // Pour un dossier lié, seuls les noms (démarche, organisme) sont en gras (balises strong).
