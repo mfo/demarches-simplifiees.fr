@@ -13,7 +13,8 @@ class Logic::ChampValue < Logic::Term
     :epci,
     :departements,
     :regions,
-    :pays
+    :pays,
+    :pre_rempli
   )
 
   MANAGED_TYPE_DE_CHAMP_BY_CATEGORY = MANAGED_TYPE_DE_CHAMP.keys.map(&:to_sym)
@@ -60,6 +61,8 @@ class Logic::ChampValue < Logic::Term
       targeted_champ.type_de_champ.champ_value_for_api(targeted_champ, version: 1)
     when "Champs::DropDownListChamp"
       targeted_champ.selected
+    when "Champs::PreRempliChamp"
+      targeted_champ.selected
     when "Champs::MultipleDropDownListChamp"
       targeted_champ.selected_options
     when "Champs::RegionChamp", "Champs::PaysChamp"
@@ -87,7 +90,8 @@ class Logic::ChampValue < Logic::Term
     when MANAGED_TYPE_DE_CHAMP.fetch(:integer_number), MANAGED_TYPE_DE_CHAMP.fetch(:decimal_number)
       CHAMP_VALUE_TYPE.fetch(:number)
     when MANAGED_TYPE_DE_CHAMP.fetch(:drop_down_list),
-      MANAGED_TYPE_DE_CHAMP.fetch(:regions), MANAGED_TYPE_DE_CHAMP.fetch(:pays)
+      MANAGED_TYPE_DE_CHAMP.fetch(:regions), MANAGED_TYPE_DE_CHAMP.fetch(:pays),
+      MANAGED_TYPE_DE_CHAMP.fetch(:pre_rempli)
       CHAMP_VALUE_TYPE.fetch(:enum)
     when MANAGED_TYPE_DE_CHAMP.fetch(:communes)
       CHAMP_VALUE_TYPE.fetch(:commune_enum)

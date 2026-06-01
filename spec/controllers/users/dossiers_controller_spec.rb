@@ -1355,6 +1355,22 @@ describe Users::DossiersController, type: :controller do
       end
     end
 
+    context 'when champ is pre_rempli (read-only guard)' do
+      let(:types_de_champ_public) { [{ type: :pre_rempli }] }
+      let(:pre_rempli_champ) { dossier.project_champs_public.first }
+
+      before { pre_rempli_champ.update_column(:value, 'original') }
+
+      let(:champs_public_attributes) do
+        { pre_rempli_champ.public_id => { value: 'forged' } }
+      end
+
+      it 'ignores the update (early return)' do
+        subject
+        expect(pre_rempli_champ.reload.value).to eq('original')
+      end
+    end
+
     context 'when dossier can be updated by the owner' do
       it 'updates the champs' do
         subject

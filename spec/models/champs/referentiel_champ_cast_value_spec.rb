@@ -566,6 +566,26 @@ describe Champs::ReferentielChamp, type: :model do
         end
       end
 
+      context 'when data is mapped to pre_rempli' do
+        let(:prefilled_type_de_champ_type) { :pre_rempli }
+
+        context 'when data is a string' do
+          let(:data) { { ok: 'valeur' } }
+          it 'casts to string' do
+            expect { subject }
+              .to change { dossier.reload.project_champs.find(&:pre_rempli?).value }.from(nil).to('valeur')
+          end
+        end
+
+        context 'when data is a number' do
+          let(:data) { { ok: 42 } }
+          it 'casts to string via to_s' do
+            expect { subject }
+              .to change { dossier.reload.project_champs.find(&:pre_rempli?).value }.from(nil).to('42')
+          end
+        end
+      end
+
       context 'when data is mapped to repetition from root' do
         let(:types_de_champ_public) do
           [

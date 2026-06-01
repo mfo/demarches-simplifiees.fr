@@ -56,6 +56,7 @@ en:
           formatted: 'Formatted field'
           referentiel: 'External data to configure (advanced)'
           quotient_familial: 'Family quotient'
+          pre_rempli: 'Pre-filled field'
         default_libelle:
           annuaire_education: Educational institution
           dossier_link: File number submitted on %{app_name}

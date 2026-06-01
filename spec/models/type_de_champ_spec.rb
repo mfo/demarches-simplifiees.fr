@@ -640,6 +640,19 @@ describe TypeDeChamp do
         is_expected.to eq({ 'referentiel_mapping' => { 'kikoo' => 'lol' } })
       end
     end
+
+    context 'Champ pre_rempli' do
+      let(:type_de_champ) { create(:type_de_champ_pre_rempli, procedure:) }
+
+      before do
+        type_de_champ.update!(options: { 'drop_down_options' => ['opt1', 'opt2'], 'pre_rempli_hidden' => '1', 'key' => 'value' })
+        procedure.publish_revision!(procedure.administrateurs.first)
+      end
+
+      it 'keeping only drop_down_options and pre_rempli_hidden' do
+        is_expected.to eq({ 'drop_down_options' => ['opt1', 'opt2'], 'pre_rempli_hidden' => '1' })
+      end
+    end
   end
 
   describe 'champ_value with cast' do
@@ -754,6 +767,28 @@ describe TypeDeChamp do
 
       it { expect(subject).to eq('hello') }
     end
+
+    context 'text -> pre_rempli' do
+      let(:last_write_type_champ) { :text }
+      let(:type_champ) { :pre_rempli }
+
+      it { expect(subject).to eq('hello') }
+    end
+
+    context 'drop_down_list -> pre_rempli' do
+      let(:last_write_type_champ) { :drop_down_list }
+      let(:type_champ) { :pre_rempli }
+      let(:champ_value) { 'option1' }
+
+      it { expect(subject).to eq('option1') }
+    end
+
+    context 'pre_rempli -> text' do
+      let(:last_write_type_champ) { :pre_rempli }
+      let(:type_champ) { :text }
+
+      it { expect(subject).to eq('hello') }
+    end
   end
 
   describe '#reset_repetition_limits_if_disabled' do
@@ -776,6 +811,13 @@ describe TypeDeChamp do
   describe '#humanized_conditionable_types_by_category' do
     subject { TypeDeChamp.humanized_conditionable_types_by_category }
 
-    it { is_expected.to eq([["« Oui/Non »", "« Case à cocher seule »", "« Choix simple »", "« Choix multiple »"], ["« Nombre entier »", "« Nombre décimal »"], ["« Adresse »", "« Communes »", "« EPCI »", "« Départements »", "« Régions »", "« Pays »"]]) }
+    it {
+  is_expected.to eq([
+    ["« Oui/Non »", "« Case à cocher seule »", "« Choix simple »", "« Choix multiple »"],
+    ["« Nombre entier »", "« Nombre décimal »"],
+    ["« Adresse »", "« Communes »", "« EPCI »", "« Départements »", "« Régions »", "« Pays »"],
+    ["« Champ pré-rempli »"],
+  ])
+}
   end
 end

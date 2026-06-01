@@ -95,6 +95,28 @@ describe Logic::ChampValue do
       end
     end
 
+    context 'pre_rempli tdc' do
+      let(:tdc_type) { :pre_rempli }
+      let(:champ) { Champs::PreRempliChamp.new(value:, stable_id: tdc.stable_id, dossier:) }
+      let(:value) { 'option1' }
+
+      it do
+        expect(champ_value(champ.stable_id).type([champ.type_de_champ])).to eq(:enum)
+        is_expected.to eq('option1')
+      end
+
+      context 'with blank value' do
+        let(:value) { '' }
+        it { is_expected.to be_nil }
+      end
+
+      context 'with a value not visible' do
+        let(:value) { 'option1' }
+        before { expect(champ).to receive(:visible?).and_return(false) }
+        it { is_expected.to be_nil }
+      end
+    end
+
     context 'checkbox tdc' do
       let(:tdc_type) { :checkbox }
       let(:champ) { Champs::CheckboxChamp.new(value:, stable_id: tdc.stable_id, dossier:) }

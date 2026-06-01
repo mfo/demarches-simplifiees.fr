@@ -1629,6 +1629,32 @@ describe Instructeurs::DossiersController, type: :controller do
         expect(notification.notification_type).to eq("annotation_instructeur")
       end
     end
+
+    context 'when annotation is pre_rempli (read-only guard)' do
+      let(:types_de_champ_private) { [{ type: :pre_rempli }] }
+      let(:types_de_champ_public) { [] }
+      let(:dossier) { create(:dossier, :en_construction, :with_populated_annotations, procedure:) }
+      let(:pre_rempli_annotation) { dossier.project_champs_private.first }
+
+      before { pre_rempli_annotation.update_column(:value, 'original') }
+
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          dossier_id: dossier.id,
+          dossier: {
+            champs_private_attributes: {
+              pre_rempli_annotation.public_id => { value: 'forged' },
+            },
+          },
+        }
+      end
+
+      it 'ignores the update (early return)' do
+        patch :update_annotations, params:, format: :turbo_stream
+        expect(pre_rempli_annotation.reload.value).to eq('original')
+      end
+    end
   end
 
   describe "#annotation" do

@@ -8,7 +8,7 @@ module DossierEditConcern
   def update_champ_and_compute_errors(scope:)
     champ = find_and_prepare_champ(scope:)
     champ_changed = champ.changed_for_autosave?
-
+    return if champ.type_de_champ.pre_rempli?
     saved = save_champ(champ, champ_changed, scope)
 
     if saved && champ_changed

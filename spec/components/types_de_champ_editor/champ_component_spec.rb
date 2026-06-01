@@ -155,14 +155,15 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
         "date" => ["datetime", "text", "textarea", "formatted"],
         "datetime" => ["date", "text", "textarea", "formatted"],
         "decimal_number" => ["integer_number", "text", "textarea", "formatted"],
-        "drop_down_list" => ["multiple_drop_down_list", "text", "textarea", "formatted"],
+        "drop_down_list" => ["multiple_drop_down_list", "text", "textarea", "formatted", "pre_rempli"],
         "email" => ["text", "textarea", "formatted"],
-        "formatted" => ["textarea", "text", "email", "phone"],
+        "formatted" => ["textarea", "text", "email", "phone", "pre_rempli"],
         "integer_number" => ["decimal_number", "text", "textarea", "formatted"],
         "multiple_drop_down_list" => ["drop_down_list", "text", "textarea", "formatted"],
         "phone" => ["text", "textarea", "formatted"],
-        "text" => ["textarea", "formatted", "email", "phone", "decimal_number", "integer_number"],
-        "textarea" => ["text", "formatted"],
+        "pre_rempli" => ["text", "textarea", "formatted", "drop_down_list"],
+        "text" => ["textarea", "formatted", "email", "phone", "decimal_number", "integer_number", "pre_rempli"],
+        "textarea" => ["text", "formatted", "pre_rempli"],
         "yes_no" => ["checkbox", "text", "textarea", "formatted"]
       )
     end
