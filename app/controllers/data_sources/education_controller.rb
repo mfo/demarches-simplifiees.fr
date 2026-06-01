@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DataSources::EducationController < ApplicationController
+class DataSources::EducationController < DataSources::BaseController
   def search
     if params[:q].present? && params[:q].length >= 3
       response = fetch_results
