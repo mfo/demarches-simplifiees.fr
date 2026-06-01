@@ -309,3 +309,8 @@ input[type='radio'] {
 .fr-tabs {
   box-shadow: none;
 }
+
+// Réduit le margin droit du toggle lorsqu'il n'y a pas de label associé
+.fr-toggle.fr-toggle--no-label label::before {
+  margin-right: 0.5rem;
+}
