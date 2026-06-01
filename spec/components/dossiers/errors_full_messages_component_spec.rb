@@ -106,6 +106,29 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
         end
       end
 
+      context 'when champ is linked_drop_down_list' do
+        let(:options) { ['--Primary 1--', 'Secondary 1.1', 'Secondary 1.2'] }
+        let(:types_de_champ_public) do
+          [{ type: :linked_drop_down_list, libelle: 'Ville', options:, mandatory: true }]
+        end
+
+        context 'when the primary value is blank' do
+          it 'shows the primary libelle' do
+            expect(subject).to have_text('Ville')
+          end
+        end
+
+        context 'when the primary value is set but the secondary is blank' do
+          before { champ.update!(value: JSON.generate(['Primary 1', ''])) }
+
+          it 'shows the secondary libelle' do
+            expect(subject).to have_text(
+              I18n.t('shared.champs.linked_drop_down_list.secondary_default_libelle')
+            )
+          end
+        end
+      end
+
       context 'when champ is yes_no' do
         let(:types_de_champ_public) { [{ type: :yes_no }] }
         it 'focuses on focusable_input_id' do
