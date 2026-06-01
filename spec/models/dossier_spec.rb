@@ -2008,14 +2008,14 @@ describe Dossier, type: :model do
     end
   end
 
-  describe "#check_mandatory_and_visible_champs_public" do
+  describe "#champs_public_valid?" do
     include Logic
 
     let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
     let(:dossier) { create(:dossier, procedure: procedure) }
     let(:types_de_champ) { [type_de_champ].compact }
     let(:type_de_champ) { nil }
-    let(:errors) { dossier.check_mandatory_and_visible_champs_public }
+    let(:errors) { dossier.champs_public_valid?; dossier.errors }
 
     it 'no mandatory champs' do
       expect(errors).to be_empty

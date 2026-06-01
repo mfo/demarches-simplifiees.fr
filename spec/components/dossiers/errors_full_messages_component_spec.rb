@@ -21,7 +21,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
 
       subject do
         dossier.validate(:champs_public_value)
-        dossier.check_mandatory_and_visible_champs_public
+        dossier.champs_public_valid?
         render_inline(component).to_html
       end
 

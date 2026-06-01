@@ -15,6 +15,7 @@ class Dossier < ApplicationRecord
   include DossierStateConcern
   include DossierChampsConcern
   include DossierExportConcern
+  include DossierValidateConcern
 
   enum :state, {
     brouillon:       'brouillon',
@@ -561,7 +562,7 @@ class Dossier < ApplicationRecord
 
   def can_terminer?
     return false if any_etablissement_as_degraded_mode?
-    return false if any_annotations_privees_with_errors?
+    return false unless champs_private_valid?
 
     true
   end
@@ -639,12 +640,6 @@ class Dossier < ApplicationRecord
     return true if filled_champs_public.any? { _1.etablissement&.as_degraded_mode? }
 
     false
-  end
-
-  def any_annotations_privees_with_errors?
-    validate(:champs_private_value)
-    check_mandatory_and_visible_champs_private
-    errors.any?
   end
 
   def messagerie_available?
@@ -1020,41 +1015,6 @@ class Dossier < ApplicationRecord
 
   def previously_termine?
     traitements.any?(&:termine?)
-  end
-
-  def check_mandatory_and_visible_champs_public
-    check_mandatory_and_visible_champs_for(project_champs_public)
-  end
-
-  def check_mandatory_and_visible_champs_private
-    check_mandatory_and_visible_champs_for(project_champs_private)
-  end
-
-  def check_mandatory_and_visible_champs_for(collection)
-    collection.filter(&:visible?).each do |champ|
-      if champ.mandatory_blank? && !champ.address?
-        error = champ.errors.add(:value, :missing)
-        errors.import(error)
-      end
-
-      if champ.repetition?
-        champ.rows.each do |champs|
-          champs.filter(&:visible?).each do |champ|
-            if champ.address?
-              champ.validate_completed
-              champ.errors.each { errors.import(it) }
-            elsif champ.mandatory_blank?
-              error = champ.errors.add(:value, :missing)
-              errors.import(error)
-            end
-          end
-        end
-      elsif champ.address?
-        champ.validate_completed
-        champ.errors.each { errors.import(it) }
-      end
-    end
-    errors
   end
 
   def demander_un_avis!(avis)
