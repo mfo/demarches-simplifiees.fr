@@ -78,14 +78,22 @@
               <tbody data-controller="expand">
                 <tr class="procedure" data-action="click->expand#toggle">
                   <th class="fr-cell--center" scope="row">
-                    <span
-                      class="
-                        fr-icon-add-line fr-icon--sm fr-mb-1w
-                        fr-text-action-high--blue-france
-                      "
-                      aria-hidden="true"
-                      data-expand-target="icon"
-                    ></span>
+                    <button
+                      class="fr-btn fr-btn--tertiary-no-outline"
+                      aria-expanded="false"
+                      data-action="click->expand#toggle:stop"
+                    >
+                      <span
+                        class="
+                          fr-icon-add-line fr-icon--sm
+                          fr-text-action-high--blue-france
+                        "
+                        aria-hidden="true"
+                        data-expand-target="icon"
+                      ></span>
+
+                      <span class="fr-sr-only"><%= t('.expand_admin') %></span>
+                    </button>
                   </th>
 
                   <td><%= admin.email %></td>

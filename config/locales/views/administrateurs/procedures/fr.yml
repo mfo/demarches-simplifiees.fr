@@ -12,6 +12,7 @@ fr:
         col_administrators: Administrateurs
         col_procedures_count: Nb démarches
         col_registered_at: Inscrit le
+        expand_admin: Voir les démarches
       api_champ_columns:
         title: 'Informations complémentaires au champ %{type_de_champ}'
         hint_html: |
