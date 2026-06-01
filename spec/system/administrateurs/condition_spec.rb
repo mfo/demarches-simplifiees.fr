@@ -11,6 +11,7 @@ describe 'As an administrateur I can edit types de champ condition', js: true do
              { type: :text, libelle: 'nom du parent' },
            ])
   end
+  let(:procedure_id) { procedure.id }
 
   let(:first_tdc) { procedure.draft_revision.types_de_champ.first }
   let(:second_tdc) { procedure.draft_revision.types_de_champ.second }
@@ -147,7 +148,7 @@ describe 'As an administrateur I can edit types de champ condition', js: true do
     before { Flipper.enable(:column_conditions) }
     after { Flipper.disable(:column_conditions) }
 
-    let(:target_value) { column_value(first_tdc.columns(procedure:).first) }
+    let(:target_value) { column_value(first_tdc.columns(procedure_id:).first) }
 
     include_examples 'condition editor'
   end
