@@ -8,7 +8,7 @@
   .fr-fieldset__element.fr-pl-0
     %div{ class: class_names("fr-select-group", "fr-select-group--error": primary_value.present? && secondary_value.blank?) }
       = @form.label :secondary_value, for: "#{@champ.focusable_input_id}-secondary", class: 'fr-label' do
-        = @champ.drop_down_secondary_libelle.presence || "Valeur secondaire dépendant de la première"
+        = @champ.drop_down_secondary_libelle.presence || t("shared.champs.linked_drop_down_list.secondary_default_libelle")
         - if @champ.public?
           - if @champ.mandatory?
             = render EditableChamp::AsteriskMandatoryComponent.new
