@@ -387,7 +387,11 @@ export function useRemoteList({
   const [inputValue, setInputValue] = useState(selectedItem?.label ?? '');
   const [isExplicitlySelected, setIsExplicitlySelected] = useState(false);
   const list = useAsyncList<Item>({ getKey, load });
-  const [error, setError] = useState<Error | null>(null);
+  // `list.error` is sticky (useAsyncList never clears it), so we track the last
+  // error the user dismissed (by typing or resetting) and only surface an error
+  // whose identity differs from it. A brand new failure produces a new Error
+  // instance and shows again.
+  const [dismissedError, setDismissedError] = useState<Error | null>(null);
   const setFilterText = useEvent((filterText: string) => {
     list.setFilterText(filterText);
   });
@@ -395,7 +399,8 @@ export function useRemoteList({
     setFilterText,
     debounce ?? 300
   );
-  const initialSelectedKeyRef = useRef(defaultSelectedKey);
+  const [prevDefaultSelectedKey, setPrevDefaultSelectedKey] =
+    useState(defaultSelectedKey);
 
   const onSelectionChange = useEvent<
     NonNullable<ComboBoxProps['onSelectionChange']>
@@ -418,7 +423,7 @@ export function useRemoteList({
 
   const onInputChange = useEvent<NonNullable<ComboBoxProps['onInputChange']>>(
     (value) => {
-      setError(null);
+      setDismissedError(list.error ?? null);
       debouncedSetFilterText(value);
       setIsExplicitlySelected(false);
       setInputValue(value);
@@ -431,20 +436,10 @@ export function useRemoteList({
   const onReset = useEvent(() => {
     setSelectedItem(null);
     setInputValue('');
-    setError(null);
+    setDismissedError(list.error ?? null);
   });
 
-  useEffect(() => {
-    if (list.error) {
-      setError(list.error);
-    }
-  }, [list.error]);
-
-  useEffect(() => {
-    if (!list.isLoading && !list.error) {
-      setError(null);
-    }
-  }, [list.isLoading, list.error]);
+  const error = list.error && list.error !== dismissedError ? list.error : null;
 
   // add to items list current selected item if it's not in the list
   const items = error
@@ -471,23 +466,22 @@ export function useRemoteList({
     isExplicitlySelected
   ]);
 
-  // reset default selected key when props change
-  useEffect(() => {
-    if (initialSelectedKeyRef.current != defaultSelectedKey) {
-      initialSelectedKeyRef.current = defaultSelectedKey;
-      const item = defaultSelectedKey
-        ? items.find((item) => item.value == defaultSelectedKey)
-        : null;
-      if (item) {
-        setSelectedItem(item);
-        setInputValue(item.label);
-      } else {
-        setSelectedItem(null);
-        setInputValue('');
-      }
+  // reset selection when the defaultSelectedKey prop changes (adjusting state
+  // during render, guarded by the previous value — see
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes)
+  if (prevDefaultSelectedKey != defaultSelectedKey) {
+    setPrevDefaultSelectedKey(defaultSelectedKey);
+    const item = defaultSelectedKey
+      ? items.find((item) => item.value == defaultSelectedKey)
+      : null;
+    if (item) {
+      setSelectedItem(item);
+      setInputValue(item.label);
+    } else {
+      setSelectedItem(null);
+      setInputValue('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultSelectedKey]);
+  }
 
   return {
     selectedItem,
