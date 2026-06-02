@@ -778,6 +778,17 @@ class API::V2::StoredQuery
         ...FileFragment
       }
     }
+    ... on GeoJSONColumn {
+      value {
+        geometry @include(if: $includeGeometry) {
+          type
+          coordinates
+        }
+        properties {
+          description
+        }
+      }
+    }
   }
   GRAPHQL
 

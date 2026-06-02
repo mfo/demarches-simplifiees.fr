@@ -15,6 +15,7 @@ module Types
     field :email_agent_traitant, String, null: true, method: :instructeur_email
     field :motivation, String, null: true
     field :revision, Types::RevisionType, null: true
+    field :changed_columns, [Types::ColumnType], "Liste des changements par colonne", null: false
 
     def revision
       Loaders::Association.for(object.class, revision: :revision_types_de_champ).load(object)

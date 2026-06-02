@@ -1048,4 +1048,159 @@ RSpec.describe DossierChampsConcern do
       end
     end
   end
+
+  describe "#user_changed_columns" do
+    let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
+
+    context "when the user buffer stream is empty" do
+      it { expect(dossier.user_changed_columns).to eq([]) }
+    end
+
+    context "when the user buffer stream has pending changes" do
+      before do
+        dossier.with_update_stream(dossier.user) do
+          dossier.public_champ_for_update('99', updated_by: dossier.user.email)
+            .assign_attributes(value: "Nouvelle valeur")
+        end
+        dossier.save!
+      end
+
+      it "returns the changed column with its new buffer value" do
+        columns = dossier.user_changed_columns
+
+        expect(columns.map(&:stable_id)).to contain_exactly(99)
+        expect(columns.first.label).to eq("Un champ text")
+        expect(columns.first.value).to eq("Nouvelle valeur")
+      end
+
+      it "ignores columns whose value did not change" do
+        expect(dossier.user_changed_columns.map(&:stable_id)).not_to include(991)
+      end
+    end
+
+    context "when the user buffer stream changes a champ inside a repetition" do
+      let(:row_id) do
+        type_de_champ = dossier.find_type_de_champ_by_stable_id(993)
+        dossier.project_champ(type_de_champ).row_ids.first
+      end
+
+      before do
+        dossier.with_update_stream(dossier.user) do
+          dossier.public_champ_for_update("994-#{row_id}", updated_by: dossier.user.email)
+            .assign_attributes(value: "Valeur dans la répétition")
+        end
+        dossier.save!
+      end
+
+      it "returns the changed column for the repetition child" do
+        columns = dossier.user_changed_columns
+
+        column = columns.find { _1.stable_id == 994 }
+        expect(column).not_to be_nil
+        expect(column.value).to eq("Valeur dans la répétition")
+      end
+    end
+
+    context "when the user buffer stream adds geometry to a carte (geojson) champ" do
+      let(:types_de_champ_public) { [{ type: :carte, libelle: "Une carte", stable_id: 996 }] }
+      let(:dossier) { create(:dossier, :en_construction, procedure:) }
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon) }
+
+      before do
+        dossier.with_update_stream(dossier.user) do
+          champ = dossier.public_champ_for_update('996', updated_by: dossier.user.email)
+          champ.update(geo_areas: [geo_area])
+        end
+        dossier.save!
+      end
+
+      it "returns the geojson changed column with its feature collection" do
+        columns = dossier.user_changed_columns
+
+        column = columns.find { _1.stable_id == 996 }
+        expect(column).not_to be_nil
+        expect(column.type).to eq(:geojson)
+
+        feature_collection = column.value
+        expect(feature_collection[:type]).to eq('FeatureCollection')
+        expect(feature_collection[:features].size).to eq(1)
+      end
+    end
+
+    context "when the user buffer stream attaches a file to a piece justificative (attachments) champ" do
+      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Une pièce", stable_id: 997 }] }
+      let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+      before do
+        dossier.with_update_stream(dossier.user) do
+          champ = dossier.public_champ_for_update('997', updated_by: dossier.user.email)
+          champ.piece_justificative_file.attach(io: Rails.root.join('spec/fixtures/files/Contrat.pdf').open, filename: 'Contrat.pdf')
+          champ.save!
+        end
+        dossier.save!
+      end
+
+      it "returns the attachments changed column with the attached file" do
+        columns = dossier.user_changed_columns
+
+        column = columns.find { _1.stable_id == 997 }
+        expect(column).not_to be_nil
+        expect(column.type).to eq(:attachments)
+        expect(column.value.map { _1.filename.to_s }).to eq(['Contrat.pdf'])
+      end
+    end
+  end
+
+  describe "#instructeur_changed_columns" do
+    let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
+
+    context "when the instructeur buffer stream is empty" do
+      it { expect(dossier.instructeur_changed_columns).to eq([]) }
+    end
+
+    context "when the instructeur buffer stream has pending changes" do
+      before do
+        dossier.with_instructeur_buffer_stream do
+          dossier.public_champ_for_update('99', updated_by: 'instructeur@exemple.fr')
+            .assign_attributes(value: "Correction instructeur")
+        end
+        dossier.save!
+      end
+
+      it "returns the changed column with its new buffer value" do
+        columns = dossier.instructeur_changed_columns
+
+        expect(columns.map(&:stable_id)).to contain_exactly(99)
+        expect(columns.first.label).to eq("Un champ text")
+        expect(columns.first.value).to eq("Correction instructeur")
+      end
+
+      it "does not report changes on the user buffer stream" do
+        expect(dossier.user_changed_columns).to eq([])
+      end
+    end
+
+    context "when the instructeur buffer stream attaches a file to a piece justificative (attachments) champ" do
+      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Une pièce", stable_id: 997 }] }
+      let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+      before do
+        dossier.with_instructeur_buffer_stream do
+          champ = dossier.public_champ_for_update('997', updated_by: 'instructeur@exemple.fr')
+          champ.piece_justificative_file.attach(io: Rails.root.join('spec/fixtures/files/Contrat.pdf').open, filename: 'Contrat.pdf')
+          champ.save!
+        end
+        dossier.save!
+      end
+
+      it "returns the attachments changed column with the attached file" do
+        columns = dossier.instructeur_changed_columns
+
+        column = columns.find { _1.stable_id == 997 }
+        expect(column).not_to be_nil
+        expect(column.type).to eq(:attachments)
+        expect(column.value.map { _1.filename.to_s }).to eq(['Contrat.pdf'])
+      end
+    end
+  end
 end

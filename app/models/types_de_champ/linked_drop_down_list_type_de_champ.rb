@@ -66,7 +66,7 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
       (has_secondary_options_for_primary?(champ) && secondary_value(champ).blank?)
   end
 
-  def columns(procedure_id:, displayable: true, prefix: nil)
+  def value_columns(procedure_id:, displayable: true, prefix: nil)
     [
       Columns::LinkedDropDownColumn.new(
         procedure_id:,
@@ -78,6 +78,11 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
         displayable:,
         mandatory: mandatory?
       ),
+    ]
+  end
+
+  def columns(procedure_id:, displayable: true, prefix: nil)
+    super.concat([
       Columns::LinkedDropDownColumn.new(
         procedure_id:,
         stable_id:,
@@ -100,7 +105,7 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
         options_for_select: secondary_options.values.flatten.uniq.sort.map { [it, it] },
         mandatory: mandatory?
       ),
-    ]
+    ])
   end
 
   private

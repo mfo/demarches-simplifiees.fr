@@ -19,6 +19,8 @@ module Types
     def columns
       if object.repetition?
         []
+      elsif object.carte?
+        object.type_de_champ.value_columns(procedure_id: object.procedure.id)
       else
         object.type_de_champ.columns(procedure_id: object.procedure.id)
       end

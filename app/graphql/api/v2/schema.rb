@@ -137,7 +137,8 @@ class API::V2::Schema < GraphQL::Schema
     Types::Columns::EnumColumnType,
     Types::Columns::EnumsColumnType,
     Types::Columns::IntegerColumnType,
-    Types::Columns::TextColumnType
+    Types::Columns::TextColumnType,
+    Types::Columns::GeoJSONColumnType
 
   def self.unauthorized_object(error)
     # Add a top-level error to the response instead of returning nil:

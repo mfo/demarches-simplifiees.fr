@@ -40,6 +40,8 @@ module Types
           Types::Columns::EnumsColumnType
         when :attachments
           Types::Columns::AttachmentsColumnType
+        when :geojson
+          Types::Columns::GeoJSONColumnType
         else
           Types::Columns::TextColumnType
         end
