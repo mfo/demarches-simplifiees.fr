@@ -8,6 +8,7 @@ module Instructeurs
     include AvisCreationConcern
     include TurboChampsConcern
     include InstructeurConcern
+    include DossierEditConcern
     include ActionController::Streaming
     include BilansBdfConcern
     include Zipline
@@ -367,31 +368,11 @@ module Instructeurs
     end
 
     def update_annotations
-      public_id, annotation_attributes = champs_private_attributes_params.to_h.first
-      annotation = dossier.private_champ_for_update(public_id, updated_by: current_user.email)
-      if annotation.referentiel? && annotation.autocomplete?
-        annotation_attributes = annotation_attributes.merge(params.require(:dossier).require(:champs_private_attributes).require(public_id).permit(:data).to_h)
-      end
-      annotation.assign_attributes(annotation_attributes)
-      annotation_changed = annotation.changed_for_autosave?
-
-      if annotation_changed && annotation.save
-        annotation.update_timestamps
-
-        if annotation.has_async_external_data?
-          annotation.reset_external_data!
-          annotation.fetch_later! if annotation.may_fetch_later?
-        end
-
-        dossier.index_search_terms_later
-        DossierNotification.create_notification(dossier, :annotation_instructeur, except_instructeur: current_instructeur) if !dossier.brouillon?
-      end
-
-      dossier.validate(:champs_private_value) if !annotation.pending?
+      update_champ_and_compute_errors(scope: :private)
 
       respond_to do |format|
         format.turbo_stream do
-          @to_show, @to_hide, @to_update = champs_to_turbo_update(champs_private_attributes_params, dossier.project_champs_private_all)
+          @to_show, @to_hide, @to_update = champs_to_turbo_update(champs_attributes_params(:private), dossier.project_champs_private_all)
         end
       end
     end
@@ -554,39 +535,6 @@ module Instructeurs
 
     def commentaire_params
       params.require(:commentaire).permit(:body, piece_jointe: [])
-    end
-
-    def champs_private_params
-      champ_attributes = [
-        :id,
-        :value,
-        :value_other,
-        :external_id,
-        :code,
-        :primary_value,
-        :secondary_value,
-        :piece_justificative_file,
-        :code_departement,
-        :accreditation_number,
-        :accreditation_birthdate,
-        :address,
-        :not_in_ban,
-        :street_address,
-        :city_name,
-        :country_code,
-        :commune_code,
-        :postal_code,
-        value: [],
-      ]
-      # Strong attributes do not support records (indexed hash); they only support hashes with
-      # static keys. We create a static hash based on the available keys.
-      public_ids = params.dig(:dossier, :champs_private_attributes)&.keys || []
-      champs_private_attributes = public_ids.index_with { champ_attributes }
-      params.require(:dossier).permit(champs_private_attributes:)
-    end
-
-    def champs_private_attributes_params
-      champs_private_params.fetch(:champs_private_attributes)
     end
 
     def mark_demande_as_read
