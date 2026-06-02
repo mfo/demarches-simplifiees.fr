@@ -12,7 +12,7 @@
       = procedure_badge(p)
 
       %ul.procedure-stats.flex.wrap.flex-gap-1.fr-my-2w
-        %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link
+        %li.fr-btn.fr-btn--tertiary.flex.justify-center
           = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS)) do
             - without_answer_count = procedure_avis.select { _1.answer.nil? }.reject{ _1.dossier.termine?}.size
             .center.fr-text--bold.fr-text--sm
@@ -22,7 +22,7 @@
             - if without_answer_count > 0
               %span.notifications
                 %span.fr-sr-only= t(".notification")
-        %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link
+        %li.fr-btn.fr-btn--tertiary.flex.justify-center
           = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::DONNES_STATUS)) do
             - with_answer_count = procedure_avis.select { |a| a.answer.present? }.size
             .center.fr-text--bold.fr-text--sm= with_answer_count
