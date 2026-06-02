@@ -195,6 +195,9 @@ FactoryBot.define do
     factory :type_de_champ_referentiel do
       type_champ { TypeDeChamp.type_champs.fetch(:referentiel) }
     end
+    factory :type_de_champ_pre_rempli do
+      type_champ { TypeDeChamp.type_champs.fetch(:pre_rempli) }
+    end
     factory :type_de_champ_cojo do
       type_champ { TypeDeChamp.type_champs.fetch(:cojo) }
     end

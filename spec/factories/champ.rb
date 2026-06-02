@@ -157,6 +157,9 @@ FactoryBot.define do
       value { 'EJ' }
     end
 
+    factory :champ_do_not_use_pre_rempli, class: 'Champs::PreRempliChamp' do
+    end
+
     factory :champ_do_not_use_cojo, class: 'Champs::COJOChamp' do
     end
 
