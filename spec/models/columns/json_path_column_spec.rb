@@ -41,6 +41,24 @@ describe Columns::JSONPathColumn do
       end
     end
 
+    context 'with a numeric jsonpath key (e.g. a referentiel column whose header is a number)' do
+      let(:jsonpath) { '$.referentiel.data.row.4' }
+
+      subject { column.filtered_ids(Dossier.all, { operator: 'match', value: ['Lyon'] }) }
+
+      context 'when champ has value_json matching' do
+        before { champ.update(value_json: { referentiel: { data: { row: { '4' => 'Lyon' } } } }) }
+
+        it { is_expected.to eq([dossier.id]) }
+      end
+
+      context 'when champ has value_json not matching' do
+        before { champ.update(value_json: { referentiel: { data: { row: { '4' => 'Paris' } } } }) }
+
+        it { is_expected.to eq([]) }
+      end
+    end
+
     context 'with avanced search using special characters' do
       let(:jsonpath) { '$.city_name' }
 

@@ -48,7 +48,7 @@ class Columns::JSONPathColumn < Columns::ChampColumn
     parts << %(@ >= "#{start_date}") if start_date
     parts << %(@ <= "#{end_date}") if end_date
 
-    condition = sanitize_sql(%{champs.value_json @? '#{jsonpath} ? (#{parts.join(' && ')})'})
+    condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{parts.join(' && ')})'})
 
     targeted_dossiers(dossiers, condition).ids
   end
@@ -63,10 +63,10 @@ class Columns::JSONPathColumn < Columns::ChampColumn
 
       return dossiers.ids if integers.empty?
 
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'})
+      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'})
     else
       value = quote_string(search_terms.join('|'))
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath} ? (@ like_regex "#{value}" flag "i")'})
+      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (@ like_regex "#{value}" flag "i")'})
     end
 
     targeted_dossiers(dossiers, condition).ids
@@ -78,6 +78,14 @@ class Columns::JSONPathColumn < Columns::ChampColumn
     else
       raise
     end
+  end
+
+  # PostgreSQL's jsonpath parser rejects bare numeric member accessors (e.g. `$.row.4`),
+  # typically a référentiel column whose header is a number, so those segments are
+  # double-quoted (`$.row."4"`). Other segments are left as-is, keeping existing jsonpaths
+  # unchanged. The Ruby JsonPath gem used in #typed_value keeps the original dot notation.
+  def jsonpath_for_sql
+    @jsonpath_for_sql ||= jsonpath.split('.').map { _1.match?(/\A\d/) ? "\"#{_1}\"" : _1 }.join('.')
   end
 
   def column_id = "type_de_champ/#{stable_id}-#{jsonpath}"
