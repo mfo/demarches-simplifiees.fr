@@ -105,6 +105,14 @@ describe Logic::ChampValue do
         is_expected.to eq('option1')
       end
 
+      context 'with drop_down_options' do
+        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pre_rempli, drop_down_options_from_text: "En cours\r\nIdée\r\nFait" }]) }
+
+        it 'returns options from drop_down_options' do
+          expect(champ_value(champ.stable_id).options([champ.type_de_champ])).to match_array([["En cours", "En cours"], ["Idée", "Idée"], ["Fait", "Fait"]])
+        end
+      end
+
       context 'with blank value' do
         let(:value) { '' }
         it { is_expected.to be_nil }

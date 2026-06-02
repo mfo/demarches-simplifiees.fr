@@ -332,7 +332,7 @@ class TypeDeChamp < ApplicationRecord
   def check_mandatory
     return if mandatory_changed?
 
-    self.mandatory = false if non_fillable?
+    self.mandatory = false if non_fillable? || cannot_be_mandatory?
     self.mandatory = true if must_be_mandatory?
   end
 
@@ -444,6 +444,10 @@ class TypeDeChamp < ApplicationRecord
 
   def must_be_mandatory? = type_champ.in?(API_PART_FC_TDC)
 
+  def cannot_be_mandatory?
+    type_champ == TypeDeChamp.type_champs.fetch(:pre_rempli)
+  end
+
   def choice_type?
     type_champ.in?([
       TypeDeChamp.type_champs.fetch(:checkbox),
@@ -510,6 +514,8 @@ class TypeDeChamp < ApplicationRecord
       APIGeoService.country_options
     elsif any_drop_down_list?
       options_for_select_with_other
+    elsif pre_rempli?
+      Array.wrap(drop_down_options).uniq.map { [_1, _1] }
     elsif yes_no?
       Champs::YesNoChamp.options
     elsif checkbox?

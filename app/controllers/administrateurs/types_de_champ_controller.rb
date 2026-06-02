@@ -224,6 +224,7 @@ module Administrateurs
         { pj_format_families: [] },
         :drop_down_options_from_text,
         :drop_down_other,
+        :pre_rempli_hidden,
         :drop_down_secondary_libelle,
         :drop_down_secondary_description,
         :drop_down_mode,

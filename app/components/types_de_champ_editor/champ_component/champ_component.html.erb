@@ -531,6 +531,24 @@
                 </div>
               <% end %>
             </div>
+          <% elsif type_de_champ.pre_rempli? %>
+            <div class="flex column justify-start flex-grow fr-mt-1w">
+              <div class="cell">
+                <%= form.label :drop_down_options_from_text, t('.pre_rempli.options_label'), for: dom_id(type_de_champ, :drop_down_options_from_text) %>
+
+                <%= form.text_area :drop_down_options_from_text,
+                  value: type_de_champ.drop_down_options.join("\r\n"),
+                  class: 'fr-input small-margin small width-100',
+                  rows: 7,
+                  id: dom_id(type_de_champ, :drop_down_options_from_text) %>
+              </div>
+
+              <div class="cell fr-mt-1w flex align-center">
+                <%= form.check_box :pre_rempli_hidden, class: "small-margin small", id: dom_id(type_de_champ, :pre_rempli_hidden) %>
+
+                <%= form.label :pre_rempli_hidden, t('.pre_rempli.hidden_label'), for: dom_id(type_de_champ, :pre_rempli_hidden) %>
+              </div>
+            </div>
           <% end %>
 
           <% if type_de_champ.linked_drop_down_list? %>

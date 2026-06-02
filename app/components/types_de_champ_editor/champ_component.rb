@@ -15,7 +15,7 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   delegate :type_de_champ, :revision, :procedure, to: :coordinate
 
   def mandatory_configurable?
-    type_de_champ.fillable? && !type_de_champ.must_be_mandatory?
+    type_de_champ.fillable? && !type_de_champ.must_be_mandatory? && !type_de_champ.cannot_be_mandatory?
   end
 
   def libelle_configurable?
