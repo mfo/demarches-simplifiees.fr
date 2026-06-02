@@ -184,15 +184,11 @@ export class BatchOperationController extends ApplicationController {
       '#input_multiple_ids_batch_operation'
     );
 
-    let count = 0;
-
-    if (hiddenInput && hiddenInput.value.trim() !== '') {
-      const ids = hiddenInput.value.split(',').filter((id) => id.trim() !== '');
-      count = ids.length;
-    } else {
-      // fallback to visible checked checkboxes
-      count = this.inputTargets.filter((input) => input.checked).length;
-    }
+    const count =
+      hiddenInput && hiddenInput.value.trim() !== ''
+        ? hiddenInput.value.split(',').filter((id) => id.trim() !== '').length
+        : // fallback to visible checked checkboxes
+          this.inputTargets.filter((input) => input.checked).length;
 
     const label = `${count} dossier${count > 1 ? 's' : ''} sélectionné${count > 1 ? 's' : ''}`;
     this.checkboxCountTarget.textContent = label;
