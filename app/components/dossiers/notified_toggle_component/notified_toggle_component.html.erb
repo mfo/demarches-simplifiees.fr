@@ -1,6 +1,6 @@
 <%= form_with model: [:instructeur, @procedure_presentation],
   data: { controller: 'autosubmit' } do %>
-  <div class="fr-toggle">
+  <div class="fr-toggle fr-toggle--no-label">
     <%= hidden_field_tag 'sorted_column[id]', @procedure.notifications_column.id %>
     <%= hidden_field_tag 'sorted_column[order]', 'asc', id: nil %>
 

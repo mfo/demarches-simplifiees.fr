@@ -54,4 +54,8 @@ class Dsfr::ToggleComponent < ApplicationComponent
       { 'fr-js-toggle-status-label': true }
     end
   end
+
+  def no_label_class
+    "fr-toggle--no-label" if !toggle_labels
+  end
 end
