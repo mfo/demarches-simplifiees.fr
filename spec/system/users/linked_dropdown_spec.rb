@@ -77,6 +77,12 @@ describe 'linked dropdown lists', js: true do
       select('Primary 1', from: 'linked dropdown')
       click_on 'Déposer le dossier'
       expect(page).to have_content('« Valeur secondaire dépendant de la première » doit être rempli')
+
+      # The error summary link and the secondary select both target the secondary input,
+      # and the secondary select is associated to the error region for screen readers.
+      champ = user_dossier.champs.first
+      expect(page).to have_link('Valeur secondaire dépendant de la première', href: "##{champ.focusable_input_id(:secondary_value)}")
+      expect(find("##{champ.focusable_input_id(:secondary_value)}")['aria-describedby']).to include(champ.error_id(:value))
     end
   end
 

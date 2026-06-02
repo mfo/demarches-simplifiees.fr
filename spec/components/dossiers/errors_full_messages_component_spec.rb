@@ -113,17 +113,18 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
         end
 
         context 'when the primary value is blank' do
-          it 'shows the primary libelle' do
-            expect(subject).to have_text('Ville')
+          it 'shows the primary libelle and links to the primary select' do
+            expect(subject).to have_link('Ville', href: "##{champ.focusable_input_id(:value)}")
           end
         end
 
         context 'when the primary value is set but the secondary is blank' do
           before { champ.update!(value: JSON.generate(['Primary 1', ''])) }
 
-          it 'shows the secondary libelle' do
-            expect(subject).to have_text(
-              I18n.t('shared.champs.linked_drop_down_list.secondary_default_libelle')
+          it 'shows the secondary libelle and links to the secondary select' do
+            expect(subject).to have_link(
+              I18n.t('shared.champs.linked_drop_down_list.secondary_default_libelle'),
+              href: "##{champ.focusable_input_id(:secondary_value)}"
             )
           end
         end

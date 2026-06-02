@@ -193,4 +193,51 @@ describe Champs::LinkedDropDownListChamp do
       end
     end
   end
+
+  describe '#validate_completed' do
+    let(:options) { ['--Primary 1--', 'Secondary 1.1', 'Secondary 1.2', '--Primary 2--'] }
+
+    subject do
+      champ.validate_completed
+      champ.errors
+    end
+
+    context 'when the champ is not mandatory' do
+      let(:mandatory) { false }
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'when mandatory and the primary value is blank' do
+      it 'adds a missing error on :value (the main value) only' do
+        expect(subject).to be_added(:value, :missing)
+        expect(subject).not_to be_added(:secondary_value, :missing)
+      end
+    end
+
+    context 'when mandatory, primary set and secondary blank' do
+      before { champ.primary_value = 'Primary 1' }
+
+      it 'adds a missing error on :secondary_value only' do
+        expect(subject).to be_added(:secondary_value, :missing)
+        expect(subject).not_to be_added(:primary_value, :missing)
+      end
+    end
+
+    context 'when mandatory and complete' do
+      before do
+        champ.primary_value = 'Primary 1'
+        champ.secondary_value = 'Secondary 1.1'
+      end
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'when mandatory, primary set but it has no secondary options' do
+      let(:options) { ['--A--', 'Abbott', '--B--'] }
+      before { champ.primary_value = 'B' }
+
+      it { is_expected.to be_empty }
+    end
+  end
 end
