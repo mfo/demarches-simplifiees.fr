@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_21_105001) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_02_100003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -207,6 +207,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_105001) do
     t.index ["claimant_id"], name: "index_avis_on_claimant_id"
     t.index ["dossier_id"], name: "index_avis_on_dossier_id"
     t.index ["experts_procedure_id"], name: "index_avis_on_experts_procedure_id"
+  end
+
+  create_table "banners", force: :cascade do |t|
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.string "target", null: false
+    t.datetime "updated_at", null: false
+    t.index ["target"], name: "index_banners_on_target", unique: true
   end
 
   create_table "batch_operations", force: :cascade do |t|

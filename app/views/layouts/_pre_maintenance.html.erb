@@ -1,23 +1,30 @@
-<% if ENV['BANNER_MESSAGE'].present? %>
-  <div class="site-banner fr-text-default--warning fr-background-contrast--warning">
-    <div class="fr-container text-center">
-      <%= sanitize(ENV['BANNER_MESSAGE']) %>
-    </div>
-  </div>
+<% banner = banner_for(:global) %>
+<% if banner&.active? %>
+  <%= render Dsfr::NoticeComponent.new(closable: false) do |c| %>
+    <% c.with_title do %>
+      <%= sanitize_banner(banner.content) %>
+    <% end %>
+  <% end %>
 <% end %>
 
-<% if ENV['ADMINISTRATION_BANNER_MESSAGE'].present? && instructeur_signed_in? %>
-  <div class="site-banner fr-text-default--warning fr-background-contrast--warning">
-    <div class="fr-container text-center">
-      <%= sanitize(ENV['ADMINISTRATION_BANNER_MESSAGE']) %>
-    </div>
-  </div>
+<% if instructeur_signed_in? %>
+  <% banner = banner_for(:instructeurs_only) %>
+  <% if banner&.active? %>
+    <%= render Dsfr::NoticeComponent.new(closable: false) do |c| %>
+      <% c.with_title do %>
+        <%= sanitize_banner(banner.content) %>
+      <% end %>
+    <% end %>
+  <% end %>
 <% end %>
 
-<% if ENV['USAGER_BANNER_MESSAGE'].present? && !instructeur_signed_in? %>
-  <div class="site-banner fr-text-default--warning fr-background-contrast--warning">
-    <div class="fr-container text-center">
-      <%= sanitize(ENV['USAGER_BANNER_MESSAGE']) %>
-    </div>
-  </div>
+<% unless instructeur_signed_in? %>
+  <% banner = banner_for(:usagers_only) %>
+  <% if banner&.active? %>
+    <%= render Dsfr::NoticeComponent.new(closable: false) do |c| %>
+      <% c.with_title do %>
+        <%= sanitize_banner(banner.content) %>
+      <% end %>
+    <% end %>
+  <% end %>
 <% end %>

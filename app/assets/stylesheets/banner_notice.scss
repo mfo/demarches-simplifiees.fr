@@ -1,0 +1,26 @@
+// Bannières de site (Banner model) — surcharge le rendu DSFR fr-notice
+// avec une palette orange pastel via les variables DSFR --background-contrast-warning
+// et --text-default-warning. La spécificité (.fr-notice.banner-notice = 0,2,0)
+// l'emporte sur .fr-notice--info (0,1,0).
+
+.fr-notice.banner-notice {
+  background-color: var(--background-contrast-warning);
+  color: var(--text-default-warning);
+
+  .fr-notice__title {
+    color: var(--text-default-warning);
+  }
+
+  .fr-notice__body::before {
+    background-color: var(--text-default-warning);
+  }
+
+  a {
+    color: var(--text-default-warning);
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--text-active-warning);
+    }
+  }
+}

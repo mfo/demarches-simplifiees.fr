@@ -30,6 +30,8 @@ Rails.application.routes.draw do
 
     resources :procedure_tags, only: [:index, :show, :new, :create, :edit, :update, :destroy]
 
+    resources :banners, only: [:index, :update]
+
     resources :archives, only: [:index, :show]
 
     resources :dossiers, only: [:index, :show] do
