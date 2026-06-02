@@ -1,2 +1,1 @@
-<%= turbo_stream.replace("notifications-button-#{@procedure_id}", partial: "notifications_button", locals: { procedure_id: @procedure_id, display: @display }) %>
-<%= turbo_stream.replace("notifications-container-#{@procedure_id}", partial: "notifications_list", locals: { notifications: @notifications, procedure_id: @procedure_id, display: @display }) %>
+<%= turbo_stream.replace("notifications-disclosure-#{@procedure_id}", partial: "instructeurs/procedures/notifications_disclosure", locals: { procedure_id: @procedure_id, display: @display, notifications: @notifications }) %>

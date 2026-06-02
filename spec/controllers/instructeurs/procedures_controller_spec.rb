@@ -141,6 +141,21 @@ describe Instructeurs::ProceduresController, type: :controller do
 
           expect(assigns(:statut)).to eq('en-cours')
         end
+
+        context "rendering the notifications disclosure" do
+          render_views
+
+          it "renders the collapsed disclosure button for a procedure with notifications" do
+            subject
+
+            # this page has no ambient procedure_id, so the button must build its
+            # own target path from the procedure passed to the component
+            expect(response.body).to include(%(id="notifications-button-#{procedure_with_dossier.id}"))
+            expect(response.body).to include(%(action="/procedures/#{procedure_with_dossier.id}/display_notifications"))
+            expect(response.body).to include('aria-expanded="false"')
+            expect(response.body).to include('flex column')
+          end
+        end
       end
 
       context "with specific statut parameter" do
@@ -161,6 +176,68 @@ describe Instructeurs::ProceduresController, type: :controller do
 
           expect(assigns(:procedures)).to match_array([procedure_draft])
         end
+      end
+    end
+  end
+
+  describe "#display_notifications" do
+    render_views
+
+    let(:instructeur) { create(:instructeur) }
+    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur]) }
+    let(:dossier) do
+      create(:dossier, :en_construction, procedure:, groupe_instructeur: procedure.defaut_groupe_instructeur)
+    end
+
+    before do
+      create(:dossier_notification, dossier:, instructeur:, notification_type: "dossier_modifie")
+      sign_in(instructeur.user)
+    end
+
+    context "when the panel is collapsed (display=false)" do
+      before { get :display_notifications, params: { procedure_id: procedure.id, display: 'false' }, format: :turbo_stream }
+
+      it "renders an accessible disclosure button placed before its panel" do
+        expect(response).to have_http_status(:ok)
+
+        button_pos = response.body.index(%(id="notifications-button-#{procedure.id}"))
+        panel_pos = response.body.index(%(id="notifications-container-#{procedure.id}"))
+
+        expect(button_pos).to be_present
+        expect(panel_pos).to be_present
+        # correctif #1: the button comes before the panel in the DOM
+        expect(button_pos).to be < panel_pos
+        # correctif #2: the toggle is a real <button> element, not a link
+        expect(response.body).to match(%r{<button[^>]*id="notifications-button-#{procedure.id}"})
+        # correctif #3: aria-expanded reflects the collapsed state
+        expect(response.body).to include('aria-expanded="false"')
+        # correctif #4 & #5: flex column wrapper + order-first on the panel
+        expect(response.body).to include('flex column')
+        expect(response.body).to include('order-first')
+      end
+
+      it "targets the procedure and submits the toggled display as a form field" do
+        # procedure_id is a path segment; display travels as a hidden field so it
+        # survives the GET form submit (the action query string would be dropped)
+        expect(response.body).to include(%(action="/procedures/#{procedure.id}/display_notifications"))
+        expect(response.body).to include('name="display" value="true"')
+      end
+
+      it "opts the form into Turbo so the GET submit applies the stream in place" do
+        # Turbo Drive is disabled globally (Turbo.session.drive = false), so the
+        # form must opt back in with data-turbo, and data-turbo-stream lets the GET
+        # submit accept a Turbo Stream response instead of navigating away
+        expect(response.body).to include('data-turbo="true"')
+        expect(response.body).to include('data-turbo-stream="true"')
+      end
+    end
+
+    context "when the panel is expanded (display=true)" do
+      before { get :display_notifications, params: { procedure_id: procedure.id, display: 'true' }, format: :turbo_stream }
+
+      it "sets aria-expanded to true on the button" do
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('aria-expanded="true"')
       end
     end
   end
