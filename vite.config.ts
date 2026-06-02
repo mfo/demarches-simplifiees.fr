@@ -31,12 +31,7 @@ export default defineConfig({
       ['config/routes.rb', 'app/views/**/*', 'app/components/**/*.haml'],
       { delay: 200 }
     ),
-    {
-      ...optimizeLocales.vite({
-        locales: ['en-US', 'fr-FR']
-      }),
-      enforce: 'pre' as const
-    },
+    optimizeLocales.vite({ locales: ['en-US', 'fr-FR'] }),
     lingui()
   ]
 });
