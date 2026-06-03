@@ -47,7 +47,17 @@ module APIEntreprise::HealthChecker
   end
 
   def self.store_response(ping_key, response)
-    status = JSON.parse(response.body)['status']
+    status =
+      if response.timed_out? || response.code.zero? || response.body.blank?
+        # No usable response (timeout, connection error): on_complete is still
+        # invoked by Typhoeus with an empty body. Treat the provider as down (the
+        # same outage shows up sometimes as a 502 bad_gateway, sometimes as a
+        # timeout) so the circuit breaker reschedules jobs. Fail-safe: jobs only retry.
+        'no_response'
+      else
+        JSON.parse(response.body)['status']
+      end
+
     Kredis.redis.set(cache_key(ping_key), status, ex: CACHE_TTL.to_i)
     status
   rescue JSON::ParserError => e
