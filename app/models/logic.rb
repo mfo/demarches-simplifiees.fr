@@ -12,7 +12,7 @@ module Logic
   def self.class_from_name(name)
     [
       ChampValue,
-      ColumnValue,
+      ChampColumnValue,
       Constant,
       Empty,
       LessThan,
@@ -131,7 +131,7 @@ module Logic
 
   def champ_value(stable_id) = Logic::ChampValue.new(stable_id)
 
-  def column_value(column) = Logic::ColumnValue.new(column.stable_id, column.column_id)
+  def column_value(column) = Logic::ChampColumnValue.new(column.stable_id, column.column_id)
 
   def empty = Logic::Empty.new
 

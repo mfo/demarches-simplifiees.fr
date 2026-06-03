@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Logic::ColumnValue < Logic::Term
+class Logic::ChampColumnValue < Logic::Term
   attr_reader :stable_id
 
   def initialize(stable_id, column_id)

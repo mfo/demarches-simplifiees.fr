@@ -167,7 +167,7 @@ describe Administrateurs::ConditionsController, type: :controller do
         draft_tdcs = procedure.draft_revision.types_de_champ
         condition = assigns(:tdc).condition
         expect(condition).to be_a(Logic::Eq)
-        expect(condition.left).to be_a(Logic::ColumnValue)
+        expect(condition.left).to be_a(Logic::ChampColumnValue)
         expect(condition.left.type(draft_tdcs)).to eq(:number)
       end
     end
