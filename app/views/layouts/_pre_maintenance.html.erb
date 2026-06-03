@@ -1,16 +1,19 @@
+<% nav_profile = controller.try(:nav_bar_profile) || :guest %>
+
 <% banner = banner_for(:global) %>
+
 <% if banner&.active? %>
-  <%= render Dsfr::NoticeComponent.new(closable: false) do |c| %>
+  <%= render Dsfr::NoticeComponent.new(closable: false, extra_class_names: 'banner-notice') do |c| %>
     <% c.with_title do %>
       <%= sanitize_banner(banner.content) %>
     <% end %>
   <% end %>
 <% end %>
 
-<% if instructeur_signed_in? %>
+<% if nav_profile == :instructeur %>
   <% banner = banner_for(:instructeurs_only) %>
   <% if banner&.active? %>
-    <%= render Dsfr::NoticeComponent.new(closable: false) do |c| %>
+    <%= render Dsfr::NoticeComponent.new(closable: false, extra_class_names: 'banner-notice') do |c| %>
       <% c.with_title do %>
         <%= sanitize_banner(banner.content) %>
       <% end %>
@@ -18,10 +21,10 @@
   <% end %>
 <% end %>
 
-<% unless instructeur_signed_in? %>
+<% if nav_profile != :instructeur %>
   <% banner = banner_for(:usagers_only) %>
   <% if banner&.active? %>
-    <%= render Dsfr::NoticeComponent.new(closable: false) do |c| %>
+    <%= render Dsfr::NoticeComponent.new(closable: false, extra_class_names: 'banner-notice') do |c| %>
       <% c.with_title do %>
         <%= sanitize_banner(banner.content) %>
       <% end %>
