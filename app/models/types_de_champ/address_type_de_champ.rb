@@ -47,8 +47,17 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)
-    super
-      .concat(addressable_columns(procedure_id:, displayable:, prefix:, deprecated_columns: true))
+    [
+      Columns::AddressColumn.new(
+        procedure_id:,
+        stable_id:,
+        tdc_type: type_champ,
+        label: libelle_with_prefix(prefix),
+        type: TypeDeChamp.column_type(type_champ),
+        displayable:,
+        mandatory: mandatory?
+      ),
+    ].concat(addressable_columns(procedure_id:, displayable:, prefix:, deprecated_columns: true))
   end
 
   def info_columns(procedure:)
