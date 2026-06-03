@@ -25,18 +25,26 @@ module DossierSectionsConcern
 
   def index_for_section_header(type_de_champ)
     types_de_champ = type_de_champ.private? ? revision.types_de_champ_private : revision.types_de_champ_public
-    index = 1
+    counters = []
+
     types_de_champ.each do |tdc|
       if tdc.repetition?
         index_in_repetition = revision.children_of(tdc).find_index { _1.stable_id == type_de_champ.stable_id }
-        return "#{index}.#{index_in_repetition + 1}" if index_in_repetition
-      else
-        return index if tdc.stable_id == type_de_champ.stable_id
-        next unless project_champ(tdc).visible?
-
-        index += 1 if tdc.header_section?
+        return "#{counters.first || 1}.#{index_in_repetition + 1}" if index_in_repetition
+        next
       end
+
+      next unless tdc.header_section?
+      next unless project_champ(tdc).visible?
+
+      level = tdc.level_for_revision(revision)
+      counters = counters.first(level)
+      counters[level - 1] = (counters[level - 1] || 0) + 1
+      (0...level).each { |i| counters[i] ||= 1 }
+
+      return counters.join('.') if tdc.stable_id == type_de_champ.stable_id
     end
-    index
+
+    counters.join('.')
   end
 end

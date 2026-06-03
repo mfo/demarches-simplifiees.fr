@@ -71,25 +71,82 @@ describe DossierSectionsConcern do
     let(:number_value) { nil }
 
     before do
-      dossier.champs.find { _1.stable_id == number_stable_id }.update(value: number_value)
+      dossier.champs.find { _1.stable_id == number_stable_id }&.update(value: number_value)
       dossier.reload
     end
 
     context "when there are invisible sections" do
       it "index accordingly header sections" do
-         expect(dossier.index_for_section_header(headers[0])).to eq(1)
-         expect(dossier.project_champ(headers[1])).not_to be_visible
-         expect(dossier.index_for_section_header(headers[2])).to eq(2)
-       end
+        expect(dossier.index_for_section_header(headers[0])).to eq("1")
+        expect(dossier.project_champ(headers[1])).not_to be_visible
+        expect(dossier.index_for_section_header(headers[2])).to eq("2")
+      end
     end
 
     context "when all headers are visible" do
       let(:number_value) { 5 }
       it "index accordingly header sections" do
-        expect(dossier.index_for_section_header(headers[0])).to eq(1)
+        expect(dossier.index_for_section_header(headers[0])).to eq("1")
         expect(dossier.project_champ(headers[1])).to be_visible
-        expect(dossier.index_for_section_header(headers[1])).to eq(2)
-        expect(dossier.index_for_section_header(headers[2])).to eq(3)
+        expect(dossier.index_for_section_header(headers[1])).to eq("2")
+        expect(dossier.index_for_section_header(headers[2])).to eq("3")
+      end
+    end
+
+    context "with nested levels" do
+      let(:types_de_champ) {
+        [
+          { type: :header_section, libelle: "Identité", level: 1 },
+          { type: :header_section, libelle: "État civil", level: 2 },
+          { type: :header_section, libelle: "Coordonnées", level: 2 },
+          { type: :header_section, libelle: "Justificatifs", level: 1 },
+          { type: :header_section, libelle: "Pièce d'identité", level: 2 }
+        ]
+      }
+
+      it "numbers headers hierarchically and resets sub-counters" do
+        expect(dossier.index_for_section_header(headers[0])).to eq("1")
+        expect(dossier.index_for_section_header(headers[1])).to eq("1.1")
+        expect(dossier.index_for_section_header(headers[2])).to eq("1.2")
+        expect(dossier.index_for_section_header(headers[3])).to eq("2")
+        expect(dossier.index_for_section_header(headers[4])).to eq("2.1")
+      end
+    end
+
+    context "with three levels of nesting" do
+      let(:types_de_champ) {
+        [
+          { type: :header_section, libelle: "Niveau 1", level: 1 },
+          { type: :header_section, libelle: "Niveau 2 a", level: 2 },
+          { type: :header_section, libelle: "Niveau 3 a", level: 3 },
+          { type: :header_section, libelle: "Niveau 3 b", level: 3 },
+          { type: :header_section, libelle: "Niveau 2 b", level: 2 }
+        ]
+      }
+
+      it "produces 1, 1.1, 1.1.1, 1.1.2, 1.2" do
+        expect(dossier.index_for_section_header(headers[0])).to eq("1")
+        expect(dossier.index_for_section_header(headers[1])).to eq("1.1")
+        expect(dossier.index_for_section_header(headers[2])).to eq("1.1.1")
+        expect(dossier.index_for_section_header(headers[3])).to eq("1.1.2")
+        expect(dossier.index_for_section_header(headers[4])).to eq("1.2")
+      end
+    end
+
+    context "with an invisible sub-section" do
+      let(:types_de_champ) {
+        [
+          { type: :header_section, libelle: "Visible parent", level: 1 },
+          { type: :header_section, libelle: "Invisible enfant", level: 2, condition: ds_eq(champ_value(number_stable_id), constant(5)) },
+          { type: :integer_number, stable_id: number_stable_id },
+          { type: :header_section, libelle: "Visible enfant", level: 2 }
+        ]
+      }
+
+      it "skips invisible sub-headers in the hierarchical numbering" do
+        expect(dossier.index_for_section_header(headers[0])).to eq("1")
+        expect(dossier.project_champ(headers[1])).not_to be_visible
+        expect(dossier.index_for_section_header(headers[2])).to eq("1.1")
       end
     end
   end
