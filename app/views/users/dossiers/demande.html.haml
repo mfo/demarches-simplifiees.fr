@@ -9,9 +9,6 @@
   .fr-container
     .fr-grid-row.fr-grid-row--center
       .fr-col-md-9
-        - if @dossier.en_construction?
-          = render Dossiers::EnConstructionNotSubmittedComponent.new(dossier: @dossier, user: current_user)
-
         = render partial: 'shared/dossiers/demande', locals: { dossier: @dossier, demande_seen_at: nil, profile: 'usager' }
 
         - if !@dossier.read_only?
