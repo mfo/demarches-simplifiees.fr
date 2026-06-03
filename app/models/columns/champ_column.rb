@@ -94,6 +94,8 @@ class Columns::ChampColumn < Column
 
   def champ_column? = true
 
+  def column_id = "type_de_champ/#{stable_id}"
+
   private
 
   def range_for_query(date_range)
@@ -102,8 +104,6 @@ class Columns::ChampColumn < Column
 
     start_date..end_date
   end
-
-  def column_id = "type_de_champ/#{stable_id}"
 
   def string_value(champ) = champ.public_send(column)
 
