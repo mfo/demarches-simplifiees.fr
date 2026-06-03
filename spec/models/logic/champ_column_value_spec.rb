@@ -5,7 +5,7 @@ describe Logic::ChampColumnValue do
 
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no, libelle: 'yes' }]) }
   let(:column) { procedure.find_column(label: 'yes') }
-  let(:column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
+  let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
   describe '#compute' do
     let(:dossier) { create(:dossier, procedure:) }
@@ -13,28 +13,28 @@ describe Logic::ChampColumnValue do
 
     before { champ.update(value: 'true') }
 
-    it { expect(column_value.compute([champ])).to be(true) }
+    it { expect(champ_column_value.compute([champ])).to be(true) }
 
     context 'when the targeted champ is not visible' do
       before { allow(champ).to receive(:visible?).and_return(false) }
 
-      it { expect(column_value.compute([champ])).to be_nil }
+      it { expect(champ_column_value.compute([champ])).to be_nil }
     end
 
     context 'when the targeted champ is blank' do
       before { champ.update(value: nil) }
 
-      it { expect(column_value.compute([champ])).to be_nil }
+      it { expect(champ_column_value.compute([champ])).to be_nil }
     end
 
     context 'when the targeted champ is missing from the list' do
-      it { expect(column_value.compute([])).to be_nil }
+      it { expect(champ_column_value.compute([])).to be_nil }
     end
   end
 
   # stable_id is needed when computing error (Eq.errors)
   describe '#stable_id' do
-    it { expect(column_value.stable_id).to eq(column.stable_id) }
+    it { expect(champ_column_value.stable_id).to eq(column.stable_id) }
   end
 
   # Preserves parity with Logic::ChampValue: a condition on a drop_down_list with
@@ -47,14 +47,14 @@ describe Logic::ChampColumnValue do
       ])
     end
     let(:column) { procedure.find_column(label: 'menu') }
-    let(:column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
+    let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champs.first }
 
     context "when the user picked 'other' without typing a value" do
       before { champ.update!(value: Champs::DropDownListChamp::OTHER) }
 
-      it { expect(column_value.compute([champ])).to eq(Champs::DropDownListChamp::OTHER) }
+      it { expect(champ_column_value.compute([champ])).to eq(Champs::DropDownListChamp::OTHER) }
     end
 
     context "when the user picked 'other' and typed a custom value" do
@@ -63,18 +63,18 @@ describe Logic::ChampColumnValue do
         champ.update!(value_other: 'ma valeur')
       end
 
-      it { expect(column_value.compute([champ])).to eq(Champs::DropDownListChamp::OTHER) }
+      it { expect(champ_column_value.compute([champ])).to eq(Champs::DropDownListChamp::OTHER) }
     end
   end
 
   describe '#sources' do
-    it { expect(column_value.sources).to eq([column.stable_id]) }
+    it { expect(champ_column_value.sources).to eq([column.stable_id]) }
   end
 
   describe '#errors' do
     it do
-      expect(column_value.errors(procedure.active_revision.types_de_champ)).to eq([])
-      expect(column_value.errors([])).to eq([{ type: :not_available }])
+      expect(champ_column_value.errors(procedure.active_revision.types_de_champ)).to eq([])
+      expect(champ_column_value.errors([])).to eq([{ type: :not_available }])
     end
   end
 
@@ -134,7 +134,7 @@ describe Logic::ChampColumnValue do
       let(:drop_down_options) { ['--1--', 'A', '--2--', 'B'] }
       let(:linked_drop_down_stable_id) { procedure.active_revision.types_de_champ.first.stable_id }
       let(:column) { procedure.find_column(label: 'linked (Secondaire)') }
-      let(:column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
+      let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
       before do
         procedure.draft_revision
@@ -142,27 +142,27 @@ describe Logic::ChampColumnValue do
       end
 
       it 'are based on the tdc given as arg' do
-        expect(column_value.options(draft_tdcs).map(&:first)).to eq(['A', 'C'])
+        expect(champ_column_value.options(draft_tdcs).map(&:first)).to eq(['A', 'C'])
       end
     end
   end
 
   describe '#to_s' do
-    it { expect(column_value.to_s(procedure.active_revision.types_de_champ)).to eq(column.label) }
+    it { expect(champ_column_value.to_s(procedure.active_revision.types_de_champ)).to eq(column.label) }
   end
 
   describe 'serialization round-trip' do
     it 'rebuilds an equal ChampColumnValue from to_h' do
-      rebuilt = Logic::ChampColumnValue.from_h(column_value.to_h)
+      rebuilt = Logic::ChampColumnValue.from_h(champ_column_value.to_h)
 
-      expect(rebuilt).to eq(column_value)
-      expect(rebuilt.sources).to eq(column_value.sources)
+      expect(rebuilt).to eq(champ_column_value)
+      expect(rebuilt.sources).to eq(champ_column_value.sources)
     end
 
     it 'rebuilds an equal ChampColumnValue from to_json (Logic.from_json)' do
-      rebuilt = Logic.from_json(column_value.to_json)
+      rebuilt = Logic.from_json(champ_column_value.to_json)
 
-      expect(rebuilt).to eq(column_value)
+      expect(rebuilt).to eq(champ_column_value)
     end
   end
 
@@ -178,14 +178,14 @@ describe Logic::ChampColumnValue do
       column = procedure.find_column(label: 'yes')
       other = Logic::ChampColumnValue.new(column.stable_id, column.column_id)
 
-      expect(column_value).to eq(other)
+      expect(champ_column_value).to eq(other)
     end
 
     it 'is not equal to a ChampColumnValue pointing to another column' do
       column = procedure.find_column(label: 'n')
       other = Logic::ChampColumnValue.new(column.stable_id, column.column_id)
 
-      expect(column_value).not_to eq(other)
+      expect(champ_column_value).not_to eq(other)
     end
   end
 

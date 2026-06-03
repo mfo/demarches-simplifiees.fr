@@ -990,8 +990,8 @@ describe ProcedureRevision do
       it { is_expected.to be(true) }
     end
 
-    context 'when a tdc condition uses only a column_value' do
-      before { value_tdc.update!(condition: ds_eq(column_value(gate_column), constant(true))) }
+    context 'when a tdc condition uses only a champ_column_value' do
+      before { value_tdc.update!(condition: ds_eq(champ_column_value(gate_column), constant(true))) }
 
       it { is_expected.to be(false) }
     end
@@ -999,7 +999,7 @@ describe ProcedureRevision do
     context 'when a champ_value is nested deep inside an And' do
       before do
         value_tdc.update!(condition: ds_and([
-          ds_eq(column_value(gate_column), constant(true)),
+          ds_eq(champ_column_value(gate_column), constant(true)),
           ds_eq(champ_value(gate_tdc.stable_id), constant(true)),
         ]))
       end
@@ -1013,8 +1013,8 @@ describe ProcedureRevision do
       it { is_expected.to be(true) }
     end
 
-    context 'when ineligibilite_rules use only a column_value' do
-      before { draft.update!(ineligibilite_rules: ds_eq(column_value(gate_column), constant(true))) }
+    context 'when ineligibilite_rules use only a champ_column_value' do
+      before { draft.update!(ineligibilite_rules: ds_eq(champ_column_value(gate_column), constant(true))) }
 
       it { is_expected.to be(false) }
     end

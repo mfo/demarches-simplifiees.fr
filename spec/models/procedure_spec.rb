@@ -2059,7 +2059,7 @@ describe Procedure do
     context 'when a champ_value is nested deep inside ineligibilite_rules' do
       before do
         revision.update!(ineligibilite_rules: ds_and([
-          ds_eq(column_value(gate_column), constant(true)),
+          ds_eq(champ_column_value(gate_column), constant(true)),
           ds_eq(champ_value(gate_tdc.stable_id), constant(true)),
         ]))
       end
@@ -2069,9 +2069,9 @@ describe Procedure do
 
     context 'when only column_values are used everywhere' do
       before do
-        value_tdc.update!(condition: ds_eq(column_value(gate_column), constant(true)))
-        revision.update!(ineligibilite_rules: ds_eq(column_value(gate_column), constant(true)))
-        create(:groupe_instructeur, procedure:, routing_rule: ds_eq(column_value(gate_column), constant(true)))
+        value_tdc.update!(condition: ds_eq(champ_column_value(gate_column), constant(true)))
+        revision.update!(ineligibilite_rules: ds_eq(champ_column_value(gate_column), constant(true)))
+        create(:groupe_instructeur, procedure:, routing_rule: ds_eq(champ_column_value(gate_column), constant(true)))
       end
 
       it { is_expected.to be(false) }

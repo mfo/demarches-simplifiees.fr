@@ -96,17 +96,17 @@ class Conditions::ConditionsComponent < ApplicationComponent
     end
   end
 
-  def to_sources(tdcs) = column_mode? ? to_column_values(tdcs) : to_champ_values(tdcs)
+  def to_sources(tdcs) = column_mode? ? to_champ_column_values(tdcs) : to_champ_values(tdcs)
 
   SUPPORTED_TYPES = [:integer, :decimal, :enum, :enums, :boolean].freeze
 
-  def to_column_values(tdcs)
+  def to_champ_column_values(tdcs)
     tdcs
       .reject(&:repetition?)
       .flat_map { it.columns(procedure_id: @procedure.id) }
       .filter(&:filterable)
       .filter { it.type.in?(SUPPORTED_TYPES) }
-      .map { |column| [column.label, column_value(column)] }
+      .map { |column| [column.label, champ_column_value(column)] }
   end
 
   def to_champ_values(tdcs)

@@ -62,7 +62,7 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
 
     context 'other true and referentiel off' do
       let(:types_de_champ_public) { [{ type: :drop_down_list, drop_down_options: ['1', '2'], drop_down_other: true }] }
-      let(:column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
+      let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
       it 'exposes other as a choice in the enum' do
         option_labels = column.options_for_select.map(&:first)
@@ -80,7 +80,7 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
 
           expect(champ.value).to eq('something')
           expect(column.value(champ)).to eq('something')
-          expect(column_value.compute([champ])).to eq('__other__')
+          expect(champ_column_value.compute([champ])).to eq('__other__')
         end
       end
     end

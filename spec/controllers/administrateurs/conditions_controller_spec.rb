@@ -152,7 +152,7 @@ describe Administrateurs::ConditionsController, type: :controller do
               condition_form: {
                 rows: [
                   {
-                    targeted_champ: column_value(int_column).to_json,
+                    targeted_champ: champ_column_value(int_column).to_json,
                                     operator_name: Logic::EmptyOperator.name,
                                     value: empty.to_json,
                   },
