@@ -45,6 +45,9 @@ jobs:
       - name: Setup bun and node modules
         uses: ./.github/actions/ci-setup-bun-node
 
+      - name: Setup playwright
+        run: bun playwright install --with-deps
+
       - name: Run tests
         run: bun run test
 
