@@ -41,25 +41,19 @@ class OCRService
   end
 
   def self.extract_2ddoc(body)
-    barcode = body
+    doc_type, raw_issue_date, raw_data = body
       .dig(:data, :result, :barcodes)
       &.find { it[:type] == '2D_DOC' && it[:is_valid] } # take the first valid 2ddoc
+      &.fetch_values(:doc_type, :issue_date, :raw_data)
 
-    return nil if barcode.nil?
+    return nil if raw_data.nil? || !justif_domicile?(doc_type)
 
-    ddoc = barcode[:raw_data]
-    return nil if ddoc.nil? || !justif_domicile?(ddoc)
-
-    fields = ddoc[:fields]
     # format : '2026-01-02'
-    issue_date = barcode[:issue_date]&.then { Date.strptime(it, '%Y-%m-%d') }
+    issue_date = raw_issue_date&.then { Date.strptime(it, '%Y-%m-%d') }
+    beneficiary = raw_data[:"10"]&.tr('/', ' ')
 
     attr = {
-      beneficiary: fields[:"10"]&.tr('/', ' '),
-      address: fields[:"22"],
-      postal_code: fields[:"24"],
-      locality: fields[:"25"],
-      country: fields[:"26"],
+      beneficiary:,
       issue_date:,
       two_ddoc: true,
     }
@@ -68,7 +62,7 @@ class OCRService
     JustificatifDomicile.new(attr).attributes
   end
 
-  def self.justif_domicile?(ddoc) = ddoc[:doc_type].in?(['00', '01', '02'])
+  def self.justif_domicile?(doc_type) = doc_type.in?(['00', '01', '02'])
 
   def self.ocr_url = ENV.fetch("OCR_SERVICE_URL", nil)
   def self.document_ia_url = ENV.fetch("DOCUMENT_IA_URL", nil)
