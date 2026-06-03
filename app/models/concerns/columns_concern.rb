@@ -18,9 +18,7 @@ module ColumnsConcern
         .gsub('departement_code', 'department_code')
         .gsub('naf', 'code_naf')
 
-      h_id[:column_id] = new_column_id
-
-      column = columns.find { _1.h_id == h_id }
+      column = columns.find { _1.h_id == h_id.merge(column_id: new_column_id) }
     end
 
     raise ActiveRecord::RecordNotFound.new("Column: unable to find h_id: #{h_id} or label: #{label} for procedure_id #{id}") if column.nil?

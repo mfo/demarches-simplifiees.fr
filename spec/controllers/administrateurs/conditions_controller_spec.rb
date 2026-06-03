@@ -130,6 +130,47 @@ describe Administrateurs::ConditionsController, type: :controller do
         expect(assigns(:upper_tdcs)).to eq([first_tdc, second_tdc])
       end
     end
+
+    describe '#change_targeted_champ on a draft-only referentiel column' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: []) }
+      let(:draft) { procedure.draft_revision }
+
+      let!(:dropdown_tdc) { draft.add_type_de_champ(type_champ: 'integer_number') }
+      let!(:text_tdc) { draft.add_type_de_champ(type_champ: 'text', after_stable_id: dropdown_tdc.stable_id) }
+
+      let(:int_column) { dropdown_tdc.columns(procedure_id: procedure.id).first }
+
+      before do
+        Flipper.enable(:column_conditions)
+        sign_in(procedure.administrateurs.first.user)
+        patch :change_targeted_champ,
+          params: {
+            procedure_id: procedure.id,
+            stable_id: text_tdc.stable_id,
+            row_index: 0,
+            type_de_champ: {
+              condition_form: {
+                rows: [
+                  {
+                    targeted_champ: champ_column_value(int_column).to_json,
+                                    operator_name: Logic::EmptyOperator.name,
+                                    value: empty.to_json,
+                  },
+                ],
+              },
+            },
+          },
+          format: :turbo_stream
+      end
+
+      it 'binds the column from the draft revision so the rendered component sees a typed left operand' do
+        draft_tdcs = procedure.draft_revision.types_de_champ
+        condition = assigns(:tdc).condition
+        expect(condition).to be_a(Logic::Eq)
+        expect(condition.left).to be_a(Logic::ChampColumnValue)
+        expect(condition.left.type(draft_tdcs)).to eq(:number)
+      end
+    end
   end
 
   context 'with a repetiton bloc' do

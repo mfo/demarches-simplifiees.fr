@@ -36,6 +36,8 @@ class Columns::JSONPathColumn < Columns::ChampColumn
     end
   end
 
+  def column_id = "type_de_champ/#{stable_id}-#{jsonpath}"
+
   private
 
   def filtered_ids_for_date_range(dossiers, range)
@@ -88,8 +90,6 @@ class Columns::JSONPathColumn < Columns::ChampColumn
     @jsonpath_for_sql ||= jsonpath.split('.').map { _1.match?(/\A\d/) ? "\"#{_1}\"" : _1 }.join('.')
   end
 
-  def column_id = "type_de_champ/#{stable_id}-#{jsonpath}"
-
   def typed_value(champ)
     JsonPath.on(champ.value_json, jsonpath).first
   end
@@ -97,8 +97,6 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   def quote_string(string) = ActiveRecord::Base.connection.quote_string(string)
 
   def sanitize_sql(sql) = ActiveRecord::Base.sanitize_sql(sql)
-
-  private
 
   def targeted_dossiers(dossiers, condition)
     dossiers.with_type_de_champ(stable_id).where(condition)
