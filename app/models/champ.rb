@@ -141,6 +141,10 @@ class Champ < ApplicationRecord
     type_de_champ.mandatory_blank?(self)
   end
 
+  def libelle_for_error
+    libelle
+  end
+
   def blank?
     # FIXME: temporary fix to avoid breaking validation
     in_dossier_revision? ? type_de_champ.champ_blank?(self) : value.blank?

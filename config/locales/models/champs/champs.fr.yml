@@ -8,3 +8,6 @@ fr:
               format: '%{message}'
               missing: doit être rempli
               invalid_regexp: '%{expression_reguliere_error_message}'
+            secondary_value:
+              format: '%{message}'
+              missing: doit être rempli

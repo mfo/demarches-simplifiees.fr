@@ -19,7 +19,7 @@ module DossierValidateConcern
 
   def check_mandatory_and_visible_champs_for(collection)
     collection.filter(&:visible?).each do |champ|
-      if champ.mandatory_blank? && !champ.address?
+      if champ.mandatory_blank? && !champ.respond_to?(:validate_completed)
         error = champ.errors.add(:value, :missing)
         errors.import(error)
       end
@@ -27,7 +27,7 @@ module DossierValidateConcern
       if champ.repetition?
         champ.rows.each do |champs|
           champs.filter(&:visible?).each do |champ|
-            if champ.address?
+            if champ.respond_to?(:validate_completed)
               champ.validate_completed
               champ.errors.each { errors.import(it) }
             elsif champ.mandatory_blank?
@@ -36,7 +36,7 @@ module DossierValidateConcern
             end
           end
         end
-      elsif champ.address?
+      elsif champ.respond_to?(:validate_completed)
         champ.validate_completed
         champ.errors.each { errors.import(it) }
       end

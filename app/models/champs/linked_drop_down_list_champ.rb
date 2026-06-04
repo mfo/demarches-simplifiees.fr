@@ -45,6 +45,27 @@ class Champs::LinkedDropDownListChamp < Champ
     primary_value.present? && secondary_options[primary_value]&.any?(&:present?)
   end
 
+  def libelle_for_error
+    if primary_value.blank?
+      libelle
+    else
+      drop_down_secondary_libelle.presence || I18n.t('shared.champs.linked_drop_down_list.secondary_default_libelle')
+    end
+  end
+
+  # Validate each sub-input independently so the error targets the right select,
+  # like AddressChamp does for its sub-fields. The primary is the main value
+  # (anchored on :value); only the secondary needs its own attribute.
+  def validate_completed
+    return if !mandatory?
+
+    if primary_value.blank?
+      errors.add(:value, :missing)
+    elsif has_secondary_options_for_primary? && secondary_value.blank?
+      errors.add(:secondary_value, :missing)
+    end
+  end
+
   private
 
   def pack_value(primary, secondary)
