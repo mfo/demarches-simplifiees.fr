@@ -25,7 +25,7 @@ class OCRService
 
     API::Client.new.call(url: ocr_url, method: :post, headers:, json:, timeout: 31)
       .fmap { |ok| { value_json: ok.body } } # store directly in value_json without transformation
-      .or { to_retryable_failure(it) }
+      .or { to_not_retryable_failure(it) }
   end
 
   def self.analyze_2ddoc(blob_url)
@@ -37,7 +37,7 @@ class OCRService
 
     API::Client.new.call(url:, headers:, method: :post, body:)
       .fmap { |ok| { data: ok.body, value_json: extract_2ddoc(ok.body) } }
-      .or { to_retryable_failure(it) }
+      .or { to_not_retryable_failure(it) }
   end
 
   def self.extract_2ddoc(body)
@@ -77,7 +77,7 @@ class OCRService
     Failure(retryable: false, error: StandardError.new("#{message} not configured"))
   end
 
-  def self.to_retryable_failure(data)
+  def self.to_not_retryable_failure(data)
     case data
     in code:, error:
       Failure(retryable: false, error:, code:)
