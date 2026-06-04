@@ -6,7 +6,7 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
   let_it_be(:types_de_champ_public) { [{ type: :piece_justificative }] }
   let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public:) }
   let_it_be(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.reload.first }
+  let(:champ) { dossier.champ_data.reload.first }
   let(:attached_file) { champ.piece_justificative_file }
   let(:context_kwargs) { {} }
   let(:kwargs) { {} }

@@ -9,7 +9,7 @@ module Maintenance
       let(:procedure) { create(:procedure, types_de_champ_public:) }
       let(:types_de_champ_public) { [{ type: :carte }] }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       context "with a valid geo_area (point)" do
         let!(:geo_area) { create(:geo_area, :point, champ:) }

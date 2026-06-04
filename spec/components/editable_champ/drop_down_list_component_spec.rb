@@ -7,7 +7,7 @@ describe EditableChamp::DropDownListComponent, type: :component do
   let(:types_de_champ_public) { [{ type: :drop_down_list }] }
   let(:dossier) { create(:dossier, procedure:) }
   let(:tdc) { procedure.active_revision.types_de_champ.first }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
 
   subject(:render) do
     component = nil

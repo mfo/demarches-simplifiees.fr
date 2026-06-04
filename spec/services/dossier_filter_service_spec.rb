@@ -489,8 +489,8 @@ describe DossierFilterService do
 
       context 'with single value' do
         before do
-          kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'keep me')
-          discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'discard me')
+          kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'keep me')
+          discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'discard me')
         end
 
         it { is_expected.to contain_exactly(kept_dossier.id) }
@@ -501,9 +501,9 @@ describe DossierFilterService do
         let(:other_kept_dossier) { create(:dossier, procedure:) }
 
         before do
-          kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'keep me')
-          discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'discard me')
-          other_kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'and me too')
+          kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'keep me')
+          discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'discard me')
+          other_kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'and me too')
         end
 
         it 'returns every dossier that matches any of the search criteria for a given column' do
@@ -516,8 +516,8 @@ describe DossierFilterService do
         let(:types_de_champ_public) { [{ type: :yes_no }] }
 
         before do
-          kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'true')
-          discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'false')
+          kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'true')
+          discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'false')
         end
 
         it { is_expected.to contain_exactly(kept_dossier.id) }
@@ -528,8 +528,8 @@ describe DossierFilterService do
         let(:types_de_champ_public) { [{ type: :departements }] }
 
         before do
-          kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(external_id: '13')
-          discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(external_id: '69')
+          kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(external_id: '13')
+          discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(external_id: '69')
         end
 
         it { is_expected.to contain_exactly(kept_dossier.id) }
@@ -540,8 +540,8 @@ describe DossierFilterService do
         let(:types_de_champ_public) { [{ type: :drop_down_list, options: ['Favorable', 'Defavorable'] }] }
 
         before do
-          kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(value: 'Favorable')
-          discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id).update(external_id: 'Defavorable')
+          kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'Favorable')
+          discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(external_id: 'Defavorable')
         end
 
         it { is_expected.to contain_exactly(kept_dossier.id) }
@@ -565,24 +565,24 @@ describe DossierFilterService do
         let(:another_discarded_dossier) { create(:dossier, procedure:) }
 
         before do
-          kept_champ_resto = kept_dossier.champs.find_by(stable_id: type_de_champ_resto.stable_id)
+          kept_champ_resto = kept_dossier.champ_data.find_by(stable_id: type_de_champ_resto.stable_id)
           kept_champ_resto.value = 'pizzeria'
           kept_champ_resto.save!
 
-          kept_champ_a_emporter = kept_dossier.champs.find_by(stable_id: type_de_champ_a_emporter.stable_id)
+          kept_champ_a_emporter = kept_dossier.champ_data.find_by(stable_id: type_de_champ_a_emporter.stable_id)
           kept_champ_a_emporter.value = 'true'
           kept_champ_a_emporter.save!
 
-          discarded_champ_resto = discarded_dossier.champs.find_by(stable_id: type_de_champ_resto.stable_id)
+          discarded_champ_resto = discarded_dossier.champ_data.find_by(stable_id: type_de_champ_resto.stable_id)
           discarded_champ_resto.value = 'pizzeria'
-          discarded_champ_a_emporter = discarded_dossier.champs.find_by(stable_id: type_de_champ_a_emporter.stable_id)
+          discarded_champ_a_emporter = discarded_dossier.champ_data.find_by(stable_id: type_de_champ_a_emporter.stable_id)
           discarded_champ_a_emporter.value = 'false'
           discarded_champ_resto.save!
           discarded_champ_a_emporter.save!
 
-          another_discarded_champ_resto = another_discarded_dossier.champs.find_by(stable_id: type_de_champ_resto.stable_id)
+          another_discarded_champ_resto = another_discarded_dossier.champ_data.find_by(stable_id: type_de_champ_resto.stable_id)
           another_discarded_champ_resto.value = 'fast-food'
-          another_discarded_champ_a_emporter = another_discarded_dossier.champs.find_by(stable_id: type_de_champ_a_emporter.stable_id)
+          another_discarded_champ_a_emporter = another_discarded_dossier.champ_data.find_by(stable_id: type_de_champ_a_emporter.stable_id)
           another_discarded_champ_a_emporter.value = 'true'
           another_discarded_champ_resto.save!
           another_discarded_champ_a_emporter.save!
@@ -596,11 +596,11 @@ describe DossierFilterService do
         let(:types_de_champ_public) { [{ type: :multiple_drop_down_list, options: ['champ', 'champignon'] }] }
 
         before do
-          kept_champ = kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id)
+          kept_champ = kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
           kept_champ.value = ['champ', 'champignon']
           kept_champ.save!
 
-          discarded_champ = discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id)
+          discarded_champ = discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
           discarded_champ.value = ['champignon']
           discarded_champ.save!
         end
@@ -645,9 +645,9 @@ describe DossierFilterService do
         let(:discarded_dossier) { create(:dossier, procedure:) }
 
         before do
-          kept_dossier.champs.first.update!(value: 'Fromage')
-          kept_dossier_2.champs.first.update!(value: 'Dessert')
-          discarded_dossier.champs.first.update!(value: 'Chocolat')
+          kept_dossier.champ_data.first.update!(value: 'Fromage')
+          kept_dossier_2.champ_data.first.update!(value: 'Dessert')
+          discarded_dossier.champ_data.first.update!(value: 'Chocolat')
         end
 
         it { is_expected.to contain_exactly(kept_dossier.id, kept_dossier_2.id) }
@@ -662,8 +662,8 @@ describe DossierFilterService do
       let(:type_de_champ_private) { procedure.active_revision.types_de_champ_private.first }
 
       before do
-        kept_dossier.champs.find_by(stable_id: type_de_champ_private.stable_id).update(value: 'keep me')
-        discarded_dossier.champs.find_by(stable_id: type_de_champ_private.stable_id).update(value: 'discard me')
+        kept_dossier.champ_data.find_by(stable_id: type_de_champ_private.stable_id).update(value: 'keep me')
+        discarded_dossier.champ_data.find_by(stable_id: type_de_champ_private.stable_id).update(value: 'discard me')
       end
 
       it { is_expected.to contain_exactly(kept_dossier.id) }
@@ -919,8 +919,8 @@ describe DossierFilterService do
         let(:discarded_dossier) { create(:dossier, procedure:) }
 
         before do
-          kept_dossier.champs.first.update!(value: 'true')
-          discarded_dossier.champs.first.update!(value: 'false')
+          kept_dossier.champ_data.first.update!(value: 'true')
+          discarded_dossier.champ_data.first.update!(value: 'false')
         end
 
         it { is_expected.to contain_exactly(kept_dossier.id) }

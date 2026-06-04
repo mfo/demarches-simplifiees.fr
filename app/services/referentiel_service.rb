@@ -112,7 +112,7 @@ class ReferentielService
       values_source[tag_id]
     else
       stable_id = tag_id.delete_prefix("tdc").to_i
-      champ = values_source.champs.find { _1.stable_id == stable_id }
+      champ = values_source.filled_champs.find { _1.stable_id == stable_id }
       champ&.value
     end
   end

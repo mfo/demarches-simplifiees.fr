@@ -12,7 +12,7 @@ describe 'Inviting an expert:', js: true do
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }, { type: :dossier_link }], types_de_champ_private:, instructeurs: [instructeur]) }
     let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, :with_populated_annotations, procedure:) }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
     let(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure, confidentiel: true) }
     let(:avis_with_question) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure, confidentiel: true, question_label: 'Question ?') }
     let(:dossier_accepte) { create(:dossier, :accepte, procedure:) }

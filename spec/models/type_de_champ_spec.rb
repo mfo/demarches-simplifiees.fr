@@ -666,7 +666,7 @@ describe TypeDeChamp do
     let(:champ_value) { 'hello' }
     let(:champ_type) { TypeDeChamp.type_champ_to_champ_class_name(last_write_type_champ.to_s) }
     let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     subject { champ.update_columns(type: champ_type, value: champ_value); type_de_champ.champ_value(champ) }
 

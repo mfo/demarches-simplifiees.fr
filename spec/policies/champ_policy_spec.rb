@@ -18,8 +18,8 @@ describe ChampPolicy do
       populate_annotations: true)
   end
   let(:state) { :en_construction }
-  let(:champ) { Champ.find(dossier.champs.find { |c| !c.private? }.id) }
-  let(:annotation) { Champ.find(dossier.champs.find(&:private?).id) }
+  let(:champ) { Champ.find(dossier.champ_data.find { |c| !c.private? }.id) }
+  let(:annotation) { Champ.find(dossier.champ_data.find(&:private?).id) }
 
   describe '#initialize' do
     let(:state) { :brouillon }

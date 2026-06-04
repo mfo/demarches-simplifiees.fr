@@ -6,7 +6,7 @@ describe 'shared/dossiers/normalized_address', type: :view do
   context 'given an champ' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-    let(:address) { AddressProxy.new(dossier.champs.first) }
+    let(:address) { AddressProxy.new(dossier.champ_data.first) }
 
     it 'render address' do
       expect(subject).to have_text("6 RUE RAOUL NORDLING")

@@ -10,9 +10,9 @@ module Maintenance
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rna }, { type: :rna }, { type: :rna }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
-      let!(:legacy_champ) { dossier.champs[0].tap { it.update_columns(value: 'W173847273', external_id: nil) } }
-      let!(:already_migrated_champ) { dossier.champs[1].tap { it.update_columns(value: 'W173847273', external_id: 'W999999999') } }
-      let!(:blank_champ) { dossier.champs[2].tap { it.update_columns(value: nil, external_id: nil) } }
+      let!(:legacy_champ) { dossier.champ_data[0].tap { it.update_columns(value: 'W173847273', external_id: nil) } }
+      let!(:already_migrated_champ) { dossier.champ_data[1].tap { it.update_columns(value: 'W173847273', external_id: 'W999999999') } }
+      let!(:blank_champ) { dossier.champ_data[2].tap { it.update_columns(value: nil, external_id: nil) } }
 
       it "recopie value dans external_id pour les anciens champs" do
         expect { process }.to change { legacy_champ.reload.external_id }.from(nil).to('W173847273')

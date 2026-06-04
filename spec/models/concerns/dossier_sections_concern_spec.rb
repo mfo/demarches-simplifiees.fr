@@ -73,7 +73,7 @@ describe DossierSectionsConcern do
     let(:number_value) { nil }
 
     before do
-      dossier.champs.find { _1.stable_id == number_stable_id }&.update(value: number_value)
+      dossier.champ_data.find { _1.stable_id == number_stable_id }&.update(value: number_value)
       dossier.reload
     end
 

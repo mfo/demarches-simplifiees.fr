@@ -13,7 +13,7 @@ module Maintenance
         procedure = create(:procedure, types_de_champ_public: [{ type: :siret }])
         dossier = create(:dossier, procedure:)
         etablissement = create(:etablissement, dossier: nil)
-        dossier.champs.first.update!(etablissement:)
+        dossier.champ_data.first.update!(etablissement:)
         etablissement
       end
 

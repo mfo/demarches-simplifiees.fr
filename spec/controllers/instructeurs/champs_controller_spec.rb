@@ -6,7 +6,7 @@ describe Instructeurs::ChampsController, type: :controller do
   let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib' }] }
   let(:procedure) { create(:procedure, instructeurs:, types_de_champ_public:) }
   let(:dossier) { create(:dossier, :en_construction, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
 
   before { sign_in(instructeur.user) }
 
@@ -63,7 +63,7 @@ describe Instructeurs::ChampsController, type: :controller do
         ]
       end
 
-      let(:address_champ) { dossier.champs.find { _1.type_champ == TypeDeChamp.type_champs.fetch(:address) } }
+      let(:address_champ) { dossier.champ_data.find { _1.type_champ == TypeDeChamp.type_champs.fetch(:address) } }
       let(:original_address) { { 'label' => '12 rue du Test, 75000 Paris', 'postal_code' => '75000', 'city_name' => 'Paris' } }
 
       before { address_champ.update!(value: original_address['label'], value_json: original_address) }

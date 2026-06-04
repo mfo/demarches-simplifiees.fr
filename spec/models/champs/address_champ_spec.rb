@@ -4,7 +4,7 @@ describe Champs::AddressChamp do
   let(:types_de_champ_public) { [{ type: :address }] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first.tap { _1.update(value:, value_json:) } }
+  let(:champ) { dossier.champ_data.first.tap { _1.update(value:, value_json:) } }
   let(:value) { nil }
   let(:value_json) { nil }
 

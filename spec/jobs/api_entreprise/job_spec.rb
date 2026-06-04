@@ -17,7 +17,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
       let(:dossier) { create(:dossier, procedure:) }
 
       it "re-raises so sidekiq can retry" do
-        champ = dossier.champs.first
+        champ = dossier.champ_data.first
         champ.update!(value: '12345678901234')
 
         etablissement = create(:etablissement, champ:)

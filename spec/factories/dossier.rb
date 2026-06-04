@@ -310,7 +310,7 @@ def dossier_factory_create_champ_or_repetition(type_de_champ, dossier)
     types_de_champ = dossier.revision.children_of(type_de_champ)
     2.times do
       row_id = ULID.generate
-      dossier.champs << type_de_champ.build_champ(row_id:)
+      dossier.champ_data << type_de_champ.build_champ(row_id:)
       types_de_champ.each do |type_de_champ|
         dossier_factory_create_champ(type_de_champ, dossier, row_id:)
       end
@@ -329,5 +329,5 @@ def dossier_factory_create_champ(type_de_champ, dossier, row_id: nil)
     type_de_champ.drop_down_options.first(2).to_json
   end
   attrs = { stable_id: type_de_champ.stable_id, private: type_de_champ.private?, row_id:, value: }.compact
-  dossier.champs << build(:"champ_do_not_use_#{type_de_champ.type_champ}", **attrs)
+  dossier.champ_data << build(:"champ_do_not_use_#{type_de_champ.type_champ}", **attrs)
 end

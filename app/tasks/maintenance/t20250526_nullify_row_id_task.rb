@@ -16,7 +16,7 @@ module Maintenance
     end
 
     def process(dossier)
-      with_nil_row_id, with_null_row_id = dossier.champs
+      with_nil_row_id, with_null_row_id = dossier.champ_data
         .where(row_id: [nil, Champ::NULL_ROW_ID])
         .pluck(:row_id, :stream, :stable_id, :id, :updated_at)
         .partition { _1.first == nil }
@@ -26,13 +26,13 @@ module Maintenance
         if with_nil_row_id[[stream, stable_id]].present?
           with_nil_updated_at, with_nil_id = with_nil_row_id[[stream, stable_id]].reverse
           if with_nil_updated_at > updated_at
-            dossier.champs.where(id: id).destroy_all
+            dossier.champ_data.where(id: id).destroy_all
           else
-            dossier.champs.where(id: with_nil_id).destroy_all
-            dossier.champs.where(id:).update_all(row_id: nil)
+            dossier.champ_data.where(id: with_nil_id).destroy_all
+            dossier.champ_data.where(id:).update_all(row_id: nil)
           end
         else
-          dossier.champs.where(id:).update_all(row_id: nil)
+          dossier.champ_data.where(id:).update_all(row_id: nil)
         end
       end
     end

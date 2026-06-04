@@ -4,7 +4,7 @@ describe TypesDeChamp::PreRempliTypeDeChamp do
   let(:types_de_champ_public) { [{ type: :pre_rempli }] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
   let(:type_de_champ) { champ.type_de_champ }
 
   describe '#tags_for_template' do

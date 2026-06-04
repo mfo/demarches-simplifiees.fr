@@ -25,7 +25,7 @@ module Maintenance
         end
         let(:type_de_champ) { procedure.active_revision.types_de_champ_public.first }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-        let(:champ) { dossier.champs.first }
+        let(:champ) { dossier.champ_data.first }
 
         before do
           type_de_champ.update_column(:options, type_de_champ.options.merge(drop_down_options: ["  Foo   Bar  ", "Baz"]))
@@ -57,7 +57,7 @@ module Maintenance
         end
         let(:type_de_champ) { procedure.active_revision.types_de_champ_public.first }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-        let!(:champ) { dossier.champs.first }
+        let!(:champ) { dossier.champ_data.first }
 
         before do
           champ.update_columns(value: "  Foo   Bar  ")

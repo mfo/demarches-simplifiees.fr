@@ -774,7 +774,7 @@ describe Dossier, type: :model do
           procedure.defaut_groupe_instructeur = gi
           procedure.save!
           procedure.toggle_routing
-          dossier.champs.first.value = gi_libelle
+          dossier.champ_data.first.value = gi_libelle
           dossier.save!
           dossier.passer_en_construction!
           dossier.reload
@@ -2018,7 +2018,7 @@ describe Dossier, type: :model do
       let(:dossier_ok) { create(:dossier, :en_instruction, :with_populated_champs, procedure:) }
 
       before do
-        dossier_incomplete.champs.first.update(etablissement: Etablissement.new(siret: build(:etablissement).siret))
+        dossier_incomplete.champ_data.first.update(etablissement: Etablissement.new(siret: build(:etablissement).siret))
       end
 
       it "can't accepter" do
@@ -2058,7 +2058,7 @@ describe Dossier, type: :model do
 
     context "with mandatory champs" do
       let(:type_de_champ) { { mandatory: true } }
-      let(:champ_with_error) { dossier.champs.first }
+      let(:champ_with_error) { dossier.champ_data.first }
 
       before do
         champ_with_error.value = nil
@@ -2082,7 +2082,7 @@ describe Dossier, type: :model do
 
     context "with mandatory SIRET champ" do
       let(:type_de_champ) { { type: :siret, mandatory: true } }
-      let(:champ_siret) { dossier.champs.first }
+      let(:champ_siret) { dossier.champ_data.first }
 
       before do
         champ_siret.update(value: '44011762001530')
@@ -2112,10 +2112,10 @@ describe Dossier, type: :model do
 
       context "when no champs" do
         it 'should have errors' do
-          dossier.champs.first.row_ids.each do |row_id|
+          dossier.champ_data.first.row_ids.each do |row_id|
             dossier.repetition_remove_row(type_de_champ_repetition, row_id, updated_by: 'test')
           end
-          expect(dossier.champs.first.rows).to be_empty
+          expect(dossier.champ_data.first.rows).to be_empty
           expect(errors).not_to be_empty
           expect(errors.first.full_message).to eq("Le champ « Value » doit être rempli")
         end
@@ -2123,7 +2123,7 @@ describe Dossier, type: :model do
 
       context "when mandatory champ inside repetition" do
         it 'should have errors' do
-          expect(dossier.champs.first.rows).not_to be_empty
+          expect(dossier.champ_data.first.rows).not_to be_empty
           expect(errors).not_to be_empty
           expect(errors.first.full_message).to eq("Le champ « Value » doit être rempli")
         end
@@ -2133,13 +2133,13 @@ describe Dossier, type: :model do
           let(:type_de_champ) { { type: :repetition, mandatory: true, children: [{ mandatory: true }], condition: ds_eq(champ_value(99), constant(true)) } }
 
           it 'should not have errors' do
-            expect(dossier.champs.second.rows).not_to be_empty
+            expect(dossier.champ_data.second.rows).not_to be_empty
             expect(errors).to be_empty
           end
 
           it 'should have errors' do
-            dossier.champs.first.update(value: 'true')
-            expect(dossier.champs.second.rows).not_to be_empty
+            dossier.champ_data.first.update(value: 'true')
+            expect(dossier.champ_data.second.rows).not_to be_empty
             expect(errors).not_to be_empty
             expect(errors.first.full_message).to eq("Le champ « Value » doit être rempli")
           end
@@ -2503,7 +2503,7 @@ describe Dossier, type: :model do
   describe "to_feature_collection" do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-    let(:champ_carte) { dossier.champs.first }
+    let(:champ_carte) { dossier.champ_data.first }
     let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon) }
 
     before do
@@ -2975,7 +2975,7 @@ describe Dossier, type: :model do
   describe '#update_champs_timestamps' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
-    let(:changed_champs) { dossier.champs.filter(&:text?) }
+    let(:changed_champs) { dossier.champ_data.filter(&:text?) }
 
     subject { -> { dossier.update_champs_timestamps(changed_champs, Champ::USER_BUFFER_STREAM) } }
 
@@ -2985,7 +2985,7 @@ describe Dossier, type: :model do
     end
 
     context 'when there is piece justificative' do
-      let(:changed_champs) { dossier.champs.filter(&:piece_justificative?) }
+      let(:changed_champs) { dossier.champ_data.filter(&:piece_justificative?) }
 
       it do
         is_expected.to change(dossier, :last_champ_updated_at)
@@ -2994,7 +2994,7 @@ describe Dossier, type: :model do
     end
 
     context 'when there is titre identite' do
-      let(:changed_champs) { dossier.champs.filter(&:titre_identite?) }
+      let(:changed_champs) { dossier.champ_data.filter(&:titre_identite?) }
 
       it do
         is_expected.to change(dossier, :last_champ_updated_at)

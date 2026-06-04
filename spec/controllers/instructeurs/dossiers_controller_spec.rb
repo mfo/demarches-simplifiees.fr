@@ -1153,7 +1153,7 @@ describe Instructeurs::DossiersController, type: :controller do
           context 'and the expert can access the linked dossiers' do
             let(:saved_avis) { Avis.last(2).first }
             let(:linked_avis) { Avis.last }
-            let(:linked_dossier) { Dossier.find_by(id: dossier.champs.first.value) }
+            let(:linked_dossier) { Dossier.find_by(id: dossier.champ_data.first.value) }
             let(:invite_linked_dossiers) do
               instructeur.assign_to_procedure(linked_dossier.procedure)
               true
@@ -1681,8 +1681,8 @@ describe Instructeurs::DossiersController, type: :controller do
 
     context 'when a conditional annotation exists alongside the polled annotation' do
       before do
-        dossier.champs.find(&:referentiel?).update_columns(external_id: 'kthxbye', value: 'OK', data: {})
-        dossier.champs.find { _1.stable_id == checkbox_stable_id }.update_columns(value: 'true')
+        dossier.champ_data.find(&:referentiel?).update_columns(external_id: 'kthxbye', value: 'OK', data: {})
+        dossier.champ_data.find { _1.stable_id == checkbox_stable_id }.update_columns(value: 'true')
       end
 
       it 'recomputes visibility of conditional annotations after polling' do
@@ -2065,7 +2065,7 @@ describe Instructeurs::DossiersController, type: :controller do
     let(:avis) { create(:avis, :with_answer, :with_piece_justificative, dossier: dossier, claimant: expert, experts_procedure: experts_procedure) }
 
     before do
-      dossier.champs.first.piece_justificative_file.attach(
+      dossier.champ_data.first.piece_justificative_file.attach(
         io: File.open(logo_path),
         filename: "logo_test_procedure.png",
         content_type: "image/png",

@@ -20,7 +20,7 @@ RSpec.describe Cron::BackfillSiretDegradedModeJob, type: :job do
       let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
       let(:types_de_champ_public) { [{ type: :siret }] }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:champ_siret) { dossier.champs.first }
+      let(:champ_siret) { dossier.champ_data.first }
 
       before do
         champ_siret

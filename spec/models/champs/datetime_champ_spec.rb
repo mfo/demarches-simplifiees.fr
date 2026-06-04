@@ -4,7 +4,7 @@ describe Champs::DatetimeChamp do
   let(:types_de_champ_public) { [{ type: :datetime }] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:datetime_champ) { dossier.champs.first }
+  let(:datetime_champ) { dossier.champ_data.first }
 
   describe '#normalizes' do
     it 'preserves nil' do
@@ -99,7 +99,7 @@ describe Champs::DatetimeChamp do
   end
 
   context 'when there is a range' do
-    let(:champ) { dossier.champs.first.tap { _1.update(value:) } }
+    let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
     subject { champ.validate(:champs_public_value) }
 
     before { champ.type_de_champ.update(options: { range_date: '1', start_date: '2017-11-30', end_date: '2017-12-31' }) }

@@ -136,8 +136,8 @@ RSpec.describe DossierCloneConcern do
 
         context 'for Champs::CarteChamp with geo areas, original_champ.geo_areas are duped' do
           let(:types_de_champ_public) { [{ type: :carte }] }
-          let(:champ_carte) { dossier.champs.first }
-          let(:cloned_champ_carte) { new_dossier.champs.first }
+          let(:champ_carte) { dossier.champ_data.first }
+          let(:cloned_champ_carte) { new_dossier.champ_data.first }
 
           it do
             expect(cloned_champ_carte.geo_areas.count).to eq(2)
@@ -147,8 +147,8 @@ RSpec.describe DossierCloneConcern do
 
         context 'for Champs::SiretChamp, original_champ.etablissement is duped' do
           let(:types_de_champ_public) { [{ type: :siret }] }
-          let(:champ_siret) { dossier.champs.first }
-          let(:cloned_champ_siret) { new_dossier.champs.first }
+          let(:champ_siret) { dossier.champ_data.first }
+          let(:cloned_champ_siret) { new_dossier.champ_data.first }
 
           it do
             expect(champ_siret.etablissement).not_to be_nil
@@ -158,16 +158,16 @@ RSpec.describe DossierCloneConcern do
 
         context 'for Champs::PieceJustificative, original_champ.piece_justificative_file is duped' do
           let(:types_de_champ_public) { [{ type: :piece_justificative }] }
-          let(:champ_piece_justificative) { dossier.champs.first }
-          let(:cloned_champ_piece_justificative) { new_dossier.champs.first }
+          let(:champ_piece_justificative) { dossier.champ_data.first }
+          let(:cloned_champ_piece_justificative) { new_dossier.champ_data.first }
 
           it { expect(cloned_champ_piece_justificative.piece_justificative_file.first.blob).to eq(champ_piece_justificative.piece_justificative_file.first.blob) }
         end
 
         context 'for Champs::AddressChamp, original_champ.data is duped' do
           let(:types_de_champ_public) { [{ type: :address }] }
-          let(:champ_address) { dossier.champs.first }
-          let(:cloned_champ_address) { new_dossier.champs.first }
+          let(:champ_address) { dossier.champ_data.first }
+          let(:cloned_champ_address) { new_dossier.champ_data.first }
 
           before { champ_address.update(external_id: 'Address', data: { city_code: '75019' }) }
 

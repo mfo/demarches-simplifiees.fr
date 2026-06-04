@@ -30,14 +30,14 @@ describe DossierPreloader do
 
         expect(first_child.type).to eq('Champs::TextChamp')
         expect(repetition).not_to eq(first_child)
-        expect(subject.champs.first.dossier).to eq(subject)
-        expect(subject.champs.find(&:public?).dossier).to eq(subject)
+        expect(subject.champ_data.first.dossier).to eq(subject)
+        expect(subject.champ_data.find(&:public?).dossier).to eq(subject)
         expect(subject.project_champs_public.first.dossier).to eq(subject)
 
         expect(subject.project_champs_public.first.type_de_champ.piece_justificative_template.attached?).to eq(false)
 
-        expect(subject.champs.first.conditional?).to eq(false)
-        expect(subject.champs.find(&:public?).conditional?).to eq(false)
+        expect(subject.champ_data.first.conditional?).to eq(false)
+        expect(subject.champ_data.find(&:public?).conditional?).to eq(false)
         expect(subject.project_champs_public.first.conditional?).to eq(false)
 
         expect(repetition.rows.first.first.public_id).to eq(first_child.public_id)
@@ -158,7 +158,7 @@ describe DossierPreloader do
             dossier.followers_instructeurs.to_a
             dossier.avis.each { |a| a.claimant&.email; a.expert&.email }
             dossier.pending_corrections.to_a
-            dossier.champs.to_a # champs préchargés via load_dossiers
+            dossier.champ_data.to_a # champs préchargés via load_dossiers
           end
         end
         expect(count).to eq(0)

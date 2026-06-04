@@ -9,7 +9,7 @@ describe Logic::ChampColumnValue do
 
   describe '#compute' do
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     before { champ.update(value: 'true') }
 
@@ -49,7 +49,7 @@ describe Logic::ChampColumnValue do
     let(:column) { procedure.find_column(label: 'menu') }
     let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     context "when the user picked 'other' without typing a value" do
       before { champ.update!(value: Champs::DropDownListChamp::OTHER) }

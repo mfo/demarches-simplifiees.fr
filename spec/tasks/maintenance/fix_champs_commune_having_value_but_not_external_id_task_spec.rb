@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes }]) }
       let(:dossier) { create(:dossier, state, :with_populated_champs, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
       subject(:process) do
         described_class.process(champ)
       end

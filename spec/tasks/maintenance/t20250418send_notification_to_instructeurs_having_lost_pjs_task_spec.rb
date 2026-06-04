@@ -19,8 +19,8 @@ module Maintenance
         let(:procedure_id) { procedure.id }
         let(:dossier) { procedure.dossiers.first }
         let(:instructeur) { create(:instructeur) }
-        let(:champ_pj_1) { dossier.champs.first }
-        let(:champ_pj_2) { dossier.champs.second }
+        let(:champ_pj_1) { dossier.champ_data.first }
+        let(:champ_pj_2) { dossier.champ_data.second }
         let(:file) { fixture_file_upload('spec/fixtures/files/logo_test_procedure.png', 'image/png') }
 
         before do

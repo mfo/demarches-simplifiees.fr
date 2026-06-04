@@ -13,9 +13,9 @@ module Maintenance
       let!(:dossier2) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 
       before do
-        dossier1.champs.last.update(value: 'Aisne')
+        dossier1.champ_data.last.update(value: 'Aisne')
 
-        dossier2.champs.last.update(value: 'Allier')
+        dossier2.champ_data.last.update(value: 'Allier')
 
         tdc = procedure.active_revision.simple_routable_types_de_champ.first
 

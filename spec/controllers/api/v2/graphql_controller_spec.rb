@@ -872,7 +872,7 @@ describe API::V2::GraphqlController do
 
     describe "champ piece_justificative" do
       let(:types_de_champ_public) { [{ type: :piece_justificative }] }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
       let(:byte_size) { 2712286911 }
 
       context "with deprecated file field" do
@@ -1600,7 +1600,7 @@ describe API::V2::GraphqlController do
                 },
                 errors: nil,
               })
-              expect(dossier.champs.first.value).not_to be_nil
+              expect(dossier.champ_data.first.value).not_to be_nil
             end
           end
         end

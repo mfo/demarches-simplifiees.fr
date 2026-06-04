@@ -99,7 +99,7 @@ class Traitement < ApplicationRecord
   def reference_champs
     if checkpoint.present?
       changed_keys = changed_champs.keys
-      dossier.champs.filter { _1.stream == checkpoint && _1.public_id.in?(changed_keys) }
+      dossier.champ_data.filter { _1.stream == checkpoint && _1.public_id.in?(changed_keys) }
     else
       []
     end.index_by(&:public_id)
@@ -107,7 +107,7 @@ class Traitement < ApplicationRecord
 
   def changed_champs
     if checkpoint.present?
-      dossier.champs.filter { _1.checkpoint == checkpoint && !_1.row? }
+      dossier.champ_data.filter { _1.checkpoint == checkpoint && !_1.row? }
     else
       []
     end.index_by(&:public_id)

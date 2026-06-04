@@ -36,10 +36,10 @@ describe Columns::LinkedDropDownColumn do
       let(:column) { procedure.find_column(label: 'linked') }
 
       before do
-        kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id)
+        kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
           .update(value: %{["section 1","option A"]})
 
-        discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id)
+        discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
           .update(value: %{["section 1","option B"]})
       end
 
@@ -75,10 +75,10 @@ describe Columns::LinkedDropDownColumn do
 
     context 'when path is not :value' do
       before do
-        kept_dossier.champs.find_by(stable_id: type_de_champ.stable_id)
+        kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
           .update(value: %{["1","2"]})
 
-        discarded_dossier.champs.find_by(stable_id: type_de_champ.stable_id)
+        discarded_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
           .update(value: %{["2","1"]})
       end
 

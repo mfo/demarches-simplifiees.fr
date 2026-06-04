@@ -3,7 +3,7 @@
 RSpec.describe Attachment::Validation do
   let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
   let(:attached_file) { champ.piece_justificative_file }
   let(:validation) { described_class.new(attached_file:) }
 

@@ -9,7 +9,7 @@ module Maintenance
 
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rna }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:element) { dossier.champs.first }
+      let(:element) { dossier.champ_data.first }
       let(:body) { File.read('spec/fixtures/files/api_entreprise/associations.json') }
       let(:data_source) { JSON.parse(body).with_indifferent_access }
       let(:data) { data_source[:data] }

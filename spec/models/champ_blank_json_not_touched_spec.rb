@@ -21,7 +21,7 @@ RSpec.describe 'A blank champ must not be touched when another champ is correcte
   let(:user) { dossier.user }
 
   def second_champ
-    dossier.reload.champs.find { _1.stream == Champ::MAIN_STREAM && _1.stable_id == 100 }
+    dossier.reload.champ_data.find { _1.stream == Champ::MAIN_STREAM && _1.stable_id == 100 }
   end
 
   # Reproduces the usager correction flow: edit only the text champ on the user
@@ -44,7 +44,7 @@ RSpec.describe 'A blank champ must not be touched when another champ is correcte
       let(:second_type) { type }
 
       it "leaves the blank #{type} champ untouched and still blank" do
-        dossier.champs.find { _1.stable_id == 100 }.update_columns(value: nil, value_json: nil, external_id: nil)
+        dossier.champ_data.find { _1.stable_id == 100 }.update_columns(value: nil, value_json: nil, external_id: nil)
         updated_at_before = second_champ.updated_at
 
         travel_to(1.hour.from_now) { correct_text_only }

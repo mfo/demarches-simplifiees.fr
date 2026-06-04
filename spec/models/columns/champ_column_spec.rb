@@ -183,7 +183,7 @@ describe Columns::ChampColumn do
       let(:dossiers) { procedure.dossiers }
 
       before do
-        dossier_with_value.champs.first.update!(value: champ_value)
+        dossier_with_value.champ_data.first.update!(value: champ_value)
       end
 
       let(:champ_value) { 'olala le text est "là"' }
@@ -212,7 +212,7 @@ describe Columns::ChampColumn do
       let(:dossiers) { procedure.dossiers }
 
       before do
-        dossier_with_value.champs.first.update!(value: champ_value)
+        dossier_with_value.champ_data.first.update!(value: champ_value)
       end
 
       let(:champ_value) { "[\"Fromage \\\"blanc\\\"\",\"Fromage\"]" }
@@ -244,9 +244,9 @@ describe Columns::ChampColumn do
       let(:dossiers) { procedure.dossiers }
 
       before do
-        dossier_with_yes.champs.first.update!(value: "true")
-        dossier_with_no.champs.first.update!(value: "false")
-        dossier_not_filled.champs.first.destroy!
+        dossier_with_yes.champ_data.first.update!(value: "true")
+        dossier_with_no.champ_data.first.update!(value: "false")
+        dossier_not_filled.champ_data.first.destroy!
       end
 
       context "when searching for a yes" do
@@ -280,8 +280,8 @@ describe Columns::ChampColumn do
       let(:dossier_not_checked) { create(:dossier, :en_instruction, procedure:) }
 
       before do
-        dossier_with_checked.champs.first.update!(value: "true")
-        dossier_not_checked.champs.first.destroy!
+        dossier_with_checked.champ_data.first.update!(value: "true")
+        dossier_not_checked.champ_data.first.destroy!
       end
 
       let(:column) { procedure.find_column(label: "checkbox") }
@@ -310,8 +310,8 @@ describe Columns::ChampColumn do
       let(:dossier_not_checked) { create(:dossier, :en_instruction, procedure:) }
 
       before do
-        dossier_with_checked.champs.first.update!(value: "true")
-        dossier_not_checked.champs.first.destroy!
+        dossier_with_checked.champ_data.first.update!(value: "true")
+        dossier_not_checked.champ_data.first.destroy!
       end
 
       let(:column) { procedure.find_column(label: "checkbox") }
@@ -341,9 +341,9 @@ describe Columns::ChampColumn do
       let(:dossier_with_chocolat) { create(:dossier, :en_instruction, procedure:) }
 
       before do
-        dossier_with_fromage.champs.first.update!(value: "Fromage")
-        dossier_with_dessert.champs.first.update!(value: "Dessert")
-        dossier_with_chocolat.champs.first.update!(value: "Chocolat")
+        dossier_with_fromage.champ_data.first.update!(value: "Fromage")
+        dossier_with_dessert.champ_data.first.update!(value: "Dessert")
+        dossier_with_chocolat.champ_data.first.update!(value: "Chocolat")
       end
 
       let(:column) { procedure.find_column(label: "drop_down_list") }
@@ -372,8 +372,8 @@ describe Columns::ChampColumn do
       let(:dossier_de) { create(:dossier, :en_instruction, procedure:) }
 
       before do
-        dossier_fr.champs.first.update!(value: 'FR')
-        dossier_de.champs.first.update!(value: 'DE')
+        dossier_fr.champ_data.first.update!(value: 'FR')
+        dossier_de.champ_data.first.update!(value: 'DE')
       end
 
       let(:column) { procedure.find_column(label: "pays") }
@@ -401,8 +401,8 @@ describe Columns::ChampColumn do
         let(:dossier2) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier.champs.first.update!(value: "2025-02-13")
-          dossier2.champs.first.update!(value: "2025-02-15")
+          dossier.champ_data.first.update!(value: "2025-02-13")
+          dossier2.champ_data.first.update!(value: "2025-02-15")
         end
 
         let(:filter) { { operator: 'before', value: ["2025-02-14"] } }
@@ -417,8 +417,8 @@ describe Columns::ChampColumn do
         let(:dossier2) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier.champs.first.update!(value: "2025-02-13")
-          dossier2.champs.first.update!(value: "2025-02-15")
+          dossier.champ_data.first.update!(value: "2025-02-13")
+          dossier2.champ_data.first.update!(value: "2025-02-15")
         end
 
         let(:filter) { { operator: 'after', value: ["2025-02-14"] } }
@@ -437,10 +437,10 @@ describe Columns::ChampColumn do
         let(:dossier_month_after) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier_at_the_beginning_of_the_month.champs.first.update!(value: "2025-02-01")
-          dossier_at_the_end_of_the_month.champs.first.update!(value: "2025-02-28")
-          dossier_month_before.champs.first.update!(value: "2025-01-13")
-          dossier_month_after.champs.first.update!(value: "2025-03-13")
+          dossier_at_the_beginning_of_the_month.champ_data.first.update!(value: "2025-02-01")
+          dossier_at_the_end_of_the_month.champ_data.first.update!(value: "2025-02-28")
+          dossier_month_before.champ_data.first.update!(value: "2025-01-13")
+          dossier_month_after.champ_data.first.update!(value: "2025-03-13")
 
           travel_to(Time.zone.parse("2025-02-13"))
         end
@@ -459,10 +459,10 @@ describe Columns::ChampColumn do
         let(:dossier_week_after) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier_at_the_beginning_of_the_week.champs.first.update!(value: "2025-02-03")
-          dossier_at_the_end_of_the_week.champs.first.update!(value: "2025-02-09")
-          dossier_week_before.champs.first.update!(value: "2025-02-02")
-          dossier_week_after.champs.first.update!(value: "2025-02-10")
+          dossier_at_the_beginning_of_the_week.champ_data.first.update!(value: "2025-02-03")
+          dossier_at_the_end_of_the_week.champ_data.first.update!(value: "2025-02-09")
+          dossier_week_before.champ_data.first.update!(value: "2025-02-02")
+          dossier_week_after.champ_data.first.update!(value: "2025-02-10")
 
           travel_to(Time.zone.parse("2025-02-08"))
         end
@@ -481,10 +481,10 @@ describe Columns::ChampColumn do
         let(:dossier_year_after) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier_at_the_beginning_of_the_year.champs.first.update!(value: "2024-01-01")
-          dossier_at_the_end_of_the_year.champs.first.update!(value: "2024-12-31")
-          dossier_year_before.champs.first.update!(value: "2023-12-31")
-          dossier_year_after.champs.first.update!(value: "2025-01-01")
+          dossier_at_the_beginning_of_the_year.champ_data.first.update!(value: "2024-01-01")
+          dossier_at_the_end_of_the_year.champ_data.first.update!(value: "2024-12-31")
+          dossier_year_before.champ_data.first.update!(value: "2023-12-31")
+          dossier_year_after.champ_data.first.update!(value: "2025-01-01")
 
           travel_to(Time.zone.parse("2024-02-13"))
         end
@@ -508,8 +508,8 @@ describe Columns::ChampColumn do
         let(:dossier2) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier.champs.first.update!(value: "2025-02-13T12:00:00+01:00")
-          dossier2.champs.first.update!(value: "2025-02-15T12:00:00+01:00")
+          dossier.champ_data.first.update!(value: "2025-02-13T12:00:00+01:00")
+          dossier2.champ_data.first.update!(value: "2025-02-15T12:00:00+01:00")
         end
 
         let(:filter) { { operator: 'before', value: ["2025-02-14"] } }
@@ -524,8 +524,8 @@ describe Columns::ChampColumn do
         let(:dossier2) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier.champs.first.update!(value: "2025-02-13T12:00:00+01:00")
-          dossier2.champs.first.update!(value: "2025-02-15T12:00:00+01:00")
+          dossier.champ_data.first.update!(value: "2025-02-13T12:00:00+01:00")
+          dossier2.champ_data.first.update!(value: "2025-02-15T12:00:00+01:00")
         end
 
         let(:filter) { { operator: 'after', value: ["2025-02-14"] } }
@@ -544,10 +544,10 @@ describe Columns::ChampColumn do
         let(:dossier_week_after) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier_at_the_beginning_of_the_week.champs.first.update!(value: "2025-02-03T12:00:00+01:00")
-          dossier_at_the_end_of_the_week.champs.first.update!(value: "2025-02-09T12:00:00+01:00")
-          dossier_week_before.champs.first.update!(value: "2025-02-02T12:00:00+01:00")
-          dossier_week_after.champs.first.update!(value: "2025-02-10T12:00:00+01:00")
+          dossier_at_the_beginning_of_the_week.champ_data.first.update!(value: "2025-02-03T12:00:00+01:00")
+          dossier_at_the_end_of_the_week.champ_data.first.update!(value: "2025-02-09T12:00:00+01:00")
+          dossier_week_before.champ_data.first.update!(value: "2025-02-02T12:00:00+01:00")
+          dossier_week_after.champ_data.first.update!(value: "2025-02-10T12:00:00+01:00")
 
           travel_to(Time.zone.parse("2025-02-08"))
         end
@@ -566,10 +566,10 @@ describe Columns::ChampColumn do
         let(:dossier_month_after) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier_at_the_beginning_of_the_month.champs.first.update!(value: "2025-02-01T12:00:00+01:00")
-          dossier_at_the_end_of_the_month.champs.first.update!(value: "2025-02-28T12:00:00+01:00")
-          dossier_month_before.champs.first.update!(value: "2025-01-13T12:00:00+01:00")
-          dossier_month_after.champs.first.update!(value: "2025-03-13T12:00:00+01:00")
+          dossier_at_the_beginning_of_the_month.champ_data.first.update!(value: "2025-02-01T12:00:00+01:00")
+          dossier_at_the_end_of_the_month.champ_data.first.update!(value: "2025-02-28T12:00:00+01:00")
+          dossier_month_before.champ_data.first.update!(value: "2025-01-13T12:00:00+01:00")
+          dossier_month_after.champ_data.first.update!(value: "2025-03-13T12:00:00+01:00")
 
           travel_to(Time.zone.parse("2025-02-13"))
         end
@@ -588,10 +588,10 @@ describe Columns::ChampColumn do
         let(:dossier_year_after) { create(:dossier, :en_instruction, procedure:) }
 
         before do
-          dossier_at_the_beginning_of_the_year.champs.first.update!(value: "2024-01-01T12:00:00+01:00")
-          dossier_at_the_end_of_the_year.champs.first.update!(value: "2024-12-31T12:00:00+01:00")
-          dossier_year_before.champs.first.update!(value: "2023-12-31T12:00:00+01:00")
-          dossier_year_after.champs.first.update!(value: "2025-01-01T12:00:00+01:00")
+          dossier_at_the_beginning_of_the_year.champ_data.first.update!(value: "2024-01-01T12:00:00+01:00")
+          dossier_at_the_end_of_the_year.champ_data.first.update!(value: "2024-12-31T12:00:00+01:00")
+          dossier_year_before.champ_data.first.update!(value: "2023-12-31T12:00:00+01:00")
+          dossier_year_after.champ_data.first.update!(value: "2025-01-01T12:00:00+01:00")
 
           travel_to(Time.zone.parse("2024-02-13"))
         end

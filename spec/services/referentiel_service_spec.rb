@@ -179,7 +179,7 @@ RSpec.describe ReferentielService, type: :service do
       end
 
       before do
-        dossier.champs.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "75")
+        dossier.champ_data.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "75")
       end
 
       it 'resolves tdc tags from dossier champs' do
@@ -189,7 +189,7 @@ RSpec.describe ReferentielService, type: :service do
 
       context 'when champ value is blank' do
         before do
-          dossier.champs.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "")
+          dossier.champ_data.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "")
         end
 
         it { expect(service.send(:resolve_tiptap_url, "search", dossier)).to be_nil }
@@ -224,7 +224,7 @@ RSpec.describe ReferentielService, type: :service do
 
       context 'when value is false' do
         before do
-          dossier.champs.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "false")
+          dossier.champ_data.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "false")
         end
 
         it 'resolves boolean false value' do

@@ -11,7 +11,7 @@ describe Champs::RNFChamp, type: :model do
   describe '#valid?' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.find(&:rnf?) }
+    let(:champ) { dossier.champ_data.find(&:rnf?) }
 
     def with_state(external_id:, data:, fetch_external_data_exceptions: [])
       champ.tap do
@@ -86,7 +86,7 @@ describe Champs::RNFChamp, type: :model do
   describe 'format validation' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.find(&:rnf?) }
+    let(:champ) { dossier.champ_data.find(&:rnf?) }
 
     before { champ.update_columns(external_id:) }
 

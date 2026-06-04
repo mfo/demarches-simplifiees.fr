@@ -9,7 +9,7 @@ module Maintenance
 
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pays }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:champ_pays) { dossier.champs.first }
+      let(:champ_pays) { dossier.champ_data.first }
 
       context 'when champ has a country that needs migration' do
         before { champ_pays.update_columns(value: "Guadeloupe", external_id: "GP") }
@@ -23,7 +23,7 @@ module Maintenance
 
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pays }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:champ_pays) { dossier.champs.first }
+      let(:champ_pays) { dossier.champ_data.first }
 
       context 'when migrating DOM to France' do
         before { champ_pays.update_columns(value: "Martinique", external_id: "MQ") }

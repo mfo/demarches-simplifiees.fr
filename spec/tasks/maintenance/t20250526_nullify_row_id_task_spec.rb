@@ -8,10 +8,10 @@ module Maintenance
       subject(:process) { described_class.process(dossier) }
       let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :repetition, children: [{ type: :text }] }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:champs_with_null_row_id) { dossier.champs.where(row_id: [nil, Champ::NULL_ROW_ID]) }
+      let(:champs_with_null_row_id) { dossier.champ_data.where(row_id: [nil, Champ::NULL_ROW_ID]) }
 
       before do
-        dossier.champs.where(row_id: nil).update_all(row_id: Champ::NULL_ROW_ID)
+        dossier.champ_data.where(row_id: nil).update_all(row_id: Champ::NULL_ROW_ID)
       end
 
       def null_row_id_counts
@@ -26,8 +26,8 @@ module Maintenance
 
       context 'deal with conflicts' do
         before do
-          attributes = dossier.champs.where(row_id: Champ::NULL_ROW_ID).first.attributes
-          dossier.champs.create(attributes.merge(row_id: nil, id: nil))
+          attributes = dossier.champ_data.where(row_id: Champ::NULL_ROW_ID).first.attributes
+          dossier.champ_data.create(attributes.merge(row_id: nil, id: nil))
         end
         it 'nullify row_id' do
           expect { process }. to change { null_row_id_counts }.from([1, 1]).to([1, 0])

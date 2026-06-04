@@ -126,7 +126,7 @@ class DossierPreloader
     if submitted_revision.present?
       dossier.association(:submitted_revision).target = submitted_revision
     end
-    dossier.association(:champs).target = champs
+    dossier.association(:champ_data).target = champs
 
     champs.each do |champ|
       champ.association(:dossier).target = dossier

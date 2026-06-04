@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       let(:procedure) { create(:procedure_with_dossiers, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Justificatif de domicile', stable_id: 3 }]) }
       let(:dossier) { procedure.dossiers.first }
-      let(:champ_pj) { dossier.champs.first }
+      let(:champ_pj) { dossier.champ_data.first }
       let(:attachment) { champ_pj.piece_justificative_file.attachments.first }
       let(:file_type) { '' }
       let(:task) { described_class.new.tap { _1.file_type = file_type } }

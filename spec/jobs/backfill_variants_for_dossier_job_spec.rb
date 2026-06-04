@@ -20,7 +20,7 @@ RSpec.describe BackfillVariantsForDossierJob, type: :job do
 
   describe '#skip_attachment?' do
     let(:job) { described_class.new }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
     let(:attachment) { champ.piece_justificative_file.first }
 
     before do

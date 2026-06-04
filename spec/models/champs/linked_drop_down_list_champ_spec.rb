@@ -10,7 +10,7 @@ describe Champs::LinkedDropDownListChamp do
   end
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first.tap { _1.update(value:) } }
+  let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
   let(:value) { nil }
   let(:mandatory) { true }
   let(:options) { nil }

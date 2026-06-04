@@ -1506,9 +1506,9 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     let!(:dossier3) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
 
     before do
-      dossier1.champs.first.update(value: 'Paris')
-      dossier2.champs.first.update(value: 'Lyon')
-      dossier3.champs.first.update(value: 'Marseille')
+      dossier1.champ_data.first.update(value: 'Paris')
+      dossier2.champ_data.first.update(value: 'Lyon')
+      dossier3.champ_data.first.update(value: 'Marseille')
       post :create_simple_routing, params: { procedure_id: procedure.id, create_simple_routing: { stable_id: drop_down_tdc.stable_id } }
       post :bulk_route, params: { procedure_id: procedure.id }
     end

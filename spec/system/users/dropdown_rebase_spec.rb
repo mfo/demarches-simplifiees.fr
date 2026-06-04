@@ -16,7 +16,7 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
 
   before do
     # User had selected "Bravo" and "Charlie" before submitting
-    champ = dossier.champs.find { _1.stable_id == stable_id }
+    champ = dossier.champ_data.find { _1.stable_id == stable_id }
     champ.update_columns(value: '["Bravo","Charlie"]')
 
     # Admin removes "Bravo" from options and publishes
