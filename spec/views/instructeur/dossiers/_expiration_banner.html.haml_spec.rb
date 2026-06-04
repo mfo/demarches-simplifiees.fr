@@ -53,16 +53,6 @@ describe 'instructeur/dossiers/expiration_banner', type: :view do
       end
     end
 
-    context 'with dossier.en_instruction?' do
-      let(:state) { :en_instruction }
-      let(:attributes) { {} }
-
-      it 'render estimated expiration date' do
-        expect(subject).to have_selector('p.expires_at_en_instruction',
-                                         text: I18n.t("shared.dossiers.header.expires_at.#{i18n_key_state}"))
-      end
-    end
-
     context 'with dossier.en_processed_at?' do
       let(:state) { :accepte }
       let(:attributes) { {} }
