@@ -40,6 +40,16 @@ class OCRService
       .or { to_not_retryable_failure(it) }
   end
 
+  TWODDOC_MAPPING = {
+    beneficiary: 10, # Quality / Name / FirstName
+    ligne_2: 20,
+    ligne_3: 21,
+    ligne_4: 22,
+    ligne_5: 23,
+    code_postal: 24,
+    localite: 25,
+  }
+
   def self.extract_2ddoc(body)
     doc_type, raw_issue_date, raw_data = body
       .dig(:data, :result, :barcodes)
@@ -58,11 +68,34 @@ class OCRService
       two_ddoc: true,
     }
 
+    query = TWODDOC_MAPPING
+      .fetch_values(:ligne_2, :ligne_3, :ligne_4, :ligne_5, :code_postal, :localite)
+      .map { raw_data[it.to_s.to_sym] }
+      .compact_blank
+      .join(' ')
+
+    fetch_ban_address(query)
+      .fmap { attr.merge!(it.except(:geometry)) }
+
     # force parsing to ensure compat
-    JustificatifDomicile.new(attr).attributes
+    JustificatifDomicile.new(attr).attributes.compact
   end
 
   def self.justif_domicile?(doc_type) = doc_type.in?(['00', '01', '02'])
+
+  MIN_BAN_CONFIDENCE = 0.9
+
+  # TODO: check if enough 2ddoc properly stode postal_code
+  # and if enough at least call api geo to fetch region / departement
+  def self.fetch_ban_address(query)
+    return Failure(:no_query) if query.blank?
+
+    API::Client.new.call(url: "#{API_ADRESSE_URL}/search", params: { q: query, limit: 1 })
+      .fmap { it.body[:features]&.first }
+      .bind { it.present? ? Success(it) : Failure(:no_feature) }
+      .bind { it[:properties][:score] >= MIN_BAN_CONFIDENCE ? Success(it) : Failure(:bad) }
+      .fmap { APIGeoService.parse_ban_address(it.deep_stringify_keys) }
+  end
 
   def self.ocr_url = ENV.fetch("OCR_SERVICE_URL", nil)
   def self.document_ia_url = ENV.fetch("DOCUMENT_IA_URL", nil)

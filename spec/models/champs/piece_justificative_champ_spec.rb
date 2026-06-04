@@ -177,7 +177,7 @@ describe Champs::PieceJustificativeChamp do
     end
 
     context 'when fetched with value_json' do
-      let(:value_json) { { 'beneficiary' => 'Jane Smith', 'address' => '123 Main St' } }
+      let(:value_json) { { 'beneficiary' => 'Jane Smith' } }
 
       before do
         allow(champ).to receive(:fetched?).and_return(true)
