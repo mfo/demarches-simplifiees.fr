@@ -115,6 +115,26 @@ describe Users::RegistrationsController, type: :controller do
           expect(decrypted_email).to eq(user[:email])
         end
       end
+
+      context 'and a prefill_token is present in the stored procedure context' do
+        let(:confirmed_at) { nil }
+        let(:procedure) { create(:procedure, :published) }
+
+        before do
+          controller.store_location_for(:user, commencer_path(path: procedure.path, prefill_token: 'attacker-token'))
+        end
+
+        it 'does not propagate the prefill_token to the existing user confirmation email' do
+          captured_token = :unset
+          allow_any_instance_of(User).to receive(:resend_confirmation_instructions) do
+            captured_token = CurrentConfirmation.prefill_token
+          end
+
+          subject
+
+          expect(captured_token).to be_nil
+        end
+      end
     end
 
     context 'when the email param is sent as a non-scalar value' do
