@@ -403,6 +403,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_105001) do
     t.bigint "batch_operation_id", null: false
     t.datetime "created_at", null: false
     t.bigint "dossier_id", null: false
+    t.string "error_message"
     t.string "state", default: "pending", null: false
     t.datetime "updated_at", null: false
     t.index ["batch_operation_id"], name: "index_dossier_batch_operations_on_batch_operation_id"

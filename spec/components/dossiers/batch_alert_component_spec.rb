@@ -27,7 +27,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
     let!(:batch_operation) { create(:batch_operation, operation: :archiver, dossiers: [dossier, dossier_2], instructeur: instructeur) }
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -41,8 +41,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -57,8 +57,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -89,7 +89,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
     let!(:batch_operation) { create(:batch_operation, operation: :desarchiver, dossiers: [dossier, dossier_2], instructeur: instructeur) }
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -103,8 +103,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -119,8 +119,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -152,7 +152,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -165,8 +165,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -181,8 +181,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -213,7 +213,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
     let!(:batch_operation) { create(:batch_operation, operation: :repousser_expiration, dossiers: [dossier, dossier_2], instructeur: instructeur) }
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -227,8 +227,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -243,8 +243,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -276,7 +276,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -289,14 +289,15 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
 
       it do
         is_expected.to have_selector('.fr-alert--success')
+        is_expected.not_to have_selector('button.fr-btn--close')
         is_expected.to have_text("L’action de masse est terminée")
         is_expected.to have_text("2 dossiers ont été acceptés")
         expect(batch_operation.seen_at).to eq(nil)
@@ -305,14 +306,15 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
 
       it do
         is_expected.to have_selector('.fr-alert--warning')
+        is_expected.to have_selector('button.fr-btn--close')
         is_expected.to have_text("L’action de masse est terminée")
         is_expected.to have_text("1/2 dossiers ont été acceptés")
         expect(batch_operation.seen_at).to eq(nil)
@@ -321,6 +323,20 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
       it 'on next render "seen_at" is set to avoid rendering alert' do
         render_inline(described_class.new(batch: batch_operation, procedure:)).to_html
         expect(batch_operation.seen_at).not_to eq(nil)
+      end
+    end
+
+    context 'finished with error messages' do
+      before {
+        batch_operation.track_processed_dossier(false, dossier, "Les annotations privées ne sont pas remplis correctement")
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
+        batch_operation.finalize_if_complete!
+        batch_operation.reload
+      }
+
+      it do
+        is_expected.to have_selector('.fr-alert--warning')
+        is_expected.to have_text("Dossier #{dossier.id} : Les annotations privées ne sont pas remplis correctement")
       end
     end
   end
@@ -338,7 +354,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -351,8 +367,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -379,7 +395,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -392,8 +408,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -420,7 +436,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -433,8 +449,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -449,8 +465,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -482,7 +498,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -495,8 +511,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -511,8 +527,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -544,7 +560,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -557,8 +573,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -573,8 +589,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -606,7 +622,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -619,8 +635,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -635,8 +651,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -668,7 +684,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -681,8 +697,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -697,8 +713,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -730,7 +746,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -743,8 +759,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -759,8 +775,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
@@ -792,7 +808,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'in_progress' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
+         batch_operation.track_processed_dossier(true, dossier, nil)
          batch_operation.reload
        }
 
@@ -805,8 +821,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and success' do
       before {
-         batch_operation.track_processed_dossier(true, dossier)
-         batch_operation.track_processed_dossier(true, dossier_2)
+         batch_operation.track_processed_dossier(true, dossier, nil)
+         batch_operation.track_processed_dossier(true, dossier_2, nil)
          batch_operation.finalize_if_complete!
          batch_operation.reload
        }
@@ -821,8 +837,8 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished and fail' do
       before {
-        batch_operation.track_processed_dossier(false, dossier)
-        batch_operation.track_processed_dossier(true, dossier_2)
+        batch_operation.track_processed_dossier(false, dossier, nil)
+        batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
       }
