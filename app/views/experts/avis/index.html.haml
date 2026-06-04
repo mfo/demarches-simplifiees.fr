@@ -12,19 +12,20 @@
       = procedure_badge(p)
 
       %ul.procedure-stats.flex.wrap.flex-gap-1.fr-my-2w
-        %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link
-          = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS)) do
+        %li.fr-btn.fr-btn--tertiary.flex.justify-center
+          = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::A_DONNER_STATUS), class: 'center') do
             - without_answer_count = procedure_avis.select { _1.answer.nil? }.reject{ _1.dossier.termine?}.size
-            .center.fr-text--bold.fr-text--sm
+            %span.fr-text--bold.fr-text--sm
               = without_answer_count
-            .center.fr-text--xs
+            .fr-text--xs
               = t(".to_give", count: without_answer_count)
             - if without_answer_count > 0
               %span.notifications
                 %span.fr-sr-only= t(".notification")
-        %li.fr-btn.fr-btn--tertiary.flex.justify-center.fr-enlarge-link
-          = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::DONNES_STATUS)) do
+        %li.fr-btn.fr-btn--tertiary.flex.justify-center
+          = link_to(procedure_expert_avis_index_path(p, statut: Instructeurs::AvisController::DONNES_STATUS), class: 'center') do
             - with_answer_count = procedure_avis.select { |a| a.answer.present? }.size
-            .center.fr-text--bold.fr-text--sm= with_answer_count
-            .center.fr-text--xs
+            %span.fr-text--bold.fr-text--sm
+              = with_answer_count
+            .fr-text--xs
               = t(".given", count: with_answer_count)
