@@ -2,7 +2,13 @@
 
 class DossierPreloader
   DEFAULT_BATCH_SIZE = 2000
-  MAX_CHAMPS_PER_BATCH = 140_000
+  # Plafonne le nombre de champs chargés par batch dans `load_dossiers`.
+  # Le `SELECT` champs remonte les lignes du heap + détoaste les `value_json`
+  # côté serveur : son temps croît avec le nombre de lignes. 140k saturait
+  # le statement_timeout (60s) sur les grosses démarches (PG::QueryCanceled).
+  # 40k ramène ce SELECT à ~6-8s sur les démarches les plus lourdes, soit une
+  # large marge sous contention. Voir la PR pour les mesures.
+  MAX_CHAMPS_PER_BATCH = 40_000
 
   def initialize(dossiers, includes_for_champ: [], includes_for_etablissement: [])
     @dossiers = dossiers
