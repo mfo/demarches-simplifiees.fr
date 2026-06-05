@@ -277,6 +277,19 @@ RSpec.describe TiptapService do
           '<p class="body-start">Avant</p><div class="page-break"></div><p>Après</p>'
         )
       end
+
+      it 'keeps body-start on the first paragraph when a pageBreak comes first' do
+        json = {
+          type: 'doc',
+          content: [
+            { type: 'pageBreak' },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Premier paragraphe' }] },
+          ],
+        }
+        expect(described_class.new.to_html(json)).to eq(
+          '<div class="page-break"></div><p class="body-start">Premier paragraphe</p>'
+        )
+      end
     end
 
     context 'ordered list with custom classes' do
@@ -368,6 +381,22 @@ RSpec.describe TiptapService do
       let(:substitutions) { {} }
 
       it { is_expected.to eq('') }
+    end
+
+    context 'pageBreak node' do
+      let(:substitutions) { {} }
+
+      it 'ignores pageBreak nodes' do
+        json = {
+          type: 'doc',
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: 'Avant' }] },
+            { type: 'pageBreak' },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Après' }] },
+          ],
+        }
+        expect { described_class.new.to_texts_and_tags(json) }.not_to raise_error
+      end
     end
   end
 end
