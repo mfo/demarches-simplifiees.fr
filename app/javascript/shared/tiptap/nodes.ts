@@ -49,3 +49,22 @@ export const HeaderColumn = Node.create({
     return ['div', mergeAttributes(HTMLAttributes, { class: 'flex-1' }), 0];
   }
 });
+
+export const PageBreak = Node.create({
+  name: 'pageBreak',
+  group: 'block',
+  atom: true,
+
+  parseHTML() {
+    return [{ tag: 'div.page-break' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      mergeAttributes(HTMLAttributes, {
+        class: 'page-break',
+        'data-page-break': ''
+      })
+    ];
+  }
+});
