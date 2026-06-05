@@ -45,6 +45,29 @@
   }
 }
 
+.tiptap .page-break {
+  position: relative;
+  height: 0;
+  margin: $default-spacer 0;
+  border-top: 2px dashed var(--border-default-grey);
+
+  &::before {
+    content: 'Saut de page';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 0.5rem;
+    background: var(--background-default-grey);
+    font-size: 0.75rem;
+    color: var(--text-mention-grey);
+  }
+
+  &.ProseMirror-selectednode {
+    border-top-color: var(--border-active-blue-france);
+  }
+}
+
 // Modal link editor footer: override DSFR button group width
 // to allow justify-between layout with split buttons
 #tiptap-link-modal .fr-modal__footer .fr-btns-group {
