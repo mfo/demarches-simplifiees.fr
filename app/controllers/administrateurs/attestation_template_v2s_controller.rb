@@ -45,6 +45,9 @@ module Administrateurs
           ['Liste numérotée', 'orderedList', 'list-ordered'],
         ],
         [
+          ['Saut de page', 'pageBreak', 'page-separator'],
+        ],
+        [
           ['Aligner à gauche', 'left', 'align-left'],
           ['Aligner au centre', 'center', 'align-center'],
           ['Aligner à droite', 'right', 'align-right'],
