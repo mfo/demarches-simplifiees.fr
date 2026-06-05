@@ -27,7 +27,13 @@ import {
   type Extensions
 } from '@tiptap/core';
 
-import { DocumentWithHeader, Title, Header, HeaderColumn } from './nodes';
+import {
+  DocumentWithHeader,
+  Title,
+  Header,
+  HeaderColumn,
+  PageBreak
+} from './nodes';
 import { createSuggestionMenu, type TagSchema } from './tags';
 
 const SingleLineDocument = Document.extend({
@@ -119,6 +125,9 @@ function getEditorOptions(
             }
           })
         );
+        break;
+      case 'pageBreak':
+        extensions.push(PageBreak);
         break;
     }
   }
