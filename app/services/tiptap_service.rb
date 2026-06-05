@@ -109,6 +109,8 @@ class TiptapService
       else
         text
       end
+    in type: 'pageBreak'
+      '<div class="page-break"></div>'
     in { type: type } if ["paragraph", "title", "heading"].include?(type) && !node.key?(:content)
       # noop
     else

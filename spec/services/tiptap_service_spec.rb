@@ -260,6 +260,25 @@ RSpec.describe TiptapService do
       end
     end
 
+    context 'page break node' do
+      let(:json) do
+        {
+          type: 'doc',
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: 'Avant' }] },
+            { type: 'pageBreak' },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Après' }] },
+          ],
+        }
+      end
+
+      it 'renders a page-break div without consuming the body-start mark' do
+        expect(described_class.new.to_html(json)).to eq(
+          '<p class="body-start">Avant</p><div class="page-break"></div><p>Après</p>'
+        )
+      end
+    end
+
     context 'ordered list with custom classes' do
       let(:json) do
         {
