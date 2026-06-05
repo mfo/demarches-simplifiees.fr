@@ -35,6 +35,10 @@
   }
 }
 
+.page-break {
+  break-before: page;
+}
+
 #attestation {
   @media screen {
     .a4-container {
