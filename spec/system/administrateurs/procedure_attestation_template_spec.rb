@@ -177,6 +177,20 @@ describe 'As an administrateur, I want to manage the procedure’s attestation',
       expect(page).to have_text(/La nouvelle version de l’attestation/)
     end
 
+    scenario 'inserting a page break in the v2 attestation' do
+      visit edit_admin_procedure_attestation_template_v2_path(procedure, attestation_kind: :acceptation)
+
+      expect(page).to have_css('#editor')
+
+      within('#attestation-edit') do
+        find('#editor .ProseMirror').click
+        click_on 'Saut de page'
+      end
+
+      expect(page).to have_css('#editor .page-break')
+      expect(find('input[data-tiptap-target="input"]', visible: false).value).to include('pageBreak')
+    end
+
     context "tag in error" do
       before do
         tdc = procedure.active_revision.add_type_de_champ(type_champ: :integer_number, libelle: 'age')
