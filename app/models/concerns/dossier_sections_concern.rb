@@ -28,12 +28,6 @@ module DossierSectionsConcern
     counters = []
 
     types_de_champ.each do |tdc|
-      if tdc.repetition?
-        index_in_repetition = revision.children_of(tdc).find_index { _1.stable_id == header.stable_id }
-        return "#{counters.first || 1}.#{index_in_repetition + 1}" if index_in_repetition
-        next
-      end
-
       next if !tdc.header_section?
       next if !project_champ(tdc).visible?
 
