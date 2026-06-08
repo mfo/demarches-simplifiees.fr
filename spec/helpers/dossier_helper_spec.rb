@@ -251,6 +251,26 @@ RSpec.describe DossierHelper, type: :helper do
     end
   end
 
+  describe ".pro_connect_informations" do
+    subject { pro_connect_informations(user_information) }
+
+    context "with complete pro_connect information" do
+      let(:user_information) { build(:pro_connect_information) }
+
+      it {
+        expect(subject).to have_text("Le dossier a été déposé par le compte de #{user_information.given_name} #{user_information.usual_name}, authentifié par ProConnect.")
+      }
+    end
+
+    context "with all names missing" do
+      let(:user_information) { build(:pro_connect_information, given_name: nil, usual_name: nil) }
+
+      it {
+        expect(subject).to have_text("Le dossier a été déposé par un compte authentifié par ProConnect.")
+      }
+    end
+  end
+
   describe ".tags_notification" do
     subject { tags_notification([notification]) }
 

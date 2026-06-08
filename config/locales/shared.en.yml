@@ -8,6 +8,9 @@ en:
       france_connect_informations:
         details_no_name: "The file was submitted by a FranceConnect authenticated account."
         details: "The file was submitted by the account of %{name}, authenticated by FranceConnect."
+      pro_connect_informations:
+        details_no_name: "The file was submitted by a ProConnect authenticated account."
+        details: "The file was submitted by the account of %{name}, authenticated by ProConnect."
       motivation:
         refused_by_svr: "The service handling your file was unable to process it within the time limit set by the Silence Vaut Rejet law."
       header:

@@ -4,6 +4,12 @@
   <% end %>
 <% end %>
 
+<% if dossier.submitted_with_pro_connect? && dossier.user.last_pro_connect_information.present? && current_user.instructeur? && !current_user.owns_or_invite?(dossier) %>
+  <% content_for(:notice_info) do %>
+    <%= render partial: "shared/dossiers/pro_connect_informations_notice", locals: { user_information: dossier.user.last_pro_connect_information } %>
+  <% end %>
+<% end %>
+
 <div class="dossier-edit fr-container counter-start-header-section">
   <%= render partial: "shared/dossiers/submit_is_over", locals: { dossier: } %>
   <%= render NestedForms::FormOwnerComponent.new %>

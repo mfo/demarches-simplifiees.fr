@@ -8,6 +8,9 @@ fr:
       france_connect_informations:
         details_no_name: "Le dossier a été déposé par un compte authentifié par FranceConnect."
         details: "Le dossier a été déposé par le compte de %{name}, authentifié par FranceConnect."
+      pro_connect_informations:
+        details_no_name: "Le dossier a été déposé par un compte authentifié par ProConnect."
+        details: "Le dossier a été déposé par le compte de %{name}, authentifié par ProConnect."
       motivation:
         refused_by_svr: "Le service traitant n’a pas été en mesure de traiter votre demande dans le délai imparti par la règle du Silence Vaut Rejet."
       header:

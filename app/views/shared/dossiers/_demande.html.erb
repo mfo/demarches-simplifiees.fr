@@ -73,6 +73,10 @@
     <%= render partial: "shared/dossiers/france_connect_informations_notice", locals: { user_information: dossier.user.france_connect_informations.first } %>
   <% end %>
 
+  <% if dossier.submitted_with_pro_connect? && dossier.user.last_pro_connect_information.present? && current_user.instructeur? && !current_user.owns_or_invite?(dossier) %>
+    <%= render partial: "shared/dossiers/pro_connect_informations_notice", locals: { user_information: dossier.user.last_pro_connect_information } %>
+  <% end %>
+
   <dl class="fr-pl-0">
     <%= render partial: "shared/dossiers/user_infos", locals: { user_deleted: dossier.user_deleted?, email: dossier.user_email_for(:display), for_tiers: dossier.for_tiers?, beneficiaire_mail: dossier.for_tiers? ? dossier.individual.email : ""} %>
 

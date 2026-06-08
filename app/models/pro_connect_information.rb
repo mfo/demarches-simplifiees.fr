@@ -4,4 +4,8 @@ class ProConnectInformation < ApplicationRecord
   self.table_name = 'agent_connect_informations'
 
   belongs_to :user
+
+  def full_name
+    "#{given_name} #{usual_name}".strip
+  end
 end
