@@ -16,7 +16,7 @@ en:
       france_connect_login:
         # signup_pc_title: "Create an account with ProConnect"
         commencer_title: "Are you an individual?"
-        # commencer_pc_title: "Are you a professional?"
+        commencer_pc_title: "Are you a professional?"
         login_button: "Sign in with"
         help_link: What is FranceConnect?
         separator: or
