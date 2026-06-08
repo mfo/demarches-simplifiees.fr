@@ -558,6 +558,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_22_131426) do
     t.string "state"
     t.bigint "submitted_revision_id"
     t.boolean "submitted_with_france_connect", default: false, null: false
+    t.boolean "submitted_with_pro_connect", default: false, null: false
     t.date "sva_svr_decision_on"
     t.datetime "sva_svr_decision_triggered_at"
     t.datetime "termine_close_to_expiration_notice_sent_at", precision: nil
