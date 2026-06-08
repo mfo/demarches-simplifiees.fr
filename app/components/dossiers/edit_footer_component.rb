@@ -64,7 +64,8 @@ class Dossiers::EditFooterComponent < ApplicationComponent
     {
       class: 'fr-text--sm fr-mb-0 fr-mr-2w',
       data: { 'fr-opened': "true" },
-      aria: { controls: 'modal-eligibilite-rules-dialog' },
+      aria: { controls: 'modal-eligibilite-rules-dialog', haspopup: 'dialog' },
+      role: :button,
     }
   end
 

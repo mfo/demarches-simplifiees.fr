@@ -174,101 +174,66 @@
   </nav>
 
   <ul class="procedure-stats flex fr-background-alt--grey justify-around wrap fr-p-1w">
-    <li
-      class="
-        fr-btn fr-btn--tertiary-no-outline flex justify-center
-        fr-enlarge-link fr-my-1w
-      "
-    >
-      <%= link_to instructeur_procedure_path(p, statut: 'a-suivre') do %>
-        <span id="procedure-<%= p.id %>-a-suivre-notification"></span>
+    <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+      <%= link_to(instructeur_procedure_path(p, statut: 'a-suivre'), class: 'center') do %>
+        <span id="procedure-<%= p.id %>-a-suivre-count" class="fr-text--bold">
+          <%= placeholder_span %>
+        </span>
 
-        <div class="center fr-text--bold">
-          <span id="procedure-<%= p.id %>-a-suivre-count">
-            <%= placeholder_span %>
-          </span>
-        </div>
-
-        <div class="center fr-text--sm">
+        <div class="fr-text--sm">
           <%= t('instructeurs.dossiers.labels.to_follow') %>
         </div>
+
+        <span id="procedure-<%= p.id %>-a-suivre-notification"></span>
       <% end %>
     </li>
 
-    <li
-      class="
-        fr-btn fr-btn--tertiary-no-outline flex justify-center
-        fr-enlarge-link fr-my-1w
-      "
-    >
-      <%= link_to(instructeur_procedure_path(p, statut: 'suivis')) do %>
-        <span id="procedure-<%= p.id %>-suivis-notification"></span>
+    <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+      <%= link_to(instructeur_procedure_path(p, statut: 'suivis'), class: 'center') do %>
+        <span id="procedure-<%= p.id %>-followed-count" class="fr-text--bold">
+          <%= placeholder_span %>
+        </span>
 
-        <div class="center fr-text--bold">
-          <span id="procedure-<%= p.id %>-followed-count">
-            <%= placeholder_span %>
-          </span>
-        </div>
-
-        <div class="center fr-text--sm">
+        <div class="fr-text--sm">
           <%= t('instructeurs.dossiers.labels.followed') %>
         </div>
+
+        <span id="procedure-<%= p.id %>-suivis-notification"></span>
       <% end %>
     </li>
 
-    <li
-      class="
-        fr-btn fr-btn--tertiary-no-outline flex justify-center
-        fr-enlarge-link fr-my-1w
-      "
-    >
-      <%= link_to(instructeur_procedure_path(p, statut: 'traites')) do %>
-        <span id="procedure-<%= p.id %>-traites-notification"></span>
+    <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+      <%= link_to(instructeur_procedure_path(p, statut: 'traites'), class: 'center') do %>
+        <span id="procedure-<%= p.id %>-termines-count" class="fr-text--bold">
+          <%= placeholder_span %>
+        </span>
 
-        <div class="center fr-text--bold">
-          <span id="procedure-<%= p.id %>-termines-count">
-            <%= placeholder_span %>
-          </span>
-        </div>
-
-        <div class="center fr-text--sm">
+        <div class="fr-text--sm">
           <%= t('instructeurs.dossiers.labels.processed') %>
         </div>
+
+        <span id="procedure-<%= p.id %>-traites-notification"></span>
       <% end %>
     </li>
 
-    <li
-      class="
-        fr-btn fr-btn--tertiary-no-outline flex justify-center
-        fr-enlarge-link fr-my-1w
-      "
-    >
-      <%= link_to(instructeur_procedure_path(p, statut: 'tous')) do %>
-        <div class="center fr-text--bold">
-          <span id="procedure-<%= p.id %>-dossier-count">
-            <%= placeholder_span %>
-          </span>
-        </div>
+    <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+      <%= link_to(instructeur_procedure_path(p, statut: 'tous'), class: 'center') do %>
+        <span id="procedure-<%= p.id %>-dossier-count" class="fr-text--bold">
+          <%= placeholder_span %>
+        </span>
 
-        <div class="center fr-text--sm">
+        <div class="fr-text--sm">
           <%= t('instructeurs.dossiers.labels.total') %>
         </div>
       <% end %>
     </li>
 
     <% if p.procedure_expires_when_termine_enabled %>
-      <li
-        class="
-          fr-btn fr-btn--tertiary-no-outline flex justify-center
-          fr-enlarge-link fr-my-1w
-        "
-      >
-        <%= link_to(instructeur_procedure_path(p, statut: 'expirant')) do %>
-          <div class="center fr-text--bold">
-            <span class="fr-icon-timer-line fr-icon--sm"></span>
-          </div>
+      <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+        <%= link_to(instructeur_procedure_path(p, statut: 'expirant'), class: 'center') do %>
+          <span class="fr-icon-timer-line fr-icon--sm fr-text--bold"></span>
 
-          <div class="center fr-text--sm">
+          <div class="fr-text--sm">
             <%= t('instructeurs.dossiers.labels.close_to_expiration') %>
 
             <span id="procedure-<%= p.id %>-expirant-count">
@@ -279,18 +244,11 @@
       </li>
     <% end %>
 
-    <li
-      class="
-        fr-btn fr-btn--tertiary-no-outline flex justify-center
-        fr-enlarge-link fr-my-1w
-      "
-    >
-      <%= link_to(instructeur_procedure_path(p, statut: 'archives')) do %>
-        <div class="center fr-text--bold">
-          <span class="fr-icon-folder-2-line fr-icon--sm"></span>
-        </div>
+    <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+      <%= link_to(instructeur_procedure_path(p, statut: 'archives'), class: 'center') do %>
+        <span class="fr-icon-folder-2-line fr-icon--sm fr-text--bold"></span>
 
-        <div class="center fr-text--sm">
+        <div class="fr-text--sm">
           <%= t('instructeurs.dossiers.labels.to_archive') %>
 
           <span id="procedure-<%= p.id %>-archives-count">
@@ -300,18 +258,11 @@
       <% end %>
     </li>
 
-    <li
-      class="
-        fr-btn fr-btn--tertiary-no-outline flex justify-center
-        fr-enlarge-link fr-my-1w
-      "
-    >
-      <%= link_to(instructeur_procedure_path(p, statut: 'supprimes')) do %>
-        <div class="center fr-text--bold">
-          <span class="fr-icon-delete-line fr-icon--sm"></span>
-        </div>
+    <li class="fr-btn fr-btn--tertiary-no-outline flex justify-center fr-my-1w">
+      <%= link_to(instructeur_procedure_path(p, statut: 'supprimes'), class: 'center') do %>
+        <span class="fr-icon-delete-line fr-icon--sm fr-text--bold"></span>
 
-        <div class="center fr-text--sm">
+        <div class="fr-text--sm">
           <%= t('instructeurs.dossiers.labels.trash') %>
 
           <span id="procedure-<%= p.id %>-supprimes-count">

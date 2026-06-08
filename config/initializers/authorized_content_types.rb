@@ -78,6 +78,7 @@ AUTHORIZED_CONTENT_TYPES = PROCESSABLE_TYPES + AUTHORIZED_SPREADSHEET_TYPES + [
   'application/msword', # text x 30167
   'text/plain', # text x 24477
   'text/markdown', # text .md
+  'text/x-markdown', # text .md (variante legacy renvoyée par certains navigateurs/OS)
   'application/vnd.openxmlformats-officedocument.presentationml.presentation', # text x 3231
   'application/rtf', # text x 1438
   'application/vnd.apple.pages', # text x 609
@@ -112,6 +113,7 @@ FORMAT_FAMILIES = {
     'application/msword',
     'text/plain',
     'text/markdown',
+    'text/x-markdown',
     'application/rtf',
     'application/vnd.apple.pages',
   ],

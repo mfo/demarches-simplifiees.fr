@@ -18,6 +18,10 @@ en:
           accepte: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
           refuse: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
           sans_suite: "Expires on %{date} (%{duree_conservation_totale} months after this file was processed)"
+    order_positions:
+      move_up: Move up
+      move_down: Move down
+
     champs:
       drop_down_list:
         other: Enter another option

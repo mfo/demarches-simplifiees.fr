@@ -1,6 +1,7 @@
-import { lingui } from '@lingui/vite-plugin';
+import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 import optimizeLocales from '@react-aria/optimize-locales-plugin';
-import react from '@vitejs/plugin-react-swc';
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { createLogger, defineConfig } from 'vite';
 import fullReload from 'vite-plugin-full-reload';
 import ruby from 'vite-plugin-ruby';
@@ -22,19 +23,15 @@ export default defineConfig({
   },
   plugins: [
     ruby(),
-    react({
-      plugins: [['@lingui/swc-plugin', {}]]
+    react(),
+    babel({
+      presets: [reactCompilerPreset(), linguiTransformerBabelPreset()]
     }),
     fullReload(
       ['config/routes.rb', 'app/views/**/*', 'app/components/**/*.haml'],
       { delay: 200 }
     ),
-    {
-      ...optimizeLocales.vite({
-        locales: ['en-US', 'fr-FR']
-      }),
-      enforce: 'pre' as const
-    },
+    optimizeLocales.vite({ locales: ['en-US', 'fr-FR'] }),
     lingui()
   ]
 });

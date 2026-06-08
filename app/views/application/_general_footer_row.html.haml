@@ -14,5 +14,5 @@
   %li.fr-footer__bottom-item
     = link_to t("links.footer.cookies.label"), suivi_path, class: "fr-footer__bottom-link", hreflang: "fr"
   %li.fr-footer__bottom-item
-    %button.fr-footer__bottom-link.fr-icon-theme-fill.fr-btn--icon-left{ aria: {controls: "fr-theme-modal" }, data: {'fr-opened': "false" } }
+    %button.fr-footer__bottom-link.fr-icon-theme-fill.fr-btn--icon-left{ aria: {controls: "fr-theme-modal", haspopup: "dialog" }, data: {'fr-opened': "false" } }
       = t('links.footer.display_params')

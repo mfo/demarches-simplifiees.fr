@@ -28,7 +28,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
     # all Devise code.
     # So instead we use a per-request global variable.
     CurrentConfirmation.procedure_after_confirmation = @procedure
-    CurrentConfirmation.prefill_token = @prefill_token
 
     # Handle existing user trying to sign up again
     existing_user = user_email_param.present? ? User.find_by(email: user_email_param) : nil
@@ -40,6 +39,13 @@ class Users::RegistrationsController < Devise::RegistrationsController
       end
       return redirect_to after_inactive_sign_up_path_for(existing_user)
     end
+
+    # Only carry the prefill_token for a genuine new account: here the person
+    # submitting the form is the one creating and confirming the account.
+    # For an existing (unconfirmed) account, the submitter is not authenticated
+    # as the owner, so an attacker-supplied prefill_token must not be injected
+    # into the owner's confirmation email.
+    CurrentConfirmation.prefill_token = @prefill_token
 
     super do
       resource.update_preferred_domain(Current.host) if resource.valid?

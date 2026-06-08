@@ -360,11 +360,11 @@ module Users
 
     def update
       @dossier = dossier_with_champs(pj_template: false)
-      update_dossier_and_compute_errors
+      update_champ_and_compute_errors(scope: :public)
 
       respond_to do |format|
         format.turbo_stream do
-          @to_show, @to_hide, @to_update = champs_to_turbo_update(champs_public_attributes_params, dossier.project_champs_public_all)
+          @to_show, @to_hide, @to_update = champs_to_turbo_update(champs_attributes_params(:public), dossier.project_champs_public_all)
           render :update, layout: false
         end
       end
@@ -383,8 +383,13 @@ module Users
       champ.validate(:champs_public_value) if champ.done?
       respond_to do |format|
         format.turbo_stream do
-          @to_show, @to_hide = []
           @to_update = [champ].concat(champ.prefillable_champs)
+
+          @to_show, @to_hide = dossier.project_champs_public_all
+            .filter { it.conditional? || it.child? }
+            .partition(&:visible?)
+            .map { champs_to_one_selector(_1 - @to_update) }
+
           render :update, layout: false
         end
       end

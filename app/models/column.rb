@@ -70,7 +70,5 @@ class Column
 
   def self.not_filled_option = [I18n.t('activerecord.attributes.type_de_champ.not_filled'), NOT_FILLED_VALUE]
 
-  private
-
   def column_id = "#{table}/#{column}"
 end

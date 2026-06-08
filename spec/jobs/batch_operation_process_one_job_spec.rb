@@ -23,6 +23,7 @@ describe BatchOperationProcessOneJob, type: :job do
       expect { subject.perform_now }.to raise_error('boom')
 
       expect(batch_operation.dossier_operations.error.pluck(:dossier_id)).to eq([dossier_job.id])
+      expect(batch_operation.dossier_operations.error.first.error_message).to eq("boom")
     end
 
     it 'calls finalize_if_complete! even when process_one raises' do
@@ -341,6 +342,39 @@ describe BatchOperationProcessOneJob, type: :job do
 
         expect(batch_operation.reload.failed_dossier_ids).to eq([])
         expect(batch_operation.dossiers).not_to include(dossier_job)
+      end
+    end
+
+    context 'when operation is "accepter" and annotations privees have errors' do
+      let(:batch_operation) do
+        create(:batch_operation, :accepter,
+               options.merge(instructeur: create(:instructeur), motivation: 'motivation'))
+      end
+
+      before do
+        allow_any_instance_of(Dossier).to receive(:champs_private_valid?).and_return(false)
+        allow_any_instance_of(Dossier).to receive(:any_etablissement_as_degraded_mode?).and_return(false)
+      end
+
+      it 'stores a human readable error message' do
+        expect { subject.perform_now }.to raise_error(AASM::InvalidTransition)
+        expect(batch_operation.dossier_operations.error.first.error_message).to include("annotations privées")
+      end
+    end
+
+    context 'when operation is "accepter" and etablissement is in degraded mode' do
+      let(:batch_operation) do
+        create(:batch_operation, :accepter,
+               options.merge(instructeur: create(:instructeur), motivation: 'motivation'))
+      end
+
+      before do
+        allow_any_instance_of(Dossier).to receive(:any_etablissement_as_degraded_mode?).and_return(true)
+      end
+
+      it 'stores a human readable error message' do
+        expect { subject.perform_now }.to raise_error(AASM::InvalidTransition)
+        expect(batch_operation.dossier_operations.error.first.error_message).to include("SIRET")
       end
     end
   end

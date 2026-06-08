@@ -7,8 +7,8 @@ class EmailEventDashboard < Administrate::BaseDashboard
     id: Field::Number,
     to: Field::String,
     subject: Field::String,
-    method: Field::Enum,
-    status: Field::Enum,
+    method: EnumField,
+    status: EnumField,
     processed_at: Field::DateTime.with_options(format: "%F %T"),
   }
   COLLECTION_ATTRIBUTES = [:id, :to, :subject, :method, :status, :processed_at].freeze

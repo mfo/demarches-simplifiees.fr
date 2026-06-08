@@ -232,6 +232,7 @@
 
   .fr-label .fr-hint-text,
   .fr-label + .fr-hint-text {
+    margin-top: 0.25rem;
     clear: right;
     // Évite (en version mobile) que les premiers mots de l’aide
     // ne remontent en vis à vis de l’encart
@@ -264,9 +265,18 @@
     margin-top: 0.5rem;
   }
 
-  .fr-fieldset__legend .fr-hint-text {
-    // les messages d’aide se trouvant dans une légende ont le même espacement que ceux se trouvant dans un label
-    margin-top: 0.25rem;
+  .fr-fieldset__legend:has(+ .fr-hint-text) {
+    padding-bottom: 0; // supprime le padding quand suivi d'un hint externe
+  }
+
+  .fr-fieldset__legend + .fr-hint-text {
+    font-weight: 400;
+    margin-top: 0.5rem;
+    padding-bottom: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: -0.25rem; // même décalage que le legend
+    margin-right: -0.25rem;
   }
 
   input[type='password'],

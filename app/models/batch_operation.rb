@@ -138,12 +138,13 @@ class BatchOperation < ApplicationRecord
     end
   end
 
-  def track_processed_dossier(success, dossier)
+  def track_processed_dossier(success, dossier, error_message)
     dossiers.delete(dossier)
 
     if success
       dossier_operation(dossier).done!
     else
+      dossier_operation(dossier).update!(error_message:)
       dossier_operation(dossier).fail!
     end
   end
@@ -222,7 +223,27 @@ class BatchOperation < ApplicationRecord
     end
   end
 
+  def error_messages
+    dossier_operations.error
+      .group_by(&:error_message)
+      .map { |message, operations| format_error_message(message, operations) }
+  end
+
   private
+
+  def format_error_message(message, operations)
+    ids = operations.map(&:dossier_id)
+    I18n.t('views.instructeurs.dossiers.batch_operation.error_message',
+           count: ids.size,
+           ids: format_ids(ids),
+           message: message)
+  end
+
+  def format_ids(ids)
+    first_five_ids = ids.first(5).to_sentence
+    return first_five_ids if ids.size <= 5
+    "#{first_five_ids} #{I18n.t('views.instructeurs.dossiers.batch_operation.and_more', count: ids.size - 5)}"
+  end
 
   def dossier_operation(dossier)
     dossier_operations.find_by!(dossier:)

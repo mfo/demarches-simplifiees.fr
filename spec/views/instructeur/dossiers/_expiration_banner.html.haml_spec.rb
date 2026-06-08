@@ -45,19 +45,9 @@ describe 'instructeur/dossiers/expiration_banner', type: :view do
       let(:attributes) { { en_construction_at: 6.months.ago } }
       let(:state) { :en_construction }
 
-      it 'renders the never-expires message (#13178)' do
-        expect(subject).to have_selector('p.expires_at_en_instruction',
-                                         text: I18n.t("shared.dossiers.header.expires_at.en_construction"))
-      end
-    end
-
-    context 'with dossier.en_instruction?' do
-      let(:state) { :en_instruction }
-      let(:attributes) { {} }
-
-      it 'render estimated expiration date' do
-        expect(subject).to have_selector('p.expires_at_en_instruction',
-                                         text: I18n.t("shared.dossiers.header.expires_at.#{i18n_key_state}"))
+      it 'does not render any expiration message (#13178)' do
+        expect(subject).not_to have_selector('.expires_at')
+        expect(subject).not_to have_selector('p.expires_at_en_instruction')
       end
     end
 

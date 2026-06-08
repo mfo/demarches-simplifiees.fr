@@ -44,7 +44,7 @@ module Dsfr
     end
 
     def libelle
-      @row_number.present? ? "[#{@row_number}] #{@champ.libelle}" : @champ.libelle
+      @row_number.present? ? "[#{@row_number}] #{@champ.libelle_for_error}" : @champ.libelle_for_error
     end
 
     def statut_message

@@ -1,14 +1,16 @@
+import type { Plugin } from '@eslint/core';
 import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import eslintPluginReact from 'eslint-plugin-react';
-import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig([
   eslint.configs.recommended,
   tseslint.configs.recommended,
-  eslintPluginPrettierRecommended,
+  prettierRecommended,
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
@@ -17,14 +19,17 @@ export default tseslint.config(
   },
   {
     files: ['app/javascript/components/**/*.{ts,tsx,js,jsx}'],
-    ...eslintPluginReact.configs.flat.recommended,
-    ...eslintPluginReact.configs.flat['jsx-runtime']
+    ...react.configs.flat.recommended,
+    ...react.configs.flat['jsx-runtime']
   },
   {
     files: ['app/javascript/components/**/*.{ts,tsx,js,jsx}'],
-    plugins: { 'react-hooks': eslintPluginReactHooks },
+    // eslint-plugin-react-hooks v7 types its self-referential `configs.flat`
+    // in a way that isn't assignable to ESLint's `Plugin` interface; cast to
+    // satisfy defineConfig's stricter type checking.
+    plugins: { 'react-hooks': reactHooks as unknown as Plugin },
     rules: {
-      ...eslintPluginReactHooks.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
       'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': 'error'
     }
@@ -37,4 +42,4 @@ export default tseslint.config(
     files: ['*.config.{ts,js}'],
     languageOptions: { globals: { ...globals.node } }
   }
-);
+]);

@@ -50,9 +50,9 @@ class Columns::LinkedDropDownColumn < Columns::ChampColumn
     end
   end
 
-  private
-
   def column_id = "type_de_champ/#{stable_id}.#{path}"
+
+  private
 
   def typed_value(champ)
     primary_value, secondary_value = unpack_values(champ.value)

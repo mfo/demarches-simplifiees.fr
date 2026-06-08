@@ -20,7 +20,8 @@
                   <%= button_tag("Liste des informations remontées", type: :button, class: "fr-btn fr-icon-info-line fr-btn--icon-left fr-btn--tertiary-no-outline fr-btn--sm",
                     data: { "fr-opened" => "false", "turbo-frame" => "api-champ-columns", action: "lazy-modal#load" },
                     src: api_champ_columns_admin_procedure_path(id: procedure.id, stable_id: type_de_champ.stable_id),
-                    "aria-controls" => "api-champ-columns-modal") %>
+                    "aria-controls" => "api-champ-columns-modal",
+                    "aria-haspopup" => "dialog") %>
                 </div>
               <% end %>
 
@@ -91,7 +92,7 @@
 
             <% if type_de_champ.explication? %>
               <div class="cell fr-mt-2w">
-                <div class="fr-toggle">
+                <div class="fr-toggle fr-toggle--no-label">
                   <%= form.check_box :collapsible_explanation_enabled, id: dom_id(type_de_champ, :collapsible_explanation_enabled), class: 'fr-toggle__input' %>
                   <%= form.label :collapsible_explanation_enabled, "Afficher un texte complémentaire affichable au clic", for: dom_id(type_de_champ, :collapsible_explanation_enabled), class: 'fr-toggle__label fr-label' %>
                 </div>
@@ -99,7 +100,7 @@
                 <% if form.object.collapsible_explanation_enabled? %>
                   <div class="cell fr-mt-1w">
                     <%= form.label :collapsible_explanation_text, for: dom_id(type_de_champ, :collapsible_explanation_text) do %>
-                      <%= "Texte complémentaire" %>
+                      Texte complémentaire
                     <% end %>
 
                     <%= form.text_area :collapsible_explanation_text, class: "fr-input small-margin small", id: dom_id(type_de_champ, :collapsible_explanation_text) %>
@@ -166,7 +167,7 @@
               <% else %>
                 <div class="fr-hr fr-mt-2w"></div>
                 <div class="cell" data-controller="hide-target">
-                  <div class="fr-toggle <%= class_names('fr-mb-2w': form.object.pj_limit_formats?) %>">
+                  <div class="fr-toggle fr-toggle--no-label <%= class_names('fr-mb-2w': form.object.pj_limit_formats?) %>">
                     <%= form.check_box :pj_limit_formats,
                       id: dom_id(type_de_champ, :pj_limit_formats),
                       class: 'fr-toggle__input',
@@ -225,7 +226,7 @@
               <% if !type_de_champ.titre_identite? %>
                 <div class="fr-hr fr-mt-2w"></div>
                 <div class="cell">
-                  <div class="fr-toggle">
+                  <div class="fr-toggle fr-toggle--no-label">
                     <%= form.check_box :pj_auto_purge, id: dom_id(type_de_champ, :pj_auto_purge), class: 'fr-toggle__input' %>
                     <%= form.label :pj_auto_purge, t('.auto_purge_label'), for: dom_id(type_de_champ, :pj_auto_purge), class: 'fr-toggle__label fr-label' %>
                   </div>
@@ -277,14 +278,14 @@
                     Format accepté
                   </legend>
 
-                  <div class="fr-toggle">
+                  <div class="fr-toggle fr-toggle--no-label">
                     <%= form.check_box :positive_number, id: dom_id(type_de_champ, :positive_number), class: 'fr-toggle__input' %>
                     <%= form.label :positive_number, "Ce nombre doit être positif", for: dom_id(type_de_champ, :positive_number), class: 'fr-toggle__label fr-label' %>
                   </div>
                 </div>
 
                 <div class="cell fr-mt-2w">
-                  <div class="fr-toggle">
+                  <div class="fr-toggle fr-toggle--no-label">
                     <%= form.check_box :range_number, id: dom_id(type_de_champ, :range_number), class: 'fr-toggle__input' %>
                     <%= form.label :range_number, "Ce nombre doit être compris entre des valeurs limites", for: dom_id(type_de_champ, :range_number), class: 'fr-toggle__label fr-label' %>
                   </div>
@@ -326,7 +327,7 @@
                   </legend>
 
                   <% if type_de_champ.date? %>
-                    <div class="fr-toggle">
+                    <div class="fr-toggle fr-toggle--no-label">
                       <%= form.check_box :birthdate, id: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__input' %>
                       <%= form.label :birthdate, "Ce champ est une date de naissance", for: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__label fr-label' %>
                     </div>
@@ -337,7 +338,7 @@
                   <% end %>
 
                   <% if type_de_champ.date? && form.object.birthdate? %>
-                    <div class="fr-toggle fr-mt-2w">
+                    <div class="fr-toggle fr-mt-2w fr-toggle--no-label">
                       <%= form.check_box :prefill_with_france_connect_information, { id: dom_id(type_de_champ, :prefill_with_france_connect_information), class: 'fr-toggle__input', disabled: prefill_with_france_connect_information_locked_by_sibling? } %>
                       <%= form.label :prefill_with_france_connect_information, "Préremplir avec la date de naissance FranceConnect", for: dom_id(type_de_champ, :prefill_with_france_connect_information), class: 'fr-toggle__label fr-label' %>
                     </div>
@@ -357,11 +358,11 @@
                   <% end %>
 
                   <% if !form.object.birthdate? %>
-                    <div class="fr-toggle fr-mt-2w">
+                    <div class="fr-toggle fr-mt-2w fr-toggle--no-label">
                       <%= form.check_box :date_in_past, id: dom_id(type_de_champ, :date_in_past), class: 'fr-toggle__input' %>
                       <%= form.label :date_in_past, "Cette date doit être dans le passé", for: dom_id(type_de_champ, :date_in_past), class: 'fr-toggle__label fr-label' %>
                     </div>
-                    <div class="fr-toggle fr-mt-2w">
+                    <div class="fr-toggle fr-mt-2w fr-toggle--no-label">
                       <%= form.check_box :range_date, id: dom_id(type_de_champ, :range_date), class: 'fr-toggle__input' %>
                       <%= form.label :range_date, "Cette date doit être comprise entre des dates limites", for: dom_id(type_de_champ, :range_date), class: 'fr-toggle__label fr-label' %>
                     </div>
@@ -613,7 +614,7 @@
       </div>
     <% end %>
 
-    <%= render(Conditions::ChampsConditionsComponent.new(tdc: type_de_champ, upper_tdcs: @upper_coordinates.map(&:type_de_champ), procedure_id: procedure.id)) %>
+    <%= render(Conditions::ChampsConditionsComponent.new(tdc: type_de_champ, upper_tdcs: @upper_coordinates.map(&:type_de_champ), procedure:)) %>
 
     <div class="flex justify-between section footer">
       <div class="position flex align-center">
@@ -631,7 +632,7 @@
           <%= tag.span(safe_join(["utilisé pour", link_to('l’eligibilité des dossiers', edit_admin_procedure_ineligibilite_rules_path(revision.procedure_id))], "\n")) %>
         <% else %>
           <% if coordinate.prefilled_by_type_de_champ %>
-            <span><%= "Champ prérempli (référentiel)" %></span>
+            <span>Champ prérempli (référentiel)</span>
           <% end %>
           <%= button_to type_de_champ_path, class: 'fr-btn fr-btn--tertiary-no-outline fr-icon-delete-line', title: "Supprimer le champ", method: :delete, form: { data: { turbo_confirm: } } do %>
             <span class="fr-sr-only">Supprimer</span>

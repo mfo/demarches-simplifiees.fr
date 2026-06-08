@@ -1,6 +1,15 @@
 en:
   instructeurs:
     procedures:
+      order_positions:
+        title: Order
+        back_to_procedures: Procedures list
+        heading_html: Customize the order of %{count} ongoing procedures
+        description: "Move procedures in the list to sort them by your preferences:"
+        status_close: Closed
+        status_depubliee: Unpublished
+        cancel: Cancel
+        submit: Submit
       show:
         file_tracking: File tracking
         reinit_display: Your display had to be reset due to a technical issue.

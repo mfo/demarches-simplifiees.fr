@@ -2,7 +2,7 @@
   - invites = dossier.invites.count
   %button.fr-btn.fr-btn--secondary{
     type: "button",
-    aria: { controls: "dossier-invites-modal-dialog" },
+    aria: { controls: "dossier-invites-modal-dialog", haspopup: "dialog" },
     data: { "fr-opened" => "false", "turbo-frame" => "dossier-invites-modal", action: "lazy-modal#load" },
     src: dossier_index_invites_path(dossier_id: dossier.id),
   }

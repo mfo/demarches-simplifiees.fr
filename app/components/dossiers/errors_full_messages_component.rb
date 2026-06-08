@@ -29,7 +29,8 @@ class Dossiers::ErrorsFullMessagesComponent < ApplicationComponent
   end
 
   def model_libelle(model)
-    parent_prefix(model) + row_number_prefix(model) + model.libelle.truncate(200)
+    libelle = model.try(:libelle_for_error) || model.libelle
+    parent_prefix(model) + row_number_prefix(model) + libelle.truncate(200)
   end
 
   def parent_prefix(model)

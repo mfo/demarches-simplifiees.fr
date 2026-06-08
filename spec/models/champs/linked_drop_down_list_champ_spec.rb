@@ -118,6 +118,41 @@ describe Champs::LinkedDropDownListChamp do
     end
   end
 
+  describe '#libelle_for_error' do
+    let(:options) do
+      ['--Primary 1--', 'Secondary 1.1', 'Secondary 1.2', '--Primary 2--', 'Secondary 2.1']
+    end
+
+    context 'when the primary value is blank' do
+      it 'returns the champ libelle' do
+        expect(champ.libelle_for_error).to eq(champ.libelle)
+      end
+    end
+
+    context 'when the primary value is set but the secondary is blank' do
+      before { champ.primary_value = 'Primary 1' }
+
+      context 'without a custom secondary libelle' do
+        it 'returns the i18n default secondary libelle' do
+          expect(champ.libelle_for_error)
+            .to eq(I18n.t('shared.champs.linked_drop_down_list.secondary_default_libelle'))
+        end
+      end
+
+      context 'with a custom secondary libelle' do
+        let(:procedure) do
+          create(:procedure, types_de_champ_public: [
+            { type: :linked_drop_down_list, libelle: 'Ville', options:, secondary_libelle: 'Quartier', mandatory: true },
+          ])
+        end
+
+        it 'returns the custom secondary libelle' do
+          expect(champ.libelle_for_error).to eq('Quartier')
+        end
+      end
+    end
+  end
+
   describe '#mandatory_and_blank' do
     let(:options) { ["--Primary--", "Secondary"] }
 
@@ -156,6 +191,53 @@ describe Champs::LinkedDropDownListChamp do
           it { is_expected.not_to be_mandatory_blank }
         end
       end
+    end
+  end
+
+  describe '#validate_completed' do
+    let(:options) { ['--Primary 1--', 'Secondary 1.1', 'Secondary 1.2', '--Primary 2--'] }
+
+    subject do
+      champ.validate_completed
+      champ.errors
+    end
+
+    context 'when the champ is not mandatory' do
+      let(:mandatory) { false }
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'when mandatory and the primary value is blank' do
+      it 'adds a missing error on :value (the main value) only' do
+        expect(subject).to be_added(:value, :missing)
+        expect(subject).not_to be_added(:secondary_value, :missing)
+      end
+    end
+
+    context 'when mandatory, primary set and secondary blank' do
+      before { champ.primary_value = 'Primary 1' }
+
+      it 'adds a missing error on :secondary_value only' do
+        expect(subject).to be_added(:secondary_value, :missing)
+        expect(subject).not_to be_added(:primary_value, :missing)
+      end
+    end
+
+    context 'when mandatory and complete' do
+      before do
+        champ.primary_value = 'Primary 1'
+        champ.secondary_value = 'Secondary 1.1'
+      end
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'when mandatory, primary set but it has no secondary options' do
+      let(:options) { ['--A--', 'Abbott', '--B--'] }
+      before { champ.primary_value = 'B' }
+
+      it { is_expected.to be_empty }
     end
   end
 end

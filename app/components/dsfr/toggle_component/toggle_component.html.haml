@@ -1,4 +1,4 @@
-%div{ class: "fr-toggle #{extra_class_names}" }
+%div{ class: "fr-toggle #{no_label_class} #{extra_class_names}" }
   = @form.check_box target, check_box_options
   = @form.label target, title || html_title&.html_safe, label_options
 

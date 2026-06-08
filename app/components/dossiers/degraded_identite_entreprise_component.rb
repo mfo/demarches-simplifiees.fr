@@ -9,7 +9,7 @@ class Dossiers::DegradedIdentiteEntrepriseComponent < ApplicationComponent
   end
 
   def call
-    source = 'Annuaire des Entreprises'
+    source = t('.source')
     header = safe_join([
       render(insee_down),
       render(Dossiers::AnnuaireEntrepriseLinkComponent.new(

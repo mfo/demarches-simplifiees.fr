@@ -20,6 +20,10 @@ fr:
           sans_suite: "Expirera le %{date} (%{duree_conservation_totale} mois après le traitement dossier)"
 
 
+    order_positions:
+      move_up: Déplacer vers le haut
+      move_down: Déplacer vers le bas
+
     champs:
       rna:
         show:

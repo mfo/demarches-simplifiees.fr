@@ -304,3 +304,13 @@ input[type='radio'] {
     flex-basis: 100%;
   }
 }
+
+// Supprime l'ombre du composant fr-tabs pour que l'onglet actif s'affiche sans ombre
+.fr-tabs {
+  box-shadow: none;
+}
+
+// Réduit le margin droit du toggle lorsqu'il n'y a pas de label associé
+.fr-toggle.fr-toggle--no-label label::before {
+  margin-right: 0.5rem;
+}

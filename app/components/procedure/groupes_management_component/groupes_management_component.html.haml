@@ -2,7 +2,7 @@
 %h1.fr-h2 Gestion des groupes
 
 .flex.align-center
-  %button.fr-btn.fr-btn--primary.fr-icon-add-line.fr-btn--icon-left.fr-mb-3w{ 'aria-controls': 'modal-add-groupe', 'data-fr-opened': 'false' }
+  %button.fr-btn.fr-btn--primary.fr-icon-add-line.fr-btn--icon-left.fr-mb-3w{ 'aria-controls': 'modal-add-groupe', 'aria-haspopup': 'dialog', 'data-fr-opened': 'false' }
     = t('.add_groupe_modal.title')
   = render Procedure::ImportComponent.new(procedure: @procedure)
 
