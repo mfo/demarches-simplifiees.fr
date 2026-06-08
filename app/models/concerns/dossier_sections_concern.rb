@@ -23,28 +23,36 @@ module DossierSectionsConcern
     sections_for(type_de_champ)&.none? { _1.libelle =~ /^\d/ }
   end
 
-  def index_for_section_header(type_de_champ)
-    types_de_champ = type_de_champ.private? ? revision.types_de_champ_private : revision.types_de_champ_public
+  def index_for_section_header(header)
+    types_de_champ = header.private? ? revision.types_de_champ_private : revision.types_de_champ_public
     counters = []
 
     types_de_champ.each do |tdc|
       if tdc.repetition?
-        index_in_repetition = revision.children_of(tdc).find_index { _1.stable_id == type_de_champ.stable_id }
+        index_in_repetition = revision.children_of(tdc).find_index { _1.stable_id == header.stable_id }
         return "#{counters.first || 1}.#{index_in_repetition + 1}" if index_in_repetition
         next
       end
 
-      next unless tdc.header_section?
-      next unless project_champ(tdc).visible?
+      next if !tdc.header_section?
+      next if !project_champ(tdc).visible?
 
       level = tdc.level_for_revision(revision)
+
+      # drop counter with a higher level
+      # ex: counters = [1,2,2], new header of level 2, drop last
       counters = counters.first(level)
+
+      # increase current counter
       counters[level - 1] = (counters[level - 1] || 0) + 1
+
+      # in case of missing level, fill any skipped ancestor level with 1
       (0...level).each { |i| counters[i] ||= 1 }
 
-      return counters.join('.') if tdc.stable_id == type_de_champ.stable_id
+      return counters.join('.') if tdc.stable_id == header.stable_id
     end
 
-    counters.join('.')
+    # invisible header: no number
+    nil
   end
 end
