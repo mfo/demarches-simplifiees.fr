@@ -65,6 +65,51 @@ describe 'administrateurs/procedures/show', type: :view do
     end
   end
 
+  describe 'procedure is closed with internal_procedure replacement' do
+    let(:replacement) { create(:procedure, :published, libelle: 'Démarche de remplacement') }
+
+    before do
+      procedure.publish!(procedure.administrateurs.first)
+      procedure.update!(closing_reason: 'internal_procedure', replaced_by_procedure_id: replacement.id)
+      procedure.close!
+      procedure.reload
+    end
+
+    context 'when the replacement procedure is kept' do
+      before { render }
+
+      it 'renders the libelle and a link to the replacement procedure' do
+        expect(rendered).to have_content('Cette démarche est remplacée par une autre démarche')
+        expect(rendered).to have_link('Démarche de remplacement', href: admin_procedure_path(replacement))
+      end
+    end
+
+    context 'when the replacement procedure is discarded' do
+      before do
+        replacement.discard!
+        render
+      end
+
+      it 'renders the libelle without a link and a fallback message' do
+        expect(rendered).to have_content('Démarche de remplacement')
+        expect(rendered).to have_content("n'est plus disponible")
+        expect(rendered).not_to have_link('Démarche de remplacement')
+      end
+    end
+
+    context 'when the replaced_by_procedure_id points to a missing procedure' do
+      before do
+        procedure.update_column(:replaced_by_procedure_id, Procedure.maximum(:id).to_i + 1_000)
+        render
+      end
+
+      it 'renders a fallback message and does not crash' do
+        expect(rendered).to have_content("Cette démarche était remplacée par une démarche qui n'est plus disponible.")
+        expect(rendered).not_to have_content('Cette démarche est remplacée par une autre démarche')
+      end
+    end
+  end
+
   describe 'procedure with expiration disabled' do
     let(:procedure) { create(:procedure, procedure_expires_when_termine_enabled: true) }
     before do
