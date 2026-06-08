@@ -118,6 +118,10 @@
         <% end %>
       <% end %>
 
+      <% if dossier.en_construction? %>
+        <%= render Dossiers::EnConstructionNotSubmittedComponent.new(dossier: dossier, user: current_user) %>
+      <% end %>
+
       <% if dossier.pending_correction? %>
         <%= render Dsfr::AlertComponent.new(state: :warning, size: :sm, extra_class_names: "fr-mb-2w") do |c| %>
           <% c.with_body do %>
