@@ -424,7 +424,7 @@ class DossierNotification < ApplicationRecord
     when :dossier_expirant
       dossiers
         .select(:id, :revision_id, :expired_at)
-        .termine_or_en_construction_close_to_expiration
+        .termine_close_to_expiration
     when :dossier_suppression
       dossiers
         .select(:id, :hidden_by_administration_at, :hidden_by_expired_at, :hidden_by_user_at)

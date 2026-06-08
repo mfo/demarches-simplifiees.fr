@@ -484,6 +484,18 @@ describe Instructeur, type: :model do
         end
       end
 
+      context 'with an en_construction dossier near its former expiration date (#13178)' do
+        let!(:en_construction_dossier) do
+          create(:dossier, :en_construction, procedure:, en_construction_at: 50.days.ago).tap do |d|
+            d.update_column(:expired_at, 3.days.from_now)
+          end
+        end
+
+        it 'does not count en_construction as expirant' do
+          expect(subject['expirant']).to eq(0)
+        end
+      end
+
       context 'with a new dossier without follower' do
         let!(:new_unfollow_dossier) { create(:dossier, :en_instruction, procedure: procedure) }
 
@@ -634,7 +646,7 @@ describe Instructeur, type: :model do
           expect(subject['tous']).to eq(2)
           expect(subject['archives']).to eq(0)
           expect(subject['supprimes']).to eq(2)
-          expect(subject['expirant']).to eq(2)
+          expect(subject['expirant']).to eq(1) # en_construction no longer expires (#13178)
         end
       end
     end

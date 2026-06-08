@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Dossier < ApplicationRecord
-  self.ignored_columns += [:search_terms, :private_search_terms, :editing_fork_origin_id, :last_champ_piece_jointe_updated_at]
+  self.ignored_columns += [:search_terms, :private_search_terms, :editing_fork_origin_id, :last_champ_piece_jointe_updated_at, :en_construction_close_to_expiration_notice_sent_at]
 
   include DossierCloneConcern
   include DossierCorrectableConcern
@@ -327,11 +327,6 @@ class Dossier < ApplicationRecord
       .visible_by_user
       .where(expired_at: ..(Time.zone.now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
-  scope :en_construction_close_to_expiration, -> do
-    state_en_construction
-      .visible_by_user_or_administration
-      .where(expired_at: ..(Time.zone.now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
-  end
   scope :termine_close_to_expiration, -> do
     state_termine
       .visible_by_user_or_administration
@@ -343,14 +338,6 @@ class Dossier < ApplicationRecord
   scope :close_to_expiration, -> do
     joins(:procedure).scoping do
       brouillon_close_to_expiration
-        .or(en_construction_close_to_expiration)
-        .or(termine_close_to_expiration)
-    end
-  end
-
-  scope :termine_or_en_construction_close_to_expiration, -> do
-    joins(:procedure).scoping do
-      en_construction_close_to_expiration
         .or(termine_close_to_expiration)
     end
   end
@@ -361,11 +348,6 @@ class Dossier < ApplicationRecord
       .visible_by_user
       .where(brouillon_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
-  scope :en_construction_expired, -> do
-    state_en_construction
-      .visible_by_user_or_administration
-      .where(en_construction_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
-  end
   scope :termine_expired, -> do
     state_termine
       .visible_by_user_or_administration
@@ -373,7 +355,6 @@ class Dossier < ApplicationRecord
   end
 
   scope :without_brouillon_expiration_notice_sent, -> { where(brouillon_close_to_expiration_notice_sent_at: nil) }
-  scope :without_en_construction_expiration_notice_sent, -> { where(en_construction_close_to_expiration_notice_sent_at: nil) }
   scope :without_termine_expiration_notice_sent, -> { where(termine_close_to_expiration_notice_sent_at: nil) }
   scope :without_dossier_expirant_notification, -> do
     where.not(
@@ -449,7 +430,7 @@ class Dossier < ApplicationRecord
     when 'archives'
       visible_by_administration.archived
     when 'expirant'
-      visible_by_administration.termine_or_en_construction_close_to_expiration
+      visible_by_administration.termine_close_to_expiration
     end
   end
 
@@ -524,7 +505,6 @@ class Dossier < ApplicationRecord
   def expiration_started?
     [
       brouillon_close_to_expiration_notice_sent_at,
-      en_construction_close_to_expiration_notice_sent_at,
       termine_close_to_expiration_notice_sent_at,
     ].any?(&:present?)
   end
@@ -649,24 +629,21 @@ class Dossier < ApplicationRecord
   def expirable?
     [
       brouillon?,
-      en_construction?,
       termine? && procedure.procedure_expires_when_termine_enabled,
     ].any?
   end
 
   def close_to_expiration?
-    return false if en_instruction?
+    return false if en_instruction? || en_construction?
     expired_at < Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now && Time.zone.now < expired_at
   end
 
   def has_expired?
-    return false if en_instruction?
+    return false if en_instruction? || en_construction?
 
     notice_sent_at =
       if brouillon?
         brouillon_close_to_expiration_notice_sent_at
-      elsif en_construction?
-        en_construction_close_to_expiration_notice_sent_at
       elsif termine?
         termine_close_to_expiration_notice_sent_at
       end
@@ -701,15 +678,13 @@ class Dossier < ApplicationRecord
   def after_notification_expiration_date
     if brouillon? && brouillon_close_to_expiration_notice_sent_at.present?
       brouillon_close_to_expiration_notice_sent_at + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks
-    elsif en_construction? && en_construction_close_to_expiration_notice_sent_at.present?
-      en_construction_close_to_expiration_notice_sent_at + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks
     elsif termine? && termine_close_to_expiration_notice_sent_at.present?
       termine_close_to_expiration_notice_sent_at + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks
     end
   end
 
   def expiration_date
-    return nil if en_instruction?
+    return nil if en_instruction? || en_construction?
 
     after_notification_expiration_date.presence || expiration_date_with_extension
   end
@@ -717,13 +692,12 @@ class Dossier < ApplicationRecord
   def update_expired_at = update_column(:expired_at, expiration_date)
 
   def expiration_can_be_extended?
-    brouillon? || en_construction?
+    brouillon?
   end
 
   def extend_conservation(conservation_extension)
     update(conservation_extension: self.conservation_extension + conservation_extension,
       brouillon_close_to_expiration_notice_sent_at: nil,
-      en_construction_close_to_expiration_notice_sent_at: nil,
       termine_close_to_expiration_notice_sent_at: nil)
     update_expired_at
     DossierNotification.destroy_notifications_by_dossier_and_type(self, :dossier_expirant)

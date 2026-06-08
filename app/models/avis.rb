@@ -37,7 +37,6 @@ class Avis < ApplicationRecord
   scope :by_latest, -> { order(updated_at: :desc) }
   scope :updated_since?, -> (date) { where('avis.updated_at > ?', date) }
   scope :termine_expired, -> { unscope(:joins).where(dossier: Dossier.termine_expired) }
-  scope :en_construction_expired, -> { unscope(:joins).where(dossier: Dossier.en_construction_expired) }
   scope :not_hidden_by_administration, -> { where(dossiers: { hidden_by_administration_at: nil }) }
   scope :not_revoked, -> { where(revoked_at: nil) }
   scope :not_termine, -> { where.not(dossiers: { state: Dossier::TERMINE }) }

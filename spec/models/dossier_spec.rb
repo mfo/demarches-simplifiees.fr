@@ -214,64 +214,29 @@ describe Dossier, type: :model do
     end
   end
 
-  describe 'en_construction_close_to_expiration' do
-    let_it_be(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 6) }
-    let_it_be(:young_dossier) { create(:dossier, procedure:) }
-    let_it_be(:expiring_dossier) { create(:dossier, :en_construction, en_construction_at: 175.days.ago, procedure:) }
-    let_it_be(:expiring_dossier_with_notification) { create(:dossier, :en_construction, en_construction_at: 175.days.ago, en_construction_close_to_expiration_notice_sent_at: Time.zone.now, procedure:) }
-    let_it_be(:just_expired_dossier) { create(:dossier, :en_construction, en_construction_at: (6.months + 1.hour + 10.seconds).ago, procedure:) }
-    let_it_be(:long_expired_dossier) { create(:dossier, :en_construction, en_construction_at: 1.year.ago, procedure:) }
+  describe "en_construction never expires (#13178)" do
+    let(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 2) }
+    let(:dossier) { create(:dossier, :en_construction, procedure:, en_construction_at: 50.days.ago) }
 
-    subject { Dossier.en_construction_close_to_expiration }
-
-    before { procedure.dossiers.each(&:update_expired_at) }
-
-    it do
-      is_expected.not_to include(young_dossier)
-      is_expected.to include(expiring_dossier)
-      is_expected.to include(just_expired_dossier)
-      is_expected.to include(long_expired_dossier)
-      expect(expiring_dossier.reload.close_to_expiration?).to be_truthy
-      expect(expiring_dossier_with_notification.reload.close_to_expiration?).to be_truthy
+    it "is not expirable" do
+      expect(dossier.expirable?).to be(false)
     end
 
-    context 'does not include an expiring dossier that has been postponed' do
-      before do
-        expiring_dossier.extend_conservation(1.month)
-        expiring_dossier_with_notification.extend_conservation(1.month)
-        expiring_dossier.reload
-        expiring_dossier_with_notification.reload
-      end
-
-      it do
-        is_expected.not_to include(expiring_dossier)
-
-        expect(expiring_dossier.close_to_expiration?).to be_falsey
-        expect(expiring_dossier_with_notification.close_to_expiration?).to be_falsey
-
-        expect(expiring_dossier.expiration_date).to eq(expiring_dossier.expiration_date_with_extension)
-        expect(expiring_dossier_with_notification.expiration_date).to eq(expiring_dossier_with_notification.expiration_date_with_extension)
-      end
+    it "is never close_to_expiration" do
+      dossier.update_column(:expired_at, 3.days.from_now)
+      expect(dossier.close_to_expiration?).to be(false)
     end
 
-    context 'when .close_to_expiration' do
-      subject { Dossier.close_to_expiration }
-      it do
-        is_expected.not_to include(young_dossier)
-        is_expected.to include(expiring_dossier)
-        is_expected.to include(just_expired_dossier)
-        is_expected.to include(long_expired_dossier)
-      end
+    it "has no expiration_date" do
+      expect(dossier.expiration_date).to be_nil
     end
 
-    context 'when .termine_or_en_construction_close_to_expiration' do
-      subject { Dossier.termine_or_en_construction_close_to_expiration }
-      it do
-        is_expected.not_to include(young_dossier)
-        is_expected.to include(expiring_dossier)
-        is_expected.to include(just_expired_dossier)
-        is_expected.to include(long_expired_dossier)
-      end
+    it "has not expired" do
+      expect(dossier.has_expired?).to be(false)
+    end
+
+    it "cannot extend conservation" do
+      expect(dossier.expiration_can_be_extended?).to be(false)
     end
   end
 
@@ -318,16 +283,6 @@ describe Dossier, type: :model do
 
     context 'when .close_to_expiration' do
       subject { Dossier.close_to_expiration }
-      it do
-        is_expected.not_to include(young_dossier)
-        is_expected.to include(expiring_dossier)
-        is_expected.to include(just_expired_dossier)
-        is_expected.to include(long_expired_dossier)
-      end
-    end
-
-    context 'when .close_to_expiration' do
-      subject { Dossier.termine_or_en_construction_close_to_expiration }
       it do
         is_expected.not_to include(young_dossier)
         is_expected.to include(expiring_dossier)
@@ -960,6 +915,8 @@ describe Dossier, type: :model do
         let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [new_instructeur]) }
 
         context "when notification is dossier_expirant" do
+          let(:procedure) { create(:procedure, procedure_expires_when_termine_enabled: true) }
+          let(:dossier) { create(:dossier, :accepte, procedure:) }
           before { dossier.update(expired_at: 1.week.from_now) }
 
           it "refreshes notifications for new instructeur" do
@@ -1636,7 +1593,7 @@ describe Dossier, type: :model do
   end
 
   describe '#passer_en_instruction!' do
-    let(:dossier) { create(:dossier, :en_construction, en_construction_close_to_expiration_notice_sent_at: Time.zone.now) }
+    let(:dossier) { create(:dossier, :en_construction) }
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let(:operation_serialized) { last_operation.data }
     let(:instructeur) { create(:instructeur) }
@@ -1649,7 +1606,6 @@ describe Dossier, type: :model do
 
       expect(dossier.state).to eq('en_instruction')
       expect(dossier.followers_instructeurs).to include(instructeur)
-      expect(dossier.en_construction_close_to_expiration_notice_sent_at).to be_nil
       expect(last_operation.operation).to eq('passer_en_instruction')
       expect(last_operation.automatic_operation?).to be_falsey
       expect(operation_serialized['operation']).to eq('passer_en_instruction')
@@ -1677,7 +1633,7 @@ describe Dossier, type: :model do
     let(:instructeur) { create(:instructeur) }
 
     context "via procedure declarative en instruction" do
-      let(:dossier) { create(:dossier, :en_construction, :with_declarative_en_instruction, en_construction_close_to_expiration_notice_sent_at: Time.zone.now) }
+      let(:dossier) { create(:dossier, :en_construction, :with_declarative_en_instruction) }
 
       subject do
         dossier.process_declarative!
@@ -1686,7 +1642,6 @@ describe Dossier, type: :model do
 
       it 'passes dossier en instruction' do
         expect(subject.followers_instructeurs).not_to include(instructeur)
-        expect(subject.en_construction_close_to_expiration_notice_sent_at).to be_nil
         expect(subject.declarative_triggered_at).to be_within(1.second).of(Time.current)
         expect(last_operation.operation).to eq('passer_en_instruction')
         expect(last_operation.automatic_operation?).to be_truthy
