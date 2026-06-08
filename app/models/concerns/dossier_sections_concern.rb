@@ -27,10 +27,10 @@ module DossierSectionsConcern
     types_de_champ = header.private? ? revision.types_de_champ_private : revision.types_de_champ_public
     counters = []
 
-    types_de_champ.each do |tdc|
-      next if !tdc.header_section?
-      next if !project_champ(tdc).visible?
-
+    types_de_champ
+      .filter(&:header_section?)
+      .filter { project_champ(it).visible? }
+      .each do |tdc|
       level = tdc.level_for_revision(revision)
 
       # drop counter with a higher level
