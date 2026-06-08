@@ -22,9 +22,10 @@
     - path = dossier_linked_path(current_instructeur || current_user, dossier)
     - if path.present?
       %p= link_to("Dossier n° #{dossier.id}", path, target: '_blank', rel: 'noopener')
+    - elsif current_instructeur
+      = render Dossiers::NoAccessToDossierComponent.new(dossier, current_instructeur)
     - else
       %p Dossier n° #{dossier.id}
-    %br
     .copy-zone
       %p= sanitize(dossier.text_summary)
 - else

@@ -81,9 +81,9 @@ describe 'shared/dossiers/champs', type: :view do
       dossier.champs.first.update(value: dossier.id)
     end
 
-    it do
-      is_expected.not_to have_link("Dossier n° #{dossier.id}")
-      is_expected.to include("Dossier n° #{dossier.id}")
+    it "renders the no-access modal trigger" do
+      is_expected.to have_link("Dossier n° #{dossier.id}", href: "#modal-no-access-to-dossier-#{dossier.id}")
+      is_expected.to have_text("Vous n'avez pas accès à ce dossier")
       is_expected.to include(dossier.text_summary)
     end
   end
