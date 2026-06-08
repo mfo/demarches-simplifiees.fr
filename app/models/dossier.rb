@@ -745,25 +745,24 @@ class Dossier < ApplicationRecord
   end
 
   def text_summary
-    if brouillon?
-      parts = [
-        "Dossier en brouillon répondant à la démarche ",
-        procedure.libelle,
-        " gérée par l’organisme ",
-        procedure.organisation_name,
-      ]
+    text_summary_segments.map { _1[:text] }.join
+  end
+
+  # Segments du résumé, avec emphasis: true sur les noms (démarche, organisme)
+  # pour permettre une mise en forme partielle dans les vues.
+  def text_summary_segments
+    intro = if brouillon?
+      "Dossier en brouillon répondant à la démarche "
     else
-      parts = [
-        "Dossier déposé le ",
-        depose_at.strftime("%d/%m/%Y"),
-        " sur la démarche ",
-        procedure.libelle,
-        " gérée par l’organisme ",
-        procedure.organisation_name,
-      ]
+      "Dossier déposé le #{depose_at.strftime("%d/%m/%Y")} sur la démarche "
     end
 
-    parts.join
+    [
+      { text: intro },
+      { text: procedure.libelle, emphasis: true },
+      { text: " gérée par l’organisme " },
+      { text: procedure.organisation_name, emphasis: true },
+    ]
   end
 
   def avis_for_expert(expert)

@@ -27,6 +27,6 @@
     - else
       %p Dossier n° #{dossier.id}
     .copy-zone
-      %p= sanitize(dossier.text_summary)
+      %p= safe_join(dossier.text_summary_segments.map { it[:emphasis] ? tag.strong(it[:text]) : it[:text] })
 - else
   %p Pas de dossier associé
