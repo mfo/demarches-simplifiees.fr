@@ -12,7 +12,7 @@ class DossierDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number.with_options(searchable: true),
     procedure: Field::HasOne,
-    state: Field::Enum,
+    state: EnumField,
     user: Field::BelongsTo,
     text_summary: Field::String.with_options(searchable: false),
     created_at: Field::DateTime,
