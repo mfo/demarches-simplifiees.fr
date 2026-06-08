@@ -53,6 +53,12 @@
       <%= f.label :content, "Contenu de la bannière" %>
       <%= f.text_area :content, rows: 3, placeholder: "Vider le champ pour désactiver la bannière" %>
 
+      <% if SUPER_ADMIN_OTP_ENABLED %>
+        <div class="field-unit field-unit--required fr-mt-2v">
+          <%= render Manager::OtpAttemptInputComponent.new(id: "otp_attempt_#{banner.target}") %>
+        </div>
+      <% end %>
+
       <%= f.submit "Enregistrer", class: "button fr-mt-2v" %>
 
       <p class="attribute-data fr-mt-2v">

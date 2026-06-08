@@ -2,6 +2,10 @@
 
 module Manager
   class BannersController < Manager::ApplicationController
+    include RequiresFreshSuperAdminOtp
+
+    before_action :verify_fresh_super_admin_otp!, only: [:update]
+
     def index
       @banners = Banner.order(:id)
     end
