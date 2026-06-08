@@ -1,7 +1,7 @@
+# frozen_string_literal: true
+
 module Manager
   class BannersController < Manager::ApplicationController
-    helper ManagerBannerIconsHelper
-
     def index
       @banners = Banner.order(:id)
     end

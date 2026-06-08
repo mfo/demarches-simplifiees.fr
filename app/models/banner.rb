@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class Banner < ApplicationRecord
   TARGETS = {
     global: "global",
     instructeurs_only: "instructeurs_only",
     usagers_only: "usagers_only",
     login_page: "login_page",
-    manager_login: "manager_login"
+    manager_login: "manager_login",
   }.freeze
 
   TARGET_LABELS = {
@@ -12,7 +14,7 @@ class Banner < ApplicationRecord
     "instructeurs_only" => "Bannière instructeurs",
     "usagers_only" => "Bannière usagers",
     "login_page" => "Page de connexion",
-    "manager_login" => "Connexion manager"
+    "manager_login" => "Connexion manager",
   }.freeze
 
   TARGET_DESCRIPTIONS = {
@@ -20,15 +22,7 @@ class Banner < ApplicationRecord
     "instructeurs_only" => "Visible uniquement par les instructeurs connectés",
     "usagers_only" => "Visible par tous les profils non-instructeurs (usagers, administrateurs, experts, gestionnaires)",
     "login_page" => "Visible sur les pages de connexion et d'inscription (/users/sign_in, /users/sign_up)",
-    "manager_login" => "Visible sur la page de connexion super admin (/super_admins/sign_in)"
-  }.freeze
-
-  TARGET_ICONS = {
-    "global" => "globe",
-    "instructeurs_only" => "user-group",
-    "usagers_only" => "users",
-    "login_page" => "key",
-    "manager_login" => "shield-check"
+    "manager_login" => "Visible sur la page de connexion super admin (/super_admins/sign_in)",
   }.freeze
 
   SANITIZE_TAGS = %w[a strong em b i br u abbr sub sup].freeze

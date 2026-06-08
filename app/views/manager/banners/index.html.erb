@@ -1,131 +1,63 @@
-<% active_count = @banners.count(&:active?) %>
-<% total_count = @banners.count %>
+<% content_for(:title) { "Bannières du site" } %>
 
-<div class="bn-page">
-  <div class="bn-header">
-    <div class="bn-header__icon"><%= manager_banner_icon('megaphone') %></div>
+<header class="main-content__header">
+  <h1 class="main-content__page-title"><%= content_for(:title) %></h1>
+</header>
 
-    <div class="bn-header__content">
-      <h1 class="bn-header__title">Bannières du site</h1>
+<section class="main-content__body">
+  <p>
+    Messages d'information affichés en haut des pages et sur les écrans de
+    connexion. Les modifications sont appliquées immédiatement, sans
+    redéploiement.
+    <strong><%= @banners.count(&:active?) %> sur <%= @banners.size %></strong>
+    bannières actuellement actives.
+  </p>
 
-      <p class="bn-header__lead">
-        Messages d'information affichés en haut des pages et sur les écrans de
-        connexion. Les modifications sont appliquées immédiatement, sans
-        redéploiement.
+  <p>
+    Pour publier une bannière, renseignez son contenu et enregistrez. Pour la
+    retirer, videz le contenu et enregistrez.
+  </p>
+
+  <p>
+    <strong>Balises HTML autorisées :</strong>
+    <%= safe_join(Banner::SANITIZE_TAGS.map { tag.code("<#{it}>") }, ' ') %>.
+    Toute autre balise est automatiquement supprimée à l'affichage.
+  </p>
+
+  <% example = "<strong>Maintenance prévue</strong> le 10 avril à 22h. Plus d'infos sur le <a href=\"https://demarches-simplifiees.fr\">portail officiel</a>." %>
+
+  <p>Exemple : <code><%= example %></code></p>
+</section>
+
+<% @banners.each_with_index do |banner, index| %>
+  <% if index.positive? %>
+    <hr>
+  <% end %>
+
+  <section class="main-content__body">
+    <h2><%= Banner::TARGET_LABELS[banner.target] %></h2>
+
+    <% if banner.active? %>
+      <p class="flash-success">
+        <strong>Active</strong> — actuellement affichée sur le site
       </p>
-    </div>
-  </div>
-
-  <div class="bn-stats">
-    <div class="bn-stats__indicator">
-      <div class="bn-stats__dot"></div>
-      <span class="bn-stats__count"><%= active_count %></span>
-    </div>
-
-    <span class="bn-stats__label">
-      sur <%= total_count %> bannières actuellement actives
-    </span>
-  </div>
-
-  <div class="bn-guide">
-    <div class="bn-guide__header">
-      <%= manager_banner_icon('info') %>
-
-      <h2 class="bn-guide__title">Guide d'utilisation</h2>
-    </div>
-
-    <div class="bn-guide__body">
-      <p>
-        Chaque carte ci-dessous correspond à une bannière du site. Pour publier,
-        remplissez le contenu et cliquez « Enregistrer ». Pour dépublier, videz
-        le contenu et enregistrez.
+    <% else %>
+      <p class="flash-notice">
+        <strong>Inactive</strong> — masquée tant que le contenu est vide
       </p>
-
-      <p><strong>Balises HTML autorisées :</strong></p>
-
-      <p>
-        <%= safe_join(Banner::SANITIZE_TAGS.map { tag.code("<#{it}>") }, ' ') %>
-      </p>
-
-      <p>
-        Toute autre balise (titres, listes, blocs, scripts) est automatiquement
-        supprimée à l'affichage. Le contenu doit rester court et composé
-        d'éléments inline uniquement.
-      </p>
-
-      <p><strong>Exemples :</strong></p>
-
-      <ul>
-        <li>
-          <em>Texte en gras :</em>
-          <%= ' Maintenance prévue le <strong>10 avril à 22h</strong>' %>
-        </li>
-
-        <li>
-          <em>Lien cliquable :</em>
-          <%= ' Consultez <a href="https://demarches-simplifiees.fr">le portail officiel</a> pour plus d\'informations' %>
-        </li>
-
-        <li>
-          <em>Combinaison :</em>
-          <%= ' Plus d\'infos <a href="https://example.fr">en cliquant ici</a>' %>
-        </li>
-      </ul>
-
-      <p><strong>Exemple complet pour tester toutes les balises :</strong></p>
-
-      <% full_example = "<strong>Maintenance prévue</strong> le <em>10 avril à 22h</em>.<br>Plus d'infos sur le <a href=\"https://demarches-simplifiees.fr\">portail officiel</a>. Contacte le <abbr title=\"Service d'Assistance Utilisateur\">SAU</abbr> en cas de besoin. Note : <b>version 2.5.9</b> en <i>cours de déploiement</i>, <u>action requise avant minuit</u>. Formule : H<sub>2</sub>O et E=mc<sup>2</sup>." %>
-
-      <pre class="bn-guide__code"><code><%= full_example %></code></pre>
-    </div>
-  </div>
-
-  <div class="bn-grid">
-    <% @banners.each do |banner| %>
-      <article class="<%= class_names('bn-card', 'bn-card--active' => banner.active?) %>">
-        <div class="bn-card__header">
-          <div class="bn-card__icon">
-            <%= manager_banner_icon(Banner::TARGET_ICONS[banner.target]) %>
-          </div>
-
-          <div class="bn-card__heading">
-            <h2 class="bn-card__title">
-              <%= Banner::TARGET_LABELS[banner.target] %>
-            </h2>
-
-            <p class="bn-card__desc">
-              <%= Banner::TARGET_DESCRIPTIONS[banner.target] %>
-            </p>
-          </div>
-
-          <% if banner.active? %>
-            <span class="bn-card__badge bn-card__badge--active">Active</span>
-          <% else %>
-            <span class="bn-card__badge">Inactive</span>
-          <% end %>
-        </div>
-
-        <%= form_with model: banner, url: manager_banner_path(banner), method: :patch, local: true, class: 'bn-card__form' do |f| %>
-          <div class="bn-card__field">
-            <%= f.label :content, "Contenu de la bannière", class: "bn-card__label" %>
-
-            <p class="bn-card__hint">
-              Vider le champ pour désactiver la bannière
-            </p>
-
-            <%= f.text_area :content, class: "bn-card__textarea", rows: 4, placeholder: "Saisissez le contenu de la bannière..." %>
-          </div>
-
-          <div class="bn-card__footer">
-            <p class="bn-card__meta">
-              <%= manager_banner_icon('clock') %>
-              <span>Modifié le <%= l(banner.updated_at, format: :long) %></span>
-            </p>
-
-            <%= f.submit "Enregistrer", class: "bn-card__submit" %>
-          </div>
-        <% end %>
-      </article>
     <% end %>
-  </div>
-</div>
+
+    <p><%= Banner::TARGET_DESCRIPTIONS[banner.target] %></p>
+
+    <%= form_with model: banner, url: manager_banner_path(banner), method: :patch do |f| %>
+      <%= f.label :content, "Contenu de la bannière" %>
+      <%= f.text_area :content, rows: 3, placeholder: "Vider le champ pour désactiver la bannière" %>
+
+      <%= f.submit "Enregistrer", class: "button fr-mt-2v" %>
+
+      <p class="attribute-data fr-mt-2v">
+        Modifié le <%= l(banner.updated_at, format: :long) %>
+      </p>
+    <% end %>
+  </section>
+<% end %>
