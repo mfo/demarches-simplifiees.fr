@@ -40,8 +40,8 @@ module DossierSectionsConcern
       # increase current counter
       counters[level - 1] = (counters[level - 1] || 0) + 1
 
-      # in case of missing level, fill any skipped ancestor level with 1
-      (0...level).each { |i| counters[i] ||= 1 }
+      # in case of missing level (nil), fill it with 1
+      counters.map! { it || 1 }
 
       return counters.join('.') if tdc.stable_id == header.stable_id
     end
