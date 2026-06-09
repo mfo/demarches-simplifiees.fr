@@ -225,6 +225,30 @@ RSpec.describe Types::DemarcheType, type: :graphql do
     end
   end
 
+  describe 'publier une demarche avec un chemin au format invalide' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: 'test-path-', lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq([{ message: "Le champ « Lien public » doit se terminer par une lettre ou un chiffre." }])
+      procedure.reload
+      expect(procedure).to be_brouillon
+    end
+  end
+
+  describe 'publier une demarche dont le brouillon est invalide' do
+    let(:procedure) { create(:procedure, administrateurs: [admin], monavis_embed: 'invalide') }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: 'test-path', lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq([{ message: "Le code MonAvis doit comporter un lien" }, { message: "Le code MonAvis doit comporter une image" }])
+      procedure.reload
+      expect(procedure).to be_brouillon
+    end
+  end
+
   DEMARCHE_QUERY = <<-GRAPHQL
   query($number: Int!) {
     demarche(number: $number) {

@@ -36,6 +36,8 @@ module Mutations
 
       demarche.publish_or_reopen!(current_administrateur, path)
       { demarche: }
+    rescue ActiveRecord::RecordInvalid
+      { errors: demarche.errors.full_messages }
     end
   end
 end
