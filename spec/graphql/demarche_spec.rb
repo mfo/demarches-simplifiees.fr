@@ -157,6 +157,22 @@ RSpec.describe Types::DemarcheType, type: :graphql do
       expect(data[:demarchePublier][:demarche][:state]).to eq('publiee')
       procedure.reload
       expect(procedure).to be_publiee
+      expect(procedure.path).to eq('test-path')
+      expect(procedure.lien_site_web).to eq('https://test.gouv.fr')
+      expect(procedure.robots_indexable).to be(true)
+    end
+  end
+
+  describe 'publier une demarche non referencable par les moteurs de recherche' do
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: 'test-path', lienSiteWeb: 'https://test.gouv.fr', robotsIndexable: false } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq(nil)
+      procedure.reload
+      expect(procedure).to be_publiee
+      expect(procedure.robots_indexable).to be(false)
     end
   end
 
@@ -439,9 +455,9 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   GRAPHQL
 
   PUBLIER_DEMARCHE_QUERY = <<-GRAPHQL
-  mutation PublierDemarche($demarcheNumber: Int!, $path: String!, $lienSiteWeb: String) {
+  mutation PublierDemarche($demarcheNumber: Int!, $path: String!, $lienSiteWeb: String, $robotsIndexable: Boolean) {
     demarchePublier(
-      input: { demarche: { number: $demarcheNumber }, path: $path, lienSiteWeb: $lienSiteWeb }
+      input: { demarche: { number: $demarcheNumber }, path: $path, lienSiteWeb: $lienSiteWeb, robotsIndexable: $robotsIndexable }
     ) {
       demarche {
         id
