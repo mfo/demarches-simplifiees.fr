@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Mutations
-
   class DemarcheModifierParametres < Mutations::BaseMutation
     description "Modifier les paramètres d’une démarche."
 
@@ -33,7 +32,6 @@ module Mutations
       lien_dpo: nil,
       date_limite: nil,
       declarative: nil)
-
       demarche_number = demarche.number.presence || ApplicationRecord.id_from_typed_id(demarche.id)
       demarche = Procedure.with_active_revision.find_by(id: demarche_number)
 
@@ -70,7 +68,5 @@ module Mutations
       demarche.reload
       { demarche: }
     end
-
   end
-
 end
