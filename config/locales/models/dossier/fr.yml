@@ -1,4 +1,10 @@
 fr:
+  dossiers:
+    text_summary:
+      brouillon: "Dossier en brouillon répondant à la démarche %{procedure} gérée par l’organisme %{organisme}"
+      brouillon_html: "Dossier en brouillon répondant à la démarche %{procedure} gérée par l’organisme %{organisme}"
+      depose: "Dossier déposé le %{date} sur la démarche %{procedure} gérée par l’organisme %{organisme}"
+      depose_html: "Dossier déposé le %{date} sur la démarche %{procedure} gérée par l’organisme %{organisme}"
   activerecord:
     models:
       dossier:

@@ -27,6 +27,6 @@
     - else
       %p Dossier n° #{dossier.id}
     .copy-zone
-      %p= safe_join(dossier.text_summary_segments.map { it[:emphasis] ? tag.strong(it[:text]) : it[:text] })
+      %p= t("dossiers.text_summary.#{dossier.brouillon? ? :brouillon : :depose}_html", date: dossier.depose_at && l(dossier.depose_at.to_date, format: :short), procedure: tag.strong(dossier.procedure.libelle), organisme: tag.strong(dossier.procedure.organisation_name))
 - else
   %p Pas de dossier associé

@@ -1,4 +1,10 @@
 en:
+  dossiers:
+    text_summary:
+      brouillon: "Draft file for the procedure %{procedure} managed by %{organisme}"
+      brouillon_html: "Draft file for the procedure %{procedure} managed by %{organisme}"
+      depose: "File submitted on %{date} for the procedure %{procedure} managed by %{organisme}"
+      depose_html: "File submitted on %{date} for the procedure %{procedure} managed by %{organisme}"
   activerecord:
     models:
       dossier:
