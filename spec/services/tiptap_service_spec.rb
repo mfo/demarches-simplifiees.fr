@@ -278,7 +278,7 @@ RSpec.describe TiptapService do
         )
       end
 
-      it 'keeps body-start on the first paragraph when a pageBreak comes first' do
+      it 'does not render a page-break div when it is the first node' do
         json = {
           type: 'doc',
           content: [
@@ -287,7 +287,7 @@ RSpec.describe TiptapService do
           ],
         }
         expect(described_class.new.to_html(json)).to eq(
-          '<div class="page-break"></div><p class="body-start">Premier paragraphe</p>'
+          '<p class="body-start">Premier paragraphe</p>'
         )
       end
     end

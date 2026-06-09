@@ -112,7 +112,7 @@ class TiptapService
         text
       end
     in type: 'pageBreak'
-      '<div class="page-break"></div>'
+      level == 0 && !@body_started ? '' : '<div class="page-break"></div>'
     in { type: type } if ["paragraph", "title", "heading"].include?(type) && !node.key?(:content)
       # noop
     else
