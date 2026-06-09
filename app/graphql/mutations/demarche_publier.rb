@@ -13,7 +13,7 @@ module Mutations
     field :errors, [Types::ValidationErrorType], null: true
     field :warnings, [Types::WarningMessageType], null: true
 
-    def resolve(demarche:, path:, lien_site_web: nil, robots_indexable:)
+    def resolve(demarche:, path:, lien_site_web: nil, robots_indexable: true)
       demarche_number = demarche.number.presence || ApplicationRecord.id_from_typed_id(demarche.id)
       demarche = Procedure.find_by(id: demarche_number)
 
