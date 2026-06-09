@@ -5,7 +5,7 @@ module Mutations
     description "Publier une démarche"
 
     argument :demarche, Types::DemarcheDescriptorType::FindDemarcheInput, "La démarche", required: true
-    argument :path, String, "Chemin de la démarche (ne doit pas être utilisé par une autre démarche)", required: true
+    argument :path, String, "Chemin de la démarche. S'il est déjà utilisé par une autre de vos démarches, celle-ci sera dépubliée et remplacée.", required: true
     argument :lien_site_web, String, "Où les usagers trouveront-ils le lien vers la démarche", required: false
     argument :robots_indexable, Boolean, "Cette démarche est référençable par les moteurs de recherche (Google, …) pour aider les usagers à la découvrir", required: false, default_value: true
 
@@ -22,10 +22,6 @@ module Mutations
       end
       if demarche.publiee_or_close?
         return { warnings: ["La démarche \"#{demarche_number}\" est déjà publiée ou cloturée."] }
-      end
-
-      if demarche.other_procedure_with_path(path)
-        return { errors: ["Il existe déjà une démarche avec le chemin \"#{path}\"."] }
       end
 
       demarche.assign_attributes(robots_indexable: robots_indexable, lien_site_web: lien_site_web)

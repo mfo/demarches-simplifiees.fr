@@ -187,16 +187,33 @@ RSpec.describe Types::DemarcheType, type: :graphql do
     end
   end
 
-  describe 'publier une demarche avec un chemin deja utilise' do
-    let(:other_procedure) { create(:procedure, :published) }
+  describe 'publier une demarche avec un chemin appartenant a un autre administrateur' do
+    let(:other_procedure) { create(:procedure, :published, administrateurs: [admin_2]) }
     let(:procedure) { create(:procedure, administrateurs: [admin]) }
     let(:query) { PUBLIER_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, path: other_procedure.path, lienSiteWeb: 'https://test.gouv.fr' } }
 
     it do
-      expect(data[:demarchePublier][:errors]).to eq([{ message: "Il existe déjà une démarche avec le chemin \"#{other_procedure.path}\"." }])
+      expect(data[:demarchePublier][:errors]).to eq([{ message: "Le champ « Lien public » est déjà utilisé par une démarche. Vous ne pouvez pas l’utiliser car il appartient à un autre administrateur." }])
       procedure.reload
       expect(procedure).to be_brouillon
+    end
+  end
+
+  describe 'publier une demarche en remplacant une autre du meme administrateur' do
+    let(:other_procedure) { create(:procedure, :published, administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, administrateurs: [admin]) }
+    let(:query) { PUBLIER_DEMARCHE_QUERY }
+    let(:variables) { { demarcheNumber: procedure.id, path: other_procedure.path, lienSiteWeb: 'https://test.gouv.fr' } }
+
+    it do
+      expect(data[:demarchePublier][:errors]).to eq(nil)
+      expect(data[:demarchePublier][:demarche][:state]).to eq('publiee')
+      procedure.reload
+      other_procedure.reload
+      expect(procedure).to be_publiee
+      expect(procedure.path).to eq(variables[:path])
+      expect(other_procedure).to be_depubliee
     end
   end
 

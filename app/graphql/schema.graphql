@@ -1631,7 +1631,7 @@ input DemarchePublierInput {
   lienSiteWeb: String
 
   """
-  Chemin de la démarche (ne doit pas être utilisé par une autre démarche)
+  Chemin de la démarche. S'il est déjà utilisé par une autre de vos démarches, celle-ci sera dépubliée et remplacée.
   """
   path: String!
 
