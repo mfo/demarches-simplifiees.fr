@@ -122,7 +122,7 @@ describe DossierSectionsConcern do
           { type: :header_section, libelle: "Niveau 2 a", level: 2 },
           { type: :header_section, libelle: "Niveau 3 a", level: 3 },
           { type: :header_section, libelle: "Niveau 3 b", level: 3 },
-          { type: :header_section, libelle: "Niveau 2 b", level: 2 }
+          { type: :header_section, libelle: "Niveau 2 b", level: 2 },
         ]
       }
 
@@ -141,7 +141,7 @@ describe DossierSectionsConcern do
           { type: :header_section, libelle: "Visible parent", level: 1 },
           { type: :header_section, libelle: "Invisible enfant", level: 2, condition: ds_eq(champ_value(number_stable_id), constant(5)) },
           { type: :integer_number, stable_id: number_stable_id },
-          { type: :header_section, libelle: "Visible enfant", level: 2 }
+          { type: :header_section, libelle: "Visible enfant", level: 2 },
         ]
       }
 

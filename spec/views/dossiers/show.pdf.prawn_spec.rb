@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe 'dossiers/show.pdf', type: :view do
   PDFTOTEXT_AVAILABLE = system('which pdftotext > /dev/null 2>&1') unless defined?(PDFTOTEXT_AVAILABLE)
 
@@ -23,7 +25,7 @@ describe 'dossiers/show.pdf', type: :view do
         { type: :text, libelle: 'Email' },
         { type: :header_section, libelle: 'Justificatifs', level: 1 },
         { type: :header_section, libelle: "Pièce d'identité", level: 2 },
-        { type: :text, libelle: 'Numéro' }
+        { type: :text, libelle: 'Numéro' },
       ])
     end
 
@@ -60,7 +62,7 @@ describe 'dossiers/show.pdf', type: :view do
         types_de_champ_private: [
           { type: :header_section, libelle: 'Notes', level: 1 },
           { type: :header_section, libelle: 'Vérifications', level: 2 },
-          { type: :text, libelle: 'Statut' }
+          { type: :text, libelle: 'Statut' },
         ],
         instructeurs: [instructeur])
     end
@@ -84,7 +86,7 @@ describe 'dossiers/show.pdf', type: :view do
     let(:procedure) do
       create(:procedure, types_de_champ_public: [
         { type: :text, libelle: 'Nom complet' },
-        { type: :text, libelle: 'Téléphone' }
+        { type: :text, libelle: 'Téléphone' },
       ])
     end
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
@@ -101,7 +103,7 @@ describe 'dossiers/show.pdf', type: :view do
       create(:procedure, types_de_champ_public: [
         { type: :header_section, libelle: '1 - Manuellement numéroté', level: 1 },
         { type: :header_section, libelle: '1.a Sous-section', level: 2 },
-        { type: :text, libelle: 'Champ' }
+        { type: :text, libelle: 'Champ' },
       ])
     end
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
@@ -124,7 +126,7 @@ describe 'dossiers/show.pdf', type: :view do
         { type: :header_section, libelle: 'Caché', level: 2, condition: ds_eq(champ_value(stable_id_number), constant(5)) },
         { type: :text, libelle: 'Optionnel' },
         { type: :header_section, libelle: 'Visible', level: 2 },
-        { type: :text, libelle: 'Toujours' }
+        { type: :text, libelle: 'Toujours' },
       ])
     end
     let(:dossier) do
@@ -149,7 +151,7 @@ describe 'dossiers/show.pdf', type: :view do
         { type: :header_section, libelle: 'Adresse', level: 2 },
         { type: :address, libelle: 'Adresse postale' },
         { type: :drop_down_list, libelle: 'Civilité', options: ['M.', 'Mme'] },
-        { type: :textarea, libelle: 'Commentaire' }
+        { type: :textarea, libelle: 'Commentaire' },
       ])
     end
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
