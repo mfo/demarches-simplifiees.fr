@@ -1458,9 +1458,9 @@ type DemarcheDescriptor {
   dateFermeture: ISO8601DateTime
 
   """
-  Date de limite de depot des dossiers
+  Date limite de dépôt des dossiers
   """
-  dateLimite: ISO8601DateTime
+  dateLimite: ISO8601Date
 
   """
   Date de la publication.

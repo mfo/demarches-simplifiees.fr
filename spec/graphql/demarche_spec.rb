@@ -275,6 +275,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
 
     it 'met à jour tous les champs' do
       expect(data[:demarcheModifierParametres][:errors]).to eq(nil)
+      expect(data[:demarcheModifierParametres][:demarche][:dateLimite]).to eq(future_date.iso8601)
       procedure.reload
       expect(procedure.libelle).to eq('Nouveau titre')
       expect(procedure.description).to eq('Nouvelle description')
@@ -308,6 +309,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
       demarche {
         title
         declarative
+        dateLimite
       }
       errors {
         message
