@@ -514,6 +514,48 @@ describe Users::CommencerController, type: :controller do
     end
   end
 
+  describe '#commencer for moral procedure with pro_connect_for_moral_procedure flag' do
+    render_views
+    subject { get :commencer, params: { path: procedure.path } }
+
+    before { allow(ProConnectService).to receive(:enabled?).and_return(true) }
+
+    context 'when procedure is moral and flag is enabled' do
+      let(:procedure) { create(:procedure, :published, for_individual: false) }
+
+      it 'shows both FranceConnect and ProConnect' do
+        subject
+        assert_response :success
+        expect(response.body).to include('FranceConnect')
+        expect(response.body).to include('ProConnect')
+      end
+    end
+
+    context 'when procedure is moral but flag is disabled (legacy procedure)' do
+      let(:procedure) { create(:procedure, :published, for_individual: false) }
+
+      before { procedure.update_column(:pro_connect_for_moral_procedure, false) }
+
+      it 'shows FranceConnect but not ProConnect' do
+        subject
+        assert_response :success
+        expect(response.body).to include('FranceConnect')
+        expect(response.body).not_to include('ProConnect')
+      end
+    end
+
+    context 'when procedure is for individuals' do
+      let(:procedure) { create(:procedure, :for_individual, :published) }
+
+      it 'shows FranceConnect but not ProConnect' do
+        subject
+        assert_response :success
+        expect(response.body).to include('FranceConnect')
+        expect(response.body).not_to include('ProConnect')
+      end
+    end
+  end
+
   describe '#commencer with pro_connect_restriction' do
     render_views
     let(:procedure) { create(:procedure, :for_individual, :published, pro_connect_restriction: :all) }

@@ -223,6 +223,8 @@ class Procedure < ApplicationRecord
     all: 'all',
   }, prefix: true
 
+  before_create :enable_pro_connect_for_moral_procedure
+
   validates :libelle, presence: true, allow_blank: false, allow_nil: false
   validates :description, presence: true, allow_blank: false, allow_nil: false
   validates :administrateurs, presence: true
@@ -842,6 +844,10 @@ class Procedure < ApplicationRecord
       .filter_map(&:routing_rule)
       .flat_map(&:terms)
       .any? { _1.is_a?(Logic::ChampValue) }
+  end
+
+  def enable_pro_connect_for_moral_procedure
+    self.pro_connect_for_moral_procedure = true if !for_individual?
   end
 
   def stable_ids_used_by_routing_rules

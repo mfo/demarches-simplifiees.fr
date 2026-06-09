@@ -1126,6 +1126,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_105001) do
     t.bigint "parent_procedure_id"
     t.string "path"
     t.boolean "piece_justificative_multiple", default: true, null: false
+    t.boolean "pro_connect_for_moral_procedure", default: false, null: false
     t.boolean "pro_connect_restricted", default: false, null: false
     t.string "pro_connect_restriction", default: "none", null: false
     t.boolean "procedure_expires_when_termine_enabled", default: true
