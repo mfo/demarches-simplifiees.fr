@@ -6,6 +6,10 @@ def default_margin
   10
 end
 
+def section_indent_step
+  15
+end
+
 def maybe_start_new_page(pdf, size)
   if pdf.cursor < size + default_margin
     pdf.start_new_page
@@ -67,12 +71,14 @@ def add_title(pdf, title)
   end
 end
 
-def add_section_title(pdf, title)
+def add_section_title(pdf, title, level = 1)
   maybe_start_new_page(pdf, 100)
 
-  pdf.pad_bottom(default_margin) do
-    pdf.font 'marianne', style: :bold, size: 14 do
-      pdf.text title
+  pdf.indent((level - 1) * section_indent_step) do
+    pdf.pad_bottom(default_margin) do
+      pdf.font 'marianne', style: :bold, size: 14 do
+        pdf.text title
+      end
     end
   end
 end
@@ -233,7 +239,7 @@ def add_single_champ(pdf, champ)
       tdc.libelle
     end
 
-    add_section_title(pdf, libelle)
+    add_section_title(pdf, libelle, champ.level)
   when 'Champs::ExplicationChamp'
     format_in_2_lines(pdf, tdc.libelle, strip_tags(tdc.description))
   when 'Champs::CarteChamp'
@@ -297,15 +303,25 @@ def add_single_champ(pdf, champ)
 end
 
 def add_champs(pdf, champs)
+  current_indent = 0
+
   champs.each do |champ|
-    if champ.repetition?
-      champ.rows.each do |row|
-        row.each do |champ|
-          add_single_champ(pdf, champ)
+    if champ.type == 'Champs::HeaderSectionChamp'
+      next if champ.conditional? && !champ.visible?
+      current_indent = champ.level * section_indent_step
+      add_single_champ(pdf, champ)
+    elsif champ.repetition?
+      pdf.indent(current_indent) do
+        champ.rows.each do |row|
+          row.each do |inner_champ|
+            add_single_champ(pdf, inner_champ)
+          end
         end
       end
     else
-      add_single_champ(pdf, champ)
+      pdf.indent(current_indent) do
+        add_single_champ(pdf, champ)
+      end
     end
   end
 end

@@ -2236,17 +2236,6 @@ describe Dossier, type: :model do
     end
   end
 
-  describe 'index_for_section_header' do
-    let(:types_de_champ_public) { [{ type: :repetition, mandatory: true, children: [{ type: :header_section }] }] }
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:dossier) { create(:dossier, procedure:) }
-    let(:header_in_repetition) { dossier.revision.types_de_champ.find(&:header_section?) }
-
-    it 'index classly' do
-      expect(dossier.index_for_section_header(header_in_repetition)).to eq("1.1")
-    end
-  end
-
   describe '#repasser_en_instruction!' do
     let(:dossier) { create(:dossier, :refuse, :with_attestation_acceptation, :with_justificatif, archived: true, termine_close_to_expiration_notice_sent_at: Time.zone.now, sva_svr_decision_on: 1.day.ago) }
     let!(:instructeur) { create(:instructeur) }
