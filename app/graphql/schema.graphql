@@ -1055,12 +1055,12 @@ type DecimalNumberChampDescriptor implements ChampDescriptor {
 
 enum DeclarativeWithState {
   """
-  La démarche est acceptée
+  Accepté
   """
   accepte
 
   """
-  La démarche est en instruction
+  En instruction
   """
   en_instruction
 

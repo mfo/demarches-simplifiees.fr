@@ -4,10 +4,13 @@ module Mutations
   class DemarcheModifierParametres < Mutations::BaseMutation
     description "Modifier les paramètres d’une démarche."
 
-    class DeclarativeWithState < GraphQL::Schema::Enum
-      value "non_declarative", "La démarche n'est pas déclarative"
-      value "en_instruction", "La démarche est en instruction"
-      value "accepte", "La démarche est acceptée"
+    class DeclarativeWithState < Types::BaseEnum
+      value('non_declarative', "La démarche n'est pas déclarative", value: nil)
+      Procedure.declarative_with_states.each do |string_name, _|
+        value(string_name,
+          I18n.t("declarative_with_state/#{string_name}", scope: [:activerecord, :attributes, :procedure]),
+          value: string_name)
+      end
     end
 
     argument :demarche, Types::DemarcheDescriptorType::FindDemarcheInput, "La démarche", required: true
@@ -31,7 +34,7 @@ module Mutations
       lien_site_web: nil,
       lien_dpo: nil,
       date_limite: nil,
-      declarative: nil)
+      declarative: :unset)
       demarche_number = demarche.number.presence || ApplicationRecord.id_from_typed_id(demarche.id)
       demarche = Procedure.with_active_revision.find_by(id: demarche_number)
 
@@ -55,9 +58,7 @@ module Mutations
         end
       end
 
-      if declarative.present?
-        attrs[:declarative_with_state] = declarative == 'non_declarative' ? nil : declarative
-      end
+      attrs[:declarative_with_state] = declarative unless declarative == :unset
 
       return { errors: ["Aucun paramètre à modifier."] } if attrs.empty?
 
