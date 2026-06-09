@@ -39,5 +39,6 @@ module Types
     field :demarche_cloner, mutation: Mutations::DemarcheCloner
     field :demarche_ajouter_administrateur, mutation: Mutations::DemarcheAjouterAdministrateur
     field :demarche_supprimer_administrateur, mutation: Mutations::DemarcheSupprimerAdministrateur
+    field :demarche_modifier_parametres, mutation: Mutations::DemarcheModifierParametres
   end
 end

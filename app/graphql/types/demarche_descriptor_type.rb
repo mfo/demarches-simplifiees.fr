@@ -25,6 +25,7 @@ Cela évite l’accès récursif aux dossiers."
     field :date_derniere_modification, GraphQL::Types::ISO8601DateTime, "Date de la dernière modification.", null: false
     field :date_depublication, GraphQL::Types::ISO8601DateTime, "Date de la dépublication.", null: true
     field :date_fermeture, GraphQL::Types::ISO8601DateTime, "Date de la fermeture.", null: true
+    field :date_limite, GraphQL::Types::ISO8601Date, "Date limite de dépôt des dossiers", null: true
 
     field :duree_conservation_dossiers, Int, "Durée de conservation des dossiers en mois.", null: false
 
@@ -147,6 +148,10 @@ Cela évite l’accès récursif aux dossiers."
 
     def date_fermeture
       procedure.closed_at
+    end
+
+    def date_limite
+      procedure.auto_archive_on
     end
 
     def duree_conservation_dossiers
