@@ -386,7 +386,7 @@ RSpec.describe TiptapService do
     context 'pageBreak node' do
       let(:substitutions) { {} }
 
-      it 'ignores pageBreak nodes' do
+      it 'renders a space between paragraphs separated by a pageBreak' do
         json = {
           type: 'doc',
           content: [
@@ -395,7 +395,7 @@ RSpec.describe TiptapService do
             { type: 'paragraph', content: [{ type: 'text', text: 'Après' }] },
           ],
         }
-        expect { described_class.new.to_texts_and_tags(json) }.not_to raise_error
+        expect(described_class.new.to_texts_and_tags(json)).to eq('Avant Après')
       end
     end
   end

@@ -52,7 +52,7 @@ class TiptapService
         "<span class='fr-tag fr-tag--sm'>#{label}</span>"
       end
     in type: 'pageBreak'
-      ''
+      ' '
     end
   end
 
