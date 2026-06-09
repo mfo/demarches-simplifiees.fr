@@ -69,7 +69,7 @@ class APIEntrepriseService
 
     def perform_later_fetch_jobs(etablissement, procedure_id, user_id, wait: nil)
       jobs = [
-        APIEntreprise::ExtraitKbisJob, APIEntreprise::TvaJob,
+        APIEntreprise::ExtraitKbisJob,
         APIEntreprise::AssociationJob, APIEntreprise::ExercicesJob,
         APIEntreprise::EffectifsJob, APIEntreprise::EffectifsAnnuelsJob, APIEntreprise::AttestationSocialeJob,
         APIEntreprise::BilansBdfJob,
