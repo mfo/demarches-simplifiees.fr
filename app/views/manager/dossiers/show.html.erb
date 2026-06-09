@@ -42,7 +42,7 @@
   <div>
     <% if dossier.transfer&.from_support %>
       <%= t('views.users.dossiers.transfers.sender_demande_en_cours_from_support_html', id: dossier.id, email: dossier.transfer.email) %>
-      <%= link_to t('views.users.dossiers.transfers.revoke_html'), transfer_destroy_manager_dossier_path(dossier), class: 'fr-link', method: :delete %>
+      <%= button_to t('views.users.dossiers.transfers.revoke_html'), transfer_destroy_manager_dossier_path(dossier), class: 'fr-link', method: :delete %>
     <% end %>
   </div>
 

@@ -30,7 +30,7 @@
       class: "button",
     ) if accessible_action?(page.resource, :edit) %>
 
-    <%= link_to 'Réinviter', reinvite_manager_instructeur_path(instructeur), method: :post, class: 'button' %>
+    <%= button_to 'Réinviter', reinvite_manager_instructeur_path(instructeur), method: :post, class: 'button' %>
 
     <%= button_to("Supprimer",
                   delete_manager_instructeur_path(page.resource),
