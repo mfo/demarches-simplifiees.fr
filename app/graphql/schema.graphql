@@ -1554,7 +1554,7 @@ input DemarcheModifierParametresInput {
   clientMutationId: String
 
   """
-  La date limite de dépot des dossier
+  La date limite de dépôt des dossiers
   """
   dateLimite: ISO8601Date
 
@@ -1579,7 +1579,7 @@ input DemarcheModifierParametresInput {
   descriptionPj: String
 
   """
-  La description de à qui s'addresse la démarche.
+  La description de à qui s'adresse la démarche.
   """
   descriptionTargetAudience: String
 

@@ -227,7 +227,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
     let(:context) { { administrateur_id: admin_2.id, procedure_ids: admin_2.procedure_ids, write_access: true } }
 
     it 'retourne une erreur' do
-      expect(data[:demarcheModifierParametres][:errors]).to eq([{ message: "La démarche \"#{procedure.id}\" n'existe pas ou vous n'avez pas le droit de la modifer." }])
+      expect(data[:demarcheModifierParametres][:errors]).to eq([{ message: "La démarche \"#{procedure.id}\" n'existe pas ou vous n'avez pas le droit de la modifier." }])
       procedure.reload
       expect(procedure.libelle).not_to eq('Nouveau titre')
     end
