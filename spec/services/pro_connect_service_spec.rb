@@ -46,6 +46,8 @@ describe ProConnectService do
 
       it 'includes various acr values in the authorization uri' do
         uri, _state, _nonce = subject
+        expect(uri).to include('eidas0-mfa')
+        expect(uri).to include('eidas1-mfa')
         expect(uri).to include('eidas2')
         expect(uri).to include('eidas3')
         expect(uri).to include('self-asserted-2fa')
