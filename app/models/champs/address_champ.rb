@@ -82,6 +82,7 @@ class Champs::AddressChamp < Champs::TextChamp
 
   def address=(value)
     return if not_ban?
+    self.external_id = nil
     if value.blank?
       self.value_json = { country_code: 'FR' }
     else

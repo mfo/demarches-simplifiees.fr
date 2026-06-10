@@ -362,4 +362,19 @@ describe Champs::AddressChamp do
       expect(champ.ready_for_external_call?).to be false
     end
   end
+
+  describe 'address= clears external_id' do
+    before { champ.update_columns(external_id: '20 avenue de Segur', value_json: { "city_code" => "75107" }) }
+
+    it 'clears external_id when user selects a new address' do
+      new_address = { "street_address" => "10 rue de la Paix", "city_code" => "75002" }.to_json
+      champ.address = new_address
+      expect(champ.external_id).to be_nil
+    end
+
+    it 'clears external_id when user blanks the address' do
+      champ.address = ''
+      expect(champ.external_id).to be_nil
+    end
+  end
 end
