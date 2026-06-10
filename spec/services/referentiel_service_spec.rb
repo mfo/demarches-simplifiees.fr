@@ -196,6 +196,69 @@ RSpec.describe ReferentielService, type: :service do
       end
     end
 
+    context 'with yes_no champ as values_source' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }]) }
+      let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
+      let(:type_de_champ) { procedure.draft_revision.types_de_champ_public.first }
+      let(:url_tiptap) do
+        {
+          "type" => "doc", "content" => [
+            {
+              "type" => "paragraph", "content" => [
+                { "type" => "text", "text" => "https://api.gouv.fr/" },
+                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+                { "type" => "text", "text" => "?flag=" },
+                { "type" => "mention", "attrs" => { "id" => "tdc#{type_de_champ.stable_id}", "label" => "Flag" } },
+              ],
+            },
+          ],
+        }
+      end
+
+      context 'when value is true' do
+        it 'resolves boolean true value' do
+          result = service.send(:resolve_tiptap_url, "search", dossier)
+          expect(result).to eq("https://api.gouv.fr/search?flag=true")
+        end
+      end
+
+      context 'when value is false' do
+        before do
+          dossier.champs.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "false")
+        end
+
+        it 'resolves boolean false value' do
+          result = service.send(:resolve_tiptap_url, "search", dossier)
+          expect(result).to eq("https://api.gouv.fr/search?flag=false")
+        end
+      end
+    end
+
+    context 'with address champ as values_source' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
+      let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
+      let(:type_de_champ) { procedure.draft_revision.types_de_champ_public.first }
+      let(:url_tiptap) do
+        {
+          "type" => "doc", "content" => [
+            {
+              "type" => "paragraph", "content" => [
+                { "type" => "text", "text" => "https://api.gouv.fr/" },
+                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+                { "type" => "text", "text" => "?address=" },
+                { "type" => "mention", "attrs" => { "id" => "tdc#{type_de_champ.stable_id}", "label" => "Adresse" } },
+              ],
+            },
+          ],
+        }
+      end
+
+      it 'resolves address label with encoding' do
+        result = service.send(:resolve_tiptap_url, "search", dossier)
+        expect(result).to eq("https://api.gouv.fr/search?address=2+rue+des+D%C3%A9marches")
+      end
+    end
+
     context 'when url_tiptap is nil' do
       let(:url_tiptap) { nil }
       it { expect(service.send(:resolve_tiptap_url, "q", {})).to be_nil }
