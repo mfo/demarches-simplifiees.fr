@@ -7,13 +7,15 @@
 require 'flipper/adapters/active_record'
 require 'flipper/adapters/active_support_cache_store'
 
-def setup_features(features)
+def setup_features(features, enabled_by_default: [])
   existing = Flipper.preload_all.map { _1.name.to_sym }
   missing = features - existing
 
   missing.each do |feature|
     # Feature is disabled by default
     Flipper.add(feature.to_s)
+    # Enable on creation only: subsequent boots won't override an operator's choice
+    Flipper.enable(feature) if enabled_by_default.include?(feature)
   end
 end
 
@@ -36,6 +38,7 @@ features = [
   :llm_nightly_improve_procedure,
   :ami_notifications,
   :column_conditions,
+  :api_entreprise_tva_job,
 ]
 
 def database_exists?
@@ -57,7 +60,7 @@ end
 
 ActiveSupport.on_load(:active_record) do
   if database_exists? && ActiveRecord::Base.connection.data_source_exists?('flipper_features')
-    setup_features(features)
+    setup_features(features, enabled_by_default: [:api_entreprise_tva_job])
   end
 end
 
