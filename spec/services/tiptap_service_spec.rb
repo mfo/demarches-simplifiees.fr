@@ -260,6 +260,38 @@ RSpec.describe TiptapService do
       end
     end
 
+    context 'page break node' do
+      let(:json) do
+        {
+          type: 'doc',
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: 'Avant' }] },
+            { type: 'pageBreak' },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Après' }] },
+          ],
+        }
+      end
+
+      it 'renders a page-break div without consuming the body-start mark' do
+        expect(described_class.new.to_html(json)).to eq(
+          '<p class="body-start">Avant</p><div class="page-break"></div><p>Après</p>'
+        )
+      end
+
+      it 'does not render a page-break div when it is the first node' do
+        json = {
+          type: 'doc',
+          content: [
+            { type: 'pageBreak' },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Premier paragraphe' }] },
+          ],
+        }
+        expect(described_class.new.to_html(json)).to eq(
+          '<p class="body-start">Premier paragraphe</p>'
+        )
+      end
+    end
+
     context 'ordered list with custom classes' do
       let(:json) do
         {
@@ -349,6 +381,22 @@ RSpec.describe TiptapService do
       let(:substitutions) { {} }
 
       it { is_expected.to eq('') }
+    end
+
+    context 'pageBreak node' do
+      let(:substitutions) { {} }
+
+      it 'renders a space between paragraphs separated by a pageBreak' do
+        json = {
+          type: 'doc',
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: 'Avant' }] },
+            { type: 'pageBreak' },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Après' }] },
+          ],
+        }
+        expect(described_class.new.to_texts_and_tags(json)).to eq('Avant Après')
+      end
     end
   end
 end

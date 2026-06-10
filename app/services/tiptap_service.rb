@@ -51,6 +51,8 @@ class TiptapService
       else
         "<span class='fr-tag fr-tag--sm'>#{label}</span>"
       end
+    in type: 'pageBreak'
+      ' '
     end
   end
 
@@ -109,6 +111,8 @@ class TiptapService
       else
         text
       end
+    in type: 'pageBreak'
+      level == 0 && !@body_started ? '' : '<div class="page-break"></div>'
     in { type: type } if ["paragraph", "title", "heading"].include?(type) && !node.key?(:content)
       # noop
     else

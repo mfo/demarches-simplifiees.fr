@@ -113,6 +113,15 @@ const EDITOR_ACTIONS: Record<string, (editor: Editor) => EditorAction> = {
     },
     isActive: () => editor.isActive('link'),
     isDisabled: () => false
+  }),
+  pageBreak: (editor) => ({
+    run: () =>
+      editor.chain().focus().insertContent({ type: 'pageBreak' }).run(),
+    isActive: () => false,
+    isDisabled: () =>
+      editor.isActive('title') ||
+      editor.isActive('header') ||
+      editor.isActive('footer')
   })
 };
 
