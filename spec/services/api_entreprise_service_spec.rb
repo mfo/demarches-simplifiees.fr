@@ -45,6 +45,22 @@ describe APIEntrepriseService do
       end
 
       it_behaves_like 'schedule fetch of all etablissement params'
+
+      context 'when api_entreprise_tva_job feature is enabled' do
+        before { Flipper.enable(:api_entreprise_tva_job) }
+
+        it 'should enqueue TvaJob' do
+          expect { subject }.to have_enqueued_job(APIEntreprise::TvaJob)
+        end
+      end
+
+      context 'when api_entreprise_tva_job feature is disabled' do
+        before { Flipper.disable(:api_entreprise_tva_job) }
+
+        it 'should not enqueue TvaJob' do
+          expect { subject }.not_to have_enqueued_job(APIEntreprise::TvaJob)
+        end
+      end
     end
 
     context 'when etablissement api down' do
