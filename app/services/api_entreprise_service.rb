@@ -74,6 +74,7 @@ class APIEntrepriseService
         APIEntreprise::EffectifsJob, APIEntreprise::EffectifsAnnuelsJob, APIEntreprise::AttestationSocialeJob,
         APIEntreprise::BilansBdfJob,
       ]
+      jobs << APIEntreprise::TvaJob if Flipper.enabled?(:api_entreprise_tva_job)
       if etablissement.as_degraded_mode?
         jobs << APIEntreprise::EtablissementJob
       end
