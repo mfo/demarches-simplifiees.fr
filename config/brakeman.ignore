@@ -24,48 +24,21 @@
       "note": ""
     },
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "2a921e7bd4cf2de55bf58db10d05d316c4355c639c72c2cd4d7488cbc78a39d8",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/columns/json_path_column.rb",
-      "line": 32,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "dossiers.with_type_de_champ(stable_id).where(\"champs.value_json @? '#{jsonpath} ? (@ like_regex \\\"#{quote_string(search_terms.join(\"|\"))}\\\" flag \\\"i\\\")'\")",
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 122,
+      "fingerprint": "21ab0fe00fdd5899ffc405cff75aadb91b805ee996a614f7e27b08a287e9062d",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 7.2.3.1 ends on 2026-08-09",
+      "file": "Gemfile.lock",
+      "line": 640,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
       "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Columns::JSONPathColumn",
-        "method": "filtered_ids_for_values"
-      },
-      "user_input": "jsonpath",
+      "location": null,
+      "user_input": null,
       "confidence": "Weak",
       "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "317cf1145a84f666b0bb0297ad0af6700717540a20b537d323416c95e2ef3fd1",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/tasks/maintenance/t20251112backfill_champ_siret_external_state_with_etablissement_but_no_value_or_external_id_task.rb",
-      "line": 34,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "ApplicationRecord.connection.execute(\"UPDATE champs\\nSET value = etablissements.siret,\\n    external_id = etablissements.siret\\nFROM etablissements\\nWHERE champs.etablissement_id = etablissements.id\\n  AND champs.id IN (#{batch.ids.join(\",\")})\\n  AND champs.value IS NULL\\n  AND champs.external_id IS NULL\\n  AND champs.external_state = '#{Champs::SiretChamp.external_states[:fetched]}'\\n  AND champs.type = 'Champs::SiretChamp'\\n\".squish)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Maintenance::T20251112backfillChampSiretExternalStateWithEtablissementButNoValueOrExternalIdTask",
-        "method": "process"
-      },
-      "user_input": "batch.ids.join(\",\")",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
+        1104
       ],
       "note": ""
     },
@@ -99,7 +72,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/tasks/maintenance/concerns/statements_helpers_concern.rb",
-      "line": 28,
+      "line": 27,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "ApplicationRecord.connection.execute(\"SET LOCAL statement_timeout = '#{timeout}'\")",
       "render_path": null,
@@ -122,7 +95,7 @@
       "check_name": "CrossSiteScripting",
       "message": "Unescaped model attribute",
       "file": "app/views/users/dossiers/_merci.html.erb",
-      "line": 54,
+      "line": 77,
       "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
       "code": "current_user.dossiers.includes(:procedure).find(params[:id]).procedure.monavis_embed_html_source(\"site\")",
       "render_path": [
@@ -130,7 +103,7 @@
           "type": "controller",
           "class": "Users::DossiersController",
           "method": "merci",
-          "line": 360,
+          "line": 375,
           "file": "app/controllers/users/dossiers_controller.rb",
           "rendered": {
             "name": "users/dossiers/merci",
@@ -179,25 +152,6 @@
       "confidence": "Weak",
       "cwe_id": [
         502
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 122,
-      "fingerprint": "98b26f60d776fd41ee6f088c833725145be9aac2d7c5b33780241c273622db42",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 7.1.5.2 ends on 2025-10-01",
-      "file": "Gemfile.lock",
-      "line": 642,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        1104
       ],
       "note": ""
     },
@@ -259,102 +213,13 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "b270328e93526e345fa8522a94482f0c8065f0126efa56c7a648c5db6aa1de7d",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/instructeurs/procedures/show.html.haml",
-      "line": 81,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_id(true, dom_id(BatchOperation.new, :checkbox_all))",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Instructeurs::ProceduresController",
-          "method": "show",
-          "line": 207,
-          "file": "app/controllers/instructeurs/procedures_controller.rb",
-          "rendered": {
-            "name": "instructeurs/procedures/show",
-            "file": "app/views/instructeurs/procedures/show.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "instructeurs/procedures/show"
-      },
-      "user_input": "BatchOperation.new",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "c97049798ff05438dcca6f3ee1a714f2336041837411ab001a7e3caf1bfb75c8",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/layouts/mailers/_signature.html.haml",
-      "line": 9,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "Current.application_name.gsub(\".\", \"&#8288;.\")",
-      "render_path": [
-        {
-          "type": "template",
-          "name": "administrateur_mailer/api_token_expiration",
-          "line": 19,
-          "file": "app/views/administrateur_mailer/api_token_expiration.haml",
-          "rendered": {
-            "name": "layouts/mailers/_signature",
-            "file": "app/views/layouts/mailers/_signature.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "layouts/mailers/_signature"
-      },
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        79
-      ],
-      "note": "Current is not a model"
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "f74cfb12b3183f456594e809f222bb2723cc232aa5b8f5f7d9bd6d493c1521fb",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/notification_mailer/send_notification_for_tiers.html.haml",
-      "line": 31,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "Current.application_name.gsub(\".\", \"&#8288;.\")",
-      "render_path": null,
-      "location": {
-        "type": "template",
-        "template": "notification_mailer/send_notification_for_tiers"
-      },
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        79
-      ],
-      "note": "Current is not a model"
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "fc12551e83eab01e5955c73470bb1fc30b6642bd39750ba4aa9f0fe6ef4d6522",
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/models/concerns/dossier_filtering_concern.rb",
-      "line": 46,
+      "line": 47,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "where(\"unaccent(#{DossierFilterService.sanitized_column(table, column)}) ILIKE ANY (ARRAY((SELECT unaccent(unnest(ARRAY[?])))))\", search_terms.map(&:strip).map do\n \"%#{sanitize_sql_like(_1)}%\"\n end)",
       "render_path": null,
@@ -371,5 +236,5 @@
       "note": "The table and column are escaped, which should make this safe"
     }
   ],
-  "brakeman_version": "7.1.0"
+  "brakeman_version": "8.0.4"
 }
