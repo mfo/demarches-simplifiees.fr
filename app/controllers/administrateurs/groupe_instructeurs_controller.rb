@@ -615,12 +615,13 @@ module Administrateurs
         procedure.groupe_instructeurs
       end
 
+      groupes = groupes.includes(:contact_information)
+
       if params[:filter] == '1'
         groupes = Kaminari.paginate_array(groupes.filter(&:routing_to_configure?))
       end
 
       groupes
-        .includes(:contact_information)
         .page(params[:page])
         .per(ITEMS_PER_PAGE)
     end
