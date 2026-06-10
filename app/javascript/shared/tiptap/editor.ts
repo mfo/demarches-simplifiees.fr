@@ -18,6 +18,7 @@ import Mention from '@tiptap/extension-mention';
 import Typography from '@tiptap/extension-typography';
 import Heading from '@tiptap/extension-heading';
 import Link from '@tiptap/extension-link';
+import HardBreak from '@tiptap/extension-hard-break';
 
 import {
   Editor,
@@ -114,6 +115,9 @@ function getEditorOptions(
         break;
       case 'title':
         extensions.push(Header, HeaderColumn, Title);
+        break;
+      case 'hardBreak':
+        extensions.push(HardBreak);
         break;
       case 'link':
         extensions.push(

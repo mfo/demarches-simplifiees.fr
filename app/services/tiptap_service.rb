@@ -91,6 +91,8 @@ class TiptapService
       "<dt#{class_list(rest[:attrs])}>#{children(content, substitutions, level + 1)}</dt>"
     in type: 'descriptionDetails', content:
       "<dd>#{children(content, substitutions, level + 1)}</dd>"
+    in type: 'hardBreak'
+      "<br><br>"
     in type: 'text', text:, **rest
       escaped = ERB::Util.html_escape(text)
       if rest[:marks].present?

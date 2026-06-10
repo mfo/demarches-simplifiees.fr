@@ -45,6 +45,7 @@ module Administrateurs
           ['Liste numérotée', 'orderedList', 'list-ordered'],
         ],
         [
+          ['Saut de ligne', 'hardBreak', 'corner-down-left-line'],
           ['Saut de page', 'pageBreak', 'page-separator'],
         ],
         [
