@@ -140,7 +140,7 @@ Bien cordialement</pre>
     <p>
       <strong>Ce compte n’est pas activé</strong>
       . Vous pouvez lui
-      <%= link_to('renvoyer l’email de confirmation', [:resend_confirmation_instructions, namespace, :user], method: :post, class: 'button') %>
+      <%= button_to('renvoyer l’email de confirmation', [:resend_confirmation_instructions, namespace, :user], method: :post, class: 'button') %>
       , puis un email.
       <button
         class="btn btn-secondary btn-small"
@@ -164,7 +164,7 @@ Cordialement</pre>
 
   <p>
     <strong>Mot de passe perdu ?</strong> Vous pouvez
-    <%= link_to('renvoyer l’email de réinitialisation', [:resend_reset_password_instructions, namespace, :user], method: :post, class: 'button') %>
+    <%= button_to('renvoyer l’email de réinitialisation', [:resend_reset_password_instructions, namespace, :user], method: :post, class: 'button') %>
     
     <small>Attention au téléscopage: cet email invalide les liens des emails similaires précédents.</small>
   </p>
@@ -176,7 +176,7 @@ Cordialement</pre>
       chez Brevo?
     </strong>
     Vous pouvez le
-    <%= link_to('débloquer', manager_user_unblock_email_path(@user), method: :put, class: 'button') %>
+    <%= button_to('débloquer', manager_user_unblock_email_path(@user), method: :put, class: 'button') %>
     puis lui envoyer
     <button
       class="btn btn-secondary btn-small"

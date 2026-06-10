@@ -65,7 +65,7 @@
               <%= button_to 'Retirer',
           { action: :remove_gestionnaire, id: page.resource.id },
           { method: :delete,
-            data: { confirm: t("administrate.actions.confirm") },
+            data: { turbo_confirm: t("administrate.actions.confirm") },
             params: { gestionnaire: { id: resource.id }},
             class: 'fr-btn fr-btn--secondary' } %>
             </td>

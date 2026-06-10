@@ -28,12 +28,12 @@
       class: "button",
     ) if accessible_action?(page.resource, :edit) %>
 
-    <%= link_to(
+    <%= button_to(
       t("administrate.actions.destroy"),
       [namespace, page.resource],
       class: "button button--danger",
       method: :delete,
-      data: { confirm: t("administrate.actions.confirm") }
+      data: { turbo_confirm: t("administrate.actions.confirm") }
     ) if accessible_action?(page.resource, :destroy) %>
   </div>
 </header>
