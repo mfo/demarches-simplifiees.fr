@@ -2,7 +2,9 @@
 
 class TypesDeChamp::LibelleValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
-    types_de_champ.each do |tdc|
+    types_de_champ
+      .flat_map { it.repetition? ? [it, *procedure.draft_revision.children_of(it)] : [it] }
+      .each do |tdc|
       if tdc.libelle.blank?
         procedure.errors.add(
           attribute,
