@@ -29,6 +29,7 @@ describe Columns::ChampColumn do
             "GRTGAZ",
             "1990-04-24",
             "Transports par conduites",
+            nil,
             "92270",
             "Bois-Colombes",
             "92",

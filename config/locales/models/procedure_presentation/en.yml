@@ -55,6 +55,8 @@ en:
             entreprise_date_creation: Entreprise date de création
             siret: Établissement SIRET
             libelle_naf: Libellé NAF
+            libelle_naf_2025: Libellé NAF 2025
+            naf_2025: Code NAF 2025
             code_naf: Code NAF
             siege_social: "Établissement siège social"
             naf: "Établissement NAF"

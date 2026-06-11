@@ -518,6 +518,33 @@ RSpec.describe Types::DossierType, type: :graphql do
     end
   end
 
+  describe 'dossier with personne morale naf_2025' do
+    let(:procedure) { create(:procedure) }
+    let(:etablissement) { create(:etablissement, libelle_naf: nil, naf_2025: '84.11', libelle_naf_2025: 'Administration publique générale') }
+    let(:dossier) { create(:dossier, :en_construction, procedure:, etablissement:) }
+    let(:query) { DOSSIER_WITH_PERSONNE_MORALE_QUERY }
+    let(:variables) { { number: dossier.id } }
+
+    it 'falls back libelle_naf to libelle_naf_2025 when nil' do
+      demandeur = data[:dossier][:demandeur]
+      expect(demandeur[:naf2025]).to eq('84.11')
+      expect(demandeur[:libelleNaf2025]).to eq('Administration publique générale')
+    end
+  end
+
+  DOSSIER_WITH_PERSONNE_MORALE_QUERY = <<-GRAPHQL
+  query($number: Int!) {
+    dossier(number: $number) {
+      demandeur {
+        ... on PersonneMorale {
+          naf2025
+          libelleNaf2025
+        }
+      }
+    }
+  }
+  GRAPHQL
+
   DOSSIER_QUERY = <<-GRAPHQL
   query($number: Int!) {
     dossier(number: $number) {

@@ -44,7 +44,7 @@ Sentry.init do |config|
     end
   end
 
-  # config.excluded_exceptions += []
+  config.excluded_exceptions += ['APIEntreprise::Job::ProviderDownError']
 
   # Note: sentry-ruby's :graphql patch is intentionally NOT enabled here.
   # It attaches GraphQL::Tracing::SentryTrace which wraps every field resolution

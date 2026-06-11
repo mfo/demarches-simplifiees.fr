@@ -56,13 +56,13 @@ RSpec.describe APIEntreprise::Job, type: :job do
         allow(APIEntreprise::HealthChecker).to receive(:provider_up?).with(ping_key).and_return(false)
       end
 
-      it 'raises RetryableError without checking rate limit' do
+      it 'raises ProviderDownError without checking rate limit' do
         dossier = create(:dossier, :with_entreprise)
         etablissement = dossier.etablissement
 
         expect(APIEntreprise::RateLimiter).not_to receive(:throttled?)
         expect { ErrorJob.perform_now(etablissement) }
-          .to raise_error(APIEntreprise::Job::RetryableError, /Provider #{ping_key} is down/)
+          .to raise_error(APIEntreprise::Job::ProviderDownError, /provider #{ping_key} is down/)
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
         etablissement = dossier.etablissement
 
         expect { ErrorJob.perform_now(etablissement) }
-          .to raise_error(APIEntreprise::Job::RetryableError, /Rate limited on pool #{pool}/)
+          .to raise_error(APIEntreprise::Job::RetryableError, /rate limited \(pool #{pool}\)/)
       end
     end
 
@@ -97,7 +97,6 @@ RSpec.describe APIEntreprise::Job, type: :job do
   describe '#api_pool' do
     it 'returns the correct pool for each job class' do
       expect(APIEntreprise::EtablissementJob.new.api_pool).to eq(250)
-      expect(APIEntreprise::EntrepriseJob.new.api_pool).to eq(250)
       expect(APIEntreprise::ExtraitKbisJob.new.api_pool).to eq(250)
       expect(APIEntreprise::TvaJob.new.api_pool).to eq(250)
       expect(APIEntreprise::ExercicesJob.new.api_pool).to eq(250)
@@ -118,7 +117,6 @@ RSpec.describe APIEntreprise::Job, type: :job do
   describe '#ping_key_for_job' do
     it 'returns the correct ping key for each job class' do
       expect(APIEntreprise::EtablissementJob.new.ping_key_for_job).to eq('insee/sirene')
-      expect(APIEntreprise::EntrepriseJob.new.ping_key_for_job).to eq('insee/sirene')
       expect(APIEntreprise::ExtraitKbisJob.new.ping_key_for_job).to eq('infogreffe/rcs')
       expect(APIEntreprise::TvaJob.new.ping_key_for_job).to eq('european_commission/numero_tva')
       expect(APIEntreprise::AssociationJob.new.ping_key_for_job).to eq('djepva/api-association')
@@ -208,7 +206,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
 
       it 'raises RetryableError for Sidekiq exponential backoff' do
         expect { job.send(:with_adapter, adapter) { |_| } }
-          .to raise_error(APIEntreprise::Job::RetryableError, /Rate limited on pool/)
+          .to raise_error(APIEntreprise::Job::RetryableError, /rate limited by API/)
       end
     end
 

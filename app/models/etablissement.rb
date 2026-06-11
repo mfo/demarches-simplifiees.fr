@@ -33,6 +33,7 @@ class Etablissement < ApplicationRecord
     "entreprise_forme_juridique" => { type: :text },
     "entreprise_date_creation" => { type: :date, filterable: false },
     "libelle_naf" => { type: :text },
+    "libelle_naf_2025" => { type: :text },
   }.freeze
 
   EXPORTABLE_ETABLISSEMENT_COLUMNS = {
@@ -53,6 +54,7 @@ class Etablissement < ApplicationRecord
     "entreprise_siret_siege_social" => { type: :text },
     "entreprise_nom" => { type: :text },
     "entreprise_prenom" => { type: :text },
+    "naf_2025" => { type: :text },
   }.freeze
 
   EXPORTABLE_ASSOCIATION_COLUMNS = {
@@ -92,6 +94,8 @@ class Etablissement < ApplicationRecord
       enseigne,
       naf,
       libelle_naf,
+      naf_2025,
+      libelle_naf_2025,
       adresse,
       code_postal,
       localite,

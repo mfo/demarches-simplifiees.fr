@@ -4554,8 +4554,10 @@ type PersonneMorale implements Demandeur {
   entreprise: Entreprise
   id: ID!
   libelleNaf: String!
+  libelleNaf2025: String
   localite: String! @deprecated(reason: "Utilisez le champ `address.city_name` à la place.")
   naf: String
+  naf2025: String
   nomVoie: String @deprecated(reason: "Utilisez le champ `address.street_name` à la place.")
   numeroVoie: String @deprecated(reason: "Utilisez le champ `address.street_number` à la place.")
   siegeSocial: Boolean!

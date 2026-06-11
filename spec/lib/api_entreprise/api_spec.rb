@@ -7,87 +7,54 @@ describe APIEntreprise::API do
 
   def fixture_file(filename) = Rails.root.join('spec/fixtures/files/api_entreprise', filename).read
 
-  describe '.entreprise' do
-    subject { described_class.new(procedure_id).entreprise(siren) }
+  describe '.etablissement' do
+    let(:siret) { '41816609600051' }
+    let(:etablissement_url) { "https://entreprise.api.gouv.fr/v4/insee/sirene/etablissements/#{siret}" }
+
+    subject { described_class.new(procedure_id).etablissement(siret) }
 
     before do
-      stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/)
-        .to_return(body:, status:)
+      stub_request(:get, etablissement_url)
+        .with(query: { "non_diffusables" => "true", "context" => APPLICATION_NAME, "object" => "procedure_id: #{procedure_id}", "recipient" => ENV.fetch("API_ENTREPRISE_DEFAULT_SIRET") })
+        .to_return(status:, body:)
+      allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
     end
 
-    context 'when the service throws a bad gateaway exception' do
-      let(:status) { 502 }
-      let(:body) { fixture_file('entreprises_unavailable.json') }
+    context 'when siret exists' do
+      let(:status) { 200 }
+      let(:body) { fixture_file('etablissements.json') }
 
-      it 'returns a Failure with type :server_error' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :server_error, code: 502, retryable: true)
+      it 'returns Success with body' do
+        expect(subject).to be_success
+        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
+
+      context 'with a service without siret' do
+        let(:procedure) { create(:procedure, :with_service) }
+        let(:dinum_siret) { "13002526500013" }
+
+        it 'sends default recipient' do
+          ENV["API_ENTREPRISE_DEFAULT_SIRET"] = dinum_siret
+          procedure.service.siret = nil
+          procedure.service.save(validate: false)
+          subject
+          expect(WebMock).to have_requested(:get, etablissement_url).with(query: hash_including({ recipient: dinum_siret }))
+        end
+      end
+
+      context 'with a service with siret not matching the queried siret' do
+        let(:procedure) { create(:procedure, :with_service) }
+
+        it 'sends the service siret as recipient' do
+          subject
+          expect(WebMock).to have_requested(:get, etablissement_url).with(query: hash_including({ recipient: procedure.service.siret }))
+        end
       end
     end
 
-    context 'when the service reponds with 01000 code' do
-      let(:status) { 502 }
-      let(:body) { fixture_file('error_code_01000.json') }
-
-      it 'returns a Failure with type :service_unavailable' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
-      end
-    end
-
-    context 'when the service reponds with 01001 code' do
-      let(:status) { 502 }
-      let(:body) { fixture_file('error_code_01001.json') }
-
-      it 'returns a Failure with type :service_unavailable' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
-      end
-    end
-
-    context 'when the service reponds with 01002 code' do
-      let(:status) { 504 }
-      let(:body) { fixture_file('error_code_01002.json') }
-
-      it 'returns a Failure with type :service_unavailable' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
-      end
-    end
-
-    context 'when the service reponds with 02002 code' do
-      let(:status) { 504 }
-      let(:body) { fixture_file('error_code_02002.json') }
-
-      it 'returns a Failure with type :service_unavailable' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
-      end
-    end
-
-    context 'when the service reponds with 03002 code' do
-      let(:status) { 504 }
-      let(:body) { fixture_file('error_code_03002.json') }
-
-      it 'returns a Failure with type :service_unavailable' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
-      end
-    end
-
-    context 'when the service reponds with 03020 code' do
-      let(:status) { 503 }
-      let(:body) { fixture_file('error_code_03020.json') }
-
-      it 'returns a Failure with type :service_unavailable' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
-      end
-    end
-
-    context 'when siren does not exist' do
+    context 'when siret does not exist' do
       let(:status) { 404 }
-      let(:body) { fixture_file('entreprises_not_found.json') }
+      let(:body) { '' }
 
       it 'returns a Failure with type :not_found' do
         expect(subject).to be_failure
@@ -95,17 +62,7 @@ describe APIEntreprise::API do
       end
     end
 
-    context 'when request has bad format' do
-      let(:status) { 400 }
-      let(:body) { fixture_file('entreprises_not_found.json') }
-
-      it 'returns a Failure with type :server_error for undocumented code' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :server_error, code: 400, retryable: true)
-      end
-    end
-
-    context 'when siren infos are private' do
+    context 'when forbidden (403)' do
       let(:status) { 403 }
       let(:body) { fixture_file('entreprises_private.json') }
 
@@ -135,51 +92,17 @@ describe APIEntreprise::API do
       end
     end
 
-    context 'when siren exist' do
-      let(:siren) { '418166096' }
-      let(:status) { 200 }
-      let(:body) { fixture_file('entreprises.json') }
+    context 'when undocumented HTTP code (400)' do
+      let(:status) { 400 }
+      let(:body) { '' }
 
-      it 'returns Success with response body' do
-        expect(subject).to be_success
-        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
-      end
-
-      context 'with a service without siret' do
-        let(:procedure) { create(:procedure, :with_service) }
-        let(:dinum_siret) { "13002526500013" }
-        it 'send default recipient' do
-          ENV["API_ENTREPRISE_DEFAULT_SIRET"] = dinum_siret
-          procedure.service.siret = nil
-          procedure.service.save(validate: false)
-          subject
-          expect(WebMock).to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/).with(query: hash_including({ recipient: dinum_siret }))
-        end
-      end
-
-      context 'with a service with siret' do
-        context 'with a siren entreprise not equivalent to siret service' do
-          let(:procedure) { create(:procedure, :with_service) }
-          it 'send default recipient' do
-            subject
-            expect(WebMock).to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/).with(query: hash_including({ recipient: procedure.service.siret }))
-          end
-        end
-
-        context 'with a siren entreprise equivalent to siret service' do
-          let(:procedure) { create(:procedure, :with_service) }
-          let(:siren) { procedure.service.siret[0..8] }
-          let(:dinum_siret) { "13002526500013" }
-          it 'send default recipient' do
-            ENV["API_ENTREPRISE_DEFAULT_SIRET"] = dinum_siret
-            subject
-            expect(WebMock).to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/).with(query: hash_including({ recipient: dinum_siret }))
-          end
-        end
+      it 'returns a Failure with type :server_error' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :server_error, code: 400, retryable: true)
       end
     end
 
-    context 'when the service reponds with 500 code' do
+    context 'when server error (500)' do
       let(:status) { 500 }
       let(:body) { fixture_file('error_500.html') }
 
@@ -188,17 +111,87 @@ describe APIEntreprise::API do
         expect(subject.failure).to include(type: :server_error, code: 500, retryable: true)
       end
     end
+
+    context 'when bad gateway (502) without service_unavailable error code' do
+      let(:status) { 502 }
+      let(:body) { fixture_file('entreprises_unavailable.json') }
+
+      it 'returns a Failure with type :server_error' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :server_error, code: 502, retryable: true)
+      end
+    end
+
+    context 'when bad gateway (502) with error code 01000' do
+      let(:status) { 502 }
+      let(:body) { fixture_file('error_code_01000.json') }
+
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
+      end
+    end
+
+    context 'when bad gateway (502) with error code 01001' do
+      let(:status) { 502 }
+      let(:body) { fixture_file('error_code_01001.json') }
+
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
+      end
+    end
+
+    context 'when gateway timeout (504) with error code 01002' do
+      let(:status) { 504 }
+      let(:body) { fixture_file('error_code_01002.json') }
+
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
+      end
+    end
+
+    context 'when gateway timeout (504) with error code 02002' do
+      let(:status) { 504 }
+      let(:body) { fixture_file('error_code_02002.json') }
+
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
+      end
+    end
+
+    context 'when gateway timeout (504) with error code 03002' do
+      let(:status) { 504 }
+      let(:body) { fixture_file('error_code_03002.json') }
+
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
+      end
+    end
+
+    context 'when service unavailable (503) with error code 03020' do
+      let(:status) { 503 }
+      let(:body) { fixture_file('error_code_03020.json') }
+
+      it 'returns a Failure with type :service_unavailable' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(type: :service_unavailable, retryable: true)
+      end
+    end
   end
 
-  describe '.entreprise network errors' do
-    subject { described_class.new(procedure_id).entreprise(siren) }
+  describe '.etablissement network errors' do
+    let(:siret) { '41816609600051' }
+    subject { described_class.new(procedure_id).etablissement(siret) }
 
     context 'when the request times out' do
       before do
-        # Stub at Client level since WebMock.to_timeout doesn't simulate Typhoeus timeout properly
         allow_any_instance_of(API::Client).to receive(:call).and_return(
           Dry::Monads::Failure(API::Client::Error[:timeout, 0, true, API::Client::HTTPError.new(
-            Typhoeus::Response.new(effective_url: 'https://entreprise.api.gouv.fr/v3/path', code: 0, body: '', return_message: 'Timeout', total_time: 20, connect_time: 1, headers: '')
+            Typhoeus::Response.new(effective_url: "https://entreprise.api.gouv.fr/v4/insee/sirene/etablissements/#{siret}", code: 0, body: '', return_message: 'Timeout', total_time: 20, connect_time: 1, headers: '')
           )])
         )
       end
@@ -206,38 +199,6 @@ describe APIEntreprise::API do
       it 'returns a Failure with type :timeout and retryable true' do
         expect(subject).to be_failure
         expect(subject.failure).to include(type: :timeout, retryable: true)
-      end
-    end
-  end
-
-  describe '.etablissement' do
-    subject { described_class.new(procedure_id).etablissement(siret) }
-    before do
-      stub_request(:get, "https://entreprise.api.gouv.fr/v4/insee/sirene/etablissements/#{siret}")
-        .with(query: { "non_diffusables" => "true", "context" => APPLICATION_NAME, "object" => "procedure_id: #{procedure_id}", "recipient" => ENV.fetch("API_ENTREPRISE_DEFAULT_SIRET") })
-        .to_return(status: status, body: body)
-      allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
-    end
-
-    context 'when siret does not exist' do
-      let(:siret) { '11111111111111' }
-      let(:status) { 404 }
-      let(:body) { '' }
-
-      it 'returns a Failure with type :not_found' do
-        expect(subject).to be_failure
-        expect(subject.failure).to include(type: :not_found, code: 404)
-      end
-    end
-
-    context 'when siret exists' do
-      let(:siret) { '41816609600051' }
-      let(:status) { 200 }
-      let(:body) { fixture_file('etablissements.json') }
-
-      it 'returns Success with body' do
-        expect(subject).to be_success
-        expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
       end
     end
   end
@@ -302,6 +263,29 @@ describe APIEntreprise::API do
       it 'returns Success with body' do
         expect(subject).to be_success
         expect(subject.value!).to eq(JSON.parse(body, symbolize_names: true))
+      end
+
+      context 'with a service siret sharing the same siren' do
+        let(:procedure) { create(:procedure, :with_service) }
+        let(:siren) { procedure.service.siret[0..8] }
+        let(:dinum_siret) { "13002526500013" }
+
+        it 'sends default recipient to avoid self-referencing' do
+          ENV["API_ENTREPRISE_DEFAULT_SIRET"] = dinum_siret
+          subject
+          expect(WebMock).to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/djepva\/api-association\/associations\/open_data\/#{siren}/)
+            .with(query: hash_including({ recipient: dinum_siret }))
+        end
+      end
+
+      context 'with a service siret from a different siren' do
+        let(:procedure) { create(:procedure, :with_service) }
+
+        it 'sends the service siret as recipient' do
+          subject
+          expect(WebMock).to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/djepva\/api-association\/associations\/open_data\/#{siren}/)
+            .with(query: hash_including({ recipient: procedure.service.siret }))
+        end
       end
     end
   end
@@ -451,19 +435,20 @@ describe APIEntreprise::API do
   end
 
   describe 'rate limiting' do
-    let(:siren) { '418166096' }
-    let(:body) { fixture_file('entreprises.json') }
+    let(:siret) { '41816609600051' }
+    let(:body) { fixture_file('etablissements.json') }
     let(:pool) { APIEntreprise::API::DEFAULT_POOL }
     let(:rate_limit_headers) { { 'RateLimit-Remaining' => '47', 'RateLimit-Limit' => pool.to_s, 'RateLimit-Reset' => reset_timestamp.to_s } }
     let(:reset_timestamp) { Time.current.to_i + 30 }
 
     before do
       Kredis.redis.del(APIEntreprise::RateLimiter.remaining_key(pool), APIEntreprise::RateLimiter.reset_key(pool))
+      allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
     end
 
     describe 'RateLimiter.calibrate! via response headers' do
       before do
-        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/insee\/sirene\/unites_legales\/#{siren}/)
+        stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
           .to_return(body:, status:, headers: rate_limit_headers)
       end
 
@@ -471,14 +456,14 @@ describe APIEntreprise::API do
         let(:status) { 200 }
 
         it 'stores remaining in Redis (reset not stored when remaining > 0)' do
-          described_class.new(procedure_id).entreprise(siren)
+          described_class.new(procedure_id).etablissement(siret)
 
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(47)
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.reset_key(pool))).to be_nil
         end
 
         it 'sets TTL on Redis keys' do
-          described_class.new(procedure_id).entreprise(siren)
+          described_class.new(procedure_id).etablissement(siret)
 
           ttl = Kredis.redis.ttl(APIEntreprise::RateLimiter.remaining_key(pool))
           expect(ttl).to be_between(1, 30)
@@ -490,7 +475,7 @@ describe APIEntreprise::API do
         let(:rate_limit_headers) { {} }
 
         it 'does not write to Redis' do
-          described_class.new(procedure_id).entreprise(siren)
+          described_class.new(procedure_id).etablissement(siret)
 
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool))).to be_nil
         end
@@ -502,7 +487,7 @@ describe APIEntreprise::API do
         let(:rate_limit_headers) { { 'RateLimit-Remaining' => '0', 'RateLimit-Reset' => reset_timestamp.to_s } }
 
         it 'calibrates remaining to 0 and stores reset timestamp' do
-          described_class.new(procedure_id).entreprise(siren)
+          described_class.new(procedure_id).etablissement(siret)
 
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.remaining_key(pool)).to_i).to eq(0)
           expect(Kredis.redis.get(APIEntreprise::RateLimiter.reset_key(pool)).to_i).to eq(reset_timestamp)
@@ -512,8 +497,8 @@ describe APIEntreprise::API do
   end
 
   describe 'with expired token' do
-    let(:siren) { '111111111' }
-    subject { described_class.new(procedure_id).entreprise(siren) }
+    let(:siret) { '41816609600051' }
+    subject { described_class.new(procedure_id).etablissement(siret) }
 
     before do
       allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(true)
@@ -522,7 +507,7 @@ describe APIEntreprise::API do
     it 'returns a Failure with type :token_expired and makes no call to api-entreprise' do
       expect(subject).to be_failure
       expect(subject.failure).to include(type: :token_expired, code: 401, retryable: false)
-      expect(WebMock).not_to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v2\/entreprises\/#{siren}/)
+      expect(WebMock).not_to have_requested(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
     end
   end
 end
