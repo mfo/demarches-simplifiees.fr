@@ -5,12 +5,14 @@ module LockableConcern
 
   def lock_action(key)
     lock = Kredis.flag(key)
-    head :locked and return if lock.marked?
+    # Atomic acquire (SET NX): only the request that actually sets the flag
+    # enters the protected section, so concurrent requests cannot both pass.
+    head :locked and return unless lock.mark(expires_in: 10.seconds, force: false)
 
-    lock.mark(expires_in: 10.seconds)
-
-    yield
-
-    lock.remove
+    begin
+      yield
+    ensure
+      lock.remove
+    end
   end
 end
