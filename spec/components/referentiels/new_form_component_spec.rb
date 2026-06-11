@@ -52,6 +52,18 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
         end
       end
 
+      context 'with api was selected and procedure has yes_no and address champs' do
+        let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'Majeur' }, { type: :address, libelle: 'Adresse' }, { type: :checkbox, libelle: 'Checkbox' }, { type: :referentiel }] }
+        let(:type_de_champ) { procedure.draft_revision.types_de_champ_public.last }
+        let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::APIReferentiel") }
+
+        it 'renders yes_no and address champs as tiptap tags' do
+          expect(page).to have_button('Majeur')
+          expect(page).to have_button('Adresse')
+          expect(page).to have_button('Checkbox')
+        end
+      end
+
       context 'with csv was selected' do
         let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::CsvReferentiel") }
         it 'renders file input' do
