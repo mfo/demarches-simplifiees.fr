@@ -34,6 +34,21 @@ describe ProcedureExportService do
       end
     end
 
+    context 'when the streaming export fails' do
+      let(:procedure) { create(:procedure) }
+
+      before do
+        allow_any_instance_of(ProcedureExportService::XlsxStreamer).to receive(:open).and_raise(Zip::Error, "boom")
+      end
+
+      it 'enriches the Sentry scope with the export context before re-raising' do
+        expect(Sentry).to receive(:set_extras).with(
+          xlsx_streamer: hash_including(procedure: procedure.id)
+        )
+        expect { subject }.to raise_error(Zip::Error)
+      end
+    end
+
     describe 'Dossiers sheet' do
       context 'with all data for individual' do
         let(:procedure) { create(:procedure, :published, :for_individual, :with_all_champs) }

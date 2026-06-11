@@ -12,6 +12,8 @@ class ProcedureExportService::XlsxExport
     @procedure = procedure
     @dossiers = dossiers
     @export_template = export_template
+
+    @current_dossier_id = nil
   end
 
   # Résout une cellule `[libellé, valeur, type]` (le type n'est présent que via
@@ -38,6 +40,15 @@ class ProcedureExportService::XlsxExport
       flush_avis_sheet(writer, buffers)
       flush_repetition_sheets(writer, buffers)
     end
+  rescue StandardError
+    Sentry.set_extras(
+      xlsx_streamer: {
+        procedure: @procedure.id,
+        export_template: @export_template&.id,
+        current_dossier: @current_dossier_id,
+      }
+    )
+    raise
   end
 
   private
@@ -48,6 +59,7 @@ class ProcedureExportService::XlsxExport
     DossierPreloader.new(@dossiers.ordered_for_export)
       .in_batches(includes: DossierPreloader::SHEET_EXPORT_INCLUDES) do |batch|
       rows = batch.map do |dossier|
+        @current_dossier_id = dossier.id
         cells = dossier.spreadsheet_columns_xlsx(types_de_champ:, export_template: @export_template)
           .map { |(_libelle, value, type)| self.class.cell_value(dossier, value, type) }
 
@@ -71,6 +83,8 @@ class ProcedureExportService::XlsxExport
       # Aucun dossier : on ouvre quand même une feuille (en-têtes seuls).
       writer.write_sheet('Dossiers', headers: dossiers_headers) { nil }
     end
+
+    @current_dossier_id = nil
   end
 
   def flush_etablissements_sheet(writer, buffers)
