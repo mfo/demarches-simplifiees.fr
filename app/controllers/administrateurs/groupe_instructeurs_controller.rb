@@ -61,14 +61,6 @@ module Administrateurs
         create_groups_from_drop_down_list_tdc(tdc_options, stable_id)
       end
 
-      if tdc.drop_down_other?
-        routing_rule = ds_eq(champ_value(stable_id), constant(Champs::DropDownListChamp::OTHER))
-        @procedure
-          .groupe_instructeurs
-          .find_or_create_by(label: 'Autre')
-          .update(instructeurs: [current_administrateur.instructeur], routing_rule:)
-      end
-
       @procedure.update_all_groupes_rule_statuses
 
       @procedure.toggle_routing
@@ -690,8 +682,12 @@ module Administrateurs
     end
 
     def create_groups_from_drop_down_list_tdc(tdc_options, stable_id)
-      tdc_options.each do |label, _|
-        routing_rule = ds_eq(champ_value(stable_id), constant(label))
+      tdc_options.each do |label, code|
+        if code == Champs::DropDownListChamp::OTHER
+          label = 'Autre'
+        end
+
+        routing_rule = ds_eq(champ_value(stable_id), constant(code))
         @procedure
           .groupe_instructeurs
           .find_or_create_by(label: label)

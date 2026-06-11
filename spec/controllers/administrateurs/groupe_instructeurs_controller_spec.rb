@@ -1122,7 +1122,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
       let!(:procedure3) do
         create(:procedure,
                types_de_champ_public: [
-                 { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
+                 { type: :drop_down_list, libelle: 'Votre ville', drop_down_options: ['Paris', 'Lyon', 'Marseille'], drop_down_other: true },
                  { type: :text, libelle: 'Un champ texte' },
                ],
                administrateurs: [admin])
@@ -1136,10 +1136,10 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
       it do
         expect(response).to redirect_to(admin_procedure_groupe_instructeurs_path(procedure3))
         expect(flash[:routing_mode]).to eq 'simple'
-        expect(procedure3.groupe_instructeurs.pluck(:label)).to match_array(['Paris', 'Lyon', 'Marseille'])
-        expect(procedure3.groupe_instructeurs.pluck(:valid_routing_rule)).to match_array([true, true, true])
-        expect(procedure3.groupe_instructeurs.pluck(:unique_routing_rule)).to match_array([true, true, true])
-        expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(champ_value(drop_down_tdc.stable_id), constant('Lyon')))
+        expect(procedure3.groupe_instructeurs.pluck(:label)).to match_array(['Autre', 'Paris', 'Lyon', 'Marseille'])
+        expect(procedure3.groupe_instructeurs.pluck(:valid_routing_rule)).to match_array([true, true, true, true])
+        expect(procedure3.groupe_instructeurs.pluck(:unique_routing_rule)).to match_array([true, true, true, true])
+        expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(champ_value(drop_down_tdc.stable_id), constant(Champs::DropDownListChamp::OTHER))) # the last one created
         expect(procedure3.routing_enabled).to be_truthy
         expect(procedure3.routing_alert).to be_truthy
       end
