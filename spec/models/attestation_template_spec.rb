@@ -154,6 +154,25 @@ describe AttestationTemplate, type: :model do
       end
     end
 
+    context 'when the pdf upload fails' do
+      let(:attestation_template) do
+        build(:attestation_template, title: 'title', body: 'body')
+      end
+
+      before do
+        allow(ActiveStorage::Blob.service).to receive(:upload).and_raise('503 Service Unavailable')
+      end
+
+      it 'raises and does not persist the attestation nor its attachment' do
+        expect { attestation_template.generate_attestation_for(dossier) }
+          .to raise_error('503 Service Unavailable')
+          .and not_change { Attestation.count }
+          .and not_change { ActiveStorage::Attachment.count }
+
+        expect(dossier.reload.attestation).to be_nil
+      end
+    end
+
     context 'attestation v2' do
       let(:attestation_template) do
         build(:attestation_template, :v2, :with_files, label_logo: "Ministère des specs")

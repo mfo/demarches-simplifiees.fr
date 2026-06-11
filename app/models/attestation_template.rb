@@ -87,15 +87,20 @@ class AttestationTemplate < ApplicationRecord
     # Guard against race condition: dossier state may have changed during PDF generation
     return unless dossier.reload.accepte? || dossier.refuse?
 
-    attestation = Attestation.new(dossier:)
-    attestation.title = replace_tags(title, dossier, escape: false) if version == 1
-    attestation.pdf.attach(
+    # Upload the file before creating the attestation: if the upload fails,
+    # nothing is persisted, so a retry of the job regenerates the attestation
+    # instead of leaving one pointing to a missing file.
+    blob = ActiveStorage::Blob.create_and_upload!(
       io: StringIO.new(pdf_data),
       filename: "attestation-dossier-#{dossier.id}.pdf",
       content_type: 'application/pdf',
       # we don't want to run virus scanner on this file
       metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE }
     )
+
+    attestation = Attestation.new(dossier:)
+    attestation.title = replace_tags(title, dossier, escape: false) if version == 1
+    attestation.pdf.attach(blob)
     attestation.save!
   end
 
