@@ -41,24 +41,31 @@ module Administrateurs
 
       case tdc.type_champ
       when TypeDeChamp.type_champs.fetch(:departements)
+        dep_column = tdc.columns(procedure_id: procedure.id)
+          .find { it.try(:jsonpath) == '$.department_code' }
         tdc_options = APIGeoService.departement_options
         rule_operator = :ds_eq
-        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator)
+        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, dep_column)
       when TypeDeChamp.type_champs.fetch(:communes), TypeDeChamp.type_champs.fetch(:epci), TypeDeChamp.type_champs.fetch(:address)
+        dep_column = tdc.columns(procedure_id: procedure.id)
+          .find { it.try(:jsonpath) == '$.department_code' }
         tdc_options = APIGeoService.departement_options
         rule_operator = :ds_in_departement
-        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator)
+        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, dep_column)
       when TypeDeChamp.type_champs.fetch(:regions)
+        region_column = tdc.columns(procedure_id: procedure.id)
+          .find { it.try(:jsonpath) == '$.region_code' }
         rule_operator = :ds_eq
         tdc_options = APIGeoService.region_options
-        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator)
+        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, region_column)
       when TypeDeChamp.type_champs.fetch(:pays)
+        pays_column = tdc.columns(procedure_id: procedure.id).find { it.class == Columns::ChampColumn }
         rule_operator = :ds_eq
         tdc_options = APIGeoService.countries.map { ["#{_1[:code]} – #{_1[:name]}", _1[:code]] }
-        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator)
+        create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, pays_column)
       when TypeDeChamp.type_champs.fetch(:drop_down_list)
         tdc_options = tdc.options_for_select
-        create_groups_from_drop_down_list_tdc(tdc_options, stable_id)
+        create_groups_from_drop_down_list_tdc(tdc, stable_id)
       end
 
       @procedure.update_all_groupes_rule_statuses
@@ -670,9 +677,13 @@ module Administrateurs
       flash[:alert] = "Importation impossible, veuillez importer un csv suivant #{view_context.link_to('ce modèle', "/csv/import-instructeurs-test.csv")} pour une procédure sans routage ou #{view_context.link_to('celui-ci', "/csv/#{I18n.locale}/import-groupe-test.csv")} pour une procédure routée"
     end
 
-    def create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator)
+    def create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, column)
       tdc_options.each do |label, code|
-        routing_rule = send(rule_operator, champ_value(stable_id), constant(code))
+        routing_rule = if column_mode?
+          ds_eq(champ_column_value(column), constant(code))
+        else
+          send(rule_operator, champ_value(stable_id), constant(code))
+        end
 
         @procedure
           .groupe_instructeurs
@@ -681,18 +692,31 @@ module Administrateurs
       end
     end
 
-    def create_groups_from_drop_down_list_tdc(tdc_options, stable_id)
+    def create_groups_from_drop_down_list_tdc(tdc, stable_id)
+      tdc_options = tdc.options_for_select
+
+      source = if column_mode?
+        champ_column_value(tdc.columns(procedure_id: procedure.id).find { it.class == Columns::ChampColumn })
+      else
+        champ_value(stable_id)
+      end
+
       tdc_options.each do |label, code|
         if code == Champs::DropDownListChamp::OTHER
           label = 'Autre'
         end
 
-        routing_rule = ds_eq(champ_value(stable_id), constant(code))
+        routing_rule = ds_eq(source, constant(code))
+
         @procedure
           .groupe_instructeurs
-          .find_or_create_by(label: label)
+          .find_or_create_by(label:)
           .update(instructeurs: [current_administrateur.instructeur], routing_rule:)
       end
+    end
+
+    def column_mode?
+      feature_enabled?(:column_conditions) && !procedure.champ_value_in_condition?
     end
   end
 end

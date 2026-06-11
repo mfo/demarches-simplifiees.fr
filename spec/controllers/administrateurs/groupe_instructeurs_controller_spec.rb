@@ -1118,6 +1118,12 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   end
 
   describe '#create_simple_routing' do
+    let(:column_mode) { false }
+
+    before do
+      allow(controller).to receive(:column_mode?).and_return(column_mode)
+    end
+
     context 'with a drop_down_list type de champ' do
       let!(:procedure3) do
         create(:procedure,
@@ -1143,6 +1149,15 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         expect(procedure3.routing_enabled).to be_truthy
         expect(procedure3.routing_alert).to be_truthy
       end
+
+      context 'in column mode' do
+        let(:column_mode) { true }
+        let(:column) { champ_column_value(drop_down_tdc.columns(procedure_id: procedure3.id).first) }
+
+        it do
+          expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(column, constant(Champs::DropDownListChamp::OTHER)))
+        end
+      end
     end
 
     context 'with a departements type de champ' do
@@ -1163,6 +1178,21 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(champ_value(departements_tdc.stable_id), constant('01')))
         expect(procedure3.routing_enabled).to be_truthy
         expect(procedure3.routing_alert).to be_falsey
+      end
+
+      context 'in column mode' do
+        let(:column_mode) { true }
+        let(:column) do
+          dep_column = departements_tdc
+            .columns(procedure_id: procedure.id)
+            .find { it.label =~ /Département/ }
+
+          champ_column_value(dep_column)
+        end
+
+        it do
+          expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(column, constant('01')))
+        end
       end
     end
 
@@ -1204,6 +1234,21 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(champ_value(pays_tdc.stable_id), constant('AD')))
         expect(procedure3.routing_enabled).to be_truthy
       end
+
+      context 'in column mode' do
+        let(:column_mode) { true }
+        let(:column) do
+          pays_col = pays_tdc
+            .columns(procedure_id: procedure3.id)
+            .find { it.is_a? Columns::ChampColumn }
+
+          champ_column_value(pays_col)
+        end
+
+        it do
+          expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(column, constant('AD')))
+        end
+      end
     end
 
     context 'with a communes type de champ' do
@@ -1223,6 +1268,21 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         expect(procedure3.groupe_instructeurs.pluck(:label)).to include("01 – Ain")
         expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_in_departement(champ_value(communes_tdc.stable_id), constant('01')))
         expect(procedure3.routing_enabled).to be_truthy
+      end
+
+      context 'in column mode' do
+        let(:column_mode) { true }
+        let(:column) do
+          dep_column = communes_tdc
+            .columns(procedure_id: procedure3.id)
+            .find { it.label =~ /Département/ }
+
+          champ_column_value(dep_column)
+        end
+
+        it do
+          expect(procedure3.reload.defaut_groupe_instructeur.routing_rule).to eq(ds_eq(column, constant('01')))
+        end
       end
     end
 
