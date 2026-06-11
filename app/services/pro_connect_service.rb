@@ -31,8 +31,11 @@ class ProConnectService
       claims[:id_token][:acr] = {
         essential: true,
         values: [
-          "eidas2", # login / pwd + 2FA
-          "eidas3", # physical card with PIN + certificates
+          "eidas0-mfa", # Identité : Faible ou déclarative, Auth: MFA (auto-géré), Orga: Modération ou déclaratif
+          "eidas1-mfa", # Identité : Faible, Auth: MFA (auto-géré), Orga: Modération ou plus
+          "eidas2",     # Identité : Substantielle, Auth: MFA (géré par l'organisation), Orga: Lien certifié par une source officielle
+          "eidas3",     # Identité : Élevée, Auth: MFA matérielle (géré par l'organisation), Orga: Lien certifié par une source officielle
+          # deprecated claims to be removed after 18/06/2026
           "https://proconnect.gouv.fr/assurance/self-asserted-2fa", # declarative identity + 2FA
           "https://proconnect.gouv.fr/assurance/consistency-checked-2fa", # verified identity + 2FA
         ],
