@@ -35,6 +35,12 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
             expect(assigns(:groupes_instructeurs)).to match_array([gi_1_2])
           end
         end
+
+        context 'when filtering groups to configure' do
+          let(:params) { { procedure_id: procedure.id, filter: '1' } }
+
+          it { expect(response).to have_http_status(:ok) }
+        end
       end
     end
   end
