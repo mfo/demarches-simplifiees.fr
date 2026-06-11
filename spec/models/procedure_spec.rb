@@ -601,6 +601,34 @@ describe Procedure do
           expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(invalid_drop_down_error_message)
         end
 
+        it 'validates that no drop-down nested in a repetition is empty' do
+          types_de_champ_public = [{ type: :repetition, libelle: 'Bloc', children: [{ type: :multiple_drop_down_list, libelle: 'Choix imbriqué' }] }]
+          procedure = create(:procedure, types_de_champ_public:, types_de_champ_private: [])
+
+          repetition = procedure.draft_revision.types_de_champ.find(&:repetition?)
+          nested_drop_down = procedure.draft_revision.children_of(repetition).find(&:any_drop_down_list?)
+
+          nested_drop_down.update!(drop_down_options: [])
+          procedure.reload.validate(:publication)
+          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(invalid_drop_down_error_message)
+
+          nested_drop_down.update!(drop_down_options: ["un", "deux"])
+          procedure.reload.validate(:publication)
+          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(invalid_drop_down_error_message)
+        end
+
+        it 'validates that no private drop-down nested in a repetition is empty' do
+          types_de_champ_private = [{ type: :repetition, libelle: 'Bloc privé', children: [{ type: :drop_down_list, libelle: 'Choix imbriqué privé' }] }]
+          procedure = create(:procedure, types_de_champ_public: [], types_de_champ_private:)
+
+          repetition = procedure.draft_revision.types_de_champ.find(&:repetition?)
+          nested_drop_down = procedure.draft_revision.children_of(repetition).find(&:any_drop_down_list?)
+
+          nested_drop_down.update!(drop_down_options: [])
+          procedure.reload.validate(:publication)
+          expect(procedure.errors.messages_for(:draft_types_de_champ_private)).to include(invalid_drop_down_error_message)
+        end
+
         context 'validates formatted champ character rules' do
           let(:types_de_champ_private) { [] }
           let(:formatted_mode) { "simple" }
