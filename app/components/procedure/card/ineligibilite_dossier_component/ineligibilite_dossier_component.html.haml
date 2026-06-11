@@ -2,7 +2,7 @@
   = link_to edit_admin_procedure_ineligibilite_rules_path(@procedure), class: 'fr-tile fr-enlarge-link' do
     .fr-tile__body.flex.column.align-center.justify-between
       - if !ready?
-        %p.fr-badge.fr-badge= t('.state.pending')
+        %p.fr-badge= t('.state.pending')
       - elsif error?
         %p.fr-badge.fr-badge--error À modifier
       - else
