@@ -73,7 +73,10 @@ class GroupeInstructeur < ApplicationRecord
 
     # We dont't want to assign a user to a groupe_instructeur if they are already assigned to it
     instructeurs_to_add -= instructeurs
-    instructeurs_to_add.each { add(_1) }
+    instructeurs_to_add.compact!
+
+    new_instructeurs = instructeurs_to_add.filter { |instructeur| instructeur.assign_to.create_or_find_by(groupe_instructeur: self).previously_new_record? }
+    DossierNotification.refresh_notifications_new_instructeurs_for_groupe(self, new_instructeurs)
 
     [instructeurs_to_add, invalid_emails]
   end
