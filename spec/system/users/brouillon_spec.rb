@@ -120,8 +120,7 @@ describe 'The user', js: true do
   end
 
   scenario 'fill nothing and every error anchor links points to an existing element' do
-    log_in(user, procedure)
-    fill_individual
+    log_in_fast(user, procedure)
     click_on 'Déposer le dossier'
 
     expect(page).to have_selector("#sumup-errors")
@@ -136,9 +135,7 @@ describe 'The user', js: true do
   end
 
   scenario 'fill a dossier with repetition' do
-    log_in(user, procedure_with_repetition)
-
-    fill_individual
+    log_in_fast(user, procedure_with_repetition)
 
     fill_in('sub type de champ', with: 'super texte')
     expect(page).to have_field('sub type de champ', with: 'super texte')
@@ -178,8 +175,7 @@ describe 'The user', js: true do
   end
 
   scenario 'repetition with max limit disables add button when reached' do
-    log_in(user, procedure_with_repetition_limited)
-    fill_individual
+    log_in_fast(user, procedure_with_repetition_limited)
 
     expect(page).to have_button('Ajouter un élément à « bloc »', disabled: false)
     dossier = user_dossier.reload
@@ -195,8 +191,7 @@ describe 'The user', js: true do
   end
 
   scenario 'do not fill a dossier with repetition and check errors on champs' do
-    log_in(user, procedure_with_repetition_2)
-    fill_individual
+    log_in_fast(user, procedure_with_repetition_2)
     click_on 'Déposer le dossier'
 
     # errors in header section
@@ -219,8 +214,7 @@ describe 'The user', js: true do
   }
 
   scenario 'save an incomplete dossier as draft but cannot not submit it' do
-    log_in(user, simple_procedure)
-    fill_individual
+    log_in_fast(user, simple_procedure)
 
     # Check an incomplete dossier can be saved as a draft, even when mandatory fields are missing
     fill_in('texte optionnel', with: 'ça ne suffira pas')
@@ -252,8 +246,7 @@ describe 'The user', js: true do
   end
 
   scenario 'fill address in BAN and submit dossier', vcr: true do
-    log_in(user, simple_procedure)
-    fill_individual
+    log_in_fast(user, simple_procedure)
 
     address_locator = "Saisissez une adresse, une voie, un lieu-dit ou une commune. Exemple : 11 rue Réaumur, Paris"
     scroll_to(find_field(address_locator), align: :center)
@@ -270,8 +263,7 @@ describe 'The user', js: true do
   end
 
   scenario 'fill address not in BAN and submit dossier', vcr: true do
-    log_in(user, simple_procedure)
-    fill_individual
+    log_in_fast(user, simple_procedure)
 
     find('label', text: 'Je ne trouve pas mon adresse dans les suggestions').click
     fill_in('Numéro et nom de voie, ou lieu-dit', with: '2 rue de la paix')
@@ -312,8 +304,7 @@ describe 'The user', js: true do
     stub_request(:get, "https://data.geopf.fr/geocodage/search?limit=10&q=2%20rue%20de%20la%20paix,%2092094%20Belgique")
       .to_return(body: '{"type":"FeatureCollection","version":"draft","features":[]}')
 
-    log_in(user, simple_procedure)
-    fill_individual
+    log_in_fast(user, simple_procedure)
 
     find('label', text: 'Je ne trouve pas mon adresse dans les suggestions').click
     fill_in('Numéro et nom de voie, ou lieu-dit', with: '2 rue de la paix')
@@ -328,8 +319,7 @@ describe 'The user', js: true do
   end
 
   scenario 'numbers champs formatting' do
-    log_in(user, simple_procedure)
-    fill_individual
+    log_in_fast(user, simple_procedure)
 
     fill_in('nombre entier', with: '300 environ')
     wait_until {
@@ -408,8 +398,7 @@ describe 'The user', js: true do
   let(:procedure_with_pjs) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }, { type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 2' }]) }
 
   scenario 'add an attachment' do
-    log_in(user, procedure_with_pjs)
-    fill_individual
+    log_in_fast(user, procedure_with_pjs)
 
     # Add attachments
     find_field('Pièce justificative 1').attach_file(Rails.root + 'spec/fixtures/files/file.pdf')
@@ -452,9 +441,7 @@ describe 'The user', js: true do
       end
 
       scenario 'submit a dossier with an hidden mandatory champ within a repetition' do
-        log_in(user, procedure)
-
-        fill_individual
+        log_in_fast(user, procedure)
         fill_in('UNIQ_LABEL', with: 10)
         click_on 'Déposer le dossier'
         expect(page).to have_current_path(merci_dossier_path(user_dossier))
@@ -464,8 +451,7 @@ describe 'The user', js: true do
         let(:repetition_mandatory) { true }
 
         scenario 'default rows is visible when condition is satisfied' do
-          log_in(user, procedure)
-          fill_individual
+          log_in_fast(user, procedure)
 
           fill_in('UNIQ_LABEL', with: 20)
 
@@ -478,8 +464,7 @@ describe 'The user', js: true do
       end
 
       scenario 'when there is a repetition there is a toggle button to expand all rows' do
-        log_in(user, procedure)
-        fill_individual
+        log_in_fast(user, procedure)
         fill_in('UNIQ_LABEL', with: 20)
         # add 4 rows
         click_on 'Ajouter'
@@ -524,9 +509,7 @@ describe 'The user', js: true do
       end
 
       scenario 'fill a dossier' do
-        log_in(user, procedure)
-
-        fill_individual
+        log_in_fast(user, procedure)
 
         expect(page).to have_no_css('label', text: 'champ_c', visible: true)
         find('label', text: 'champ_a').click # check
@@ -556,18 +539,14 @@ describe 'The user', js: true do
       end
 
       scenario 'submit a dossier with an hidden mandatory champ ' do
-        log_in(user, procedure)
-
-        fill_individual
+        log_in_fast(user, procedure)
 
         click_on 'Déposer le dossier'
         expect(page).to have_current_path(merci_dossier_path(user_dossier))
       end
 
       scenario 'cannot submit a reveal dossier with a revealed mandatory champ ' do
-        log_in(user, procedure)
-
-        fill_individual
+        log_in_fast(user, procedure)
 
         fill_in('UNIQ_LABEL', with: '18')
         expect(page).to have_css('label', text: 'nom', visible: :visible)
@@ -597,9 +576,7 @@ describe 'The user', js: true do
       end
 
       scenario 'fill a dossier' do
-        log_in(user, procedure)
-
-        fill_individual
+        log_in_fast(user, procedure)
 
         expect(page).to have_css('label', text: 'age du candidat', visible: true)
         expect(page).to have_no_css('legend', text: 'permis de conduire', visible: true)
@@ -649,8 +626,7 @@ describe 'The user', js: true do
 
   context 'draft autosave' do
     scenario 'autosave a draft' do
-      log_in(user, simple_procedure)
-      fill_individual
+      log_in_fast(user, simple_procedure)
 
       expect(page).to have_no_button('Enregistrer le brouillon')
       expect(page).to have_content('Enregistrement automatique du dossier')
@@ -664,8 +640,7 @@ describe 'The user', js: true do
     end
 
     scenario 'autosave shows reconnection link after being disconnected' do
-      log_in(user, simple_procedure)
-      fill_individual
+      log_in_fast(user, simple_procedure)
 
       # When the user is disconnected
       # (either because signing-out in another tab, or because the session cookie expired)
@@ -730,5 +705,11 @@ describe 'The user', js: true do
       click_on 'Continuer'
     end
     expect(page).to have_current_path(brouillon_dossier_path(user_dossier))
+  end
+
+  def log_in_fast(user, procedure)
+    create(:dossier, :with_individual, procedure: procedure, user: user)
+    login_as user, scope: :user
+    visit brouillon_dossier_path(user_dossier)
   end
 end
