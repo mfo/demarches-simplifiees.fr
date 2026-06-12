@@ -6,7 +6,6 @@ describe 'The user', js: true do
 
   let(:procedure) { create(:procedure, :published, :for_individual, :with_all_champs_mandatory) }
   let(:user_dossier) { user.dossiers.first }
-  let(:dossier_to_link) { create(:dossier) }
 
   scenario 'fill a dossier', vcr: true do
     log_in_fast(user, procedure)
