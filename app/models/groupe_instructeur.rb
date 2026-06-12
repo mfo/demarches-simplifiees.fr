@@ -97,7 +97,12 @@ class GroupeInstructeur < ApplicationRecord
     update!(valid_routing_rule: valid_rule?)
   end
 
+  def defaut?
+    id == procedure.defaut_groupe_instructeur_id
+  end
+
   def routing_to_configure?
+    return false if defaut? && routing_rule.nil?
     invalid_rule? || non_unique_rule?
   end
 
