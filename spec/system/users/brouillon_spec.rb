@@ -9,9 +9,7 @@ describe 'The user', js: true do
   let(:dossier_to_link) { create(:dossier) }
 
   scenario 'fill a dossier', vcr: true do
-    log_in(user, procedure)
-
-    fill_individual
+    log_in_fast(user, procedure)
 
     # wait for react components to be initialized
     find('.dom-ready')
@@ -664,17 +662,6 @@ describe 'The user', js: true do
 
   private
 
-  def log_in(user, procedure)
-    login_as user, scope: :user
-
-    visit "/commencer/#{procedure.path}"
-    click_on 'Commencer la démarche'
-
-    find('label', text: 'Pour vous').click
-    expect(page).to have_content("Votre identité")
-    expect(page).to have_current_path(identite_dossier_path(user_dossier))
-  end
-
   def champ_value_for(libelle)
     champ_for(libelle).value
   end
@@ -695,16 +682,6 @@ describe 'The user', js: true do
     champs = user_dossier.reload.project_champs_public
     champ = champs.find { |c| c.libelle == libelle }
     champ.reload
-  end
-
-  def fill_individual
-    find('label', text: "Pour vous").click
-    fill_in('Prénom', with: 'prenom', visible: true)
-    fill_in('Nom', with: 'Nom', visible: true)
-    within "#identite-form" do
-      click_on 'Continuer'
-    end
-    expect(page).to have_current_path(brouillon_dossier_path(user_dossier))
   end
 
   def log_in_fast(user, procedure)
