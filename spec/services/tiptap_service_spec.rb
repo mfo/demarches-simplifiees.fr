@@ -202,6 +202,38 @@ RSpec.describe TiptapService do
       end
     end
 
+    context 'hard break' do
+      let(:json) do
+        {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Première ligne',
+                },
+                {
+                  type: 'hardBreak',
+                },
+                {
+                  type: 'text',
+                  text: 'Seconde ligne',
+                },
+              ],
+            },
+          ],
+        }
+      end
+
+      it 'renders a blank line' do
+        expect(described_class.new.to_html(json, {})).to eq(
+          '<p class="body-start">Première ligne<br><br>Seconde ligne</p>'
+        )
+      end
+    end
+
     context 'link mark' do
       let(:json) do
         {
