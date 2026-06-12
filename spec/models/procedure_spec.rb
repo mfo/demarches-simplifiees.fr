@@ -601,32 +601,77 @@ describe Procedure do
           expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(invalid_drop_down_error_message)
         end
 
-        it 'validates that no drop-down nested in a repetition is empty' do
-          types_de_champ_public = [{ type: :repetition, libelle: 'Bloc', children: [{ type: :multiple_drop_down_list, libelle: 'Choix imbriqué' }] }]
-          procedure = create(:procedure, types_de_champ_public:, types_de_champ_private: [])
+        context 'validates fields nested in a repetition' do
+          let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Bloc', children: }] }
+          let(:types_de_champ_private) { [] }
+          let(:repetition) { procedure.draft_revision.types_de_champ.find(&:repetition?) }
+          let(:nested_tdc) { procedure.draft_revision.children_of(repetition).first }
 
-          repetition = procedure.draft_revision.types_de_champ.find(&:repetition?)
-          nested_drop_down = procedure.draft_revision.children_of(repetition).find(&:any_drop_down_list?)
+          context 'with invalid dropdown' do
+            let(:children) { [{ type: :multiple_drop_down_list, libelle: 'Choix imbriqué' }] }
+            before { nested_tdc.update!(drop_down_options: []) }
 
-          nested_drop_down.update!(drop_down_options: [])
-          procedure.reload.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(invalid_drop_down_error_message)
+            it 'validates that no drop-down nested in a repetition is empty' do
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including(invalid_drop_down_error_message))
 
-          nested_drop_down.update!(drop_down_options: ["un", "deux"])
-          procedure.reload.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(invalid_drop_down_error_message)
-        end
+              nested_tdc.update!(drop_down_options: ["un", "deux"])
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(a_string_including(invalid_drop_down_error_message))
+            end
+          end
 
-        it 'validates that no private drop-down nested in a repetition is empty' do
-          types_de_champ_private = [{ type: :repetition, libelle: 'Bloc privé', children: [{ type: :drop_down_list, libelle: 'Choix imbriqué privé' }] }]
-          procedure = create(:procedure, types_de_champ_public: [], types_de_champ_private:)
+          context 'with invalid private dropdown' do
+            let(:children) { [{ type: :drop_down_list, libelle: 'Choix imbriqué privé' }] }
+            let(:types_de_champ_public) { [] }
+            let(:types_de_champ_private) { [{ type: :repetition, libelle: 'Bloc', children: }] }
+            before { nested_tdc.update!(drop_down_options: []) }
 
-          repetition = procedure.draft_revision.types_de_champ.find(&:repetition?)
-          nested_drop_down = procedure.draft_revision.children_of(repetition).find(&:any_drop_down_list?)
+            it 'validates that no private drop-down nested in a repetition is empty' do
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_private)).to include(a_string_including(invalid_drop_down_error_message))
+            end
+          end
 
-          nested_drop_down.update!(drop_down_options: [])
-          procedure.reload.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_private)).to include(invalid_drop_down_error_message)
+          context 'with invalid date range' do
+            let(:children) { [{ type: :date, libelle: 'Date' }] }
+            before { nested_tdc.update!(range_date: "1", start_date: "2025-12-31", end_date: "2025-01-01") }
+
+            it 'reports the error' do
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("La date de début doit être antérieure"))
+            end
+          end
+
+          context 'with invalid number range' do
+            let(:children) { [{ type: :integer_number, libelle: 'Nombre' }] }
+            before { nested_tdc.update!(range_number: "1", min_number: "100", max_number: "10") }
+
+            it 'reports the error' do
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("La valeur minimale doit être inférieure"))
+            end
+          end
+
+          context 'with referentiel not ready' do
+            let(:referentiel) { create(:api_referentiel, :exact_match) }
+            let(:children) { [{ type: :referentiel, libelle: 'Ref', referentiel: }] }
+
+            it 'reports the error' do
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("est pas configuré"))
+            end
+          end
+
+          context 'with blank libelle' do
+            let(:children) { [{ type: :text, libelle: 'Texte' }] }
+            before { nested_tdc.update_column(:libelle, '') }
+
+            it 'reports the error' do
+              procedure.reload.validate(:publication)
+              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("Le libellé du champ en position"))
+            end
+          end
         end
 
         context 'validates formatted champ character rules' do

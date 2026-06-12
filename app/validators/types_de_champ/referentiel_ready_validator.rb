@@ -2,7 +2,9 @@
 
 class TypesDeChamp::ReferentielReadyValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
-    types_de_champ.filter(&:referentiel?).each do |referentiel_champ|
+    types_de_champ
+      .flat_map { it.repetition? ? procedure.draft_revision.children_of(it) : [it] }
+      .filter(&:referentiel?).each do |referentiel_champ|
       unless referentiel_champ.referentiel&.ready?
         procedure.errors.add(
           attribute,
