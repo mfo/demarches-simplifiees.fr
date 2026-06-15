@@ -10,6 +10,7 @@ fr:
     contact_informations: Informations de contact
     custom: Personnalisé
     not_custom: Non personnalisé
+    defaut: Groupe par défaut
   add_groupe_modal:
     title: Ajouter un groupe
     label: Nouveau groupe

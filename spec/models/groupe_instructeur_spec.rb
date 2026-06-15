@@ -306,6 +306,32 @@ describe GroupeInstructeur, type: :model do
     end
   end
 
+  describe '#defaut?' do
+    it 'returns true for the default groupe instructeur' do
+      expect(procedure.defaut_groupe_instructeur.defaut?).to be true
+    end
+
+    it 'returns false for a non-default groupe instructeur' do
+      other_gi = create(:groupe_instructeur, procedure:)
+      expect(other_gi.defaut?).to be false
+    end
+  end
+
+  describe '#routing_to_configure?' do
+    context 'when the groupe instructeur is the default group with no routing rule' do
+      it 'returns false' do
+        expect(procedure.defaut_groupe_instructeur.routing_to_configure?).to be false
+      end
+    end
+
+    context 'when a non-default groupe instructeur has no routing rule' do
+      it 'returns true' do
+        other_gi = create(:groupe_instructeur, procedure:, routing_rule: nil)
+        expect(other_gi.routing_to_configure?).to be true
+      end
+    end
+  end
+
   private
 
   def assign(procedure_to_assign, instructeur_assigne: instructeur)
