@@ -3,6 +3,7 @@
 class Referentiels::NewFormComponent < Referentiels::MappingFormBase
   delegate :authentication_by_header_token?,
            :authentication_data_header,
+           :test_data_tags,
            to: :referentiel
 
   def id
@@ -75,7 +76,7 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
   end
 
   def tags
-    eligible_types = %w[text email phone number integer_number decimal_number formatted iban siret drop_down_list dossier_link rna rnf annuaire_education]
+    eligible_types = %w[text email phone number integer_number decimal_number formatted iban siret drop_down_list dossier_link rna rnf annuaire_education yes_no checkbox address]
 
     field_tags = coordinate.upper_coordinates
       .filter { eligible_types.include?(_1.type_champ) }
@@ -85,6 +86,4 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
 
     { url_tags: [query_tag] + field_tags }
   end
-
-  delegate :test_data_tags, to: :referentiel
 end
