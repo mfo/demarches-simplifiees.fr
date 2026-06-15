@@ -69,17 +69,17 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
       end
     elsif justificatif_domicile?
       cs += [
-        ['Bénéficiaire', '$.beneficiary', :text],
-        ['Adresse', '$.label', :text],
-        ['Date d’émission', '$.issue_date', :date],
-      ].map do |label, jsonpath, type|
+        [:beneficiary, :text],
+        [:label, :text],
+        [:issue_date, :date],
+      ].map do |attribute, type|
         Columns::JSONPathColumn.new(
           procedure_id:,
           stable_id:,
           tdc_type: type_champ,
-          label: "#{libelle_with_prefix(prefix)} – #{label}",
+          label: "#{libelle_with_prefix(prefix)} – #{JustificatifDomicile.human_attribute_name(attribute)}",
           type:,
-          jsonpath:,
+          jsonpath: "$.#{attribute}",
           displayable: true,
           mandatory: mandatory?
         )
