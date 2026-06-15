@@ -61,3 +61,9 @@ For deeper customization of email layout, you can override these partials in `ap
 - `layouts/mailers/_dsfr_header.html.erb`
 - `layouts/mailers/_dsfr_identity.html.erb`
 - `layouts/mailers/_dsfr_footer.html.erb`
+
+## Step 5. Site banners
+
+Information banners (maintenance notices, etc.) are managed per instance from the
+Manager interface at `/manager/banners`, with no env var or redeploy required.
+See [doc/banners.md](banners.md).

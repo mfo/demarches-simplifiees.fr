@@ -2,6 +2,13 @@
   .fr-grid-row.fr-grid-row--center
     .fr-col-lg-6
       %h1.fr-h2 Espace Manager
+
+      - banner = banner_for(:manager_login)
+      - if banner&.active?
+        = render Dsfr::NoticeComponent.new(closable: false, extra_class_names: 'banner-notice') do |c|
+          - c.with_title do
+            = sanitize_banner(banner.content)
+
       = devise_error_messages!
 
       = form_for SuperAdmin.new, url: super_admin_session_path do |f|
@@ -17,6 +24,6 @@
               = render Dsfr::InputComponent.new(form: f, attribute: :otp_attempt, input_type: :number_field, opts: { inputmode: :numeric, autocomplete: 'off' }, required: false)
 
           .fr-fieldset__element
-            %p= link_to "Mot de passe oublié ou réinitialisation 2FA ?", new_super_admin_password_path, class: "fr-link"
+            %p= link_to "Mot de passe oublié ou réinitialisation 2FA ?", new_super_admin_password_path, class: "fr-link"
 
         = f.submit t('views.users.sessions.new.connection'), class: "fr-btn fr-btn--lg"

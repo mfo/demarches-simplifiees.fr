@@ -143,6 +143,14 @@ module ApplicationHelper
     "#{attachment.filename.extension.upcase} – #{number_to_human_size(attachment.byte_size)}"
   end
 
+  def banner_for(target)
+    Banner.cached_for(target.to_s)
+  end
+
+  def sanitize_banner(content)
+    sanitize(content, tags: Banner::SANITIZE_TAGS)
+  end
+
   def dsfr_icon(classes, *options)
     sm = options.include?(:sm)
     mr = options.include?(:mr)

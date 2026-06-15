@@ -16,6 +16,12 @@
       %legend.fr-fieldset__legend#create-account-legend
         %h2.fr-h6= I18n.t('views.registrations.new.subtitle')
 
+      - banner = banner_for(:login_page)
+      - if banner&.active?
+        = render Dsfr::NoticeComponent.new(closable: false, extra_class_names: 'banner-notice') do |c|
+          - c.with_title do
+            = sanitize_banner(banner.content)
+
       .fr-fieldset__element
         %p.fr-text--sm= t('utils.asterisk_html')
 
