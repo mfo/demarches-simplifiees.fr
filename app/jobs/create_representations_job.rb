@@ -5,6 +5,7 @@ class CreateRepresentationsJob < ApplicationJob
 
   queue_as :ultra_low
 
+  discard_on ActiveJob::DeserializationError
   discard_on ActiveRecord::RecordNotFound
   discard_on ActiveStorage::FileNotFoundError
   discard_on ActiveRecord::InvalidForeignKey
