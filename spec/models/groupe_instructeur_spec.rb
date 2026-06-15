@@ -73,6 +73,21 @@ describe GroupeInstructeur, type: :model do
         expect(DossierNotification.all.map(&:notification_type)).to match_array(['dossier_depose', 'dossier_modifie'])
       end
     end
+
+    context "when the assign_to already exists in the database (race condition)" do
+      before { create(:assign_to, groupe_instructeur: another_groupe_instructeur, instructeur:) }
+
+      it "does not raise an error" do
+        # Simulate the race condition window: the guard passed before the concurrent insert
+        allow(another_groupe_instructeur).to receive(:in?).and_return(false)
+        expect { another_groupe_instructeur.add(instructeur) }.not_to raise_error
+      end
+
+      it "does not create a duplicate assign_to record" do
+        allow(another_groupe_instructeur).to receive(:in?).and_return(false)
+        expect { another_groupe_instructeur.add(instructeur) }.not_to change(AssignTo, :count)
+      end
+    end
   end
 
   describe "#remove" do

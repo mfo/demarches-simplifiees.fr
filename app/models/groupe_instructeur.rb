@@ -36,10 +36,9 @@ class GroupeInstructeur < ApplicationRecord
 
   def add(instructeur)
     return if instructeur.nil?
-    return if in?(instructeur.groupe_instructeurs)
 
-    instructeur.assign_to.create(groupe_instructeur: self)
-    DossierNotification.refresh_notifications_new_instructeur_for_dossiers(self, instructeur)
+    assign_to = instructeur.assign_to.create_or_find_by(groupe_instructeur: self)
+    DossierNotification.refresh_notifications_new_instructeur_for_dossiers(self, instructeur) if assign_to.previously_new_record?
   end
 
   def remove(instructeur)
