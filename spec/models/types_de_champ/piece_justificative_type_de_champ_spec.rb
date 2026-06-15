@@ -13,6 +13,15 @@ describe TypesDeChamp::PieceJustificativeTypeDeChamp do
       expect(labels.any? { _1.include?('BIC') }).to be true
       expect(labels.any? { _1.include?('Nom de la Banque') }).to be true
     end
+
+    it 'adds justificatif de domicile columns with i18n labels' do
+      tdc = create(:type_de_champ_piece_justificative, procedure:, nature: 'justificatif_domicile')
+      cols = tdc.dynamic_type.columns(procedure_id: procedure.id, displayable: true)
+      labels = cols.map(&:label)
+      expect(labels.any? { _1.include?('Bénéficiaire') }).to be true
+      expect(labels.any? { _1.include?('Adresse') }).to be true
+      expect(labels.any? { _1.include?('Date d’émission') }).to be true
+    end
   end
 
   describe '#champ_value_for_export' do

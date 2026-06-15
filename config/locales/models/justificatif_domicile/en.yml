@@ -4,8 +4,5 @@ en:
     attributes:
       justificatif_domicile:
         beneficiary: Beneficiary
-        address: Address
-        postal_code: Postcode
-        locality: Locality
-        country: Country
+        label: Address
         issue_date: Issue date

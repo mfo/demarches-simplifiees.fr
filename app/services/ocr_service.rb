@@ -25,7 +25,7 @@ class OCRService
 
     API::Client.new.call(url: ocr_url, method: :post, headers:, json:, timeout: 31)
       .fmap { |ok| { value_json: ok.body } } # store directly in value_json without transformation
-      .or { to_retryable_failure(it) }
+      .or { to_not_retryable_failure(it) }
   end
 
   def self.analyze_2ddoc(blob_url)
@@ -37,38 +37,65 @@ class OCRService
 
     API::Client.new.call(url:, headers:, method: :post, body:)
       .fmap { |ok| { data: ok.body, value_json: extract_2ddoc(ok.body) } }
-      .or { to_retryable_failure(it) }
+      .or { to_not_retryable_failure(it) }
   end
 
+  TWODDOC_MAPPING = {
+    beneficiary: 10, # Quality / Name / FirstName
+    ligne_2: 20,
+    ligne_3: 21,
+    ligne_4: 22,
+    ligne_5: 23,
+    code_postal: 24,
+    localite: 25,
+  }
+
   def self.extract_2ddoc(body)
-    barcode = body
+    doc_type, raw_issue_date, raw_data = body
       .dig(:data, :result, :barcodes)
       &.find { it[:type] == '2D_DOC' && it[:is_valid] } # take the first valid 2ddoc
+      &.fetch_values(:doc_type, :issue_date, :raw_data)
 
-    return nil if barcode.nil?
+    return nil if raw_data.nil? || !justif_domicile?(doc_type)
 
-    ddoc = barcode[:raw_data]
-    return nil if ddoc.nil? || !justif_domicile?(ddoc)
-
-    fields = ddoc[:fields]
     # format : '2026-01-02'
-    issue_date = barcode[:issue_date]&.then { Date.strptime(it, '%Y-%m-%d') }
+    issue_date = raw_issue_date&.then { Date.strptime(it, '%Y-%m-%d') }
+    beneficiary = raw_data[:"10"]&.tr('/', ' ')
 
     attr = {
-      beneficiary: fields[:"10"]&.tr('/', ' '),
-      address: fields[:"22"],
-      postal_code: fields[:"24"],
-      locality: fields[:"25"],
-      country: fields[:"26"],
+      beneficiary:,
       issue_date:,
       two_ddoc: true,
     }
 
+    query = TWODDOC_MAPPING
+      .fetch_values(:ligne_2, :ligne_3, :ligne_4, :ligne_5, :code_postal, :localite)
+      .map { raw_data[it.to_s.to_sym] }
+      .compact_blank
+      .join(' ')
+
+    fetch_ban_address(query)
+      .fmap { attr.merge!(it.except(:geometry)) }
+
     # force parsing to ensure compat
-    JustificatifDomicile.new(attr).attributes
+    JustificatifDomicile.new(attr).attributes.compact
   end
 
-  def self.justif_domicile?(ddoc) = ddoc[:doc_type].in?(['00', '01', '02'])
+  def self.justif_domicile?(doc_type) = doc_type.in?(['00', '01', '02'])
+
+  MIN_BAN_CONFIDENCE = 0.9
+
+  # TODO: check if enough 2ddoc properly stode postal_code
+  # and if enough at least call api geo to fetch region / departement
+  def self.fetch_ban_address(query)
+    return Failure(:no_query) if query.blank?
+
+    API::Client.new.call(url: "#{API_ADRESSE_URL}/search", params: { q: query, limit: 1 })
+      .fmap { it.body[:features]&.first }
+      .bind { it.present? ? Success(it) : Failure(:no_feature) }
+      .bind { it[:properties][:score] >= MIN_BAN_CONFIDENCE ? Success(it) : Failure(:bad) }
+      .fmap { APIGeoService.parse_ban_address(it.deep_stringify_keys) }
+  end
 
   def self.ocr_url = ENV.fetch("OCR_SERVICE_URL", nil)
   def self.document_ia_url = ENV.fetch("DOCUMENT_IA_URL", nil)
@@ -77,7 +104,7 @@ class OCRService
     Failure(retryable: false, error: StandardError.new("#{message} not configured"))
   end
 
-  def self.to_retryable_failure(data)
+  def self.to_not_retryable_failure(data)
     case data
     in code:, error:
       Failure(retryable: false, error:, code:)
