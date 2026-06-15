@@ -261,7 +261,7 @@
               <%= fco.check_box 'dossier_submitted_message', checked: true %>
 
               <%= fco.label 'dossier_submitted_message', class: "fr-label" do %>
-                <%= t('administrateurs.procedures.clone.dossier_submitted_message') %>
+                <%= t('shared.dossier_submitted_message.title') %>
 
                 <div class="fr-hint-text">
                   <%= t('administrateurs.procedures.clone.dossier_submitted_message_hint', message: @procedure.active_revision.dossier_submitted_message&.message_on_submit_by_usager) %>

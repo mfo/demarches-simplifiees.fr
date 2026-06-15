@@ -12,9 +12,9 @@ module Administrateurs
       @dossier_submitted_message = build_dossier_submitted_message(dossier_submitted_message_params)
 
       if @dossier_submitted_message.save
-        redirect_to admin_procedure_path(@procedure), flash: { notice: "Les informations de fin de dépot ont bien été sauvegardées." }
+        redirect_to admin_procedure_path(@procedure), flash: { notice: "Les informations de la page de confirmation de dépôt ont bien été sauvegardées." }
       else
-        flash.alert = "Impossible de sauvegarder les informations de fin de dépot, veuillez ré-essayer."
+        flash.alert = "Impossible de sauvegarder les informations de la page de confirmation de dépôt, veuillez ré-essayer."
         render :edit, status: 400
       end
     end
@@ -22,9 +22,9 @@ module Administrateurs
     def create
       @dossier_submitted_message = build_dossier_submitted_message(dossier_submitted_message_params)
       if @dossier_submitted_message.save
-        redirect_to admin_procedure_path(@procedure), flash: { notice: "Les informations de fin de dépot ont bien été sauvegardées." }
+        redirect_to admin_procedure_path(@procedure), flash: { notice: "Les informations de la page de confirmation de dépôt ont bien été sauvegardées." }
       else
-        flash.alert = "Impossible de sauvegarder les informations de \"fin de dépot\", veuillez ré-essayer."
+        flash.alert = "Impossible de sauvegarder les informations de la page de confirmation de dépôt, veuillez ré-essayer."
         render :edit, status: 400
       end
     end

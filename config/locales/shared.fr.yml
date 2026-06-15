@@ -19,6 +19,8 @@ fr:
           refuse: "Expirera le %{date}  (%{duree_conservation_totale} mois après le traitement du dossier)"
           sans_suite: "Expirera le %{date} (%{duree_conservation_totale} mois après le traitement dossier)"
 
+    dossier_submitted_message:
+      title: Page de confirmation de dépôt
 
     order_positions:
       move_up: Déplacer vers le haut

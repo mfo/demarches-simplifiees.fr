@@ -47,7 +47,7 @@ describe 'As an administateur i can setup a DossierSubmittedMessage', js: true d
     end
 
     click_on 'Enregistrer'
-    expect(page).to have_content("Les informations de fin de dépot ont bien été sauvegardées.")
+    expect(page).to have_content("Les informations de la page de confirmation de dépôt ont bien été sauvegardées.")
     expect(procedure.dossier_submitted_messages.last.json_body["content"].to_s).to include("super important")
   end
 end

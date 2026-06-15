@@ -1,11 +1,11 @@
-<% content_for(:title, "Message de fin") %>
+<% content_for(:title, t('shared.dossier_submitted_message.title')) %>
 <% content_for(:root_class, 'scroll-margins-for-sticky-footer') %>
 <% render_procedure_sticky_title(@procedure) %>
 
 <%= render partial: 'shared/breadcrumbs_section',
   locals: { steps: [[admin_procedures_back_label(@procedure), admin_procedures_back_path(@procedure)],
                     [@procedure.libelle.truncate_words(10), admin_procedure_path(@procedure)],
-                    ['Fin de dépôt']] } %>
+                    [t('shared.dossier_submitted_message.title')]] } %>
 
 <%= form_with model: @dossier_submitted_message, url: admin_procedure_dossier_submitted_message_path(@procedure) do |f| %>
   <div class="fr-container fr-my-4w">
@@ -19,7 +19,9 @@
             class="fr-fieldset__legend"
             id="edit-dossier-submitted-message"
           >
-            <h1 class="fr-h2">Fin de dépôt</h1>
+            <h1 class="fr-h2">
+              <%= t('shared.dossier_submitted_message.title') %>
+            </h1>
 
             <p class="fr-text--regular">
               Personnalisez le message affiché à l’usager après le dépôt de son
