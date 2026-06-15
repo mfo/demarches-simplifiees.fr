@@ -33,7 +33,6 @@ module Administrateurs
         [
           ['Gras', 'bold', 'bold'],
           ['Italic', 'italic', 'italic'],
-          ['Souligner', 'underline', 'underline'],
         ],
         [
           ['Titre', 'title', :hidden], # only for "title" section, without any action possible

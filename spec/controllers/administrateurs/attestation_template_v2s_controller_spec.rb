@@ -148,6 +148,13 @@ describe Administrateurs::AttestationTemplateV2sController, type: :controller do
           expect(response.body).to have_button("Publier")
           expect(response.body).not_to have_link("Réinitialiser les modifications")
         end
+
+        it 'renders the editor toolbar without an underline button' do
+          subject
+          expect(response.body).to have_button("Gras")
+          expect(response.body).not_to have_button("Souligner")
+          expect(response.body).not_to include('data-tiptap-action="underline"')
+        end
       end
 
       context 'if an attestation template already exist on v1' do
