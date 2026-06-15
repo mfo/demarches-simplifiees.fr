@@ -1,7 +1,12 @@
 en:
+  title: Deleted dossiers history
   deleted_explanation: "The folders have been deleted. You can no longer recover them for the following reasons:"
   deleted_explanation_first_instructor: The user intentionally deleted their folder.
   deleted_explanation_second_instructor: The maximum retention period has expired. In accordance with GDPR regulations, the application cannot continue to host them.
   deleted_explanation_first_user: You have deleted your folder.
   deleted_explanation_second_user: The maximum retention period has expired. In accordance with GDPR regulations, the application cannot continue to host them.
   no_deleted_folders: You have no permanently deleted folders.
+  dossier_number: Dossier number
+  procedure_libelle: Procedure label
+  deletion_reason: Deletion reason
+  deletion_date: Deletion date

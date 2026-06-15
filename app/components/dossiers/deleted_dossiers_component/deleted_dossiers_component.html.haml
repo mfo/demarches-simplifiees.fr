@@ -1,7 +1,7 @@
 
 .fr-container
   %h1.fr-h4
-    Historique des dossiers supprimés
+    = t('.title')
 
 .fr-container
   - if @deleted_dossiers.present?
@@ -23,10 +23,10 @@
             %table
               %thead
                 %tr
-                  %th N° dossier
-                  %th Libellé de la démarche
-                  %th Raison de suppression
-                  %th Date de suppression
+                  %th= t('.dossier_number')
+                  %th= t('.procedure_libelle')
+                  %th= t('.deletion_reason')
+                  %th= t('.deletion_date')
               %tbody
                 - @deleted_dossiers.each do |deleted_dossier|
                   %tr
