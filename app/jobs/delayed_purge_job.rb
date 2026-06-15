@@ -21,6 +21,7 @@ class DelayedPurgeJob < ApplicationJob
   retry_on Excon::Error::TooManyRequests, wait: 10.minutes, attempts: MAX_ATTEMPTS_JOBS
 
   # can discard
+  discard_on ActiveJob::DeserializationError
   discard_on ActiveRecord::RecordNotFound
 
   def self.openstack?
