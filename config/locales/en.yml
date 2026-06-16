@@ -51,6 +51,7 @@ en:
   utils:
     'yes': 'Yes'
     'no': 'No'
+    'back_to_home': Back to home page
     string: String
     decimal_number: Floating point number
     integer_entier: Integer number

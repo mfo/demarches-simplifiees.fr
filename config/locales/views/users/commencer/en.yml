@@ -19,8 +19,11 @@ en:
       download_empty_pdf: 'Download an empty PDF file'
       already_created:
         one: "Your previous file :"
-        other: "Your last %{count} created files :" 
+        other: "Your last %{count} created files :"
       already_created_details_html:
         "N° %{id}, created %{created_at} ago, %{state}"
     closing_details:
       page_title: "Procedure %{libelle} is closed since %{closed_at}"
+    not_found:
+      page_title: "The procedure is not found"
+      page_description: "The procedure you are looking for does not exist or is not yet accessible. Please check the URL address or return to the home page."

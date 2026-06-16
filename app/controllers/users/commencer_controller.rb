@@ -99,7 +99,11 @@ module Users
 
       redirect_to commencer_path(params[:path]) and return if !@procedure.close?
 
-      render 'closing_details', layout: 'closing_details'
+      render 'closing_details', layout: 'procedure_unavailable'
+    end
+
+    def not_found
+      render 'not_found', layout: 'procedure_unavailable'
     end
 
     private
@@ -165,9 +169,8 @@ module Users
         return
       else
         flash.alert = t('errors.messages.procedure_not_found')
+        redirect_to not_found_path(params[:path])
       end
-
-      redirect_to root_path
     end
 
     def store_user_location!(procedure)

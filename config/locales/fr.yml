@@ -41,6 +41,7 @@ fr:
   utils:
     'yes': Oui
     'no': Non
+    'back_to_home': Retour à la page d’accueil
     string: Chaîne de caractères
     decimal_number: Nombre à virgule
     integer_entier: Nombre entier
