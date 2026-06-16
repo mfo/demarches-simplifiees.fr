@@ -47,6 +47,18 @@ describe 'user access to the list of their dossiers', js: true do
     expect(page.body).to match(/#{last_updated_dossier.procedure.libelle}.*#{dossier_en_instruction.procedure.libelle}/m)
   end
 
+  context 'when a brouillon is close to expiration' do
+    let!(:dossier_expirant) do
+      create(:dossier, user:).tap { it.update_column(:expired_at, 5.days.from_now) }
+    end
+
+    before { visit dossiers_path }
+
+    it 'displays the expiration badge on the card' do
+      expect(page).to have_text('Expire dans 5 j.')
+    end
+  end
+
   context 'when there are dossiers from other users' do
     let!(:dossier_other_user) { create(:dossier) }
 
