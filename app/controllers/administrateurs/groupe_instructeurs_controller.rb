@@ -716,7 +716,7 @@ module Administrateurs
     end
 
     def column_mode?
-      feature_enabled?(:column_conditions) && !procedure.champ_value_in_condition?
+      !procedure.champ_value_in_condition?
     end
   end
 end

@@ -43,7 +43,7 @@ describe 'As an administrateur I can edit types de champ condition', js: true do
         end
       end
 
-      expected_condition = greater_than_eq(target_value, constant(18))
+      expected_condition = greater_than_eq(champ_column_value(first_tdc.columns(procedure_id:).first), constant(18))
       wait_until { second_tdc.reload.condition == expected_condition }
     end
 
@@ -145,9 +145,6 @@ describe 'As an administrateur I can edit types de champ condition', js: true do
   end
 
   context 'in column_value mode' do
-    before { Flipper.enable(:column_conditions) }
-    after { Flipper.disable(:column_conditions) }
-
     let(:target_value) { champ_column_value(first_tdc.columns(procedure_id:).first) }
 
     include_examples 'condition editor'

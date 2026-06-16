@@ -76,7 +76,7 @@ class Conditions::ConditionsComponent < ApplicationComponent
   end
 
   def column_mode?
-    feature_enabled?(:column_conditions) && !@champ_value_in_condition
+    !@champ_value_in_condition
   end
 
   def sources_by_section

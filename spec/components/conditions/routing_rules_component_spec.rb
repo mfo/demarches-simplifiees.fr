@@ -13,8 +13,6 @@ describe Conditions::RoutingRulesComponent, type: :component do
     let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
     let(:component) { Conditions::RoutingRulesComponent.new(groupe_instructeur:) }
 
-    before { allow(component).to receive(:feature_enabled?).with(:column_conditions).and_return(true) }
-
     it 'excludes repetition tdcs from condition targets' do
       libelles = component.send(:sources_by_section).values.flatten(1).map(&:first)
 
@@ -33,7 +31,6 @@ describe Conditions::RoutingRulesComponent, type: :component do
 
     before do
       groupe_instructeur.update(routing_rule: routing_rule)
-      allow(component).to receive(:feature_enabled?).with(:column_conditions).and_return(false)
       render_inline(component)
     end
 

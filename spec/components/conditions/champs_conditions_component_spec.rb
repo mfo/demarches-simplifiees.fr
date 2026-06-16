@@ -13,7 +13,7 @@ describe Conditions::ChampsConditionsComponent, type: :component do
     let(:column_mode) { false }
 
     before do
-      allow(component).to receive(:feature_enabled?).with(:column_conditions).and_return(column_mode)
+      allow(procedure).to receive(:champ_value_in_condition?).and_return(!column_mode)
       render_inline(component)
     end
 
