@@ -36,6 +36,11 @@
               <br>
               <%= pending_response_badge(:for_user) %>
             <% end %>
+
+            <% if (badge = expiration_badge(dossier)) %>
+              <br>
+              <%= badge %>
+            <% end %>
           </div>
 
           <p class="fr-icon--sm fr-icon-user-line">
@@ -94,6 +99,11 @@
           <% if dossier.pending_response? %>
             <br>
             <%= pending_response_badge(:for_user) %>
+          <% end %>
+
+          <% if (badge = expiration_badge(dossier)) %>
+            <br>
+            <%= badge %>
           <% end %>
         </div>
       </div>
