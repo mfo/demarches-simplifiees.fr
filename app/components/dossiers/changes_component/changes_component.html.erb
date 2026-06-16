@@ -1,0 +1,6 @@
+<dl class="fr-mb-0">
+  <% changed_columns.each do |changed_column| %>
+    <dt><%= changed_column.label %> :</dt>
+    <dd><%= change_content(changed_column) %></dd>
+  <% end %>
+</dl>
