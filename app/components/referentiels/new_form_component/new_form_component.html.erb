@@ -17,7 +17,6 @@
         <div
           id="url-tiptap"
           data-controller="tiptap"
-          data-tiptap-insert-after-tag-value=""
           data-tiptap-single-line-value="true"
         >
           <div class="fr-input-group fr-mb-3w">
@@ -74,7 +73,7 @@
         </div>
 
         <div
-          data-hide-target_target="toHide"
+          data-hide-target-target="toHide"
           class="<%= class_names('fr-hidden': !@referentiel&.authentication_by_header_token?) %>"
         >
           <%= render Dsfr::InputComponent.new(form:, attribute: "authentication_data[header]", **authentication_data_header_opts) %>
