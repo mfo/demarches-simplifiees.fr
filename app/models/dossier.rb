@@ -637,6 +637,10 @@ class Dossier < ApplicationRecord
     expired_at < Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now && Time.zone.now < expired_at
   end
 
+  def nb_days_before_expiration
+    (expired_at.to_date - Date.current).to_i
+  end
+
   def has_expired?
     return false if en_instruction? || en_construction?
 
