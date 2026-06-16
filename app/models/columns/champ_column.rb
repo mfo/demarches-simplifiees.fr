@@ -228,6 +228,15 @@ class Columns::ChampColumn < Column
     [:communes, :text] => -> (v) { v },
     [:communes, :textarea] => -> (v) { v },
     [:communes, :formatted] => -> (v) { v },
+    # pre_rempli
+    [:text, :pre_rempli] => -> (v) { v },
+    [:textarea, :pre_rempli] => -> (v) { v },
+    [:formatted, :pre_rempli] => -> (v) { v },
+    [:drop_down_list, :pre_rempli] => -> (v) { v },
+    [:pre_rempli, :text] => -> (v) { v },
+    [:pre_rempli, :textarea] => -> (v) { v },
+    [:pre_rempli, :formatted] => -> (v) { v },
+    [:pre_rempli, :drop_down_list] => -> (v) { v },
   }
 
   def parse_boolean(value)

@@ -23,6 +23,8 @@ module Types
     definition_methods do
       def resolve_type(object, context)
         case object.type_champ
+        when TypeDeChamp.type_champs.fetch(:pre_rempli)
+          Types::Champs::Descriptor::PreRempliChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:referentiel)
           Types::Champs::Descriptor::ReferentielChampDescriptorType
 

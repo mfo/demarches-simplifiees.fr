@@ -56,6 +56,7 @@ fr:
           formatted: Champ formaté
           referentiel: 'Référentiel configurable (avancé)'
           quotient_familial: 'Quotient familial'
+          pre_rempli: 'Champ pré-rempli'
         default_libelle:
           annuaire_education: Établissement
           communes: Commune

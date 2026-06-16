@@ -368,6 +368,44 @@ RSpec.describe DossierStateConcern do
     end
   end
 
+  describe 'submit brouillon with pre_rempli champ' do
+    context 'when pre_rempli champ is hidden (pre_rempli_hidden: "1")' do
+      let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :pre_rempli, pre_rempli_hidden: "1", stable_id: 100 }]) }
+      let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure:) }
+
+      before do
+        champ = dossier.project_champs_public.find { _1.stable_id == 100 }
+        champ.update(value: "valeur cachée")
+      end
+
+      it 'preserves the hidden pre_rempli value after submission' do
+        dossier.passer_en_construction!
+        dossier.reload
+
+        champ = dossier.project_champs_public.find { _1.stable_id == 100 }
+        expect(champ.value).to eq("valeur cachée")
+      end
+    end
+
+    context 'when pre_rempli champ is visible but condition is false' do
+      let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :pre_rempli, stable_id: 101, condition: ds_eq(constant(true), constant(false)) }]) }
+      let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure:) }
+
+      before do
+        champ = dossier.project_champs_public.find { _1.stable_id == 101 }
+        champ.update(value: "valeur conditionnelle")
+      end
+
+      it 'clears the value because the champ is not visible' do
+        dossier.passer_en_construction!
+        dossier.reload
+
+        champ = dossier.project_champs_public.find { _1.stable_id == 101 }
+        expect(champ.value).to be_nil
+      end
+    end
+  end
+
   describe '#clear_france_connect_champs_piece_justificatives (after user submits a dossier or modifications)' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
     let(:dossier) { create(:dossier, procedure:) }

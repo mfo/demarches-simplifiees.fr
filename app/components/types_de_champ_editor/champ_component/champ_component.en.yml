@@ -39,3 +39,6 @@ en:
   template_label: "Template file proposed to the user"
   families_legend: "ACCEPTED FORMAT(S)"
   tooltip_examples: "Examples: %{examples}..."
+  pre_rempli:
+    options_label: "List options"
+    hidden_label: "Hide this field from the user form"

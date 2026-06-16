@@ -72,6 +72,8 @@ RSpec.describe PrefillChamps do
           case type_de_champ_type
           when :referentiel
             { referentiel: create(:api_referentiel, :exact_match) }
+          when :pre_rempli
+            { drop_down_options: ["opt1", "opt2", "opt3"] }
           else
             {}
           end
@@ -91,7 +93,17 @@ RSpec.describe PrefillChamps do
 
     shared_examples "a champ private value that is authorized" do |type_de_champ_type, value|
       context "when the type de champ is authorized (#{type_de_champ_type})" do
-        let(:types_de_champ_private) { [{ type: type_de_champ_type }] }
+        let(:types_de_champ_private) { [{ type: type_de_champ_type }.merge(additional_tdc_opts)] }
+
+        let(:additional_tdc_opts) do
+          case type_de_champ_type
+          when :pre_rempli
+            { drop_down_options: ["opt1", "opt2", "opt3"] }
+          else
+            {}
+          end
+        end
+
         let(:type_de_champ) { procedure.published_revision.types_de_champ_private.first }
         let(:champ) { find_champ_by_stable_id(dossier, type_de_champ.stable_id) }
         let(:champ_value) { value == 'linked_dossier_id' ? linked_dossier.id : value }
@@ -142,6 +154,7 @@ RSpec.describe PrefillChamps do
     it_behaves_like "a champ public value that is authorized", :epci, ['01', '200042935']
     it_behaves_like "a champ public value that is authorized", :siret, "13002526500013"
     it_behaves_like "a champ public value that is authorized", :referentiel, "13002526500013"
+    it_behaves_like "a champ public value that is authorized", :pre_rempli, "opt1"
 
     context "when the public type de champ is authorized (repetition)" do
       let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :text }] }] }
@@ -183,6 +196,7 @@ RSpec.describe PrefillChamps do
     it_behaves_like "a champ private value that is authorized", :multiple_drop_down_list, ["val1", "val2"]
     it_behaves_like "a champ private value that is authorized", :dossier_link, 'linked_dossier_id'
     it_behaves_like "a champ private value that is authorized", :epci, ['01', '200042935']
+    it_behaves_like "a champ private value that is authorized", :pre_rempli, "opt1"
 
     context "when the private type de champ is authorized (repetition)" do
       let(:types_de_champ_private) { [{ type: :repetition, children: [{ type: :text }] }] }

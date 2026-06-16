@@ -113,6 +113,7 @@ describe ProcedureExportService do
             "yes_no",
             "referentiel",
             "quotient_familial",
+            "pre_rempli",
           ]
         end
 

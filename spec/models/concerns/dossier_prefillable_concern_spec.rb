@@ -124,6 +124,22 @@ RSpec.describe DossierPrefillableConcern do
       end
     end
 
+    context 'when dossier contains a pre_rempli champ' do
+      let(:types_de_champ_public) { [{ type: :pre_rempli }] }
+      let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
+      let(:value_1) { "valeur pré-remplie" }
+      let(:champ_id_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
+      let(:values) { [{ id: champ_id_1, value: value_1 }] }
+
+      it_behaves_like 'a dossier marked as prefilled'
+
+      it "assigns the value correctly via prefill" do
+        fill
+        expect(dossier.project_champs_public.first.value).to eq(value_1)
+        expect(dossier.project_champs_public.first.prefilled).to eq(true)
+      end
+    end
+
     context 'when dossier contains champs with external_id' do
       let(:types_de_champ_public) { [{ type: :siret }] }
       let(:values) { [{ id: champ_id_1, external_id: value_1 }] }

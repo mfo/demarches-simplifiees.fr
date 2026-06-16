@@ -84,6 +84,7 @@ class Champ < ApplicationRecord
     :expression_reguliere,
     :expression_reguliere_exemple_text,
     :expression_reguliere_error_message,
+    :pre_rempli_hidden?,
     :rib?,
     :france_connect?,
     :justificatif_domicile?,

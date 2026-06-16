@@ -7,6 +7,7 @@ class TypeDeChamp < ApplicationRecord
     engagement_juridique: :engagement_juridique_type_de_champ,
     cojo: :cojo_type_de_champ,
     quotient_familial: :quotient_familial_type_de_champ,
+    pre_rempli: :pre_rempli_type_de_champ,
   }
 
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
@@ -24,6 +25,7 @@ class TypeDeChamp < ApplicationRecord
   CATEGORIES = [STRUCTURE, ETAT_CIVIL, LOCALISATION, PAIEMENT_IDENTIFICATION, STANDARD, PIECES_JOINTES, CHOICE, REFERENTIEL_EXTERNE, FRANCE_CONNECT]
 
   TYPE_DE_CHAMP_TO_CATEGORIE = {
+    pre_rempli: REFERENTIEL_EXTERNE,
     referentiel: REFERENTIEL_EXTERNE,
     engagement_juridique: REFERENTIEL_EXTERNE,
     header_section: STRUCTURE,
@@ -103,6 +105,7 @@ class TypeDeChamp < ApplicationRecord
     cojo: 'cojo',
     referentiel: 'referentiel',
     quotient_familial: 'quotient_familial',
+    pre_rempli: 'pre_rempli',
   }
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile].index_by(&:itself)
@@ -167,7 +170,8 @@ class TypeDeChamp < ApplicationRecord
                  :dossier_link_procedure_ids,
                  :limit_repetitions,
                  :min_repetitions,
-                 :max_repetitions
+                 :max_repetitions,
+                 :pre_rempli_hidden
 
   has_many :revision_types_de_champ, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
@@ -328,7 +332,7 @@ class TypeDeChamp < ApplicationRecord
   def check_mandatory
     return if mandatory_changed?
 
-    self.mandatory = false if non_fillable?
+    self.mandatory = false if non_fillable? || cannot_be_mandatory?
     self.mandatory = true if must_be_mandatory?
   end
 
@@ -412,7 +416,12 @@ class TypeDeChamp < ApplicationRecord
       TypeDeChamp.type_champs.fetch(:epci),
       TypeDeChamp.type_champs.fetch(:dossier_link),
       TypeDeChamp.type_champs.fetch(:siret),
+      TypeDeChamp.type_champs.fetch(:pre_rempli),
     ]) || referentiel_in_exact_match?
+  end
+
+  def pre_rempli_hidden?
+    pre_rempli? && pre_rempli_hidden == "1"
   end
 
   def referentiel_in_exact_match?
@@ -434,6 +443,10 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def must_be_mandatory? = type_champ.in?(API_PART_FC_TDC)
+
+  def cannot_be_mandatory?
+    type_champ == TypeDeChamp.type_champs.fetch(:pre_rempli)
+  end
 
   def choice_type?
     type_champ.in?([
@@ -501,6 +514,8 @@ class TypeDeChamp < ApplicationRecord
       APIGeoService.country_options
     elsif any_drop_down_list?
       options_for_select_with_other
+    elsif pre_rempli?
+      Array.wrap(drop_down_options).uniq.map { [_1, _1] }
     elsif yes_no?
       Champs::YesNoChamp.options
     elsif checkbox?
@@ -754,6 +769,7 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:referentiel) => [:referentiel_mapping],
     type_champs.fetch(:dossier_link) => [:procedures_limit, :dossier_link_procedure_ids],
     type_champs.fetch(:repetition) => [:limit_repetitions, :min_repetitions, :max_repetitions],
+    type_champs.fetch(:pre_rempli) => [:drop_down_options, :pre_rempli_hidden],
   }
 
   def clean_options
