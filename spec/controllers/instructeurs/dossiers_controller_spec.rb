@@ -2097,9 +2097,9 @@ describe Instructeurs::DossiersController, type: :controller do
     end
 
     it 'returns pieces jointes from champs, messagerie and avis' do
-      expect(response.body).to have_text("Télécharger le fichier \ntoto.txt")
-      expect(response.body).to have_text("Télécharger le fichier \nlogo_test_procedu...")
-      expect(response.body).to have_text("Télécharger le fichier \nRIB.pdf")
+      expect(response.body).to have_text("Télécharger le fichier toto.txt", normalize_ws: true)
+      expect(response.body).to have_text("Télécharger le fichier logo_test_procedu...", normalize_ws: true)
+      expect(response.body).to have_text("Télécharger le fichier RIB.pdf", normalize_ws: true)
       expect(response.body).to include('Visualiser')
       expect(response.body).to include('Pièce jointe au message')
       expect(response.body).to include('Pièce jointe à l’avis')
