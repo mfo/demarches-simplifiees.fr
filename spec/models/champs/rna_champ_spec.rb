@@ -7,33 +7,72 @@ describe Champs::RNAChamp do
   let(:champ) { dossier.champs.first.tap { _1.update(value:) } }
   let(:value) { "W182736273" }
 
-  def with_value(value, data)
+  def with_external_id(external_id)
     champ.tap do
-      _1.value = value
-      _1.data = data
+      _1.external_id = external_id
     end
   end
 
   describe '#valid?' do
     it do
-      expect(with_value(nil, nil).validate(:champs_public_value)).to be_truthy
-      expect(with_value("2736251627", nil).validate(:champs_public_value)).to be_falsey
-      expect(with_value("A172736283", nil).validate(:champs_public_value)).to be_falsey
-      expect(with_value("W1827362718", nil).validate(:champs_public_value)).to be_falsey
-      expect(with_value("W182736273", nil).validate(:champs_public_value)).to be_falsey
-      expect(with_value("W182736273", { "api" => "response" }).validate(:champs_public_value)).to be_truthy
+      expect(with_external_id(nil).validate(:champs_public_value)).to be_truthy
+      expect(with_external_id("2736251627").validate(:champs_public_value)).to be_falsey
+      expect(with_external_id("A172736283").validate(:champs_public_value)).to be_falsey
+      expect(with_external_id("W1827362718").validate(:champs_public_value)).to be_falsey
+      expect(with_external_id("W182736273").validate(:champs_public_value)).to be_truthy
     end
 
     it 'when invalid format, it contains only error message for invalid format' do
-      champ = with_value("W1827362", nil)
+      champ = with_external_id("W1827362")
       champ.validate(:champs_public_value)
-      expect(champ.errors.full_messages).to eq(["doit commencer par un W majuscule suivi de 9 chiffres ou lettres. Exemple : W503726238"])
+      expect(champ.errors.full_messages.join).to match(/doit commencer par un W majuscule suivi de 9 chiffres ou lettres. Exemple : W503726238/)
     end
 
     it 'when valid format, but no data, it contains only error message for not found' do
-      champ = with_value("W182736273", nil)
+      champ = with_external_id("W182736273")
+      error = ExternalDataException.new(error: 'Not retryable', code: 404)
+      champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: [error])
       champ.validate(:champs_public_value)
-      expect(champ.errors.full_messages).to eq(["le numéro RNA W182736273 saisi ne correspond à aucun établissement, saisissez un numéro RNA valide"])
+      expect(champ.errors.full_messages).to eq(["Le champ « Numéro RNA » Résultat introuvable. Vérifiez vos informations."])
+    end
+  end
+
+  describe '#fetch_external_data' do
+    include Dry::Monads[:result]
+
+    let(:adapter) { instance_double(APIEntreprise::RNAAdapter, to_params:) }
+
+    subject { with_external_id("W182736273").send(:fetch_external_data) }
+
+    before do
+      allow(APIEntreprise::RNAAdapter).to receive(:new).and_return(adapter)
+    end
+
+    context 'when the association is found' do
+      let(:to_params) { Success({ "association_titre" => "Super asso", "adresse" => {} }) }
+
+      it 'returns a Success with data, value_json and value' do
+        expect(subject).to be_success
+        expect(subject.value!).to include(data: { "association_titre" => "Super asso", "adresse" => {} }, value: "W182736273")
+      end
+    end
+
+    context 'when the association is not found (empty hash)' do
+      let(:to_params) { Success({}) }
+
+      it 'returns a non-retryable 404 Failure' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: false, code: 404)
+      end
+    end
+
+    context 'when the API returns a retryable failure' do
+      let(:to_params) { Failure(type: :network_error, code: 503, retryable: true, raw_response: nil) }
+
+      it 'propagates a retryable Failure' do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: true, code: 503)
+      end
     end
   end
 

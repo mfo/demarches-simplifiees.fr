@@ -1,26 +1,16 @@
 # frozen_string_literal: true
 
 class Champs::RNAChamp < Champ
-  include RNAChampAssociationFetchableConcern
-
   RNA_REGEXP = /\AW[0-9A-Z]{9}\z/
 
-  validates :value, allow_blank: true, format: {
+  validates :external_id, allow_blank: true, format: {
     with: RNA_REGEXP, message: :invalid_rna,
   }, if: :should_validate_in_current_context?
-
-  validate :ensure_association_found, if: :should_validate_in_current_context?
 
   delegate :id, to: :procedure, prefix: true
 
   def title
     data&.dig("association_titre")
-  end
-
-  def update_external_data!(value:, data:)
-    value_json = data.blank? ? nil : extract_value_json(data:)
-    data = (data.presence)
-    update_columns(data:, value_json:, value:, fetch_external_data_exceptions: [])
   end
 
   def identifier
@@ -56,11 +46,24 @@ class Champs::RNAChamp < Champ
     }.with_indifferent_access
   end
 
+  def has_async_external_data?
+    true
+  end
+
   private
 
-  def ensure_association_found
-    if value&.match(RNA_REGEXP) && data.blank?
-      errors.add(:value, :not_found)
+  def ready_for_external_call?
+    external_id&.match?(RNA_REGEXP)
+  end
+
+  def fetch_external_data
+    case APIEntreprise::RNAAdapter.new(external_id, procedure_id).to_params
+    in Success(data) if data.present?
+      Success(data:, value_json: extract_value_json(data:), value: external_id)
+    in Success # not found returns an empty hash
+      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
+    in Failure(type:, code:, retryable:, **)
+      Failure(retryable:, error: StandardError.new("API Entreprise: #{type}"), code:)
     end
   end
 

@@ -27,7 +27,7 @@ describe Champs::RNFChamp, type: :model do
       it 'adds the correct error message' do
         champ.validate(:champs_public_value)
 
-        expect(champ.errors[:value]).to include(I18n.t('activerecord.errors.messages.api_response_pending'))
+        expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.api_response_pending'))
       end
     end
 
@@ -47,7 +47,7 @@ describe Champs::RNFChamp, type: :model do
       it 'adds the correct error message' do
         champ.validate(:champs_public_value)
 
-        expect(champ.errors[:value]).to include(I18n.t('activerecord.errors.messages.code_404'))
+        expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.code_404'))
       end
     end
 
@@ -56,7 +56,7 @@ describe Champs::RNFChamp, type: :model do
 
       it 'adds the code_unknown error message without raising an error' do
         expect { champ.validate(:champs_public_value) }.not_to raise_error
-        expect(champ.errors[:value]).to include(I18n.t('activerecord.errors.messages.code_unknown'))
+        expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.code_unknown'))
       end
     end
   end

@@ -212,11 +212,9 @@ Rails.application.routes.draw do
     delete ':dossier_id/:stable_id/repetition', to: 'repetition#remove'
 
     post ':dossier_id/:stable_id/siret', to: 'siret#show', as: :siret
-    post ':dossier_id/:stable_id/rna', to: 'rna#show', as: :rna
     delete ':dossier_id/:stable_id/options', to: 'options#remove', as: :options
     # TODO remove in next release
     get ':dossier_id/:stable_id/siret', to: 'siret#show'
-    get ':dossier_id/:stable_id/rna', to: 'rna#show'
 
     get ':dossier_id/:stable_id/carte/features', to: 'carte#index', as: :carte_features
     post ':dossier_id/:stable_id/carte/features', to: 'carte#create'

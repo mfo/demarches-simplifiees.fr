@@ -44,7 +44,9 @@ module Dsfr
         # because validation adds errors to champ instances that may differ from the form object
         # or directly on the champ object
         if object.is_a?(Champ)
-          (dossier_errors_for_champ + errors.full_messages).uniq
+          # Keep only message text (without attribute prefix) to avoid displaying
+          # the same error twice with two different formats.
+          (dossier_errors_for_champ + errors.map(&:message)).uniq
         else
           errors.full_messages_for(attribute_or_rich_body)
         end

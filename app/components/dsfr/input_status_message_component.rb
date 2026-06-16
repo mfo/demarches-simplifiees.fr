@@ -29,7 +29,7 @@ module Dsfr
     end
 
     def rna_support_statut?
-      type_de_champ.rna? && @champ.value.present?
+      type_de_champ.rna? && @champ.external_id.present?
     end
 
     def referentiel_support_statut?
@@ -66,7 +66,13 @@ module Dsfr
           { state: :info, text: t('.siret.pending', value: pretty_siret(@champ.external_id)) }
         end
       when TypeDeChamp.type_champs[:rna]
-        { state: :info, text: t(".rna.data_fetched", title: @champ.title, address: @champ.full_address) }
+        if @champ.pending?
+          { state: :info, text: t(".rna.pending", value: @champ.external_id) }
+        elsif @champ.external_error?
+          { state: :warning, text: t(".rna.error") }
+        elsif @champ.value.present?
+          { state: :info, text: t(".rna.success", title: @champ.title, address: @champ.full_address) }
+        end
       when TypeDeChamp.type_champs[:dossier_link]
         dossier = Dossier.find_by(id: @champ.value)
         deleted_dossier = DeletedDossier.find_by(dossier_id: @champ.value) if dossier.nil?
@@ -102,7 +108,7 @@ module Dsfr
         elsif @champ.pending?
           { state: :info, text: t(".referentiel.fetching") }
         elsif @champ.external_error?
-          { state: :info, text: t(".referentiel.error", value: @champ.external_id) }
+          { state: :warning, text: t(".referentiel.error", value: @champ.external_id) }
         elsif @champ.value.present?
           { state: :valid, text: t(".referentiel.success", value: @champ.value) }
         end

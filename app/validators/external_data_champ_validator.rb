@@ -5,10 +5,10 @@ class ExternalDataChampValidator < ActiveModel::Validator
   def validate(record)
     if record.pending?
       # User filled the field, but background job is still running.
-      record.errors.add(:value, :api_response_pending)
+      record.errors.add(:external_id, :api_response_pending)
     elsif record.external_error?
       # User filled the field, but background job failed.
-      record.errors.add(:value, error_key_for_api_response_code(record))
+      record.errors.add(:external_id, error_key_for_api_response_code(record))
     end
   end
 
