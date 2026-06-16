@@ -55,24 +55,27 @@ class ProcedureExportService::XlsxExport
 
   def stream_dossiers_sheet(writer, buffers)
     sheet = nil
+    headers = nil
 
     DossierPreloader.new(@dossiers.ordered_for_export)
       .in_batches(includes: DossierPreloader::SHEET_EXPORT_INCLUDES) do |batch|
       rows = batch.map do |dossier|
         @current_dossier_id = dossier.id
-        cells = dossier.spreadsheet_columns_xlsx(types_de_champ:, export_template: @export_template)
-          .map { |(_libelle, value, type)| self.class.cell_value(dossier, value, type) }
+        columns = dossier.spreadsheet_columns_xlsx(types_de_champ:, export_template: @export_template)
+        # En-têtes dérivés du 1er dossier streamé : mêmes `columns` que ses
+        # valeurs, donc cohérence libellé ↔ valeur garantie par construction.
+        headers ||= columns.map(&:first)
 
         buffers.collect_for_dossier(dossier, @export_template)
-        cells
+        columns.map { |(_libelle, value, type)| self.class.cell_value(dossier, value, type) }
       end
 
       # xlsxtream écrit <cols> avant toute ligne : on ouvre la feuille à la
       # réception du 1er batch, dimensionnée sur le contenu réel de ce batch
       # (échantillon). Les batches suivants sont streamés sans rebufferiser.
       if sheet.nil?
-        widths = ProcedureExportService::XlsxStreamer.column_widths(dossiers_headers, rows)
-        sheet = writer.open_sheet('Dossiers', headers: dossiers_headers, widths:)
+        widths = ProcedureExportService::XlsxStreamer.column_widths(headers, rows)
+        sheet = writer.open_sheet('Dossiers', headers:, widths:)
       end
       rows.each { |cells| sheet.add_row(cells) }
     end
@@ -80,8 +83,8 @@ class ProcedureExportService::XlsxExport
     if sheet
       writer.close_sheet(sheet)
     else
-      # Aucun dossier : on ouvre quand même une feuille (en-têtes seuls).
-      writer.write_sheet('Dossiers', headers: dossiers_headers) { nil }
+      # Aucun dossier : on ouvre quand même une feuille (en-têtes seuls, inconnus).
+      writer.write_sheet('Dossiers', headers: []) { nil }
     end
 
     @current_dossier_id = nil
@@ -107,21 +110,6 @@ class ProcedureExportService::XlsxExport
     widths = ProcedureExportService::XlsxStreamer.column_widths(headers, rows)
     writer.write_sheet(name, headers:, widths:) do |sheet|
       rows.each { |values| sheet.add_row(values) }
-    end
-  end
-
-  def dossiers_headers
-    return @dossiers_headers if defined?(@dossiers_headers)
-
-    # Précalcul depuis une instance "sentinelle" pour garantir la cohérence
-    # libellé ↔ valeur. Si pas de dossier, on ouvre quand même une sheet vide.
-    sample = @dossiers.first
-    @dossiers_headers = if sample.present?
-      DossierPreloader.load_one(sample)
-        .spreadsheet_columns_xlsx(types_de_champ:, export_template: @export_template)
-        .map(&:first)
-    else
-      []
     end
   end
 
