@@ -11,6 +11,7 @@
         = pending_correction_badge(:for_user) if dossier.pending_correction?
         = pending_response_badge(:for_user) if dossier.pending_response?
         = expiration_badge(dossier)
+        = partage_badge unless current_user.owns?(dossier)
 
     = render(partial: 'users/dossiers/expiration_banner', locals: {dossier: dossier})
 

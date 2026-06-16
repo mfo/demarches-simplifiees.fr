@@ -41,6 +41,11 @@
               <br>
               <%= badge %>
             <% end %>
+
+            <% unless current_user.owns?(dossier) %>
+              <br>
+              <%= partage_badge %>
+            <% end %>
           </div>
 
           <p class="fr-icon--sm fr-icon-user-line">
@@ -75,7 +80,7 @@
               <% end %>
             </p>
             <% if dossier.invites.present? %>
-              <p class="fr-icon--sm fr-icon-shield-line">
+              <p class="fr-icon--sm fr-icon-group-line">
                 <%= t('views.users.dossiers.dossiers_list.shared_with', owner: dossier.user_email_for(:display)) %>
                 <%= dossier.invites.map(&:email).join(', ') %>
               </p>
@@ -104,6 +109,11 @@
           <% if (badge = expiration_badge(dossier)) %>
             <br>
             <%= badge %>
+          <% end %>
+
+          <% unless current_user.owns?(dossier) %>
+            <br>
+            <%= partage_badge %>
           <% end %>
         </div>
       </div>
