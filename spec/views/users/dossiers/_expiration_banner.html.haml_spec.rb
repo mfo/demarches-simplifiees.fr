@@ -97,10 +97,11 @@ describe 'users/dossiers/expiration_banner', type: :view do
       let(:attributes) { { processed_at: 6.months.ago } }
       let(:state) { :accepte }
 
-      it 'renders the orange callout with the PDF download button' do
+      it 'renders the orange callout without any action button (download is handled by the header)' do
         expect(subject).to have_selector('.fr-callout.fr-callout--orange-terre-battue')
         expect(subject).not_to have_selector('#test-user-repousser-expiration')
-        expect(subject).to have_link(href: dossier_path(dossier, format: :pdf))
+        expect(subject).not_to have_selector('.fr-callout a')
+        expect(subject).not_to have_selector('.fr-callout button')
       end
     end
   end

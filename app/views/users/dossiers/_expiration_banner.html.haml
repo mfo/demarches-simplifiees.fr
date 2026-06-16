@@ -16,6 +16,3 @@
         - c.with_bottom do
           = button_to users_dossier_repousser_expiration_path(dossier), class: 'fr-btn', id: 'test-user-repousser-expiration' do
             = t('users.dossiers.header.banner.button_delay_expiration', count: dossier.procedure.duree_conservation_dossiers_dans_ds)
-      - elsif dossier.termine?
-        - c.with_bottom do
-          = render(partial: 'users/dossiers/show/download_dossier', locals: { dossier: dossier })
