@@ -125,6 +125,13 @@ module DossierHelper
     )
   end
 
+  def partage_badge(html_class: nil)
+    tag.span(
+      Dossier.human_attribute_name("partage.for_user"),
+      class: class_names("fr-badge fr-badge--sm fr-badge--blue-cumulus", html_class => true)
+    )
+  end
+
   def pending_correction_badge(profile, html_class: nil)
     tag.span(Dossier.human_attribute_name("pending_correction.#{profile}"), class:
       class_names(

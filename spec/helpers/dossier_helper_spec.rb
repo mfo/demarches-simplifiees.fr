@@ -265,6 +265,12 @@ RSpec.describe DossierHelper, type: :helper do
     end
   end
 
+  describe ".partage_badge" do
+    subject { partage_badge }
+
+    it { is_expected.to have_css(".fr-badge--blue-cumulus", text: "Partagé avec moi") }
+  end
+
   describe ".expiration_badge" do
     subject { expiration_badge(dossier) }
 
