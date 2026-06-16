@@ -34,8 +34,6 @@ class Champs::PieceJustificativeController < Champs::ChampController
     save_succeed = Attachment::PieceJustificativeService.attach_champ_pj(@champ, params[:blob_signed_id])
 
     if save_succeed
-      @champ.fetch_later! if @champ.has_async_external_data? && @champ.may_fetch_later?
-
       @champ.update_timestamps
 
       dossier = DossierPreloader.load_one(@champ.dossier, pj_template: true)

@@ -14,6 +14,11 @@ class Attachment::PieceJustificativeService
       champ.reload(lock: true) # SELECT FOR UPDATE + clear association cache
       champ.updated_by = updated_by # keep record dirty so attach defers save to us
       champ.piece_justificative_file.attach(blob_signed_id)
+
+      # fetch_later should be called inside the transaction to avoid
+      # race condition with processor_job
+      champ.fetch_later if champ.has_async_external_data? && champ.may_fetch_later?
+
       context = champ.public? ? :champs_public_value : :champs_private_value
       champ.save(context:)
     end
