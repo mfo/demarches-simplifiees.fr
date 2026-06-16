@@ -74,7 +74,6 @@ describe Champs::PieceJustificativeController, type: :controller do
 
       before do
         allow_any_instance_of(Champs::PieceJustificativeChamp).to receive(:has_async_external_data?).and_return(true)
-        expect_any_instance_of(Champs::PieceJustificativeChamp).to receive(:fetch_later!)
       end
 
       it 'attach the file' do
@@ -82,6 +81,11 @@ describe Champs::PieceJustificativeController, type: :controller do
         champ.reload
         expect(champ.piece_justificative_file.attached?).to be true
         expect(champ.piece_justificative_file[0].filename).to eq('piece_justificative_0.pdf')
+      end
+
+      it 'marks the champ waiting_for_job' do
+        subject
+        expect(champ.reload).to be_waiting_for_job
       end
 
       it 'renders the attachment template as Javascript' do
@@ -103,10 +107,10 @@ describe Champs::PieceJustificativeController, type: :controller do
         champ.update_column(:external_state, :fetched)
       end
 
-      it 'does not call fetch_later!' do
-        expect_any_instance_of(Champs::PieceJustificativeChamp).not_to receive(:fetch_later!)
+      it 'does not transition the champ out of fetched' do
         subject
         expect(response.status).to eq(200)
+        expect(champ.reload).to be_fetched
       end
     end
 

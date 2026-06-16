@@ -34,5 +34,23 @@ RSpec.describe Attachment::PieceJustificativeService do
         expect(champ.reload.piece_justificative_file.count).to eq(2)
       end
     end
+
+    context 'with an OCR-compatible PJ (justificatif de domicile)' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'justificatif_domicile' }]) }
+
+      it 'transitions the champ to waiting_for_job in the same transaction' do
+        described_class.attach_champ_pj(champ, blob_1.signed_id)
+
+        expect(champ.reload).to be_waiting_for_job
+      end
+    end
+
+    context 'with a non-OCR PJ' do
+      it 'leaves the champ idle' do
+        described_class.attach_champ_pj(champ, blob_1.signed_id)
+
+        expect(champ.reload).to be_idle
+      end
+    end
   end
 end
