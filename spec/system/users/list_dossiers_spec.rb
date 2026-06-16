@@ -59,6 +59,19 @@ describe 'user access to the list of their dossiers', js: true do
     end
   end
 
+  context 'when the user is invited on a shared dossier' do
+    let(:owner) { create(:user) }
+    let!(:shared_dossier) { create(:dossier, :en_construction, user: owner) }
+    let!(:invite) { create(:invite, dossier: shared_dossier, user:) }
+
+    before { visit dossiers_path(statut: 'dossiers-invites') }
+
+    it 'displays the "Partagé avec moi" badge and the group-line sharing icon' do
+      expect(page).to have_css('.fr-badge--blue-cumulus', text: 'Partagé avec moi')
+      expect(page).to have_css('.fr-icon-group-line')
+    end
+  end
+
   context 'when there are dossiers from other users' do
     let!(:dossier_other_user) { create(:dossier) }
 
