@@ -545,11 +545,208 @@ RSpec.describe Types::DossierType, type: :graphql do
   }
   GRAPHQL
 
+  describe 'dossier with traitement changed columns' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:types_de_champ_public) do
+      [
+        { type: :text, libelle: "Texte", stable_id: 99 },
+        { type: :text, libelle: "Autre texte", stable_id: 991 },
+        { type: :repetition, libelle: "Répétition", stable_id: 993, children: [{ type: :text, libelle: 'Nom', stable_id: 994 }] },
+      ]
+    end
+    let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
+    let(:query) { DOSSIER_WITH_TRAITEMENTS_CHANGED_COLUMNS_QUERY }
+    let(:variables) { { number: dossier.id } }
+
+    let(:traitements) { data[:dossier][:traitements] }
+
+    context 'when the only traitement is the initial depose' do
+      it 'exposes an empty changedColumns list' do
+        expect(errors).to be_nil
+        expect(traitements.size).to eq(1)
+        expect(traitements.first[:event]).to eq('depose')
+        expect(traitements.first[:changedColumns]).to eq([])
+      end
+    end
+
+    context 'when the usager submits a correction' do
+      before do
+        dossier.with_update_stream(dossier.user) do
+          dossier.public_champ_for_update('99', updated_by: dossier.user.email)
+            .assign_attributes(value: "Nouvelle valeur")
+        end
+        dossier.save!
+        dossier.usager_submit_en_construction!
+      end
+
+      it 'exposes the changed column for the modified champ' do
+        expect(errors).to be_nil
+
+        correction = traitements.find { _1[:event] == 'depose_correction_usager' }
+        expect(correction).not_to be_nil
+        expect(correction[:changedColumns]).to contain_exactly(
+          a_hash_including(label: "Texte", stringValue: "Nouvelle valeur")
+        )
+      end
+    end
+
+    context 'when the usager corrects a champ inside a repetition' do
+      let(:row_id) do
+        type_de_champ = dossier.find_type_de_champ_by_stable_id(993)
+        dossier.project_champ(type_de_champ).row_ids.first
+      end
+
+      before do
+        dossier.with_update_stream(dossier.user) do
+          dossier.public_champ_for_update("994-#{row_id}", updated_by: dossier.user.email)
+            .assign_attributes(value: "Valeur dans la répétition")
+        end
+        dossier.save!
+        dossier.usager_submit_en_construction!
+      end
+
+      it 'exposes the changed column for the repetition child' do
+        expect(errors).to be_nil
+
+        correction = traitements.find { _1[:event] == 'depose_correction_usager' }
+        expect(correction[:changedColumns].map { _1[:stringValue] })
+          .to include("Valeur dans la répétition")
+      end
+    end
+
+    context 'when an instructeur submits a correction' do
+      let(:instructeur) { create(:instructeur) }
+
+      before do
+        dossier.with_instructeur_buffer_stream do
+          dossier.public_champ_for_update('99', updated_by: instructeur.email)
+            .assign_attributes(value: "Correction instructeur")
+        end
+        dossier.save!
+        dossier.instructeur_submit_en_construction!(instructeur:)
+      end
+
+      it 'exposes the changed column for the modified champ' do
+        expect(errors).to be_nil
+
+        correction = traitements.find { _1[:event] == 'depose_correction_instructeur' }
+        expect(correction).not_to be_nil
+        expect(correction[:changedColumns]).to contain_exactly(
+          a_hash_including(label: "Texte", stringValue: "Correction instructeur")
+        )
+      end
+    end
+  end
+
+  describe 'dossier with traitement changed columns of type geojson and attachments' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:types_de_champ_public) do
+      [
+        { type: :carte, libelle: "Carte", stable_id: 996 },
+        { type: :piece_justificative, libelle: "Pièce", stable_id: 997 },
+      ]
+    end
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+    let(:query) { DOSSIER_WITH_TRAITEMENTS_TYPED_CHANGED_COLUMNS_QUERY }
+    let(:variables) { { number: dossier.id, includeGeometry: true } }
+
+    let(:traitements) { data[:dossier][:traitements] }
+    let(:correction) { traitements.find { _1[:event] == 'depose_correction_usager' } }
+
+    context 'when the usager adds geometry to a carte champ' do
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon) }
+
+      before do
+        dossier.with_update_stream(dossier.user) do
+          champ = dossier.public_champ_for_update('996', updated_by: dossier.user.email)
+          champ.update(geo_areas: [geo_area])
+        end
+        dossier.save!
+        dossier.usager_submit_en_construction!
+      end
+
+      it 'exposes a GeoJSONColumn with its features' do
+        expect(errors).to be_nil
+
+        geo_column = correction[:changedColumns].find { _1[:__typename] == 'GeoJSONColumn' }
+        expect(geo_column).not_to be_nil
+        expect(geo_column[:label]).to eq("Carte")
+        expect(geo_column[:value].size).to eq(1)
+        expect(geo_column[:value][0][:geometry][:type]).to eq("Polygon")
+        expect(geo_column[:value][0][:geometry][:coordinates]).not_to be_nil
+      end
+    end
+
+    context 'when the usager attaches a file to a piece justificative champ' do
+      before do
+        dossier.with_update_stream(dossier.user) do
+          champ = dossier.public_champ_for_update('997', updated_by: dossier.user.email)
+          champ.piece_justificative_file.attach(io: Rails.root.join('spec/fixtures/files/Contrat.pdf').open, filename: 'Contrat.pdf')
+          champ.save!
+        end
+        dossier.save!
+        dossier.usager_submit_en_construction!
+      end
+
+      it 'exposes an AttachmentsColumn with the attached file' do
+        expect(errors).to be_nil
+
+        attachments_column = correction[:changedColumns].find { _1[:__typename] == 'AttachmentsColumn' }
+        expect(attachments_column).not_to be_nil
+        expect(attachments_column[:label]).to eq("Pièce")
+        expect(attachments_column[:value].map { _1[:filename] }).to eq(['Contrat.pdf'])
+        expect(attachments_column[:value][0][:url]).not_to be_nil
+      end
+    end
+  end
+
   DOSSIER_QUERY = <<-GRAPHQL
   query($number: Int!) {
     dossier(number: $number) {
       id
       number
+    }
+  }
+  GRAPHQL
+
+  DOSSIER_WITH_TRAITEMENTS_CHANGED_COLUMNS_QUERY = <<-GRAPHQL
+  query($number: Int!) {
+    dossier(number: $number) {
+      traitements {
+        event
+        changedColumns {
+          label
+          stringValue
+        }
+      }
+    }
+  }
+  GRAPHQL
+
+  DOSSIER_WITH_TRAITEMENTS_TYPED_CHANGED_COLUMNS_QUERY = <<-GRAPHQL
+  query($number: Int!, $includeGeometry: Boolean = false) {
+    dossier(number: $number) {
+      traitements {
+        event
+        changedColumns {
+          __typename
+          label
+          ... on GeoJSONColumn {
+            value {
+              geometry @include(if: $includeGeometry) {
+                type
+                coordinates
+              }
+            }
+          }
+          ... on AttachmentsColumn {
+            value {
+              url
+              filename
+            }
+          }
+        }
+      }
     }
   }
   GRAPHQL

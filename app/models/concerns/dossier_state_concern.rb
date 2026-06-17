@@ -4,7 +4,8 @@ module DossierStateConcern
   extend ActiveSupport::Concern
 
   def usager_submit_en_construction!
-    self.traitements.usager_submit_en_construction
+    checkpoint = merge_user_buffer_stream!
+    self.traitements.usager_submit_en_construction(checkpoint:)
     self.submitted_revision_id = revision_id
     save!
 
@@ -17,7 +18,8 @@ module DossierStateConcern
   end
 
   def instructeur_submit_en_construction!(instructeur:)
-    self.traitements.instructeur_submit_en_construction(instructeur:)
+    checkpoint = merge_instructeur_buffer_stream!
+    self.traitements.instructeur_submit_en_construction(instructeur:, checkpoint:)
     save!
 
     RoutingEngine.compute(self)

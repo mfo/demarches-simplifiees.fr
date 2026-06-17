@@ -29,6 +29,7 @@ class Traitement < ApplicationRecord
   end
 
   def termine? = state.in?(Dossier::TERMINE)
+  def has_changes? = revision_id.present? && event.in?([:depose_correction_usager, :depose_correction_instructeur])
 
   EVENT = [
     :depose,
@@ -79,7 +80,32 @@ class Traitement < ApplicationRecord
     end
   end
 
+  def changed_columns
+    if has_changes?
+      ChangedColumn.columns(revision, changed_champs, reference_champs)
+    else
+      []
+    end
+  end
+
   private
+
+  def reference_champs
+    if checkpoint.present?
+      changed_keys = changed_champs.keys
+      dossier.champs.filter { _1.stream == checkpoint && _1.public_id.in?(changed_keys) }
+    else
+      []
+    end.index_by(&:public_id)
+  end
+
+  def changed_champs
+    if checkpoint.present?
+      dossier.champs.filter { _1.checkpoint == checkpoint && !_1.row? }
+    else
+      []
+    end.index_by(&:public_id)
+  end
 
   def previous_state
     i = dossier.traitements.index(self)

@@ -268,6 +268,22 @@ module DossierChampsConcern
     end
   end
 
+  def user_changed_columns
+    if user_buffer_changes?
+      ChangedColumn.columns(revision, champs_on_user_buffer_stream.index_by(&:public_id), champs_on_main_stream.index_by(&:public_id))
+    else
+      []
+    end
+  end
+
+  def instructeur_changed_columns
+    if instructeur_buffer_changes?
+      ChangedColumn.columns(revision, champs_on_instructeur_buffer_stream.index_by(&:public_id), champs_on_main_stream.index_by(&:public_id))
+    else
+      []
+    end
+  end
+
   private
 
   def changed_champ_ids_for_merge(stream)
@@ -316,7 +332,7 @@ module DossierChampsConcern
       # move champs with changes from "main" to "history" stream
       champs.where(id: changed_ids, stream: Champ::MAIN_STREAM).update_all(stream: history_stream)
       # move champs from "buffer" to "main"
-      champs.where(id: buffer_ids, stream:).update_all(stream: Champ::MAIN_STREAM, updated_at: now)
+      champs.where(id: buffer_ids, stream:).update_all(stream: Champ::MAIN_STREAM, updated_at: now, checkpoint: history_stream)
       update_champs_timestamps(buffer_champs, stream)
     end
 
@@ -334,6 +350,8 @@ module DossierChampsConcern
     with_main_stream do
       prefill_and_enqueue_fetch_external_data_jobs(buffer_champs.filter(&:referentiel?), types_de_champ_private_all)
     end
+
+    history_stream
   end
 
   def with_stream(stream)

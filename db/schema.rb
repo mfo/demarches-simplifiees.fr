@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_02_100003) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_02_145332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -255,6 +255,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_02_100003) do
   end
 
   create_table "champs", id: :serial, force: :cascade do |t|
+    t.string "checkpoint"
     t.datetime "created_at", precision: nil
     t.jsonb "data"
     t.datetime "discarded_at"
@@ -1366,6 +1367,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_02_100003) do
     t.string "browser_name"
     t.boolean "browser_supported"
     t.integer "browser_version"
+    t.string "checkpoint"
     t.bigint "dossier_id"
     t.string "instructeur_email"
     t.string "motivation"

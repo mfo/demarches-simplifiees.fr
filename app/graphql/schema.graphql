@@ -3379,6 +3379,35 @@ type GeoJSON {
   type: String!
 }
 
+type GeoJSONColumn implements Column {
+  id: ID!
+
+  """
+  Libellé de la colonne.
+  """
+  label: String!
+
+  """
+  La valeur de la colonne sous forme texte.
+  """
+  stringValue: String
+  value: [GeoJSONFeature!]!
+}
+
+type GeoJSONFeature {
+  geometry: GeoJSONGeometry!
+  properties: GeoJSONFeatureProperties!
+}
+
+type GeoJSONFeatureProperties {
+  description: String
+}
+
+type GeoJSONGeometry {
+  coordinates: Coordinates!
+  type: String!
+}
+
 """
 Un groupe instructeur
 """
@@ -5396,6 +5425,10 @@ enum TitreIdentiteGrantType {
 }
 
 type Traitement {
+  """
+  Liste des changements par colonne
+  """
+  changedColumns: [Column!]!
   dateTraitement: ISO8601DateTime!
   emailAgentTraitant: String
   event: TraitementEvent!
