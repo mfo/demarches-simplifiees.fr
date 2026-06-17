@@ -571,6 +571,7 @@ en:
         dossiers_list:
           n_dossier: "File no."
           expiration_badge:
+            zero: "Expires today"
             one: "Expires in %{count} day"
             other: "Expires in %{count} days"
           no_result_title: No files

@@ -581,6 +581,7 @@ fr:
         dossiers_list:
           n_dossier: "dossier n°"
           expiration_badge:
+            zero: "Expire aujourd'hui"
             one: "Expire dans %{count} j."
             other: "Expire dans %{count} j."
           no_result_title: Aucun dossier
