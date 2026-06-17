@@ -223,6 +223,16 @@ describe Dossier, type: :model do
     end
   end
 
+  describe '#close_to_expiration?' do
+    context 'when expired_at is nil' do
+      let(:dossier) { create(:dossier) }
+
+      before { dossier.update_column(:expired_at, nil) }
+
+      it { expect(dossier.close_to_expiration?).to be(false) }
+    end
+  end
+
   describe "en_construction never expires (#13178)" do
     let(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 2) }
     let(:dossier) { create(:dossier, :en_construction, procedure:, en_construction_at: 50.days.ago) }

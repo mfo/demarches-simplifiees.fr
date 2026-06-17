@@ -634,6 +634,7 @@ class Dossier < ApplicationRecord
 
   def close_to_expiration?
     return false if en_instruction? || en_construction?
+    return false if expired_at.nil?
     expired_at < Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now && Time.zone.now < expired_at
   end
 
