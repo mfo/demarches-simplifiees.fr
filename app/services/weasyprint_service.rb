@@ -3,6 +3,8 @@
 class WeasyprintService
   class Error < StandardError; end
 
+  PDF_UA_VARIANT = 'pdf/ua-1'
+
   def self.generate_pdf(html, options = {})
     headers = {
       'Content-Type' => 'application/json',
