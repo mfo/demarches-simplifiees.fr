@@ -287,7 +287,7 @@ RSpec.describe DossierHelper, type: :helper do
 
       before { dossier.update_column(:expired_at, Time.zone.now.end_of_day) }
 
-      it { is_expected.to have_css(".fr-badge--warning", text: "Expire aujourd'hui") }
+      it { is_expected.to have_css(".fr-badge--warning", text: "Expire aujourd’hui") }
     end
 
     context "when dossier is not close to expiration" do
