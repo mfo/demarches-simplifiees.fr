@@ -1013,6 +1013,57 @@ describe Users::DossiersController, type: :controller do
       end
     end
 
+    context 'when the champ is an address' do
+      let(:types_de_champ_public) { [{ type: :address }] }
+      let(:address_champ) { dossier.champs.first }
+      let(:initial_value_json) do
+        {
+          'label' => '33 Rue Rébeval 75019 Paris',
+          'city_code' => '75119',
+          'city_name' => 'Paris',
+          'postal_code' => '75019',
+          'street_address' => '33 Rue Rébeval',
+          'department_code' => '75',
+          'department_name' => 'Paris',
+        }
+      end
+
+      before { address_champ.update!(value: '33 Rue Rébeval 75019 Paris', value_json: initial_value_json) }
+
+      context 'when not_in_ban is not set (regular BAN address)' do
+        let(:champs_public_attributes) do
+          { address_champ.public_id => { street_address: 'donnée injectée' } }
+        end
+
+        it 'does not permit the out-of-BAN address fields and keeps the original data intact' do
+          subject
+          expect(address_champ.reload.value_json['street_address']).to eq('33 Rue Rébeval')
+        end
+      end
+
+      context 'when not_in_ban is true' do
+        let(:champs_public_attributes) do
+          {
+            address_champ.public_id => {
+              not_in_ban: 'true',
+              street_address: '12 rue du Test',
+              city_name: 'Lyon',
+              postal_code: '69001',
+            },
+          }
+        end
+
+        it 'permits the out-of-BAN address fields' do
+          subject
+          address_champ.reload
+          expect(address_champ.not_ban?).to be_truthy
+          expect(address_champ.value_json['street_address']).to eq('12 rue du Test')
+          expect(address_champ.value_json['city_name']).to eq('Lyon')
+          expect(address_champ.value_json['postal_code']).to eq('69001')
+        end
+      end
+    end
+
     context 'when the dossier cannot be updated by the user' do
       let(:dossier) { create(:dossier, :en_instruction, user:, procedure:) }
 
