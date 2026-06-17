@@ -170,7 +170,7 @@ describe Administrateurs::ServicesController, type: :controller do
       it 'assigns no other procedures and does not render the warning' do
         subject
         expect(assigns(:other_procedures)).to be_empty
-        expect(response.body).not_to include("impactera également les démarches publiées")
+        expect(response.body).not_to include("impactera également les démarches suivantes")
       end
     end
 
@@ -230,10 +230,13 @@ describe Administrateurs::ServicesController, type: :controller do
     end
 
     context 'when updating a service with invalid data' do
+      render_views
+
       let(:service_params) { { nom: '', type_organisme: Service.type_organismes.fetch(:association) } }
 
       it do
         expect(flash.alert).not_to be_nil
+        expect(response).to have_http_status(:ok)
         expect(response).to render_template(:edit)
       end
     end

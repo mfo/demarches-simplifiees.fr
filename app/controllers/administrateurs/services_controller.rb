@@ -39,7 +39,7 @@ module Administrateurs
     def edit
       @service = service
       @procedure = procedure
-      @other_procedures = @service.procedures.where.not(id: @procedure.id).order(:id)
+      set_other_procedures
     end
 
     def update
@@ -54,6 +54,7 @@ module Administrateurs
           notice: "#{@service.nom} modifié"
       else
         @procedure = procedure
+        set_other_procedures
         flash[:alert] = @service.errors.full_messages
         render :edit
       end
@@ -109,6 +110,10 @@ module Administrateurs
 
     def service
       services.find(params[:id])
+    end
+
+    def set_other_procedures
+      @other_procedures = @service.procedures.where.not(id: @procedure.id).order(:id)
     end
 
     def services
