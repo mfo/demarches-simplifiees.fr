@@ -400,23 +400,18 @@ describe Administrateurs::ReferentielsController, type: :controller do
         }
       end
 
-      it 'updates the referentiel and redirects' do
+      it 'updates the referentiel and redirects without clearing mapping' do
         subject
 
-        # redirect is ok
         expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
 
-        # ensure data is saved
         referentiel.reload
         expect(referentiel.mode).to eq(referentiel_params[:mode])
         expect(referentiel.url_tiptap).to eq(new_url_tiptap)
         expect(referentiel.hint).to eq(referentiel_params[:hint])
         expect(referentiel.test_data_tiptap).to eq({ "{query}" => "PG46YY6YWCX8" })
 
-        # also reset last_response/referentiel_mapping when url changed
-        expect(referentiel.last_response).to be_nil
-        expect(referentiel.autocomplete_configuration).to eq({ "json_template" => {} })
-        expect(type_de_champ.reload.referentiel_mapping).to eq({})
+        expect(type_de_champ.reload.referentiel_mapping).to eq({ "old" => { "type" => "string" } })
       end
     end
   end
@@ -453,7 +448,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
     end
 
-    context 'full update with url_tiptap change triggers cache bust' do
+    context 'full update with url_tiptap change preserves mapping' do
       let(:new_url_tiptap) do
         { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/new/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } }] }] }
       end
@@ -480,7 +475,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         }, format: :turbo_stream
       end
 
-      it 'updates tiptap data and busts cache' do
+      it 'updates tiptap data without clearing mapping' do
         subject
         referentiel.reload
 
@@ -488,10 +483,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         expect(referentiel.test_data_tiptap).to eq({ "{query}" => "new_value" })
         expect(referentiel.hint).to eq('New hint')
 
-        # cache bust
-        expect(referentiel.last_response).to be_nil
-        expect(referentiel.autocomplete_configuration).to eq({ "json_template" => {} })
-        expect(type_de_champ.reload.referentiel_mapping).to eq({})
+        expect(type_de_champ.reload.referentiel_mapping).to eq({ "old" => { "type" => "string" } })
 
         expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
       end
@@ -815,6 +807,62 @@ describe Administrateurs::ReferentielsController, type: :controller do
         }
         expect(response).to redirect_to(prefill_and_display_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel))
         expect(flash[:alert]).to eq("Une erreur est survenue")
+      end
+    end
+  end
+
+  describe '#reset_mapping' do
+    let(:type_de_champ) { procedure.draft_revision.types_de_champ.find(&:referentiel?) }
+    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+
+    let(:referentiel_mapping) do
+      {
+        "$.name" => { "type" => "string", "libelle" => "Nom", "display_instructeur" => "1", "display_usager" => "1" },
+        "$.code" => { "type" => "string", "prefill" => "1", "prefill_stable_id" => "42" },
+      }
+    end
+
+    before { type_de_champ.update!(referentiel_mapping:) }
+
+    subject { delete :reset_mapping, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id, id: referentiel.id, scope: } }
+
+    context 'scope=all' do
+      let(:scope) { 'all' }
+
+      it 'clears the entire mapping' do
+        subject
+        expect(type_de_champ.reload.referentiel_mapping).to eq({})
+        expect(flash[:notice]).to eq("La configuration a bien été réinitialisée")
+      end
+    end
+
+    context 'scope=display' do
+      let(:scope) { 'display' }
+
+      it 'removes display flags but preserves prefill config' do
+        subject
+        mapping = type_de_champ.reload.referentiel_mapping
+        expect(mapping["$.name"]).to eq({ "type" => "string", "libelle" => "Nom" })
+        expect(mapping["$.code"]).to eq({ "type" => "string", "prefill" => "1", "prefill_stable_id" => "42" })
+      end
+    end
+
+    context 'scope=prefill' do
+      let(:scope) { 'prefill' }
+
+      it 'removes prefill config but preserves display flags' do
+        subject
+        mapping = type_de_champ.reload.referentiel_mapping
+        expect(mapping["$.name"]).to eq({ "type" => "string", "libelle" => "Nom", "display_instructeur" => "1", "display_usager" => "1" })
+        expect(mapping["$.code"]).to eq({ "type" => "string" })
+      end
+    end
+
+    context 'scope=invalid' do
+      let(:scope) { 'invalid' }
+
+      it 'raises BadRequest' do
+        expect { subject }.to raise_error(ActionController::BadRequest)
       end
     end
   end

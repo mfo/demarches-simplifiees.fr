@@ -17,3 +17,8 @@
                 %td.fr-cell--multiline.referentiel-cell-truncate{ title: mapping_opts[:example_value] }= mapping_opts[:example_value]
                 %td= mapping_opts[:type]
                 %td= prefill_stable_id_tag(jsonpath, mapping_opts)
+          %tfoot
+            %tr
+              %td{ colspan: 4 }
+                = render NestedForms::OwnedButtonComponent.new(formaction: reset_mapping_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel, scope: 'prefill'), http_method: :delete, opt: { class: "fr-link fr-link--sm fr-icon-delete-line fr-link--icon-left", data: { turbo_confirm: "Êtes-vous sûr de vouloir réinitialiser le préremplissage ?" } }) do
+                  Réinitialiser le préremplissage

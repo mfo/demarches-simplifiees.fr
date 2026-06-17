@@ -850,6 +850,7 @@ Rails.application.routes.draw do
           patch :update_mapping_type_de_champ
           patch :update_prefill_and_display_type_de_champ
           get :prefill_and_display
+          delete :reset_mapping
         end
       end
 
