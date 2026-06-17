@@ -21,6 +21,9 @@ describe ProcedureExportService do
         }
     end
 
+    before { Flipper.enable(:export_xlsx_streaming) }
+    after { Flipper.disable(:export_xlsx_streaming) }
+
     let(:dossiers_sheet) { subject.sheets.first }
     let(:etablissements_sheet) { subject.sheets.second }
     let(:avis_sheet) { subject.sheets.third }
@@ -31,6 +34,32 @@ describe ProcedureExportService do
 
       it 'should have a sheet for each record type' do
         expect(subject.sheets.map(&:name)).to eq(['Dossiers', 'Etablissements', 'Avis'])
+      end
+    end
+
+    context 'when the export_xlsx_streaming feature is disabled' do
+      let(:procedure) { create(:procedure) }
+
+      before { Flipper.disable(:export_xlsx_streaming) }
+
+      it 'generates the export through the legacy caxlsx generator' do
+        expect(ProcedureExportService::XlsxExport).not_to receive(:new)
+        expect(subject.sheets.map(&:name)).to eq(['Dossiers', 'Etablissements', 'Avis'])
+      end
+    end
+
+    context 'when the streaming export fails' do
+      let(:procedure) { create(:procedure) }
+
+      before do
+        allow_any_instance_of(ProcedureExportService::XlsxStreamer).to receive(:open).and_raise(Zip::Error, "boom")
+      end
+
+      it 'enriches the Sentry scope with the export context before re-raising' do
+        expect(Sentry).to receive(:set_extras).with(
+          xlsx_streamer: hash_including(procedure: procedure.id)
+        )
+        expect { subject }.to raise_error(Zip::Error)
       end
     end
 
@@ -143,6 +172,20 @@ describe ProcedureExportService do
         end
       end
 
+      context 'with an untyped boolean column (no export_template)' do
+        let(:procedure) { create(:procedure, :published, :for_individual) }
+        let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
+
+        # Parité avec l'export caxlsx historique : un booléen *non typé* sort en
+        # texte (SpreadsheetArchitect#get_type → :string), pas en cellule native
+        # t="b". Les colonnes explicitement typées :boolean (export_template)
+        # restent natives, cf. spec tabular yes_no/checkbox.
+        it 'exports the boolean as the string "false", not a native boolean cell' do
+          value = dossiers_sheet.data[0][dossiers_sheet.headers.index('FranceConnect ?')]
+          expect(value).to eq('false')
+        end
+      end
+
       context 'with a procedure routee' do
         let(:procedure) { create(:procedure, :published, :for_individual) }
         let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
@@ -169,7 +212,7 @@ describe ProcedureExportService do
       end
 
       context 'with procedure chorus' do
-        before { expect_any_instance_of(Procedure).to receive(:chorusable?).and_return(true) }
+        before { allow_any_instance_of(Procedure).to receive(:chorusable?).and_return(true) }
         let(:procedure) { create(:procedure, :published, :for_individual, :filled_chorus) }
         let!(:dossier) { create(:dossier, :en_instruction, procedure: procedure) }
 
@@ -454,6 +497,39 @@ describe ProcedureExportService do
 
         it 'should not have data' do
           expect(repetition_sheet).to be_nil
+        end
+      end
+
+      context 'when repetitions are filled by different dossiers' do
+        let(:types_de_champ_public) do
+          [
+            { type: :repetition, libelle: 'Repetition A', children: [{ libelle: 'a' }] },
+            { type: :repetition, libelle: 'Repetition B', children: [{ libelle: 'b' }] },
+          ]
+        end
+
+        # Le 1er dossier exporté (depose_at le plus ancien) ne remplit que la
+        # répétition canoniquement *dernière*, le 2nd que la *première* : l'ordre
+        # de découverte diffère donc de l'ordre canonique (position). Les feuilles
+        # doivent suivre l'ordre canonique, comme l'export caxlsx historique.
+        before do
+          canonical = procedure.all_revisions_types_de_champ.repetition.to_a
+          rep = -> (dossier, stable_id) { dossier.project_champs_public.find { _1.repetition? && _1.stable_id == stable_id } }
+
+          dossiers.first.update!(depose_at: 2.days.ago)
+          Champ.where(row_id: rep.call(dossiers.first, canonical.first.stable_id).row_ids).destroy_all
+
+          dossiers.second.update!(depose_at: 1.day.ago)
+          Champ.where(row_id: rep.call(dossiers.second, canonical.last.stable_id).row_ids).destroy_all
+
+          dossiers.each(&:reload)
+        end
+
+        it 'orders the repetition sheets by canonical position, not discovery order' do
+          canonical_names = procedure.all_revisions_types_de_champ.repetition
+            .map { ProcedureExportService.sanitize_sheet_name(_1.libelle_for_export) }
+
+          expect(subject.sheets.map(&:name).last(canonical_names.size)).to eq(canonical_names)
         end
       end
     end

@@ -17,14 +17,11 @@ class ProcedureExportService
   end
 
   def to_xlsx
-    @dossiers = @dossiers.downloadable_sorted_batch
-    tables = [:dossiers, :etablissements, :avis] + champs_repetables_options(format: :xlsx)
-
-    # We recursively build multi page spreadsheet
-    io = tables.reduce(nil) do |package, table|
-      SpreadsheetArchitect.to_axlsx_package(options_for(table, :xlsx), package)
-    end.to_stream
-    create_blob(io, :xlsx)
+    if procedure.feature_enabled?(:export_xlsx_streaming)
+      streamed_xlsx
+    else
+      legacy_xlsx
+    end
   end
 
   def to_ods
@@ -53,7 +50,35 @@ class ProcedureExportService
     create_blob(io, :json)
   end
 
+  # Nettoie un nom d'onglet pour Excel : translittération en ASCII (pour que
+  # truncate respecte la limite de 30 octets) puis suppression des caractères
+  # interdits par Excel (/\*?[]:) — caxlsx levait sur ces caractères, xlsxtream non.
+  def self.sanitize_sheet_name(name)
+    I18n.transliterate(name, locale: :en)
+      .delete('/\*?[]:')
+      .truncate(30, omission: '')
+  end
+
   private
+
+  def streamed_xlsx
+    Tempfile.create(['export', '.xlsx'], binmode: true) do |file|
+      XlsxExport.new(procedure:, dossiers:, export_template: @export_template).write_to(file)
+      file.rewind
+      create_blob(file, :xlsx)
+    end
+  end
+
+  def legacy_xlsx
+    @dossiers = @dossiers.downloadable_sorted_batch
+    tables = [:dossiers, :etablissements, :avis] + champs_repetables_options(format: :xlsx)
+
+    # We recursively build multi page spreadsheet
+    io = tables.reduce(nil) do |package, table|
+      SpreadsheetArchitect.to_axlsx_package(options_for(table, :xlsx), package)
+    end.to_stream
+    create_blob(io, :xlsx)
+  end
 
   def create_blob(io, format)
     ActiveStorage::Blob.create_and_upload!(
@@ -138,12 +163,7 @@ class ProcedureExportService
       table
     end.merge(DEFAULT_STYLES)
 
-    # transliterate: convert to ASCII characters
-    # to ensure truncate respects 30 bytes
-    # /\*?[] are invalid Excel worksheet characters
-    options[:sheet_name] = I18n.transliterate(options[:sheet_name], locale: :en)
-      .delete('/\*?[]')
-      .truncate(30, omission: '')
+    options[:sheet_name] = self.class.sanitize_sheet_name(options[:sheet_name])
 
     options
   end

@@ -14,7 +14,8 @@ class ExportJob < ApplicationJob
   def perform(export)
     return if export.generated?
 
-    Sentry.set_tags(procedure: export.procedure.id)
+    Sentry.set_tags(procedure: export.procedure.id, export: export.id)
+    Sentry.set_extras(export_format: export.format, export_template_id: export.export_template_id)
 
     if Rails.env.development?
       # Set URL options for ActiveStorage
