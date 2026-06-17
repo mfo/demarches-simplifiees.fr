@@ -117,13 +117,13 @@ namespace :stats do
     sva_svr_procedures = base_scope.where.not(sva_svr: [nil, {}])
     add_procedure_stat(stats, "SVA/SVR activé", sva_svr_procedures, total_procedures, total_dossiers_all_procedures)
 
-    # 9. Personnalisation du message fin de dépôt
+    # 9. Personnalisation de la page de confirmation de dépôt
     ApplicationRecord.transaction do
       ApplicationRecord.connection.execute("SET LOCAL statement_timeout = '10min'")
       custom_message_procedures = base_scope.joins(:dossier_submitted_messages)
         .where.not(dossier_submitted_messages: { message_on_submit_by_usager: [nil, ''] })
         .distinct
-      add_procedure_stat(stats, "Message fin de dépôt personnalisé", custom_message_procedures, total_procedures, total_dossiers_all_procedures)
+      add_procedure_stat(stats, "Message de confirmation de dépôt personnalisé", custom_message_procedures, total_procedures, total_dossiers_all_procedures)
     end
 
     # 10. API entreprise avec jeton personnalisé

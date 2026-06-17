@@ -128,7 +128,6 @@ en:
         ineligibilite_hint: Enabled
         monavis_embed: MonAvis button
         monavis_embed_hint: "Code generated on MonAvis website : %{code}"
-        dossier_submitted_message: End of submission
         dossier_submitted_message_hint: "(Custom message) %{message}"
         accuse_lecture: Acknowledgment of receipt of the decision
         accuse_lecture_hint: Enabled
