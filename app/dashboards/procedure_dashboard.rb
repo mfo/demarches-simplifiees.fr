@@ -56,9 +56,12 @@ class ProcedureDashboard < Administrate::BaseDashboard
     tags: Field::Text,
     template: Field::Boolean,
     opendata: Field::Boolean,
+    robots_indexable: Field::Boolean,
     hide_instructeurs_email: Field::Boolean,
     dossiers_count: Field::Number,
     no_gender: Field::Boolean,
+    pro_connect_restriction: Field::String,
+    pro_connect_for_moral_procedure: Field::Boolean,
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -108,6 +111,8 @@ class ProcedureDashboard < Administrate::BaseDashboard
     :published_types_de_champ_public,
     :published_types_de_champ_private,
     :for_individual,
+    :pro_connect_restriction,
+    :pro_connect_for_moral_procedure,
     :api_entreprise_token,
     :auto_archive_on,
     :passer_en_construction_email_template,
@@ -126,6 +131,7 @@ class ProcedureDashboard < Administrate::BaseDashboard
     :for_tiers_enabled,
     :hide_instructeurs_email,
     :opendata,
+    :robots_indexable,
     :replaced_by_procedure_id,
   ].freeze
 
