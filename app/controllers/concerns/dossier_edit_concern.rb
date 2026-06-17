@@ -73,30 +73,25 @@ module DossierEditConcern
   # static keys. We create a static hash based on the available keys.
   def champs_attributes_params(scope)
     param_key = :"champs_#{scope}_attributes"
-    champ_attributes = [
-      :id,
-      :value,
-      :value_other,
-      :external_id,
-      :code,
-      :primary_value,
-      :secondary_value,
-      :piece_justificative_file,
-      :code_departement,
-      :accreditation_number,
-      :accreditation_birthdate,
-      :address,
+    public_ids = params.dig(:dossier, param_key)&.keys || []
+
+    champs_attributes = public_ids.index_with do |public_id|
+      not_in_ban = params.dig(:dossier, param_key, public_id, :not_in_ban) == 'true'
+      champ_permitted_attributes(scope, not_in_ban:)
+    end
+
+    params.require(:dossier).permit(param_key => champs_attributes).fetch(param_key)
+  end
+
+  def champ_permitted_attributes(scope, not_in_ban:)
+    [
+      :id, :value, :value_other, :external_id, :code,
+      :primary_value, :secondary_value, :piece_justificative_file,
+      :code_departement, :accreditation_number, :accreditation_birthdate,
       :not_in_ban,
-      :street_address,
-      :city_name,
-      :country_code,
-      :commune_code,
-      :postal_code,
       (:preview_state if scope == :public),
+      *(not_in_ban ? [:street_address, :city_name, :country_code, :commune_code, :postal_code] : [:address]),
       value: [],
     ].compact
-    public_ids = params.dig(:dossier, param_key)&.keys || []
-    champs_attributes = public_ids.index_with { champ_attributes }
-    params.require(:dossier).permit(param_key => champs_attributes).fetch(param_key)
   end
 end
