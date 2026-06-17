@@ -10,7 +10,7 @@ export const Title = Node.create({
   name: 'title',
   content: 'inline*',
   defining: true,
-  marks: 'italic underline',
+  marks: 'italic',
 
   parseHTML() {
     return [{ tag: `h1`, attrs: { level: 1 } }];
