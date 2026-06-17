@@ -35,7 +35,7 @@ class OCRService
     headers = { 'X-API-KEY': ENV.fetch('DOCUMENT_IA_KEY') }
     body = { file_url: blob_url }
 
-    API::Client.new.call(url:, headers:, method: :post, body:)
+    API::Client.new.call(url:, headers:, method: :post, body:, timeout: 31)
       .fmap { |ok| { data: ok.body, value_json: extract_2ddoc(ok.body) } }
       .or { to_not_retryable_failure(it) }
   end
