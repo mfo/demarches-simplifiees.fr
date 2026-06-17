@@ -14,8 +14,6 @@ class RechercheController < ApplicationController
   ]
 
   def nav_bar_profile
-    return super if request.blank? # Controller introspection does not contains params/request, see NavBarProfileConcern
-
     context_params = params[:context]&.to_sym
     case context_params
     when :instructeur, :expert

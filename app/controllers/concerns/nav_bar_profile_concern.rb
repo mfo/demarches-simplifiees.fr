@@ -16,9 +16,7 @@ module NavBarProfileConcern
   private
 
   def nav_bar_user_or_guest
-    # when instanciating manually the controller (see below),
-    # we don't have request and current_user would fail
-    request && current_user ? :user : :guest
+    current_user ? :user : :guest
   end
 
   # Shared controllers (search, errors, release notes…) don't have specific context
@@ -26,14 +24,10 @@ module NavBarProfileConcern
   # so user does'not feel lost.
   def nav_bar_profile_from_referrer
     # detect context from referer, simple (no detection when refreshing the page)
-    params = Rails.application.routes.recognize_path(request&.referer)
-
-    controller_class = "#{params[:controller].camelize}Controller".safe_constantize
-    return if controller_class.nil?
-
-    controller_instance = controller_class.new
-    controller_instance.try(:nav_bar_profile)
-  rescue StandardError => e # we don't want broken logic in nav bar profile to fail the request
+    # the profile is declared as a route default (see config/routes.rb)
+    # and recognize_path ignores the query parameters
+    Rails.application.routes.recognize_path(request&.referer)[:nav_bar_profile]
+  rescue StandardError => e # bad referer raises in recognize_path; don't fail the request
     Sentry.capture_exception(e)
 
     nil

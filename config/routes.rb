@@ -143,12 +143,12 @@ Rails.application.routes.draw do
     sessions: 'super_admins/sessions',
   }
 
-  namespace :super_admins do
+  namespace :super_admins, defaults: { nav_bar_profile: :superadmin } do
     resources :release_notes
   end
 
-  get 'super_admins/edit_otp', to: 'super_admins#edit_otp', as: 'edit_super_admin_otp'
-  put 'super_admins/enable_otp', to: 'super_admins#enable_otp', as: 'enable_super_admin_otp'
+  get 'super_admins/edit_otp', to: 'super_admins#edit_otp', as: 'edit_super_admin_otp', defaults: { nav_bar_profile: :superadmin }
+  put 'super_admins/enable_otp', to: 'super_admins#enable_otp', as: 'enable_super_admin_otp', defaults: { nav_bar_profile: :superadmin }
 
   devise_for :users, controllers: {
     sessions: 'users/sessions',
@@ -269,7 +269,7 @@ Rails.application.routes.draw do
   # Deprecated UI
   #
 
-  namespace :users do
+  namespace :users, defaults: { nav_bar_profile: :user } do
     resources :dossiers, only: [] do
       post '/carte/zones' => 'carte#zones'
       get '/carte' => 'carte#show'
@@ -290,7 +290,7 @@ Rails.application.routes.draw do
   end
 
   # order matters: we don't want those routes to match /admin/procedures/:id
-  get 'admin/procedures/new' => 'administrateurs/procedures#new', as: :new_admin_procedure
+  get 'admin/procedures/new' => 'administrateurs/procedures#new', as: :new_admin_procedure, defaults: { nav_bar_profile: :administrateur }
 
   namespace :admin do
     get 'activate' => '/users/activate#new'
@@ -348,7 +348,7 @@ Rails.application.routes.draw do
   # User
   #
 
-  scope module: 'users' do
+  scope module: 'users', defaults: { nav_bar_profile: :user } do
     namespace :statistiques do
       get '/:path', action: 'statistiques'
     end
@@ -424,7 +424,7 @@ Rails.application.routes.draw do
   #
   # Expert
   #
-  scope module: 'experts', as: 'expert' do
+  scope module: 'experts', as: 'expert', defaults: { nav_bar_profile: :expert } do
     get 'avis', to: 'avis#index', as: 'all_avis'
 
     resources :procedures, only: [], param: :procedure_id do
@@ -461,7 +461,7 @@ Rails.application.routes.draw do
   # Instructeur
   #
 
-  scope module: 'instructeurs', as: 'instructeur' do
+  scope module: 'instructeurs', as: 'instructeur', defaults: { nav_bar_profile: :instructeur } do
     resource :rdv_connections, only: [:show, :destroy]
     resources :procedures, only: [] do
       resources :export_templates, only: [:new, :create, :edit, :update, :destroy] do
@@ -614,7 +614,7 @@ Rails.application.routes.draw do
     # Gestionnaire
     #
 
-    scope module: 'gestionnaires', as: 'gestionnaire' do
+    scope module: 'gestionnaires', as: 'gestionnaire', defaults: { nav_bar_profile: :gestionnaire } do
       resources :groupe_gestionnaires, path: 'groupes', only: [:index, :show, :create, :edit, :update, :destroy] do
         resources :gestionnaires, controller: 'groupe_gestionnaire_gestionnaires', only: [:index, :create, :destroy]
         resources :administrateurs, controller: 'groupe_gestionnaire_administrateurs', only: [:index, :create, :destroy] do
@@ -633,13 +633,13 @@ Rails.application.routes.draw do
       end
     end
 
-    namespace :gestionnaires do
+    namespace :gestionnaires, defaults: { nav_bar_profile: :gestionnaire } do
       get 'activate' => '/users/activate#new'
       patch 'activate' => '/users/activate#create'
     end
   end
 
-  namespace :instructeurs do
+  namespace :instructeurs, defaults: { nav_bar_profile: :instructeur } do
     resources :dossiers, only: [] do
       resources :champs, only: [:edit, :update], param: :public_id
     end
@@ -649,7 +649,7 @@ Rails.application.routes.draw do
   # Administrateur
   #
 
-  scope module: 'administrateurs', path: 'admin', as: 'admin' do
+  scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar_profile: :administrateur } do
     resources :procedures do
       resources :archives, only: [:index, :create]
       resources :exports, only: [] do
