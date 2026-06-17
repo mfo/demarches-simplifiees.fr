@@ -744,25 +744,12 @@ class Dossier < ApplicationRecord
   end
 
   def text_summary
-    if brouillon?
-      parts = [
-        "Dossier en brouillon répondant à la démarche ",
-        procedure.libelle,
-        " gérée par l’organisme ",
-        procedure.organisation_name,
-      ]
-    else
-      parts = [
-        "Dossier déposé le ",
-        depose_at.strftime("%d/%m/%Y"),
-        " sur la démarche ",
-        procedure.libelle,
-        " gérée par l’organisme ",
-        procedure.organisation_name,
-      ]
-    end
-
-    parts.join
+    I18n.t(
+      "dossiers.text_summary.#{brouillon? ? :brouillon : :depose}",
+      date: depose_at && I18n.l(depose_at.to_date, format: :short),
+      procedure: procedure.libelle,
+      organisme: procedure.organisation_name
+    )
   end
 
   def avis_for_expert(expert)

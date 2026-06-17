@@ -22,10 +22,11 @@
     - path = dossier_linked_path(current_instructeur || current_user, dossier)
     - if path.present?
       %p= link_to("Dossier n° #{dossier.id}", path, target: '_blank', rel: 'noopener')
+    - elsif current_instructeur
+      = render Dossiers::NoAccessToDossierComponent.new(dossier, current_instructeur)
     - else
       %p Dossier n° #{dossier.id}
-    %br
     .copy-zone
-      %p= sanitize(dossier.text_summary)
+      %p= t("dossiers.text_summary.#{dossier.brouillon? ? :brouillon : :depose}_html", date: dossier.depose_at && l(dossier.depose_at.to_date, format: :short), procedure: tag.strong(dossier.procedure.libelle), organisme: tag.strong(dossier.procedure.organisation_name))
 - else
   %p Pas de dossier associé

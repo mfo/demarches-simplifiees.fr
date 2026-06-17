@@ -42,7 +42,7 @@ describe 'shared/dossiers/champs', type: :view do
       expect(subject).to have_css(".header-section")
       expect(subject).to include(champ2.libelle)
 
-      expect(subject).to include(dossier.text_summary)
+      expect(subject).to have_text(dossier.text_summary)
 
       expect(subject).to include(champ5.libelle)
       expect(subject).to include(champ5.value)
@@ -81,10 +81,16 @@ describe 'shared/dossiers/champs', type: :view do
       dossier.champs.first.update(value: dossier.id)
     end
 
-    it do
-      is_expected.not_to have_link("Dossier n° #{dossier.id}")
-      is_expected.to include("Dossier n° #{dossier.id}")
-      is_expected.to include(dossier.text_summary)
+    it "renders the no-access modal trigger" do
+      is_expected.to have_link("Dossier n° #{dossier.id}", href: "#modal-no-access-to-dossier-#{dossier.id}")
+      is_expected.to have_text("Vous n’avez pas accès à ce dossier")
+      is_expected.to have_text(dossier.text_summary)
+    end
+
+    it "emphasizes only the procedure and organisme names in the summary" do
+      is_expected.to have_css("strong", text: dossier.procedure.libelle)
+      is_expected.to have_css("strong", text: dossier.procedure.organisation_name)
+      is_expected.to have_no_css("strong", text: "Dossier déposé le")
     end
   end
 

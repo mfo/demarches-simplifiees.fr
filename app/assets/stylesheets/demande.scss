@@ -31,6 +31,11 @@
     }
   }
 
+  // Pour un dossier lié, seuls les noms (démarche, organisme) sont en gras (balises strong).
+  .champ-content.dossier_link {
+    font-weight: normal;
+  }
+
   .champ-blank {
     font-weight: normal;
     font-style: italic;
