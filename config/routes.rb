@@ -417,6 +417,7 @@ Rails.application.routes.draw do
     delete 'france_connect_information' => 'profil#destroy_fci'
     patch 'preferred_domain', to: 'profil#preferred_domain'
     get 'fermeture/:path', to: 'commencer#closing_details', as: :closing_details
+    get 'introuvable/:path', to: 'commencer#not_found', as: :not_found
   end
 
   get 'procedures/:id/logo', to: 'procedures#logo', as: :procedure_logo

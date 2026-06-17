@@ -68,7 +68,8 @@ describe Users::CommencerController, type: :controller do
       let(:path) { 'hello' }
 
       it 'redirects with an error message' do
-        expect(subject).to redirect_to(root_path)
+        expect(subject).to redirect_to(not_found_path('hello'))
+        expect(flash[:alert]).to eq(I18n.t('errors.messages.procedure_not_found'))
       end
     end
 
@@ -355,7 +356,8 @@ describe Users::CommencerController, type: :controller do
       subject { get :sign_in, params: { path: 'hello' } }
 
       it 'redirects with an error message' do
-        expect(subject).to redirect_to(root_path)
+        expect(subject).to redirect_to(not_found_path('hello'))
+        expect(flash[:alert]).to eq(I18n.t('errors.messages.procedure_not_found'))
       end
     end
   end
@@ -399,7 +401,8 @@ describe Users::CommencerController, type: :controller do
       subject { get :sign_up, params: { path: 'hello' } }
 
       it 'redirects with an error message' do
-        expect(subject).to redirect_to(root_path)
+        expect(subject).to redirect_to(not_found_path('hello'))
+        expect(flash[:alert]).to eq(I18n.t('errors.messages.procedure_not_found'))
       end
     end
   end
@@ -443,7 +446,8 @@ describe Users::CommencerController, type: :controller do
       subject { get :france_connect, params: { path: 'hello' } }
 
       it 'redirects with an error message' do
-        expect(subject).to redirect_to(root_path)
+        expect(subject).to redirect_to(not_found_path('hello'))
+        expect(flash[:alert]).to eq(I18n.t('errors.messages.procedure_not_found'))
       end
     end
   end
@@ -481,6 +485,7 @@ describe Users::CommencerController, type: :controller do
 
       it 'redirects to procedure not found' do
         expect(response).to have_http_status(302)
+        expect(subject).to redirect_to(not_found_path(procedure.path))
       end
     end
 

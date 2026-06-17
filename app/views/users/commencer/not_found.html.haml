@@ -1,0 +1,10 @@
+-# - content_for(:title, @procedure.libelle)
+
+.fr-container
+  .fr-grid-row
+    .fr-col-12
+
+      %h1= t('commencer.not_found.page_title')
+      %p= t('commencer.not_found.page_description')
+
+      = link_to t('utils.back_to_home'), root_path, class: "fr-btn fr-mt-2w"
