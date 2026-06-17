@@ -141,7 +141,6 @@ describe Administrateurs::ConditionsController, type: :controller do
       let(:int_column) { dropdown_tdc.columns(procedure_id: procedure.id).first }
 
       before do
-        Flipper.enable(:column_conditions)
         sign_in(procedure.administrateurs.first.user)
         patch :change_targeted_champ,
           params: {

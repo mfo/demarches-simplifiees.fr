@@ -38,7 +38,6 @@ features = [
   :switch_domain,
   :llm_nightly_improve_procedure,
   :ami_notifications,
-  :column_conditions,
   :api_entreprise_tva_job,
 ]
 
