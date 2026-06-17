@@ -39,6 +39,7 @@ module Administrateurs
     def edit
       @service = service
       @procedure = procedure
+      @other_procedures = @service.procedures.where.not(id: @procedure.id).order(:id)
     end
 
     def update
@@ -82,7 +83,7 @@ module Administrateurs
     end
 
     def destroy
-      service_to_destroy = service
+      service_to_destroy = current_administrateur.services.find(params[:id])
 
       if service_to_destroy.procedures.present?
         if service_to_destroy.procedures.count == 1

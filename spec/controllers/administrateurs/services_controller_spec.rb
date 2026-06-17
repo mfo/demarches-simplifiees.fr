@@ -156,6 +156,54 @@ describe Administrateurs::ServicesController, type: :controller do
     end
   end
 
+  describe '#edit' do
+    render_views
+
+    let!(:service) { create(:service, administrateur: admin) }
+    let!(:procedure) { create(:procedure, administrateur: admin, service: service) }
+
+    before { sign_in(admin.user) }
+
+    subject { get :edit, params: { id: service.id, procedure_id: procedure.id } }
+
+    context 'when the service is used only by the current procedure' do
+      it 'assigns no other procedures and does not render the warning' do
+        subject
+        expect(assigns(:other_procedures)).to be_empty
+        expect(response.body).not_to include("impactera également les démarches publiées")
+      end
+    end
+
+    context 'when the service is used by other procedures' do
+      let!(:other_published) { create(:procedure, :published, administrateur: admin, service: service, libelle: 'Démarche partagée') }
+      let!(:other_draft) { create(:procedure, administrateur: admin, service: service) }
+      let!(:other_closed) { create(:procedure, :closed, administrateur: admin, service: service) }
+
+      it 'assigns all other procedures regardless of state and lists them in the warning' do
+        subject
+        expect(assigns(:other_procedures)).to contain_exactly(other_published, other_draft, other_closed)
+        expect(response.body).to include("impactera également les démarches suivantes")
+        expect(response.body).to include("Démarche partagée - n°#{other_published.id}")
+        expect(response.body).to include("n°#{other_draft.id}")
+        expect(response.body).to include("n°#{other_closed.id}")
+      end
+    end
+
+    context 'when the service is shared with a co-administrateur' do
+      let(:other_admin) { create(:administrateur) }
+      let!(:service) { create(:service, administrateur: other_admin) }
+      let!(:procedure) { create(:procedure, administrateurs: [other_admin, admin], service: service) }
+      let!(:other_published) { create(:procedure, :published, administrateur: other_admin, service: service) }
+
+      it 'allows the co-administrateur to access the edit form and warns about other procedures' do
+        subject
+        expect(response).to have_http_status(:ok)
+        expect(assigns(:service)).to eq(service)
+        expect(assigns(:other_procedures)).to contain_exactly(other_published)
+      end
+    end
+  end
+
   describe '#update' do
     let!(:service) { create(:service, administrateur: admin) }
     let(:service_params) { { nom: 'nom', type_organisme: Service.type_organismes.fetch(:association), siret: "13002526500013" } }
@@ -187,6 +235,17 @@ describe Administrateurs::ServicesController, type: :controller do
       it do
         expect(flash.alert).not_to be_nil
         expect(response).to render_template(:edit)
+      end
+    end
+
+    context 'when a co-administrateur updates a shared service' do
+      let(:other_admin) { create(:administrateur) }
+      let!(:service) { create(:service, administrateur: other_admin, nom: 'Original') }
+      let!(:procedure) { create(:procedure, administrateurs: [other_admin, admin], service: service) }
+
+      it 'updates the service' do
+        expect(flash.alert).to be_nil
+        expect(service.reload.nom).to eq('nom')
       end
     end
   end
@@ -273,6 +332,20 @@ describe Administrateurs::ServicesController, type: :controller do
         expect(procedure.reload.service_id).to be_nil
       end
     end
+
+    context 'when a co-administrateur tries to destroy a shared service owned by another admin' do
+      let(:other_admin) { create(:administrateur) }
+      let!(:service) { create(:service, administrateur: other_admin) }
+      let!(:procedure) { create(:procedure, administrateurs: [other_admin, admin]) }
+
+      before { sign_in(admin.user) }
+
+      it 'forbids the destruction even if no procedure references the service' do
+        expect { delete :destroy, params: { id: service.id, procedure_id: procedure.id } }
+          .to raise_error(ActiveRecord::RecordNotFound)
+        expect { service.reload }.not_to raise_error
+      end
+    end
   end
 
   describe "#index" do
@@ -303,6 +376,22 @@ describe Administrateurs::ServicesController, type: :controller do
         expect(procedure.service).to be nil
         expect(flash.alert.first).to eq "Certaines de vos démarches n’ont pas de service associé."
         expect(flash.alert.last).to include "démarche #{procedure.id}"
+      end
+    end
+
+    context 'when listing services on a procedure shared with a co-administrateur' do
+      render_views
+
+      let(:other_admin) { create(:administrateur) }
+      let!(:foreign_service) { create(:service, administrateur: other_admin) }
+      let!(:procedure) { create(:procedure, administrateurs: [other_admin, admin], service: foreign_service) }
+
+      it 'disables the destroy button for services not owned by the current administrateur' do
+        get :index, params: { procedure_id: procedure.id }
+
+        destroy_form = response.parsed_body
+          .css("form[action='#{admin_service_path(foreign_service, procedure_id: procedure.id)}'][method='post']")
+        expect(destroy_form.css("button[disabled]")).not_to be_empty
       end
     end
   end
