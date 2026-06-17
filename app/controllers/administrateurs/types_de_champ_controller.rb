@@ -4,9 +4,11 @@ module Administrateurs
   class TypesDeChampController < AdministrateurController
     include ActiveSupport::NumberHelper
     include CsvParsingConcern
+
+    before_action :retrieve_procedure
+
     include SimpliscoreConcern
 
-    prepend_before_action :retrieve_procedure
     before_action :reload_procedure_with_includes, only: [:destroy]
 
     def create
