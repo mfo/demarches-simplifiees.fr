@@ -1,5 +1,5 @@
 diff --git a/cjs/react-dom-client.development.js b/cjs/react-dom-client.development.js
-index fa853b3a79413c8ddc553441ee259d4b34f59d69..0ccc4c8e33a401e4ea954e291c97c0983232ab36 100644
+index 8c860aca7db6a1ca74788209d100f10ae5f085fa..6e6ee0a9ec6aeaa1f2791b23e13a9f3d2a349095 100644
 --- a/cjs/react-dom-client.development.js
 +++ b/cjs/react-dom-client.development.js
 @@ -3965,8 +3965,13 @@

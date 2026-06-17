@@ -139,6 +139,6 @@
   },
   "patchedDependencies": {
     "@hotwired/turbo@7.3.0": "patches/@hotwired%2Fturbo@7.3.0.patch",
-    "react-dom@19.2.4": "patches/react-dom@19.2.4.patch"
+    "react-dom@19.2.7": "patches/react-dom@19.2.7.patch"
   }
 }
