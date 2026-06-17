@@ -25,27 +25,23 @@
               <%= number_with_html_delimiter(dossier.id) %>
             </p>
 
-            <%= status_badge_user(dossier, 'fr-mb-1w') %>
+            <div class="flex column align-start flex-gap-1">
+              <%= status_badge_user(dossier) %>
 
-            <% if dossier.pending_correction? %>
-              <br>
-              <%= pending_correction_badge(:for_user) %>
-            <% end %>
+              <% if dossier.pending_correction? %>
+                <%= pending_correction_badge(:for_user) %>
+              <% end %>
 
-            <% if dossier.pending_response? %>
-              <br>
-              <%= pending_response_badge(:for_user) %>
-            <% end %>
+              <% if dossier.pending_response? %>
+                <%= pending_response_badge(:for_user) %>
+              <% end %>
 
-            <% if (badge = expiration_badge(dossier)) %>
-              <br>
-              <%= badge %>
-            <% end %>
+              <% if (badge = expiration_badge(dossier)) %>
+                <%= badge %>
+              <% end %>
 
-            <% unless current_user.owns?(dossier) %>
-              <br>
-              <%= partage_badge %>
-            <% end %>
+              <%= partage_badge unless current_user.owns?(dossier) %>
+            </div>
           </div>
 
           <p class="fr-icon--sm fr-icon-user-line">
@@ -94,27 +90,23 @@
             <%= number_with_html_delimiter(dossier.id) %>
           </p>
 
-          <%= status_badge_user(dossier, 'fr-mb-1w') %>
+          <div class="flex column align-end flex-gap-1">
+            <%= status_badge_user(dossier) %>
 
-          <% if dossier.pending_correction? %>
-            <br>
-            <%= pending_correction_badge(:for_user) %>
-          <% end %>
+            <% if dossier.pending_correction? %>
+              <%= pending_correction_badge(:for_user) %>
+            <% end %>
 
-          <% if dossier.pending_response? %>
-            <br>
-            <%= pending_response_badge(:for_user) %>
-          <% end %>
+            <% if dossier.pending_response? %>
+              <%= pending_response_badge(:for_user) %>
+            <% end %>
 
-          <% if (badge = expiration_badge(dossier)) %>
-            <br>
-            <%= badge %>
-          <% end %>
+            <% if (badge = expiration_badge(dossier)) %>
+              <%= badge %>
+            <% end %>
 
-          <% unless current_user.owns?(dossier) %>
-            <br>
-            <%= partage_badge %>
-          <% end %>
+            <%= partage_badge unless current_user.owns?(dossier) %>
+          </div>
         </div>
       </div>
 
