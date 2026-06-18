@@ -52,6 +52,16 @@ describe Manager::ProceduresController, type: :controller do
       expect(response.body).to include('sub type de champ')
       expect(response.body).to include('Hidden At As Template')
     end
+
+    context 'when sorting a has_many sub-table by an association column' do
+      let(:procedure) { create(:procedure, administrateurs: [administrateur]) }
+
+      before do
+        get :show, params: { id: procedure.id, administrateurs: { order: 'procedures', direction: 'asc' } }
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+    end
   end
 
   describe '#discard' do
