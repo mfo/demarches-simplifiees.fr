@@ -23,6 +23,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
   let!(:procedure) do
     create(:procedure, :published,
       instructeurs: [instructeur],
+      instructeurs_can_edit_dossiers: true,
       types_de_champ_public: [{ type: 'text', libelle: 'Texte', stable_id: 99 }])
   end
 
@@ -94,13 +95,16 @@ describe 'Editing a dossier as an instructeur:', js: true do
     end
 
     scenario 'the instructeur can cancel without saving' do
-      visit edit_instructeur_dossier_path(procedure, dossier, statut: 'a-suivre')
+      visit instructeur_dossier_path(procedure, dossier, statut: 'a-suivre')
+      click_on 'Modifier le dossier'
 
       fill_in 'Texte', with: 'Valeur jamais enregistrée'
       blur
       wait_until { buffered_value(dossier, 99) == 'Valeur jamais enregistrée' }
 
-      accept_confirm { within('.dossier-edit-footer') { click_on 'Annuler' } }
+      # the footer cancel is a link, while the confirm modal (also inside the
+      # footer) has an "Annuler" button — target the link to avoid ambiguity
+      accept_confirm { within('.dossier-edit-footer') { click_link 'Annuler' } }
 
       expect(page).to have_current_path(instructeur_dossier_path(procedure, dossier, statut: 'a-suivre'))
       expect(main_value(dossier, 99)).not_to eq('Valeur jamais enregistrée')
@@ -189,6 +193,29 @@ describe 'Editing a dossier as an instructeur:', js: true do
 
   context 'when the instructeur is also the owner of the dossier' do
     let!(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure, user: instructeur.user) }
+
+    before { login_as(instructeur.user, scope: :user) }
+
+    scenario 'the edit feature is not available' do
+      visit instructeur_dossier_path(procedure, dossier, statut: 'a-suivre')
+
+      expect(page).to have_content(procedure.libelle)
+      expect(page).not_to have_link('Modifier le dossier')
+
+      # even visiting the edit url directly redirects back to the dossier
+      visit edit_instructeur_dossier_path(procedure, dossier, statut: 'a-suivre')
+      expect(page).to have_current_path(instructeur_dossier_path(procedure, dossier, statut: 'a-suivre'))
+    end
+  end
+
+  context 'when the procedure does not allow instructeurs to edit dossiers' do
+    let!(:procedure) do
+      create(:procedure, :published,
+        instructeurs: [instructeur],
+        instructeurs_can_edit_dossiers: false,
+        types_de_champ_public: [{ type: 'text', libelle: 'Texte', stable_id: 99 }])
+    end
+    let!(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 
     before { login_as(instructeur.user, scope: :user) }
 

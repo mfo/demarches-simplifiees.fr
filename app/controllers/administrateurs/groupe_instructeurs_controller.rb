@@ -399,6 +399,13 @@ module Administrateurs
       notice: "L’autogestion des instructeurs est #{procedure.instructeurs_self_management_enabled? ? "activée" : "désactivée"}."
     end
 
+    def update_instructeurs_can_edit_dossiers
+      procedure.update!(instructeurs_can_edit_dossiers_params)
+
+      redirect_to options_admin_procedure_groupe_instructeurs_path(procedure),
+      notice: "La modification des dossiers usagers par les instructeurs est #{procedure.instructeurs_can_edit_dossiers? ? "activée" : "désactivée"}."
+    end
+
     def import
       case validate_csv_upload(csv_file)
       when :not_csv
@@ -645,6 +652,10 @@ module Administrateurs
 
     def instructeurs_self_management_enabled_params
       params.require(:procedure).permit(:instructeurs_self_management_enabled)
+    end
+
+    def instructeurs_can_edit_dossiers_params
+      params.require(:procedure).permit(:instructeurs_can_edit_dossiers)
     end
 
     def hide_instructeurs_email_params

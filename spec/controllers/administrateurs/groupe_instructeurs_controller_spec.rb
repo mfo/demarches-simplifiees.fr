@@ -1115,6 +1115,49 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         end
       end
     end
+
+    context 'instructeurs_can_edit_dossiers toggle reflects the database value' do
+      let(:selector) { 'input[name="procedure[instructeurs_can_edit_dossiers]"]' }
+
+      context 'when instructeurs_can_edit_dossiers is true' do
+        let!(:procedure) { create(:procedure, administrateurs: [admin], instructeurs_can_edit_dossiers: true) }
+
+        before { get :options, params: { procedure_id: procedure.id } }
+
+        it 'renders the toggle as checked' do
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to have_selector("#{selector}[checked=checked]")
+        end
+      end
+
+      context 'when instructeurs_can_edit_dossiers is false' do
+        let!(:procedure) { create(:procedure, administrateurs: [admin], instructeurs_can_edit_dossiers: false) }
+
+        before { get :options, params: { procedure_id: procedure.id } }
+
+        it 'renders the toggle as unchecked' do
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to have_selector(selector)
+          expect(response.body).not_to have_selector("#{selector}[checked=checked]")
+        end
+      end
+    end
+  end
+
+  describe '#update_instructeurs_can_edit_dossiers' do
+    let!(:procedure) { create(:procedure, administrateurs: [admin], instructeurs_can_edit_dossiers: false) }
+
+    subject do
+      patch :update_instructeurs_can_edit_dossiers, params: {
+        procedure_id: procedure.id,
+        procedure: { instructeurs_can_edit_dossiers: '1' },
+      }
+    end
+
+    it 'enables the option on the procedure' do
+      expect { subject }.to change { procedure.reload.instructeurs_can_edit_dossiers? }.from(false).to(true)
+      expect(response).to redirect_to(options_admin_procedure_groupe_instructeurs_path(procedure))
+    end
   end
 
   describe '#create_simple_routing' do

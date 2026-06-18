@@ -1,5 +1,15 @@
 ---
 en:
+  title: Options
+  page_title: Options concerning instruction
+  self_management:
+    title: Instructor self-management
+    hint: Instructor self-management allows instructors to manage the list of instructors for the procedure themselves.
+    hint_recommendation: We recommend leaving instructor self-management enabled.
+  can_edit_dossiers:
+    title: Editing of user files by instructors
+    hint: This option allows instructors to edit user files themselves. Any change made by an instructor to a user's file will be logged and shown in the "Involved people" tab of the file. The user will also be notified of the details of the changes made.
+  routing: Routing
   routing_configuration_notice_1:
     Routing allows you to route files to different instructor groups.
   routing_not_configured:
@@ -11,11 +21,29 @@ en:
     at least one <strong>"routable field"</strong>, i.e., a field of the following type:
   routing_configuration_notice_3_html: |
     Add this field to the <a href="%{path}">form fields</a> edit page.
+  configure_routing: Configure routing
+  delete_routing: Delete routing
+  deleting: Deleting…
   delete_title: No files will be deleted. Instructor groups will be deleted. Only instructors in the "%{defaut_label}" group will remain assigned to the process.
   delete_confirmation: |
     Please note: All files will be moved to the "%{defaut_label}" group, and only instructors in this group will remain assigned to the process. Do you wish to continue?
-  routing_doc:
+  routing_configuration_title: Routing configuration
+  routing_configuration_subtitle: Choice of configuration type
+  configuration: Configuration
+  routing_type:
+    automatic:
+      label: Automatic
+      hint: automatically creates groups from the possible values of a form field
+    manual:
+      label: Manual
+      hint: you are free to create and configure groups using the "routable" fields of the user form
+  cancel: Cancel
+  continue: Continue
+  back_to_management: Back to the management screen
+  routage_doc:
     title: "Routing Documentation"
+    learn_more: "Learn more about"
+    link_text: "routing configuration"
   anonymisation_callout:
     title: Instructor Identity
     content_part_1: Any decision made by an administration includes the signature of its author as well as the first name, last name, and title of the person making the decision in legible characters.

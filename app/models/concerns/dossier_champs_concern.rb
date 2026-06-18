@@ -231,6 +231,7 @@ module DossierChampsConcern
 
   def can_update_as_instructeur?(user)
     return false unless en_construction?
+    return false unless procedure.instructeurs_can_edit_dossiers?
     return false unless user.instructeur?
     return false if can_update_as_user?(user)
     groupe_instructeur.instructeurs.include?(user.instructeur)
