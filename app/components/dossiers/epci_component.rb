@@ -33,5 +33,5 @@ class Dossiers::EpciComponent < ApplicationComponent
     end
   end
 
-  def source = tag.span("référentiels géographiques nationaux")
+  def source = tag.span(t(".source_referentials"))
 end
