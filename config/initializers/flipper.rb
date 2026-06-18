@@ -33,6 +33,7 @@ features = [
   :analyse_justificatif_domicile,
   :pro_connect_restricted,
   :quotient_familial_type_de_champ,
+  :pre_rempli_type_de_champ,
   :rdv,
   :sva,
   :switch_domain,
