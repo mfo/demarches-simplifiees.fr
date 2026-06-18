@@ -51,6 +51,9 @@ describe Manager::ProceduresController, type: :controller do
     it do
       expect(response.body).to include('sub type de champ')
       expect(response.body).to include('Hidden At As Template')
+      expect(response.body).to include('Pro Connect Restriction')
+      expect(response.body).to include('Pro Connect For Moral Procedure')
+      expect(response.body).to include('Robots Indexable')
     end
 
     context 'when sorting a has_many sub-table by an association column' do
