@@ -1,0 +1,13 @@
+fr:
+  caption: "Complétez le tableau de mapping ci-dessous en fonction des données que vous souhaitez exploiter"
+  property: "Propriété"
+  example_data: "Exemple de donnée"
+  data_type: "Type de donnée"
+  use_data_for_prefill_html: "Utiliser la donnée<br>pour préremplir<br>un champ du<br>formulaire"
+  label_for_display_html: "Libellé de la donnée récupérée<br>(pour afficher à l’usager et/ou l’instructeur)"
+  use_for_prefill: "Utiliser %{property} pour préremplir le formulaire"
+  confirm_reset_mapping: "Êtes-vous sûr de vouloir réinitialiser le mapping ?"
+  reset_mapping: "Réinitialiser le mapping"
+  cancel: "Annuler"
+  previous_step: "Étape précédente"
+  next_step: "Étape suivante"

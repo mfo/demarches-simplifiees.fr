@@ -1,0 +1,10 @@
+fr:
+  caption: "Indiquez les données issues du référentiel que vous souhaitez voir affichées pour l’usager et/ou l’instructeur"
+  property: "Propriété"
+  example_data: "Exemple de donnée"
+  data_type: "Type de donnée"
+  label: "Libellé de la donnée récupérée"
+  display_usager: "Afficher à l’usager"
+  display_instructeur: "Afficher à l’instructeur"
+  confirm_reset_display: "Êtes-vous sûr de vouloir réinitialiser l’affichage ?"
+  reset_display: "Réinitialiser l’affichage"

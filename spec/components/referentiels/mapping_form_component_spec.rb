@@ -24,13 +24,12 @@ RSpec.describe Referentiels::MappingFormComponent, type: :component do
         expect(page).to have_selector("th", text: "Propriété")
         expect(page).to have_selector("th", text: "Exemple de donnée")
         expect(page).to have_selector("th", text: "Type de donnée")
-        expect(page).to have_selector("th", text: "Utiliser la donnée\n\npour préremplir\n\nun champ du\n\nformulaire")
-        expect(page).to have_selector("th", text: "Libellé de la donnée récupérée\n\n(pour afficher à l’usager et/ou l’instructeur)")
+        expect(page).to have_selector("th", text: "Utiliser la donnéepour préremplirun champ duformulaire")
+        expect(page).to have_selector("th", text: "Libellé de la donnée récupérée(pour afficher à l’usager et/ou l’instructeur)")
 
         # tbody
-        jsonpaths = page.all("tr td:nth-child(1)").map(&:text).map(&:strip)
         ["$.point.type", "$.point.coordinates", "$.shape.type"].each do |sample|
-          expect(jsonpaths).to include("Utiliser #{sample} pour préremplir le formulaire\n#{sample}")
+          expect(page).to have_selector("tr td:nth-child(1)", text: sample)
         end
         values = page.all("tr td:nth-child(2)").map(&:text).map(&:strip)
         ["Point", "[-0.570505392116188, 44.841034137099996]", "MultiPolygon"].each do |sample|
