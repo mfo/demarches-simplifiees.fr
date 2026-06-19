@@ -36,20 +36,23 @@ class Attachment::FileInputComponent < ApplicationComponent
   end
 
   def file_field_options
+    data = {
+      auto_attach_url:,
+      turbo_force: :server,
+      'enable-submit-if-uploaded-target': 'input',
+    }
+    data[:max_file_size] = validation.max_file_size if validation.max_file_size.present?
+    data[:max] = @max if as_multiple? && @max
+    data[:direct_upload_url] = direct_upload_url if direct_upload
+
     options = {
       class: class_names(
         "fr-upload attachment-input": true,
         "#{attachment_input_class}": true,
         "sr-only": @hidden
       ),
-      direct_upload:,
       id: final_input_id,
-      data: {
-        auto_attach_url:,
-        turbo_force: :server,
-        'enable-submit-if-uploaded-target': 'input',
-      }.merge(validation.max_file_size.present? ? { max_file_size: validation.max_file_size } : {})
-          .merge(as_multiple? && @max ? { max: @max } : {}),
+      data:,
     }
 
     describedby = []
@@ -73,6 +76,10 @@ class Attachment::FileInputComponent < ApplicationComponent
     return helpers.auto_attach_url(champ) if champ.present?
 
     nil
+  end
+
+  def direct_upload_url
+    helpers.rails_direct_uploads_url(procedure_id: champ&.procedure&.id)
   end
 
   def field_name_or_default
