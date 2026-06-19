@@ -40,6 +40,7 @@ features = [
   :llm_nightly_improve_procedure,
   :ami_notifications,
   :api_entreprise_tva_job,
+  :pdf_variant,
 ]
 
 def database_exists?
