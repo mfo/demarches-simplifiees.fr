@@ -97,6 +97,7 @@ fr:
               empty_csv: 'doit comporter au moins un fichier csv'
               inconsistent_header_section: "%{custom_message}"
               missing_libelle:  "Le libellé du champ en position %{position} doit être rempli"
+              missing_libelle_in_repetition: "Le libellé du champ en position %{position}, dans le bloc répétable en position %{parent_position}, doit être rempli"
               expression_reguliere_invalid: "est invalide, veuillez la corriger"
               referentiel_not_ready: "n’est pas configuré"
             draft_types_de_champ_private:
@@ -107,6 +108,7 @@ fr:
               empty_csv: 'doit comporter au moins un fichier csv'
               inconsistent_header_section: "%{custom_message}"
               missing_libelle:  "Le libellé du champ en position %{position} doit être rempli"
+              missing_libelle_in_repetition: "Le libellé du champ en position %{position}, dans le bloc répétable en position %{parent_position}, doit être rempli"
               expression_reguliere_invalid: "est invalide, veuillez la corriger"
               referentiel_not_ready: "n’est pas configuré"
             attestation_template:

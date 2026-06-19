@@ -90,6 +90,7 @@ en:
               empty_csv: 'requires at least one csv file'
               inconsistent_header_section: "%{custom_message}"
               missing_libelle: "field label in position %{position} must be filled"
+              missing_libelle_in_repetition: "field label in position %{position}, within the repetition in position %{parent_position}, must be filled"
               expression_reguliere_invalid: "is invalid"
               referentiel_not_ready: "is not configured"
             draft_types_de_champ_private:
@@ -100,6 +101,7 @@ en:
               empty_csv: 'requires at least one csv file'
               inconsistent_header_section: "%{custom_message}"
               missing_libelle: "field label in position %{position} must be filled"
+              missing_libelle_in_repetition: "field label in position %{position}, within the repetition in position %{parent_position}, must be filled"
               expression_reguliere_invalid: "is invalid"
               referentiel_not_ready: "is not configured"
             attestation_template:
