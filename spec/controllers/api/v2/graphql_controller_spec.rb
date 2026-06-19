@@ -1288,6 +1288,15 @@ describe API::V2::GraphqlController do
           expect(data[:signedBlobId]).not_to be_nil
         end
 
+        context "when the s3_storage feature is enabled on the procedure" do
+          before { Flipper.enable(:s3_storage, procedure) }
+
+          it "creates the blob on the amazon service" do
+            blob = ActiveStorage::Blob.find(direct_upload_data[:blobId])
+            expect(blob.service_name).to eq("amazon")
+          end
+        end
+
         it "wrong hash error" do
           blob = ActiveStorage::Blob.find direct_upload_data[:blobId]
           blob.service.upload blob.key, StringIO.new('toto')

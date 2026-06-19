@@ -26,7 +26,8 @@ module Mutations
         filename: filename,
         byte_size: byte_size,
         checksum: checksum,
-        content_type: content_type
+        content_type: content_type,
+        procedure_id: dossier.procedure.id
       )
 
       {
