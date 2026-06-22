@@ -33,32 +33,28 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
 
   def champ_blank?(champ) = champ.piece_justificative_file.blank?
 
-  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
+  def canonical_column(procedure_id:, displayable: true, prefix: nil)
     if titre_identite?
-      [
-        Columns::TitreIdentiteColumn.new(
-          procedure_id:,
-          stable_id:,
-          tdc_type: type_champ,
-          label: "#{libelle_with_prefix(prefix)} – filled",
-          type: :text,
-          displayable: true,
-          mandatory: mandatory?
-        ),
-      ]
+      Columns::TitreIdentiteColumn.new(
+        procedure_id:,
+        stable_id:,
+        tdc_type: type_champ,
+        label: "#{libelle_with_prefix(prefix)} – filled",
+        type: :text,
+        displayable: true,
+        mandatory: mandatory?
+      )
     else
-      [
-        Columns::AttachedManyColumn.new(
-          procedure_id:,
-          stable_id:,
-          tdc_type: type_champ,
-          label: libelle_with_prefix(prefix),
-          type: TypeDeChamp.column_type(type_champ),
-          displayable: false,
-          filterable: false,
-          mandatory: mandatory?
-        ),
-      ]
+      Columns::AttachedManyColumn.new(
+        procedure_id:,
+        stable_id:,
+        tdc_type: type_champ,
+        label: libelle_with_prefix(prefix),
+        type: TypeDeChamp.column_type(type_champ),
+        displayable: false,
+        filterable: false,
+        mandatory: mandatory?
+      )
     end
   end
 

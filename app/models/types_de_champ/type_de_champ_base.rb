@@ -95,27 +95,23 @@ class TypesDeChamp::TypeDeChampBase
   def champ_blank?(champ) = champ.value.blank?
   def champ_blank_or_invalid?(champ) = champ_blank?(champ)
 
-  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
-    if fillable?
-      [
-        Columns::ChampColumn.new(
-          procedure_id:,
-          stable_id:,
-          tdc_type: type_champ,
-          label: libelle_with_prefix(prefix),
-          type: TypeDeChamp.column_type(type_champ),
-          displayable:,
-          options_for_select:,
-          mandatory: mandatory?
-        ),
-      ]
-    else
-      []
-    end
+  def canonical_column(procedure_id:, displayable: true, prefix: nil)
+    return nil unless fillable?
+
+    Columns::ChampColumn.new(
+      procedure_id:,
+      stable_id:,
+      tdc_type: type_champ,
+      label: libelle_with_prefix(prefix),
+      type: TypeDeChamp.column_type(type_champ),
+      displayable:,
+      options_for_select:,
+      mandatory: mandatory?
+    )
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)
-    canonical_columns(procedure_id:, displayable:, prefix:)
+    [canonical_column(procedure_id:, displayable:, prefix:)].compact
   end
 
   def info_columns(procedure:)

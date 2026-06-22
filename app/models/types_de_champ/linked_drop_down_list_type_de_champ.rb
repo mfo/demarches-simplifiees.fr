@@ -66,19 +66,17 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
       (has_secondary_options_for_primary?(champ) && secondary_value(champ).blank?)
   end
 
-  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
-    [
-      Columns::LinkedDropDownColumn.new(
-        procedure_id:,
-        label: libelle_with_prefix(prefix),
-        stable_id:,
-        tdc_type: type_champ,
-        type: :text,
-        path: :value,
-        displayable:,
-        mandatory: mandatory?
-      ),
-    ]
+  def canonical_column(procedure_id:, displayable: true, prefix: nil)
+    Columns::LinkedDropDownColumn.new(
+      procedure_id:,
+      label: libelle_with_prefix(prefix),
+      stable_id:,
+      tdc_type: type_champ,
+      type: :text,
+      path: :value,
+      displayable:,
+      mandatory: mandatory?
+    )
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)

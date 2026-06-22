@@ -46,18 +46,16 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
-    [
-      Columns::AddressColumn.new(
-        procedure_id:,
-        stable_id:,
-        tdc_type: type_champ,
-        label: libelle_with_prefix(prefix),
-        type: TypeDeChamp.column_type(type_champ),
-        displayable:,
-        mandatory: mandatory?
-      ),
-    ]
+  def canonical_column(procedure_id:, displayable: true, prefix: nil)
+    Columns::AddressColumn.new(
+      procedure_id:,
+      stable_id:,
+      tdc_type: type_champ,
+      label: libelle_with_prefix(prefix),
+      type: TypeDeChamp.column_type(type_champ),
+      displayable:,
+      mandatory: mandatory?
+    )
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)
