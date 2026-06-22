@@ -27,6 +27,7 @@ module Manager
         page: page,
         show_search_bar: false,
         search_term: nil,
+        filters: {},
       }
     end
   end
