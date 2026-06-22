@@ -25,7 +25,7 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
     ActiveStorage::Filename.new(str.delete('[]*?')).sanitized
   end
 
-  def value_columns(procedure_id:, displayable: true, prefix: nil)
+  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
     []
   end
 

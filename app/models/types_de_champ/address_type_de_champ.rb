@@ -46,7 +46,7 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def value_columns(procedure_id:, displayable: true, prefix: nil)
+  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
     [
       Columns::AddressColumn.new(
         procedure_id:,

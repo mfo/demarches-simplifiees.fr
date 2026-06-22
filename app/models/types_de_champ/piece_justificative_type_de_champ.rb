@@ -33,7 +33,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
 
   def champ_blank?(champ) = champ.piece_justificative_file.blank?
 
-  def value_columns(procedure_id:, displayable: true, prefix: nil)
+  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
     if titre_identite?
       [
         Columns::TitreIdentiteColumn.new(

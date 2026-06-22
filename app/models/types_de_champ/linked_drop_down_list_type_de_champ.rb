@@ -66,7 +66,7 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
       (has_secondary_options_for_primary?(champ) && secondary_value(champ).blank?)
   end
 
-  def value_columns(procedure_id:, displayable: true, prefix: nil)
+  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
     [
       Columns::LinkedDropDownColumn.new(
         procedure_id:,

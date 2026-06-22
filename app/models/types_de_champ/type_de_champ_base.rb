@@ -95,7 +95,7 @@ class TypesDeChamp::TypeDeChampBase
   def champ_blank?(champ) = champ.value.blank?
   def champ_blank_or_invalid?(champ) = champ_blank?(champ)
 
-  def value_columns(procedure_id:, displayable: true, prefix: nil)
+  def canonical_columns(procedure_id:, displayable: true, prefix: nil)
     if fillable?
       [
         Columns::ChampColumn.new(
@@ -115,7 +115,7 @@ class TypesDeChamp::TypeDeChampBase
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)
-    value_columns(procedure_id:, displayable:, prefix:)
+    canonical_columns(procedure_id:, displayable:, prefix:)
   end
 
   def info_columns(procedure:)
