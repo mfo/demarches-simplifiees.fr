@@ -3,14 +3,14 @@
     <header class="first-header">
       <div class="left">
         <%- if @attestation_template.official_layout? -%>
-          <%= image_tag('centered_marianne.svg', alt: '', class: 'marianne') %>
+          <%= image_tag('centered_marianne.svg', alt: 'République française', class: 'marianne') %>
           <div class="bloc-marque">
             <%= simple_format @attestation_template.label_logo.presence || "INTITULE de\nVOTRE INSTITUTION", class: "intitule" %>
-            <%= image_tag('liberte2.svg', alt: '', class: 'devise') %>
+            <%= image_tag('liberte2.svg', alt: 'Liberté Égalité Fraternité', class: 'devise') %>
           </div>
         <%- elsif @attestation_template.logo.present? -%>
           <div class="bloc-marque logo-free-layout">
-            <%= image_tag(@attestation_template.logo_url) %>
+            <%= image_tag(@attestation_template.logo_url, alt: @attestation_template.label_logo.presence || "Logo de l’administration") %>
           </div>
         <%- end -%>
       </div>
@@ -18,7 +18,7 @@
       <div class="right">
         <%- if @attestation_template.official_layout? && @attestation_template.logo.present? -%>
           <div class="logo-co-emetteur">
-            <%= image_tag(@attestation_template.logo_url) %>
+            <%= image_tag(@attestation_template.logo_url, alt: @attestation_template.label_logo.presence || "Logo de l’administration") %>
           </div>
         <%- end -%>
 
@@ -37,7 +37,7 @@
 
       <%- if @signature&.attached? -%>
         <div class="signature">
-          <%= image_tag(Rails.application.routes.url_helpers.url_for(@signature)) %>
+          <%= image_tag(Rails.application.routes.url_helpers.url_for(@signature), alt: "Signature") %>
         </div>
       <%- end -%>
     </div>
