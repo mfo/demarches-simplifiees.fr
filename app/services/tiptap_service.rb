@@ -60,6 +60,19 @@ class TiptapService
     content.map { node_to_html(_1, substitutions, level) }.join
   end
 
+  def list_item_body(content, substitutions, level)
+    content.map do |node|
+      case node
+      in type: 'paragraph', content: paragraph_content
+        children(paragraph_content, substitutions, level + 1)
+      in type: 'paragraph' # empty paragraph
+        ''
+      else
+        node_to_html(node, substitutions, level)
+      end
+    end.join
+  end
+
   def node_to_html(node, substitutions, level)
     if level == 0 && !@body_started && node[:type].in?(['paragraph', 'heading']) && node.key?(:content)
       @body_started = true
@@ -84,7 +97,7 @@ class TiptapService
     in type: 'orderedList', content:, **rest
       "<ol#{class_list(rest[:attrs])}>#{children(content, substitutions, level + 1)}</ol>"
     in type: 'listItem', content:
-      "<li>#{children(content, substitutions, level + 1)}</li>"
+      "<li>#{list_item_body(content, substitutions, level + 1)}</li>"
     in type: 'descriptionList', content:
       "<dl>#{children(content, substitutions, level + 1)}</dl>"
     in type: 'descriptionTerm', content:, **rest
