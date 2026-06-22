@@ -98,7 +98,7 @@ class Dsfr::InputComponent < ApplicationComponent
   end
 
   def aria_label_show_confirmation
-    t(".show_#{attribute}.aria_label")
+    t(".show_#{attribute}.aria_label", default: t('.show.aria_label'))
   end
 
   def email?

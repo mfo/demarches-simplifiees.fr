@@ -1,5 +1,11 @@
 ---
 fr:
+  show:
+    aria_label: "Afficher"
+  show_api_entreprise_token:
+    aria_label: "Afficher le jeton API Entreprise"
+  show_api_particulier_token:
+    aria_label: "Afficher le jeton API Particulier"
   show_password:
     aria_label: "Afficher le mot de passe"
     label: "Afficher"
