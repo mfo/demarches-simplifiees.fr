@@ -524,7 +524,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_22_131426) do
     t.bigint "dossier_transfer_id"
     t.bigint "editing_fork_origin_id"
     t.datetime "en_construction_at", precision: nil
-    t.datetime "en_construction_close_to_expiration_notice_sent_at", precision: nil
     t.datetime "en_instruction_at", precision: nil
     t.datetime "expired_at"
     t.boolean "for_procedure_preview", default: false, null: false
