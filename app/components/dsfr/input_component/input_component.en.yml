@@ -1,5 +1,11 @@
 ---
 en:
+  show:
+    aria_label: "Show"
+  show_api_entreprise_token:
+    aria_label: "Show the API Entreprise token"
+  show_api_particulier_token:
+    aria_label: "Show the API Particulier token"
   show_password:
     aria_label: "Show password"
     label: "Show"
