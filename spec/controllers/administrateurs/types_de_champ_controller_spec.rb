@@ -26,6 +26,16 @@ describe Administrateurs::TypesDeChampController, type: :controller do
 
   before { sign_in(procedure.administrateurs.first.user) }
 
+  describe 'unauthenticated access' do
+    before { sign_out(procedure.administrateurs.first.user) }
+
+    it 'redirects to sign in instead of raising' do
+      get :new_simplify, params: { procedure_id: procedure.id }
+
+      expect(response).to redirect_to(new_user_session_path)
+    end
+  end
+
   describe '#create' do
     let(:params) { default_params }
 
