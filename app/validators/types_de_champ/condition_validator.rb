@@ -28,9 +28,10 @@ class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
     end
   end
 
-  # find children in repetitions
+  # find children in repetitions, keeping the repetition itself so its own
+  # condition is validated too
   def tdcs_with_children(procedure, tdcs)
     tdcs.to_a
-      .flat_map { _1.repetition? ? procedure.draft_revision.children_of(_1) : _1 }
+      .flat_map { _1.repetition? ? [_1, *procedure.draft_revision.children_of(_1)] : _1 }
   end
 end
