@@ -282,6 +282,14 @@ RSpec.describe DossierHelper, type: :helper do
       it { is_expected.to have_css(".fr-badge--warning", text: "Expire dans 5 j.") }
     end
 
+    context "when dossier expires tomorrow" do
+      let(:dossier) { create(:dossier) }
+
+      before { dossier.update_column(:expired_at, 1.day.from_now.change(hour: 23)) }
+
+      it { is_expected.to have_css(".fr-badge--warning", text: "Expire demain") }
+    end
+
     context "when dossier expires today" do
       let(:dossier) { create(:dossier) }
 
