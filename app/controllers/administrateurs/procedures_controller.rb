@@ -630,7 +630,6 @@ module Administrateurs
         :duree_conservation_dossiers_dans_ds,
         :lien_dpo,
         :opendata,
-        :procedure_expires_when_termine_enabled,
         :rdv_enabled,
         :pro_connect_restriction,
         :robots_indexable,

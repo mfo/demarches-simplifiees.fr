@@ -588,7 +588,7 @@ describe Administrateurs::ProceduresController, type: :controller do
   end
 
   describe 'PUT #update' do
-    let!(:procedure) { create(:procedure, :with_type_de_champ, administrateur: admin, procedure_expires_when_termine_enabled: false) }
+    let!(:procedure) { create(:procedure, :with_type_de_champ, administrateur: admin) }
 
     context 'when administrateur is not connected' do
       before do
@@ -602,7 +602,7 @@ describe Administrateurs::ProceduresController, type: :controller do
 
     context 'when administrateur is connected' do
       def update_procedure
-        put :update, params: { id: procedure.id, procedure: procedure_params.merge(procedure_params_not_creatable).merge(procedure_expires_when_termine_enabled: true) }
+        put :update, params: { id: procedure.id, procedure: procedure_params.merge(procedure_params_not_creatable) }
         procedure.reload
       end
 
@@ -611,8 +611,6 @@ describe Administrateurs::ProceduresController, type: :controller do
         let(:description) { 'blabla' }
         let(:organisation) { 'plop' }
         let(:duree_conservation_dossiers_dans_ds) { 7 }
-        let(:procedure_expires_when_termine_enabled) { true }
-
         before { update_procedure }
 
         describe 'procedure attributs in database' do
@@ -623,7 +621,6 @@ describe Administrateurs::ProceduresController, type: :controller do
             expect(subject.description).to eq(description)
             expect(subject.organisation).to eq(organisation)
             expect(subject.duree_conservation_dossiers_dans_ds).to eq(duree_conservation_dossiers_dans_ds)
-            expect(subject.procedure_expires_when_termine_enabled).to eq(true)
             expect(subject.lien_site_web).to eq(lien_site_web)
             expect(subject.robots_indexable?).to eq(false)
           end

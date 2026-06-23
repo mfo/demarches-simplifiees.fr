@@ -7,12 +7,6 @@ class AdministrateurMailerPreview < ActionMailer::Preview
     AdministrateurMailer.activate_before_expiration(user, "a4d4e4f4b4d445")
   end
 
-  def notify_procedure_expires_when_termine_forced
-    email = Administrateur.first.email
-    procedure = Procedure.first
-    AdministrateurMailer.notify_procedure_expires_when_termine_forced(email, procedure)
-  end
-
   def api_entreprise_token_expiration
     administrateur = Administrateur.first
     procedure = Procedure.kept.where.not(api_entreprise_token: [nil, '']).first || Procedure.first

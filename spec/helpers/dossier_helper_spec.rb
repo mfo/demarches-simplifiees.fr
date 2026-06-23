@@ -314,13 +314,13 @@ RSpec.describe DossierHelper, type: :helper do
       it { is_expected.to be_nil }
     end
 
-    context "when dossier is termine without procedure_expires_when_termine_enabled" do
-      let(:procedure) { create(:procedure, :published, procedure_expires_when_termine_enabled: false) }
+    context "when dossier is termine" do
+      let(:procedure) { create(:procedure, :published) }
       let(:dossier) { create(:dossier, :accepte, procedure:) }
 
       before { dossier.update_column(:expired_at, 5.days.from_now) }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to have_css(".fr-badge--warning", text: "Expire dans 5 j.") }
     end
   end
 

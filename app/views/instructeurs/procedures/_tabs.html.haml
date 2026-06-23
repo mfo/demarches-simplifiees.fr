@@ -23,12 +23,11 @@
       active: statut == 'tous',
       badge: number_with_html_delimiter(tous_count))
 
-    - if procedure.procedure_expires_when_termine_enabled
-      = tab_item(i18n_tab_from_status('expirant'),
-        instructeur_procedure_path(procedure, statut: 'expirant'),
-        active: statut == 'expirant',
-        small_counter: number_with_html_delimiter(expirant_count),
-        html_class: 'fr-icon-timer-line fr-tabs__tab--icon-left')
+    = tab_item(i18n_tab_from_status('expirant'),
+      instructeur_procedure_path(procedure, statut: 'expirant'),
+      active: statut == 'expirant',
+      small_counter: number_with_html_delimiter(expirant_count),
+      html_class: 'fr-icon-timer-line fr-tabs__tab--icon-left')
 
     = tab_item(i18n_tab_from_status('archives'),
       instructeur_procedure_path(procedure, statut: 'archives'),

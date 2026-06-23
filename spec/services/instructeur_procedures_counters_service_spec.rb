@@ -7,16 +7,16 @@ describe InstructeursProceduresCountersService do
     subject { described_class.new(instructeur:, procedures: instructeur.procedures.kept).call }
 
     context "with dossiers" do
-      let(:procedure) { create(:procedure, :published, :expirable) }
+      let(:procedure) { create(:procedure, :published) }
 
       before do
         instructeur.groupe_instructeurs << procedure.defaut_groupe_instructeur
       end
 
       context "with not draft state on multiple procedures" do
-        let(:procedure2) { create(:procedure, :published, :expirable) }
-        let(:procedure3) { create(:procedure, :closed, :expirable) }
-        let(:procedure4) { create(:procedure, :closed, :expirable) }
+        let(:procedure2) { create(:procedure, :published) }
+        let(:procedure3) { create(:procedure, :closed) }
+        let(:procedure4) { create(:procedure, :closed) }
 
         before do
           create_list(:dossier, 2, procedure:, state: Dossier.states.fetch(:en_construction))
@@ -78,7 +78,7 @@ describe InstructeursProceduresCountersService do
       end
 
       context 'with not draft state on discarded procedure' do
-        let(:discarded_procedure) { create(:procedure, :discarded, :expirable) }
+        let(:discarded_procedure) { create(:procedure, :discarded) }
         let(:state) { Dossier.states.fetch(:en_construction) }
 
         before do

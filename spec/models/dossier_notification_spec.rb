@@ -235,7 +235,7 @@ RSpec.describe DossierNotification, type: :model do
 
     context "when notification_type is dossier_expirant" do
       let(:notification_type) { :dossier_expirant }
-      let(:procedure) { create(:procedure, :published, procedure_expires_when_termine_enabled: true) }
+      let(:procedure) { create(:procedure, :published) }
       let!(:dossier_to_notify) { create(:dossier, :accepte, procedure:) }
       let!(:dossier_en_construction) { create(:dossier, :en_construction, procedure:) }
 

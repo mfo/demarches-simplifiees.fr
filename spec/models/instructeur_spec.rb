@@ -446,7 +446,7 @@ describe Instructeur, type: :model do
   describe "#dossiers_count_summary" do
     let(:instructeur_2) { create(:instructeur) }
     let(:instructeur_3) { create(:instructeur) }
-    let(:procedure) { create(:procedure, instructeurs: [instructeur_2, instructeur_3], procedure_expires_when_termine_enabled: true) }
+    let(:procedure) { create(:procedure, instructeurs: [instructeur_2, instructeur_3]) }
     let(:gi_1) { procedure.defaut_groupe_instructeur }
     let(:gi_2) { create(:groupe_instructeur, label: '2', procedure: procedure) }
     let(:gi_3) { create(:groupe_instructeur, label: '3', procedure: procedure) }
