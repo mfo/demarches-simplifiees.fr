@@ -5,7 +5,7 @@
 </header>
 
 <section class="main-content__body">
-  <p><%= t('.warning_html', email: @super_admin.email).html_safe %></p>
+  <p><%= t('.warning_html', email: @super_admin.email) %></p>
 
   <%= form_tag reset_otp_manager_super_admin_path(@super_admin), method: :post, class: "form" do %>
     <% if SUPER_ADMIN_OTP_ENABLED %>
