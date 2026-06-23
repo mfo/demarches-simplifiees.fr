@@ -123,19 +123,37 @@ class DossierNotification < ApplicationRecord
   end
 
   def self.refresh_notifications_new_instructeur_for_dossiers(groupe_instructeur, instructeur)
-    instructeur_preferences = instructeur_preferences(instructeur, groupe_instructeur.procedure)
+    refresh_notifications_new_instructeurs_for_groupe(groupe_instructeur, [instructeur])
+  end
 
-    notification_types_to_refresh = notification_types.keys.map(&:to_sym).filter do |notification_type|
-      instructeur_preferences[notification_type] == 'all'
-    end
-
-    notification_types_to_refresh.concat(NON_CUSTOMISABLE_TYPE)
+  def self.refresh_notifications_new_instructeurs_for_groupe(groupe_instructeur, instructeurs)
+    return if instructeurs.empty?
 
     dossiers = groupe_instructeur.dossiers.state_not_brouillon
+    return if dossiers.blank?
 
-    notification_types_to_refresh.each do |notification_type|
-      dossiers_to_notify = dossiers_to_notify(dossiers, notification_type, instructeur.id)
-      create_notifications_by_type_for_instructeur_dossiers(dossiers_to_notify, notification_type, instructeur.id) if dossiers_to_notify.any?
+    instructeur_ids = instructeurs.map(&:id)
+    preferences_by_id = InstructeursProcedure
+      .where(instructeur_id: instructeur_ids, procedure_id: groupe_instructeur.procedure_id)
+      .index_by(&:instructeur_id)
+
+    cached_dossiers_to_notify = {}
+    all_type_keys = notification_types.keys.map(&:to_sym)
+
+    instructeurs.each do |instructeur|
+      prefs = preferences_by_id[instructeur.id]&.notification_preferences || InstructeursProcedure::DEFAULT_NOTIFICATIONS_PREFERENCES
+
+      types_to_refresh = all_type_keys.filter { prefs[_1] == 'all' }
+      types_to_refresh.concat(NON_CUSTOMISABLE_TYPE)
+
+      types_to_refresh.each do |type|
+        result = if type == :message
+          dossiers_to_notify(dossiers, type, instructeur.id)
+        else
+          cached_dossiers_to_notify[type] ||= dossiers_to_notify(dossiers, type, instructeur.id).load
+        end
+        create_notifications_by_type_for_instructeur_dossiers(result, type, instructeur.id) if result.any?
+      end
     end
   end
 
