@@ -5,13 +5,14 @@ class APIParticulier::API
 
   TIMEOUT = 20
 
-  def initialize(procedure)
+  def initialize(procedure, type_champ)
     @procedure = procedure
     @token = procedure.api_particulier_token
+    @type_champ = type_champ
   end
 
   def call_with_fci(fci)
-    url = [API_PARTICULIER_URL, self.class::RESSOURCE].join("/")
+    url = [API_PARTICULIER_URL, resource].join("/")
 
     params = build_params(fci)
 
@@ -19,6 +20,10 @@ class APIParticulier::API
   end
 
   private
+
+  def resource
+    TypesDeChamp::FranceConnectTypeDeChamp.config_for(@type_champ)[:resource]
+  end
 
   def build_params(fci)
     {
@@ -67,6 +72,10 @@ class APIParticulier::API
   end
 
   def schema
-    JSONSchemer.schema(Rails.root.join(self.class::SCHEMA))
+    JSONSchemer.schema(
+      Rails.root.join(
+        TypesDeChamp::FranceConnectTypeDeChamp.config_for(@type_champ)[:schema]
+      )
+    )
   end
 end

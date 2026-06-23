@@ -3,20 +3,28 @@
 class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
   REGISTRY = {
     quotient_familial: {
+      resource: 'v3/dss/quotient_familial/identite',
+      schema: "app/schemas/quotient-familial.json",
       columns: Columns::FranceConnectChampColumn::QUOTIENT_FAMILIAL_COLUMNS,
     },
     etudiant_boursier: {
+      resource: 'v4/cnous/etudiant_boursier/identite',
+      schema: "app/schemas/etudiant-boursier.json",
       columns: Columns::FranceConnectChampColumn::ETUDIANT_BOURSIER_COLUMNS,
     },
     aah: {
+      resource: 'v3/dss/allocation_adulte_handicape/identite',
+      schema: "app/schemas/aah.json",
       columns: Columns::FranceConnectChampColumn::AAH_COLUMNS,
     },
     aeeh: {
+      resource: 'v3/dss/allocation_enfant_handicape/identite',
+      schema: "app/schemas/aeeh.json",
       columns: Columns::FranceConnectChampColumn::AEEH_COLUMNS,
     },
-  }
+  }.freeze
 
-  def config
+  def self.config_for(type_champ)
     REGISTRY.fetch(type_champ.to_sym)
   end
 
@@ -38,7 +46,7 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)
-    config[:columns].map do |label, jsonpath, type|
+    TypesDeChamp::FranceConnectTypeDeChamp.config_for(type_champ)[:columns].map do |label, jsonpath, type|
       Columns::FranceConnectChampColumn.new(
         procedure_id:,
         stable_id:,

@@ -25,7 +25,7 @@ class Champs::FranceConnectChamp < Champ
 
   def fetch_external_data
     fci = dossier.user.france_connect_informations.first
-    api = api_class.new(procedure)
+    api = APIParticulier::API.new(procedure, type_champ)
     api.call_with_fci(fci)
   end
 
@@ -54,10 +54,6 @@ class Champs::FranceConnectChamp < Champ
   end
 
   private
-
-  def api_class
-    "APIParticulier::#{self.type_champ.camelcase}Adapter".constantize
-  end
 
   def extract_value_json(data:)= data
 
