@@ -1,6 +1,8 @@
 ---
 en:
   explanation: 'Based on %{percentile}% during the last %{nb_recent_dossiers} days, the instruction time is :'
-  fast_html: '<strong>In the best case scenario</strong> : <strong>%{estimation}</strong>.'
-  mean_html: 'If your file <strong>requires minor adjustments</strong>, the instruction time is  <strong>%{estimation}</strong>.'
-  slow_html: 'If you file <strong>is missing some information</strong> which requires a lot of exchanges with the administration, the instruction time is around <strong>%{estimation}</strong>.'
+  fast_html: '<strong>In the best case scenario</strong>, the instruction time is <strong>%{estimation}</strong>.'
+  mean_html: '<strong>For files requiring minor adjustments</strong>, the instruction time is around <strong>%{estimation}</strong>.'
+  slow_html: 'If your file <strong>is missing some information</strong> which requires a lot of exchanges with the administration, the instruction time is around <strong>%{estimation}</strong>.'
+  placeholder_delay: "[delay indication]"
+  placeholder_delay_mean: "[average delay indication]"

@@ -4,6 +4,8 @@ describe 'shared/_procedure_description', type: :view do
   let(:estimated_duration_visible) { true }
   let(:procedure) { create(:procedure, :published, :with_service, estimated_duration_visible:) }
 
+  before { allow(view).to receive(:current_administrateur).and_return(nil) }
+
   subject { render partial: 'shared/procedure_description', locals: { procedure: procedure } }
 
   it 'renders the view' do
@@ -57,7 +59,7 @@ describe 'shared/_procedure_description', type: :view do
     it 'shows a usual traitement text' do
       subject
       expect(rendered).to have_text("Quels sont les délais d’instruction pour cette démarche ?")
-      expect(rendered).to have_text("Dans le meilleur des cas, le délai d’instruction est : 1 jour.")
+      expect(rendered).to have_text("Dans le meilleur des cas, le délai d’instruction est de 1 jour.")
     end
   end
 

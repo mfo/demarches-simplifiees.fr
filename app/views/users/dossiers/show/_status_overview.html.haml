@@ -35,7 +35,7 @@
           %p{ role: 'status' }
             = t('views.users.dossiers.show.status_overview.en_construction_html')
 
-          = render Procedure::EstimatedDelayComponent.new(procedure: dossier.procedure)
+          = render Procedure::EstimatedDelayComponent.new(procedure: dossier.procedure, fallback_to_placeholder: current_administrateur&.in?(dossier.procedure.administrateurs))
           %p
             = t('views.users.dossiers.show.status_overview.use_mailbox_for_questions_html', mailbox_url: messagerie_dossier_url(dossier))
 
@@ -57,7 +57,7 @@
                 %p
                   = t('views.users.dossiers.show.status_overview.delay_text_sva_svr', date: l(dossier.sva_svr_decision_on, format: :long))
 
-          = render Procedure::EstimatedDelayComponent.new(procedure: dossier.procedure)
+          = render Procedure::EstimatedDelayComponent.new(procedure: dossier.procedure, fallback_to_placeholder: current_administrateur&.in?(dossier.procedure.administrateurs))
 
           %p
             = t('views.users.dossiers.show.status_overview.use_mailbox_for_questions_html', mailbox_url: messagerie_dossier_url(dossier))

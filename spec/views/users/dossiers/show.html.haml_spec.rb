@@ -6,6 +6,7 @@ describe 'users/dossiers/show', type: :view do
   before do
     sign_in dossier.user
     assign(:dossier, dossier)
+    allow(view).to receive(:current_administrateur).and_return(nil)
   end
 
   subject! { render }
