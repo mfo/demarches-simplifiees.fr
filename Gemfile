@@ -97,6 +97,10 @@ gem 'sentry-rails'
 gem 'sentry-ruby'
 gem 'sentry-sidekiq'
 gem 'sib-api-v3-sdk'
+# connection_pool 3.0 changed TimedStack#pop signature, which crashes the
+# Sidekiq::Scheduled::Poller thread (scheduled/retry jobs stop being enqueued).
+# Sidekiq must be >= 8.1 before bumping to connection_pool 3.x; keep < 3 until then.
+gem 'connection_pool', '< 3'
 gem 'sidekiq', '< 7.3' # 7.3 needs to migrate to sidekiq-cron 2.0
 gem 'sidekiq-cron', '< 2.0' # wait for a release without "keys command"
 gem 'siret_validator', github: "CodeursenLiberte/siret_validator", ref: "ba421bb"

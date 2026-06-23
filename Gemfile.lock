@@ -218,7 +218,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.3.7)
-    connection_pool (3.0.2)
+    connection_pool (2.5.5)
     content_disposition (1.0.0)
     crack (1.0.0)
       bigdecimal
@@ -1041,6 +1041,7 @@ DEPENDENCIES
   charlock_holmes
   chartkick
   clamav-client
+  connection_pool (< 3)
   daemons
   deep_cloneable
   delayed_cron_job
