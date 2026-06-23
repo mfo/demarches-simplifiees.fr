@@ -1180,6 +1180,8 @@ fr:
 
       stats:
         usual_processing_time: "Temps de traitement usuel"
+        user_indication: "(indiqué aux usagers)"
+
         processing_time: "Temps de traitement"
         since_procedure_creation: "depuis le lancement de la démarche"
         nb_days: "Nb Jours"
