@@ -15,6 +15,38 @@ RSpec.describe ChampExternalDataConcern do
     end
   end
 
+  describe '#external_data_not_found?' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:champ) { dossier.champs.first }
+
+    before do
+      champ.external_state = external_state
+      champ.fetch_external_data_exceptions = exceptions
+    end
+
+    context 'in external_error with a 404 exception' do
+      let(:external_state) { 'external_error' }
+      let(:exceptions) { [ExternalDataException.new(error: 'NotFound', code: 404)] }
+
+      it { expect(champ).to be_external_data_not_found }
+    end
+
+    context 'in external_error with a non-404 exception' do
+      let(:external_state) { 'external_error' }
+      let(:exceptions) { [ExternalDataException.new(error: 'Boom', code: 500)] }
+
+      it { expect(champ).not_to be_external_data_not_found }
+    end
+
+    context 'when not in error' do
+      let(:external_state) { 'fetched' }
+      let(:exceptions) { [] }
+
+      it { expect(champ).not_to be_external_data_not_found }
+    end
+  end
+
   describe 'the state machine' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
