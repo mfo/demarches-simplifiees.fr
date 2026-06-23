@@ -815,7 +815,7 @@ describe TypeDeChamp do
   is_expected.to eq([
     ["« Oui/Non »", "« Case à cocher seule »", "« Choix simple »", "« Choix multiple »"],
     ["« Nombre entier »", "« Nombre décimal »"],
-    ["« Adresse »", "« Communes »", "« EPCI »", "« Départements »", "« Régions »", "« Pays »"],
+    ["« Adresse »", "« Commune française actuelle »", "« EPCI »", "« Département »", "« Région »", "« Pays »"],
     ["« Champ pré-rempli »"],
   ])
 }
