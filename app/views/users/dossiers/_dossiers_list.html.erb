@@ -36,9 +36,7 @@
                 <%= pending_response_badge(:for_user) %>
               <% end %>
 
-              <% if (badge = expiration_badge(dossier)) %>
-                <%= badge %>
-              <% end %>
+              <%= expiration_badge(dossier) %>
 
               <%= partage_badge unless current_user.owns?(dossier) %>
             </div>
@@ -101,9 +99,7 @@
               <%= pending_response_badge(:for_user) %>
             <% end %>
 
-            <% if (badge = expiration_badge(dossier)) %>
-              <%= badge %>
-            <% end %>
+            <%= expiration_badge(dossier) %>
 
             <%= partage_badge unless current_user.owns?(dossier) %>
           </div>
