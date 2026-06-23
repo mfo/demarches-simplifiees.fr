@@ -52,24 +52,26 @@
     <% end %>
   </fieldset>
 
-  <fieldset class="fr-fieldset">
-    <legend class="fr-fieldset__legend">
-      <%= t('views.users.dossiers.index.filter_panel.groups.alert') %>
-    </legend>
+  <% if alerts_enabled? %>
+    <fieldset class="fr-fieldset">
+      <legend class="fr-fieldset__legend">
+        <%= t('views.users.dossiers.index.filter_panel.groups.alert') %>
+      </legend>
 
-    <% alert_keys.each do |a| %>
-      <div class="fr-fieldset__element">
-        <div class="fr-checkbox-group">
-          <%= check_box_tag 'alert[]', a, alert_checked?(a), id: "alert_#{a}", data: { action: 'change->filter-preview#preview' } %>
+      <% alert_keys.each do |a| %>
+        <div class="fr-fieldset__element">
+          <div class="fr-checkbox-group">
+            <%= check_box_tag 'alert[]', a, alert_checked?(a), id: "alert_#{a}", data: { action: 'change->filter-preview#preview' } %>
 
-          <label class="fr-label" for="alert_<%= a %>">
-            <%= alert_label(a) %>
-            <%= labeled_count(filter.counts[:alerts][a]) %>
-          </label>
+            <label class="fr-label" for="alert_<%= a %>">
+              <%= alert_label(a) %>
+              <%= labeled_count(filter.counts[:alerts][a]) %>
+            </label>
+          </div>
         </div>
-      </div>
-    <% end %>
-  </fieldset>
+      <% end %>
+    </fieldset>
+  <% end %>
 
   <fieldset class="fr-fieldset">
     <div class="fr-fieldset__element">

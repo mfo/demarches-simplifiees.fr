@@ -37,6 +37,10 @@ class Dossiers::UserFilterPanelFormComponent < ApplicationComponent
     Users::DossierFilterService::ALERT_SCOPES.keys
   end
 
+  def alerts_enabled?
+    filter.alerts_enabled?
+  end
+
   def apply_disabled?
     filter.total_count.zero?
   end

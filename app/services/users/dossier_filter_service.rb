@@ -83,6 +83,11 @@ module Users
       @user.dossiers_invites.visible_by_user.exists?
     end
 
+    def alerts_enabled?
+      return @alerts_enabled if defined?(@alerts_enabled)
+      @alerts_enabled = Flipper.enabled?(:usager_dossiers_alert_filters, @user)
+    end
+
     private
 
     def user_dossiers
@@ -112,6 +117,7 @@ module Users
     end
 
     def model_alerts
+      return [] if !alerts_enabled?
       Array(@params[:alert]) & ALERT_SCOPES.keys
     end
 
@@ -152,6 +158,7 @@ module Users
     end
 
     def count_alerts
+      return ALERT_SCOPES.keys.index_with { 0 } if !alerts_enabled?
       scope = scope_without(:alert)
       ALERT_SCOPES.keys.index_with do |alert_key|
         scope.where(id: bounded_alert_subquery(ALERT_SCOPES[alert_key])).count
