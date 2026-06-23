@@ -8,7 +8,9 @@ class Dossiers::RNAComponent < ApplicationComponent
   end
 
   def call
-    render Dossiers::ExternalChampComponent.new(data:, details:, source:)
+    if champ.fetched?
+      render Dossiers::ExternalChampComponent.new(data:, details:, source:)
+    end
   end
 
   private
