@@ -59,7 +59,7 @@ module Administrateurs
         tdc_options = APIGeoService.region_options
         create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, region_column)
       when TypeDeChamp.type_champs.fetch(:pays)
-        pays_column = tdc.columns(procedure_id: procedure.id).find { it.class == Columns::ChampColumn }
+        pays_column = tdc.canonical_column(procedure_id: procedure.id)
         rule_operator = :ds_eq
         tdc_options = APIGeoService.countries.map { ["#{_1[:code]} – #{_1[:name]}", _1[:code]] }
         create_groups_from_territorial_tdc(tdc_options, stable_id, rule_operator, pays_column)
@@ -696,7 +696,7 @@ module Administrateurs
       tdc_options = tdc.options_for_select
 
       source = if column_mode?
-        champ_column_value(tdc.columns(procedure_id: procedure.id).find { it.class == Columns::ChampColumn })
+        champ_column_value(tdc.canonical_column(procedure_id: procedure.id))
       else
         champ_value(stable_id)
       end

@@ -31,19 +31,17 @@ class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
 
   def champ_blank?(champ) = champ.geo_areas.blank?
 
-  def value_columns(procedure_id:, displayable: true, prefix: nil)
-    [
-      Columns::GeoJSONColumn.new(
-        procedure_id:,
-        stable_id:,
-        tdc_type: type_champ,
-        label: libelle_with_prefix(prefix),
-        type: TypeDeChamp.column_type(type_champ),
-        displayable: false,
-        filterable: false,
-        mandatory: mandatory?
-      ),
-    ]
+  def canonical_column(procedure_id:, displayable: true, prefix: nil)
+    Columns::GeoJSONColumn.new(
+      procedure_id:,
+      stable_id:,
+      tdc_type: type_champ,
+      label: libelle_with_prefix(prefix),
+      type: TypeDeChamp.column_type(type_champ),
+      displayable: false,
+      filterable: false,
+      mandatory: mandatory?
+    )
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)

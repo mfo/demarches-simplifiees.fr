@@ -21,31 +21,30 @@ class ChangedColumn
           prefix = type_de_champ.libelle
           types_de_champ = revision.children_of(type_de_champ)
           row_ids.flat_map do |row_id|
-            types_de_champ.flat_map do |type_de_champ|
+            types_de_champ.filter_map do |type_de_champ|
               public_id = type_de_champ.public_id(row_id)
-              columns = type_de_champ.value_columns(procedure_id: revision.procedure_id, prefix:)
-              diff_columns(columns, champs[public_id], reference_champs[public_id])
+              column = type_de_champ.canonical_column(procedure_id: revision.procedure_id, prefix:)
+              diff_column(column, champs[public_id], reference_champs[public_id])
             end
           end
         else
           public_id = type_de_champ.public_id(nil)
-          columns = type_de_champ.value_columns(procedure_id: revision.procedure_id)
-          diff_columns(columns, champs[public_id], reference_champs[public_id])
+          column = type_de_champ.canonical_column(procedure_id: revision.procedure_id)
+          [diff_column(column, champs[public_id], reference_champs[public_id])].compact
         end
       end
     end
 
     private
 
-    def diff_columns(columns, champ, reference_champ)
-      return [] if champ.nil?
-      columns.filter_map do |column|
-        value = column.value(champ)
-        previous_value = column.value(reference_champ)
-        if value != previous_value
-          new(column, value, previous_value)
-        end
-      end
+    def diff_column(column, champ, reference_champ)
+      return nil if column.nil? || champ.nil?
+
+      value = column.value(champ)
+      previous_value = column.value(reference_champ)
+      return nil if value == previous_value
+
+      new(column, value, previous_value)
     end
   end
 end
