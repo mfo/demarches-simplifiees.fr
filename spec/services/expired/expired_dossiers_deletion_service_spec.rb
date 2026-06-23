@@ -167,11 +167,7 @@ describe Expired::DossiersDeletionService do
 
   describe '#send_termine_expiration_notices' do
     before { travel_to(reference_date) }
-    let(:procedure_opts) do
-      {
-        procedure_expires_when_termine_enabled: true,
-      }
-    end
+    let(:procedure_opts) { {} }
     before do
       allow(DossierMailer).to receive(:notify_near_deletion_to_user).and_call_original
       allow(DossierMailer).to receive(:notify_near_deletion_for_tiers).and_call_original
@@ -292,11 +288,7 @@ describe Expired::DossiersDeletionService do
   describe '#delete_expired_termine_and_notify' do
     before { travel_to(reference_date) }
 
-    let(:procedure_opts) do
-      {
-        procedure_expires_when_termine_enabled: true,
-      }
-    end
+    let(:procedure_opts) { {} }
 
     before do
       allow(DossierMailer).to receive(:notify_automatic_deletion_to_user).and_call_original

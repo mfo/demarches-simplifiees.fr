@@ -46,7 +46,6 @@ class ProcedureDashboard < Administrate::BaseDashboard
     repasser_en_instruction_email_template: MailTemplateField,
     attestation_acceptation_template: AttestationTemplateField,
     attestation_refus_template: AttestationTemplateField,
-    procedure_expires_when_termine_enabled: Field::Boolean,
     duree_conservation_dossiers_dans_ds: Field::Number,
     max_duree_conservation_dossiers_dans_ds: Field::Number,
     estimated_duration_visible: Field::Boolean,
@@ -124,7 +123,6 @@ class ProcedureDashboard < Administrate::BaseDashboard
     :repasser_en_instruction_email_template,
     :attestation_acceptation_template,
     :attestation_refus_template,
-    :procedure_expires_when_termine_enabled,
     :duree_conservation_dossiers_dans_ds,
     :max_duree_conservation_dossiers_dans_ds,
     :estimated_duration_visible,
@@ -141,7 +139,6 @@ class ProcedureDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = [
-    :procedure_expires_when_termine_enabled,
     :duree_conservation_dossiers_dans_ds,
     :max_duree_conservation_dossiers_dans_ds,
     :estimated_duration_visible,

@@ -17,15 +17,6 @@ class AdministrateurMailer < ApplicationMailer
       reply_to: CONTACT_EMAIL)
   end
 
-  def notify_procedure_expires_when_termine_forced(user_email, procedure)
-    @procedure = procedure
-    @subject = "La suppression automatique des dossiers a été activée sur la démarche #{procedure.libelle}"
-
-    mail(to: user_email,
-      subject: @subject,
-      reply_to: CONTACT_EMAIL)
-  end
-
   def notify_service_without_siret(user_email)
     @subject = "Siret manquant sur un de vos services"
 

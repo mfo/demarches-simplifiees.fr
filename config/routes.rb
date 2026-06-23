@@ -103,9 +103,6 @@ Rails.application.routes.draw do
 
     resources :dubious_procedures, only: [:index]
     resources :published_procedures, only: [:index]
-    resources :outdated_procedures, only: [:index] do
-      patch :bulk_update, on: :collection
-    end
     resources :safe_mailers, only: [:index, :edit, :update, :destroy, :new, :create, :show]
 
     authenticate :super_admin do

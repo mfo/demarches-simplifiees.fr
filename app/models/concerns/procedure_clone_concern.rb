@@ -46,7 +46,6 @@ module ProcedureCloneConcern
     'experts_require_administrateur_invitation',
     'routing_enabled',
     'instructeurs_self_management_enabled',
-    'procedure_expires_when_termine_enabled',
     'zone_id',
     'lien_dpo',
     'replaced_by_procedure_id',

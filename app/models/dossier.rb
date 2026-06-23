@@ -339,16 +339,12 @@ class Dossier < ApplicationRecord
   scope :termine_close_to_expiration, -> do
     state_termine
       .visible_by_user_or_administration
-      .joins(:procedure)
-      .where(procedures: { procedure_expires_when_termine_enabled: true })
       .where(expired_at: ..(Time.zone.now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
 
   scope :close_to_expiration, -> do
-    joins(:procedure).scoping do
-      brouillon_close_to_expiration
-        .or(termine_close_to_expiration)
-    end
+    brouillon_close_to_expiration
+      .or(termine_close_to_expiration)
   end
 
   scope :never_touched_brouillon_expired, -> { visible_by_user.brouillon.where.missing(:etablissement, :individual).where(last_champ_updated_at: nil, identity_updated_at: nil, parent_dossier: nil, last_commentaire_updated_at: nil).where(created_at: ..2.weeks.ago) }
@@ -633,10 +629,7 @@ class Dossier < ApplicationRecord
   end
 
   def expirable?
-    [
-      brouillon?,
-      termine? && procedure.procedure_expires_when_termine_enabled,
-    ].any?
+    brouillon? || termine?
   end
 
   def close_to_expiration?
