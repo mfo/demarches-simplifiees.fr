@@ -265,6 +265,65 @@ RSpec.describe DossierHelper, type: :helper do
     end
   end
 
+  describe ".partage_badge" do
+    subject { partage_badge }
+
+    it { is_expected.to have_css(".fr-badge--blue-cumulus", text: "Partagé avec moi") }
+  end
+
+  describe ".expiration_badge" do
+    subject { expiration_badge(dossier) }
+
+    context "when dossier is a brouillon close to expiration" do
+      let(:dossier) { create(:dossier) }
+
+      before { dossier.update_column(:expired_at, 5.days.from_now.change(hour: 23)) }
+
+      it { is_expected.to have_css(".fr-badge--warning", text: "Expire dans 5 j.") }
+    end
+
+    context "when dossier expires tomorrow" do
+      let(:dossier) { create(:dossier) }
+
+      before { dossier.update_column(:expired_at, 1.day.from_now.change(hour: 23)) }
+
+      it { is_expected.to have_css(".fr-badge--warning", text: "Expire demain") }
+    end
+
+    context "when dossier expires today" do
+      let(:dossier) { create(:dossier) }
+
+      before { dossier.update_column(:expired_at, Time.zone.now.end_of_day) }
+
+      it { is_expected.to have_css(".fr-badge--warning", text: "Expire aujourd’hui") }
+    end
+
+    context "when dossier is not close to expiration" do
+      let(:dossier) { create(:dossier) }
+
+      before { dossier.update_column(:expired_at, 1.year.from_now) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "when dossier is en_construction (never expires)" do
+      let(:dossier) { create(:dossier, :en_construction) }
+
+      before { dossier.update_column(:expired_at, 5.days.from_now) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "when dossier is termine without procedure_expires_when_termine_enabled" do
+      let(:procedure) { create(:procedure, :published, procedure_expires_when_termine_enabled: false) }
+      let(:dossier) { create(:dossier, :accepte, procedure:) }
+
+      before { dossier.update_column(:expired_at, 5.days.from_now) }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe ".clean_string_for_pdf" do
     subject { clean_string_for_pdf(input) }
 

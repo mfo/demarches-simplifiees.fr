@@ -41,6 +41,8 @@ fr:
         for_instructeur: "en attente de réponse"
         responded: "Réponse donnée"
         discarded: "Demande de réponse annulée"
+      partage:
+        for_user: "Partagé avec moi"
       traitement:
         state: "État"
       traitement/state:

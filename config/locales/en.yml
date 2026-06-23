@@ -570,6 +570,10 @@ en:
           administration_no_longer_processes: "The administration will no longer process your request."
         dossiers_list:
           n_dossier: "File no."
+          expiration_badge:
+            zero: "Expires today"
+            one: "Expires tomorrow"
+            other: "Expires in %{count} days"
           no_result_title: No files
           no_result_text_html: "To fill a procedure, contact your administration asking for the procedure link. <br> It should look like %{app_base}/commencer/xxx."
           no_result_text_with_search: found with search terms

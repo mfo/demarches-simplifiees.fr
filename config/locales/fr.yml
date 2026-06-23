@@ -580,6 +580,10 @@ fr:
           administration_no_longer_processes: "L’administration ne traitera plus votre demande."
         dossiers_list:
           n_dossier: "dossier n°"
+          expiration_badge:
+            zero: "Expire aujourd’hui"
+            one: "Expire demain"
+            other: "Expire dans %{count} j."
           no_result_title: Aucun dossier
           no_result_text_html: "Pour remplir une démarche, contactez votre administration en lui demandant le lien de la démarche. <br> Celui ci doit ressembler à %{app_base}/commencer/xxx."
           no_result_text_with_search: ne correspond aux termes recherchés
