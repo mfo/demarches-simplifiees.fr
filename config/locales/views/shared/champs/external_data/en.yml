@@ -1,0 +1,6 @@
+---
+en:
+  shared:
+    champs:
+      external_data:
+        pending: "Retrieving data for identifier “%{identifier}”…"

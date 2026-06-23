@@ -2,7 +2,7 @@
 
 RSpec.describe Dossiers::RNAComponent, type: :component do
   let(:champ) do
-    Champs::RNAChamp.new(external_state:, data: rna_data)
+    Champs::RNAChamp.new(external_state:, external_id: 'W173847273', data: rna_data)
       .tap { |c| allow(c).to receive(:to_s).and_return('W173847273') }
   end
 
@@ -31,6 +31,15 @@ RSpec.describe Dossiers::RNAComponent, type: :component do
         expect(details).to include(['Date de création', '1949-01-01'])
         expect(source.to_s).to include('RNA')
       end
+    end
+  end
+
+  context 'when the champ is waiting for a job' do
+    let(:external_state) { 'waiting_for_job' }
+    let(:rna_data) { nil }
+
+    it 'displays a pending message with the identifier' do
+      expect(subject).to have_text('Récupération des données en cours pour l’identifiant « W173847273 »')
     end
   end
 end

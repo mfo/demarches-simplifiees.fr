@@ -10,6 +10,8 @@ class Dossiers::RNAComponent < ApplicationComponent
   def call
     if champ.fetched?
       render Dossiers::ExternalChampComponent.new(data:, details:, source:)
+    elsif champ.pending?
+      tag.p(t('shared.champs.external_data.pending', identifier: champ.external_id), class: "fr-mt-1w")
     end
   end
 

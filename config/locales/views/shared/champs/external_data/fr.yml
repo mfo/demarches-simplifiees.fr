@@ -1,0 +1,6 @@
+---
+fr:
+  shared:
+    champs:
+      external_data:
+        pending: "Récupération des données en cours pour l’identifiant « %{identifier} »…"
