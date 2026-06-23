@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Dossiers::RNAComponent, type: :component do
+  let(:fetch_external_data_exceptions) { [] }
+
   let(:champ) do
-    Champs::RNAChamp.new(external_state:, external_id: 'W173847273', data: rna_data)
+    Champs::RNAChamp.new(external_state:, external_id: 'W173847273', data: rna_data, fetch_external_data_exceptions:)
       .tap { |c| allow(c).to receive(:to_s).and_return('W173847273') }
   end
 
@@ -40,6 +42,16 @@ RSpec.describe Dossiers::RNAComponent, type: :component do
 
     it 'displays a pending message with the identifier' do
       expect(subject).to have_text('Récupération des données en cours pour l’identifiant « W173847273 »')
+    end
+  end
+
+  context 'when the champ is in external error with a 404' do
+    let(:external_state) { 'external_error' }
+    let(:rna_data) { nil }
+    let(:fetch_external_data_exceptions) { [ExternalDataException.new(error: 'NotFound', code: 404)] }
+
+    it 'displays a not found message with the identifier' do
+      expect(subject).to have_text('Aucune donnée trouvée pour l’identifiant « W173847273 »')
     end
   end
 end

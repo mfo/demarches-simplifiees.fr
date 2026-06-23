@@ -4,3 +4,4 @@ en:
     champs:
       external_data:
         pending: "Retrieving data for identifier “%{identifier}”…"
+        not_found: "No data found for identifier “%{identifier}”."

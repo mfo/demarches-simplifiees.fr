@@ -4,3 +4,4 @@ fr:
     champs:
       external_data:
         pending: "Récupération des données en cours pour l’identifiant « %{identifier} »…"
+        not_found: "Aucune donnée trouvée pour l’identifiant « %{identifier} »."
