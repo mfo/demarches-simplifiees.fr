@@ -54,4 +54,14 @@ RSpec.describe Dossiers::RNAComponent, type: :component do
       expect(subject).to have_text('Aucune donnée trouvée pour l’identifiant « W173847273 »')
     end
   end
+
+  context 'when the champ is in external error with a technical error' do
+    let(:external_state) { 'external_error' }
+    let(:rna_data) { nil }
+    let(:fetch_external_data_exceptions) { [ExternalDataException.new(error: 'Boom', code: 500)] }
+
+    it 'displays a generic error message with the identifier' do
+      expect(subject).to have_text('Une erreur est survenue lors de la récupération des données pour l’identifiant « W173847273 »')
+    end
+  end
 end

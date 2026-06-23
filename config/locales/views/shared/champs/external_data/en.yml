@@ -5,3 +5,4 @@ en:
       external_data:
         pending: "Retrieving data for identifier “%{identifier}”…"
         not_found: "No data found for identifier “%{identifier}”."
+        error: "An error occurred while retrieving data for identifier “%{identifier}”."

@@ -14,6 +14,8 @@ class Dossiers::RNAComponent < ApplicationComponent
       tag.p(t('shared.champs.external_data.pending', identifier: champ.external_id), class: "fr-mt-1w")
     elsif champ.external_data_not_found?
       tag.p(t('shared.champs.external_data.not_found', identifier: champ.external_id), class: "fr-mt-1w")
+    elsif champ.external_error?
+      tag.p(t('shared.champs.external_data.error', identifier: champ.external_id), class: "fr-mt-1w")
     end
   end
 
