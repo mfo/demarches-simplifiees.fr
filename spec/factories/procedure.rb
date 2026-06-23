@@ -12,6 +12,7 @@ FactoryBot.define do
     duree_conservation_dossiers_dans_ds { 3 }
     max_duree_conservation_dossiers_dans_ds { Procedure::OLD_MAX_DUREE_CONSERVATION }
     estimated_duration_visible { true }
+    estimated_processing_duration_visible { true }
     ask_birthday { false }
     lien_site_web { "https://mon-site.gouv" }
     declarative_with_state { nil }

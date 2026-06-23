@@ -56,6 +56,7 @@ module ProcedureCloneConcern
     'tags',
     'piece_justificative_multiple',
     'estimated_duration_visible',
+    'estimated_processing_duration_visible',
     'estimated_dossiers_count',
     'dossiers_count_computed_at',
     'allow_expert_messaging',
