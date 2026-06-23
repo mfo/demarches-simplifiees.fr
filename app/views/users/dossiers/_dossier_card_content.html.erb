@@ -1,6 +1,6 @@
 <div class="flex justify-between">
   <div>
-    <h3 class="card-title">
+    <h2 class="card-title">
       <% if local_assigns.fetch(:linkable, true) %>
         <%= link_to(url_for_dossier(dossier)) do %>
           <%= dossier.procedure.libelle %>
@@ -13,7 +13,7 @@
       <% else %>
         <%= dossier.procedure.libelle %>
       <% end %>
-    </h3>
+    </h2>
 
     <div class="badge_info fr-mb-1w fr-hidden-md">
       <p class="fr-mb-0">

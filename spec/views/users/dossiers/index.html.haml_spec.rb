@@ -42,7 +42,7 @@ describe 'users/dossiers/index', type: :view do
   end
 
   it 'shows the dossier count without pagination on a single page' do
-    expect(rendered).to have_selector('.results-count', text: '3 dossiers')
+    expect(rendered).to have_selector('h2.fr-h6', text: '3 dossiers')
     expect(rendered).not_to have_text('sur 3 dossiers')
   end
 
@@ -54,7 +54,7 @@ describe 'users/dossiers/index', type: :view do
     end
 
     it 'shows the "1 - X of XX dossiers" indication' do
-      expect(rendered).to have_selector('.results-count', text: 'sur 30 dossiers')
+      expect(rendered).to have_selector('h2.fr-h6', text: 'sur 30 dossiers')
     end
   end
 

@@ -38,9 +38,9 @@
       <% if dossier.pending_response? %>
         <%= render Dsfr::AlertComponent.new(state: :warning, size: :sm, extra_class_names: "fr-mb-2w") do |c| %>
           <% c.with_body do %>
-            <h4 class="card-title fr-mb-1v">
+            <h3 class="card-title fr-mb-1v">
               <%= t('views.users.dossiers.dossiers_list.pending_response.title') %>
-            </h4>
+            </h3>
 
             <p>
               <%= t('views.users.dossiers.dossiers_list.pending_response.message_html', link: messagerie_dossier_path(dossier), id: number_with_html_delimiter(dossier.id)).html_safe %>

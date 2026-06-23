@@ -217,6 +217,11 @@ describe 'Invitations' do
       let!(:invite_2) { create(:invite, user: invited_user, dossier: dossier_2) }
       let!(:dossier_3) { create(:dossier, :with_individual, :en_construction, user: owner, procedure: procedure) }
       let!(:invite_3) { create(:invite, user: invited_user, dossier: dossier_3) }
+      let!(:extra_invited_dossiers) do
+        create_list(:dossier, 3, :with_individual, :en_construction, user: owner, procedure: procedure).each do |d|
+          create(:invite, user: invited_user, dossier: d)
+        end
+      end
       before do
         navigate_to_invited_dossier(invite)
         visit dossiers_path
@@ -224,15 +229,19 @@ describe 'Invitations' do
       end
 
       it "can search by id and it displays the dossier" do
-        page.find_by_id('search').set(dossier.id)
-        find('.fr-search-bar .fr-btn').click
+        within('.user-search-bar__form') do
+          page.find_by_id('search').set(dossier.id)
+          find('.fr-search-bar .fr-btn').click
+        end
         expect(current_path).to eq(dossiers_path)
         expect(page).to have_link(dossier.procedure.libelle)
       end
 
       it "can search something inside the dossier and it displays the dossier" do
-        page.find_by_id('search').set(dossier_2.project_champs_public.first.value)
-        find('.fr-search-bar .fr-btn').click
+        within('.user-search-bar__form') do
+          page.find_by_id('search').set(dossier_2.project_champs_public.first.value)
+          find('.fr-search-bar .fr-btn').click
+        end
         expect(current_path).to eq(dossiers_path)
         expect(page).to have_link(dossier.procedure.libelle)
       end
