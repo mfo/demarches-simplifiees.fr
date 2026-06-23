@@ -5,12 +5,10 @@
 
   - if dossier.close_to_expiration? || dossier.has_expired?
     - title = dossier.has_expired? ? 'title_expired' : 'title'
-    = render Dsfr::CalloutComponent.new(title: t("users.dossiers.header.banner.#{title}"), theme: :warning) do |c|
+    = render Dsfr::CalloutComponent.new(title: t("users.dossiers.header.banner.#{title}"), theme: :orange_terre_battue) do |c|
       - c.with_body do
         - if dossier.brouillon?
           = t('users.dossiers.header.banner.states.brouillon')
-        - elsif dossier.en_construction?
-          = t('users.dossiers.header.banner.states.en_construction', nominal_duration_months: dossier.procedure.duree_conservation_dossiers_dans_ds)
         - elsif dossier.termine?
           = t('users.dossiers.header.banner.states.termine')
 

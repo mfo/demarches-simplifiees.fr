@@ -77,4 +77,32 @@ describe 'users/dossiers/expiration_banner', type: :view do
       end
     end
   end
+
+  context 'when close to expiration' do
+    let(:expiration_enabled) { true }
+
+    before { allow(dossier).to receive(:close_to_expiration?).and_return(true) }
+
+    context 'with a brouillon' do
+      let(:attributes) { { created_at: 6.months.ago } }
+      let(:state) { :brouillon }
+
+      it 'renders the orange callout with the postpone button' do
+        expect(subject).to have_selector('.fr-callout.fr-callout--orange-terre-battue')
+        expect(subject).to have_selector('#test-user-repousser-expiration')
+      end
+    end
+
+    context 'with a termine dossier' do
+      let(:attributes) { { processed_at: 6.months.ago } }
+      let(:state) { :accepte }
+
+      it 'renders the orange callout without any action button (download is handled by the header)' do
+        expect(subject).to have_selector('.fr-callout.fr-callout--orange-terre-battue')
+        expect(subject).not_to have_selector('#test-user-repousser-expiration')
+        expect(subject).not_to have_selector('.fr-callout a')
+        expect(subject).not_to have_selector('.fr-callout button')
+      end
+    end
+  end
 end

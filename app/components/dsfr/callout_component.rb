@@ -26,6 +26,8 @@ class Dsfr::CalloutComponent < ApplicationComponent
     case theme
     when :warning
       "fr-callout--brown-caramel"
+    when :orange_terre_battue
+      "fr-callout--orange-terre-battue"
     when :success
       "fr-callout--green-emeraude"
     when :neutral

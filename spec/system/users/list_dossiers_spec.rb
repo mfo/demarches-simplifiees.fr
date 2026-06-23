@@ -15,6 +15,23 @@ describe 'user dossiers list', js: true do
     end
   end
 
+  describe 'card badges' do
+    it 'shows the expiration badge on a brouillon close to expiration' do
+      create(:dossier, user: user).tap { it.update_column(:expired_at, 5.days.from_now) }
+      visit dossiers_path
+
+      expect(page).to have_text('Expire dans 5 j.')
+    end
+
+    it 'shows the "Partagé avec moi" badge on an invited dossier' do
+      shared_dossier = create(:dossier, :en_construction, user: create(:user))
+      create(:invite, dossier: shared_dossier, user: user)
+      visit dossiers_path
+
+      expect(page).to have_css('.fr-badge--blue-cumulus', text: 'Partagé avec moi')
+    end
+  end
+
   describe 'pagination count' do
     before { create_list(:dossier, 30, :en_construction, user: user) }
 

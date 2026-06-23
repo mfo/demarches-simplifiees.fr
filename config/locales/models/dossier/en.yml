@@ -40,6 +40,8 @@ en:
         for_user: "PENDING RESPONSE"
         for_instructeur: "pending response"
         responded: "Response given"
+      partage:
+        for_user: "Shared with me"
       traitement:
         state: "State"
       traitement/state:

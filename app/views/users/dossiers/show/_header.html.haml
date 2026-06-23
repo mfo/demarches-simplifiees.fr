@@ -10,6 +10,8 @@
         = status_badge_user(dossier, 'super')
         = pending_correction_badge(:for_user) if dossier.pending_correction?
         = pending_response_badge(:for_user) if dossier.pending_response?
+        = expiration_badge(dossier, html_class: 'super')
+        = partage_badge(html_class: 'super') unless current_user.owns?(dossier)
 
     = render(partial: 'users/dossiers/expiration_banner', locals: {dossier: dossier})
 
