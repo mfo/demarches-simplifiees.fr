@@ -10,8 +10,10 @@ describe 'users/dossiers/index', type: :view do
 
   before do
     allow(view).to receive(:new_demarche_url).and_return('#')
+    allow(view).to receive(:filter_params_slice).and_return(ActionController::Parameters.new.permit!)
     allow(controller).to receive(:current_user) { user }
     assign(:dossiers, Kaminari.paginate_array(user_dossiers).page(1))
+    assign(:total_count, user_dossiers.size)
     assign(:filter, filter)
     assign(:procedures_for_select, user_dossiers.map(&:procedure))
     assign(:corbeille_count, 0)
@@ -37,6 +39,23 @@ describe 'users/dossiers/index', type: :view do
 
   it 'affiche le titre Mes dossiers' do
     expect(rendered).to have_selector('h1', text: 'Mes dossiers')
+  end
+
+  it 'shows the dossier count without pagination on a single page' do
+    expect(rendered).to have_selector('.results-count', text: '3 dossiers')
+    expect(rendered).not_to have_text('sur 3 dossiers')
+  end
+
+  context 'when the list is paginated (more than 25 dossiers)' do
+    before do
+      assign(:dossiers, Kaminari.paginate_array(user_dossiers, total_count: 30).page(1).per(25))
+      assign(:total_count, 30)
+      render
+    end
+
+    it 'shows the "1 - X of XX dossiers" indication' do
+      expect(rendered).to have_selector('.results-count', text: 'sur 30 dossiers')
+    end
   end
 
   context 'quand il n’y a aucun dossier' do

@@ -115,6 +115,12 @@ RSpec.describe Users::DossierFilterService do
       service = described_class.new(user: user, params: ActionController::Parameters.new(state: ['brouillon']))
       expect(service.total_count).to eq(service.dossiers.count)
     end
+
+    it 'memoizes the count so repeated access does not re-query (read twice per render)' do
+      service = described_class.new(user: user, params: ActionController::Parameters.new)
+      expect(service).to receive(:dossiers).once.and_call_original
+      3.times { service.total_count }
+    end
   end
 
   describe '#active?' do
@@ -150,6 +156,7 @@ RSpec.describe Users::DossierFilterService do
     end
 
     it 'returns counts for alerts (contextualized by state filter)' do
+      Flipper.enable_actor(:usager_dossiers_alert_filters, user)
       service = described_class.new(user: user, params: ActionController::Parameters.new(state: ['en_construction']))
       expect(service.counts[:alerts]['a_corriger']).to eq(1)
     end
@@ -168,12 +175,48 @@ RSpec.describe Users::DossierFilterService do
       end
     end
 
+    it 'memoizes counts so repeated access does not recompute (filter panel reads them many times)' do
+      service = described_class.new(user: user, params: ActionController::Parameters.new)
+      expect(service).to receive(:count_states).once.and_call_original
+      3.times { service.counts }
+    end
+
     it 'counts only the user own alerts, not other users matching dossiers' do
+      Flipper.enable_actor(:usager_dossiers_alert_filters, user)
       other_dossier_with_correction = create(:dossier, :en_construction)
       create(:dossier_correction, dossier: other_dossier_with_correction)
 
       service = described_class.new(user: user, params: ActionController::Parameters.new)
       expect(service.counts[:alerts]['a_corriger']).to eq(1)
+    end
+
+    context 'when the alert filters feature is disabled (default)' do
+      it 'exposes alerts_enabled? as false' do
+        expect(service.alerts_enabled?).to be(false)
+      end
+
+      it 'returns zero for every alert without running the alert subqueries' do
+        expect(service).not_to receive(:bounded_alert_subquery)
+        expect(service.counts[:alerts].values).to all(eq(0))
+      end
+
+      it 'ignores alert params forged via the URL (no alert filter tag)' do
+        service = described_class.new(user: user, params: ActionController::Parameters.new(alert: ['a_corriger']))
+        expect(service.active_filter_tags.map { it[:group] }).not_to include(:alert)
+      end
+
+      it 'does not filter dossiers by a forged alert param' do
+        service = described_class.new(user: user, params: ActionController::Parameters.new(alert: ['a_corriger']))
+        expect(service.dossiers).to include(dossier_depose_nothing)
+      end
+    end
+
+    context 'when the alert filters feature is enabled' do
+      before { Flipper.enable_actor(:usager_dossiers_alert_filters, user) }
+
+      it 'exposes alerts_enabled? as true' do
+        expect(service.alerts_enabled?).to be(true)
+      end
     end
 
     it 'runs a constant number of queries regardless of dossier volume (no N+1)' do
@@ -198,6 +241,7 @@ RSpec.describe Users::DossierFilterService do
     let!(:dossier_in_procedure) { create(:dossier, :en_construction, user: user, procedure: procedure) }
 
     it 'returns one tag per active filter value' do
+      Flipper.enable_actor(:usager_dossiers_alert_filters, user)
       service = described_class.new(user: user, params: ActionController::Parameters.new(
         procedure_id: procedure.id.to_s,
         state: ['en_construction', 'en_instruction'],
@@ -234,6 +278,17 @@ RSpec.describe Users::DossierFilterService do
         service = described_class.new(user: user, params: ActionController::Parameters.new(procedure_id: own_procedure_dossier.procedure.id.to_s))
         labels = service.active_filter_tags.map { |t| t[:label] }
         expect(labels).to include('Ma démarche')
+      end
+    end
+
+    it 'labels date filters with a human readable sentence' do
+      I18n.with_locale(:fr) do
+        service = described_class.new(user: user, params: ActionController::Parameters.new(
+          from_created_at_date: '2026-06-24',
+          from_depose_at_date: '2026-06-24'
+        ))
+        labels = service.active_filter_tags.map { |t| t[:label] }
+        expect(labels).to contain_exactly('Créé depuis le 24/06/2026', 'Déposé depuis le 24/06/2026')
       end
     end
   end
@@ -280,6 +335,7 @@ RSpec.describe Users::DossierFilterService do
     let!(:dossier_unread_message) { create(:dossier, :en_construction, user: user) }
 
     before do
+      Flipper.enable_actor(:usager_dossiers_alert_filters, user)
       create(:dossier_correction, dossier: dossier_pending_correction)
       create(:dossier_pending_response, dossier: dossier_pending_response)
       create(:commentaire, dossier: dossier_unread_message, instructeur: create(:instructeur), seen_by_recipient_at: nil)

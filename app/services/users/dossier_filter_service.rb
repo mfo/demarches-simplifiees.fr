@@ -45,7 +45,7 @@ module Users
     end
 
     def counts
-      {
+      @counts ||= {
         states:         count_states,
         alerts:         count_alerts,
         shared_with_me: scope_without(:shared_with_me).where(id: @user.dossiers_invites.visible_by_user).count,
@@ -67,16 +67,25 @@ module Users
         tags << { group: :alert, value: a, label: I18n.t("views.users.dossiers.index.filter_panel.alerts.#{a}") }
       end
       if from_created_at_date
-        tags << { group: :from_created_at_date, value: @params[:from_created_at_date], label: @params[:from_created_at_date].to_s }
+        tags << { group: :from_created_at_date, value: @params[:from_created_at_date], label: I18n.t('views.users.dossiers.index.active_filters.from_created_at_date_tag', date: I18n.l(from_created_at_date, format: :short)) }
       end
       if from_depose_at_date
-        tags << { group: :from_depose_at_date, value: @params[:from_depose_at_date], label: @params[:from_depose_at_date].to_s }
+        tags << { group: :from_depose_at_date, value: @params[:from_depose_at_date], label: I18n.t('views.users.dossiers.index.active_filters.from_depose_at_date_tag', date: I18n.l(from_depose_at_date, format: :short)) }
       end
       tags
     end
 
     def active?
       active_filter_tags.any?
+    end
+
+    def has_invites?
+      @user.dossiers_invites.visible_by_user.exists?
+    end
+
+    def alerts_enabled?
+      return @alerts_enabled if defined?(@alerts_enabled)
+      @alerts_enabled = Flipper.enabled?(:usager_dossiers_alert_filters, @user)
     end
 
     private
@@ -108,6 +117,7 @@ module Users
     end
 
     def model_alerts
+      return [] if !alerts_enabled?
       Array(@params[:alert]) & ALERT_SCOPES.keys
     end
 
@@ -141,15 +151,14 @@ module Users
     end
 
     def count_states
-      scope = scope_without(:state)
+      raw = without_hidden_decisions(scope_without(:state)).group(:state).count
       Users::DossierStateMapping::UI_STATES.index_with do |state|
-        state_scope = scope.where(state: state)
-        state_scope = without_hidden_decisions(state_scope) if Dossier::TERMINE.include?(state)
-        state_scope.count
+        raw[state].to_i
       end
     end
 
     def count_alerts
+      return ALERT_SCOPES.keys.index_with { 0 } if !alerts_enabled?
       scope = scope_without(:alert)
       ALERT_SCOPES.keys.index_with do |alert_key|
         scope.where(id: bounded_alert_subquery(ALERT_SCOPES[alert_key])).count
@@ -164,7 +173,7 @@ module Users
     end
 
     def scope_without(group)
-      scope = base_scope
+      scope = base_scope.unscope(:order)
       scope = scope.joins(:procedure).where(procedures: { id: @params[:procedure_id] }) if @params[:procedure_id].present? && group != :procedure_id
       scope = scope.where(id: @user.dossiers_invites.visible_by_user) if shared_with_me? && group != :shared_with_me
       if model_states.any? && group != :state

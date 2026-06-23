@@ -8,6 +8,7 @@ RSpec.describe Dossiers::UserFilterPanelComponent, type: :component do
     instance_double(Users::DossierFilterService,
       active?: false,
       total_count: 12,
+      alerts_enabled?: true,
       counts: {
         procedure_ids: {},
         states: { 'brouillon' => 1, 'en_construction' => 5, 'en_instruction' => 0, 'accepte' => 0, 'refuse' => 0, 'sans_suite' => 0 },
@@ -17,51 +18,40 @@ RSpec.describe Dossiers::UserFilterPanelComponent, type: :component do
   end
   let(:has_invites) { false }
   let(:filter_params) { {} }
+  let(:render_content) { false }
 
   subject do
-    render_inline(described_class.new(filter: filter, filter_params: filter_params, procedures_for_select: procedures_for_select, has_invites: has_invites))
+    render_inline(described_class.new(filter: filter, filter_params: filter_params, procedures_for_select: procedures_for_select, has_invites: has_invites, render_content: render_content))
   end
 
-  it 'renders all 6 UI state checkboxes' do
-    expect(subject.css('input[name="state[]"]').size).to eq(6)
-  end
+  describe 'lazy shell (render_content: false)' do
+    # An unstubbed double: any method call (including counts) would raise,
+    # proving the shell never computes the filter counts.
+    let(:filter) { instance_double(Users::DossierFilterService) }
 
-  it 'renders all 4 alert checkboxes' do
-    expect(subject.css('input[name="alert[]"]').size).to eq(4)
-  end
+    it 'renders an empty turbo-frame that does not auto-load and does not compute counts' do
+      frame = subject.css("turbo-frame#filter_panel")
+      expect(frame).to be_present
+      # No src and no loading=lazy: the frame loads on demand (JS sets src on drawer
+      # open), never eagerly — otherwise the counts would run on every page load.
+      expect(frame.attr('src')).to be_nil
+      expect(frame.attr('loading')).to be_nil
+    end
 
-  it 'renders state counters inline' do
-    expect(subject.to_html).to include('(5)') # en_construction count
-    expect(subject.to_html).to include('(3)') # pending responses count
-  end
-
-  it 'does not render the procedure dropdown when no procedure' do
-    expect(subject.css('select[name=procedure_id]')).to be_empty
-  end
-
-  context 'with >= 2 procedures' do
-    let(:procedures_for_select) { [['Demande 1', 1], ['Demande 2', 2]] }
-
-    it 'renders the procedure dropdown' do
-      expect(subject.css('select[name=procedure_id]')).to be_present
+    it 'does not render the filter form' do
+      expect(subject.css('input[name="state[]"]')).to be_empty
+      expect(subject.css('input[type=submit]')).to be_empty
     end
   end
 
-  context 'without invites' do
-    it 'does not render the shared_with_me checkbox' do
-      expect(subject.css('input[name=shared_with_me]')).to be_empty
+  describe 'rendered content (render_content: true)' do
+    let(:render_content) { true }
+
+    # The form itself is covered by Dossiers::UserFilterPanelFormComponent spec;
+    # here we only assert the panel delegates to it inside the frame.
+    it 'renders the filter form inside the frame' do
+      expect(subject.css('turbo-frame#filter_panel form')).to be_present
+      expect(subject.css('input[name="state[]"]')).to be_present
     end
-  end
-
-  context 'with invites' do
-    let(:has_invites) { true }
-
-    it 'renders the shared_with_me checkbox' do
-      expect(subject.css('input[name=shared_with_me]')).to be_present
-    end
-  end
-
-  it 'renders the submit button with count' do
-    expect(subject.to_html).to include('Afficher les 12')
   end
 end

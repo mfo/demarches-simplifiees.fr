@@ -21,7 +21,7 @@ describe 'user dossiers list', js: true do
     it 'shows the current range, not always starting at 1, on page 2' do
       visit dossiers_path(page: 2)
 
-      expect(page).to have_css('.results-count', text: '26 - 30 sur 30 dossiers')
+      expect(page).to have_css('h2.fr-h6', text: '26 - 30 sur 30 dossiers')
     end
   end
 
@@ -34,7 +34,30 @@ describe 'user dossiers list', js: true do
       visit dossiers_path(search: target_dossier.id.to_s)
 
       expect(page).to have_content('Résultat de la recherche pour')
-      expect(page).to have_link('← Mes dossiers', href: dossiers_path)
+      expect(page).to have_link('Mes dossiers', href: dossiers_path)
+    end
+  end
+
+  describe 'mobile search panel' do
+    let!(:target_dossier) { create(:dossier, :en_construction, user: user) }
+
+    before { create_list(:dossier, 11, :en_construction, user: user) }
+
+    it 'opens the panel and runs a search' do
+      Capybara.page.current_window.resize_to(375, 812)
+      visit dossiers_path
+
+      expect(page).not_to have_selector('.user-search-bar__form input[name=search]', visible: true)
+
+      find('.user-search-bar__search-trigger').click
+
+      within('#dossiers-search-modal') do
+        fill_in 'search-mobile', with: target_dossier.id.to_s
+        click_button('Rechercher')
+      end
+
+      expect(page).to have_content('Résultat de la recherche pour')
+      expect(page).to have_link('Mes dossiers', href: dossiers_path)
     end
   end
 
@@ -57,13 +80,23 @@ describe 'user dossiers list', js: true do
 
     it 'navigates to the trash page' do
       create(:dossier, :en_construction, :hidden_by_user, user: user)
+      create(:deleted_dossier, user_id: user.id)
       visit dossiers_path
       find('.mes-dossiers-header__corbeille').click
 
       expect(page).to have_current_path(trash_path)
       expect(page).to have_content('Corbeille')
-      expect(page).to have_link('← Mes dossiers')
+      expect(page).to have_link('Mes dossiers')
       expect(page).to have_link('Historique des dossiers supprimés')
+    end
+
+    it 'renders the link with a non-underlined DSFR icon' do
+      create(:dossier, :en_construction, :hidden_by_user, user: user)
+      visit dossiers_path
+
+      link = find('.mes-dossiers-header__corbeille')
+      expect(link[:class]).to include('fr-icon-delete-bin-line')
+      expect(link).not_to have_css('span.fr-icon-delete-bin-line')
     end
   end
 
@@ -88,10 +121,18 @@ describe 'user dossiers list', js: true do
 
     it 'links to the deleted dossiers history page' do
       create(:dossier, :en_construction, :hidden_by_user, user: user)
+      create(:deleted_dossier, user_id: user.id)
       visit trash_path
-      click_link 'Historique des dossiers supprimés'
+      within('.trash-list-header') { click_link 'Historique des dossiers supprimés' }
 
       expect(page).to have_current_path(deleted_dossiers_path)
+    end
+
+    it 'wraps the back-link consistently with the search page' do
+      create(:dossier, :en_construction, :hidden_by_user, user: user)
+      visit trash_path
+
+      expect(page).to have_css('p.fr-mb-3w a.fr-link', text: 'Mes dossiers')
     end
   end
 
@@ -104,6 +145,33 @@ describe 'user dossiers list', js: true do
       click_button(text: /Filtrer les dossiers/i)
       expect(page).to have_selector('#dossiers-filter-modal[open]')
     end
+
+    it 'lazy-loads the filter form and counts only when the drawer is opened' do
+      visit dossiers_path
+      expect(page).to have_selector('#dossiers-filter-modal', visible: :all)
+
+      # The frame must NOT auto-load: no src is set and no form is present until the
+      # user opens the drawer (otherwise the count queries would run on every load).
+      expect(find('turbo-frame#filter_panel', visible: :all)[:src]).to be_blank
+      expect(page).to have_no_selector('#dossiers-filter-modal input[name="state[]"]', visible: :all)
+
+      click_button(text: /Filtrer les dossiers/i)
+
+      # Opening the drawer fetches the frame: the form, its counts and the apply button appear
+      expect(page).to have_selector('#dossiers-filter-modal input[name="state[]"]', visible: :all, wait: 5)
+      expect(page).to have_button('Afficher les 11 dossiers', wait: 5)
+    end
+
+    it 'applies from the drawer without breaking the dossier list (no Content missing)' do
+      visit dossiers_path
+      click_button(text: /Filtrer les dossiers/i)
+      expect(page).to have_button('Afficher les 11 dossiers', wait: 5)
+
+      within('#dossiers-filter-modal') { click_button('Afficher les 11 dossiers') }
+
+      expect(page).not_to have_content(/content missing/i)
+      expect(page).to have_css('.dossiers-headers', wait: 5)
+    end
   end
 
   describe 'active filter with no result' do
@@ -112,6 +180,11 @@ describe 'user dossiers list', js: true do
     it 'renders the empty state without error' do
       visit dossiers_path(state: ['accepte'])
       expect(page).to have_content(/0 dossier|aucun dossier|Aucun résultat|Aucun dossier ne correspond/i)
+    end
+
+    it 'shows a single reset entrypoint' do
+      visit dossiers_path(state: ['accepte'])
+      expect(page).to have_link('Réinitialiser les filtres', count: 1)
     end
   end
 

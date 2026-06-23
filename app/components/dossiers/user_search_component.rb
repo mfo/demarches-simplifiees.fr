@@ -9,16 +9,14 @@ class Dossiers::UserSearchComponent < ApplicationComponent
 
   attr_reader :search_terms, :active_filter_count, :filter_params
 
-  def filter_button_label
-    if active_filter_count.positive?
-      t('filter_panel.open_with_count', count: active_filter_count, scope: 'views.users.dossiers.index')
-    else
-      t('filter_panel.open', scope: 'views.users.dossiers.index')
-    end
+  FILTER_PANEL_FRAME_ID = Dossiers::UserFilterPanelComponent::FRAME_ID
+
+  def filter_panel_src
+    helpers.dossiers_path(filter_params.to_h.merge(filter_panel: 1))
   end
 
   def filter_button_visibility_class
-    'fr-hidden' if search_terms.present?
+    helpers.class_names('fr-hidden': search_terms.present?)
   end
 
   def filter_hidden_inputs
