@@ -30,7 +30,6 @@ features = [
   :export_order_by_revision,
   :groupe_instructeur_api_hack,
   :pro_connect_restricted,
-  :quotient_familial_type_de_champ,
   :pre_rempli_type_de_champ,
   :rdv,
   :sva,
