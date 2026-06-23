@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'rails', '~> 7.2.3' # allows update to security fixes at any time
+gem 'rails', '~> 8.0.3' # allows update to security fixes at any time
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -20,8 +20,6 @@ gem 'browser'
 gem 'charlock_holmes'
 gem 'chartkick'
 gem 'clamav-client', require: 'clamav/client'
-gem "concurrent-ruby", "< 1.3.5" # force version to avoid https://github.com/rails/rails/pull/54264, should be removed after rails 7.2.x
-gem 'connection_pool', '< 3' # connection_pool 3.0 changed initialize signature, incompatible with activesupport 7.2 RedisCacheStore
 gem 'daemons'
 gem 'deep_cloneable' # Enable deep clone of active record models
 gem 'delayed_cron_job', require: false # Cron jobs
@@ -64,6 +62,7 @@ gem 'langchainrb'
 gem 'listen' # Required by ActiveSupport::EventedFileUpdateChecker
 gem 'lograge'
 gem 'logstash-event'
+gem 'mail', '~> 2.8.1' # pin to 2.8.x: mail 2.9 stopped normalizing 8bit (non-ASCII) bodies to CRLF, sending bare LF in emails. Migrate separately.
 gem 'maintenance_tasks'
 gem 'matrix' # needed by prawn and not default in ruby 3.1
 gem 'net-imap', require: false # See https://github.com/mikel/mail/pull/1439
@@ -100,7 +99,7 @@ gem 'sentry-sidekiq'
 gem 'sib-api-v3-sdk'
 gem 'sidekiq', '< 7.3' # 7.3 needs to migrate to sidekiq-cron 2.0
 gem 'sidekiq-cron', '< 2.0' # wait for a release without "keys command"
-gem 'siret_validator'
+gem 'siret_validator', github: "CodeursenLiberte/siret_validator", ref: "ba421bb"
 gem 'skylight'
 gem 'smarter_csv'
 gem 'spreadsheet_architect'
