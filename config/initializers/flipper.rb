@@ -41,6 +41,7 @@ features = [
   :ami_notifications,
   :api_entreprise_tva_job,
   :pdf_variant,
+  :usager_dossiers_alert_filters,
 ]
 
 def database_exists?

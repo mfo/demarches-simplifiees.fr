@@ -91,10 +91,6 @@ search:
 #   # Get an API key and subscription at https://www.deepl.com/pro to use DeepL Pro
 #   deepl_api_key: "48E92789-57A3-466A-9959-1A1A1A1A1A1A"
 
-## Do not consider these keys missing:
-ignore_missing:
-- 'dossiers.user_filter_panel_component.*'
-
 ## Consider these keys used:
 ignore_unused:
   - 'errors.format'
@@ -138,6 +134,13 @@ ignore_unused:
   - 'links.main_navigation.doc.expert_title'
   - 'links.main_navigation.doc.instructeur_title'
   - 'shared.dossiers.geo.*'
+  # used in app/components/dossiers/user_filter_panel_component (excluded from search above)
+  - 'views.users.dossiers.index.filter_panel.*'
+  # used in app/components/dossiers/user_active_filters_component (excluded from search above)
+  - 'views.users.dossiers.index.active_filters.*'
+  # used in app/components/dossiers/user_search_component mobile search panel (excluded from search above)
+  - 'views.users.dossiers.index.search.open'
+  - 'views.users.dossiers.index.search.panel_title'
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
 # - 'simple_form.{placeholders,hints,labels}.*'
