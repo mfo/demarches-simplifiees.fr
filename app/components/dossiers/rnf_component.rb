@@ -8,12 +8,16 @@ class Dossiers::RNFComponent < ApplicationComponent
   end
 
   def call
-    if champ.value.blank?
+    if champ.external_id.blank?
       tag.p(t('not_filled', scope: 'activerecord.attributes.type_de_champ'), class: "fr-mt-1w")
-    elsif champ.data.blank?
-      tag.p(t('not_found', rnf: champ.value, scope: 'activerecord.errors.models.champs/rnf_champ.attributes.value'), class: "fr-mt-1w")
-    else
+    elsif champ.fetched?
       render Dossiers::ExternalChampComponent.new(data:, details:, source:)
+    elsif champ.pending?
+      tag.p(t('shared.champs.external_data.pending', identifier: champ.value), class: "fr-mt-1w")
+    elsif champ.external_data_not_found?
+      tag.p(t('shared.champs.external_data.not_found', identifier: champ.value), class: "fr-mt-1w")
+    elsif champ.external_error?
+      tag.p(t('shared.champs.external_data.error', identifier: champ.value), class: "fr-mt-1w")
     end
   end
 
