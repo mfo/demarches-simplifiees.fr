@@ -8,7 +8,9 @@ class Dossiers::RNAComponent < ApplicationComponent
   end
 
   def call
-    if champ.fetched?
+    if champ.external_id.blank?
+      tag.p(t('not_filled', scope: 'activerecord.attributes.type_de_champ'), class: "fr-mt-1w")
+    elsif champ.fetched?
       render Dossiers::ExternalChampComponent.new(data:, details:, source:)
     elsif champ.pending?
       tag.p(t('shared.champs.external_data.pending', identifier: champ.external_id), class: "fr-mt-1w")

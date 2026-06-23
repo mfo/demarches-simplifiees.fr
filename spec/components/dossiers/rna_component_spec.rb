@@ -3,8 +3,10 @@
 RSpec.describe Dossiers::RNAComponent, type: :component do
   let(:fetch_external_data_exceptions) { [] }
 
+  let(:external_id) { 'W173847273' }
+
   let(:champ) do
-    Champs::RNAChamp.new(external_state:, external_id: 'W173847273', data: rna_data, fetch_external_data_exceptions:)
+    Champs::RNAChamp.new(external_state:, external_id:, data: rna_data, fetch_external_data_exceptions:)
       .tap { |c| allow(c).to receive(:to_s).and_return('W173847273') }
   end
 
@@ -62,6 +64,16 @@ RSpec.describe Dossiers::RNAComponent, type: :component do
 
     it 'displays a generic error message with the identifier' do
       expect(subject).to have_text('Une erreur est survenue lors de la récupération des données pour l’identifiant « W173847273 »')
+    end
+  end
+
+  context 'when the external_id is blank' do
+    let(:external_state) { nil }
+    let(:external_id) { nil }
+    let(:rna_data) { nil }
+
+    it 'displays a not filled message' do
+      expect(subject).to have_text('Non renseigné')
     end
   end
 end
