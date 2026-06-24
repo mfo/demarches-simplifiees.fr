@@ -48,6 +48,19 @@ describe 'users/dossiers/show/_status_overview', type: :view do
       expect(subject).to have_text(/Pour les dossiers demandant quelques échanges, le délai d.instruction est d.environ 2 jours/)
       expect(subject).to have_text(/dossier est incomplet.*le délai d.instruction est d.environ 3 jours/)
     end
+
+    context 'with a pending correction' do
+      let(:dossier) do
+        create(:dossier, :en_construction).tap { create(:dossier_correction, dossier: it) }
+      end
+
+      it 'renders the "à corriger" notice (warning, not an alert)' do
+        expect(rendered).to have_selector('.fr-notice.fr-notice--warning')
+        expect(rendered).not_to have_selector('.fr-alert')
+        expect(rendered).to have_text('Consultez les corrections à apporter à votre dossier')
+        expect(rendered).to have_link(href: messagerie_dossier_path(dossier))
+      end
+    end
   end
 
   context 'when en construction on a brouillon procedure (EN TEST) without estimation' do

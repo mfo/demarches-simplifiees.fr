@@ -48,10 +48,9 @@
       <% if dossier.en_construction? %>
         <div class="en-construction">
           <% if dossier.pending_correction.present? %>
-            <%= render Dsfr::AlertComponent.new(state: :warning, size: :sm, extra_class_names: "fr-mb-2w") do |c| %>
-              <% c.with_body do %>
-                <%= t('views.users.dossiers.dossiers_list.pending_correction_html', link: messagerie_dossier_path(dossier), id: dossier.id, class: 'fr-link') %>
-              <% end %>
+            <%= render Dsfr::NoticeComponent.new(state: 'warning', extra_class_names: "fr-mb-2w") do |c| %>
+              <% c.with_title { t('views.users.dossiers.dossiers_list.pending_correction.title') } %>
+              <% c.with_desc { t('views.users.dossiers.dossiers_list.pending_correction.body_html', link: messagerie_dossier_path(dossier), id: dossier.id) } %>
             <% end %>
           <% end %>
 
