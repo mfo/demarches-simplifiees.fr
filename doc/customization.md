@@ -1,13 +1,13 @@
 # Front end customization
 
-Do you want to customize your instance ? Here is a step by step guide.
+Do you want to customize your instance ? Here is a step-by-step guide.
 
 ## Step 1. Understanding
 
-For your information, you can overide any view in our app by replicating the
+For your information, you can override any view in our app by replicating the
 view structure from `app/views` to `app/custom_views/`.
 
-You can also overide locales by replicating the locales structure from
+You can also override locales by replicating the locales structure from
 `config/locales` to `config/custom_locales`.
 
 ## Step 2. Customize the views
@@ -20,7 +20,7 @@ $ mkdir app/custom_views/root
 $ cp app/views/root/_footer.html.haml app/custom_views/root
 ```
 
-And _voila!_ You can edit your own template. No need for env var, no need to
+And _voilà!_ You can edit your own template. No need for env var, no need to
 worry about conflicts.
 
 ## Step 3. Customize the locales
@@ -32,7 +32,10 @@ Here is how to do:
 $ cp config/locales/links.fr.yml config/custom_locales
 ```
 
-And _voila!_ You can now edit your own locales.
+And _voilà!_ You can now edit your own locales.
+
+> [!NOTE]
+> Locales defined inside ViewComponents cannot currently be customized (see #13261).
 
 ## Step 4. Customize institution logos and document headers
 
