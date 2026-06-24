@@ -9,8 +9,8 @@ class OCRService
   def self.analyze(blob, nature:)
     blob_url = blob.url
     case nature
-    when "rib"                    then analyze_rib(blob_url)
-    when "justificatif_domicile"  then analyze_2ddoc(blob_url, nature)
+    when "rib"                                  then analyze_rib(blob_url)
+    when "justificatif_domicile", "avis_impot"  then analyze_2ddoc(blob_url, nature)
     else raise ArgumentError, "OCRService: unknown nature '#{nature}'"
     end
   end
@@ -43,6 +43,7 @@ class OCRService
   def self.extract_2ddoc(body, nature)
     case nature
     when "justificatif_domicile" then extract_justif_domicile(body)
+    when "avis_impot"            then extract_avis_impot(body)
     end
   end
 
@@ -92,6 +93,39 @@ class OCRService
   end
 
   def self.justif_domicile?(doc_type) = doc_type.in?(['00', '01', '02'])
+
+  AVIS_IMPOT_DOC_TYPES = ['28']
+
+  def self.extract_avis_impot(body)
+    doc_type, raw_data = first_valid_2ddoc(body)&.fetch_values(:doc_type, :raw_data)
+
+    return nil if raw_data.nil? || !avis_imposition?(doc_type)
+
+    attr = {
+      two_ddoc: true,
+      revenu_fiscal_de_reference: raw_data[:"41"],
+      nombre_de_parts:            raw_data[:"43"]&.tr(',', '.'),
+      reference_avis:             raw_data[:"44"],
+      annee_des_revenus:          raw_data[:"45"],
+      declarant_1:                raw_data[:"46"],
+      declarant_1_numero_fiscal:  raw_data[:"47"],
+      declarant_2:                raw_data[:"48"],
+      declarant_2_numero_fiscal:  raw_data[:"49"],
+      date_mise_en_recouvrement:  raw_data[:"4A"]&.then { Date.strptime(it, '%d%m%Y') },
+      impot_revenu_net:           raw_data[:"4V"],
+      reste_a_payer:              raw_data[:"4W"],
+      retenue_a_la_source:        raw_data[:"4X"],
+    }
+
+    query = raw_data[:"4Y"]&.tr('/', ' ')
+    fetch_ban_address(query)
+      .fmap { attr.merge!(it.except(:geometry)) }
+
+    # force parsing to ensure compat
+    AvisImpot.new(attr).attributes.compact
+  end
+
+  def self.avis_imposition?(doc_type) = doc_type.in?(AVIS_IMPOT_DOC_TYPES)
 
   MIN_BAN_CONFIDENCE = 0.9
 
