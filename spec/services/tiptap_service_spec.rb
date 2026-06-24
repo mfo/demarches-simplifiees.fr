@@ -169,9 +169,9 @@ RSpec.describe TiptapService do
         '<h3 style="text-align: center">Heading 3</h3>',
         '<p style="text-align: right">First paragraph</p>',
         '<p><s><em>Bonjour </em></s><u><strong>Paul</strong></u> <mark>!</mark></p>',
-        '<ul><li><p>Item 1</p></li><li><p>Item 2</p></li></ul>',
-        '<ol><li><p>Item 1</p></li><li><p>Item 2</p></li></ol>',
-        '<p>Langages de prédilection:</p><ul><li><p>ruby</p></li><li><p>rust</p></li></ul>',
+        '<ul><li>Item 1</li><li>Item 2</li></ul>',
+        '<ol><li>Item 1</li><li>Item 2</li></ol>',
+        '<p>Langages de prédilection:</p><ul><li>ruby</li><li>rust</li></ul>',
         '<footer>Footer</footer>',
       ].join
     end
@@ -354,7 +354,7 @@ RSpec.describe TiptapService do
       end
 
       it "set class attribute" do
-        expect(described_class.new.to_html(json, substitutions)).to eq('<ol class="my-class"><li><p>Item 1</p></li></ol>')
+        expect(described_class.new.to_html(json, substitutions)).to eq('<ol class="my-class"><li>Item 1</li></ol>')
       end
     end
   end

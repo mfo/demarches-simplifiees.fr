@@ -190,6 +190,19 @@ describe AttestationTemplate, type: :model do
       it 'generates an attestation' do
         expect(subject.pdf).to be_attached
       end
+
+      context 'when the pdf_variant feature is enabled' do
+        before do
+          Flipper.enable(:pdf_variant, procedure)
+          allow(WeasyprintService).to receive(:generate_pdf).and_return('PDF_DATA')
+        end
+
+        it 'requests the pdf/ua-1 variant through the options' do
+          subject
+          expect(WeasyprintService).to have_received(:generate_pdf)
+            .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
+        end
+      end
     end
   end
 

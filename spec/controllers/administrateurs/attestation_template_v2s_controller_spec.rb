@@ -94,6 +94,18 @@ describe Administrateurs::AttestationTemplateV2sController, type: :controller do
           is_expected.to include("black.png")
         end
       end
+
+      context 'with images requiring an alternative text (PDF/UA)' do
+        let(:attestation_acceptation_template) { build(:attestation_template, :v2, logo:, signature:) }
+
+        it 'renders an informative alt text on every image and leaves none empty' do
+          is_expected.to include('alt="République française"')
+          is_expected.to include('alt="Liberté Égalité Fraternité"')
+          is_expected.to include('alt="Ministère des devs"')
+          is_expected.to include('alt="Signature"')
+          is_expected.not_to include('alt=""')
+        end
+      end
     end
 
     context 'pdf' do
@@ -111,6 +123,19 @@ describe Administrateurs::AttestationTemplateV2sController, type: :controller do
 
       it do
         is_expected.to eq('PDF_DATA')
+      end
+
+      context 'when the pdf_variant feature is enabled' do
+        before do
+          Flipper.enable(:pdf_variant, procedure)
+          allow(WeasyprintService).to receive(:generate_pdf).and_return('PDF_DATA')
+        end
+
+        it 'requests the pdf/ua-1 variant through the options' do
+          subject
+          expect(WeasyprintService).to have_received(:generate_pdf)
+            .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
+        end
       end
     end
   end
