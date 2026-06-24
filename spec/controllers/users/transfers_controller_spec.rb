@@ -64,6 +64,38 @@ describe Users::TransfersController, type: :controller do
     end
   end
 
+  describe 'PATCH #update' do
+    before { sign_in(recipient_user) }
+
+    context 'when accept succeeds' do
+      let(:dossier_transfert) { DossierTransfer.initiate(recipient_user.email, [dossier]) }
+
+      it 'sets a notice flash' do
+        patch :update, params: { id: dossier_transfert.id }
+        expect(flash.notice).to be_present
+      end
+    end
+
+    context 'when the transfer is unknown or not addressed to the user' do
+      it 'sets the unauthorized alert' do
+        patch :update, params: { id: 99999 }
+        expect(flash.alert).to eq(I18n.t('users.dossiers.transferer.unauthorized'))
+      end
+    end
+
+    context 'when the transfer no longer has any dossier' do
+      let(:dossier_transfert) { DossierTransfer.initiate(recipient_user.email, [dossier]) }
+
+      before { dossier_transfert.dossiers.update_all(dossier_transfer_id: nil) }
+
+      it 'sets the nothing_to_transfer alert and does not claim success' do
+        patch :update, params: { id: dossier_transfert.id }
+        expect(flash.alert).to eq(I18n.t('users.dossiers.transferer.nothing_to_transfer'))
+        expect(flash.notice).to be_nil
+      end
+    end
+  end
+
   describe "POST create" do
     before do
       sign_in(sender_user)

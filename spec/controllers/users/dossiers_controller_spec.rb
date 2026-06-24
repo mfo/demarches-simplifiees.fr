@@ -1669,123 +1669,120 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
-  describe '#index' do
+  describe 'GET #index' do
+    let(:user) { create(:user) }
     before { sign_in(user) }
 
-    context 'when the user does not have any dossiers' do
-      before { get(:index) }
-
-      it { expect(assigns(:statut)).to eq('en-cours') }
+    it 'assigns @filter as a DossierFilterService' do
+      get :index
+      expect(assigns(:filter)).to be_a(Users::DossierFilterService)
     end
 
-    context 'when the user only have its own dossiers' do
-      let!(:own_dossier) { create(:dossier, user: user) }
-
-      before { get(:index) }
-      it do
-        expect(assigns(:statut)).to eq('en-cours')
-        expect(assigns(:user_dossiers)).to match([own_dossier])
-      end
+    it 'assigns @dossiers paginated to 25 per page' do
+      create_list(:dossier, 30, :en_construction, user: user)
+      get :index
+      expect(assigns(:dossiers).size).to eq(25)
     end
 
-    context 'when the user only have some dossiers invites' do
-      let!(:invite) { create(:invite, dossier: create(:dossier), user: user) }
-
-      before { get(:index) }
-
-      it do
-        expect(assigns(:statut)).to eq('dossiers-invites')
-        expect(assigns(:dossiers_invites)).to match([invite.dossier])
-      end
+    it 'assigns @corbeille_count' do
+      create(:dossier, user: user, hidden_by_user_at: Time.current)
+      create(:dossier, user: user, hidden_by_expired_at: Time.current)
+      get :index
+      expect(assigns(:corbeille_count)).to eq(2)
     end
 
-    context 'when the user has dossiers invites, own and traites' do
-      let!(:procedure) { create(:procedure, :published) }
-      let!(:own_dossier) { create(:dossier, user: user) }
-      let!(:own_dossier2) { create(:dossier, user: user, state: "accepte", procedure: procedure) }
-      let!(:invite) { create(:invite, dossier: create(:dossier), user: user) }
+    it 'assigns @pending_transfers_count' do
+      get :index
+      expect(assigns(:pending_transfers_count)).to be_a(Integer)
+    end
 
-      context 'and there is no statut param' do
-        before { get(:index) }
+    context 'filter panel-only request' do
+      before { create_list(:dossier, 6, :en_construction, user: user) }
 
-        it { expect(assigns(:statut)).to eq('en-cours') }
+      it 'skips the dossier list workload when the filter_panel param is set' do
+        get :index, params: { filter_panel: '1' }
+        expect(assigns(:filter)).to be_present
+        expect(assigns(:procedures_for_select)).to be_present
+        expect(assigns(:dossiers)).to be_nil
+        expect(assigns(:total_count)).to be_nil
       end
 
-      context 'and there is "dossiers-invites" param' do
-        before { get(:index, params: { statut: 'dossiers-invites' }) }
-
-        it { expect(assigns(:statut)).to eq('dossiers-invites') }
-      end
-
-      context 'and there is "en-cours" param' do
-        before { get(:index, params: { statut: 'en-cours' }) }
-
-        it { expect(assigns(:statut)).to eq('en-cours') }
-      end
-
-      context 'and there is "traites" param' do
-        before { get(:index, params: { statut: 'traites' }) }
-
-        it { expect(assigns(:statut)).to eq('traites') }
-      end
-
-      context 'and the traité dossier has been hidden by user' do
-        before do
-          own_dossier2.update!(hidden_by_user_at: Time.zone.now)
-          get(:index, params: { statut: 'traites' })
-        end
-        it { expect(assigns(:statut)).to eq('en-cours') }
-      end
-
-      context 'when the instructeur archive the dossier' do
-        before do
-          own_dossier2.update!(archived: true)
-          get(:index, params: { statut: 'en-cours' })
-        end
-        it do
-          expect(assigns(:statut)).to eq('en-cours')
-          expect(assigns(:dossiers_traites).map(&:id)).to eq([own_dossier2.id])
-          expect(own_dossier2.archived).to be_truthy
-        end
+      it 'renders the dossier list for a normal request (no filter_panel param)' do
+        get :index
+        expect(assigns(:dossiers)).to be_present
       end
     end
 
-    context 'when the user has dossier in brouillon recently updated' do
-      let!(:own_dossier) { create(:dossier, user: user) }
-      let!(:own_dossier_2) { create(:dossier, user: user) }
-
-      before { get(:index) }
-
-      it { expect(assigns(:first_brouillon_recently_updated)).to match(own_dossier_2) }
-    end
-
-    describe 'sort order' do
-      before do
-        travel_to(4.days.ago) { create(:dossier, user: user) }
-        travel_to(2.days.ago) { create(:dossier, user: user) }
-        travel_to(4.days.ago) { create(:invite, dossier: create(:dossier), user: user) }
-        travel_to(2.days.ago) { create(:invite, dossier: create(:dossier), user: user) }
-        get(:index)
+    context 'simple list threshold' do
+      it 'shows the simple list with up to 5 dossiers' do
+        create_list(:dossier, 5, :en_construction, user: user)
+        get :index
+        expect(assigns(:show_simple_list)).to be(true)
       end
 
-      it 'displays the most recently updated dossiers first' do
-        expect(assigns(:user_dossiers).first.updated_at.to_date).to eq(2.days.ago.to_date)
-        expect(assigns(:user_dossiers).second.updated_at.to_date).to eq(4.days.ago.to_date)
-        expect(assigns(:dossiers_invites).first.updated_at.to_date).to eq(2.days.ago.to_date)
-        expect(assigns(:dossiers_invites).second.updated_at.to_date).to eq(4.days.ago.to_date)
+      it 'shows the full list (search and filters) from 6 dossiers' do
+        create_list(:dossier, 6, :en_construction, user: user)
+        get :index
+        expect(assigns(:show_simple_list)).to be(false)
       end
     end
 
-    context 'when the user has a deleted dossier on a discarded procedure' do
-      render_views
+    it 'passes filter params to the service' do
+      get :index, params: { state: ['en_construction'], alert: ['a_corriger'], procedure_id: '42' }
+      expect(assigns(:filter)).to be_a(Users::DossierFilterService)
+      expect(response).to have_http_status(:ok)
+    end
 
-      let!(:deleted_dossier) { create(:deleted_dossier, user_id: user.id) }
+    context 'cross-user isolation' do
+      let!(:own_dossier) { create(:dossier, :en_construction, user: user) }
+      let!(:other_user_dossier) { create(:dossier, :en_construction) }
 
-      before { deleted_dossier.procedure.discard! }
+      it 'does not list another user dossiers' do
+        get :index
+        expect(assigns(:dossiers)).to include(own_dossier)
+        expect(assigns(:dossiers)).not_to include(other_user_dossier)
+      end
 
-      subject { get(:index, params: { statut: 'dossiers-supprimes-definitivement' }) }
+      it 'does not return another user dossier when searching by its id' do
+        get :index, params: { search: other_user_dossier.id.to_s }
+        expect(assigns(:dossiers)).not_to include(other_user_dossier)
+      end
+    end
 
-      it { is_expected.to have_http_status(200) }
+    context '#procedures_for_select' do
+      let(:procedure_a) { create(:procedure, libelle: 'Alpha') }
+      let(:procedure_b) { create(:procedure, libelle: 'Bêta') }
+      let(:procedure_c) { create(:procedure, libelle: 'Gamma') }
+
+      it 'returns procedures from user dossiers and invitations sorted by libelle' do
+        create_list(:dossier, 6, :en_construction, user: user, procedure: procedure_a)
+        invited_dossier = create(:dossier, :en_construction, procedure: procedure_b)
+        create(:invite, dossier: invited_dossier, user: user)
+        create(:dossier, :en_construction, procedure: procedure_c)
+
+        get :index
+
+        expect(assigns(:procedures_for_select)).to eq([['Alpha', procedure_a.id], ['Bêta', procedure_b.id]])
+      end
+
+      it 'excludes procedures from invited dossiers hidden by the user' do
+        create_list(:dossier, 6, :en_construction, user: user, procedure: procedure_a)
+        hidden_invited = create(:dossier, :en_construction, procedure: procedure_b, hidden_by_user_at: Time.current)
+        create(:invite, dossier: hidden_invited, user: user)
+
+        get :index
+
+        expect(assigns(:procedures_for_select)).to eq([['Alpha', procedure_a.id]])
+      end
+
+      it 'is empty in simple list mode (no filters shown)' do
+        create(:dossier, :en_construction, user: user, procedure: procedure_a)
+
+        get :index
+
+        expect(assigns(:show_simple_list)).to be(true)
+        expect(assigns(:procedures_for_select)).to eq([])
+      end
     end
   end
 
@@ -2320,16 +2317,6 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
-  describe '#index' do
-    before do
-      sign_in(user)
-    end
-    it 'works' do
-      get :index
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe '#extend_conservation' do
     let(:procedure) { create(:procedure, duree_conservation_dossiers_dans_ds: 3) }
     let(:dossier) { create(:dossier, procedure:, user:) }
@@ -2607,6 +2594,63 @@ describe Users::DossiersController, type: :controller do
         post :new, params: { procedure_id: procedure.id }
         expect(response).to redirect_to(identite_dossier_path(Dossier.last))
       end
+    end
+  end
+
+  describe 'GET #transfer_requests' do
+    let(:user) { create(:user, email: 'destinataire@example.com') }
+    before { sign_in(user) }
+
+    let(:expediteur) { create(:user) }
+
+    it 'assigns dossiers transferred to user email' do
+      dossier = create(:dossier, :en_construction, user: expediteur)
+      transfer = DossierTransfer.create(email: 'destinataire@example.com', dossiers: [dossier])
+      dossier.update!(dossier_transfer_id: transfer.id)
+
+      get :transfer_requests
+      expect(assigns(:pending_transfers)).to include(dossier)
+    end
+
+    it 'excludes dossiers transferred to other emails' do
+      other_dossier = create(:dossier, :en_construction, user: expediteur)
+      transfer = DossierTransfer.create(email: 'autre@example.com', dossiers: [other_dossier])
+      other_dossier.update!(dossier_transfer_id: transfer.id)
+
+      get :transfer_requests
+      expect(assigns(:pending_transfers)).not_to include(other_dossier)
+    end
+
+    it 'is accessible without ownership restriction' do
+      get :transfer_requests
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'GET #trash' do
+    let(:user) { create(:user) }
+    before { sign_in(user) }
+
+    it 'assigns dossiers hidden by user or expired' do
+      hidden_by_user = create(:dossier, :en_construction, user: user, hidden_by_user_at: Time.current)
+      hidden_by_expired = create(:dossier, :en_construction, user: user, hidden_by_expired_at: Time.current)
+      visible = create(:dossier, :en_construction, user: user)
+
+      get :trash
+
+      expect(assigns(:dossiers)).to include(hidden_by_user, hidden_by_expired)
+      expect(assigns(:dossiers)).not_to include(visible)
+    end
+
+    it 'paginates dossiers' do
+      create_list(:dossier, 30, :en_construction, user: user, hidden_by_user_at: Time.current)
+      get :trash
+      expect(assigns(:dossiers).size).to eq(25)
+    end
+
+    it 'is accessible without ownership restriction' do
+      get :trash
+      expect(response).to have_http_status(:ok)
     end
   end
 
