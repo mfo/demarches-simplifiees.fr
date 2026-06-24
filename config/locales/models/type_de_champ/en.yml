@@ -83,6 +83,7 @@ en:
           titre_identite: "Identity document"
           rib: "Bank details (RIB)"
           justificatif_domicile: "Proof of address"
+          avis_impot: "Tax notice"
     errors:
       type_de_champ:
         attributes:
