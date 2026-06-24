@@ -88,7 +88,12 @@ Rails.application.routes.draw do
 
     resources :services, only: [:index, :show]
 
-    resources :super_admins, only: [:index, :show, :destroy]
+    resources :super_admins, only: [:index, :show, :destroy] do
+      member do
+        get :reset_otp_edit
+        post :reset_otp
+      end
+    end
 
     resources :zones, only: [:index, :show]
 
