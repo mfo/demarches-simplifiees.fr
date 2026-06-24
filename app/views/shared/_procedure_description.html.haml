@@ -62,7 +62,7 @@
                 %ul
                   = render partial: "shared/procedure_pieces_jointes_list", collection: pj_with_condition, as: :pj
 
-    - estimated_delay_component = Procedure::EstimatedDelayComponent.new(procedure: procedure)
+    - estimated_delay_component = Procedure::EstimatedDelayComponent.new(procedure: procedure, fallback_to_placeholder: current_administrateur&.in?(procedure.administrateurs))
     - if estimated_delay_component.render?
       %section.fr-accordion
         %h2.fr-accordion__title

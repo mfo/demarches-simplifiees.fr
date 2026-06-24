@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 describe 'users/dossiers/show/_status_overview', type: :view do
-  before { allow(dossier.procedure).to receive(:usual_traitement_time_for_recent_dossiers).and_return([1.day, 2.days, 3.days]) }
+  before do
+    allow(view).to receive(:current_administrateur).and_return(nil)
+    allow(dossier.procedure).to receive(:usual_traitement_time_for_recent_dossiers).and_return([1.day, 2.days, 3.days])
+  end
 
   subject! { render 'users/dossiers/show/status_overview', dossier: dossier }
 
@@ -40,10 +43,38 @@ describe 'users/dossiers/show/_status_overview', type: :view do
     it 'works' do
       subject
       expect(subject).to have_selector('.status-explanation .en-construction')
-      expect(subject).to have_text('Selon nos estimations, à partir des délais d’instruction constatés')
-      expect(subject).to have_text("Dans le meilleur des cas, le délai d’instruction est : 1 jour.")
-      expect(subject).to have_text("Les dossiers demandant quelques échanges le délai d’instruction est d’environ : 2 jours.")
-      expect(subject).to have_text("Si votre dossier est incomplet ou qu’il faut beaucoup d’échanges avec l’administration, le délai d’instruction est d’environ 3 jours.")
+      expect(subject).to have_text("Selon nos estimations")
+      expect(subject).to have_text(/le délai d.instruction est de 1 jour/)
+      expect(subject).to have_text(/Pour les dossiers demandant quelques échanges, le délai d.instruction est d.environ 2 jours/)
+      expect(subject).to have_text(/dossier est incomplet.*le délai d.instruction est d.environ 3 jours/)
+    end
+  end
+
+  context 'when en construction on a brouillon procedure (EN TEST) without estimation' do
+    let(:dossier) { create :dossier, :en_construction, procedure: create(:procedure) }
+    subject { nil }
+
+    before do
+      allow(dossier.procedure).to receive(:stats_usual_traitement_time).and_return(nil)
+      allow(dossier.procedure).to receive(:usual_traitement_time_for_recent_dossiers).and_return(nil)
+    end
+
+    context 'as a regular usager (non-admin)' do
+      it 'does not show delay estimation placeholders' do
+        render 'users/dossiers/show/status_overview', dossier: dossier
+        expect(rendered).not_to have_text("[indication du délai]")
+        expect(rendered).not_to have_text("Selon nos estimations")
+      end
+    end
+
+    context 'as an administrateur of the procedure' do
+      before { allow(view).to receive(:current_administrateur).and_return(dossier.procedure.administrateurs.first) }
+
+      it 'shows delay estimation with placeholders' do
+        render 'users/dossiers/show/status_overview', dossier: dossier
+        expect(rendered).to have_text("[indication du délai]")
+        expect(rendered).to have_text("[indication du délai moyen]")
+      end
     end
   end
 
@@ -59,10 +90,10 @@ describe 'users/dossiers/show/_status_overview', type: :view do
 
     it 'works' do
       expect(subject).to have_selector('.status-explanation .en-instruction')
-      expect(subject).to have_text('Selon nos estimations, à partir des délais d’instruction constatés')
-      expect(subject).to have_text("Dans le meilleur des cas, le délai d’instruction est : 1 jour.")
-      expect(subject).to have_text("Les dossiers demandant quelques échanges le délai d’instruction est d’environ : 2 jours.")
-      expect(subject).to have_text("Si votre dossier est incomplet ou qu’il faut beaucoup d’échanges avec l’administration, le délai d’instruction est d’environ 3 jours.")
+      expect(subject).to have_text("Selon nos estimations")
+      expect(subject).to have_text(/le délai d.instruction est de 1 jour/)
+      expect(subject).to have_text(/Pour les dossiers demandant quelques échanges, le délai d.instruction est d.environ 2 jours/)
+      expect(subject).to have_text(/dossier est incomplet.*le délai d.instruction est d.environ 3 jours/)
     end
   end
 

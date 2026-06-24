@@ -1118,6 +1118,8 @@ en:
 
       stats:
         usual_processing_time: "Usual processing time"
+        user_indication: "(shown to users)"
+
         processing_time: "Processing time"
         since_procedure_creation: "since the procedure was created"
         nb_days: "Nb Days"

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_02_145332) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_22_131426) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -1112,6 +1112,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_02_145332) do
     t.boolean "duree_conservation_etendue_par_ds", default: false, null: false
     t.integer "estimated_dossiers_count"
     t.boolean "estimated_duration_visible", default: true, null: false
+    t.boolean "estimated_processing_duration_visible", default: true, null: false
     t.boolean "euro_flag", default: false
     t.boolean "experts_require_administrateur_invitation", default: false
     t.boolean "for_individual", default: false

@@ -15,4 +15,8 @@ describe 'users/statistiques/show', type: :view do
     expect(subject).to have_text("Taux d’acceptation")
     expect(subject).to have_text(procedure.libelle)
   end
+
+  it 'does not show the user indication mention' do
+    expect(subject).not_to have_text("indiqué aux usagers")
+  end
 end
