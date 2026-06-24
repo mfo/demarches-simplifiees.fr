@@ -83,4 +83,38 @@ describe "ActiveStorage configuration" do
       expect(pdf_blob.filename.to_s).to eq("weird.jfif")
     end
   end
+
+  describe "per-procedure storage service for direct upload" do
+    let(:procedure) { create(:procedure) }
+
+    def create_direct_upload_blob(procedure_id:)
+      ActiveStorage::Blob.create_before_direct_upload!(
+        filename: "doc.pdf",
+        byte_size: 3,
+        checksum: Digest::MD5.base64digest("doc"),
+        content_type: "application/pdf",
+        procedure_id:
+      )
+    end
+
+    context "when the s3_storage feature is enabled on the procedure" do
+      before { Flipper.enable(:s3_storage, procedure) }
+
+      it "creates the blob on the amazon service" do
+        expect(create_direct_upload_blob(procedure_id: procedure.id).service_name).to eq("amazon")
+      end
+    end
+
+    context "when the s3_storage feature is disabled" do
+      it "creates the blob on the default service" do
+        expect(create_direct_upload_blob(procedure_id: procedure.id).service_name).to eq("test")
+      end
+    end
+
+    context "without a procedure_id" do
+      it "creates the blob on the default service" do
+        expect(create_direct_upload_blob(procedure_id: nil).service_name).to eq("test")
+      end
+    end
+  end
 end

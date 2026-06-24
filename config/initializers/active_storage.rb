@@ -8,6 +8,30 @@ Rails.application.config.active_storage.variant_processor = :vips
 # (dimensions, duration, etc.) and it generates unnecessary AnalyzeJob executions
 Rails.application.config.active_storage.analyzers = []
 
+# Per-procedure storage service selection.
+#
+# When the `s3_storage` feature flag is enabled on a procedure, new blobs are
+# created on the :amazon (S3) service instead of the default one. The choice has
+# to happen at blob *creation* (direct upload): attaching an already-created blob
+# never reconsiders its service.
+#
+# Callers (web `DirectUploadsController`, GraphQL `CreateDirectUpload`) pass the
+# `procedure_id`; the flag is the single source of truth and `ProcedureFlipperActor`
+# checks it without loading the procedure.
+module ActiveStorageBlobServicePerProcedure
+  def create_before_direct_upload!(procedure_id: nil, service_name: nil, **args)
+    if service_name.nil? && procedure_id.present? && Flipper.enabled?(:s3_storage, ProcedureFlipperActor.new(procedure_id))
+      service_name = :amazon
+    end
+
+    super(service_name:, **args)
+  end
+end
+
+ActiveSupport.on_load(:active_storage_blob) do
+  singleton_class.prepend(ActiveStorageBlobServicePerProcedure)
+end
+
 ActiveSupport.on_load(:active_storage_blob) do
   include BlobProcessorConcern
   include BlobVirusScannerConcern
@@ -51,6 +75,20 @@ end
 
 ActiveSupport.on_load(:active_storage_attachment) do
   include AttachmentProcessorConcern
+end
+
+# Forward the `procedure_id` (sent by the web direct upload URL) down to
+# `create_before_direct_upload!` so it can pick the storage service.
+module DirectUploadsProcedureScope
+  private
+
+  def blob_args
+    super.merge(procedure_id: params[:procedure_id])
+  end
+end
+
+Rails.application.reloader.to_prepare do
+  ActiveStorage::DirectUploadsController.prepend(DirectUploadsProcedureScope)
 end
 
 Rails.application.reloader.to_prepare do

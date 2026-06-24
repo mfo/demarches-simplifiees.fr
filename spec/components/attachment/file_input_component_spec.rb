@@ -154,4 +154,18 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
       expect(subject).to have_selector('input[type=file][disabled]')
     end
   end
+
+  describe 'direct upload url' do
+    it 'scopes the direct upload url to the procedure' do
+      expect(subject).to have_selector("input[data-direct-upload-url*='procedure_id=#{procedure.id}']")
+    end
+
+    context 'when direct upload is disabled' do
+      let(:context_kwargs) { { direct_upload: false } }
+
+      it 'does not set a direct upload url' do
+        expect(subject).not_to have_selector('input[data-direct-upload-url]')
+      end
+    end
+  end
 end
