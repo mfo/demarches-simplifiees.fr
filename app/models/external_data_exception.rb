@@ -7,4 +7,8 @@ class ExternalDataException
     @error = error
     @code = code
   end
+
+  def not_found?
+    code == 404
+  end
 end

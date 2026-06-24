@@ -141,6 +141,7 @@ ignore_unused:
   # used in app/components/dossiers/user_search_component mobile search panel (excluded from search above)
   - 'views.users.dossiers.index.search.open'
   - 'views.users.dossiers.index.search.panel_title'
+  - 'shared.champs.external_data.*'
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
 # - 'simple_form.{placeholders,hints,labels}.*'
