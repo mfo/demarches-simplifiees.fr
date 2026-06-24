@@ -27,6 +27,12 @@ class Users::SessionsController < Devise::SessionsController
     if current_account.count > 1
       flash[:notice] = t("devise.sessions.signed_in_multiple_profile", roles: current_account.keys.map { |role| t("layouts.#{role}") }.to_sentence)
     end
+
+    # Display the trusted device renewal confirmation that was deferred when the
+    # user followed the renewal link without being signed in (see #sign_in_by_link).
+    if current_user && session[:trusted_device_renewal_notice].present?
+      flash[:notice] = session.delete(:trusted_device_renewal_notice)
+    end
   end
 
   def reset_link_sent
@@ -104,7 +110,7 @@ class Users::SessionsController < Devise::SessionsController
 
       period = ((trusted_device_token.created_at + TRUSTED_DEVICE_PERIOD) - Time.zone.now).to_i / ActiveSupport::Duration::SECONDS_PER_DAY
 
-      flash.notice = "Merci d’avoir confirmé votre connexion. Votre navigateur est maintenant authentifié pour #{period} jours."
+      notice = "Votre connexion sécurisée a bien été renouvelée. Votre navigateur est authentifié pour #{period} jours."
 
       # redirect to procedure'url if stored by store_location_for(:user) in dossiers_controller
       # redirect to root_path otherwise
@@ -112,8 +118,14 @@ class Users::SessionsController < Devise::SessionsController
       if instructeur_signed_in?
         current_user.update!(email_verified_at: Time.zone.now)
 
+        flash.notice = notice
         redirect_to after_sign_in_path_for(:user)
       else
+        # The renewal is already done; the user only needs to authenticate.
+        # Persist the confirmation so it is shown once signed in instead of
+        # being lost on the login page.
+        session[:trusted_device_renewal_notice] = notice
+        flash.notice = "#{notice} Connectez-vous pour accéder à vos dossiers."
         redirect_to new_user_session_path
       end
     else

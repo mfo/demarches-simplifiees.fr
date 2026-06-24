@@ -57,6 +57,11 @@ RSpec.describe InstructeurMailer, type: :mailer do
 
     it { expect(subject[BalancerDeliveryMethod::BYPASS_UNVERIFIED_MAIL_PROTECTION]).not_to be_present }
 
+    it 'states the link can be reused and that clicking is enough' do
+      expect(subject.body).to include('peut être réutilisé')
+      expect(subject.body).to include('Cliquer sur ce lien suffit à renouveler votre connexion')
+    end
+
     context 'without SafeMailer configured' do
       it { expect(subject[BalancerDeliveryMethod::FORCE_DELIVERY_METHOD_HEADER]&.value).to eq(nil) }
     end
