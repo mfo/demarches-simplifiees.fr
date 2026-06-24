@@ -27,4 +27,7 @@ fr:
     justif_domicile:
       warning: "Nous n’avons pas pu vérifier l’adresse contenue dans le justificatif.<br>Ignorez ce message si vous êtes sûr(e) de votre fichier."
       valid_html: "Justificatif de domicile au nom de <strong>%{beneficiary}</strong> (<strong>%{address}</strong>), émis le <strong>%{issue_date}</strong>."
+    avis_impot:
+      warning: "Nous n’avons pas pu lire les informations de l’avis d’impôt.<br>Ignorez ce message si vous êtes sûr(e) de votre fichier."
+      valid_html: "Avis d’impôt au nom de <strong>%{declarant}</strong> (référence <strong>%{reference}</strong>), revenus <strong>%{annee}</strong>."
 

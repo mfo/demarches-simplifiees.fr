@@ -187,6 +187,38 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
       end
     end
 
+    context 'with piece_justificative champs (avis impot)' do
+      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'avis_impot' }] }
+      let(:state) { :idle }
+      let(:value_json) { {} }
+
+      before do
+        allow(champ).to receive(:idle?).and_return((state == :idle))
+        allow(champ).to receive(:pending?).and_return((state == :pending))
+        allow(champ).to receive(:fetched?).and_return((state == :fetched))
+        allow(champ).to receive(:external_error?).and_return((state == :external_error))
+        allow(champ).to receive(:value_json).and_return(value_json)
+      end
+
+      context "when the 2ddoc fields are present" do
+        let(:state) { :fetched }
+        let(:value_json) { { 'two_ddoc' => true, 'declarant_1' => 'MICHEL JEAN', 'reference_avis' => '2538A22409999', 'annee_des_revenus' => 2024 } }
+
+        it "renders the valid message with the declarant" do
+          expect(subject).to have_css(".fr-message--valid", text: 'MICHEL JEAN')
+        end
+      end
+
+      context "when the document is not a 2ddoc" do
+        let(:state) { :fetched }
+        let(:value_json) { { 'two_ddoc' => false } }
+
+        it "renders the warning message" do
+          expect(subject).to have_css(".fr-message--warning")
+        end
+      end
+    end
+
     context 'with siret champs' do
       let(:types_de_champ_public) { [{ type: :siret }] }
       let(:errors_on_attribute) { false }

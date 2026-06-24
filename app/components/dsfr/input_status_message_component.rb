@@ -37,7 +37,7 @@ module Dsfr
     end
 
     def pjs_statut?
-      (@champ.rib? || @champ.justificatif_domicile?) && !@champ.idle?
+      (@champ.rib? || @champ.justificatif_domicile? || @champ.avis_impot?) && !@champ.idle?
     end
 
     def address_support_statut?
@@ -129,6 +129,13 @@ module Dsfr
             { state: :valid, text: t('.pj.justif_domicile.valid_html', beneficiary: justif.beneficiary, address: justif.label, issue_date: l(justif.issue_date)) }
           else
             { state: :warning, text: t('.pj.justif_domicile.warning') }
+          end
+        elsif @champ.avis_impot?
+          avis = @champ.ocr_result
+          if avis&.two_ddoc
+            { state: :valid, text: t('.pj.avis_impot.valid_html', declarant: avis.declarant_1, reference: avis.reference_avis, annee: avis.annee_des_revenus) }
+          else
+            { state: :warning, text: t('.pj.avis_impot.warning') }
           end
         else
           value_json = @champ.value_json
