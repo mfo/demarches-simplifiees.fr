@@ -21,6 +21,13 @@ class Champ < ApplicationRecord
   delegate :procedure, to: :dossier
   normalizes :value, with: NORMALIZES_NON_PRINTABLE_PROC
 
+  # Reading any `store_accessor` attribute (e.g. `country_code`,
+  # `code_departement`) on a champ whose JSON column is nil silently
+  # initializes that column to `{}`. Left as-is, this empty hash is persisted as
+  # a spurious change — bumping `updated_at` and making an untouched blank champ
+  # look like it was edited. Revert blank-equivalent JSON columns before saving.
+  before_save :nullify_blank_json_columns
+
   def type_de_champ
     @type_de_champ ||= dossier.revision
       .types_de_champ
@@ -357,6 +364,15 @@ class Champ < ApplicationRecord
   end
 
   private
+
+  def nullify_blank_json_columns
+    [:value_json, :data].each do |column|
+      next unless has_attribute?(column) && public_send(:"#{column}_changed?")
+
+      value = public_send(column)
+      self[column] = nil if value.is_a?(Hash) && value.compact.blank?
+    end
+  end
 
   # The input id is used to generate the HTML id of the input element.
   # It is used to link the label to the input, and for ARIA attributes.
