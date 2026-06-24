@@ -10,7 +10,7 @@ class OCRService
     blob_url = blob.url
     case nature
     when "rib"                    then analyze_rib(blob_url)
-    when "justificatif_domicile"  then analyze_2ddoc(blob_url)
+    when "justificatif_domicile"  then analyze_2ddoc(blob_url, nature)
     else raise ArgumentError, "OCRService: unknown nature '#{nature}'"
     end
   end
@@ -28,7 +28,7 @@ class OCRService
       .or { to_not_retryable_failure(it) }
   end
 
-  def self.analyze_2ddoc(blob_url)
+  def self.analyze_2ddoc(blob_url, nature)
     return not_configured('DOCUMENT_IA_URL') if document_ia_url.nil?
 
     url = document_ia_url + TWO_D_DOC_ENDPOINT
@@ -36,8 +36,20 @@ class OCRService
     body = { file_url: blob_url }
 
     API::Client.new.call(url:, headers:, method: :post, body:, timeout: 31)
-      .fmap { |ok| { data: ok.body, value_json: extract_2ddoc(ok.body) } }
+      .fmap { |ok| { data: ok.body, value_json: extract_2ddoc(ok.body, nature) } }
       .or { to_not_retryable_failure(it) }
+  end
+
+  def self.extract_2ddoc(body, nature)
+    case nature
+    when "justificatif_domicile" then extract_justif_domicile(body)
+    end
+  end
+
+  def self.first_valid_2ddoc(body)
+    body
+      .dig(:data, :result, :barcodes)
+      &.find { it[:type] == '2D_DOC' && it[:is_valid] } # take the first valid 2ddoc
   end
 
   TWODDOC_MAPPING = {
@@ -50,10 +62,8 @@ class OCRService
     localite: 25,
   }
 
-  def self.extract_2ddoc(body)
-    doc_type, raw_issue_date, raw_data = body
-      .dig(:data, :result, :barcodes)
-      &.find { it[:type] == '2D_DOC' && it[:is_valid] } # take the first valid 2ddoc
+  def self.extract_justif_domicile(body)
+    doc_type, raw_issue_date, raw_data = first_valid_2ddoc(body)
       &.fetch_values(:doc_type, :issue_date, :raw_data)
 
     return nil if raw_data.nil? || !justif_domicile?(doc_type)
