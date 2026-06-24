@@ -88,6 +88,11 @@ module Users
       @alerts_enabled = Flipper.enabled?(:usager_dossiers_alert_filters, @user)
     end
 
+    def model_alerts
+      return [] if !alerts_enabled?
+      Array(@params[:alert]) & ALERT_SCOPES.keys
+    end
+
     private
 
     def user_dossiers
@@ -114,11 +119,6 @@ module Users
 
     def model_states
       Array(@params[:state]) & Users::DossierStateMapping::UI_STATES
-    end
-
-    def model_alerts
-      return [] if !alerts_enabled?
-      Array(@params[:alert]) & ALERT_SCOPES.keys
     end
 
     def alert_scopes
