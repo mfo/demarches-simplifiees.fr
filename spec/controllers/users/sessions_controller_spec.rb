@@ -58,6 +58,17 @@ describe Users::SessionsController, type: :controller do
         end
       end
 
+      context 'when a trusted device renewal confirmation is pending' do
+        before { session[:trusted_device_renewal_notice] = 'Votre connexion sécurisée a bien été renouvelée.' }
+
+        it 'displays it after sign-in and clears it from the session' do
+          subject
+
+          expect(flash[:notice]).to eq('Votre connexion sécurisée a bien été renouvelée.')
+          expect(session[:trusted_device_renewal_notice]).to be_nil
+        end
+      end
+
       context 'when a previous path was registered' do
         let(:stored_path) { '/a_path' }
 
@@ -235,6 +246,11 @@ describe Users::SessionsController, type: :controller do
             expect(controller).to have_received(:trust_device)
             expect(TrustedDeviceToken.find_by(token: jeton).activated_at).to be_present
           end
+
+          it 'persists a renewal confirmation to display after sign-in' do
+            expect(session[:trusted_device_renewal_notice]).to be_present
+            expect(flash.notice).to include('renouvelée')
+          end
         end
 
         context 'when the token is invalid' do
@@ -272,6 +288,10 @@ describe Users::SessionsController, type: :controller do
             expect(controller.current_instructeur).to eq(instructeur)
             expect(controller).to have_received(:trust_device)
             expect(controller.current_instructeur.user.email_verified_at).not_to be_nil
+          end
+
+          it 'shows the renewal confirmation directly' do
+            expect(flash.notice).to include('renouvelée')
           end
         end
 
