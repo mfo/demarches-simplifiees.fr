@@ -26,12 +26,13 @@ describe Administrateurs::APITokensController, type: :controller do
     context 'with write access, no filtering, one week' do
       let(:params) { default_params }
 
-      it 'creates a token' do
+      it 'creates a token with requires_ip_filtering' do
         expect(token.name).to eq('Test')
         expect(token.write_access?).to be true
         expect(token.full_access?).to be true
         expect(token.authorized_networks).to be_blank
         expect(token.expires_at).to eq(1.week.from_now.to_date)
+        expect(token.requires_ip_filtering).to be true
       end
     end
 
@@ -41,10 +42,10 @@ describe Administrateurs::APITokensController, type: :controller do
       it { expect(token.write_access?).to be false }
     end
 
-    context 'without network filtering but requiring infinite lifetime' do
+    context 'with infinite lifetime' do
       let(:params) { default_params.merge(lifetime: 'infinite') }
 
-      it { expect(token.expires_at).to eq(1.week.from_now.to_date) }
+      it { expect(token.expires_at).to be_nil }
     end
 
     context 'with bad network and infinite lifetime' do
