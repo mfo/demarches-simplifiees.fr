@@ -6,4 +6,9 @@ class Instructeurs::DossierTraitementsComponent < ApplicationComponent
   def initialize(traitements:)
     @traitements = traitements
   end
+
+  def traitement_props(traitement)
+    processed_at = l(traitement.processed_at, format: :long_with_time)
+    { processed_at:, email: traitement.instructeur_email }.compact
+  end
 end
