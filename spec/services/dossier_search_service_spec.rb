@@ -122,5 +122,22 @@ describe DossierSearchService do
 
       it { expect(searching(dossier.id.to_s, user)).to eq([dossier]) }
     end
+
+    context 'when the full-text result is merged into a query that joins dossiers twice' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+      let!(:dossier) do
+        create(:dossier, procedure:, state: :en_construction, user:).tap do |dossier|
+          dossier.project_champs_public.first.update!(value: 'pommes')
+        end
+      end
+
+      it 'qualifies search_terms so it does not raise PG::AmbiguousColumn' do
+        self_joined = Dossier
+          .joins('INNER JOIN dossiers d2 ON d2.id = dossiers.id')
+          .merge(searching('pommes', user))
+
+        expect { self_joined.to_a }.not_to raise_error
+      end
+    end
   end
 end
