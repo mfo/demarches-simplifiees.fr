@@ -311,10 +311,14 @@ class Champs::AddressChamp < Champs::TextChamp
         address_data.merge!(city_data) if city_data.present?
       end
 
-      address_data['country_code'] ||= 'FR'
+      # Only default the country code when the champ actually carries address
+      # data. Otherwise a blank champ — whose value_json may have been silently
+      # initialized to `{}` by an incidental store_accessor read — would be
+      # fabricated into a non-blank "France" address and persisted.
+      address_data['country_code'] ||= 'FR' if address_data.present?
     end
 
-    self.value_json = address_data.compact
+    self.value_json = address_data.compact.presence
 
     if full_address? && !ban?
       self.value_json['label'] = format_label
