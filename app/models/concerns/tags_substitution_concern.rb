@@ -392,12 +392,12 @@ module TagsSubstitutionConcern
   end
 
   def champ_public_tags(dossier: nil)
-    types_de_champ = (dossier || procedure.active_revision).types_de_champ_public.filter { !_1.condition? }
+    types_de_champ = (dossier || procedure.active_revision).types_de_champ_public
     types_de_champ_tags(types_de_champ, Dossier::SOUMIS)
   end
 
   def champ_private_tags(dossier: nil)
-    types_de_champ = (dossier || procedure.active_revision).types_de_champ_private.filter { !_1.condition? }
+    types_de_champ = (dossier || procedure.active_revision).types_de_champ_private
     types_de_champ_tags(types_de_champ, Dossier::INSTRUCTION_COMMENCEE)
   end
 
