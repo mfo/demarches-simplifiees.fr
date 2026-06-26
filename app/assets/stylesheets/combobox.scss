@@ -28,9 +28,32 @@
     gap: 0.3rem;
     margin-bottom: 0.5rem;
   }
-  .fr-tag--dismiss button:focus {
-    outline: 1px solid currentColor;
-    outline-offset: -2px;
+  .fr-tag.fr-tag--dismiss {
+    position: relative;
+    cursor: pointer;
+    padding-right: 1.5rem;
+  }
+
+  .fr-tag--dismiss button {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    &::after {
+      position: absolute;
+      right: 0.625rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    &:focus {
+      outline: 1px solid currentColor;
+      outline-offset: -2px;
+    }
   }
 }
 
