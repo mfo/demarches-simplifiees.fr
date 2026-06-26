@@ -16,10 +16,12 @@ class TypesDeChamp::TypeDeChampBase
 
   def tags_for_template
     type_de_champ = @type_de_champ
+    conditional = type_de_champ.condition.present?
     paths.map do |path|
       path.merge(
         libelle: TagsSubstitutionConcern::TagsParser.normalize(path[:libelle]),
         id: path[:path] == :value ? "tdc#{stable_id}" : "tdc#{stable_id}/#{path[:path]}",
+        conditional:,
         lambda: -> (dossier) { dossier.champ_value_for_tag(type_de_champ, path[:path]) }
       )
     end

@@ -17,15 +17,19 @@ class TagsButtonListComponent < ApplicationComponent
 
   def each_category
     tags.each_pair do |category, tags|
-      yield category, tags, can_toggle_nullable?(category)
+      yield category, tags, can_toggle_optional?(category)
     end
   end
 
   private
 
-  def can_toggle_nullable?(category)
+  def optional_tag?(tag)
+    tag[:maybe_null] || tag[:conditional]
+  end
+
+  def can_toggle_optional?(category)
     return false if category != :champ_public
 
-    tags[category].any? { _1[:maybe_null] }
+    tags[category].any? { optional_tag?(_1) }
   end
 end

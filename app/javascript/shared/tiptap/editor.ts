@@ -160,13 +160,30 @@ function getEditorOptions(
   }
 
   if (tags.length > 0) {
+    const optionalTagIds = new Set(
+      tags.filter((t) => t.optional).map((t) => t.id)
+    );
+    const allChampTagIds = new Set(tags.map((t) => t.id));
+
+    const OptionalMention = Mention.extend({
+      renderHTML({ node, HTMLAttributes }) {
+        const classes = ['fr-tag', 'fr-tag--sm'];
+        const id = node.attrs.id;
+        if (optionalTagIds.has(id)) {
+          classes.push('fr-tag--purple-glycine');
+        }
+        const label =
+          allChampTagIds.has(id) && !optionalTagIds.has(id)
+            ? `${node.attrs.label} *`
+            : node.attrs.label;
+        return ['span', { ...HTMLAttributes, class: classes.join(' ') }, label];
+      }
+    });
+
     extensions.push(
-      Mention.configure({
+      OptionalMention.configure({
         renderLabel({ node }) {
           return node.attrs.label;
-        },
-        HTMLAttributes: {
-          class: 'fr-tag fr-tag--sm'
         },
         suggestion: createSuggestionMenu(tags, element)
       })

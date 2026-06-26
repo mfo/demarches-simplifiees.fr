@@ -4,12 +4,21 @@ import tippy, { type Instance as TippyInstance } from 'tippy.js';
 import { matchSorter } from 'match-sorter';
 
 export const tagSchema = s.coerce(
-  s.object({ label: s.string(), id: s.string() }),
+  s.object({
+    label: s.string(),
+    id: s.string(),
+    optional: s.optional(s.boolean())
+  }),
   s.type({
     tagLabel: s.string(),
-    tagId: s.string()
+    tagId: s.string(),
+    tagOptional: s.optional(s.string())
   }),
-  ({ tagId, tagLabel }) => ({ label: tagLabel, id: tagId })
+  ({ tagId, tagLabel, tagOptional }) => ({
+    label: tagLabel,
+    id: tagId,
+    optional: tagOptional === 'true'
+  })
 );
 export type TagSchema = s.Infer<typeof tagSchema>;
 
