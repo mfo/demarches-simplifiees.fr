@@ -29,7 +29,7 @@ describe 'As an administrateur, I want to manage the procedure’s attestation',
         attestation_acceptation_template: build(:attestation_template))
     end
 
-    scenario do
+    scenario 'update attestation, upload files, then disable' do
       visit admin_procedure_path(procedure)
 
       within find_attestation_card(v2: false) do
@@ -43,26 +43,7 @@ describe 'As an administrateur, I want to manage the procedure’s attestation',
 
       page.find(".alert-success", text: "Le modèle de l’attestation a bien été modifié")
 
-      # now process to disable attestation
-      find('.toggle-switch-control').click
-      click_on 'Enregistrer'
-      page.find(".alert-success", text: "Le modèle de l’attestation a bien été modifié")
-
-      # check attestation is now disabled
-      visit admin_procedure_path(procedure)
-
-      find_attestation_card(v2: false, with_nested_selector: ".fr-badge")
-      expect(page).to have_content('Désactivée')
-    end
-
-    scenario 'upload logo and signature' do
-      visit admin_procedure_path(procedure)
-
-      within find_attestation_card(v2: false) do
-        expect(page).to have_content('Activée')
-        click
-      end
-
+      # Upload logo and signature
       attestation = procedure.attestation_acceptation_template
 
       expect(page).to have_text("Logo de l’attestation")
@@ -97,6 +78,23 @@ describe 'As an administrateur, I want to manage the procedure’s attestation',
 
       wait_until { !attestation.reload.signature.attached? }
       expect(attestation.signature.attached?).to be(false)
+
+      # now process to disable attestation
+      visit admin_procedure_path(procedure)
+      within find_attestation_card(v2: false) do
+        expect(page).to have_content('Activée')
+        click
+      end
+
+      find('.toggle-switch-control').click
+      click_on 'Enregistrer'
+      page.find(".alert-success", text: "Le modèle de l’attestation a bien été modifié")
+
+      # check attestation is now disabled
+      visit admin_procedure_path(procedure)
+
+      find_attestation_card(v2: false, with_nested_selector: ".fr-badge")
+      expect(page).to have_content('Désactivée')
     end
   end
 
@@ -165,6 +163,15 @@ describe 'As an administrateur, I want to manage the procedure’s attestation',
       # FIXME we should get line1\nline2\nline3line4 instead of line1\nline2\nline3\nline4 because row is set to 3
       expect(page).to have_field("Contenu du pied de page", with: "line1\nline2\nline3\nline4")
 
+      # Insert a page break in the v2 attestation
+      within('#attestation-edit') do
+        find('#editor .ProseMirror').click
+        click_on 'Saut de page'
+      end
+
+      expect(page).to have_css('#editor .page-break')
+      expect(find('input[data-tiptap-target="input"]', visible: false).value).to include('pageBreak')
+
       click_on "Publier"
       expect(attestation.reload).to be_published
       expect(page).to have_text("L’attestation a été publiée")
@@ -175,20 +182,6 @@ describe 'As an administrateur, I want to manage the procedure’s attestation',
       end
       expect(procedure.reload.attestation_acceptation_template.label_direction).to eq("plop")
       expect(page).to have_text(/La nouvelle version de l’attestation/)
-    end
-
-    scenario 'inserting a page break in the v2 attestation' do
-      visit edit_admin_procedure_attestation_template_v2_path(procedure, attestation_kind: :acceptation)
-
-      expect(page).to have_css('#editor')
-
-      within('#attestation-edit') do
-        find('#editor .ProseMirror').click
-        click_on 'Saut de page'
-      end
-
-      expect(page).to have_css('#editor .page-break')
-      expect(find('input[data-tiptap-target="input"]', visible: false).value).to include('pageBreak')
     end
 
     context "tag in error" do
