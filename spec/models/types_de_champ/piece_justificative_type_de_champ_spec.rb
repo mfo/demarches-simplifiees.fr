@@ -22,6 +22,17 @@ describe TypesDeChamp::PieceJustificativeTypeDeChamp do
       expect(labels.any? { _1.include?('Adresse') }).to be true
       expect(labels.any? { _1.include?('Date d’émission') }).to be true
     end
+
+    it 'adds avis impot columns with i18n labels' do
+      tdc = create(:type_de_champ_piece_justificative, procedure:, nature: 'avis_impot')
+      cols = tdc.dynamic_type.columns(procedure_id: procedure.id, displayable: true)
+      labels = cols.map(&:label)
+      expect(labels.any? { _1.include?('Déclarant 1') }).to be true
+      expect(labels.any? { _1.include?('Référence de l’avis') }).to be true
+      expect(labels.any? { _1.include?('Revenu fiscal de référence') }).to be true
+      expect(labels.any? { _1.include?('Date de mise en recouvrement') }).to be true
+      expect(labels.any? { _1.include?('Commune') }).to be true
+    end
   end
 
   describe '#champ_value_for_export' do
