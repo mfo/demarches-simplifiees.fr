@@ -1,0 +1,13 @@
+---
+en:
+  activemodel:
+    attributes:
+      avis_impot:
+        declarant_1: Declarant 1
+        declarant_2: Declarant 2
+        reference_avis: Tax notice reference
+        annee_des_revenus: Income year
+        nombre_de_parts: Number of shares
+        revenu_fiscal_de_reference: Reference tax income
+        date_mise_en_recouvrement: Collection date
+        label: Address

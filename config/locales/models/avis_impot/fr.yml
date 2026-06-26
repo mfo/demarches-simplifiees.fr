@@ -1,0 +1,13 @@
+---
+fr:
+  activemodel:
+    attributes:
+      avis_impot:
+        declarant_1: Déclarant 1
+        declarant_2: Déclarant 2
+        reference_avis: Référence de l’avis
+        annee_des_revenus: Année des revenus
+        nombre_de_parts: Nombre de parts
+        revenu_fiscal_de_reference: Revenu fiscal de référence
+        date_mise_en_recouvrement: Date de mise en recouvrement
+        label: Adresse

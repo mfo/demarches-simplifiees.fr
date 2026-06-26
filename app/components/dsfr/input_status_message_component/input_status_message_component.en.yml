@@ -27,3 +27,6 @@ en:
     justif_domicile:
       warning: "We were unable to verify the address contained in the supporting document.<br>Ignore this message if you are confident your file is correct."
       valid_html: "Proof of residence in the name of <strong>%{beneficiary}</strong> (<strong>%{address}</strong>), issued on <strong>%{issue_date}</strong>."
+    avis_impot:
+      warning: "We were unable to read the information in the tax notice.<br>Ignore this message if you are confident your file is correct."
+      valid_html: "Tax notice in the name of <strong>%{declarant}</strong> (reference <strong>%{reference}</strong>), income year <strong>%{annee}</strong>."

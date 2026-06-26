@@ -189,6 +189,21 @@ describe Champs::PieceJustificativeChamp do
         expect(champ.ocr_result.beneficiary).to eq('Jane Smith')
       end
     end
+
+    context 'when nature is avis_impot' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'avis_impot' }]) }
+      let(:value_json) { { 'reference_avis' => '2538A22409999' } }
+
+      before do
+        allow(champ).to receive(:fetched?).and_return(true)
+        allow(champ).to receive(:value_json).and_return(value_json)
+      end
+
+      it do
+        expect(champ.ocr_result).to be_a(AvisImpot)
+        expect(champ.ocr_result.reference_avis).to eq('2538A22409999')
+      end
+    end
   end
 
   describe "#for_export" do

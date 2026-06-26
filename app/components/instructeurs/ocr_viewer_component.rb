@@ -21,6 +21,11 @@ class Instructeurs::OCRViewerComponent < ApplicationComponent
       h = doc.attributes.slice('beneficiary', 'label', 'issue_date')
       h['issue_date'] = I18n.l(h['issue_date'], format: :short) if h['issue_date']
       h
+
+    elsif doc.is_a?(AvisImpot)
+      h = doc.attributes.slice('declarant_1', 'declarant_2', 'reference_avis', 'annee_des_revenus', 'nombre_de_parts', 'revenu_fiscal_de_reference', 'date_mise_en_recouvrement', 'label')
+      h['date_mise_en_recouvrement'] = I18n.l(h['date_mise_en_recouvrement'], format: :short) if h['date_mise_en_recouvrement']
+      h
     end
 
     d.map { |k, *tail| [doc.class.human_attribute_name(k), *tail] }

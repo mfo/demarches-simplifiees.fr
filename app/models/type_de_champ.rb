@@ -108,7 +108,7 @@ class TypeDeChamp < ApplicationRecord
     pre_rempli: 'pre_rempli',
   }
 
-  enum :nature, %w[non_specifie titre_identite rib justificatif_domicile].index_by(&:itself)
+  enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
 
   SIMPLE_ROUTABLE_TYPES = [
     type_champs.fetch(:drop_down_list),

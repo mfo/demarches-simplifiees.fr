@@ -110,6 +110,28 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         )
       end
       cs.concat(addressable_columns(procedure_id:, displayable:, prefix:))
+    elsif avis_impot?
+      cs += [
+        [:declarant_1, :text],
+        [:declarant_2, :text],
+        [:reference_avis, :text],
+        [:annee_des_revenus, :integer],
+        [:nombre_de_parts, :decimal],
+        [:revenu_fiscal_de_reference, :integer],
+        [:date_mise_en_recouvrement, :date],
+      ].map do |attribute, type|
+        Columns::JSONPathColumn.new(
+          procedure_id:,
+          stable_id:,
+          tdc_type: type_champ,
+          label: "#{libelle_with_prefix(prefix)} – #{AvisImpot.human_attribute_name(attribute)}",
+          type:,
+          jsonpath: "$.#{attribute}",
+          displayable: true,
+          mandatory: mandatory?
+        )
+      end
+      cs.concat(addressable_columns(procedure_id:, displayable:, prefix:))
     elsif titre_identite?
       cs += [
         Columns::TitreIdentiteColumn.new(

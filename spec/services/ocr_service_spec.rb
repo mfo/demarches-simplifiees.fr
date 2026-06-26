@@ -198,4 +198,96 @@ describe OCRService do
       end
     end
   end
+
+  describe '#analyze avis_impot' do
+    let(:document_ia_url) { 'https://some_url.fr' }
+    let(:document_ia_key) { 'some_key' }
+    let(:blob_url) { 'http://example.com/blob.pdf' }
+    let(:blob) { double('Blob', url: blob_url) }
+    let(:headers) { { 'X-API-KEY': document_ia_key } }
+    let(:url) { "#{document_ia_url}/api/v1/workflows/document-barcode-extraction/execute-sync" }
+    let(:body) { File.read('spec/fixtures/files/doc_ia/avis_impot.json') }
+    let(:best_ban_score) { 0.97 }
+    let(:ban_query) { '123 RUE DES PIETONS 38000 GRENOBLE' }
+    let(:ban_body) do
+      {
+        features: [
+          {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [5.7245, 45.1885] },
+            properties: {
+              label: '123 Rue des Piétons 38000 Grenoble',
+              score: best_ban_score,
+              name: '123 Rue des Piétons',
+              housenumber: '123',
+              street: 'Rue des Piétons',
+              postcode: '38000',
+              citycode: '38185',
+              city: 'Grenoble',
+              context: '38, Isère, Auvergne-Rhône-Alpes',
+              type: 'housenumber',
+            },
+          },
+        ],
+      }.to_json
+    end
+
+    let(:expected_avis_fields) do
+      {
+        "two_ddoc" => true,
+        "revenu_fiscal_de_reference" => 54321,
+        "nombre_de_parts" => 2.5,
+        "reference_avis" => '2538A22409999',
+        "annee_des_revenus" => 2024,
+        "declarant_1" => 'MICHEL JEAN',
+        "declarant_1_numero_fiscal" => '0745732546333',
+        "declarant_2" => 'MICHEL MARIE',
+        "declarant_2_numero_fiscal" => '0745732546334',
+        "date_mise_en_recouvrement" => Date.new(2025, 7, 31),
+        "impot_revenu_net" => 1234,
+        "reste_a_payer" => -182,
+        "retenue_a_la_source" => 1671,
+      }
+    end
+
+    subject { described_class.analyze(blob, nature: 'avis_impot') }
+
+    before do
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("DOCUMENT_IA_URL", nil)
+        .and_return(document_ia_url)
+      allow(ENV).to receive(:fetch).with("DOCUMENT_IA_KEY")
+        .and_return(document_ia_key)
+
+      stub_request(:post, url).with(headers:, body: { file_url: blob.url })
+        .to_return(body:, status: 200)
+      stub_request(:get, "#{API_ADRESSE_URL}/search")
+        .with(query: { q: ban_query, limit: 1 })
+        .to_return(body: ban_body, status: 200)
+    end
+
+    it 'decodes the raw 2ddoc fiscal fields with their types' do
+      expect(subject.value![:value_json]).to include(expected_avis_fields)
+    end
+
+    it 'merges the BAN-normalized address' do
+      expect(subject.value![:value_json]).to include(
+        "label" => '123 Rue des Piétons 38000 Grenoble',
+        "postal_code" => '38000',
+        "city_code" => '38185',
+        "city_name" => 'Grenoble',
+        "department_code" => '38',
+        "region_code" => '84'
+      )
+    end
+
+    context 'when the doc_type is not an avis impot' do
+      let(:body) { File.read('spec/fixtures/files/doc_ia/success.json') }
+
+      it 'returns nil value_json but keeps the raw data' do
+        expect(subject.value![:value_json]).to be_nil
+        expect(subject.value![:data]).not_to be_nil
+      end
+    end
+  end
 end

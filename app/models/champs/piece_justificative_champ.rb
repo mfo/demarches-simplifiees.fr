@@ -37,6 +37,8 @@ class Champs::PieceJustificativeChamp < Champ
       RIB.new(value_json.dig('rib'))
     elsif justificatif_domicile?
       JustificatifDomicile.new(value_json)
+    elsif avis_impot?
+      AvisImpot.new(value_json)
     end
   end
 

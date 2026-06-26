@@ -1,0 +1,43 @@
+{
+  "id": "a1b2c3d4-3c98-468e-a4f6-e401818e725e",
+ "data":
+  {
+    "result":
+        {
+          "barcodes":
+                [
+                  {
+                    "type": "2D_DOC",
+                          "is_valid": true,
+                          "position": { "top_left": [260, 125], "top_right": [434, 125], "bottom_left": [260, 299], "bottom_right": [434, 299] },
+                          "raw_data":
+                           {
+                             "41": "54321",
+                             "43": "2,5",
+                             "44": "2538A22409999",
+                             "45": "2024",
+                             "46": "MICHEL JEAN",
+                             "47": "0745732546333",
+                             "48": "MICHEL MARIE",
+                             "49": "0745732546334",
+                             "4A": "31072025",
+                             "4V": "1234",
+                             "4W": "-182",
+                             "4X": "1671",
+                             "4Y": "123 RUE DES PIETONS/38000 GRENOBLE"
+                           },
+                          "ants_type": "avis_imposition",
+                          "doc_type": "28",
+                          "issue_date": null,
+                          "typed_data": [],
+                          "page_number": 1
+                  }
+                ],
+         "extraction": null,
+         "classification": null,
+         "workflow_metadata": null
+        },
+   "total_processing_time_ms": 646
+  },
+ "status": "SUCCESS"
+}

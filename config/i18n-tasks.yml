@@ -99,6 +99,7 @@ ignore_unused:
   - 'activerecord.attributes.*'
   - 'activemodel.attributes.map_filter.*'
   - 'activemodel.attributes.justificatif_domicile.*' # used in ocr_viewer_component
+  - 'activemodel.attributes.avis_impot.*' # used in ocr_viewer_component
   - 'activemodel.errors.models.*'
   - 'activerecord.errors.*'
   - 'errors.messages.blank'

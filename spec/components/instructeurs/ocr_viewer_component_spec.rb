@@ -96,4 +96,29 @@ RSpec.describe Instructeurs::OCRViewerComponent, type: :component do
       end
     end
   end
+
+  describe 'rendering with AvisImpot' do
+    subject { render_inline(component) }
+
+    let(:doc) do
+      AvisImpot.new(
+        declarant_1: 'MICHEL JEAN',
+        reference_avis: '2538A22409999',
+        annee_des_revenus: 2024,
+        revenu_fiscal_de_reference: 54321,
+        nombre_de_parts: 2.5,
+        date_mise_en_recouvrement: Date.new(2025, 7, 31),
+        label: '123 rue des Piétons 38000 Grenoble',
+        two_ddoc: true
+      )
+    end
+
+    it 'renders avis impot data' do
+      expect(subject).to have_css('.champ-content', text: 'MICHEL JEAN')
+      expect(subject).to have_css('.champ-content', text: '2538A22409999')
+      expect(subject).to have_css('.champ-content', text: '54321')
+      expect(subject).to have_css('.champ-content', text: I18n.l(Date.new(2025, 7, 31), format: :short))
+      expect(subject).to have_css('acronym', text: '2D-Doc')
+    end
+  end
 end
