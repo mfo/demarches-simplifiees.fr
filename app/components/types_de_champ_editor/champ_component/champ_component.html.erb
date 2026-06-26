@@ -12,12 +12,12 @@
         <div class="flex justify-start flex-gap fr-mb-4w">
           <div class="flex justify-start width-33">
             <div class="cell flex justify-start column flex-grow">
-              <%= form.label :type_champ, "Type de champ", for: dom_id(type_de_champ, :type_champ) %>
+              <%= form.label :type_champ, t(".type_champ_label"), for: dom_id(type_de_champ, :type_champ) %>
               <%= form.select :type_champ, grouped_options_for_select(types_of_type_de_champ, type_de_champ.type_champ), {}, class: 'fr-select small-margin small inline width-100', id: dom_id(type_de_champ, :type_champ), disabled: disabled_type_de_champ_select? %>
 
               <% if type_de_champ.siret? || type_de_champ.communes? || type_de_champ.departements? || type_de_champ.address? || type_de_champ.epci? %>
                 <div class="cell fr-mt-1w">
-                  <%= button_tag("Liste des informations remontées", type: :button, class: "fr-btn fr-icon-info-line fr-btn--icon-left fr-btn--tertiary-no-outline fr-btn--sm",
+                  <%= button_tag(t(".info_remontees_button"), type: :button, class: "fr-btn fr-icon-info-line fr-btn--icon-left fr-btn--tertiary-no-outline fr-btn--sm",
                     data: { "fr-opened" => "false", "turbo-frame" => "api-champ-columns", action: "lazy-modal#load" },
                     src: api_champ_columns_admin_procedure_path(id: procedure.id, stable_id: type_de_champ.stable_id),
                     "aria-controls" => "api-champ-columns-modal",
@@ -28,15 +28,23 @@
               <% if disabled_type_de_champ_select? %>
                 <div class="cell fr-mt-1w">
                   <span class="fr-icon-lock-fill fr-icon--sm"></span>
-                  Aucun type de champ autorisé pour transformer ce champ
+                  <%= t(".no_allowed_type") %>
                 </div>
               <% end %>
 
               <% if type_de_champ.communes? %>
                 <div class="cell fr-mt-1w">
                   <%= render Dsfr::NoticeComponent.new(state: "warning", closable: false) do |c| %>
-                    <% c.with_title { "Attention :" } %>
-                    <% c.with_desc { "ne pas utiliser ce champ pour les <strong>communes de naissance</strong>.".html_safe } %>
+                    <% c.with_title { t(".communes_warning_title") } %>
+                    <% c.with_desc { t(".communes_warning_desc_html") } %>
+
+                    <% c.with_link do %>
+                      <%= button_tag(t(".communes_info_link"), type: :button, class: "fr-pl-0 fr-link fr-text-default--warning fr-mt-1w",
+                        data: { "fr-opened" => "false", "turbo-frame" => "api-champ-columns", action: "lazy-modal#load", href: 'style' },
+                        src: commune_info_admin_procedure_path(id: procedure.id, stable_id: type_de_champ.stable_id),
+                        "aria-controls" => "api-champ-columns-modal",
+                        "aria-haspopup" => "dialog") %>
+                    <% end %>
                   <% end %>
                 </div>
               <% end %>
@@ -47,13 +55,13 @@
             <div class="cell">
               <div class="flex align-center">
                 <% if libelle_configurable? %>
-                  <%= form.label :libelle, "Libellé du champ", class: 'flex-grow', for: dom_id(type_de_champ, :libelle) %>
+                  <%= form.label :libelle, t(".libelle_label"), class: "flex-grow", for: dom_id(type_de_champ, :libelle) %>
                 <% end %>
 
                 <% if mandatory_configurable? %>
                   <div class="flex align-center">
                     <%= form.check_box :mandatory, class: 'small-margin small', id: dom_id(type_de_champ, :mandatory) %>
-                    <%= form.label :mandatory, "Champ obligatoire", for: dom_id(type_de_champ, :mandatory) %>
+                    <%= form.label :mandatory, t(".mandatory_label"), for: dom_id(type_de_champ, :mandatory) %>
                   </div>
                 <% end %>
               </div>
@@ -65,16 +73,13 @@
 
             <% if description_configurable? %>
               <div class="cell fr-mt-1w">
-                <%= form.label :description, "Description du champ (optionnel)", for: dom_id(type_de_champ, :description) %>
+                <%= form.label :description, t(".description_label"), for: dom_id(type_de_champ, :description) %>
                 <%= form.text_area :description, class: 'fr-input small-margin small width-100 resize-y', rows: 3, id: dom_id(type_de_champ, :description) %>
               </div>
             <% end %>
 
             <% if type_de_champ.header_section? %>
-              <p class="fr-text--sm">
-                Nous numérotons automatiquement les titres lorsqu’aucun de vos
-                titres ne commence par un chiffre.
-              </p>
+              <p class="fr-text--sm"><%= t(".header_section_hint") %></p>
               <div class="cell fr-mt-1w">
                 <%= render TypesDeChampEditor::HeaderSectionComponent.new(form: form, tdc: type_de_champ, upper_tdcs: @upper_coordinates.map(&:type_de_champ)) %>
               </div>
@@ -82,9 +87,7 @@
 
             <% if type_de_champ.textarea? %>
               <div class="cell fr-mt-1w">
-                <%= form.label :character_limit, for: dom_id(type_de_champ, :character_limit) do %>
-                  Spécifier un nombre maximal conseillé de caractères :
-                <% end %>
+                <%= form.label :character_limit, t(".character_limit_label"), for: dom_id(type_de_champ, :character_limit) %>
 
                 <%= form.select :character_limit, options_for_character_limit, {}, { id: dom_id(type_de_champ, :character_limit), class: 'fr-select' } %>
               </div>
@@ -94,21 +97,19 @@
               <div class="cell fr-mt-2w">
                 <div class="fr-toggle fr-toggle--no-label">
                   <%= form.check_box :collapsible_explanation_enabled, id: dom_id(type_de_champ, :collapsible_explanation_enabled), class: 'fr-toggle__input' %>
-                  <%= form.label :collapsible_explanation_enabled, "Afficher un texte complémentaire affichable au clic", for: dom_id(type_de_champ, :collapsible_explanation_enabled), class: 'fr-toggle__label fr-label' %>
+                  <%= form.label :collapsible_explanation_enabled, t(".collapsible_explanation_label"), for: dom_id(type_de_champ, :collapsible_explanation_enabled), class: "fr-toggle__label fr-label" %>
                 </div>
 
                 <% if form.object.collapsible_explanation_enabled? %>
                   <div class="cell fr-mt-1w">
-                    <%= form.label :collapsible_explanation_text, for: dom_id(type_de_champ, :collapsible_explanation_text) do %>
-                      Texte complémentaire
-                    <% end %>
+                    <%= form.label :collapsible_explanation_text, t(".collapsible_explanation_text_label"), for: dom_id(type_de_champ, :collapsible_explanation_text) %>
 
                     <%= form.text_area :collapsible_explanation_text, class: "fr-input small-margin small", id: dom_id(type_de_champ, :collapsible_explanation_text) %>
                   </div>
                 <% end %>
               </div>
               <div class="cell fr-mt-1w">
-                <%= form.label :notice_explicative, "Notice explicative", for: dom_id(type_de_champ, :notice_explicative) %>
+                <%= form.label :notice_explicative, t(".notice_explicative_label"), for: dom_id(type_de_champ, :notice_explicative) %>
                 <%= render Attachment::FileFieldComponent.new(context: Attachment::Context.new(**notice_explicative_options), drop_zone: :none) %>
               </div>
             <% end %>
@@ -116,7 +117,7 @@
             <% if type_de_champ.piece_justificative? %>
               <div class="cell fr-mt-1w">
                 <div class="fr-hr fr-mt-2w"></div>
-                <%= form.label :nature, "Nature de la pièce", for: dom_id(type_de_champ, :nature) %>
+                <%= form.label :nature, t(".nature_label"), for: dom_id(type_de_champ, :nature) %>
                 <% natures = TypeDeChamp.natures.keys.reject { _1 == 'justificatif_domicile' && !procedure.feature_enabled?(:analyse_justificatif_domicile) }.map { |k| [t("activerecord.attributes.type_de_champ.natures.#{k}", default: k.to_s.humanize), k] } %>
 
                 <%= form.select :nature,
@@ -129,14 +130,14 @@
               <% if type_de_champ.titre_identite? %>
                 <div class="fr-hr"></div>
                 <div class="cell">
-                  <%= form.label :formats_accepted, t('.identity_formats.title'), for: nature_dom_id, class: 'fake-label' %>
+                  <%= form.label :formats_accepted, t('.identity_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
                   <p class="fr-mb-0"><%= t('.identity_formats.desc_html') %></p>
                   <p class="fr-mt-0"><%= t('.identity_formats.rule_html') %></p>
                 </div>
                 <div class="fr-hr"></div>
                 <div class="cell">
-                  <%= form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: 'fake-label' %>
+                  <%= form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: "fake-label" %>
 
                   <p class="fr-mb-0">
                     <%= t('.identity_deletion.desc_html') %>
@@ -160,7 +161,7 @@
                 </div>
                 <div class="fr-hr fr-mt-2w"></div>
                 <div class="cell">
-                  <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: 'fake-label' %>
+                  <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
                   <p class="fr-mb-0"><%= t('.rib_formats.desc_html') %></p>
                 </div>
@@ -249,17 +250,7 @@
                 <div class="cell fr-mt-1w">
                   <%= render Dsfr::AlertComponent.new(state: :info, heading_level: 'p') do |c| %>
                     <% c.with_body do %>
-                      <p>
-                        Dans le cadre de la RGPD, le titre d’identité sera
-                        supprimé lors de l’acceptation, du refus ou du
-                        classement sans suite du dossier.
-                        <br>
-                        Aussi, pour des raisons de sécurité, un filigrane est
-                        automatiquement ajouté aux images.
-                        <br>
-                        Finalement, le titre d’identité ne sera ni disponible
-                        dans les zip de dossiers, ni téléchargeable par API.
-                      </p>
+                      <p><%= t(".titre_identite_rgpd_html") %></p>
                     <% end %>
                   <% end %>
                 </div>
@@ -275,19 +266,19 @@
               <div class="border-left-dark fr-mt-2w">
                 <div class="cell">
                   <legend class="fake-label">
-                    Format accepté
+                    <%= t(".format_accepted_legend") %>
                   </legend>
 
                   <div class="fr-toggle fr-toggle--no-label">
                     <%= form.check_box :positive_number, id: dom_id(type_de_champ, :positive_number), class: 'fr-toggle__input' %>
-                    <%= form.label :positive_number, "Ce nombre doit être positif", for: dom_id(type_de_champ, :positive_number), class: 'fr-toggle__label fr-label' %>
+                    <%= form.label :positive_number, t(".positive_number_label"), for: dom_id(type_de_champ, :positive_number), class: "fr-toggle__label fr-label" %>
                   </div>
                 </div>
 
                 <div class="cell fr-mt-2w">
                   <div class="fr-toggle fr-toggle--no-label">
                     <%= form.check_box :range_number, id: dom_id(type_de_champ, :range_number), class: 'fr-toggle__input' %>
-                    <%= form.label :range_number, "Ce nombre doit être compris entre des valeurs limites", for: dom_id(type_de_champ, :range_number), class: 'fr-toggle__label fr-label' %>
+                    <%= form.label :range_number, t(".range_number_label"), for: dom_id(type_de_champ, :range_number), class: "fr-toggle__label fr-label" %>
                   </div>
                 </div>
 
@@ -296,9 +287,7 @@
                     <fieldset class="fr-fieldset">
                       <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                         <div class="fr-input-group">
-                          <%= form.label :min_number, for: dom_id(type_de_champ, :min_number) do %>
-                            valeur minimale
-                          <% end %>
+                          <%= form.label :min_number, t(".min_number_label"), for: dom_id(type_de_champ, :min_number) %>
 
                           <%= form.number_field :min_number, class: "fr-input", id: dom_id(type_de_champ, :min_number) %>
                         </div>
@@ -306,9 +295,7 @@
 
                       <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                         <div class="fr-input-group">
-                          <%= form.label :max_number, for: dom_id(type_de_champ, :max_number) do %>
-                            valeur maximale
-                          <% end %>
+                          <%= form.label :max_number, t(".max_number_label"), for: dom_id(type_de_champ, :max_number) %>
 
                           <%= form.number_field :max_number, class: "fr-input", id: dom_id(type_de_champ, :max_number) %>
                         </div>
@@ -323,57 +310,46 @@
               <div class="border-left-dark fr-mt-2w">
                 <div class="cell">
                   <legend class="fake-label">
-                    Format accepté
+                    <%= t(".format_accepted_legend") %>
                   </legend>
 
                   <% if type_de_champ.date? %>
                     <div class="fr-toggle fr-toggle--no-label">
                       <%= form.check_box :birthdate, id: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__input' %>
-                      <%= form.label :birthdate, "Ce champ est une date de naissance", for: dom_id(type_de_champ, :birthdate), class: 'fr-toggle__label fr-label' %>
+                      <%= form.label :birthdate, t(".birthdate_label"), for: dom_id(type_de_champ, :birthdate), class: "fr-toggle__label fr-label" %>
                     </div>
-                    <p class="fr-hint-text">
-                      La date devra être comprise entre le 1er janvier 1900 et
-                      aujourd’hui
-                    </p>
+                    <p class="fr-hint-text"><%= t(".birthdate_hint") %></p>
                   <% end %>
 
                   <% if type_de_champ.date? && form.object.birthdate? %>
                     <div class="fr-toggle fr-mt-2w fr-toggle--no-label">
                       <%= form.check_box :prefill_with_france_connect_information, { id: dom_id(type_de_champ, :prefill_with_france_connect_information), class: 'fr-toggle__input', disabled: prefill_with_france_connect_information_locked_by_sibling? } %>
-                      <%= form.label :prefill_with_france_connect_information, "Préremplir avec la date de naissance FranceConnect", for: dom_id(type_de_champ, :prefill_with_france_connect_information), class: 'fr-toggle__label fr-label' %>
+                      <%= form.label :prefill_with_france_connect_information, t(".prefill_fc_birthdate_label"), for: dom_id(type_de_champ, :prefill_with_france_connect_information), class: "fr-toggle__label fr-label" %>
                     </div>
                     <% if prefill_with_france_connect_information_locked_by_sibling? %>
                       <p class="fr-hint-text">
-                        Un autre champ date utilise déjà cette option. Il ne
-                        peut y avoir qu’un seul champ date prérempli par
-                        FranceConnect par démarche.
+                        <%= t(".prefill_fc_locked_hint") %>
                       </p>
                     <% else %>
-                      <p class="fr-hint-text">
-                        Le champ sera prérempli avec la date de naissance de
-                        l’usager connecté via FranceConnect qui crée le dossier.
-                        La valeur reste modifiable.
-                      </p>
+                      <p class="fr-hint-text"><%= t(".prefill_fc_hint") %></p>
                     <% end %>
                   <% end %>
 
                   <% if !form.object.birthdate? %>
                     <div class="fr-toggle fr-mt-2w fr-toggle--no-label">
                       <%= form.check_box :date_in_past, id: dom_id(type_de_champ, :date_in_past), class: 'fr-toggle__input' %>
-                      <%= form.label :date_in_past, "Cette date doit être dans le passé", for: dom_id(type_de_champ, :date_in_past), class: 'fr-toggle__label fr-label' %>
+                      <%= form.label :date_in_past, t(".date_in_past_label"), for: dom_id(type_de_champ, :date_in_past), class: "fr-toggle__label fr-label" %>
                     </div>
                     <div class="fr-toggle fr-mt-2w fr-toggle--no-label">
                       <%= form.check_box :range_date, id: dom_id(type_de_champ, :range_date), class: 'fr-toggle__input' %>
-                      <%= form.label :range_date, "Cette date doit être comprise entre des dates limites", for: dom_id(type_de_champ, :range_date), class: 'fr-toggle__label fr-label' %>
+                      <%= form.label :range_date, t(".range_date_label"), for: dom_id(type_de_champ, :range_date), class: "fr-toggle__label fr-label" %>
                     </div>
                     <% if form.object.range_date? %>
                       <div class="cell fr-mt-1w">
                         <fieldset class="fr-fieldset">
                           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                             <div class="fr-input-group">
-                              <%= form.label :start_date, for: dom_id(type_de_champ, :start_date) do %>
-                                date de début
-                              <% end %>
+                              <%= form.label :start_date, t(".start_date_label"), for: dom_id(type_de_champ, :start_date) %>
 
                               <%= form.date_field :start_date, class: "fr-input", value: type_de_champ.start_date, id: dom_id(type_de_champ, :start_date) %>
                             </div>
@@ -381,9 +357,7 @@
 
                           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                             <div class="fr-input-group">
-                              <%= form.label :end_date, for: dom_id(type_de_champ, :end_date) do %>
-                                date de fin
-                              <% end %>
+                              <%= form.label :end_date, t(".end_date_label"), for: dom_id(type_de_champ, :end_date) %>
 
                               <%= form.date_field :end_date, class: "fr-input", value: type_de_champ.end_date, id: dom_id(type_de_champ, :end_date) %>
                             </div>
@@ -398,9 +372,7 @@
 
             <% if type_de_champ.quotient_familial? %>
               <div class="cell fr-my-auto fr-mx-3w">
-                Ce champ permet de récupérer automatiquement et de façon fiable
-                les données d'identité, le quotient familial CAF ou MSA et la
-                composition familiale de l'usager connecté via FranceConnect
+                <%= t(".quotient_familial_hint") %>
               </div>
             <% end %>
 
@@ -409,7 +381,7 @@
               <div class="cell">
                 <div class="fr-toggle fr-mb-2w">
                   <%= form.check_box :procedures_limit, id: dom_id(type_de_champ, :procedures_limit), class: 'fr-toggle__input' %>
-                  <%= form.label :procedures_limit, "Limiter à certaines démarches", for: dom_id(type_de_champ, :procedures_limit), class: 'fr-toggle__label fr-label' %>
+                  <%= form.label :procedures_limit, t(".procedures_limit_label"), for: dom_id(type_de_champ, :procedures_limit), class: "fr-toggle__label fr-label" %>
                 </div>
 
                 <% if form.object.procedures_limit? %>
@@ -419,8 +391,7 @@
                         <div class="fr-notice__body">
                           <p>
                             <span class="fr-notice__title fr-text--sm fr-mr-0">
-                              Seuls les dossiers déposés par l'usager lui-même
-                              seront proposés
+                              <%= t(".procedures_limit_notice") %>
                             </span>
                           </p>
                         </div>
@@ -439,12 +410,12 @@
               <div class="border-left-dark fr-mt-2w">
                 <div class="cell">
                   <legend class="fake-label">
-                    Limiter le nombre d’éléments
+                    <%= t(".limit_repetitions_legend") %>
                   </legend>
 
                   <div class="fr-toggle">
-                    <%= form.check_box :limit_repetitions, id: dom_id(type_de_champ, :limit_repetitions), class: 'fr-toggle__input' %>
-                    <%= form.label :limit_repetitions, "Limiter le nombre d’éléments que l’usager peut ajouter", for: dom_id(type_de_champ, :limit_repetitions), class: 'fr-toggle__label fr-label' %>
+                    <%= form.check_box :limit_repetitions, id: dom_id(type_de_champ, :limit_repetitions), class: "fr-toggle__input" %>
+                    <%= form.label :limit_repetitions, t(".limit_repetitions_label"), for: dom_id(type_de_champ, :limit_repetitions), class: "fr-toggle__label fr-label" %>
                   </div>
 
                   <% if form.object.limit_repetitions? %>
@@ -452,14 +423,14 @@
                       <fieldset class="fr-fieldset">
                         <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                           <div class="fr-input-group">
-                            <%= form.label :min_repetitions, "Nombre d’éléments minimum", for: dom_id(type_de_champ, :min_repetitions) %>
+                            <%= form.label :min_repetitions, t(".min_repetitions_label"), for: dom_id(type_de_champ, :min_repetitions) %>
                             <%= form.number_field :min_repetitions, class: "fr-input", id: dom_id(type_de_champ, :min_repetitions), min: 0 %>
                           </div>
                         </div>
 
                         <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                           <div class="fr-input-group">
-                            <%= form.label :max_repetitions, "Nombre d’éléments maximum", for: dom_id(type_de_champ, :max_repetitions) %>
+                            <%= form.label :max_repetitions, t(".max_repetitions_label"), for: dom_id(type_de_champ, :max_repetitions) %>
                             <%= form.number_field :max_repetitions, class: "fr-input", id: dom_id(type_de_champ, :max_repetitions), min: 1 %>
                           </div>
                         </div>
@@ -471,9 +442,7 @@
                       </div>
                     <% end %>
                     <div class="fr-message fr-message--info fr-mt-1w">
-                      Veuillez indiquer le nombre minimum et / ou maximum
-                      d’éléments requis. Une valeur vide correspond à une
-                      absence de limite.
+                      <%= t(".repetitions_hint") %>
                     </div>
                   <% end %>
                 </div>
@@ -486,7 +455,7 @@
           <% if type_de_champ.linked_drop_down_list? %>
             <div class="flex column justify-start width-33">
               <div class="cell">
-                <%= form.label :drop_down_options_from_text, "Options de la liste", for: dom_id(type_de_champ, :drop_down_options_from_text) %>
+                <%= form.label :drop_down_options_from_text, t(".drop_down_options_label"), for: dom_id(type_de_champ, :drop_down_options_from_text) %>
 
                 <%= form.text_area :drop_down_options_from_text,
                   value: type_de_champ.drop_down_options.join("\r\n"),
@@ -500,7 +469,7 @@
               <div class="cell">
                 <fieldset class="fr-segmented fr-segmented">
                   <legend class="fr-segmented__legend">
-                    Liste de choix
+                    <%= t(".drop_down_choice_legend") %>
                   </legend>
 
                   <div class="fr-segmented__elements">
@@ -525,9 +494,7 @@
                 <div class="cell flex align-center">
                   <%= form.check_box :drop_down_other, class: "small-margin small", id: dom_id(type_de_champ, :drop_down_other) %>
 
-                  <%= form.label :drop_down_other, for: dom_id(type_de_champ, :drop_down_other) do %>
-                    Proposer une option « autre » avec un texte libre
-                  <% end %>
+                  <%= form.label :drop_down_other, t(".drop_down_other_label"), for: dom_id(type_de_champ, :drop_down_other) %>
                 </div>
               <% end %>
             </div>
@@ -554,12 +521,12 @@
           <% if type_de_champ.linked_drop_down_list? %>
             <div class="flex column justify-start flex-grow">
               <div class="cell">
-                <%= form.label :drop_down_secondary_libelle, "Libellé du champ secondaire", class: 'flex-grow', for: dom_id(type_de_champ, :drop_down_secondary_libelle) %>
+                <%= form.label :drop_down_secondary_libelle, t(".secondary_libelle_label"), class: "flex-grow", for: dom_id(type_de_champ, :drop_down_secondary_libelle) %>
                 <%= form.text_field :drop_down_secondary_libelle, class: 'fr-input small-margin small width-100', id: dom_id(type_de_champ, :drop_down_secondary_libelle) %>
               </div>
 
               <div class="cell fr-mt-1w">
-                <%= form.label :drop_down_secondary_description, "Description du champ secondaire (optionnel)", for: dom_id(type_de_champ, :drop_down_secondary_description) %>
+                <%= form.label :drop_down_secondary_description, t(".secondary_description_label"), for: dom_id(type_de_champ, :drop_down_secondary_description) %>
                 <%= form.text_area :drop_down_secondary_description, class: 'fr-input small-margin small width-100', rows: 3, id: dom_id(type_de_champ, :drop_down_secondary_description) %>
               </div>
             </div>
@@ -586,7 +553,7 @@
             <div class="flex justify-start column width-33">
               <fieldset class="fr-segmented fr-segmented">
                 <legend class="fr-segmented__legend fr-mb-1w">
-                  Spécifier le format requis
+                  <%= t(".formatted_legend") %>
                 </legend>
 
                 <div class="fr-segmented__elements">
@@ -645,15 +612,15 @@
 
       <div class="flex right">
         <% if coordinate.used_by_routing_rules? %>
-          <%= tag.span(safe_join(["utilisé pour", link_to('le routage', admin_procedure_groupe_instructeurs_path(revision.procedure_id, anchor: 'routing-rules'))], "\n")) %>
+          <%= tag.span(t(".used_for_routing_html", link: link_to(t(".routing_link"), admin_procedure_groupe_instructeurs_path(revision.procedure_id, anchor: "routing-rules")))) %>
         <% elsif coordinate.used_by_ineligibilite_rules? %>
-          <%= tag.span(safe_join(["utilisé pour", link_to('l’eligibilité des dossiers', edit_admin_procedure_ineligibilite_rules_path(revision.procedure_id))], "\n")) %>
+          <%= tag.span(t(".used_for_ineligibilite_html", link: link_to(t(".ineligibilite_link"), edit_admin_procedure_ineligibilite_rules_path(revision.procedure_id)))) %>
         <% else %>
           <% if coordinate.prefilled_by_type_de_champ %>
-            <span>Champ prérempli (référentiel)</span>
+            <span><%= t(".prefilled_referentiel") %></span>
           <% end %>
-          <%= button_to type_de_champ_path, class: 'fr-btn fr-btn--tertiary-no-outline fr-icon-delete-line', title: "Supprimer le champ", method: :delete, form: { data: { turbo_confirm: } } do %>
-            <span class="fr-sr-only">Supprimer</span>
+          <%= button_to type_de_champ_path, class: 'fr-btn fr-btn--tertiary-no-outline fr-icon-delete-line', title: t(".delete_title"), method: :delete, form: { data: { turbo_confirm: } } do %>
+            <span class="fr-sr-only"><%= t(".delete_label") %></span>
           <% end %>
         <% end %>
       </div>

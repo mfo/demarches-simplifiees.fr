@@ -1,4 +1,55 @@
 en:
+  type_champ_label: "Field type"
+  info_remontees_button: "List of retrieved information"
+  no_allowed_type: "No field type allowed to transform this field"
+  communes_warning_title: "Warning:"
+  communes_warning_desc_html: "do not use this field for <strong>birth municipalities</strong>."
+  communes_info_link: "How does this field work?"
+  libelle_label: "Field label"
+  mandatory_label: "Mandatory field"
+  description_label: "Field description (optional)"
+  header_section_hint: "We automatically number headings when none of your headings start with a digit."
+  character_limit_label: "Specify a recommended maximum number of characters:"
+  collapsible_explanation_label: "Show additional text expandable on click"
+  collapsible_explanation_text_label: "Additional text"
+  notice_explicative_label: "Explanatory notice"
+  nature_label: "Document type"
+  titre_identite_rgpd_html: "Under GDPR, the identity document will be deleted upon acceptance, refusal or closure of the dossier.<br>Also, for security reasons, a watermark is automatically added to images.<br>Finally, the identity document will not be available in dossier ZIP exports nor downloadable via API."
+  format_accepted_legend: "Accepted format"
+  positive_number_label: "This number must be positive"
+  range_number_label: "This number must be within limit values"
+  min_number_label: "minimum value"
+  max_number_label: "maximum value"
+  birthdate_label: "This field is a birth date"
+  birthdate_hint: "The date must be between January 1st, 1900 and today"
+  prefill_fc_birthdate_label: "Prefill with FranceConnect birth date"
+  prefill_fc_locked_hint: "Another date field already uses this option. Only one date field per procedure can be prefilled by FranceConnect."
+  prefill_fc_hint: "The field will be prefilled with the birth date of the user connected via FranceConnect who creates the dossier. The value remains editable."
+  date_in_past_label: "This date must be in the past"
+  range_date_label: "This date must be within date limits"
+  start_date_label: "start date"
+  end_date_label: "end date"
+  quotient_familial_hint: "This field allows to automatically and reliably retrieve identity data, the CAF or MSA family quotient and the family composition of the user connected via FranceConnect"
+  procedures_limit_label: "Limit to specific procedures"
+  procedures_limit_notice: "Only dossiers submitted by the user themselves will be proposed"
+  limit_repetitions_legend: "Limit the number of items"
+  limit_repetitions_label: "Limit the number of items the user can add"
+  min_repetitions_label: "Minimum number of items"
+  max_repetitions_label: "Maximum number of items"
+  repetitions_hint: "Please specify the minimum and/or maximum number of required items. An empty value means no limit."
+  drop_down_options_label: "List options"
+  drop_down_choice_legend: "Choice list"
+  drop_down_other_label: "Offer an 'other' option with free text"
+  secondary_libelle_label: "Secondary field label"
+  secondary_description_label: "Secondary field description (optional)"
+  formatted_legend: "Specify the required format"
+  prefilled_referentiel: "Prefilled field (referential)"
+  delete_title: "Delete the field"
+  delete_label: "Delete"
+  used_for_routing_html: "used for\n%{link}"
+  routing_link: "routing"
+  used_for_ineligibilite_html: "used for\n%{link}"
+  ineligibilite_link: "dossier eligibility"
   layers:
     cadastres: Cadastres
     rpg: RPG
@@ -9,7 +60,7 @@ en:
     reserves_biologiques: Réserves biologiques
     reserves_naturelles: Réserves naturelles
     natura_2000: Natura 2000
-    zones_humides: Zones humides d’importance internationale
+    zones_humides: Zones humides d'importance internationale
     znieff: ZNIEFF
   character_limit:
     unlimited: No character limitation
@@ -42,3 +93,9 @@ en:
   pre_rempli:
     options_label: "List options"
     hidden_label: "Hide this field from the user form"
+  drop_down_list:
+    labels:
+      simple: Manual
+      advanced: Import referential
+  max_file_size_hint: "Maximum allowed size: %{max_file_size}."
+  multiple_files_hint: "Users can upload multiple files if needed."

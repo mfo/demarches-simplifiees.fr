@@ -41,7 +41,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
 
         it do
           expect(page).to have_css("select[disabled=\"disabled\"]")
-          expect(page).to have_text(/l’eligibilité des dossiers/)
+          expect(page).to have_text(/l’éligibilité des dossiers/)
         end
       end
 

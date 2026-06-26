@@ -692,6 +692,7 @@ Rails.application.routes.draw do
         put :experts_require_administrateur_invitation
         put :restore
         get 'api_champ_columns'
+        get 'commune_info'
       end
 
       get 'jetons', to: 'jetons#index'
