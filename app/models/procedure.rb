@@ -180,7 +180,7 @@ class Procedure < ApplicationRecord
   scope :publiques,              -> do
     publiees_ou_closes
       .opendata
-      .where(estimated_dossiers_count: 4..)
+      .where(estimated_dossiers_count: 1..)
       .where.not('lien_site_web LIKE ?', '%mail%')
       .where.not('lien_site_web LIKE ?', '%intra%')
   end

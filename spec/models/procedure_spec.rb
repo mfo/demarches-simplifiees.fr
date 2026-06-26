@@ -901,7 +901,7 @@ describe Procedure do
     let(:draft_procedure) { create(:procedure_with_dossiers, :draft, estimated_dossiers_count: 4, lien_site_web: 'https://monministere.gouv.fr/cparici') }
     let(:published_procedure) { create(:procedure_with_dossiers, :published, estimated_dossiers_count: 4, lien_site_web: 'https://monministere.gouv.fr/cparici') }
     let(:published_procedure_no_opendata) { create(:procedure_with_dossiers, :published, estimated_dossiers_count: 4, opendata: false) }
-    let(:published_procedure_with_3_dossiers) { create(:procedure_with_dossiers, :published, estimated_dossiers_count: 3) }
+    let(:published_procedure_without_dossier) { create(:procedure_with_dossiers, :published, estimated_dossiers_count: 0) }
     let(:published_procedure_with_mail) { create(:procedure_with_dossiers, :published, estimated_dossiers_count: 4, lien_site_web: 'par mail') }
     let(:published_procedure_with_intra) { create(:procedure_with_dossiers, :published, estimated_dossiers_count: 4, lien_site_web: 'https://intra.service-etat.gouv.fr') }
 
@@ -925,8 +925,8 @@ describe Procedure do
       expect(Procedure.publiques).not_to include(published_procedure_with_intra)
     end
 
-    it "does not return procedures with less than 4 dossiers" do
-      expect(Procedure.publiques).not_to include(published_procedure_with_3_dossiers)
+    it "does not return procedures without any dossier" do
+      expect(Procedure.publiques).not_to include(published_procedure_without_dossier)
     end
   end
 
