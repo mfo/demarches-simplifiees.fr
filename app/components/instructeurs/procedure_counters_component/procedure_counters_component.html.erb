@@ -14,10 +14,8 @@
   <%= dossier_count %>
 <% end %>
 
-<% if procedure.procedure_expires_when_termine_enabled? %>
-  <%= turbo_stream.update "procedure-#{procedure.id}-expirant-count" do %>
-    (<%= expirant_count %>)
-  <% end %>
+<%= turbo_stream.update "procedure-#{procedure.id}-expirant-count" do %>
+  (<%= expirant_count %>)
 <% end %>
 
 <%= turbo_stream.update "procedure-#{procedure.id}-archives-count" do %>

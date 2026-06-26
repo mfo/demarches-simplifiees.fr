@@ -244,7 +244,7 @@ describe Instructeurs::ProceduresController, type: :controller do
 
   describe "#show" do
     let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, :expirable, instructeurs: [instructeur]) }
+    let(:procedure) { create(:procedure, instructeurs: [instructeur]) }
     let!(:gi_2) { create(:groupe_instructeur, label: '2', procedure: procedure) }
     let!(:gi_3) { create(:groupe_instructeur, label: '3', procedure: procedure) }
 
@@ -304,7 +304,7 @@ describe Instructeurs::ProceduresController, type: :controller do
       context 'when instructeurs_self_management? is false but as owner of the procedure' do
         let(:instructeurs_self_management_enabled) { false }
         let(:administrateur) { create(:administrateur, user: instructeur.user) }
-        let(:procedure) { create(:procedure, :expirable, instructeurs_self_management_enabled:, administrateurs: [administrateur], instructeurs: [instructeur]) }
+        let(:procedure) { create(:procedure, instructeurs_self_management_enabled:, administrateurs: [administrateur], instructeurs: [instructeur]) }
         it do
           expect(response.body).to have_link(href: admin_procedure_groupe_instructeurs_path(procedure))
           expect(response.body).not_to have_link(href: instructeur_groupes_path(procedure))

@@ -62,8 +62,6 @@
     = render Procedure::ErrorsSummary.new(procedure: @procedure, validation_context: :publication)
 
 
-- if !@procedure.procedure_expires_when_termine_enabled?
-  = render partial: 'administrateurs/procedures/suggest_expires_when_termine', locals: { procedure: @procedure }
 
 - if @procedure.close?
   .fr-container

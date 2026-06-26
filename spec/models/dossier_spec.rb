@@ -260,7 +260,7 @@ describe Dossier, type: :model do
   end
 
   describe 'termine_close_to_expiration' do
-    let_it_be(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 6, procedure_expires_when_termine_enabled: true) }
+    let_it_be(:procedure) { create(:procedure, :published, duree_conservation_dossiers_dans_ds: 6) }
     let_it_be(:young_dossier) { create(:dossier, state: :accepte, procedure:, processed_at: 2.days.ago) }
     let_it_be(:expiring_dossier) { create(:dossier, state: :accepte, procedure:, processed_at: 175.days.ago) }
     let_it_be(:expiring_dossier_with_notification) { create(:dossier, state: :accepte, procedure:, processed_at: 175.days.ago, termine_close_to_expiration_notice_sent_at: Time.zone.now) }
@@ -972,7 +972,7 @@ describe Dossier, type: :model do
         let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [new_instructeur]) }
 
         context "when notification is dossier_expirant" do
-          let(:procedure) { create(:procedure, procedure_expires_when_termine_enabled: true) }
+          let(:procedure) { create(:procedure) }
           let(:dossier) { create(:dossier, :accepte, procedure:) }
           before { dossier.update(expired_at: 1.week.from_now) }
 
