@@ -14,9 +14,15 @@ RSpec.describe TagsButtonListComponent, type: :component do
         },
         {
           id: 'tdc13',
-          libelle: 'Un champ avec un nom très ' + 'long ' * 12,
-          description: 'Ce libellé a été tronqué',
-          maybe_null:,
+          libelle: 'Un champ facultatif',
+          description: 'Ce champ est facultatif',
+          maybe_null: true,
+        },
+        {
+          id: 'tdc14',
+          libelle: 'Un champ conditionnel',
+          description: 'Ce champ est conditionnel',
+          conditional: true,
         },
       ],
 
@@ -28,7 +34,6 @@ RSpec.describe TagsButtonListComponent, type: :component do
       ],
     }
   end
-  let(:maybe_null) { true }
 
   let(:component) do
     described_class.new(tags:)
@@ -43,16 +48,28 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(subject).to have_text("Montant accordé")
   end
 
-  it "hide nullable tag" do
-    expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ avec un nom")
+  it "hides optional and conditional tags by default" do
+    expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ facultatif")
+    expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ conditionnel")
     expect(subject).to have_selector(":not(.hidden) button.fr-tag", text: "Votre avis")
-    expect(subject).to have_text("Voir les champs facultatifs")
+    expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnels")
   end
 
-  context "all champs are visible" do
-    let(:maybe_null) { false }
-    it {
-      expect(subject).not_to have_text("Voir les champs facultatifs")
-    }
+  it "applies purple-glycine style to optional and conditional tags" do
+    expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ facultatif")
+    expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ conditionnel")
+    expect(subject).not_to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Votre avis")
+  end
+
+  context "no optional or conditional champs" do
+    let(:tags) do
+      {
+        champ_public: [
+          { id: 'tdc12', libelle: 'Votre avis', description: '' },
+        ],
+      }
+    end
+
+    it { expect(subject).not_to have_text("Voir les champs facultatifs et conditionnels") }
   end
 end

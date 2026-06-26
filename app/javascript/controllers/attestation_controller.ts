@@ -32,16 +32,15 @@ export class AttestationController extends ApplicationController {
     });
   }
 
-  toggleMaybeNull(event: Event) {
+  toggleOptional(event: Event) {
     const checkbox = event.target as HTMLInputElement;
     const visible = checkbox.checked;
 
-    // toggle hidden class on next label element
     checkbox.nextElementSibling
       ?.querySelector('.fr-hint-text')
       ?.classList?.toggle('hidden', !visible);
 
-    document.querySelectorAll('li[data-maybe-null]').forEach((tag) => {
+    document.querySelectorAll('li[data-optional-tag]').forEach((tag) => {
       tag.classList.toggle('hidden', !visible);
     });
   }

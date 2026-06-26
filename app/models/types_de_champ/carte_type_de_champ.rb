@@ -19,7 +19,11 @@ class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
     FILL_DURATION_LONG
   end
 
-  def tags_for_template = [].freeze
+  def champ_value_for_tag(champ, path = :value)
+    return nil if path != :value
+    return '' if champ.geo_areas.blank?
+    ChampPresentations::CartePresentation.new(champ.geo_areas)
+  end
 
   def champ_value_for_api(champ, version: 2)
     nil

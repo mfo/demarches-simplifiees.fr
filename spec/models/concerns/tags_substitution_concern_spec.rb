@@ -246,6 +246,65 @@ describe TagsSubstitutionConcern, type: :model do
       it { is_expected.to eq("Répétition\n\nNom : Paul\nPrénom : Chavard\n\nNom : Pierre\nPrénom : de La Morinerie") }
     end
 
+    context 'when the procedure has a type de champ carte' do
+      let(:template) { '--Carte--' }
+      let(:types_de_champ_public) { [{ type: :carte, libelle: 'Carte' }] }
+      let(:dossier) { create(:dossier, procedure:) }
+      let(:champ) { dossier.project_champs_public.find { _1.type_de_champ.type_champ == 'carte' } }
+
+      before { dossier.reload }
+
+      context 'with cadastre geo areas' do
+        before do
+          create(:geo_area, :cadastre, champ:)
+          create(:geo_area, :cadastre, champ:, properties: { numero: '0103', section: 'CD', prefixe: '000', commune: '75056', contenance: 5678, id: '75056000CD0103' })
+          dossier.reload
+        end
+
+        it { is_expected.to include('Parcelle n°') }
+      end
+
+      context 'with legacy cadastre geo areas' do
+        before do
+          create(:geo_area, :legacy_cadastre, champ:, properties: { numero: '42', section: 'A11', code_com: '127', code_dep: '75', code_arr: '000', surface_parcelle: 1234, surface_intersection: 1234 })
+          dossier.reload
+        end
+
+        it { is_expected.to include('Parcelle n°') }
+      end
+
+      context 'with selection_utilisateur polygon' do
+        before do
+          create(:geo_area, :selection_utilisateur, :polygon, champ:)
+          dossier.reload
+        end
+
+        it { is_expected.to include('surface') }
+      end
+
+      context 'with selection_utilisateur line_string' do
+        before do
+          create(:geo_area, :selection_utilisateur, :line_string, champ:)
+          dossier.reload
+        end
+
+        it { is_expected.to include('ligne') }
+      end
+
+      context 'with selection_utilisateur point' do
+        before do
+          create(:geo_area, :selection_utilisateur, :point, champ:)
+          dossier.reload
+        end
+
+        it { is_expected.to include("(46.538477, 2.42844)") }
+      end
+
+      context 'with no geo areas' do
+        it { is_expected.to eq('') }
+      end
+    end
+
     context 'when the procedure has a linked drop down menus type de champ' do
       let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
       let(:types_de_champ_public) { [{ type: :linked_drop_down_list, libelle: 'libelle', options: ["--primo--", "secundo"] }] }
@@ -571,7 +630,7 @@ describe TagsSubstitutionConcern, type: :model do
 
       it do
         is_expected.to include(include({ libelle: 'public' }))
-        is_expected.not_to include(include({ libelle: 'conditional' }))
+        is_expected.to include(include({ libelle: 'conditional' }))
       end
     end
   end
