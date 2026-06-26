@@ -5,7 +5,7 @@ module Administrateurs
     layout 'all', only: [:all, :administrateurs]
     respond_to :html, :xlsx
 
-    before_action :retrieve_procedure, only: [:show, :update, :champs, :annotations, :modifications, :edit, :zones, :monavis, :update_monavis, :accuse_lecture, :update_accuse_lecture, :publication, :publish, :transfert, :close, :confirmation, :allow_expert_review, :allow_expert_messaging, :experts_require_administrateur_invitation, :reset_draft, :publish_revision, :check_path, :api_champ_columns, :path, :update_path, :rdv, :update_rdv, :pro_connect_restricted, :update_pro_connect_restricted]
+    before_action :retrieve_procedure, only: [:show, :update, :champs, :annotations, :modifications, :edit, :zones, :monavis, :update_monavis, :accuse_lecture, :update_accuse_lecture, :publication, :publish, :transfert, :close, :confirmation, :allow_expert_review, :allow_expert_messaging, :experts_require_administrateur_invitation, :reset_draft, :publish_revision, :check_path, :api_champ_columns, :commune_info, :path, :update_path, :rdv, :update_rdv, :pro_connect_restricted, :update_pro_connect_restricted]
     before_action :draft_valid?, only: [:apercu]
     after_action :reset_draft_procedure, only: [:update]
 
@@ -490,6 +490,9 @@ module Administrateurs
         raise ArgumentError.new "either a stable_id or a stub_type_champ, but we should know which one to build"
       end
       @column_labels = @type_de_champ.info_columns(procedure: @procedure)
+    end
+
+    def commune_info
     end
 
     def select_procedure

@@ -314,3 +314,17 @@ input[type='radio'] {
 .fr-toggle.fr-toggle--no-label label::before {
   margin-right: 0.5rem;
 }
+
+// On veut que pouvoir styler un bouton comme un lien dsfr. Sauf que le style des liens est callé sur href, pas valide niveau html de mettre ca sur un bouton
+// alors on duplique.
+[data-href] {
+  background-image: var(--underline-img), var(--underline-img);
+  background-position:
+    var(--underline-x) 100%,
+    var(--underline-x) calc(100% - var(--underline-thickness));
+  background-repeat: no-repeat, no-repeat;
+  background-size:
+    var(--underline-hover-width) calc(var(--underline-thickness) * 2),
+    var(--underline-idle-width) var(--underline-thickness);
+  transition: background-size;
+}
