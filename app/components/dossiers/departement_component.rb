@@ -24,5 +24,5 @@ class Dossiers::DepartementComponent < ApplicationComponent
     ]
   end
 
-  def source = "référentiels géographiques nationaux"
+  def source = t(".source")
 end
