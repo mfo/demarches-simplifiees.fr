@@ -10,6 +10,20 @@
 
 <% nature_dom_id = dom_id(type_de_champ, :nature) %>
 
+<% if type_de_champ.rib? %>
+  <div class="cell fr-mt-2w">
+    <%= render Dsfr::NoticeComponent.new(state: 'info') do |c| %>
+      <% c.with_title do %>
+        <%= t('.identity_notice.title') %>
+      <% end %>
+
+      <% c.with_desc do %>
+        <%= t('.rib_notice.desc_html') %>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+
 <% if type_de_champ.titre_identite? %>
   <div class="fr-hr"></div>
   <div class="cell">
@@ -27,17 +41,6 @@
     <p class="fr-mt-0"><%= t('.identity_deletion.note_html') %></p>
   </div>
 <% elsif type_de_champ.rib? %>
-  <div class="cell fr-mt-2w">
-    <%= render Dsfr::NoticeComponent.new(state: 'info') do |c| %>
-      <% c.with_title do %>
-        <%= t('.identity_notice.title') %>
-      <% end %>
-
-      <% c.with_desc do %>
-        <%= t('.rib_notice.desc_html') %>
-      <% end %>
-    <% end %>
-  </div>
   <div class="fr-hr fr-mt-2w"></div>
   <div class="cell">
     <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: "fake-label" %>
