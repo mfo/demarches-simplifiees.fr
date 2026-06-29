@@ -57,13 +57,10 @@
               <%= t('.families_legend') %>
           </legend>
 
-          <% prechecked = Array.wrap(type_de_champ.pj_format_families).map(&:to_s) %>
-
-          <% format_families.each do |(value, label, examples)| %>
+          <% format_families.each do |value, label, checked, examples| %>
             <div class="fr-fieldset__element fr-fieldset__element--inline fr-pl-0 fr-mb-0 fr-mt-1w">
               <div class="fr-checkbox-group">
-                <% checked_opt = prechecked.include?(value.to_s) %>
-                <%= form.check_box :pj_format_families, { multiple: true, id: dom_id(type_de_champ, "pj_format_#{value}"), checked: checked_opt }, value, nil %>
+                <%= form.check_box :pj_format_families, { multiple: true, id: dom_id(type_de_champ, "pj_format_#{value}"), checked: }, value, nil %>
 
                 <% if examples.present? %>
                   <% tip_id = "#{dom_id(type_de_champ, "pj_format_#{value}")}-tip" %>
