@@ -8,6 +8,7 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
   def process_expired_dossiers_brouillon
     send_brouillon_expiration_notices
     delete_expired_brouillons_and_notify
+    delete_expired_brouillons_without_notice
   end
 
   def process_expired_dossiers_termine
@@ -62,6 +63,10 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
       )
       send_with_delay(mail)
     end
+  end
+
+  def delete_expired_brouillons_without_notice
+    Dossier.brouillon_expired_without_notice.in_batches.destroy_all
   end
 
   def delete_expired_termine_and_notify
