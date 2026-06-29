@@ -643,7 +643,9 @@ fr:
             more_details: Plus d’informations
             procedure: démarche
             this_procedure: cette démarche
-          pending_correction_html: '<h4 class="card-title fr-mb-1v">Ce dossier attend vos corrections</h4><p>Consultez les modifications à apporter dans la <a href="%{link}" class="fr-link">messagerie <span class="fr-sr-only">du dossier numéro %{id}</span></a>.</p>'
+          pending_correction:
+            title: "Attention"
+            body_html: 'Consultez les corrections à apporter à votre dossier dans la <a href="%{link}" class="fr-link">messagerie<span class="fr-sr-only"> du dossier numéro %{id}</span></a>.'
           pending_response:
             title: "Ce dossier attend votre réponse"
             message_html: 'Consultez la <a href="%{link}" class="fr-link">messagerie<span class="fr-sr-only"> du dossier numéro %{id}</span></a> et répondez à l''administration.'

@@ -143,6 +143,8 @@ ignore_unused:
   - 'views.users.dossiers.index.search.open'
   - 'views.users.dossiers.index.search.panel_title'
   - 'shared.champs.external_data.*'
+  # used dynamically in _status_overview via t(decision, scope: '...delay_title')
+  - 'views.users.dossiers.show.status_overview.delay_title.*'
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
 # - 'simple_form.{placeholders,hints,labels}.*'
