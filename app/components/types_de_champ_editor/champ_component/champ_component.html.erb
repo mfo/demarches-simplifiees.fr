@@ -581,7 +581,7 @@
     <% end %>
 
     <% if type_de_champ.quotient_familial? %>
-      <%= render(TypesDeChampEditor::QuotientFamilialComponent.new()) %>
+      <%= render(TypesDeChampEditor::QuotientFamilialComponent.new(procedure:)) %>
     <% end %>
 
     <% if type_de_champ.repetition? %>

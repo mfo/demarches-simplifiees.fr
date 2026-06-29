@@ -1,22 +1,35 @@
 .fr-px-2w
-  %hr.fr-hr
+  - if @procedure.api_particulier_token.nil?
+    = render Dsfr::AlertComponent.new(state: '', extra_class_names: 'fr-mb-3w fr-icon-lock-fill') do |c|
+      - c.with_body do
+        %p
+          L'utilisation de ce champ nécessite une
+          %strong autorisation spécifique.
+        %p
+          Vous devez renseigner un
+          %strong jeton API Particulier
+          sur cette démarche en vous rendant sur l'écran
+          = link_to 'Jetons API', admin_procedure_jetons_path(@procedure), helpers.external_link_attributes
 
-  .fr-mb-1w.cell
-    %p.fake-label.fr-text--bold.flex-grow.fr-mb-1v Si les données sont récupérées correctement
-    %p L'usager n'a pas besoin de transmettre un justificatif de quotient familial
+  %div{ class: class_names(inactive: @procedure.api_particulier_token.nil?) }
+    %hr.fr-hr
 
-  %hr.fr-hr
+    .fr-mb-1w.cell
+      %p.fake-label.fr-text--bold.flex-grow.fr-mb-1v Si les données sont récupérées correctement
+      %p L'usager n'a pas besoin de transmettre un justificatif de quotient familial
 
-  .fr-mb-1w.cell
-    %p.fake-label.fr-text--bold.flex-grow.fr-mb-1v Si les données ne sont pas récupérées ou incorrectes
-    %p.fr-mb-0 L'usager doit transmettre un justificatif de quotient familial.
+    %hr.fr-hr
 
-  .fr-notice.fr-notice--info.fr-mb-2w.fr-px-3w
-    %p
-      .fr-notice__title Information importante
-      Un champ de type "Pièce à joindre" sera affiché dans les cas suivants :
-      .notice__desc
-        %ul.fr-mt-1v.fr-ml-4w
-          %li L'usager ne s'est pas connecté via FranceConnect ;
-          %li L'usager s'est connecté via FranceConnect mais n'a pas confirmé l'exactitude des données récupérées ;
-          %li L'usager s'est connecté via FranceConnect mais la récupération de son quotient familial n'a pas fonctionné.
+    .fr-mb-1w.cell
+      %p.fake-label.fr-text--bold.flex-grow.fr-mb-1v Si les données ne sont pas récupérées ou incorrectes
+      %p.fr-mb-0 L'usager doit transmettre un justificatif de quotient familial.
+
+    .fr-notice.fr-notice--info.fr-mb-2w.fr-px-3w
+      %p
+        .fr-notice__title Information importante
+        Un champ de type "Pièce à joindre" sera affiché dans les cas suivants :
+        .notice__desc
+          %ul.fr-mt-1v.fr-ml-4w
+            %li L'usager ne s'est pas connecté via FranceConnect ;
+            %li L'usager s'est connecté via FranceConnect mais n'a pas confirmé l'exactitude des données récupérées ;
+            %li L'usager s'est connecté via FranceConnect mais la récupération de son quotient familial n'a pas fonctionné.
