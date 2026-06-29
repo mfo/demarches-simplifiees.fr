@@ -131,6 +131,13 @@ module ColumnsConcern
     all_revisions_types_de_champ.private_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
   end
 
+  def personnalisable_columns
+    all_revisions_types_de_champ.public_only
+      .flat_map { _1.columns(procedure_id: id) }
+      .filter { _1.tdc_type.in?(TypeDeChamp::PERSONNALISABLE_TYPE_CHAMPS) && _1.displayable }
+      .uniq(&:stable_id)
+  end
+
   private
 
   def groupe_instructeurs_id_column = dossier_col(table: 'groupe_instructeur', column: 'id', type: :enum)

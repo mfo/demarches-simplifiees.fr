@@ -9,6 +9,13 @@ class TypeDeChamp < ApplicationRecord
     pre_rempli: :pre_rempli_type_de_champ,
   }
 
+  PERSONNALISABLE_TYPE_CHAMPS = %w[
+    text integer_number decimal_number formatted date datetime
+    dossier_link drop_down_list multiple_drop_down_list linked_drop_down_list
+    civilite email phone siret rna rnf annuaire_education iban
+    address communes departements regions pays epci
+  ].freeze
+
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
 
   STRUCTURE = :structure

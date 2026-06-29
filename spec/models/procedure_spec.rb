@@ -2253,6 +2253,45 @@ describe Procedure do
     end
   end
 
+  describe '#personnalisable_columns' do
+    let(:procedure) do
+      create(:procedure, :published,
+             types_de_champ_public: [
+               { type: :text, libelle: 'Ville' },
+               { type: :date, libelle: 'Date arrivée' },
+               { type: :textarea, libelle: 'Description' },
+               { type: :piece_justificative, libelle: 'Justificatif' },
+               { type: :yes_no, libelle: 'Accord' },
+               { type: :header_section, libelle: 'Section A' },
+             ],
+             types_de_champ_private: [
+               { type: :text, libelle: 'Note interne' },
+             ])
+    end
+
+    it 'includes proposable public champ types' do
+      expect(procedure.personnalisable_columns.map(&:label)).to include('Ville', 'Date arrivée')
+    end
+
+    it 'excludes non-proposable types (textarea, piece_justificative, yes_no, header_section)' do
+      labels = procedure.personnalisable_columns.map(&:label)
+      expect(labels).not_to include('Description', 'Justificatif', 'Accord', 'Section A')
+    end
+
+    it 'excludes private annotations' do
+      expect(procedure.personnalisable_columns.map(&:label)).not_to include('Note interne')
+    end
+
+    it 'returns each champ once (dedup by stable_id)' do
+      stable_ids = procedure.personnalisable_columns.map(&:stable_id)
+      expect(stable_ids).to eq(stable_ids.uniq)
+    end
+
+    it 'returns Columns::ChampColumn instances carrying mandatory flag' do
+      expect(procedure.personnalisable_columns).to all(be_a(Columns::ChampColumn))
+    end
+  end
+
   private
 
   def create_dossier_with_pj_of_size(size, procedure)
