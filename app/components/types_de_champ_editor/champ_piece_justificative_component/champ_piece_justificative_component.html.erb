@@ -9,7 +9,7 @@
 </div>
 
 <%# File analysis notice %>
-<% if rib? %>
+<% if ocr_compatible? %>
   <div class="cell fr-mt-3w">
     <%= render Dsfr::NoticeComponent.new(state: 'info') do |c| %>
       <% c.with_title do %>
@@ -17,7 +17,7 @@
       <% end %>
 
       <% c.with_desc do %>
-        <%= t('.rib_notice.desc_html') %>
+        <%= t(".ocr_notice.#{nature}_html") %>
       <% end %>
     <% end %>
   </div>
