@@ -585,6 +585,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
     t.index ["user_id"], name: "index_dossiers_on_user_id"
   end
 
+  create_table "dossiers_list_personnalisations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "displayed_columns", default: [], null: false, array: true
+    t.bigint "procedure_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["procedure_id"], name: "index_dossiers_list_personnalisations_on_procedure_id"
+    t.index ["user_id", "procedure_id"], name: "idx_on_user_id_procedure_id_618213d9cc", unique: true
+    t.index ["user_id"], name: "index_dossiers_list_personnalisations_on_user_id"
+  end
+
   create_table "email_events", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "message_id"
@@ -1541,6 +1552,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   add_foreign_key "dossiers", "groupe_instructeurs"
   add_foreign_key "dossiers", "procedure_revisions", column: "revision_id"
   add_foreign_key "dossiers", "users"
+  add_foreign_key "dossiers_list_personnalisations", "procedures"
+  add_foreign_key "dossiers_list_personnalisations", "users"
   add_foreign_key "experts", "users"
   add_foreign_key "experts_procedures", "experts"
   add_foreign_key "experts_procedures", "procedures"
