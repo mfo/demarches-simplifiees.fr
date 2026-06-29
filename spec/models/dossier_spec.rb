@@ -140,6 +140,27 @@ describe Dossier, type: :model do
         expect(Dossier.brouillon_expired).to contain_exactly(dossier_brouillon_expired_and_noticed_long_time_ago)
       end
     end
+
+    describe '.brouillon_expired_without_notice' do
+      let(:published_procedure) { create(:procedure, :published) }
+      let(:closed_procedure)    { create(:procedure, :closed) }
+      let(:draft_procedure)     { create(:procedure, :draft) }
+
+      # targets: expired + structurally never notified
+      let!(:expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+      let!(:expired_on_draft)  { create(:dossier, procedure: draft_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+      let!(:expired_preview)   { create(:dossier, procedure: published_procedure, for_procedure_preview: true).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+
+      # non-targets
+      let!(:expired_on_published)  { create(:dossier, procedure: published_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+      let!(:not_expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.from_now) } }
+      let!(:hidden_on_closed)      { create(:dossier, :hidden_by_user, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+
+      it 'returns only expired brouillons structurally outside the notice path' do
+        expect(Dossier.brouillon_expired_without_notice)
+          .to contain_exactly(expired_on_closed, expired_on_draft, expired_preview)
+      end
+    end
   end
 
   describe 'validations' do

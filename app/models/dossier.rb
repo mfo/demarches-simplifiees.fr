@@ -353,6 +353,15 @@ class Dossier < ApplicationRecord
       .visible_by_user
       .where(brouillon_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
+
+  scope :brouillon_expired_without_notice, -> do
+    state_brouillon
+      .where(expired_at: ..Time.zone.now)
+      .where(hidden_by_user_at: nil, hidden_by_expired_at: nil)
+      .joins(:procedure)
+      .where("dossiers.for_procedure_preview = TRUE OR procedures.aasm_state IN (?)", %w[close brouillon])
+  end
+
   scope :termine_expired, -> do
     state_termine
       .visible_by_user_or_administration
