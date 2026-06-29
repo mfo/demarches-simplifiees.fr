@@ -10,6 +10,7 @@
 
 <% nature_dom_id = dom_id(type_de_champ, :nature) %>
 
+<%# File analysis notice %>
 <% if type_de_champ.rib? %>
   <div class="cell fr-mt-2w">
     <%= render Dsfr::NoticeComponent.new(state: 'info') do |c| %>
@@ -24,31 +25,22 @@
   </div>
 <% end %>
 
+<%# Accepted formats %>
+<div class="fr-hr fr-mt-2w"></div>
 <% if type_de_champ.titre_identite? %>
-  <div class="fr-hr"></div>
   <div class="cell">
     <%= form.label :formats_accepted, t('.identity_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
     <p class="fr-mb-0"><%= t('.identity_formats.desc_html') %></p>
     <p class="fr-mt-0"><%= t('.identity_formats.rule_html') %></p>
   </div>
-  <div class="fr-hr"></div>
-  <div class="cell">
-    <%= form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: "fake-label" %>
-
-    <p class="fr-mb-0"><%= t('.identity_deletion.desc_html') %></p>
-
-    <p class="fr-mt-0"><%= t('.identity_deletion.note_html') %></p>
-  </div>
 <% elsif type_de_champ.rib? %>
-  <div class="fr-hr fr-mt-2w"></div>
   <div class="cell">
     <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
     <p class="fr-mb-0"><%= t('.rib_formats.desc_html') %></p>
   </div>
 <% else %>
-  <div class="fr-hr fr-mt-2w"></div>
   <div class="cell" data-controller="hide-target">
     <div class="fr-toggle fr-toggle--no-label <%= class_names('fr-mb-2w': form.object.pj_limit_formats?) %>">
       <%= form.check_box :pj_limit_formats,
@@ -104,7 +96,16 @@
   </div>
 <% end %>
 
-<% if !type_de_champ.titre_identite? %>
+
+<%# Automatic file deletion %>
+<% if type_de_champ.titre_identite? %>
+  <div class="fr-hr"></div>
+  <div class="cell">
+    <%= form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: "fake-label" %>
+    <p class="fr-mb-0"><%= t('.identity_deletion.desc_html') %></p>
+    <p class="fr-mt-0"><%= t('.identity_deletion.note_html') %></p>
+  </div>
+<% else %>
   <div class="fr-hr fr-mt-2w"></div>
   <div class="cell">
     <div class="fr-toggle fr-toggle--no-label">
@@ -114,8 +115,8 @@
   </div>
 <% end %>
 
+<%# Template %>
 <div class="fr-hr <%= class_names('fr-mt-2w': !type_de_champ.titre_identite?) %>"></div>
-
 <div class="cell">
   <%= form.label :piece_justificative_template, t('.template_label'), for: dom_id(type_de_champ, :piece_justificative_template) %>
 
@@ -126,6 +127,7 @@
   <%= render Attachment::FileFieldComponent.new(context: Attachment::Context.new(**piece_justificative_template_options), drop_zone: :none) %>
 </div>
 
+<%# Multiple pjs %>
 <% if procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.rib? %>
   <div class="fr-hr fr-mt-2w"></div>
   <div class="cell">
