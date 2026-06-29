@@ -1,0 +1,139 @@
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-bold.ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-regular-italic.woff2');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@page {
+  size: A4;
+  margin: 17mm 17mm 24mm;
+
+  @bottom-center {
+    font-size: 8pt;
+    content: counter(page) ' / ' counter(pages);
+    margin-top: 10mm;
+    white-space: nowrap;
+  }
+}
+
+body {
+  font-family: 'Marianne', sans-serif;
+  font-size: 10pt;
+  color: #161616;
+}
+
+h1 {
+  font-size: 18pt;
+}
+h2 {
+  font-size: 14pt;
+  margin-top: 8mm;
+}
+h3 {
+  font-size: 12pt;
+}
+h4 {
+  font-size: 11pt;
+}
+h5 {
+  font-size: 10pt;
+}
+
+.logo {
+  display: block;
+  width: 100mm;
+  height: auto;
+  margin: 0 auto 8mm;
+}
+
+dl.header,
+dl.identity {
+  margin: 0 0 6mm;
+}
+
+.field-pair {
+  display: flex;
+  gap: 4mm;
+  margin-bottom: 2mm;
+
+  dt {
+    width: 45mm;
+    font-weight: bold;
+  }
+  dd {
+    flex: 1;
+  }
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 1mm;
+}
+// Keep a label (and any description/instruction that follows it) attached to the
+// field below it, so a page break never leaves the label stranded from its box.
+.label,
+.description,
+.explanation {
+  break-after: avoid;
+}
+.description,
+.explanation {
+  font-style: italic;
+}
+.explanation {
+  margin-top: 1mm;
+  margin-bottom: 0;
+}
+
+.champ {
+  margin-bottom: 4mm;
+}
+
+.box {
+  border: 1px solid #161616;
+}
+.box--line {
+  height: 6mm;
+}
+.box--block {
+  height: 22mm;
+}
+
+ul.options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+ul.options li {
+  margin-bottom: 1mm;
+}
+ul.options li.secondary {
+  padding-left: 6mm;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 2mm;
+}
+.checkbox {
+  display: inline-block;
+  width: 3mm;
+  height: 3mm;
+  border: 1px solid #161616;
+}
