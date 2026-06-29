@@ -461,7 +461,9 @@ class TypeDeChamp < ApplicationRecord
     !private?
   end
 
-  def france_connect? = type_champ.in?(API_PART_FC_TDC)
+  def france_connect? = type_champ.in?([*API_PART_FC_TDC])
+
+  def api_particulier? = type_champ.in?(API_PART_FC_TDC)
 
   def child?(revision)
     revision.coordinate_for(self)&.child?

@@ -103,6 +103,7 @@ fr:
               missing_libelle_in_repetition: "Le libellé du champ en position %{position}, dans le bloc répétable en position %{parent_position}, doit être rempli"
               expression_reguliere_invalid: "est invalide, veuillez la corriger"
               referentiel_not_ready: "n’est pas configuré"
+              missing_api_particulier_token: "n'est pas fonctionnel en l'absence d'un jeton API Particulier"
             draft_types_de_champ_private:
               format: 'L’annotation privée %{message}'
               invalid_condition: "a une logique conditionnelle invalide"
