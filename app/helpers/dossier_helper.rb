@@ -293,6 +293,14 @@ module DossierHelper
     end
   end
 
+  def pro_connect_informations(user_information)
+    if user_information.full_name.empty?
+      t("shared.dossiers.pro_connect_informations.details_no_name")
+    else
+      t("shared.dossiers.pro_connect_informations.details", name: user_information.full_name)
+    end
+  end
+
   def clean_string_for_pdf(str)
     str
       &.tr("\r", "\n")

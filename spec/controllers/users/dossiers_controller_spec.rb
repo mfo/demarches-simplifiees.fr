@@ -722,6 +722,26 @@ describe Users::DossiersController, type: :controller do
         expect(dossier.submitted_with_france_connect).to be false
       end
     end
+
+    context 'when user logged via pro connect' do
+      before do
+        cookies.encrypted[ProConnectSessionConcern::SESSION_INFO_COOKIE_NAME] = { value: { user_id: user.id }.to_json }
+      end
+
+      it 'sets submitted_with_pro_connect to true' do
+        subject
+        dossier.reload
+        expect(dossier.submitted_with_pro_connect).to be true
+      end
+    end
+
+    context 'when user not logged via pro connect' do
+      it 'sets submitted_with_pro_connect to false' do
+        subject
+        dossier.reload
+        expect(dossier.submitted_with_pro_connect).to be false
+      end
+    end
   end
 
   describe '#submit_en_construction (stream)' do

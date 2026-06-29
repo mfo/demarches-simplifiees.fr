@@ -58,6 +58,7 @@ module ColumnsConcern
     columns.concat([dossier_accuse_lecture_agreement_at_column]) if accuse_lecture?
     columns.concat([groupe_instructeurs_id_column, followers_instructeurs_email_column])
     columns.concat([dossier_labels_column])
+    columns.concat(dossier_submitted_with_identity_provider_columns)
 
     # ensure the columns exist in main list
     # otherwise, they will be found by the find_column method
@@ -146,6 +147,11 @@ module ColumnsConcern
 
   def dossier_labels_column = dossier_col(table: 'dossier_labels', column: 'label_id', type: :enum, options_for_select: labels.map { [_1.name, _1.id] })
 
+  def dossier_submitted_with_identity_provider_columns
+    ['submitted_with_france_connect', 'submitted_with_pro_connect']
+      .map { |column| dossier_col(table: 'self', column:, type: :boolean, options_for_select: Champs::YesNoChamp.options) }
+  end
+
   def traitements_email_column = dossier_col(table: 'traitements', column: 'instructeur_email', filterable: true, displayable: false)
 
   def procedure_chorus_columns
@@ -178,6 +184,7 @@ module ColumnsConcern
     columns.concat([dossier_accuse_lecture_agreement_at_column]) if accuse_lecture?
     columns.concat(sva_svr_columns(for_export: false)) if sva_svr_enabled?
     columns.concat(dossier_non_displayable_dates_columns)
+    columns.concat(dossier_submitted_with_identity_provider_columns)
     columns.concat([Columns::ReadAgreementColumn.new(procedure_id: id)]) if accuse_lecture?
     columns
   end
@@ -212,7 +219,7 @@ module ColumnsConcern
     @individual_columns
       .concat ['nom', 'prenom'].map { |column| dossier_col(table: 'individual', column:) }
       .concat ['mandataire_last_name', 'mandataire_first_name'].map { |column| dossier_col(table: 'self', column:) }
-      .concat ['for_tiers', 'submitted_with_france_connect'].map { |column| dossier_col(table: 'self', column:, type: :boolean, options_for_select: Champs::YesNoChamp.options) }
+      .concat ['for_tiers'].map { |column| dossier_col(table: 'self', column:, type: :boolean, options_for_select: Champs::YesNoChamp.options) }
   end
 
   def moral_columns
