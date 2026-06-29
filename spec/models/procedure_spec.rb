@@ -2257,7 +2257,7 @@ describe Procedure do
     let(:procedure) do
       create(:procedure, :published,
              types_de_champ_public: [
-               { type: :text, libelle: 'Ville' },
+               { type: :text, libelle: 'Ville', mandatory: true },
                { type: :date, libelle: 'Date arrivée' },
                { type: :textarea, libelle: 'Description' },
                { type: :piece_justificative, libelle: 'Justificatif' },
@@ -2282,13 +2282,17 @@ describe Procedure do
       expect(procedure.personnalisable_columns.map(&:label)).not_to include('Note interne')
     end
 
-    it 'returns each champ once (dedup by stable_id)' do
-      stable_ids = procedure.personnalisable_columns.map(&:stable_id)
-      expect(stable_ids).to eq(stable_ids.uniq)
-    end
-
     it 'returns Columns::ChampColumn instances carrying mandatory flag' do
       expect(procedure.personnalisable_columns).to all(be_a(Columns::ChampColumn))
+      ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+      expect(ville_column.mandatory).to eq(true)
+    end
+
+    it 'returns a single entry for a multi-column champ like address' do
+      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :address, libelle: 'Domicile' }])
+      columns = procedure.personnalisable_columns.filter { _1.label.include?('Domicile') }
+      expect(columns.size).to eq(1)
+      expect(columns.first.tdc_type).to eq('address')
     end
   end
 
