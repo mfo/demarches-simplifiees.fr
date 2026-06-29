@@ -1,0 +1,17 @@
+.dossiers-changes-component {
+  // Keep the semantic <dl>, but render it as a bulleted list:
+  // a bullet on each key (<dt>) and no indentation on the value (<dd>).
+  padding-inline-start: 1.5em;
+
+  dt {
+    display: list-item;
+    list-style-type: disc;
+  }
+
+  dd {
+    // Align the value line with the key text (under the bullet, not the marker).
+    // DSFR adds a padding-inline-start on <dd>, so reset it too.
+    margin-inline-start: 0;
+    padding-inline-start: 0;
+  }
+}
