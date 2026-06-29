@@ -106,14 +106,6 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     coordinate.used_by_routing_rules? || coordinate.used_by_ineligibilite_rules? || accepted_type_champs.size == 1
   end
 
-  def piece_justificative_template_options
-    {
-      attached_file: type_de_champ.piece_justificative_template,
-      auto_attach_url: helpers.auto_attach_url(type_de_champ, procedure_id: procedure.id),
-      view_as: :download,
-    }
-  end
-
   def notice_explicative_options
     {
       attached_file: type_de_champ.notice_explicative,
@@ -150,18 +142,6 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
       has_legacy_number?
     else
       true
-    end
-  end
-
-  def format_families_for_select
-    return [] if !defined?(FORMAT_FAMILIES)
-
-    FORMAT_FAMILIES.keys.map do |key|
-      [
-        key,
-        I18n.t("activerecord.attributes.type_de_champ.format_families.#{key}", default: key.to_s.humanize),
-        (defined?(FORMAT_FAMILY_EXAMPLES) && FORMAT_FAMILY_EXAMPLES[key]),
-      ]
     end
   end
 
