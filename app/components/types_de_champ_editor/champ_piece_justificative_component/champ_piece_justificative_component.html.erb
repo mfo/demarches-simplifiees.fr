@@ -9,7 +9,7 @@
 </div>
 
 <%# File analysis notice %>
-<% if type_de_champ.rib? %>
+<% if rib? %>
   <div class="cell fr-mt-3w">
     <%= render Dsfr::NoticeComponent.new(state: 'info') do |c| %>
       <% c.with_title do %>
@@ -26,7 +26,7 @@
 <%# Accepted formats %>
 <div class="cell fr-mt-3w">
   <div class="fr-hr"></div>
-  <% if type_de_champ.titre_identite? %>
+  <% if titre_identite? %>
     <%= form.label :formats_accepted, t('.identity_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
     <p class="fr-mb-0">
@@ -34,24 +34,23 @@
       <br>
       <%= t('.identity_formats.rule_html') %>
     </p>
-  <% elsif type_de_champ.rib? %>
+  <% elsif rib? %>
     <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
     <p class="fr-mb-0"><%= t('.rib_formats.desc_html') %></p>
   <% else %>
     <div data-controller="hide-target">
-      <div class="fr-toggle fr-toggle--no-label <%= class_names('fr-mb-2w': type_de_champ.pj_limit_formats?) %>">
+      <div class="fr-toggle fr-toggle--no-label <%= class_names('fr-mb-2w': pj_limit_formats?) %>">
         <%= form.check_box :pj_limit_formats,
           id: dom_id(type_de_champ, :pj_limit_formats),
           class: 'fr-toggle__input',
           data: { 'hide-target-target': 'source' },
-          checked: type_de_champ.pj_limit_formats? %>
+          checked: pj_limit_formats? %>
 
         <%= form.label :pj_limit_formats, t('.limit_formats_label'), for: dom_id(type_de_champ, :pj_limit_formats), class: 'fr-toggle__label fr-label' %>
       </div>
 
-      <% families = format_families_for_select %>
-      <% grid_hidden_class = type_de_champ.pj_limit_formats? ? nil : 'fr-hidden' %>
+      <% grid_hidden_class = pj_limit_formats? ? nil : 'fr-hidden' %>
 
       <div class="cell <%= grid_hidden_class %>" data-hide-target-target="toHide">
         <fieldset class="fr-fieldset fr-mx-0 fr-px-0">
@@ -66,7 +65,7 @@
 
           <% prechecked = Array.wrap(type_de_champ.pj_format_families).map(&:to_s) %>
 
-          <% families.each do |(value, label, examples)| %>
+          <% format_families.each do |(value, label, examples)| %>
             <div class="fr-fieldset__element fr-fieldset__element--inline fr-pl-0">
               <div class="fr-checkbox-group">
                 <% checked_opt = prechecked.include?(value.to_s) %>
@@ -98,7 +97,7 @@
 <%# Automatic file deletion %>
 <div class="cell fr-mt-3w">
   <div class="fr-hr"></div>
-  <% if type_de_champ.titre_identite? %>
+  <% if titre_identite? %>
     <%= form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: "fake-label" %>
     <p class="fr-mb-0">
       <%= t('.identity_deletion.desc_html') %>
@@ -126,7 +125,7 @@
 </div>
 
 <%# Multiple pjs %>
-<% if procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.rib? %>
+<% if procedure.piece_justificative_multiple? && !titre_identite? && !rib? %>
   <div class="cell fr-mt-3w">
     <div class="fr-hr"></div>
     <p><%= t('.multiple_files_hint') %></p>

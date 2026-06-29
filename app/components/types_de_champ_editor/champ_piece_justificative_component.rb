@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChampEditor::ChampPieceJustificativeComponent < TypesDeChampEditor::BaseChampComponent
+  delegate :titre_identite?, :rib?, :pj_limit_formats?, to: :type_de_champ
+
   def render?
     type_de_champ.piece_justificative?
   end
@@ -22,7 +24,7 @@ class TypesDeChampEditor::ChampPieceJustificativeComponent < TypesDeChampEditor:
     }
   end
 
-  def format_families_for_select
+  def format_families
     FORMAT_FAMILIES.keys.map do |key|
       [
         key,
