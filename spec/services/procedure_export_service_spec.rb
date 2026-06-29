@@ -21,9 +21,6 @@ describe ProcedureExportService do
         }
     end
 
-    before { Flipper.enable(:export_xlsx_streaming) }
-    after { Flipper.disable(:export_xlsx_streaming) }
-
     let(:dossiers_sheet) { subject.sheets.first }
     let(:etablissements_sheet) { subject.sheets.second }
     let(:avis_sheet) { subject.sheets.third }
@@ -33,17 +30,6 @@ describe ProcedureExportService do
       let(:procedure) { create(:procedure) }
 
       it 'should have a sheet for each record type' do
-        expect(subject.sheets.map(&:name)).to eq(['Dossiers', 'Etablissements', 'Avis'])
-      end
-    end
-
-    context 'when the export_xlsx_streaming feature is disabled' do
-      let(:procedure) { create(:procedure) }
-
-      before { Flipper.disable(:export_xlsx_streaming) }
-
-      it 'generates the export through the legacy caxlsx generator' do
-        expect(ProcedureExportService::XlsxExport).not_to receive(:new)
         expect(subject.sheets.map(&:name)).to eq(['Dossiers', 'Etablissements', 'Avis'])
       end
     end

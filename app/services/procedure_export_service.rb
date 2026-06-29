@@ -17,10 +17,10 @@ class ProcedureExportService
   end
 
   def to_xlsx
-    if procedure.feature_enabled?(:export_xlsx_streaming)
-      streamed_xlsx
-    else
-      legacy_xlsx
+    Tempfile.create(['export', '.xlsx'], binmode: true) do |file|
+      XlsxExport.new(procedure:, dossiers:, export_template: @export_template).write_to(file)
+      file.rewind
+      create_blob(file, :xlsx)
     end
   end
 
@@ -60,25 +60,6 @@ class ProcedureExportService
   end
 
   private
-
-  def streamed_xlsx
-    Tempfile.create(['export', '.xlsx'], binmode: true) do |file|
-      XlsxExport.new(procedure:, dossiers:, export_template: @export_template).write_to(file)
-      file.rewind
-      create_blob(file, :xlsx)
-    end
-  end
-
-  def legacy_xlsx
-    @dossiers = @dossiers.downloadable_sorted_batch
-    tables = [:dossiers, :etablissements, :avis] + champs_repetables_options(format: :xlsx)
-
-    # We recursively build multi page spreadsheet
-    io = tables.reduce(nil) do |package, table|
-      SpreadsheetArchitect.to_axlsx_package(options_for(table, :xlsx), package)
-    end.to_stream
-    create_blob(io, :xlsx)
-  end
 
   def create_blob(io, format)
     ActiveStorage::Blob.create_and_upload!(

@@ -28,7 +28,6 @@ features = [
   :engagement_juridique_type_de_champ,
   :export_avec_horodatage,
   :export_order_by_revision,
-  :export_xlsx_streaming,
   :groupe_instructeur_api_hack,
   :analyse_justificatif_domicile,
   :pro_connect_restricted,
