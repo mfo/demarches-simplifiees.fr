@@ -1,5 +1,5 @@
-<div class="cell fr-mt-1w">
-  <div class="fr-hr fr-mt-2w"></div>
+<div class="cell fr-mt-3w">
+  <div class="fr-hr"></div>
   <%= form.label :nature, t(".nature_label"), for: dom_id(type_de_champ, :nature) %>
   <%= form.select :nature,
     natures_for_select,
@@ -10,7 +10,7 @@
 
 <%# File analysis notice %>
 <% if type_de_champ.rib? %>
-  <div class="cell fr-mt-2w">
+  <div class="cell fr-mt-3w">
     <%= render Dsfr::NoticeComponent.new(state: 'info') do |c| %>
       <% c.with_title do %>
         <%= t('.file_analysis') %>
@@ -24,102 +24,102 @@
 <% end %>
 
 <%# Accepted formats %>
-<div class="fr-hr fr-mt-2w"></div>
-<% if type_de_champ.titre_identite? %>
-  <div class="cell">
+<div class="cell fr-mt-3w">
+  <div class="fr-hr"></div>
+  <% if type_de_champ.titre_identite? %>
     <%= form.label :formats_accepted, t('.identity_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
-    <p class="fr-mb-0"><%= t('.identity_formats.desc_html') %></p>
-    <p class="fr-mt-0"><%= t('.identity_formats.rule_html') %></p>
-  </div>
-<% elsif type_de_champ.rib? %>
-  <div class="cell">
+    <p class="fr-mb-0">
+      <%= t('.identity_formats.desc_html') %>
+      <br>
+      <%= t('.identity_formats.rule_html') %>
+    </p>
+  <% elsif type_de_champ.rib? %>
     <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
     <p class="fr-mb-0"><%= t('.rib_formats.desc_html') %></p>
-  </div>
-<% else %>
-  <div class="cell" data-controller="hide-target">
-    <div class="fr-toggle fr-toggle--no-label <%= class_names('fr-mb-2w': form.object.pj_limit_formats?) %>">
-      <%= form.check_box :pj_limit_formats,
-        id: dom_id(type_de_champ, :pj_limit_formats),
-        class: 'fr-toggle__input',
-        data: { 'hide-target-target': 'source' },
-        checked: form.object.pj_limit_formats? %>
+  <% else %>
+    <div data-controller="hide-target">
+      <div class="fr-toggle fr-toggle--no-label <%= class_names('fr-mb-2w': form.object.pj_limit_formats?) %>">
+        <%= form.check_box :pj_limit_formats,
+          id: dom_id(type_de_champ, :pj_limit_formats),
+          class: 'fr-toggle__input',
+          data: { 'hide-target-target': 'source' },
+          checked: form.object.pj_limit_formats? %>
 
-      <%= form.label :pj_limit_formats, t('.limit_formats_label'), for: dom_id(type_de_champ, :pj_limit_formats), class: 'fr-toggle__label fr-label' %>
-    </div>
+        <%= form.label :pj_limit_formats, t('.limit_formats_label'), for: dom_id(type_de_champ, :pj_limit_formats), class: 'fr-toggle__label fr-label' %>
+      </div>
 
-    <% families = format_families_for_select %>
-    <% grid_hidden_class = form.object.pj_limit_formats? ? nil : 'fr-hidden' %>
+      <% families = format_families_for_select %>
+      <% grid_hidden_class = form.object.pj_limit_formats? ? nil : 'fr-hidden' %>
 
-    <div class="cell <%= grid_hidden_class %>" data-hide-target-target="toHide">
-      <fieldset class="fr-fieldset fr-mx-0 fr-px-0">
-        <legend
-          class="
-            fr-fieldset__legend fr-fieldset__legend--regular fr-mx-0 fr-pl-0
-            fr-mb-1w
-          "
-        >
-          <%= t('.families_legend') %>
-        </legend>
+      <div class="cell <%= grid_hidden_class %>" data-hide-target-target="toHide">
+        <fieldset class="fr-fieldset fr-mx-0 fr-px-0">
+          <legend
+              class="
+                     fr-fieldset__legend fr-fieldset__legend--regular fr-mx-0 fr-pl-0
+                     fr-mb-1w
+                     "
+              >
+              <%= t('.families_legend') %>
+          </legend>
 
-        <% prechecked = Array.wrap(form.object.pj_format_families).map(&:to_s) %>
+          <% prechecked = Array.wrap(form.object.pj_format_families).map(&:to_s) %>
 
-        <% families.each do |(value, label, examples)| %>
-          <div class="fr-fieldset__element fr-fieldset__element--inline fr-pl-0">
-            <div class="fr-checkbox-group">
-              <% checked_opt = prechecked.include?(value.to_s) %>
-              <%= form.check_box :pj_format_families, { multiple: true, id: dom_id(type_de_champ, "pj_format_#{value}"), checked: checked_opt }, value, nil %>
+          <% families.each do |(value, label, examples)| %>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-pl-0">
+              <div class="fr-checkbox-group">
+                <% checked_opt = prechecked.include?(value.to_s) %>
+                <%= form.check_box :pj_format_families, { multiple: true, id: dom_id(type_de_champ, "pj_format_#{value}"), checked: checked_opt }, value, nil %>
 
-              <% if examples.present? %>
-                <% tip_id = "#{dom_id(type_de_champ, "pj_format_#{value}")}-tip" %>
-                <%= form.label "pj_format_families_#{value}", label, for: dom_id(type_de_champ, "pj_format_#{value}"), class: 'fr-label', tabindex: 0, 'aria-describedby': tip_id %>
-                <span
-                  class="fr-tooltip fr-placement"
-                  id="<%= tip_id %>"
-                  role="tooltip"
-                  aria-hidden="true"
-                >
-                  <%= t('.tooltip_examples', examples: examples) %>
-                </span>
-              <% else %>
-                <%= form.label "pj_format_families_#{value}", label, for: dom_id(type_de_champ, "pj_format_#{value}"), class: 'fr-label' %>
-              <% end %>
+                <% if examples.present? %>
+                  <% tip_id = "#{dom_id(type_de_champ, "pj_format_#{value}")}-tip" %>
+                  <%= form.label "pj_format_families_#{value}", label, for: dom_id(type_de_champ, "pj_format_#{value}"), class: 'fr-label', tabindex: 0, 'aria-describedby': tip_id %>
+                  <span
+                      class="fr-tooltip fr-placement"
+                      id="<%= tip_id %>"
+                      role="tooltip"
+                      aria-hidden="true"
+                      >
+                      <%= t('.tooltip_examples', examples: examples) %>
+                  </span>
+                <% else %>
+                  <%= form.label "pj_format_families_#{value}", label, for: dom_id(type_de_champ, "pj_format_#{value}"), class: 'fr-label' %>
+                <% end %>
+              </div>
             </div>
-          </div>
-        <% end %>
-      </fieldset>
+          <% end %>
+        </fieldset>
+      </div>
     </div>
-  </div>
-<% end %>
-
+  <% end %>
+</div>
 
 <%# Automatic file deletion %>
-<% if type_de_champ.titre_identite? %>
+<div class="cell fr-mt-3w">
   <div class="fr-hr"></div>
-  <div class="cell">
+  <% if type_de_champ.titre_identite? %>
     <%= form.label :deletion_title, t('.identity_deletion.title'), for: nature_dom_id, class: "fake-label" %>
-    <p class="fr-mb-0"><%= t('.identity_deletion.desc_html') %></p>
-    <p class="fr-mt-0"><%= t('.identity_deletion.note_html') %></p>
-  </div>
-<% else %>
-  <div class="fr-hr fr-mt-2w"></div>
-  <div class="cell">
+    <p class="fr-mb-0">
+      <%= t('.identity_deletion.desc_html') %>
+      <br>
+      <%= t('.identity_deletion.note_html') %>
+    </p>
+  <% else %>
     <div class="fr-toggle fr-toggle--no-label">
       <%= form.check_box :pj_auto_purge, id: dom_id(type_de_champ, :pj_auto_purge), class: 'fr-toggle__input' %>
       <%= form.label :pj_auto_purge, t('.auto_purge_label'), for: dom_id(type_de_champ, :pj_auto_purge), class: 'fr-toggle__label fr-label' %>
     </div>
-  </div>
-<% end %>
+  <% end %>
+</div>
 
 <%# Template %>
-<div class="fr-hr <%= class_names('fr-mt-2w': !type_de_champ.titre_identite?) %>"></div>
-<div class="cell">
+<div class="cell fr-mt-3w">
+  <div class="fr-hr"></div>
   <%= form.label :piece_justificative_template, t('.template_label'), for: dom_id(type_de_champ, :piece_justificative_template) %>
 
   <p class="fr-hint-text">
-    <%= t('.max_file_size_hint', max_file_size: number_to_human_size(type_de_champ.max_file_size_bytes)) %>
+  <%= t('.max_file_size_hint', max_file_size: number_to_human_size(type_de_champ.max_file_size_bytes)) %>
   </p>
 
   <%= render Attachment::FileFieldComponent.new(context: Attachment::Context.new(**piece_justificative_template_options), drop_zone: :none) %>
@@ -127,8 +127,8 @@
 
 <%# Multiple pjs %>
 <% if procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.rib? %>
-  <div class="fr-hr fr-mt-2w"></div>
-  <div class="cell">
+  <div class="cell fr-mt-3w">
+    <div class="fr-hr"></div>
     <p><%= t('.multiple_files_hint') %></p>
   </div>
 <% end %>
