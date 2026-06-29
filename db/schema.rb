@@ -593,7 +593,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
     t.bigint "user_id", null: false
     t.index ["procedure_id"], name: "index_dossiers_list_personnalisations_on_procedure_id"
     t.index ["user_id", "procedure_id"], name: "idx_on_user_id_procedure_id_618213d9cc", unique: true
-    t.index ["user_id"], name: "index_dossiers_list_personnalisations_on_user_id"
   end
 
   create_table "email_events", force: :cascade do |t|
