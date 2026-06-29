@@ -791,6 +791,8 @@ class TypeDeChamp < ApplicationRecord
     titre_identite? || [true, '1'].include?(options[:pj_auto_purge])
   end
 
+  def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
+
   def max_file_size_bytes
     if titre_identite?
       IDENTITY_FILE_MAX_SIZE

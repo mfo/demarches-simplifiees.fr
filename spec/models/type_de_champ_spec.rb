@@ -820,4 +820,34 @@ describe TypeDeChamp do
   ])
 }
   end
+
+  describe '#ocr_compatible?' do
+    subject { type_de_champ.ocr_compatible? }
+
+    context 'with a piece justificative' do
+      let(:type_de_champ) { build(:type_de_champ_piece_justificative, nature:) }
+
+      ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+        context "when nature is #{ocr_nature}" do
+          let(:nature) { ocr_nature }
+
+          it { is_expected.to be(true) }
+        end
+      end
+
+      ['titre_identite', 'non_specifie'].each do |other_nature|
+        context "when nature is #{other_nature}" do
+          let(:nature) { other_nature }
+
+          it { is_expected.to be(false) }
+        end
+      end
+    end
+
+    context 'when the type de champ is not a piece justificative' do
+      let(:type_de_champ) { build(:type_de_champ_text) }
+
+      it { is_expected.to be(false) }
+    end
+  end
 end

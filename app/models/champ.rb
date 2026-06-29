@@ -96,6 +96,7 @@ class Champ < ApplicationRecord
     :france_connect?,
     :justificatif_domicile?,
     :avis_impot?,
+    :ocr_compatible?,
     to: :type_de_champ
 
   delegate(*TypeDeChamp.type_champs.values.map { "#{_1}?".to_sym }, to: :type_de_champ)
@@ -355,8 +356,6 @@ class Champ < ApplicationRecord
 
     dossier.update_columns(attributes)
   end
-
-  def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
 
   class NotImplemented < ::StandardError
     def initialize(method)
