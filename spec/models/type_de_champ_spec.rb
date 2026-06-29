@@ -174,10 +174,13 @@ describe TypeDeChamp do
         expect(tdc.allowed_content_types).to match_array(['image/jpeg', 'image/png'])
       end
 
-      it 'includes doc and image types for RIB' do
-        tdc = create(:type_de_champ_piece_justificative, nature: 'rib')
-        expect(tdc.allowed_content_types).to include('application/pdf').or include('application/msword')
-        expect(tdc.allowed_content_types).to include('image/jpeg').or include('image/png')
+      ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+        it "restricts to doc and image types for #{ocr_nature}" do
+          tdc = create(:type_de_champ_piece_justificative, nature: ocr_nature)
+          expect(tdc.allowed_content_types).to include('application/pdf')
+          expect(tdc.allowed_content_types).to include('image/jpeg')
+          expect(tdc.allowed_content_types).not_to include('application/zip')
+        end
       end
 
       it 'restricts to selected families when pj_limit_formats enabled' do

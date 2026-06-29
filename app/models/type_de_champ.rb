@@ -804,7 +804,7 @@ class TypeDeChamp < ApplicationRecord
   def allowed_content_types
     if titre_identite?
       families_to_content_types(%w[image_scan])
-    elsif rib?
+    elsif ocr_compatible?
       families_to_content_types(%w[document_texte image_scan])
     elsif pj_limit_formats? && pj_format_families.present?
       families_to_content_types(pj_format_families)

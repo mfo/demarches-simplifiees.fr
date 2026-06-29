@@ -112,6 +112,27 @@ describe Champs::PieceJustificativeChamp do
       end
     end
 
+    ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+      context "#{ocr_nature} nature" do
+        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: ocr_nature }]) }
+        let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
+        let(:champ) { dossier.champs.first }
+
+        it 'accepts pdf' do
+          champ.piece_justificative_file.purge
+          champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'doc.pdf', content_type: 'application/pdf')
+          expect(champ.valid?(:champs_public_value)).to be true
+        end
+
+        it 'rejects zip' do
+          champ.piece_justificative_file.purge
+          champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'arc.zip', content_type: 'application/zip')
+          expect(champ.valid?(:champs_public_value)).to be false
+          expect(champ.errors[:piece_justificative_file]).to be_present
+        end
+      end
+    end
+
     context 'pj_limit_formats with document_texte' do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }

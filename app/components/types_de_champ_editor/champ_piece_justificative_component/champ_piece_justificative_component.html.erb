@@ -34,10 +34,10 @@
       <br>
       <%= t('.identity_formats.rule_html') %>
     </p>
-  <% elsif rib? %>
-    <%= form.label :formats_accepted, t('.rib_formats.title'), for: nature_dom_id, class: "fake-label" %>
+  <% elsif ocr_compatible? %>
+    <%= form.label :formats_accepted, t('.ocr_formats.title'), for: nature_dom_id, class: "fake-label" %>
 
-    <p class="fr-mb-0"><%= t('.rib_formats.desc_html') %></p>
+    <p class="fr-mb-0"><%= t('.ocr_formats.desc_html') %></p>
   <% else %>
     <div data-controller="hide-target">
       <div class="fr-toggle fr-toggle--no-label">
