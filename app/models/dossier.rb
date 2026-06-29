@@ -348,7 +348,7 @@ class Dossier < ApplicationRecord
   end
 
   scope :never_touched_brouillon_expired, -> { visible_by_user.brouillon.where.missing(:etablissement, :individual).where(last_champ_updated_at: nil, identity_updated_at: nil, parent_dossier: nil, last_commentaire_updated_at: nil).where(created_at: ..2.weeks.ago) }
-  scope :brouillon_expired, -> do
+  scope :brouillon_expired_after_notice_grace, -> do
     state_brouillon
       .visible_by_user
       .where(brouillon_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
@@ -362,7 +362,7 @@ class Dossier < ApplicationRecord
       .where("dossiers.for_procedure_preview = TRUE OR procedures.aasm_state IN (?)", %w[close brouillon])
   end
 
-  scope :termine_expired, -> do
+  scope :termine_expired_after_notice_grace, -> do
     state_termine
       .visible_by_user_or_administration
       .where(termine_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))

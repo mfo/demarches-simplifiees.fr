@@ -86,7 +86,7 @@ describe Dossier, type: :model do
       end
     end
 
-    describe '.brouillon_expired' do
+    describe '.brouillon_expired_after_notice_grace' do
       let(:interval_between_first_and_second_expiration) { Dossier::MONTHS_AFTER_EXPIRATION.months + Dossier::DAYS_AFTER_EXPIRATION.days }
 
       let!(:dossier_brouillon_expired_and_noticed_long_time_ago) do
@@ -137,7 +137,7 @@ describe Dossier, type: :model do
       end
 
       it 'returns only visible brouillon dossiers whose expiration notice period has passed' do
-        expect(Dossier.brouillon_expired).to contain_exactly(dossier_brouillon_expired_and_noticed_long_time_ago)
+        expect(Dossier.brouillon_expired_after_notice_grace).to contain_exactly(dossier_brouillon_expired_and_noticed_long_time_ago)
       end
     end
 

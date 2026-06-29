@@ -51,10 +51,10 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
   end
 
   def delete_expired_brouillons_and_notify
-    user_notifications = group_by_user_email(Dossier.brouillon_expired)
+    user_notifications = group_by_user_email(Dossier.brouillon_expired_after_notice_grace)
       .map { |(email, dossiers)| [email, dossiers.map(&:hash_for_deletion_mail)] }
 
-    Dossier.brouillon_expired.in_batches.destroy_all
+    Dossier.brouillon_expired_after_notice_grace.in_batches.destroy_all
 
     user_notifications.each do |(email, dossiers_hash)|
       mail = DossierMailer.notify_brouillon_deletion(
@@ -70,13 +70,13 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
   end
 
   def delete_expired_termine_and_notify
-    delete_expired_and_notify(Dossier.termine_expired, notify_on_closed_procedures_to_user: true)
+    delete_expired_and_notify(Dossier.termine_expired_after_notice_grace, notify_on_closed_procedures_to_user: true)
   end
 
   def update_notifications_dossiers_termine
     DossierNotification.create_notifications_for_non_customisable_type(Dossier.termine_close_to_expiration.without_dossier_expirant_notification, :dossier_expirant)
-    DossierNotification.destroy_notifications_by_dossier_and_type(Dossier.termine_expired, :dossier_expirant)
-    DossierNotification.create_notifications_for_non_customisable_type(Dossier.termine_expired, :dossier_suppression)
+    DossierNotification.destroy_notifications_by_dossier_and_type(Dossier.termine_expired_after_notice_grace, :dossier_expirant)
+    DossierNotification.create_notifications_for_non_customisable_type(Dossier.termine_expired_after_notice_grace, :dossier_suppression)
   end
 
   private
