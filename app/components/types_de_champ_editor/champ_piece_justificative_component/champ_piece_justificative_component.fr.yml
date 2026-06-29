@@ -9,7 +9,6 @@ fr:
   tooltip_examples: "Exemples : %{examples}..."
   identity_notice:
     title: "Analyse du fichier"
-    desc_html: "Le contenu du fichier joint par l’usager sera analysé automatiquement afin de récupérer et retranscrire à l’instructeur les informations d’identité, par exemple : <strong>Sexe, Prénom(s), Nom de naissance, Date de naissance, Lieu de naissance, Nationalité, Date de délivrance, Date d’expiration, Numéro de la pièce</strong>."
   identity_formats:
     title: "FORMATS ACCEPTÉS"
     desc_html: "L’usager pourra joindre une carte d’identité (uniquement le recto), passeport, titre de séjour ou autre justificatif d’identité."

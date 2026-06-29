@@ -9,7 +9,6 @@ en:
   tooltip_examples: "Examples: %{examples}..."
   identity_notice:
     title: "File analysis"
-    desc_html: "The file uploaded by the user will be automatically analyzed to extract and display to the instructor identity information, for example: <strong>Gender, First name(s), Birth name, Birth date, Birth place, Nationality, Issue date, Expiry date, Document number</strong>."
   identity_formats:
     title: "ACCEPTED FORMATS"
     desc_html: "The user may upload an identity card (front side only), passport, residence permit or another identity document."
