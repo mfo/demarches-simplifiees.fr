@@ -1,4 +1,4 @@
 ---
 en:
-    draft_procedures_html: "The files submitted on these procedures <strong>in test</strong> can be <strong>deleted at any time</strong> and without prior notice, even after being accepted."
-    draft_procedure_html: "The files submitted on this procedure <strong>in test</strong> can be <strong>deleted at any time</strong> and without prior notice, even after being accepted."
+    draft_procedures_html: "The files submitted on these procedures <strong>in test</strong> are <strong>deleted</strong> when their settings are modified or when they are published."
+    draft_procedure_html: "The files submitted on this procedure <strong>in test</strong> are <strong>deleted</strong> when its settings are modified or when it is published."

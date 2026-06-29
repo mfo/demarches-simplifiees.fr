@@ -3,7 +3,7 @@ en:
     title: What do the tabs include?
     close: Close
     tabs_en_cours_html: <strong>“in progress”</strong> tab brings together published procedures as well as closed procedures that still have files to process.
-    tabs_en_test_html: <strong>“in testing”</strong> tab groups together the procedures which have not yet been published. Files submitted during the test phase will be automatically deleted when the process is modified or published.
+    tabs_en_test_html: <strong>“in testing”</strong> tab groups together the procedures which have not yet been published. Files submitted during the test phase are deleted when the procedure’s settings are modified or when it is published.
     tabs_close_html: <strong>“finished”</strong> tab groups together closed procedures with no more files to process.
     tabs_a_suivre_html: <strong>“to follow”</strong> tab contains all the files which are not followed by any instructor. To assign the file, simply click on “Follow” the file.
     tabs_suivis_html: <strong>“followed by me“</strong> tab contains the files followed by you. When you (or another instructor) follow a folder, that folder no longer appears in the “to follow” folders. You can discuss with the applicant until you can accept, refuse and close their file without further action.

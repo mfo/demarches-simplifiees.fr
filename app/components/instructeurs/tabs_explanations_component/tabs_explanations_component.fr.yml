@@ -3,7 +3,7 @@ fr:
     title: Que regroupent les onglets ?
     close: Fermer
     tabs_en_cours_html: L’onglet <strong>« en cours »</strong> regroupe les démarches publiées ainsi que les démarches closes ayant encore des dossiers à traiter.
-    tabs_en_test_html: L’onglet <strong>« en test »</strong> regroupe les démarches qui ne sont pas encore publiées. Les dossiers déposés pendant la phase de test seront automatiquement supprimés lors de la modification ou de la publication de la démarche.
+    tabs_en_test_html: L’onglet <strong>« en test »</strong> regroupe les démarches qui ne sont pas encore publiées. Les dossiers déposés pendant la phase de test sont supprimés lorsque les réglages de la démarche sont modifiés ou lorsqu’elle est publiée.
     tabs_close_html: L’onglet <strong>« terminée »</strong> regroupe les démarches closes n’ayant plus de dossiers à traiter.
     tabs_a_suivre_html: L’onglet <strong>« à suivre »</strong> contient l’ensemble des dossiers qui ne sont suivis par aucun instructeur. Pour s’affecter le dossier, il suffit de cliquer sur « Suivre » le dossier.
     tabs_suivis_html: L’onglet <strong>« suivis par moi »</strong> contient les dossiers que vous suivez. Lorsque vous (ou un autre instructeur) suivez un dossier, ce dossier n’apparaît plus dans les dossiers « à suivre ». Vous pouvez échanger avec le demandeur jusqu’à pouvoir accepter, refuser classer sans suite son dossier.
