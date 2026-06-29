@@ -242,8 +242,7 @@ class AttestationTemplate < ApplicationRecord
       assigns: { attestation_template: self, body:, signature: }
     )
 
-    options = { procedure_id: procedure.id, dossier_id: dossier.id }
-    options[:pdf_variant] = WeasyprintService::PDF_UA_VARIANT if procedure.feature_enabled?(:pdf_variant)
+    options = { procedure_id: procedure.id, dossier_id: dossier.id, pdf_variant: WeasyprintService::PDF_UA_VARIANT }
 
     WeasyprintService.generate_pdf(html, options)
   end

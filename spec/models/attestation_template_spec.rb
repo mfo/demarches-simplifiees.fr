@@ -182,7 +182,7 @@ describe AttestationTemplate, type: :model do
         stub_request(:post, WEASYPRINT_URL)
           .with(body: {
             html: /Ministère des specs.+Mon titre pour #{procedure.libelle}.+Dossier: n° #{dossier.id}/m,
-            upstream_context: { procedure_id: procedure.id, dossier_id: dossier.id },
+            upstream_context: { procedure_id: procedure.id, dossier_id: dossier.id, pdf_variant: 'pdf/ua-1' },
           })
           .to_return(body: 'PDF_DATA')
       end
@@ -191,17 +191,11 @@ describe AttestationTemplate, type: :model do
         expect(subject.pdf).to be_attached
       end
 
-      context 'when the pdf_variant feature is enabled' do
-        before do
-          Flipper.enable(:pdf_variant, procedure)
-          allow(WeasyprintService).to receive(:generate_pdf).and_return('PDF_DATA')
-        end
-
-        it 'requests the pdf/ua-1 variant through the options' do
-          subject
-          expect(WeasyprintService).to have_received(:generate_pdf)
-            .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
-        end
+      it 'requests the pdf/ua-1 variant through the options' do
+        allow(WeasyprintService).to receive(:generate_pdf).and_return('PDF_DATA')
+        subject
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
       end
     end
   end
