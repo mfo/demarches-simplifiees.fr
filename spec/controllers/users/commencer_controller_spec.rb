@@ -494,6 +494,59 @@ describe Users::CommencerController, type: :controller do
         expect(response).to have_http_status(:success)
       end
     end
+
+    context 'with the :dossier_vide_weasyprint flag enabled' do
+      render_views
+      let(:procedure) { create(:procedure, :published, :with_service, :with_path, libelle: 'Ma démarche') }
+
+      before do
+        Flipper.enable(:dossier_vide_weasyprint, procedure)
+        allow(WeasyprintService).to receive(:generate_pdf).and_return('%PDF-fake')
+        get :dossier_vide_pdf, params: { path: procedure.path }
+      end
+
+      it 'generates the PDF via WeasyPrint' do
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(anything, hash_including(procedure_id: procedure.id))
+        expect(response).to have_http_status(:success)
+        expect(response.body).to eq('%PDF-fake')
+      end
+
+      it 'titles the document with the procedure libelle (PDF/UA metadata)' do
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(a_string_matching(%r{<title>Ma démarche</title>}), anything)
+      end
+    end
+
+    context 'with the flag enabled but WeasyPrint failing' do
+      let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+
+      before do
+        Flipper.enable(:dossier_vide_weasyprint, procedure)
+        allow(WeasyprintService).to receive(:generate_pdf).and_raise(WeasyprintService::Error)
+        get :dossier_vide_pdf, params: { path: procedure.path }
+      end
+
+      it 'falls back to the Prawn rendering without failing' do
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'with the flag enabled but the PDF rendering raising unexpectedly' do
+      let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+
+      before do
+        Flipper.enable(:dossier_vide_weasyprint, procedure)
+        allow(Sentry).to receive(:capture_exception)
+        allow(WeasyprintService).to receive(:generate_pdf).and_raise(StandardError, 'boom')
+        get :dossier_vide_pdf, params: { path: procedure.path }
+      end
+
+      it 'falls back to the Prawn rendering and reports to Sentry' do
+        expect(response).to have_http_status(:success)
+        expect(Sentry).to have_received(:capture_exception)
+      end
+    end
   end
 
   describe '#dossier_vide_test_pdf' do

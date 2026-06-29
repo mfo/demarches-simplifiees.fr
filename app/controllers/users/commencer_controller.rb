@@ -179,8 +179,37 @@ module Users
 
     def generate_empty_pdf(revision)
       @revision = revision
-      data = render_to_string(template: 'dossiers/dossier_vide', formats: [:pdf])
-      send_data(data, filename: "#{revision.procedure.libelle}.pdf")
+      @procedure = revision.procedure
+      filename = "#{@procedure.libelle}.pdf"
+
+      if @procedure.feature_enabled?(:dossier_vide_weasyprint)
+        send_data(generate_empty_pdf_weasyprint(revision), filename:, type: 'application/pdf')
+      else
+        send_data(render_dossier_vide_prawn, filename:)
+      end
+    rescue StandardError => e
+      # Any failure of the new WeasyPrint path falls back to the proven Prawn rendering.
+      Sentry.capture_exception(e, extra: { procedure_id: @procedure.id })
+      send_data(render_dossier_vide_prawn, filename:)
+    end
+
+    def generate_empty_pdf_weasyprint(revision)
+      html = render_to_string(
+        Dossiers::DossierVidePdfComponent.new(revision:),
+        layout: 'dossier_vide_pdf',
+        formats: [:html]
+      )
+
+      options = {
+        procedure_id: revision.procedure.id,
+        path: request.path,
+      }
+
+      WeasyprintService.generate_pdf(html, options)
+    end
+
+    def render_dossier_vide_prawn
+      render_to_string(template: 'dossiers/dossier_vide', formats: [:pdf])
     end
   end
 end
