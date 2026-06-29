@@ -1,0 +1,21 @@
+%h1#modal-instruction-title.fr-modal__title
+  - if operation.present?
+    = modal_title_data[operation.to_sym] || modal_title_data[operation]
+  - else
+    = modal_title_data[:default_title]
+
+- has_annotation_errors = !batch && operation.blank? && !dossier.champs_private_valid?
+
+- if !batch && operation.blank?
+  #alert-error-annotation{ class: has_annotation_errors ? nil : 'hidden' }
+    = render Dsfr::AlertComponent.new(state: :warning, title: nil, size: :sm, extra_class_names: 'fr-mt-2w') do |c|
+      - c.with_body do
+        %p
+          = t('instructeurs.dossiers.alert_error_annotations')
+          %br
+          = link_to t('instructeurs.dossiers.alert_error_annotations_link'), annotations_privees_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]), class: 'fr-link'
+
+- if operation.blank?
+  = render partial: "instructeurs/dossiers/instruction_tiles", locals: { dossier: dossier, procedure: procedure, instruction_options: instruction_options(batch: batch), batch: batch, hidden: has_annotation_errors, dossier_ids: local_assigns[:dossier_ids] || [], statut: local_assigns[:statut] || params[:statut] }
+- else
+  = render partial: "instructeurs/dossiers/instruction_selected_form", locals: { dossier: dossier, operation: operation, batch: batch, procedure: procedure, dossier_ids: local_assigns[:dossier_ids] || [] }

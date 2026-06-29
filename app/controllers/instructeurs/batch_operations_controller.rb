@@ -65,6 +65,16 @@ module Instructeurs
       end
     end
 
+    def batch_instruction_modal
+      @operation = params[:operation]
+      @dossier_ids = params[:dossier_ids] || []
+      @modal_title_data = helpers.instruction_modal_title_data(batch: true)
+
+      respond_to do |format|
+        format.turbo_stream
+      end
+    end
+
     def create_batch_commentaire
       dossier_ids = batch_operation_commentaire_params[:dossier_ids]
 

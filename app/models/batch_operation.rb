@@ -45,6 +45,14 @@ class BatchOperation < ApplicationRecord
       .where(updated_at: ...(Time.zone.now - MAX_DUREE_GENERATION))
   }
 
+  def self.instruction_operations
+    [
+      operations.fetch(:accepter),
+      operations.fetch(:refuser),
+      operations.fetch(:classer_sans_suite),
+    ]
+  end
+
   def dossiers_safe_scope(dossier_ids = self.dossier_ids)
     query = instructeur
       .dossiers

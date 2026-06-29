@@ -543,6 +543,7 @@ Rails.application.routes.draw do
               get 'reaffectation'
               get 'pieces_jointes'
               post 'reaffecter'
+              post 'instruction_modal/:operation', to: 'dossiers#instruction_modal', as: :instruction_modal
             end
           end
 
@@ -557,6 +558,7 @@ Rails.application.routes.draw do
             collection do
               post 'create_batch_avis' => 'batch_operations#create_batch_avis'
               post 'create_batch_commentaire' => 'batch_operations#create_batch_commentaire'
+              post 'batch_instruction_modal/:operation', to: 'batch_operations#batch_instruction_modal', as: :batch_instruction_modal
             end
           end
         end

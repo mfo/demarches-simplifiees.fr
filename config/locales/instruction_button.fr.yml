@@ -1,0 +1,62 @@
+fr:
+  instructeurs:
+    instruction_button_component:
+      instruct: Rendre une décision
+      labels:
+        instruction: Rendre une décision
+      modal:
+        title:
+          one: Rendre une décision sur le dossier n° %{dossier_id} - %{owner_name}
+          other: Rendre une décision sur les dossiers
+        actions:
+          accept:
+            one: Accepter le dossier
+            other: Accepter les dossiers
+          refuse:
+            one: Refuser le dossier
+            other: Refuser les dossiers
+          without_continuation:
+            one: Classer sans suite le dossier
+            other: Classer sans suite les dossiers
+      action_buttons:
+        accepter:
+          title:
+            one: Accepter le dossier
+            other: Accepter les dossiers
+          desc:
+            one: L’usager sera informé que son dossier est accepté
+            other: Les usagers seront informés que leur dossier est accepté
+          motivation_label:
+            one: Motivation (facultative)
+            other: Motivation (facultative)
+          motivation_hint:
+            one: Expliquez à l’usager pourquoi son dossier est accepté
+            other: Expliquez aux usagers pourquoi leur dossier est accepté
+
+        refuser:
+          title:
+            one: Refuser le dossier
+            other: Refuser les dossiers
+          desc:
+            one: L’usager sera informé que son dossier est refusé
+            other: Les usagers seront informés que leur dossier est refusé
+          motivation_label:
+            one: Motivation (obligatoire)
+            other: Motivation (obligatoire)
+          motivation_hint:
+            one: Expliquez à l’usager pourquoi son dossier est refusé
+            other: Expliquez aux usagers pourquoi leur dossier est refusé
+
+        classer_sans_suite:
+          title:
+            one: Classer sans suite le dossier
+            other: Classer sans suite les dossiers
+          desc:
+            one: L’usager sera informé que son dossier est classé sans suite
+            other: Les usagers seront informés que leur dossier est classé sans suite
+          motivation_label:
+            one: Motivation (obligatoire)
+            other: Motivation (obligatoire)
+          motivation_hint:
+            one: Expliquez à l’usager pourquoi son dossier est classé sans suite
+            other: Expliquez aux usagers pourquoi leur dossier est classé sans suite

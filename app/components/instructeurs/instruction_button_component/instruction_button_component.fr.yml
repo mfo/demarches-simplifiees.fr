@@ -1,0 +1,4 @@
+fr:
+  instruct: Rendre une décision
+  labels:
+    instruction: Rendre une décision

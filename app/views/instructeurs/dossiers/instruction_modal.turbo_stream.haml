@@ -1,0 +1,20 @@
+- current_statut = params[:statut]
+
+= turbo_stream.replace "instruction-modal-content" do
+  #instruction-modal-content
+    = render partial: "instructeurs/dossiers/instruction_modal_content", locals: { dossier: @dossier, operation: @operation == "reset" ? nil : @operation, batch: false, procedure: @dossier.procedure, modal_title_data: @modal_title_data }
+
+= turbo_stream.replace "instruction-modal-footer" do
+  - if @operation != "reset"
+    #instruction-modal-footer.fr-modal__footer
+      .fr-btns-group.fr-btns-group--center.fr-btns-group--inline-reverse.fr-btns-group--inline-md
+        %button.fr-btn{
+          type: "submit",
+          form: "instruction-form",
+          data: { turbo: "true" }
+        }
+          Valider la décision
+
+        = link_to "Retour", instruction_modal_instructeur_dossier_path(@dossier.procedure, @dossier, "reset", statut: current_statut), class: "fr-btn fr-btn--secondary", data: { turbo_method: :post, turbo: true }
+  - else
+    #instruction-modal-footer

@@ -2,5 +2,7 @@
 
 - if !@dossier.champs_private_valid?
   = turbo_stream.show("alert-error-annotation")
+  = turbo_stream.hide("instruction-action-tiles")
 - else
   = turbo_stream.hide("alert-error-annotation")
+  = turbo_stream.show("instruction-action-tiles")

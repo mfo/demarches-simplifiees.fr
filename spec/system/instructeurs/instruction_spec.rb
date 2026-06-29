@@ -68,13 +68,13 @@ describe 'Instructing a dossier:', js: true do
     click_on 'Passer en instruction'
 
     expect(page).to have_text('Dossier passé en instruction.')
-    expect(page).to have_text('Instruire le dossier')
+    expect(page).to have_text('Rendre une décision')
     expect(page).to have_selector('.fr-badge', text: 'en instruction')
 
     dossier.reload
     expect(dossier.state).to eq(Dossier.states.fetch(:en_instruction))
 
-    click_on 'Instruire le dossier'
+    click_on 'Rendre une décision'
 
     within('.instruction-button') do
       # FIXME click_on 'Accepter' is not working for some reason
@@ -82,12 +82,10 @@ describe 'Instructing a dossier:', js: true do
     end
 
     within('.accept.motivation') do
-      fill_in('dossier_motivation', with: 'a good reason')
-
-      accept_confirm do
-        click_on 'Valider la décision'
-      end
+      fill_in('motivation_accept', with: 'a good reason')
     end
+
+    find('button', text: 'Valider la décision').click
 
     expect(page).to have_text('Dossier traité avec succès.')
     expect(page).to have_button('Déplacer dans “à archiver“')

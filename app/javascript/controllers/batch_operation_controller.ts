@@ -89,37 +89,6 @@ export class BatchOperationController extends ApplicationController {
     this.updateCheckboxCount();
   }
 
-  onSubmitInstruction(event: { srcElement: HTMLInputElement }) {
-    const field_refuse = document.querySelector<HTMLInputElement>(
-      '.js_batch_operation_motivation_refuse'
-    );
-
-    const field_without_continuation = document.querySelector<HTMLInputElement>(
-      '.js_batch_operation_motivation_without-continuation'
-    );
-
-    if (field_refuse != null) {
-      if (event.srcElement.value == 'refuser' && field_refuse.value == '') {
-        field_refuse.setCustomValidity('La motivation doit être remplie');
-      } else {
-        field_refuse.setCustomValidity('');
-      }
-    }
-
-    if (field_without_continuation != null) {
-      if (
-        event.srcElement.value == 'classer_sans_suite' &&
-        field_without_continuation.value == ''
-      ) {
-        field_without_continuation.setCustomValidity(
-          'La motivation doit être remplie'
-        );
-      } else {
-        field_without_continuation.setCustomValidity('');
-      }
-    }
-  }
-
   onDeleteSelection(event: { preventDefault: () => void }) {
     event.preventDefault();
     emptyCheckboxes();
@@ -220,6 +189,14 @@ export class BatchOperationController extends ApplicationController {
     if (modalType === 'avis') {
       this.setDefaultConfidentialOption();
     }
+  }
+
+  openInstructionModal(event: Event) {
+    event.preventDefault();
+    this.dispatch('open', {
+      detail: { ids: this.getSelectedIds() },
+      target: window
+    });
   }
 
   private getSelectedIds(): string[] {

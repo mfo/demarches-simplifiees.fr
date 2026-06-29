@@ -328,3 +328,9 @@ input[type='radio'] {
     var(--underline-idle-width) var(--underline-thickness);
   transition: background-size;
 }
+
+// Hack pour la modale d'instruction qui est déclarée
+// à l'interieur d'un groupe de boutons
+.fr-btns-group--inline-md #modal-instruction-button .fr-btn.fr-btn--close {
+  margin-left: auto;
+}
