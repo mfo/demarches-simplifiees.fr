@@ -7,8 +7,7 @@ fr:
   multiple_files_hint: "Les usagers pourront joindre plusieurs fichiers si nécessaire."
   families_legend: "FORMAT(S) ACCEPTÉ(S)"
   tooltip_examples: "Exemples : %{examples}..."
-  identity_notice:
-    title: "Analyse du fichier"
+  file_analysis: "Analyse du fichier"
   identity_formats:
     title: "FORMATS ACCEPTÉS"
     desc_html: "L’usager pourra joindre une carte d’identité (uniquement le recto), passeport, titre de séjour ou autre justificatif d’identité."

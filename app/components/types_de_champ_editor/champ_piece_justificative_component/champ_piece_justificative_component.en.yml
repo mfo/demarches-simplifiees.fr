@@ -7,8 +7,7 @@ en:
   multiple_files_hint: "Users can upload multiple files if needed."
   families_legend: "ACCEPTED FORMAT(S)"
   tooltip_examples: "Examples: %{examples}..."
-  identity_notice:
-    title: "File analysis"
+  file_analysis: "File analysis"
   identity_formats:
     title: "ACCEPTED FORMATS"
     desc_html: "The user may upload an identity card (front side only), passport, residence permit or another identity document."
