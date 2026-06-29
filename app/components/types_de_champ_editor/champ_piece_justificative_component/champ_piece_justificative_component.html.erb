@@ -1,10 +1,8 @@
 <div class="cell fr-mt-1w">
   <div class="fr-hr fr-mt-2w"></div>
   <%= form.label :nature, t(".nature_label"), for: dom_id(type_de_champ, :nature) %>
-  <% natures = TypeDeChamp.natures.keys.reject { _1 == 'justificatif_domicile' && !procedure.feature_enabled?(:analyse_justificatif_domicile) }.map { |k| [t("activerecord.attributes.type_de_champ.natures.#{k}", default: k.to_s.humanize), k] } %>
-
   <%= form.select :nature,
-    natures,
+    natures_for_select,
     { },
     class: 'fr-select small-margin small inline width-100',
     id: dom_id(type_de_champ, :nature) %>

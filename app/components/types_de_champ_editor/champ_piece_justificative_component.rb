@@ -7,6 +7,11 @@ class TypesDeChampEditor::ChampPieceJustificativeComponent < TypesDeChampEditor:
 
   private
 
+  def natures_for_select
+    TypeDeChamp.natures.keys
+      .map { |k| [t("activerecord.attributes.type_de_champ.natures.#{k}"), k] }
+  end
+
   def piece_justificative_template_options
     {
       attached_file: type_de_champ.piece_justificative_template,
