@@ -1,6 +1,5 @@
 fr:
   nature_label: "Nature de la pièce"
-  titre_identite_rgpd_html: "Dans le cadre de la RGPD, le titre d’identité sera supprimé lors de l’acceptation, du refus ou du classement sans suite du dossier.<br>Aussi, pour des raisons de sécurité, un filigrane est automatiquement ajouté aux images.<br>Finalement, le titre d’identité ne sera ni disponible dans les zip de dossiers, ni téléchargeable par API."
   limit_formats_label: "Limiter à certains formats de fichier"
   auto_purge_label: "Supprimer automatiquement la pièce après traitement du dossier"
   template_label: "Modèle de fichier proposé à l’usager"

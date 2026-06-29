@@ -123,15 +123,7 @@
   <%= render Attachment::FileFieldComponent.new(context: Attachment::Context.new(**piece_justificative_template_options), drop_zone: :none) %>
 </div>
 
-<% if type_de_champ.titre_identite? %>
-  <div class="cell fr-mt-1w">
-    <%= render Dsfr::AlertComponent.new(state: :info, heading_level: 'p') do |c| %>
-      <% c.with_body do %>
-        <p><%= t(".titre_identite_rgpd_html") %></p>
-      <% end %>
-    <% end %>
-  </div>
-<% elsif procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.rib? %>
+<% if procedure.piece_justificative_multiple? && !type_de_champ.titre_identite? && !type_de_champ.rib? %>
   <div class="fr-hr fr-mt-2w"></div>
   <div class="cell">
     <p><%= t('.multiple_files_hint') %></p>

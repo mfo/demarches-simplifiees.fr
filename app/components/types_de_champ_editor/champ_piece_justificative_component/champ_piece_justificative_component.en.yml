@@ -1,6 +1,5 @@
 en:
   nature_label: "Document type"
-  titre_identite_rgpd_html: "Under GDPR, the identity document will be deleted upon acceptance, refusal or closure of the dossier.<br>Also, for security reasons, a watermark is automatically added to images.<br>Finally, the identity document will not be available in dossier ZIP exports nor downloadable via API."
   limit_formats_label: "Limit to specific file formats"
   auto_purge_label: "Automatically delete the file after dossier processing"
   template_label: "Template file proposed to the user"
