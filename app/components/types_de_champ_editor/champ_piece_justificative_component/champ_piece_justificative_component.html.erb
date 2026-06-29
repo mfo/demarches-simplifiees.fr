@@ -116,7 +116,7 @@
 </div>
 
 <%# Multiple pjs %>
-<% if procedure.piece_justificative_multiple? && !titre_identite? && !rib? %>
+<% if procedure.piece_justificative_multiple? && !titre_identite? && !ocr_compatible? %>
   <div class="cell fr-mt-3w">
     <div class="fr-hr"></div>
     <p><%= t('.multiple_files_hint') %></p>
