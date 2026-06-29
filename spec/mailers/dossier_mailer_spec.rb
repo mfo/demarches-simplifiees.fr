@@ -90,6 +90,18 @@ RSpec.describe DossierMailer, type: :mailer do
     it { expect(subject.perform_deliveries).to be_falsy }
   end
 
+  describe '.notify_new_answer with dossier brouillon on a declarative procedure' do
+    let(:procedure) { create(:simple_procedure, declarative_with_state: 'en_instruction') }
+    let(:dossier) { create(:dossier, :brouillon, procedure:) }
+    let(:commentaire) { create(:commentaire, dossier:) }
+
+    subject { described_class.with(commentaire:).notify_new_answer }
+
+    it 'delivers the email (bug fix  06/2026)' do
+      expect(subject.perform_deliveries).to be_truthy
+    end
+  end
+
   describe '.notify_en_construction_deletion_to_administration' do
     let(:hidden_dossier) { build(:dossier) }
 

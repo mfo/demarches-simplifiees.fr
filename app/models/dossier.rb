@@ -1040,7 +1040,6 @@ class Dossier < ApplicationRecord
   end
 
   def skip_user_notification_email?
-    return true if brouillon? && procedure.declarative?
     return true if for_procedure_preview?
     return true if user_deleted?
 

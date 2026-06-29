@@ -3028,4 +3028,15 @@ describe Dossier, type: :model do
       create(:dossier, :accepte, :archived, :with_attestation_acceptation, procedure: procedure)
     end
   end
+
+  describe "#skip_user_notification_email?" do
+    context "when the dossier is brouillon for a declarative procedure" do
+      let(:procedure) { create(:procedure, :published, declarative_with_state: :en_instruction) }
+      let(:dossier) { create(:dossier, :brouillon, procedure:) }
+
+      it "allows the email to be sent (bug fix  06/2026)" do
+        expect(dossier.skip_user_notification_email?).to be false
+      end
+    end
+  end
 end
