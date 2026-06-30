@@ -190,6 +190,41 @@ describe API::V2::GraphqlController do
           expect(gql_errors.first[:message]).to eq("An object of type Demarche was hidden due to permissions")
         }
       end
+
+      context 'when requires_ip_filtering is true and no networks defined (auto-assign)' do
+        before do
+          api_token.update!(requires_ip_filtering: true, authorized_networks: [])
+          request.remote_ip = '10.20.30.40'
+        end
+
+        it 'auto-assigns the IP on first call and succeeds' do
+          expect(gql_errors).to be_nil
+          expect(api_token.reload.authorized_networks).to eq([IPAddr.new('10.20.30.40')])
+        end
+      end
+
+      context 'when requires_ip_filtering is false and no networks defined (legacy)' do
+        before do
+          api_token.update!(requires_ip_filtering: false, authorized_networks: [])
+          request.remote_ip = '10.20.30.40'
+        end
+
+        it 'does not auto-assign' do
+          expect(gql_errors).to be_nil
+          expect(api_token.reload.authorized_networks).to be_empty
+        end
+      end
+
+      context 'when auto-assigned IP blocks subsequent call from different IP' do
+        before do
+          api_token.update!(requires_ip_filtering: true, authorized_networks: [IPAddr.new('10.20.30.40')])
+          request.remote_ip = '192.168.1.1'
+        end
+
+        it 'returns forbidden' do
+          expect(subject).to have_http_status(:forbidden)
+        end
+      end
     end
 
     describe "demarche" do
