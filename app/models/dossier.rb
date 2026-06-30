@@ -871,7 +871,7 @@ class Dossier < ApplicationRecord
       assigns: { dossier: self }
     )
 
-    options = { procedure_id: procedure.id, dossier_id: id, pdf_variant: WeasyprintService::PDF_UA_VARIANT }
+    options = { procedure_id: procedure.id, dossier_id: id }
 
     pdf = WeasyprintService.generate_pdf(html, options)
 

@@ -242,7 +242,7 @@ class AttestationTemplate < ApplicationRecord
       assigns: { attestation_template: self, body:, signature: }
     )
 
-    options = { procedure_id: procedure.id, dossier_id: dossier.id, pdf_variant: WeasyprintService::PDF_UA_VARIANT }
+    options = { procedure_id: procedure.id, dossier_id: dossier.id }
 
     WeasyprintService.generate_pdf(html, options)
   end

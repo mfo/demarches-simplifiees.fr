@@ -124,12 +124,6 @@ describe Administrateurs::AttestationTemplateV2sController, type: :controller do
       it do
         is_expected.to eq('PDF_DATA')
       end
-
-      it 'requests the pdf/ua-1 variant through the options' do
-        subject
-        expect(WeasyprintService).to have_received(:generate_pdf)
-          .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
-      end
     end
   end
 

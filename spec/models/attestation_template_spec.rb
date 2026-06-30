@@ -190,13 +190,6 @@ describe AttestationTemplate, type: :model do
       it 'generates an attestation' do
         expect(subject.pdf).to be_attached
       end
-
-      it 'requests the pdf/ua-1 variant through the options' do
-        allow(WeasyprintService).to receive(:generate_pdf).and_return('PDF_DATA')
-        subject
-        expect(WeasyprintService).to have_received(:generate_pdf)
-          .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
-      end
     end
   end
 

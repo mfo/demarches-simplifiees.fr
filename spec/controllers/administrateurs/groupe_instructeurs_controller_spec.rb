@@ -1504,12 +1504,6 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
         expect(response).to have_http_status(:ok)
         expect(WeasyprintService).to have_received(:generate_pdf)
       end
-
-      it 'requests the pdf/ua-1 variant through the options' do
-        subject
-        expect(WeasyprintService).to have_received(:generate_pdf)
-          .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
-      end
     end
   end
 end
