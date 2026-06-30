@@ -2315,6 +2315,104 @@ describe Procedure do
       ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
       expect(ville_column.h_id[:column_id]).to eq("type_de_champ/#{ville_column.stable_id}")
     end
+
+    it 'does not raise and skips champs whose type_champ is unknown (legacy value)' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :text, libelle: 'Champ valide' },
+        { type: :text, libelle: 'Champ legacy' },
+      ])
+      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
+      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
+      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      procedure.reload
+
+      expect { procedure.personnalisable_columns }.not_to raise_error
+      expect(procedure.personnalisable_columns.map(&:label)).not_to include('Champ legacy')
+      expect(procedure.personnalisable_columns.map(&:label)).to include('Champ valide')
+    end
+  end
+
+  describe '#personnalisable_columns_by_section' do
+    let(:procedure) do
+      create(:procedure, :published,
+             types_de_champ_public: [
+               { type: :text, libelle: 'Avant section' },
+               { type: :header_section, libelle: 'Identité' },
+               { type: :text, libelle: 'Nom' },
+               { type: :textarea, libelle: 'Bio' },
+               { type: :header_section, libelle: 'Adresse' },
+               { type: :address, libelle: 'Domicile' },
+             ])
+    end
+
+    it 'groups personnalisable columns under their preceding section, in form order' do
+      result = procedure.personnalisable_columns_by_section
+      labels = result.map { |section_label, columns| [section_label, columns.map(&:label)] }
+
+      expect(labels).to eq([
+        [nil, ['Avant section']],
+        ['1. Identité', ['Nom']],
+        ['2. Adresse', ['Domicile']],
+      ])
+    end
+
+    it 'omits sections that contain no personnalisable column but counts them for numbering' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :header_section, libelle: 'Vide' },
+        { type: :textarea, libelle: 'Long' },
+        { type: :header_section, libelle: 'Pleine' },
+        { type: :text, libelle: 'Court' },
+      ])
+
+      sections = procedure.personnalisable_columns_by_section.map(&:first)
+      expect(sections).to eq(['2. Pleine'])
+    end
+
+    it 'numbers sub-sections with dotted notation' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :header_section, libelle: 'Parent', level: 1 },
+        { type: :text, libelle: 'Champ parent' },
+        { type: :header_section, libelle: 'Enfant', level: 2 },
+        { type: :text, libelle: 'Champ enfant' },
+      ])
+
+      sections = procedure.personnalisable_columns_by_section.map(&:first)
+      expect(sections).to eq(['1. Parent', '1.1. Enfant'])
+    end
+
+    it 'does not query procedure_revisions or type_de_champs on each call (no N+1)' do
+      p = Procedure.includes(published_revision: { revision_types_de_champ: :type_de_champ }).find(procedure.id)
+
+      revision_query_count = 0
+      tdc_query_count = 0
+      ActiveSupport::Notifications.subscribed(
+        lambda { |_n, _s, _f, _i, payload|
+          sql = payload[:sql].to_s
+          revision_query_count += 1 if sql.include?("procedure_revisions")
+          tdc_query_count += 1 if sql.include?("type_de_champs")
+        },
+        "sql.active_record"
+      ) { p.personnalisable_columns_by_section }
+
+      expect(revision_query_count).to eq(0)
+      expect(tdc_query_count).to eq(0)
+    end
+
+    it 'does not raise and skips champs whose type_champ is unknown (legacy value)' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :text, libelle: 'Champ valide' },
+        { type: :text, libelle: 'Champ legacy' },
+      ])
+      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
+      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
+      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      procedure.reload
+
+      expect { procedure.personnalisable_columns_by_section }.not_to raise_error
+      all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_section, cols| cols.map(&:label) }
+      expect(all_column_labels).not_to include('Champ legacy')
+      expect(all_column_labels).to include('Champ valide')
+    end
   end
 
   private
