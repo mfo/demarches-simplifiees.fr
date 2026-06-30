@@ -246,11 +246,16 @@ describe 'As an administrateur I can edit types de champ', js: true do
     hide_autonotice_message
 
     select('Choix simple', from: 'Type de champ')
-    fill_in 'Libellé du champ', with: 'Libellé de champ menu déroulant', fill_options: { clear: :backspace }
-    fill_in 'Options de la liste', with: 'Un menu', fill_options: { clear: :backspace }
-    check "Proposer une option « autre » avec un texte libre"
+    # Each interaction triggers an autosave. Wait for it to be persisted before
+    # the next one, so the form re-render that follows a change event has fully
+    # settled and the dropdown-specific fields are stable before we type into
+    # them (avoids flakiness when autosaves overlap under load).
+    wait_until { procedure.active_revision.reload.types_de_champ_public.first&.drop_down_list? }
 
+    fill_in 'Options de la liste', with: 'Un menu', fill_options: { clear: :backspace }
     wait_until { procedure.active_revision.reload.types_de_champ_public.first.drop_down_options == ['Un menu'] }
+
+    check "Proposer une option « autre » avec un texte libre"
     wait_until { procedure.active_revision.reload.types_de_champ_public.first.drop_down_other == "1" }
     expect(page).to have_content('Formulaire enregistré')
 
