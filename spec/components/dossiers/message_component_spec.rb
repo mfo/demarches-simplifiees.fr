@@ -59,6 +59,39 @@ RSpec.describe Dossiers::MessageComponent, type: :component do
       end
     end
 
+    describe 'read receipt visible to all instructeurs in case of co-instruction' do
+      let(:procedure) { create(:procedure) }
+      let(:groupe_instructeur) { create(:groupe_instructeur, procedure: procedure) }
+      let(:dossier) { create(:dossier, :en_construction, groupe_instructeur: groupe_instructeur) }
+      let(:author) { create(:instructeur, groupe_instructeurs: [groupe_instructeur]) }
+      let(:other_instructeur) { create(:instructeur, groupe_instructeurs: [groupe_instructeur]) }
+      let(:commentaire) { create(:commentaire, dossier: dossier, instructeur: author, body: 'msg') }
+      let(:connected_user) { other_instructeur }
+
+      context 'when the message has been seen by the recipient' do
+        before { commentaire.update!(seen_by_recipient_at: Time.current) }
+        it { is_expected.to include('Lu') }
+      end
+
+      context 'when the message has not been seen by the recipient' do
+        before { commentaire.update!(seen_by_recipient_at: nil) }
+        it { is_expected.to include('Non lu') }
+      end
+
+      context 'when connected as an instructeur from a different groupe_instructeur on the same procedure' do
+        let(:other_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure) }
+        let(:unrelated_instructeur) { create(:instructeur, groupe_instructeurs: [other_groupe_instructeur]) }
+        let(:connected_user) { unrelated_instructeur }
+
+        before { commentaire.update!(seen_by_recipient_at: Time.current) }
+
+        it 'does not display the read status' do
+          is_expected.not_to include('Lu')
+          is_expected.not_to include('Non lu')
+        end
+      end
+    end
+
     context 'escape <img> tag' do
       before { commentaire.update(body: '<img src="demarche.numerique.gouv.fr" />Hello') }
       it { is_expected.not_to have_selector('img[src="demarche.numerique.gouv.fr"]') }
