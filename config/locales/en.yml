@@ -566,6 +566,9 @@ en:
             label:
               one: "Trash (%{count})"
               other: "Trash (%{count})"
+          personnalisation_link:
+            label: Customize the dossier list
+            tooltip: Customize the dossier list
           search:
             back_to_list: "My files"
             result_title: "Search results for \"%{search_terms}\""
@@ -685,6 +688,20 @@ en:
           restore_and_extend_conservation_html: 'Restore and extend conservation <span class="fr-sr-only">of file number %{id}</span> (%{duree_conservation_dossiers_dans_ds} month)'
           actions: "Actions"
           other_actions: "Other actions"
+        personnalisation:
+          title: Customize the dossier list
+          back: My dossiers
+          why_title: Why customize the list?
+          why_intro: "For each dossier, the following information is always displayed:"
+          why_field_number_html: "<strong>Dossier number</strong>"
+          why_field_applicant_html: "<strong>Applicant identity</strong>"
+          why_field_date_html: "<strong>Submission date</strong> (or creation / modification)"
+          why_explanation_html: "To make it easier to tell your dossiers apart in the list (especially if you submit several dossiers on the same procedure), you can define <strong>one or more additional pieces of information</strong> to display, taken from the data entered in the form fields."
+          fields_title: "Additional information to display in the dossier list view:"
+          cancel: Cancel
+          save_button: Save
+          saved: "The dossier list has been customized."
+          error: "The customization could not be saved."
       sessions:
         new:
           sign_in: Sign in on %{application_name}

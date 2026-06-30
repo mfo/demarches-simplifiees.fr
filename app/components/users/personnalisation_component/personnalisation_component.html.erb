@@ -1,0 +1,13 @@
+<div class="fr-card fr-p-3w fr-mb-4w">
+  <h2 class="fr-h6"><%= procedure.libelle %></h2>
+
+  <react-fragment>
+    <%= render ReactComponent.new "Select/MultipleSelect",
+          sections:,
+          value: selected_value,
+          name: field_name,
+          placeholder: t('.placeholder'),
+          emptyHint: t('.empty_hint'),
+          'aria-label': t('.aria_label', libelle: procedure.libelle) %>
+  </react-fragment>
+</div>

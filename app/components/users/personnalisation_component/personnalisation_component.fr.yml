@@ -1,0 +1,6 @@
+---
+fr:
+  default_section: Informations
+  empty_hint: Affichage non personnalisé pour les dossiers de cette démarche.
+  placeholder: Sélectionnez un ou plusieurs champs
+  aria_label: "Champs à afficher pour la démarche %{libelle}"

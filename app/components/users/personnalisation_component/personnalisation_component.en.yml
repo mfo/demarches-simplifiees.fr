@@ -1,0 +1,6 @@
+---
+en:
+  default_section: Information
+  empty_hint: No custom display for this procedure's dossiers.
+  placeholder: Select one or more fields
+  aria_label: "Fields to display for the procedure %{libelle}"
