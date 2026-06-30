@@ -46,6 +46,7 @@ module ProcedureCloneConcern
     'experts_require_administrateur_invitation',
     'routing_enabled',
     'instructeurs_self_management_enabled',
+    'instructeurs_can_edit_dossiers',
     'zone_id',
     'lien_dpo',
     'replaced_by_procedure_id',
@@ -223,6 +224,7 @@ module ProcedureCloneConcern
     if !options[:clone_instructeurs] || !same_admin?(admin)
       procedure.routing_enabled = false
       procedure.instructeurs_self_management_enabled = false
+      procedure.instructeurs_can_edit_dossiers = false
     end
 
     if options[:clone_dossier_submitted_message]

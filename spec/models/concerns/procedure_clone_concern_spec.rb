@@ -266,6 +266,11 @@ describe ProcedureCloneConcern, type: :model do
         expect(subject.routing_enabled).to eq(false)
       end
 
+      it 'should disable instructeur dossier edition' do
+        procedure.update!(instructeurs_can_edit_dossiers: true)
+        expect(subject.instructeurs_can_edit_dossiers).to eq(false)
+      end
+
       it 'should have a default groupe instructeur' do
         expect(subject.groupe_instructeurs.size).to eq(1)
         expect(subject.groupe_instructeurs.first.label).to eq(GroupeInstructeur::DEFAUT_LABEL)

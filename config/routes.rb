@@ -515,6 +515,11 @@ Rails.application.routes.draw do
               end
               resources :rdvs, only: [:create]
               get 'original' => 'dossiers#show_submitted_revision', as: :original
+              get 'modifier' => 'edit#show', as: :edit
+              patch 'modifier' => 'edit#submit', as: :submit
+              patch 'modifier/valider' => 'edit#validate', as: :validate_edit
+              patch 'update' => 'edit#update', as: :update
+              get 'champs/:stable_id' => 'edit#champ', as: :champ
               get 'next'
               get 'previous'
               post 'repousser-expiration' => 'dossiers#extend_conservation'
@@ -771,6 +776,7 @@ Rails.application.routes.draw do
           post 'create_simple_routing'
           delete 'destroy_all_groups_but_defaut'
           patch 'update_instructeurs_self_management_enabled'
+          patch 'update_instructeurs_can_edit_dossiers'
           post 'import'
           get 'export_groupe_instructeurs'
           get 'export_contact_informations'

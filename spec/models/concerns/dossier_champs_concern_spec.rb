@@ -23,6 +23,43 @@ RSpec.describe DossierChampsConcern do
     it { is_expected.to be_truthy }
   end
 
+  describe "#can_update_as_instructeur?" do
+    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], instructeurs_can_edit_dossiers:, types_de_champ_public:, types_de_champ_private:) }
+    let(:instructeur) { create(:instructeur) }
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+    let(:instructeurs_can_edit_dossiers) { true }
+
+    subject { dossier.can_update_as_instructeur?(instructeur.user) }
+
+    context "when the procedure allows it and the user is an instructeur of the groupe" do
+      it { is_expected.to be_truthy }
+    end
+
+    context "when the procedure does not allow instructeur edition" do
+      let(:instructeurs_can_edit_dossiers) { false }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the dossier is not en_construction" do
+      let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the user is not an instructeur of the groupe" do
+      subject { dossier.can_update_as_instructeur?(create(:instructeur).user) }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the instructeur owns the dossier" do
+      let(:dossier) { create(:dossier, :en_construction, procedure:, user: instructeur.user) }
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe "#find_type_de_champ_by_stable_id(private)" do
     subject { dossier.find_type_de_champ_by_stable_id(995, :private) }
 

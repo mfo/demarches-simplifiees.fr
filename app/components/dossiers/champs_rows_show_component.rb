@@ -16,6 +16,23 @@ class Dossiers::ChampsRowsShowComponent < ApplicationComponent
 
   private
 
+  def row_show_component(champ)
+    Dossiers::RowShowComponent.new(label: champ.libelle,
+      seen_at:, profile:,
+      content_class: champ.type_champ,
+      updated_at: updated_at_after_deposer(champ),
+      updated_by: updated_by(champ),
+      source_stream: champ.source_stream)
+  end
+
+  def updated_by(champ)
+    if usager? && champ.source_stream == Champ::INSTRUCTEUR_BUFFER_STREAM && champ.procedure.hide_instructeurs_email?
+      nil
+    else
+      champ.updated_by
+    end
+  end
+
   def updated_at_after_deposer(champ)
     return if champ.dossier.depose_at.blank?
     return if champ.new_record?
@@ -50,5 +67,9 @@ class Dossiers::ChampsRowsShowComponent < ApplicationComponent
 
   def each_champ(&block)
     @champs.filter { visible?(_1) }.each(&block)
+  end
+
+  def usager?
+    @profile == 'usager'
   end
 end

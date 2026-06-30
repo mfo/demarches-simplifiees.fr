@@ -1,0 +1,8 @@
+---
+fr:
+  cancel: "Annuler"
+  confirm: "Confirmer les modifications et notifier lʼusager"
+  default_message_label: "Le message suivant va être envoyé automatiquement à lʼusager via la messagerie du dossier :"
+  motivation_label: "Votre message complémentaire (facultatif)"
+  motivation_placeholder: "Expliquez au demandeur pour quelle(s) raison(s) vous avez modifié son dossier"
+  title: "Modification du dossier n° %{dossier_number} – %{demandeur}"

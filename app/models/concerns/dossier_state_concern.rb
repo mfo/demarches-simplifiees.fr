@@ -17,12 +17,13 @@ module DossierStateConcern
     DossierNotification.create_notification(self, :dossier_modifie)
   end
 
-  def instructeur_submit_en_construction!(instructeur:)
+  def instructeur_submit_en_construction!(instructeur:, motivation: nil)
     checkpoint = merge_instructeur_buffer_stream!
-    self.traitements.instructeur_submit_en_construction(instructeur:, checkpoint:)
+    traitement = self.traitements.instructeur_submit_en_construction(instructeur:, checkpoint:, motivation:)
     save!
 
     RoutingEngine.compute(self)
+    Message::DossierModifierParInstructeurComponent.create_commentaire(traitement)
   end
 
   def after_passer_en_construction

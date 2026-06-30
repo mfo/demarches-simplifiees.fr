@@ -17,6 +17,7 @@ class Champs::ChampController < ApplicationController
     end
 
     dossier.with_update_stream(current_user) if type_de_champ.public?
+    @dossier = dossier
 
     if type_de_champ.repetition?
       DossierPreloader.load_one(dossier, pj_template: true)

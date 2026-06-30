@@ -112,6 +112,22 @@ RSpec.describe Traitement do
         expect(columns.map(&:stable_id)).to contain_exactly(99)
         expect(columns.first.value).to eq("Correction instructeur")
       end
+
+      # The notification commentaire is built from the in-memory dossier, right
+      # after the merge and without a reload. The merge must therefore update the
+      # in-memory champ checkpoint, otherwise #changed_columns comes up empty.
+      it "returns the changed column without reloading the dossier" do
+        dossier.with_instructeur_buffer_stream do
+          dossier.public_champ_for_update('99', updated_by: instructeur.email)
+            .assign_attributes(value: "Correction sans reload")
+        end
+        dossier.save!
+        dossier.instructeur_submit_en_construction!(instructeur:)
+
+        columns = dossier.traitements.last.changed_columns
+        expect(columns.map(&:stable_id)).to contain_exactly(99)
+        expect(columns.first.value).to eq("Correction sans reload")
+      end
     end
   end
 

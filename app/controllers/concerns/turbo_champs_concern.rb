@@ -6,20 +6,30 @@ module TurboChampsConcern
   private
 
   def champs_to_turbo_update(params, champs)
-    to_update = champs.filter { _1.public_id.in?(params.keys) }
-      .filter { _1.refresh_after_update? || _1.user_buffer_changes? }
-    prefillable_champs = champs.filter { it.referentiel? && it.autocomplete? }
-    to_update += prefillable_champs.map(&:prefillable_champs).flatten.uniq if prefillable_champs.any?
-    to_show, to_hide = champs.filter { it.conditional? || it.child? }
-      .partition(&:visible?)
-      .map { champs_to_one_selector(_1 - to_update) }
+    to_update = champs.filter { it.public_id.in?(params.keys) }
+      .filter { it.refresh_after_update? || it.buffer_stream? }
+      .flat_map { [it].concat(it.prefillable_champs) }
+    to_show, to_hide = champs_to_toggle(champs, to_update)
 
     return to_show, to_hide, to_update
   end
 
+  def champ_to_turbo_update(champ, champs)
+    to_update = [champ].concat(champ.prefillable_champs)
+    to_show, to_hide = champs_to_toggle(champs, to_update)
+
+    return to_show, to_hide, to_update
+  end
+
+  def champs_to_toggle(champs, to_update)
+    champs.filter { it.conditional? || it.child? }
+      .partition(&:visible?)
+      .map { champs_to_one_selector(it - to_update) }
+  end
+
   def champs_to_one_selector(champs)
     champs
-      .map { "##{_1.input_group_id}" }
+      .map { "##{it.input_group_id}" }
       .join(',')
   end
 end

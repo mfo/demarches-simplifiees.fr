@@ -1,0 +1,7 @@
+---
+fr:
+  label: "Modifier le dossier"
+  title:
+     en_instruction: "Vous ne pouvez pas modifier ce dossier car il est en instruction"
+     termine: "Vous ne pouvez pas modifier ce dossier car il est traité"
+     owner_is_self: "Vous ne pouvez pas modifier ce dossier en tant quʼinstructeur car il a été déposé par le même compte en tant quʼusager"

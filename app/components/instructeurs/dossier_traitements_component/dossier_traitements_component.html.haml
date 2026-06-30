@@ -1,8 +1,0 @@
-.tab-title Événements et décisions rendues
-
-%ul.tab-list
-  - traitements.each do |traitement|
-    %li
-      - processed_at = l(traitement.processed_at, format: :long_with_time)
-      - props = { processed_at:, email: traitement.instructeur_email }.compact
-      = t(".#{traitement.event}", **props)

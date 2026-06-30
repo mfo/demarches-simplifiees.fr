@@ -88,6 +88,12 @@ class Traitement < ApplicationRecord
     end
   end
 
+  def instructeur
+    return if instructeur_email.blank?
+
+    Instructeur.eager_load(:user).by_email(instructeur_email)
+  end
+
   private
 
   def reference_champs

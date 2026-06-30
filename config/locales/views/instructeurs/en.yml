@@ -8,6 +8,10 @@ en:
     procedure:
       archive_pending_html: Archive creation pending<br>(requested %{created_period} ago)
       archive_ready_html: Download archive<br>(requested %{generated_period} ago)
+    edit:
+      show:
+        title: "Edit · File no. %{dossier_id} – %{demandeur}"
+        heading: "Edit file no. %{dossier_id} – %{demandeur}"
     dossiers:
       submitted_revision:
         download: "Download the file (PDF)"
@@ -15,6 +19,9 @@ en:
         back: "Go back to file"
         footer:
           back: "Close and go back to file"
+      edit:
+        confirm: "The changes you made to the file will not be saved."
+        back: "Go back to file"
       filterable_state:
         en_construction: 'In progress'
         en_instruction: 'Processing'
