@@ -82,3 +82,39 @@ describe 'dropdown list with other option activated', js: true do
     expect(page).to have_current_path(brouillon_dossier_path(user_dossier))
   end
 end
+
+describe 'multiple dropdown tag removal', js: true do
+  let(:user) { create(:user) }
+  let(:options) { (1..7).map { "Option #{_1}" } }
+  let(:procedure) do
+    create(:procedure, :published, :for_individual, types_de_champ_public: [
+      { type: :multiple_drop_down_list, libelle: 'Multi choix', drop_down_options: options },
+    ])
+  end
+
+  before do
+    login_as(user, scope: :user)
+    visit "/commencer/#{procedure.path}?locale=fr"
+    click_on 'Commencer la démarche'
+    find('label', text: "Pour vous").click
+    within('.individual-infos') do
+      fill_in('Prénom', with: 'prenom')
+      fill_in('Nom', with: 'nom')
+    end
+    within "#identite-form" do
+      click_on 'Continuer'
+    end
+  end
+
+  scenario 'clicking on a tag removes the selection' do
+    select_autocomplete('Multi choix', 'Option 1')
+    select_autocomplete('Multi choix', 'Option 2')
+
+    expect(page).to have_css('.fr-tag', text: 'Option 1')
+    expect(page).to have_css('.fr-tag', text: 'Option 2')
+
+    find('.fr-tag', text: 'Option 1').click
+    expect(page).not_to have_css('.fr-tag', text: 'Option 1')
+    expect(page).to have_css('.fr-tag', text: 'Option 2')
+  end
+end
