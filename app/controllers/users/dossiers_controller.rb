@@ -55,6 +55,7 @@ module Users
       Skylight.instrument(title: list_title) do
         @dossiers.load
       end
+      load_personnalisation_data(@dossiers)
       @corbeille_count = current_user.dossiers.hidden_by_user.or(current_user.dossiers.hidden_by_expired).count
       @pending_transfers_count = current_user.dossier_transfers_received_pending.count
       @show_simple_list = params[:search].blank? && !@filter.active? && @total_count <= SIMPLE_LIST_THRESHOLD
@@ -709,6 +710,29 @@ module Users
 
     def commentaire_params
       params.require(:commentaire).permit(:body, piece_jointe: [])
+    end
+
+    def load_personnalisation_data(dossiers)
+      @personnalisations_by_procedure_id = {}
+      @champs_by_dossier_id = {}
+      return if !feature_enabled?(:dossiers_list_personnalisation)
+
+      @personnalisations_by_procedure_id = current_user.dossiers_list_personnalisations
+        .where(procedure_id: dossiers.map { _1.procedure.id }.uniq)
+        .index_by(&:procedure_id)
+      return if @personnalisations_by_procedure_id.empty?
+
+      stable_ids = @personnalisations_by_procedure_id.values
+        .flat_map(&:displayed_columns)
+        .filter(&:champ_column?)
+        .map(&:stable_id)
+        .uniq
+      return if stable_ids.empty?
+
+      ChampData.where(dossier_id: dossiers.map(&:id), stable_id: stable_ids, stream: Dossier::MAIN_STREAM)
+        .find_each do |champ|
+          (@champs_by_dossier_id[champ.dossier_id] ||= {})[champ.stable_id] = champ
+        end
     end
 
     def personnalisation_available?

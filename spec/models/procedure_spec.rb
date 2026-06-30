@@ -2415,6 +2415,26 @@ describe Procedure do
     end
   end
 
+  describe '#columns' do
+    it 'does not raise and skips champs with unknown type_champ (legacy value)' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :text, libelle: 'Champ valide' },
+        { type: :text, libelle: 'Champ legacy' },
+      ])
+      valid_tdc = procedure.published_revision.types_de_champ_public.find { _1.libelle == 'Champ valide' }
+      legacy_tdc_id = procedure.published_revision.types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
+      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
+      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      procedure.reload
+      Current.procedure_columns = nil
+
+      expect { procedure.columns }.not_to raise_error
+      expect(procedure.columns.map(&:label)).not_to include('Champ legacy')
+      h_id = { procedure_id: procedure.id, column_id: "type_de_champ/#{valid_tdc.stable_id}" }
+      expect { procedure.find_column(h_id:) }.not_to raise_error
+    end
+  end
+
   private
 
   def create_dossier_with_pj_of_size(size, procedure)

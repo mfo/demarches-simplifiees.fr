@@ -3112,6 +3112,67 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe 'GET #index with personnalisation values' do
+    render_views
+
+    let(:user) { create(:user) }
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
+    let(:column) { procedure.personnalisable_columns.first }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [column])
+      sign_in(user)
+    end
+
+    def query_count
+      count = 0
+      callback = -> (*) { count += 1 }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get :index }
+      count
+    end
+
+    it 'does not issue more queries as more dossiers are added (no N+1)' do
+      create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+      baseline = query_count
+
+      create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+      expect(query_count).to be <= baseline + 3
+    end
+  end
+
+  describe 'GET #index with personnalisation values – multi-procedure N+1 guard' do
+    render_views
+
+    let(:user) { create(:user) }
+    let(:procedure1) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
+    let(:procedure2) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Intitulé' }]) }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      create(:dossiers_list_personnalisation, user:, procedure: procedure1, displayed_columns: [procedure1.personnalisable_columns.first])
+      create(:dossiers_list_personnalisation, user:, procedure: procedure2, displayed_columns: [procedure2.personnalisable_columns.first])
+      sign_in(user)
+    end
+
+    def query_count
+      count = 0
+      callback = -> (*) { count += 1 }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get :index }
+      count
+    end
+
+    it 'does not issue more queries per dossier with multiple procedures (no N+1 on Column.find)' do
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure1, populate_champs: true)
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure2, populate_champs: true)
+      baseline = query_count
+
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure1, populate_champs: true)
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure2, populate_champs: true)
+      expect(query_count).to be <= baseline + 3
+    end
+  end
+
   private
 
   def find_champ_by_stable_id(dossier, stable_id)
