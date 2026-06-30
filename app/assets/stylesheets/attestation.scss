@@ -19,6 +19,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-regular-italic.woff2');
+  font-weight: normal;
+  font-style: italic;
+}
+
 @page {
   size: A4;
   margin: 17mm 17mm 34mm; // add margin at the bottom to add address
