@@ -82,7 +82,28 @@ module Administrateurs
       end
     end
 
+    def reset_mapping
+      scope = params[:scope]
+      raise ActionController::BadRequest unless RESET_MAPPING_KEYS.key?(scope)
+
+      if scope == 'all'
+        @type_de_champ.update!(referentiel_mapping: {})
+      else
+        cleaned = @type_de_champ.safe_referentiel_mapping.transform_values { it.except(*RESET_MAPPING_KEYS[scope]) }
+        @type_de_champ.update!(referentiel_mapping: cleaned)
+      end
+
+      redirect_back_or_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel),
+                         flash: { notice: "La configuration a bien été réinitialisée" }
+    end
+
     private
+
+    RESET_MAPPING_KEYS = {
+      'all' => nil,
+      'display' => [:display_instructeur, :display_usager],
+      'prefill' => [:prefill, :prefill_stable_id],
+    }.freeze
 
     def reachable_referentiel?
       if !ReferentielService.new(referentiel: @referentiel).validate_referentiel
@@ -94,11 +115,6 @@ module Administrateurs
       url_changed = referentiel.url_tiptap_changed?
       auto_submitted = params[:commit].blank?
       saved = referentiel.configured? && referentiel.save
-
-      if saved && url_changed # cache bust
-        @type_de_champ.update!(referentiel_mapping: {})
-        referentiel.update!(last_response: nil, autocomplete_configuration: {})
-      end
 
       if !auto_submitted
         referentiel.validate
