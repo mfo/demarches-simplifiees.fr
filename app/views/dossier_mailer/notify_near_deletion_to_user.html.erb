@@ -21,11 +21,11 @@
 <p>
   <% if @state == Dossier.states.fetch(:en_construction) %>
     <%= sanitize(t('.footer_en_construction', count: @dossiers.size)) %>
+    <%= link_to("mes dossiers", dossiers_url) %>
+    .
   <% else %>
-    <%= sanitize(t('.footer_termine', count: @dossiers.size)) %>
+    <%= t('.footer_termine_html', count: @dossiers.size, dossiers_url: dossiers_url) %>
   <% end %>
-  <%= link_to("mes dossiers", dossiers_url) %>
-  .
 </p>
 
 <p>

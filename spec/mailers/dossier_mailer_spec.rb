@@ -166,6 +166,22 @@ RSpec.describe DossierMailer, type: :mailer do
         expect(subject.body).to include("N° #{hidden_dossier.id} ")
         expect(subject.body).to include(hidden_dossier.procedure.libelle)
         expect(subject.body).to include(I18n.l(Dossier::REMAINING_WEEKS_BEFORE_DELETION.weeks.from_now.to_date, format: :long).to_s)
+        expect(subject.body).to include("depuis la page")
+        expect(subject.body).to include(">Corbeille</a>")
+        expect(subject.body).to include("/corbeille")
+      end
+    end
+
+    describe 'multiple' do
+      let(:hidden_dossiers) { create_list(:dossier, 2, :accepte, hidden_by_expired_at: Time.zone.now, hidden_by_reason: 'expired') }
+
+      subject { described_class.notify_automatic_deletion_to_user(hidden_dossiers, hidden_dossiers.first.user.email) }
+
+      it 'uses the grouped wording with "mis" and links to the Corbeille page' do
+        expect(subject.subject).to eq("Des dossiers de votre compte ont été mis à la corbeille")
+        expect(subject.body).to include("ont été mis à la corbeille")
+        expect(subject.body).to include("Vous pouvez encore retrouver ces dossiers")
+        expect(subject.body).to include(">Corbeille</a>")
       end
     end
   end
@@ -182,6 +198,16 @@ RSpec.describe DossierMailer, type: :mailer do
       expect(subject.body).to include(dossier_for_tiers.procedure.libelle)
       expect(subject.body).to include(dossier_for_tiers.user.email)
       expect(subject.body).to include(I18n.l(Dossier::REMAINING_WEEKS_BEFORE_DELETION.weeks.from_now.to_date, format: :long).to_s)
+    end
+
+    context 'with multiple dossiers' do
+      let!(:other_dossier_for_tiers) { create(:dossier, :accepte, :for_tiers_with_notification, hidden_by_expired_at: Time.zone.now, hidden_by_reason: 'expired') }
+
+      subject { described_class.notify_automatic_deletion_for_tiers([dossier_for_tiers, other_dossier_for_tiers], dossier_for_tiers.individual.email) }
+
+      it 'uses the grouped wording with "mis"' do
+        expect(subject.subject).to eq("Des dossiers remplis par des mandataires en votre nom ont été mis à la corbeille")
+      end
     end
   end
 
@@ -256,6 +282,8 @@ RSpec.describe DossierMailer, type: :mailer do
         expect(subject.body).to include("Votre compte reste activé")
         expect(subject.body).to include("PDF")
         expect(subject.body).to include(I18n.l(Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now.to_date, format: :long).to_s)
+        expect(subject.body).to include("Expire bientôt")
+        expect(subject.body).to include(">mes dossiers</a>")
       end
     end
 
@@ -266,6 +294,8 @@ RSpec.describe DossierMailer, type: :mailer do
 
       it 'verifies email subject and body contain correct dossier numbers for multiple termine status' do
         expect(subject.subject).to eq("Des dossiers traités vont bientôt être supprimés")
+        expect(subject.body).to include("retrouver tous vos dossiers expirants")
+        expect(subject.body).to include("Expire bientôt")
         dossiers.each do |dossier|
           expect(subject.body).to include("N° #{dossier.id} ")
         end
