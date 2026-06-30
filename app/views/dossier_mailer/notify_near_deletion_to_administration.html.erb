@@ -3,11 +3,7 @@
 <p><%= t(:hello, scope: [:views, :shared, :greetings]) %></p>
 
 <p>
-  <% if @state == Dossier.states.fetch(:en_construction) %>
-    <%= t('.header_en_construction', count: @dossiers.size, expiration_date: human_date(@expiration_date.to_date)) %>
-  <% else %>
-    <%= t('.header_termine_html', count: @dossiers.size, expiration_date: human_date(@expiration_date.to_date)) %>
-  <% end %>
+  <%= t('.header_termine_html', count: @dossiers.size, expiration_date: human_date(@expiration_date.to_date)) %>
 
   <ul>
     <% @dossiers.each do |d| %>
@@ -19,9 +15,5 @@
     <% end %>
   </ul>
 </p>
-
-<% if @state == Dossier.states.fetch(:en_construction) %>
-  <p><%= sanitize(t('.footer_en_construction')) %></p>
-<% end %>
 
 <%= render partial: "layouts/mailers/signature" %>
