@@ -1460,6 +1460,26 @@ describe API::V2::GraphqlController do
           expect(Procedure.last.libelle).to eq(new_title)
         }
       end
+
+      context 'with cloneService: true' do
+        let(:variables) { { input: { demarche: { id: procedure.to_typed_id }, cloneService: true } } }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:demarcheCloner][:errors]).to be_nil
+          expect(Procedure.last.service).to eq(procedure.service)
+        }
+      end
+
+      context 'without cloneService' do
+        let(:variables) { { input: { demarche: { id: procedure.to_typed_id } } } }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:demarcheCloner][:errors]).to be_nil
+          expect(Procedure.last.service).to be_nil
+        }
+      end
     end
 
     context 'dossierEnvoyerMessage' do

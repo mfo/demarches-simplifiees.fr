@@ -1403,6 +1403,11 @@ input DemarcheClonerInput {
   clientMutationId: String
 
   """
+  Cloner le service de la démarche.
+  """
+  cloneService: Boolean
+
+  """
   La démarche
   """
   demarche: FindDemarcheInput!

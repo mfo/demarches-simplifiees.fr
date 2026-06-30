@@ -90,7 +90,7 @@ module ProcedureCloneConcern
   NEW_MAX_DUREE_CONSERVATION = Expired::DEFAULT_DOSSIER_RENTENTION_IN_MONTH
 
   def clone(options: nil, admin:)
-    options = default_options if options.nil?
+    options = default_options.merge(options || {})
 
     populate_champ_stable_ids
 
