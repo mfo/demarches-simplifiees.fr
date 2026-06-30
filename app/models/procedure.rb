@@ -251,6 +251,7 @@ class Procedure < ApplicationRecord
     'types_de_champ/number': true,
     'types_de_champ/date': true,
     'types_de_champ/repetition': true,
+    'types_de_champ/api_particulier': true,
     on: [:types_de_champ_public_editor, :publication]
 
   validates :draft_types_de_champ_private,

@@ -1025,7 +1025,7 @@ RSpec.describe DossierChampsConcern do
   end
 
   describe '#set_default_value_for_france_connect_champs' do
-    let!(:procedure) { create(:procedure, :published, types_de_champ_public:, for_individual: true) }
+    let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, types_de_champ_public:, for_individual: true) }
     let(:types_de_champ_public) { [{ type: :quotient_familial }] }
     let(:dossier) { create(:dossier, procedure:, for_procedure_preview: false, for_tiers: false) }
     let(:champ_qf) { dossier.champs.first }

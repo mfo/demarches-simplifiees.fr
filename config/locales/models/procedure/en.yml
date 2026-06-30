@@ -96,6 +96,7 @@ en:
               missing_libelle_in_repetition: "field label in position %{position}, within the repetition in position %{parent_position}, must be filled"
               expression_reguliere_invalid: "is invalid"
               referentiel_not_ready: "is not configured"
+              missing_api_particulier_token: "does not work without a API Particulier token"
             draft_types_de_champ_private:
               format: 'Private field %{message}'
               invalid_condition: "have an invalid logic"
