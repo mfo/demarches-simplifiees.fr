@@ -78,7 +78,7 @@ class RechercheController < ApplicationController
   end
 
   def handle_special_cases
-    return false unless instructeur_signed_in? && DossierSearchService.id_compatible?(@search_terms)
+    return false if !instructeur_signed_in? || !DossierSearchService.id_compatible?(@search_terms)
 
     @deleted_dossier = current_instructeur.deleted_dossiers.find_by(dossier_id: @search_terms)
     return true if @deleted_dossier.present?

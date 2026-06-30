@@ -946,7 +946,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def clean_referentiel
-    return unless persisted? && type_champ_changed? && referentiel_id?
+    return if !persisted? || !type_champ_changed? || !referentiel_id?
     self.referentiel_id = nil
   end
 

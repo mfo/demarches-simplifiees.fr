@@ -46,7 +46,7 @@ class AttachmentsController < ApplicationController
     return if user_or_invite_changing_an_attachment?
     return if instructeur_changing_an_attachment?
     return if expert_changing_its_avis?
-    return unless champ? || avis?
+    return if !champ? && !avis?
 
     head :not_found
   end

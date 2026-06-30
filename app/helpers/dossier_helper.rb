@@ -113,7 +113,7 @@ module DossierHelper
   end
 
   def expiration_badge(dossier, html_class: nil)
-    return unless dossier.expirable? && dossier.close_to_expiration?
+    return if !dossier.expirable? || !dossier.close_to_expiration?
 
     tag.span(
       t('views.users.dossiers.dossiers_list.expiration_badge', count: dossier.nb_days_before_expiration),

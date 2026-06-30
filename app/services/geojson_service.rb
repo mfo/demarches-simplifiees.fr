@@ -26,7 +26,7 @@ class GeojsonService
   # longitude: -180 to 180
   # latitude: -90 to 90
   def self.valid_wgs84_coord?(coord)
-    return false unless coord.is_a?(Array) && coord.size >= 2
+    return false if !coord.is_a?(Array) || coord.size < 2
     lng, lat = coord[0], coord[1]
     lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90
   end
@@ -98,7 +98,7 @@ class GeojsonService
   def self.yield_each_coordinate_in_geojson(geojson)
     geometries = geometries_from_geojson(geojson)
     geometries.each do |geometry|
-      next unless geometry && geometry[:type]
+      next if geometry.nil? || geometry[:type].nil?
 
       case geometry[:type]
       when "GeometryCollection"
