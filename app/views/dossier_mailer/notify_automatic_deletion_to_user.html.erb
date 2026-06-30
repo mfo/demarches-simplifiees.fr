@@ -1,0 +1,20 @@
+<% content_for(:title, "#{@subject}") %>
+
+<p><%= t(:hello, scope: [:views, :shared, :greetings]) %></p>
+
+<p>
+  <%= t('.header', count: @hidden_dossiers.size) %>
+
+  <ul>
+    <% @hidden_dossiers.each do |d| %>
+      <li>N° <%= d.id %> (<%= d.procedure.libelle %>)</li>
+    <% end %>
+  </ul>
+</p>
+
+<p>
+  <%= t('.footer', count: @hidden_dossiers.size, deletion_date: human_date(@deletion_date.to_date)) %>
+   <%= link_to("mes dossiers", dossiers_url) %>.
+</p>
+
+<%= render partial: "layouts/mailers/signature" %>
