@@ -10,7 +10,7 @@ class TypesDeChamp::APIParticulierValidator < ActiveModel::EachValidator
   private
 
   def validate_api_particulier_token_presence(procedure, attribute, api_part_tdc)
-    if procedure.api_particulier_token.nil?
+    if procedure.api_particulier_token.blank?
       procedure.errors.add(
         attribute,
         :missing_api_particulier_token,
