@@ -215,6 +215,17 @@ describe Expired::DossiersDeletionService do
         expect { grace_window_brouillon.reload }.not_to raise_error
       end
     end
+
+    context 'when there are more expired brouillons than the per-day limit' do
+      let!(:other_expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 2.days.ago) } }
+
+      before { stub_const("#{described_class}::BROUILLON_WITHOUT_NOTICE_DELETION_LIMIT_PER_DAY", 1) }
+
+      it 'deletes at most the limit per run' do
+        expect { service.delete_expired_brouillons_without_notice }
+          .to change { Dossier.brouillon_expired_without_notice.count }.by(-1)
+      end
+    end
   end
 
   describe '#send_termine_expiration_notices' do

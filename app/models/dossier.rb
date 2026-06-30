@@ -1031,21 +1031,17 @@ class Dossier < ApplicationRecord
   end
 
   def purge_discarded
-    transaction do
+    purge_freeing_champs_cascade do
       DeletedDossier.create_from_dossier(self, hidden_by_reason)
       dossier_operation_logs.purge_discarded
-      # Vider les champs par lots libère leur cascade (geo_areas, etablissement,
-      # AS attachments) avant le destroy du dossier, évitant le pic mémoire dû
-      # au chargement complet de la cascade dependent: :destroy.
-      # Important: destroy_all (et non delete_all) preserve les callbacks Rails.
-      champs.in_batches(of: 50).each(&:destroy_all)
-      destroy
-    rescue => e
-      Sentry.capture_exception(e, extra: { dossier: id })
-      # Rollback explicite : sans cela, le rescue avale l'erreur et la transaction
-      # commit un état partiel (champs deja batch-destroy, dossier intact).
-      raise ActiveRecord::Rollback
     end
+  end
+
+  # Suppression silencieuse d'un brouillon expiré jamais notifié (preview ou
+  # procédure non-notifiable). Pas de DeletedDossier ni d'email, comme la
+  # suppression de brouillon existante.
+  def purge_without_notice
+    purge_freeing_champs_cascade
   end
 
   def skip_user_notification_email?
@@ -1133,6 +1129,24 @@ class Dossier < ApplicationRecord
   end
 
   private
+
+  # Détruit le dossier en libérant la cascade des champs (geo_areas, etablissement,
+  # AS attachments) par lots de 50 avant le destroy, évitant le pic mémoire dû au
+  # chargement complet de la cascade dependent: :destroy. Le bloc optionnel exécute
+  # la traçabilité (DeletedDossier, operation logs) dans la même transaction.
+  # Important: destroy_all (et non delete_all) preserve les callbacks Rails.
+  def purge_freeing_champs_cascade
+    transaction do
+      yield if block_given?
+      champs.in_batches(of: 50).each(&:destroy_all)
+      destroy
+    rescue => e
+      Sentry.capture_exception(e, extra: { dossier: id })
+      # Rollback explicite : sans cela, le rescue avale l'erreur et la transaction
+      # commit un état partiel (champs deja batch-destroy, dossier intact).
+      raise ActiveRecord::Rollback
+    end
+  end
 
   def build_default_champs
     build_default_champs_for(revision.types_de_champ_public) if !champs.any?(&:public?)
