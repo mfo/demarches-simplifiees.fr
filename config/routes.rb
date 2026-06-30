@@ -414,6 +414,8 @@ Rails.application.routes.draw do
     get 'deleted_dossiers' => 'dossiers#deleted_dossiers'
     get 'corbeille', to: 'dossiers#trash', as: :trash
     get 'transferts' => 'dossiers#transfer_requests'
+    get 'personnalisation', to: 'dossiers#personnalisation', as: :personnalisation
+    patch 'personnalisation', to: 'dossiers#update_personnalisation'
 
     get 'profil' => 'profil#show'
     patch 'update_email' => 'profil#update_email'

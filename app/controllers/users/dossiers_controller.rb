@@ -11,7 +11,7 @@ module Users
 
     layout 'procedure_context', only: [:identite, :update_identite, :siret, :update_siret]
 
-    ACTIONS_ALLOWED_TO_ANY_USER = [:index, :new, :deleted_dossiers, :trash, :transfer_requests]
+    ACTIONS_ALLOWED_TO_ANY_USER = [:index, :new, :deleted_dossiers, :trash, :transfer_requests, :personnalisation, :update_personnalisation]
     ACTIONS_ALLOWED_TO_OWNER_OR_INVITE = [:show, :destroy, :demande, :messagerie, :brouillon, :modifier, :update, :create_commentaire, :attestation_depot, :restore, :champ, :check_completude, :notify_owner_for_changes, :revert_prefill]
     TRASH_ACTIONS = [:show_in_trash, :show_deleted]
     ITEMS_PER_PAGE = 25
@@ -50,6 +50,7 @@ module Users
 
       @dossiers = @filter.dossiers.page(page).per(ITEMS_PER_PAGE)
       @total_count = @dossiers.total_count
+      @show_personnalisation_link = personnalisation_available?
       list_title = @filter.model_alerts.any? ? "filters.alerts" : "filters.no_alert"
       Skylight.instrument(title: list_title) do
         @dossiers.load
@@ -508,6 +509,36 @@ module Users
       render layout: 'empty_layout'
     end
 
+    def personnalisation
+      return redirect_to dossiers_path if !personnalisation_available?
+
+      @personnalisable_procedures = personnalisable_procedures
+      @personnalisations_by_procedure_id = current_user
+        .dossiers_list_personnalisations
+        .where(procedure_id: @personnalisable_procedures.map(&:id))
+        .index_by(&:procedure_id)
+      render layout: 'empty_layout'
+    end
+
+    def update_personnalisation
+      return redirect_to dossiers_path if !personnalisation_available?
+
+      allowed_ids = Procedure.where(id: current_user.dossiers.visible_by_user.joins(:procedure).select('procedures.id')).pluck(:id).map(&:to_s)
+      results = personnalisation_params.map do |procedure_id, attrs|
+        next true if !procedure_id.to_s.in?(allowed_ids)
+
+        columns = Array(attrs[:displayed_columns]).compact_blank.map { ColumnType.new.cast(_1) }.compact
+        perso = current_user.dossiers_list_personnalisations.find_or_initialize_by(procedure_id:)
+        perso.update(displayed_columns: columns)
+      end
+
+      if results.all?
+        redirect_to dossiers_path, notice: t('views.users.dossiers.personnalisation.saved')
+      else
+        redirect_to dossiers_path, alert: t('views.users.dossiers.personnalisation.error')
+      end
+    end
+
     def trash
       @statut = 'dossiers-supprimes'
       @dossiers = current_user.dossiers
@@ -678,6 +709,23 @@ module Users
 
     def commentaire_params
       params.require(:commentaire).permit(:body, piece_jointe: [])
+    end
+
+    def personnalisation_available?
+      feature_enabled?(:dossiers_list_personnalisation) &&
+        current_user.dossiers.visible_by_user.count > SIMPLE_LIST_THRESHOLD
+    end
+
+    def personnalisation_params
+      params.permit(personnalisations: {}).fetch(:personnalisations, {}).to_h
+    end
+
+    def personnalisable_procedures
+      Procedure
+        .where(id: current_user.dossiers.visible_by_user.joins(:procedure).select('procedures.id'))
+        .distinct
+        .order(:libelle)
+        .includes(published_revision: { revision_types_de_champ: :type_de_champ })
     end
 
     def redirect_if_hidden_or_deleted_dossier

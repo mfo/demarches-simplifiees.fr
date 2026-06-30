@@ -2935,6 +2935,112 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe 'GET #personnalisation' do
+    let(:user) { create(:user) }
+    before { sign_in(user) }
+
+    context 'when feature disabled' do
+      it 'redirects to dossiers' do
+        get :personnalisation
+        expect(response).to redirect_to(dossiers_path)
+      end
+    end
+
+    context 'when feature enabled' do
+      before { Flipper.enable(:dossiers_list_personnalisation, user) }
+
+      context 'with 5 or fewer dossiers' do
+        before { create_list(:dossier, 5, user:) }
+
+        it 'redirects to dossiers' do
+          get :personnalisation
+          expect(response).to redirect_to(dossiers_path)
+        end
+      end
+
+      context 'with more than 5 dossiers' do
+        before { create_list(:dossier, 6, user:) }
+
+        it 'renders the personnalisation screen' do
+          get :personnalisation
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'query count does not grow with number of procedures' do
+        render_views
+
+        let(:procedure1) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ A' }]) }
+        let(:procedure2) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ B' }]) }
+        let(:procedure3) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ C' }]) }
+
+        before do
+          create_list(:dossier, 3, user:, procedure: procedure1)
+          create_list(:dossier, 3, user:, procedure: procedure2)
+          get :personnalisation # warmup: populate schema cache and Flipper cache
+        end
+
+        it 'issues the same number of queries for 2 vs 3 procedures' do
+          count_2_procedures = 0
+          ActiveSupport::Notifications.subscribed(lambda { |*_args| count_2_procedures += 1 }, "sql.active_record") do
+            get :personnalisation
+          end
+
+          create_list(:dossier, 3, user:, procedure: procedure3)
+
+          count_3_procedures = 0
+          ActiveSupport::Notifications.subscribed(lambda { |*_args| count_3_procedures += 1 }, "sql.active_record") do
+            get :personnalisation
+          end
+
+          expect(count_3_procedures).to eq(count_2_procedures)
+        end
+      end
+    end
+  end
+
+  describe 'PATCH #update_personnalisation' do
+    let(:user) { create(:user) }
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
+    let(:column) { procedure.personnalisable_columns.first }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      create_list(:dossier, 6, user:, procedure:)
+      sign_in(user)
+    end
+
+    it 'persists the chosen columns for the procedure and redirects with a notice' do
+      patch :update_personnalisation, params: {
+        personnalisations: { procedure.id.to_s => { displayed_columns: [column.id] } },
+      }
+
+      expect(response).to redirect_to(dossiers_path)
+      perso = DossiersListPersonnalisation.find_by(user:, procedure:)
+      expect(perso.displayed_columns.map(&:id)).to eq([column.id])
+    end
+
+    it 'ignores empty selections sent by the React combobox' do
+      patch :update_personnalisation, params: {
+        personnalisations: { procedure.id.to_s => { displayed_columns: [''] } },
+      }
+
+      perso = DossiersListPersonnalisation.find_by(user:, procedure:)
+      expect(perso&.displayed_columns || []).to eq([])
+    end
+
+    it 'alerts instead of confirming when the personnalisation cannot be saved' do
+      allow_any_instance_of(DossiersListPersonnalisation).to receive(:update).and_return(false)
+
+      patch :update_personnalisation, params: {
+        personnalisations: { procedure.id.to_s => { displayed_columns: [column.id] } },
+      }
+
+      expect(flash[:notice]).to be_nil
+      expect(flash[:alert]).to eq(I18n.t('views.users.dossiers.personnalisation.error'))
+    end
+  end
+
   private
 
   def find_champ_by_stable_id(dossier, stable_id)
