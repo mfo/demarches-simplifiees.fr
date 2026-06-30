@@ -224,11 +224,19 @@ describe 'As an administrateur I can edit types de champ', js: true do
     hide_autonotice_message
 
     select('Carte', from: 'Type de champ')
-    fill_in 'Libellé du champ', with: 'Libellé de champ carte', fill_options: { clear: :backspace }
-    check 'Cadastres'
+    # Wait for the type-switch re-render to actually land in the DOM (a carte-only
+    # field) before filling the shared "Libellé" input. A DB poll only proves the
+    # server committed; the morph can still be in flight and rebuild the input we
+    # just typed into, dropping the keystroke autosave (an empty libellé is saved).
+    expect(page).to have_field('Cadastres')
 
-    wait_until { procedure.active_revision.types_de_champ_public.first.layer_enabled?(:cadastres) }
-    wait_until { procedure.active_revision.types_de_champ_public.first.libelle == 'Libellé de champ carte' }
+    fill_in 'Libellé du champ', with: 'Libellé de champ carte', fill_options: { clear: :backspace }
+    # Serialize before the next change event: checking a layer aborts an in-flight
+    # keystroke save, so the libellé must be persisted first.
+    wait_until { procedure.active_revision.reload.types_de_champ_public.first&.libelle == 'Libellé de champ carte' }
+
+    check 'Cadastres'
+    wait_until { procedure.active_revision.reload.types_de_champ_public.first&.layer_enabled?(:cadastres) }
     expect(page).to have_content('Formulaire enregistré')
 
     page.refresh
