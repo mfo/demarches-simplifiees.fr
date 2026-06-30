@@ -872,7 +872,6 @@ class Dossier < ApplicationRecord
     )
 
     options = { procedure_id: procedure.id, dossier_id: id }
-    options[:pdf_variant] = WeasyprintService::PDF_UA_VARIANT if procedure.feature_enabled?(:pdf_variant)
 
     pdf = WeasyprintService.generate_pdf(html, options)
 

@@ -243,7 +243,6 @@ class AttestationTemplate < ApplicationRecord
     )
 
     options = { procedure_id: procedure.id, dossier_id: dossier.id }
-    options[:pdf_variant] = WeasyprintService::PDF_UA_VARIANT if procedure.feature_enabled?(:pdf_variant)
 
     WeasyprintService.generate_pdf(html, options)
   end

@@ -2069,16 +2069,6 @@ describe Users::DossiersController, type: :controller do
         expect(WeasyprintService).to have_received(:generate_pdf)
           .with(a_string_matching(/#{dossier.individual.prenom}/), anything)
       end
-
-      context 'when the pdf_variant feature is enabled' do
-        before { Flipper.enable(:pdf_variant, dossier.procedure) }
-
-        it 'requests the pdf/ua-1 variant through the options' do
-          subject
-          expect(WeasyprintService).to have_received(:generate_pdf)
-            .with(anything, hash_including(pdf_variant: 'pdf/ua-1'))
-        end
-      end
     end
 
     context 'when the dossier is still a draft' do

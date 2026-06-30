@@ -22,7 +22,6 @@ module Administrateurs
           html = render_to_string('/administrateurs/attestation_template_v2s/show', layout: 'attestation', formats: [:html])
 
           options = { procedure_id: @procedure.id, path: request.path, user_id: current_user.id }
-          options[:pdf_variant] = WeasyprintService::PDF_UA_VARIANT if @procedure.feature_enabled?(:pdf_variant)
 
           pdf = WeasyprintService.generate_pdf(html, options)
 

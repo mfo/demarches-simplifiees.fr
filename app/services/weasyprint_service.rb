@@ -13,7 +13,7 @@ class WeasyprintService
 
     body = {
       html:,
-      upstream_context: options,
+      upstream_context: { pdf_variant: PDF_UA_VARIANT, **options },
     }.to_json
 
     response = Typhoeus.post(WEASYPRINT_URL, headers:, body:)

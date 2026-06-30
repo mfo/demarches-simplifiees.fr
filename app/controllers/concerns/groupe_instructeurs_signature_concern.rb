@@ -38,7 +38,6 @@ module GroupeInstructeursSignatureConcern
       html = render_to_string('/administrateurs/attestation_template_v2s/show', layout: 'attestation', formats: [:html])
 
       options = { procedure_id: procedure.id, path: request.path }
-      options[:pdf_variant] = WeasyprintService::PDF_UA_VARIANT if procedure.feature_enabled?(:pdf_variant)
 
       pdf = WeasyprintService.generate_pdf(html, options)
       send_data(pdf, filename: 'attestation.pdf', type: 'application/pdf', disposition: 'inline')
