@@ -15,7 +15,7 @@ module Types
       if object.is_a?(Hash)
         object[:url]
       else
-        object.url(host: Current.host)
+        object.url
       end
     end
 
