@@ -1497,6 +1497,10 @@ Style/TrivialAccessors:
 Style/UnlessElse:
   Enabled: true
 
+Style/UnlessLogicalOperators:
+  Enabled: true
+  EnforcedStyle: forbid_logical_operators
+
 Style/RedundantCapitalW:
   Enabled: true
 

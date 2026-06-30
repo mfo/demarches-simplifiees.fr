@@ -57,7 +57,7 @@ class URLValidator < ActiveModel::EachValidator
   def validate_url(record, attribute, value, message, schemes)
     uri = Addressable::URI.parse(value)
 
-    unless options.fetch(:accept_email) && uri.path.match?(/^(.+)@(.+)$/)
+    if !options.fetch(:accept_email) || !uri.path.match?(/^(.+)@(.+)$/)
       host = uri && uri.host
       scheme = uri && uri.scheme
 
@@ -65,7 +65,7 @@ class URLValidator < ActiveModel::EachValidator
       valid_no_local = !options.fetch(:no_local) || (host && host.include?('.'))
       valid_suffix = !options.fetch(:public_suffix) || (host && PublicSuffix.valid?(host, default_rule: nil))
 
-      unless valid_scheme && valid_no_local && valid_suffix
+      if !valid_scheme || !valid_no_local || !valid_suffix
         record.errors.add(attribute, message, **filtered_options(value))
       end
     end

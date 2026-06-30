@@ -368,7 +368,7 @@ class Champ < ApplicationRecord
 
   def nullify_blank_json_columns
     [:value_json, :data].each do |column|
-      next unless has_attribute?(column) && public_send(:"#{column}_changed?")
+      next if !has_attribute?(column) || !public_send(:"#{column}_changed?")
 
       value = public_send(column)
       self[column] = nil if value.is_a?(Hash) && value.compact.blank?

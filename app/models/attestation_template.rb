@@ -85,7 +85,7 @@ class AttestationTemplate < ApplicationRecord
     pdf_data = build_pdf(dossier)
 
     # Guard against race condition: dossier state may have changed during PDF generation
-    return unless dossier.reload.accepte? || dossier.refuse?
+    return if !dossier.reload.accepte? && !dossier.refuse?
 
     # Upload the file before creating the attestation: if the upload fails,
     # nothing is persisted, so a retry of the job regenerates the attestation

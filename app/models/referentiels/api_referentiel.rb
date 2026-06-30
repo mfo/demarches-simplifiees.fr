@@ -153,7 +153,7 @@ class Referentiels::APIReferentiel < Referentiel
       errors.add(:url_tiptap, :missing_query_params)
     end
 
-    unless uri.tld == "gouv.fr" && uri.domain != "beta.gouv.fr"
+    if uri.tld != "gouv.fr" || uri.domain == "beta.gouv.fr"
       allowed_hosts = ENV.fetch('ALLOWED_API_DOMAINS_FROM_FRONTEND', '').split(',').filter_map { Addressable::URI.parse(_1).host rescue nil }
       if uri.host.blank? || allowed_hosts.none? { uri.host == _1 || uri.host.end_with?(".#{_1}") }
         errors.add(:url_tiptap, :not_allowed, contact_email: CONTACT_EMAIL)

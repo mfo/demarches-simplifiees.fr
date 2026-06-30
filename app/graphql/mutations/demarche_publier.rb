@@ -17,7 +17,7 @@ module Mutations
       demarche_number = demarche.number.presence || ApplicationRecord.id_from_typed_id(demarche.id)
       demarche = Procedure.find_by(id: demarche_number)
 
-      unless demarche.present? && context.authorized_demarche?(demarche)
+      if demarche.blank? || !context.authorized_demarche?(demarche)
         return { errors: ["La démarche \"#{demarche_number}\" n'existe pas ou vous n'avez pas le droit de la publier."] }
       end
       if demarche.publiee_or_close?
