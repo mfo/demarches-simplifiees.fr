@@ -24,7 +24,7 @@ class TagsButtonListComponent < ApplicationComponent
   private
 
   def optional_tag?(tag)
-    tag[:maybe_null] || tag[:conditional]
+    !tag[:mandatory]
   end
 
   def can_toggle_optional?(category)
