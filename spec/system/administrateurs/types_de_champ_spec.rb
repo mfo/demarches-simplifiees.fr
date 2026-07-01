@@ -224,11 +224,19 @@ describe 'As an administrateur I can edit types de champ', js: true do
     hide_autonotice_message
 
     select('Carte', from: 'Type de champ')
-    fill_in 'Libellé du champ', with: 'Libellé de champ carte', fill_options: { clear: :backspace }
-    check 'Cadastres'
+    # Wait for the type-switch re-render to actually land in the DOM (a carte-only
+    # field) before filling the shared "Libellé" input. A DB poll only proves the
+    # server committed; the morph can still be in flight and rebuild the input we
+    # just typed into, dropping the keystroke autosave (an empty libellé is saved).
+    expect(page).to have_field('Cadastres')
 
-    wait_until { procedure.active_revision.types_de_champ_public.first.layer_enabled?(:cadastres) }
-    wait_until { procedure.active_revision.types_de_champ_public.first.libelle == 'Libellé de champ carte' }
+    fill_in 'Libellé du champ', with: 'Libellé de champ carte', fill_options: { clear: :backspace }
+    # Serialize before the next change event: checking a layer aborts an in-flight
+    # keystroke save, so the libellé must be persisted first.
+    wait_until { procedure.active_revision.reload.types_de_champ_public.first&.libelle == 'Libellé de champ carte' }
+
+    check 'Cadastres'
+    wait_until { procedure.active_revision.reload.types_de_champ_public.first&.layer_enabled?(:cadastres) }
     expect(page).to have_content('Formulaire enregistré')
 
     page.refresh
@@ -246,11 +254,16 @@ describe 'As an administrateur I can edit types de champ', js: true do
     hide_autonotice_message
 
     select('Choix simple', from: 'Type de champ')
-    fill_in 'Libellé du champ', with: 'Libellé de champ menu déroulant', fill_options: { clear: :backspace }
-    fill_in 'Options de la liste', with: 'Un menu', fill_options: { clear: :backspace }
-    check "Proposer une option « autre » avec un texte libre"
+    # Each interaction triggers an autosave. Wait for it to be persisted before
+    # the next one, so the form re-render that follows a change event has fully
+    # settled and the dropdown-specific fields are stable before we type into
+    # them (avoids flakiness when autosaves overlap under load).
+    wait_until { procedure.active_revision.reload.types_de_champ_public.first&.drop_down_list? }
 
+    fill_in 'Options de la liste', with: 'Un menu', fill_options: { clear: :backspace }
     wait_until { procedure.active_revision.reload.types_de_champ_public.first.drop_down_options == ['Un menu'] }
+
+    check "Proposer une option « autre » avec un texte libre"
     wait_until { procedure.active_revision.reload.types_de_champ_public.first.drop_down_other == "1" }
     expect(page).to have_content('Formulaire enregistré')
 

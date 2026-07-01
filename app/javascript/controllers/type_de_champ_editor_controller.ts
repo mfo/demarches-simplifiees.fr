@@ -24,7 +24,10 @@ export class TypeDeChampEditorController extends ApplicationController {
 
   #latestPromise = Promise.resolve();
   #dirtyForms: Set<HTMLFormElement> = new Set();
-  #inFlightForms: Map<HTMLFormElement, AbortController> = new Map();
+  #inFlightForms: Map<
+    HTMLFormElement,
+    { controller: AbortController; render: boolean }
+  > = new Map();
 
   connect() {
     this.#latestPromise = Promise.resolve();
@@ -34,8 +37,8 @@ export class TypeDeChampEditorController extends ApplicationController {
 
   disconnect() {
     this.#latestPromise = Promise.resolve();
-    for (const [form] of this.#inFlightForms) {
-      this.abortForm(form);
+    for (const { controller } of this.#inFlightForms.values()) {
+      controller.abort();
     }
     this.#inFlightForms.clear();
   }
@@ -88,19 +91,34 @@ export class TypeDeChampEditorController extends ApplicationController {
 
   private requestSubmitForm(form?: HTMLFormElement | null) {
     if (form) {
-      this.submitForm(form);
+      // A form is only passed for change events (type switch, toggle, move…),
+      // which carry a structural change to the champ. Flag them so a following
+      // keystroke save never aborts them while in flight.
+      this.submitForm(form, true);
     } else {
       const forms = [...this.#dirtyForms];
       this.#dirtyForms.clear();
 
       for (const form of forms) {
-        this.submitForm(form);
+        this.submitForm(form, false);
       }
     }
   }
 
-  private submitForm(form: HTMLFormElement) {
-    const controller = this.abortForm(form);
+  private submitForm(form: HTMLFormElement, render: boolean) {
+    // Saves are serialized through `#latestPromise`, so they always apply in
+    // order. We supersede a previous in-flight *keystroke* save (only the latest
+    // value matters), but we must never abort an in-flight *re-render* save: it
+    // carries a layout change (new fields after a type switch…) that has to
+    // reach the DOM, otherwise the following interactions target fields that
+    // never appear.
+    const previous = this.#inFlightForms.get(form);
+    if (previous && !previous.render) {
+      previous.controller.abort();
+    }
+
+    const controller = new AbortController();
+    this.#inFlightForms.set(form, { controller, render });
 
     this.#latestPromise = this.#latestPromise.finally(() =>
       httpRequest(form.action, {
@@ -110,14 +128,12 @@ export class TypeDeChampEditorController extends ApplicationController {
       })
         .turbo()
         .catch(() => null)
+        .finally(() => {
+          if (this.#inFlightForms.get(form)?.controller == controller) {
+            this.#inFlightForms.delete(form);
+          }
+        })
     );
-  }
-
-  private abortForm(form: HTMLFormElement) {
-    const controller = new AbortController();
-    this.#inFlightForms.get(form)?.abort();
-    this.#inFlightForms.set(form, controller);
-    return controller;
   }
 }
 
