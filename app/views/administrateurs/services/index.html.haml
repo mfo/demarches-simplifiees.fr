@@ -11,7 +11,7 @@
 
   = link_to "Nouveau service", new_admin_service_path(procedure_id: @procedure.id), class: "fr-btn fr-btn--primary fr-btn--icon-left fr-icon-add-circle-line fr-mb-6v"
 
-  .fr-table.fr-table--layout-fixed
+  .fr-table
     .fr-table__wrapper
       .fr-table__container
         .fr-table__content
@@ -27,7 +27,7 @@
             %tbody
               - @services.each do |service|
                 %tr
-                  %td
+                  %td.fr-cell--multiline
                     = service.nom
                   %td.fr-col-4
                     .fr-container.flex.fr-px-0
