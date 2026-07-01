@@ -151,9 +151,18 @@ class Dossiers::MessageComponent < ApplicationComponent
     commentaire.persisted? && (messagerie_seen_at.nil? || messagerie_seen_at < commentaire.created_at)
   end
 
+  def show_read_status?
+    return true if sent_by_connected_user?
+    return false if !connected_user.is_a?(Instructeur)
+    return false if !commentaire.sent_by_instructeur?
+
+    commentaire.dossier.groupe_instructeur&.instructeurs&.include?(connected_user) || false
+  end
+
   def read_by_recipient?
     return false if !commentaire.persisted?
-    return false if !sent_by_connected_user?
+    return false if !show_read_status?
+
     commentaire.seen_by_recipient_at.present?
   end
 

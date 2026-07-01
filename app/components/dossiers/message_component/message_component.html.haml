@@ -38,7 +38,7 @@
   .fr-mt-1v.flex.align-center.flex-gap-1.justify-between
     %span.date{ class: ["fr-mb-0", "fr-text--xs", "fr-text-mention--grey", "fr-text--regular"], data: scroll_to_target }
       = commentaire_date
-    - if sent_by_connected_user?
+    - if show_read_status?
       - if read_by_recipient?
         .flex.align-center
           = dsfr_icon('fr-icon-check-line fr-icon--sm fr-mr-1w')
