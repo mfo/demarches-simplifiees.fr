@@ -11,9 +11,11 @@ class ProcedureExportService
   end
 
   def to_csv
-    @dossiers = @dossiers.downloadable_sorted_batch
-    io = StringIO.new(SpreadsheetArchitect.to_csv(options_for(:dossiers, :csv)))
-    create_blob(io, :csv)
+    Tempfile.create(['export', '.csv'], binmode: true) do |file|
+      CsvExport.new(procedure:, dossiers:, export_template: @export_template).write_to(file)
+      file.rewind
+      create_blob(file, :csv)
+    end
   end
 
   def to_xlsx
