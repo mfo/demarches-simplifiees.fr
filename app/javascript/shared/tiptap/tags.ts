@@ -7,17 +7,20 @@ export const tagSchema = s.coerce(
   s.object({
     label: s.string(),
     id: s.string(),
-    optional: s.optional(s.boolean())
+    mandatory: s.optional(s.boolean()),
+    category: s.optional(s.string())
   }),
   s.type({
     tagLabel: s.string(),
     tagId: s.string(),
-    tagOptional: s.optional(s.string())
+    tagMandatory: s.optional(s.string()),
+    tagCategory: s.optional(s.string())
   }),
-  ({ tagId, tagLabel, tagOptional }) => ({
+  ({ tagId, tagLabel, tagMandatory, tagCategory }) => ({
     label: tagLabel,
     id: tagId,
-    optional: tagOptional === 'true'
+    mandatory: tagMandatory === 'true',
+    category: tagCategory
   })
 );
 export type TagSchema = s.Infer<typeof tagSchema>;
