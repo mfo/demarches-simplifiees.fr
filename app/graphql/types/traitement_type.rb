@@ -18,7 +18,7 @@ module Types
     field :changed_columns, [Types::ColumnType], "Liste des changements par colonne", null: false
 
     def revision
-      Loaders::Association.for(object.class, revision: :revision_types_de_champ).load(object)
+      dataloader.with(Sources::Association, revision: :revision_types_de_champ).load(object)
     end
   end
 end

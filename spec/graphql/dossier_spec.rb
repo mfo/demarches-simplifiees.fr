@@ -10,6 +10,13 @@ RSpec.describe Types::DossierType, type: :graphql do
   let(:data) { subject['data'].deep_symbolize_keys }
   let(:errors) { subject['errors'] }
 
+  describe 'dossier usager' do
+    let(:dossier) { create(:dossier, :en_construction) }
+    let(:variables) { { number: dossier.id } }
+
+    it { expect(data[:dossier][:usager][:email]).to eq(dossier.user.email) }
+  end
+
   describe 'dossier with attestation' do
     context 'when dossier is accepted' do
       let(:dossier) { create(:dossier, :accepte, :with_attestation_acceptation) }
@@ -705,6 +712,9 @@ RSpec.describe Types::DossierType, type: :graphql do
     dossier(number: $number) {
       id
       number
+      usager {
+        email
+      }
     }
   }
   GRAPHQL

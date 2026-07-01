@@ -356,9 +356,6 @@ GEM
       base64
       fiber-storage
       logger
-    graphql-batch (0.6.0)
-      graphql (>= 1.12.18, < 3)
-      promise.rb (~> 0.7.2)
     graphql-schema_comparator (1.2.1)
       bundler (>= 1.14)
       graphql (>= 1.10, < 3.0)
@@ -1067,7 +1064,6 @@ DEPENDENCIES
   gitlab-sidekiq-fetcher!
   gon
   graphql
-  graphql-batch
   graphql-schema_comparator
   groupdate
   haml-lint

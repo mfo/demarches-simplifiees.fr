@@ -12,9 +12,8 @@ module Types::Columns
       # Traitement and the value is already precomputed by ChangedColumn.
       return object.value(parent) unless parent.is_a?(Champ)
 
-      Loaders::Association.for(Champ, piece_justificative_file_attachments: :blob)
-        .load(parent)
-        .then { object.value(parent) }
+      dataloader.with(Sources::Association, piece_justificative_file_attachments: :blob).load(parent)
+      object.value(parent)
     end
   end
 end
