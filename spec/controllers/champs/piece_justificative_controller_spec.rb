@@ -181,7 +181,8 @@ describe Champs::PieceJustificativeController, type: :controller do
       before { sign_in create(:user) }
 
       it "should not share template url" do
-        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+        subject
+        expect(response).to have_http_status(:not_found)
       end
     end
 

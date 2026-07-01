@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  include Pundit::Authorization
   include TrustedDeviceConcern
   include NavBarProfileConcern
   include Pundit::Authorization
@@ -23,6 +24,8 @@ class ApplicationController < ActionController::Base
   before_action :setup_tracking
   before_action :set_customizable_view_path
   before_action :display_csrf_retry_message
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   around_action :switch_locale
 
@@ -108,7 +111,7 @@ class ApplicationController < ActionController::Base
     }.compact
   end
 
-  alias_method :pundit_user, :current_account
+  alias_method :pundit_user, :current_user
 
   def localization_enabled?
     ENV.fetch('LOCALIZATION_ENABLED', 'false') == 'true' || cookies[:locale].present? || !browser_prefers_french?
@@ -209,6 +212,10 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def user_not_authorized
+    head :not_found
+  end
 
   def set_active_storage_host
     ActiveStorage::Current.url_options ||= {}
