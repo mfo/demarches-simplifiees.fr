@@ -65,7 +65,7 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
           libelle: "#{libelle} (#{header})",
           description: "#{description} (#{header})",
           path:,
-          maybe_null: public? && !mandatory?,
+
         }
       end
     else
