@@ -44,7 +44,9 @@ features = [
 ]
 
 def database_exists?
-  ActiveRecord::Base.connection
+  # A simple query is required: since Rails 7.2 `connection` is lazy and does
+  # not connect until first use, so it never raises here on a missing database.
+  ActiveRecord::Base.connection.select_value('SELECT 1')
   true
 rescue ActiveRecord::ConnectionNotEstablished, ActiveRecord::NoDatabaseError, PG::ConnectionBad
   false
