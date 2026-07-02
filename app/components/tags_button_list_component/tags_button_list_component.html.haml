@@ -8,7 +8,7 @@
           .fr-checkbox-group.fr-checkbox-group--sm
             = check_box_tag("show_optional", 1, false, data: { "no-autosubmit" => true, action: "change->attestation#toggleOptional"})
             = label_tag "show_optional", for: :show_optional do
-              Voir les champs facultatifs et/ou conditionnels
+              Voir les champs facultatifs et/ou conditionnés
               %span.hidden.fr-hint-text Un champ non rempli restera vide dans l'attestation.
 
   %ul.fr-tags-group{ data: { category: category } }
