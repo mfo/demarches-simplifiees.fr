@@ -1,0 +1,4 @@
+en:
+  expert_mailer:
+    send_dossier_decision:
+      subject: "Dossier no. %{dossier_id} has been %{decision} - %{libelle}"
