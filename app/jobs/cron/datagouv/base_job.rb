@@ -24,7 +24,7 @@ class Cron::Datagouv::BaseJob < Cron::CronJob
   end
 
   def missing_months(csv)
-    last_date = Date.strptime(csv[-1]['mois'], DATE_FORMAT) if csv.present?
+    last_date = Date.strptime(csv[-1]['mois'], DATE_FORMAT).in_time_zone if csv.present?
 
     start_month = last_date.present? ? last_date + 1.month : previous_month
 
@@ -35,6 +35,6 @@ class Cron::Datagouv::BaseJob < Cron::CronJob
   private
 
   def previous_month
-    1.month.ago.beginning_of_month.to_date
+    1.month.ago.beginning_of_month
   end
 end
