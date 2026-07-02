@@ -3,10 +3,10 @@ fr:
     notify_automatic_deletion_to_user:
       subject:
         one: "Un dossier de votre compte a été mis à la corbeille"
-        other: "Des dossiers de votre compte ont été placés à la corbeille"
+        other: "Des dossiers de votre compte ont été mis à la corbeille"
       header:
         one: "Le délai maximum pour la conservation du dossier a été atteint.\nLe dossier suivant a été mis à la corbeille:"
-        other: "Le délai maximum pour la conservation des dossiers a été atteint.\nLes dossiers suivants ont été placés à la corbeille :"
-      footer:
-        one: Vous pouvez encore retrouver ce dossier jusqu’au %{deletion_date} depuis l’onglet « Corbeille » sur la page
-        other: Vous pouvez encore retrouver ces dossiers jusqu’au %{deletion_date} depuis l’onglet « Corbeille » sur la page
+        other: "Le délai maximum pour la conservation des dossiers a été atteint.\nLes dossiers suivants ont été mis à la corbeille :"
+      footer_html:
+        one: Vous pouvez encore retrouver ce dossier jusqu’au %{deletion_date} depuis la page <a href="%{corbeille_url}">Corbeille</a>.
+        other: Vous pouvez encore retrouver ces dossiers jusqu’au %{deletion_date} depuis la page <a href="%{corbeille_url}">Corbeille</a>.

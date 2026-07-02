@@ -3,7 +3,7 @@ fr:
     notify_automatic_deletion_for_tiers:
       subject:
         one: "Votre dossier rempli par le mandataire %{mandataire} en votre nom a été mis à la corbeille"
-        other: "Des dossiers remplis par des mandataires en votre nom ont été placés à la corbeille"
+        other: "Des dossiers remplis par des mandataires en votre nom ont été mis à la corbeille"
       header:
         one: "Le délai maximum pour la conservation du dossier a été atteint.\nLe dossier suivant sera supprimé définitivement le %{deletion_date} :"
         other: "Le délai maximum pour la conservation des dossiers a été atteint.\nLes dossiers suivants seront supprimés définitivement le %{deletion_date} :"
