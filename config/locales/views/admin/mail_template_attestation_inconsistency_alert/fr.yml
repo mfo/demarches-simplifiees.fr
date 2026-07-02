@@ -1,5 +1,19 @@
 fr:
+  admin:
+    mail_template_attestation_inconsistency_alert:
+      missing_tag_intro: "Cette démarche comporte une attestation, mais"
+      missing_tag_suffix: "ne la mentionne pas :"
+      extraneous_tag_intro: "Cette démarche ne comporte pas d’attestation, mais"
+      extraneous_tag_suffix: "en mentionne une :"
+      disable_attestation: "désactivez l’attestation"
+      enable_attestation: "activez l’attestation"
+      remove_tag: "enlevez la balise"
+      add_tag: ajoutez la balise
+      attestation_tag: "« --lien attestation-- »"
+      or_word: ou
+      to_word: à
+      from_word: de
   views:
     administrateurs:
-      mail_acceptation: l’accusé d’acceptation
-      mail_refus: l’accusé de refus
+      mail_acceptation: "l’accusé d’acceptation"
+      mail_refus: "l’accusé de refus"
