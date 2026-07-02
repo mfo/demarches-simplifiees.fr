@@ -54,7 +54,7 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ facultatif")
     expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ conditionnel")
     expect(subject).to have_selector(":not(.hidden) button.fr-tag", text: "Votre avis")
-    expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnels")
+    expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnés")
   end
 
   it "applies purple-glycine style to optional and conditional tags" do
