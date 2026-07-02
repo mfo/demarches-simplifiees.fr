@@ -1,0 +1,4 @@
+fr:
+  instructeur_mailer:
+    trusted_device_token_renewal:
+      subject: "Renouvellement de la connexion sécurisée à %{application_name}"

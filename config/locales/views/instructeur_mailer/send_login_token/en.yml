@@ -1,0 +1,4 @@
+en:
+  instructeur_mailer:
+    send_login_token:
+      subject: "Secure login to %{application_name}"

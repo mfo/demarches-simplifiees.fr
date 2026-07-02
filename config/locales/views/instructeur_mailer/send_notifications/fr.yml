@@ -1,0 +1,4 @@
+fr:
+  instructeur_mailer:
+    send_notifications:
+      subject: "Votre récapitulatif quotidien"

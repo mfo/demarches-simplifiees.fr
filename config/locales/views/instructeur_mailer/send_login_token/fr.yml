@@ -1,0 +1,4 @@
+fr:
+  instructeur_mailer:
+    send_login_token:
+      subject: "Connexion sécurisée à %{application_name}"
