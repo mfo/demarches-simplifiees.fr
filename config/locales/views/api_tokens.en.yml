@@ -9,5 +9,18 @@ en:
         continue: continue
         cancel: back
       autorisations:
+        title: Token privileges « %{name} »
+        token_access: This token accesses
+        custom_procedures: some of my procedures
+        all_procedures: all my procedures
+        all_procedures_hint: current and future
+        select_procedures: Select authorized procedures
+        add_procedure: Add
+        no_procedure_selected: no procedure selected
+        token_permission: This token allows
+        read_only: read only
+        read_only_hint: retrieve dossiers, attachments
+        read_write: read and write
+        read_write_hint: change dossier status, write messages
         cancel: back
         continue: continue
