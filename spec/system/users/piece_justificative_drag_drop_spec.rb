@@ -43,12 +43,14 @@ describe 'Piece justificative drag and drop', js: true do
 
         # Textes et boutons (PJ uses MultipleComponent with default max=10, so plural)
         expect(page).to have_text('Faites glisser et déposez vos fichiers ici')
-        expect(page).to have_button('Choisir des fichiers')
+        expect(page).to have_css('.fr-btn--secondary', text: 'Choisir des fichiers')
 
-        # Accessibilité ARIA
+        # Accessibilité ARIA : la zone est reliée au label et aux hints du champ (#13104)
         expect(drop_area['role']).to eq('button')
         expect(drop_area['tabindex']).to eq('0')
-        expect(drop_area['aria-label']).to include('Zone de glisser-déposer')
+        expect(drop_area['aria-label']).to be_nil
+        expect(find_by_id(drop_area['aria-labelledby']).text).to include('Document')
+        expect(find_by_id(drop_area['aria-describedby'].split.first).text).to include('Taille maximale par fichier')
         expect(page).to have_selector('[data-attachment-error][aria-live="assertive"]')
       end
     end
@@ -91,6 +93,31 @@ describe 'Piece justificative drag and drop', js: true do
       within find('.editable-champ', text: 'RIB') do
         expect(page).to have_text('Formats acceptés : .pdf, .doc, .docx, .jpg, .jpeg, .png')
       end
+    end
+
+    scenario 'announces the RIB analysis status in the persistent live region after upload (#13104)' do
+      procedure_rib = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }])
+      login_as(user, scope: :user)
+      visit commencer_path(path: procedure_rib.path)
+      click_on 'Commencer la démarche'
+      fill_individual
+
+      # Capture the persistent live region id before upload: a RIB is single-file,
+      # so the labelled input disappears once a file is attached.
+      file_input = find_field('RIB', visible: :all)
+      live_region_selector = "##{file_input[:id]}-aria-live"
+
+      attach_file('RIB', Rails.root.join('spec/fixtures/files/file.pdf'))
+      expect(page).to have_text('file.pdf')
+
+      # The status is announced into the champ's persistent sr-only live region
+      # (which survives the turbo_stream.replace), not into the recreated champ.
+      expect(page).to have_css(
+        live_region_selector,
+        text: 'Contenu du fichier en cours',
+        visible: :all,
+        wait: 5
+      )
     end
   end
 
@@ -242,7 +269,7 @@ describe 'Piece justificative drag and drop', js: true do
 
         # Drop zone should STILL be visible (max not reached)
         expect(page).to have_css('.attachment-drop-zone')
-        expect(page).to have_button('Choisir des fichiers')
+        expect(page).to have_css('.fr-btn--secondary', text: 'Choisir des fichiers')
 
         # Upload second file
         attach_file('All types', Rails.root.join('spec/fixtures/files/white.png'))
@@ -253,7 +280,7 @@ describe 'Piece justificative drag and drop', js: true do
 
         # Drop zone should still be visible after deletion
         expect(page).to have_css('.attachment-drop-zone')
-        expect(page).to have_button('Choisir des fichiers')
+        expect(page).to have_css('.fr-btn--secondary', text: 'Choisir des fichiers')
 
         # Upload third file
         attach_file('All types', Rails.root.join('spec/fixtures/files/black.png'))

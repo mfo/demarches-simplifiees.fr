@@ -50,11 +50,47 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
     end
   end
 
+  describe 'keyboard_focusable (issue #13104)' do
+    context 'when keyboard_focusable: false (input wrapped in a drop zone)' do
+      let(:kwargs) { { keyboard_focusable: false } }
+
+      it 'takes the input out of the tab order with tabindex=-1' do
+        expect(subject).to have_selector('input[type="file"][tabindex="-1"]')
+      end
+    end
+
+    context 'by default' do
+      it 'leaves the input keyboard-focusable (no tabindex)' do
+        expect(subject).to have_no_selector('input[type="file"][tabindex]')
+      end
+    end
+  end
+
   describe 'custom id for remote drop zones' do
     let(:kwargs) { { id: 'custom-file-123' } }
 
     it 'uses custom id' do
       expect(subject).to have_selector('input[type="file"]#custom-file-123')
+    end
+  end
+
+  describe 'aria-live status region' do
+    context 'when there is no champ (e.g. has_one_attached like a logo)' do
+      let(:procedure) { create(:procedure) }
+      let(:context) { Attachment::Context.new(attached_file: procedure.logo) }
+      let(:component) { described_class.new(context:) }
+
+      it 'renders its own polite live region' do
+        expect(subject).to have_selector('[role="status"][aria-live="polite"]')
+      end
+    end
+
+    context 'when there is a champ' do
+      # SectionComponent already renders one live region per champ; rendering a
+      # second one here would duplicate the #champ-…-input-value-aria-live id.
+      it 'does not render a live region' do
+        expect(subject).not_to have_selector('[role="status"][aria-live="polite"]')
+      end
     end
   end
 
