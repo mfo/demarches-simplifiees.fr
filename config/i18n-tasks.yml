@@ -95,6 +95,8 @@ search:
 ignore_unused:
   - 'errors.format'
   - 'user_mailer.*.subject'
+  - 'groupe_gestionnaire_mailer.*.subject'
+  - 'invite_mailer.*.subject'
   - 'activerecord.models.*'
   - 'activerecord.attributes.*'
   - 'activemodel.attributes.map_filter.*'
