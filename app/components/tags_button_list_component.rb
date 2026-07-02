@@ -28,7 +28,7 @@ class TagsButtonListComponent < ApplicationComponent
   end
 
   def can_toggle_optional?(category)
-    return false if category != :champ_public
+    return false if category != :champ_public && category != :champ_private
 
     tags[category].any? { optional_tag?(_1) }
   end

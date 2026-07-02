@@ -169,15 +169,16 @@ function getEditorOptions(
         const classes = ['fr-tag', 'fr-tag--sm'];
         const id = node.attrs.id;
         const info = tagInfo.get(id);
-        if (info?.mandatory) {
-          return [
-            'span',
-            { ...HTMLAttributes, class: classes.join(' ') },
-            `${node.attrs.label} *`
-          ];
-        }
-        if (info?.category === 'champ_public') {
+
+        if (info?.category === 'champ_public' || info?.category === 'champ_private') {
           classes.push('fr-tag--purple-glycine');
+          if (info?.mandatory) {
+            return [
+              'span',
+              { ...HTMLAttributes, class: classes.join(' ') },
+              `${node.attrs.label} *`
+            ];
+          }
         }
         return [
           'span',

@@ -3,13 +3,15 @@
     .flex
       %p.fr-label.fr-text--sm.fr-text--bold.fr-mb-1w= t(category, scope: ".categories")
 
-      - if can_toggle_optional
-        .fr-fieldset__element.fr-ml-4w
-          .fr-checkbox-group.fr-checkbox-group--sm
-            = check_box_tag("show_optional", 1, false, data: { "no-autosubmit" => true, action: "change->attestation#toggleOptional"})
-            = label_tag "show_optional", for: :show_optional do
-              Voir les champs facultatifs et/ou conditionnés
-              %span.hidden.fr-hint-text Un champ non rempli restera vide dans l'attestation.
+    - if can_toggle_optional
+      .fr-fieldset__element.fr-px-0
+        .fr-checkbox-group.fr-checkbox-group--sm
+          = check_box_tag("show_optional_#{category}", 1, false, data: { "no-autosubmit" => true, action: "change->attestation#toggleOptional"})
+          = label_tag "show_optional_#{category}", for: "show_optional_#{category}" do
+            = category == :champ_public ? "Voir les champs facultatifs et/ou conditionnés" : "Voir les annotations facultatives et/ou conditionnées"
+            %span.hidden.fr-hint-text
+              = category == :champ_public ? "Un champ non rempli par l’usager" : "Une annotation non remplie par l’instructeur"
+              restera vide dans l’attestation.
 
   %ul.fr-tags-group{ data: { category: category } }
     - tags.each do |tag|
