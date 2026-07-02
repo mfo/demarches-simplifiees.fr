@@ -27,8 +27,8 @@ describe 'admin/_mail_template_attestation_inconsistency_alert', type: :view do
       let(:procedure) { create(:procedure, closed_mail: mail, attestation_acceptation_template: nil) }
 
       it 'includes extraneous_tag alert text' do
-        expect(render_alert(procedure, mail_type))
-          .to include("Cette démarche ne comporte pas d’attestation, mais\nl’accusé d’acceptation\nen mentionne une")
+        expect(render_alert(procedure, mail_type).squish)
+          .to include("Cette démarche ne comporte pas d’attestation, mais l’accusé d’acceptation en mentionne une")
       end
 
       it 'includes mail template edit link' do
@@ -48,8 +48,8 @@ describe 'admin/_mail_template_attestation_inconsistency_alert', type: :view do
       let(:procedure) { create(:procedure, closed_mail: mail, attestation_acceptation_template: attestation) }
 
       it 'includes missing_tag alert text' do
-        expect(render_alert(procedure, mail_type))
-          .to include("Cette démarche comporte une attestation, mais\nl’accusé d’acceptation\nne la mentionne pas")
+        expect(render_alert(procedure, mail_type).squish)
+          .to include("Cette démarche comporte une attestation, mais l’accusé d’acceptation ne la mentionne pas")
       end
 
       context 'when procedure is draft' do
@@ -78,8 +78,8 @@ describe 'admin/_mail_template_attestation_inconsistency_alert', type: :view do
       let(:procedure) { create(:procedure, refused_mail: mail, attestation_refus_template: attestation) }
 
       it 'includes extraneous_tag alert text' do
-        expect(render_alert(procedure, mail_type))
-          .to include("Cette démarche ne comporte pas d’attestation, mais\nl’accusé de refus\nen mentionne une")
+        expect(render_alert(procedure, mail_type).squish)
+          .to include("Cette démarche ne comporte pas d’attestation, mais l’accusé de refus en mentionne une")
       end
 
       it 'includes mail template edit link' do
@@ -99,8 +99,8 @@ describe 'admin/_mail_template_attestation_inconsistency_alert', type: :view do
       let(:procedure) { create(:procedure, refused_mail: mail, attestation_refus_template: attestation) }
 
       it 'includes missing_tag alert text' do
-        expect(render_alert(procedure, mail_type))
-          .to include("Cette démarche comporte une attestation, mais\nl’accusé de refus\nne la mentionne pas :")
+        expect(render_alert(procedure, mail_type).squish)
+          .to include("Cette démarche comporte une attestation, mais l’accusé de refus ne la mentionne pas :")
       end
 
       it 'includes attestation edit link' do
