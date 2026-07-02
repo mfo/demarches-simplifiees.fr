@@ -9,5 +9,18 @@ fr:
         continue: Continuer
         cancel: Retour
       autorisations:
+        title: Privilèges du jeton « %{name} »
+        token_access: Ce jeton accède à
+        custom_procedures: certaines de mes démarches
+        all_procedures: toutes mes démarches
+        all_procedures_hint: présentes et futures
+        select_procedures: Sélectionner les démarches autorisées
+        add_procedure: Ajouter
+        no_procedure_selected: aucune démarche sélectionnée
+        token_permission: Ce jeton permet
+        read_only: de lire uniquement
+        read_only_hint: récupérer des dossiers, des pièces-jointes
+        read_write: de lire et dʼécrire
+        read_write_hint: changer le statut de dossier, écrire des messages
         cancel: Retour
         continue: Continuer
