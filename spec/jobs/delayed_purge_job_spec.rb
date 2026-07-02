@@ -19,13 +19,12 @@ describe DelayedPurgeJob, type: :job do
   context 'emit request instead of destroying it' do
     let(:container) { "bucket" }
     let(:client) { double("client") }
-    let(:double_service) { double(container:) }
+    let(:double_service) { double(name: :openstack, container:) }
     let(:cloned_dossier) { dossier.clone }
 
     before do
       allow_any_instance_of(ActiveStorage::Blob).to receive(:service).and_return(double_service)
       allow_any_instance_of(DelayedPurgeJob).to receive(:client).and_return(client)
-      allow(described_class).to receive(:openstack?).and_return(true)
     end
 
     it 'with attachments' do
@@ -60,6 +59,19 @@ describe DelayedPurgeJob, type: :job do
     it 'uses our custom job' do
       expect { dossier.destroy }.to have_enqueued_job(DelayedPurgeJob)
       perform_enqueued_jobs
+    end
+  end
+
+  context 'when the blob is stored on a non-OpenStack service (e.g. S3)' do
+    let(:s3_service) { double(name: :amazon) }
+
+    before do
+      allow_any_instance_of(ActiveStorage::Blob).to receive(:service).and_return(s3_service)
+    end
+
+    it 'purges the blob directly instead of soft-deleting it' do
+      expect(blob).to receive(:purge)
+      subject
     end
   end
 

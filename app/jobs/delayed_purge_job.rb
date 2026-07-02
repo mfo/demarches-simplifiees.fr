@@ -24,14 +24,8 @@ class DelayedPurgeJob < ApplicationJob
   discard_on ActiveJob::DeserializationError
   discard_on ActiveRecord::RecordNotFound
 
-  def self.openstack?
-    Rails.application.config.active_storage.service == :openstack
-  end
-
-  if openstack?
-    require 'fog/openstack'
-    discard_on Fog::OpenStack::Storage::NotFound
-  end
+  require 'fog/openstack'
+  discard_on Fog::OpenStack::Storage::NotFound
 
   delegate :service, :key, to: :blob
   delegate :container, to: :service
@@ -67,12 +61,14 @@ class DelayedPurgeJob < ApplicationJob
   end
 
   def soft_delete_enabled?
-    DelayedPurgeJob.openstack? && delay.positive?
+    openstack? && delay.positive?
   rescue
     false
   end
 
+  def openstack? = service.name == :openstack
+
   def client
-    ActiveStorage::Blob.service.send(:client)
+    service.send(:client)
   end
 end
