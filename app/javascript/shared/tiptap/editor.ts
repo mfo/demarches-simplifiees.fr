@@ -176,7 +176,11 @@ function getEditorOptions(
             `${node.attrs.label} *`
           ];
         }
-        if (info?.category === 'champ_public') {
+        if (
+          (info?.category === 'champ_public' ||
+            info?.category === 'champ_private') &&
+          !info?.mandatory
+        ) {
           classes.push('fr-tag--purple-glycine');
         }
         return [
