@@ -57,6 +57,7 @@ class DelayedPurgeJob < ApplicationJob
     if excon_response.status != 201
       Sentry.capture_message("Can't expire blob", extra: { key:, headers: })
     else
+      blob.update_column(:soft_delete_at, Time.current)
       service.delete_prefixed("variants/#{key}/") if blob.image?
     end
   end
