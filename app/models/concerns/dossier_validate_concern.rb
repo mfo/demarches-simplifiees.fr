@@ -3,6 +3,11 @@
 module DossierValidateConcern
   extend ActiveSupport::Concern
 
+  included do
+    validate :validate_champs_public_value, on: :champs_public_value
+    validate :validate_champs_private_value, on: :champs_private_value
+  end
+
   def champs_public_valid?
     validate(:champs_public_value)
     check_mandatory_and_visible_champs_for(project_champs_public)
@@ -16,6 +21,21 @@ module DossierValidateConcern
   end
 
   private
+
+  def validate_champs_public_value
+    validate_projected_champs(project_champs_public_all)
+  end
+
+  def validate_champs_private_value
+    validate_projected_champs(project_champs_private_all)
+  end
+
+  def validate_projected_champs(champs)
+    champs.each do |champ|
+      next if champ.validate(:champ_value)
+      champ.errors.each { errors.import(it) }
+    end
+  end
 
   def check_mandatory_and_visible_champs_for(collection)
     collection.filter(&:visible?).each do |champ|

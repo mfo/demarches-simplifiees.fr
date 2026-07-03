@@ -15,16 +15,16 @@ describe Champs::RNAChamp do
 
   describe '#valid?' do
     it do
-      expect(with_external_id(nil).validate(:champs_public_value)).to be_truthy
-      expect(with_external_id("2736251627").validate(:champs_public_value)).to be_falsey
-      expect(with_external_id("A172736283").validate(:champs_public_value)).to be_falsey
-      expect(with_external_id("W1827362718").validate(:champs_public_value)).to be_falsey
-      expect(with_external_id("W182736273").validate(:champs_public_value)).to be_truthy
+      expect(with_external_id(nil).validate(:champ_value)).to be_truthy
+      expect(with_external_id("2736251627").validate(:champ_value)).to be_falsey
+      expect(with_external_id("A172736283").validate(:champ_value)).to be_falsey
+      expect(with_external_id("W1827362718").validate(:champ_value)).to be_falsey
+      expect(with_external_id("W182736273").validate(:champ_value)).to be_truthy
     end
 
     it 'when invalid format, it contains only error message for invalid format' do
       champ = with_external_id("W1827362")
-      champ.validate(:champs_public_value)
+      champ.validate(:champ_value)
       expect(champ.errors.full_messages.join).to match(/doit commencer par un W majuscule suivi de 9 chiffres ou lettres. Exemple : W503726238/)
     end
 
@@ -32,7 +32,7 @@ describe Champs::RNAChamp do
       champ = with_external_id("W182736273")
       error = ExternalDataException.new(error: 'Not retryable', code: 404)
       champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: [error])
-      champ.validate(:champs_public_value)
+      champ.validate(:champ_value)
       expect(champ.errors.full_messages).to eq(["Le champ « Numéro RNA » Résultat introuvable. Vérifiez vos informations."])
     end
   end

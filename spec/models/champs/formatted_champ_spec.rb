@@ -11,7 +11,7 @@ describe Champs::FormattedChamp do
   end
 
   describe 'validation' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     context 'with simple mode' do
       context 'only numbers accepted' do

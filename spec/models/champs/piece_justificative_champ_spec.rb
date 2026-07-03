@@ -25,7 +25,7 @@ describe Champs::PieceJustificativeChamp do
 
         champ.piece_justificative_file.attach(blob)
 
-        expect(champ.valid?(:champs_public_value)).to be false
+        expect(champ.valid?(:champ_value)).to be false
         expect(champ.errors[:piece_justificative_file]).to be_present
       end
 
@@ -33,24 +33,27 @@ describe Champs::PieceJustificativeChamp do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('# titre'), filename: 'notes.md', content_type: 'text/x-markdown')
 
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
 
-      it "does not validate public PJ when validating private context" do
-        champ.piece_justificative_file.attach(
-          io: StringIO.new('x'),
-          filename: 'bad.exe',
-          content_type: 'application/x-ms-dos-executable'
-        )
+      it "does not validate public PJ when validating private champs" do
+        champ.piece_justificative_file = [
+          {
+            io: StringIO.new('x'),
+            filename: 'bad.exe',
+            content_type: 'application/x-ms-dos-executable',
+          },
+        ]
 
-        expect(champ.valid?(:champs_private_value)).to be true
+        expect(dossier.champs_public_valid?).to be false
+        expect(dossier.champs_private_valid?).to be true
       end
     end
 
     context "when validation is disabled" do
       before { champ.type_de_champ.update(skip_pj_validation: true) }
 
-      it "does not enforce file size on :champs_public_value" do
+      it "does not enforce file size on :champ_value" do
         champ.piece_justificative_file.purge
         blob = ActiveStorage::Blob.create_and_upload!(
           io: StringIO.new('x'),
@@ -60,21 +63,21 @@ describe Champs::PieceJustificativeChamp do
         blob.update_column(:byte_size, Champs::PieceJustificativeChamp::FILE_MAX_SIZE + 1)
         champ.piece_justificative_file.attach(blob)
 
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
     end
 
     context "when content-type validation is disabled" do
       before { champ.type_de_champ.update(skip_content_type_pj_validation: true) }
 
-      it "does not enforce content_type on :champs_public_value" do
+      it "does not enforce content_type on :champ_value" do
         champ.piece_justificative_file.attach(
           io: StringIO.new('x'),
           filename: 'bad.exe',
           content_type: 'application/x-ms-dos-executable'
         )
 
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
     end
   end
@@ -88,13 +91,13 @@ describe Champs::PieceJustificativeChamp do
       it 'accepts jpeg under 20MB' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('x' * 1024), filename: 'id.jpg', content_type: 'image/jpeg')
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
 
       it 'rejects pdf' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'id.pdf', content_type: 'application/pdf')
-        expect(champ.valid?(:champs_public_value)).to be false
+        expect(champ.valid?(:champ_value)).to be false
         expect(champ.errors[:piece_justificative_file]).to be_present
       end
 
@@ -107,7 +110,7 @@ describe Champs::PieceJustificativeChamp do
         )
         blob.update_column(:byte_size, 21.megabytes)
         champ.piece_justificative_file.attach(blob)
-        expect(champ.valid?(:champs_public_value)).to be false
+        expect(champ.valid?(:champ_value)).to be false
         expect(champ.errors[:piece_justificative_file]).to be_present
       end
     end
@@ -121,13 +124,13 @@ describe Champs::PieceJustificativeChamp do
         it 'accepts pdf' do
           champ.piece_justificative_file.purge
           champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'doc.pdf', content_type: 'application/pdf')
-          expect(champ.valid?(:champs_public_value)).to be true
+          expect(champ.valid?(:champ_value)).to be true
         end
 
         it 'rejects zip' do
           champ.piece_justificative_file.purge
           champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'arc.zip', content_type: 'application/zip')
-          expect(champ.valid?(:champs_public_value)).to be false
+          expect(champ.valid?(:champ_value)).to be false
           expect(champ.errors[:piece_justificative_file]).to be_present
         end
       end
@@ -141,20 +144,20 @@ describe Champs::PieceJustificativeChamp do
       it 'accepts pdf' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'doc.pdf', content_type: 'application/pdf')
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
 
       it 'rejects zip' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'arc.zip', content_type: 'application/zip')
-        expect(champ.valid?(:champs_public_value)).to be false
+        expect(champ.valid?(:champ_value)).to be false
         expect(champ.errors[:piece_justificative_file]).to be_present
       end
 
       it 'accepts markdown declared as the legacy text/x-markdown content type' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('# titre'), filename: 'notes.md', content_type: 'text/x-markdown')
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
     end
 
@@ -166,13 +169,13 @@ describe Champs::PieceJustificativeChamp do
       it 'accepts pdf' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'doc.pdf', content_type: 'application/pdf')
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
 
       it 'accepts zip' do
         champ.piece_justificative_file.purge
         champ.piece_justificative_file.attach(io: StringIO.new('x'), filename: 'arc.zip', content_type: 'application/zip')
-        expect(champ.valid?(:champs_public_value)).to be true
+        expect(champ.valid?(:champ_value)).to be true
       end
     end
   end

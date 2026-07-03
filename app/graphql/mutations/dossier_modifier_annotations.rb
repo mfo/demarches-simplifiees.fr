@@ -60,7 +60,7 @@ module Mutations
             annotation
           end
         end
-        .partition { _1.repetition? || (_1.validate(:champs_private_value) && _1.save) }
+        .partition { _1.repetition? || (_1.validate(:champ_value) && _1.save) }
       errors += invalid_annotations.flat_map { _1.errors.full_messages }
 
       { annotations:, errors: errors.presence }

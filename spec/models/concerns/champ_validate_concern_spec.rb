@@ -90,9 +90,13 @@ RSpec.describe ChampValidateConcern do
         dossier.revision.revision_types_de_champ.delete_all
 
         dossier.reload
+        dossier.validate(:champs_public_value)
       end
 
-      it { expect(dossier.champ_data.first.send(:validate_external_data_response?)).to be(false) }
+      it {
+        expect(dossier.champ_data).not_to be_empty
+        expect(dossier.errors).to be_empty
+      }
     end
   end
 
@@ -109,6 +113,23 @@ RSpec.describe ChampValidateConcern do
         expect(type_de_champ.type_champ).to eq('text')
         expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
+      }
+    end
+
+    context 'validate the carried over value with the new champ type' do
+      let(:types_de_champ_public) { [{ type: :text }] }
+
+      before {
+        update_champ('test')
+        type_de_champ.update(type_champ: :email)
+        dossier.reload
+        dossier.validate(:champs_public_value)
+      }
+      it {
+        expect(dossier.champ_data.first.last_write_type_champ).to eq('text')
+        expect(type_de_champ.type_champ).to eq('email')
+        expect(dossier.champ_data).not_to be_empty
+        expect(dossier.errors).not_to be_empty
       }
     end
   end

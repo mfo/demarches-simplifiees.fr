@@ -49,4 +49,16 @@ describe Migrations::BatchUpdatePaysValuesJob, type: :job do
       expect(pays_champ.reload.external_id).to eq('CX')
     end
   end
+
+  context "the champ is not in the dossier revision anymore" do
+    let(:attributes) { { value: 'RUSSIE' } }
+
+    before { dossier.revision.remove_type_de_champ(pays_champ.stable_id) }
+
+    it 'skips the champ without raising' do
+      # call perform directly to bypass retry_on, which swallows the error
+      expect { described_class.new.perform([pays_champ.id]) }.not_to raise_error
+      expect(pays_champ.reload.value).to eq('RUSSIE')
+    end
+  end
 end

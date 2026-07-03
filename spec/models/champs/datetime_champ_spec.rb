@@ -67,7 +67,7 @@ describe Champs::DatetimeChamp do
   end
 
   context 'when the value is not in the past' do
-    subject { datetime_champ.validate(:champs_public_value) }
+    subject { datetime_champ.validate(:champ_value) }
 
     context 'all dates are accepted' do
       before { datetime_champ.update(value: DateTime.now.iso8601) }
@@ -105,7 +105,7 @@ describe Champs::DatetimeChamp do
 
   context 'when there is a range' do
     let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     before { champ.type_de_champ.update(options: { range_date: '1', start_date: '2017-11-30', end_date: '2017-12-31' }) }
     context 'the value is in the range' do

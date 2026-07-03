@@ -9,9 +9,14 @@ class Attachment::PieceJustificativeService
   # the attachments left by the previous one.
   def self.attach_champ_pj(champ, blob_signed_id)
     updated_by = champ.updated_by
+    dossier = champ.dossier
 
     Champ.transaction do
       champ.reload(lock: true) # SELECT FOR UPDATE + clear association cache
+      # restore the stream-scoped dossier: a fresh association load defaults to
+      # the main stream, and conditional visibility (the validation gate) must
+      # be computed on the stream being edited
+      champ.association(:dossier).target = dossier
       champ.updated_by = updated_by # keep record dirty so attach defers save to us
       champ.piece_justificative_file.attach(blob_signed_id)
 
@@ -19,8 +24,7 @@ class Attachment::PieceJustificativeService
       # race condition with processor_job
       champ.fetch_later if champ.has_async_external_data? && champ.may_fetch_later?
 
-      context = champ.public? ? :champs_public_value : :champs_private_value
-      champ.save(context:)
+      champ.save(context: :champ_value)
     end
   end
 end

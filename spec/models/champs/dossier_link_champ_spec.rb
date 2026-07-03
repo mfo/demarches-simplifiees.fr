@@ -46,7 +46,7 @@ describe Champs::DossierLinkChamp, type: :model do
   end
 
   describe 'validation' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     context 'when not mandatory' do
       let(:mandatory) { false }
@@ -84,7 +84,7 @@ describe Champs::DossierLinkChamp, type: :model do
   end
 
   describe 'dossier_in_allowed_procedures validation' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     let(:mandatory) { false }
     let(:user) { dossier.user }

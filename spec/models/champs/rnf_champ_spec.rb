@@ -25,7 +25,7 @@ describe Champs::RNFChamp, type: :model do
       before { champ.update_columns(external_state: 'waiting_for_job') }
 
       it 'adds the correct error message' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
 
         expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.api_response_pending'))
       end
@@ -35,7 +35,7 @@ describe Champs::RNFChamp, type: :model do
       before { champ.update_columns(external_state: 'fetched') }
 
       it 'is valid' do
-        expect(champ.validate(:champs_public_value)).to be_truthy
+        expect(champ.validate(:champ_value)).to be_truthy
       end
     end
 
@@ -45,7 +45,7 @@ describe Champs::RNFChamp, type: :model do
       before { champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: [error]) }
 
       it 'adds the correct error message' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
 
         expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.code_404'))
       end
@@ -55,7 +55,7 @@ describe Champs::RNFChamp, type: :model do
       before { champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: []) }
 
       it 'adds the code_unknown error message without raising an error' do
-        expect { champ.validate(:champs_public_value) }.not_to raise_error
+        expect { champ.validate(:champ_value) }.not_to raise_error
         expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.code_unknown'))
       end
     end
@@ -94,7 +94,7 @@ describe Champs::RNFChamp, type: :model do
       let(:external_id) { 'abc' }
 
       it 'is invalid' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
         expect(champ.errors.full_messages.join).to include("pas un numéro RNF valide")
       end
     end
@@ -103,7 +103,7 @@ describe Champs::RNFChamp, type: :model do
       let(:external_id) { '075-FDD-00003-01' }
 
       it 'has no format error' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
         expect(champ.errors.full_messages.join).not_to include("pas un numéro RNF valide")
       end
     end
@@ -112,7 +112,7 @@ describe Champs::RNFChamp, type: :model do
       let(:external_id) { nil }
 
       it 'has no format error' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
         expect(champ.errors.full_messages.join).not_to include("pas un numéro RNF valide")
       end
     end
