@@ -1,0 +1,4 @@
+en:
+  invite_mailer:
+    invite_guest:
+      subject: "%{email_sender} invites you to view a procedure"

@@ -1,0 +1,4 @@
+fr:
+  invite_mailer:
+    invite_guest:
+      subject: "%{email_sender} vous invite à consulter un dossier"
