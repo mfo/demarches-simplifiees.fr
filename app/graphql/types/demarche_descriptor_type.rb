@@ -85,7 +85,10 @@ Cela évite l’accès récursif aux dossiers."
     delegate :description, :opendata, :tags, to: :procedure
 
     def demarche_url
-      Rails.application.routes.url_helpers.commencer_url(path: procedure.path)
+      dataloader.with(Sources::Association, :procedure_paths).load(procedure).then do |paths|
+        path = paths.last&.path
+        Rails.application.routes.url_helpers.commencer_url(path: path)
+      end
     end
     alias demarcheUrl demarche_url
     alias demarcheURL demarche_url
