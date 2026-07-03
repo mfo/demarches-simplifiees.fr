@@ -1,0 +1,4 @@
+en:
+  instructeur_mailer:
+    trusted_device_token_renewal:
+      subject: "Secure connection renewal for %{application_name}"

@@ -1,0 +1,4 @@
+en:
+  instructeur_mailer:
+    last_week_overview:
+      subject: "Your weekly activity"

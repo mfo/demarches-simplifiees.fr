@@ -1,0 +1,6 @@
+en:
+  invite_mailer:
+    invite_user:
+      subject: "Participate in drafting a file"
+    invite_guest:
+      subject: "%{email_sender} invites you to view a file"

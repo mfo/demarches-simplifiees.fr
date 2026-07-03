@@ -1,0 +1,4 @@
+en:
+  instructeur_mailer:
+    send_notifications:
+      subject: "Your daily summary"

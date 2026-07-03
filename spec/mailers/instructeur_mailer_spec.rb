@@ -101,7 +101,7 @@ RSpec.describe InstructeurMailer, type: :mailer do
 
     subject { described_class.last_week_overview(instructeur) }
 
-    it { expect(subject.body).to include('Votre activité hebdomadaire') }
+    it { expect(subject.body).to include(I18n.t("instructeur_mailer.last_week_overview.subject")) }
 
     context 'when the instructeur has no active procedures' do
       let(:procedure) { nil }
