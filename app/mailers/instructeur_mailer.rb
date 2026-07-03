@@ -6,14 +6,14 @@ class InstructeurMailer < ApplicationMailer
 
   def user_to_instructeur(email)
     @email = email
-    subject = t(".subject")
+    @subject = default_i18n_subject
 
-    mail(to: @email, subject: subject)
+    mail(to: @email, subject: @subject)
   end
 
   def last_week_overview(instructeur)
     email = instructeur.email
-    @subject = t(".subject")
+    @subject = default_i18n_subject
     @overviews = instructeur.weekly_email_summary_data
 
     if @overviews.present?
@@ -24,7 +24,7 @@ class InstructeurMailer < ApplicationMailer
   def send_dossier(sender, dossier, recipient)
     @sender = sender
     @dossier = dossier
-    subject = t(".subject", sender_email: sender.email, dossier_id: dossier.id)
+    subject = default_i18n_subject(sender_email: sender.email, dossier_id: dossier.id)
 
     mail(to: recipient.email, subject: subject)
   end
@@ -32,7 +32,7 @@ class InstructeurMailer < ApplicationMailer
   def send_login_token(instructeur, login_token, host = nil)
     @instructeur = instructeur
     @login_token = login_token
-    subject = t(".subject", application_name: APPLICATION_NAME)
+    subject = default_i18n_subject(application_name: APPLICATION_NAME)
 
     bypass_unverified_mail_protection!
 
@@ -43,14 +43,14 @@ class InstructeurMailer < ApplicationMailer
     @instructeur = instructeur
     @renewal_token = renewal_token
     @valid_until = valid_until
-    subject = t(".subject", application_name: APPLICATION_NAME)
+    subject = default_i18n_subject(application_name: APPLICATION_NAME)
 
     mail(to: instructeur.email, subject: subject)
   end
 
   def send_notifications(instructeur, data)
     @data = data
-    subject = t(".subject")
+    subject = default_i18n_subject
 
     mail(to: instructeur.email, subject: subject)
   end
