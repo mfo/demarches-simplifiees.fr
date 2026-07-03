@@ -117,4 +117,32 @@ describe 'multiple dropdown tag removal', js: true do
     expect(page).not_to have_css('.fr-tag', text: 'Option 1')
     expect(page).to have_css('.fr-tag', text: 'Option 2')
   end
+
+  scenario 'tag is a single focusable button with proper aria-label' do
+    select_autocomplete('Multi choix', 'Option 1')
+    select_autocomplete('Multi choix', 'Option 2')
+
+    expect(page).to have_css('.fr-tag', text: 'Option 1')
+
+    tag_button = find('button.fr-tag--dismiss[aria-label="Supprimer Option 1"]')
+    expect(tag_button.tag_name).to eq('button')
+    expect(tag_button['aria-label']).to eq('Supprimer Option 1')
+
+    tag_button.click
+    expect(page).not_to have_css('.fr-tag', text: 'Option 1')
+    expect(page).to have_css('.fr-tag', text: 'Option 2')
+  end
+
+  scenario 'keyboard navigation: tab moves between tags, no double focus' do
+    select_autocomplete('Multi choix', 'Option 1')
+    select_autocomplete('Multi choix', 'Option 2')
+    select_autocomplete('Multi choix', 'Option 3')
+
+    tag1 = find('button.fr-tag--dismiss[aria-label="Supprimer Option 1"]')
+    tag1.send_keys(:tab)
+    expect(page.evaluate_script('document.activeElement.getAttribute("aria-label")')).to eq('Supprimer Option 2')
+
+    find('button.fr-tag--dismiss[aria-label="Supprimer Option 2"]').send_keys(:tab)
+    expect(page.evaluate_script('document.activeElement.getAttribute("aria-label")')).to eq('Supprimer Option 3')
+  end
 end

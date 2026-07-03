@@ -277,7 +277,7 @@ describe "procedure filters" do
   def remove_column(column_name)
     click_on 'Personnaliser le tableau'
     within '.fr-tag-list' do
-      find('.fr-tag', text: column_name).find('button').click
+      find('.fr-tag', text: column_name).click
     end
     click_button "Enregistrer"
   end
