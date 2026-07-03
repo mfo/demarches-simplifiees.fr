@@ -10,9 +10,6 @@ import {
   Label,
   Text,
   Button,
-  TagGroup,
-  TagList,
-  Tag,
   Virtualizer,
   ListLayout,
   Collection
@@ -20,7 +17,6 @@ import {
 import { useMemo, useRef, createContext, useContext, useId } from 'react';
 import type { RefObject } from 'react';
 import * as s from 'superstruct';
-import { Trans, useLingui } from '@lingui/react/macro';
 
 import {
   useDispatchChangeEvent,
@@ -39,6 +35,7 @@ import {
   MultiComboBoxProps,
   RemoteComboBoxProps
 } from './react-aria/props';
+import { TagGroup } from './react-aria/components/TagGroup';
 
 function flattenSections(sections: Section[]): Item[] {
   return sections.flatMap((section) => section.items);
@@ -294,8 +291,6 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
   const { ref, dispatch } = useDispatchChangeEvent();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { t } = useLingui();
-
   const {
     selectedItems,
     hiddenInputValues,
@@ -327,37 +322,15 @@ export function MultiComboBox(maybeProps: MultiComboBoxProps) {
     [sections, filteredItems]
   );
 
-  const tagGroup =
-    selectedItems.length > 0 && !hideSelectedTags ? (
-      <TagGroup
-        onRemove={onRemove}
-        aria-label={props['aria-label']}
-        className={tagsBelow ? 'fr-mt-1w' : undefined}
-      >
-        <TagList items={selectedItems} className="fr-tag-list">
-          {selectedItems.map((item) => (
-            <Tag
-              key={item.value}
-              id={item.value}
-              textValue={t`Supprimer ${item.label}`}
-              className="fr-tag fr-tag--sm fr-tag--dismiss"
-            >
-              {item.label}
-              <Button
-                aria-labelledby=""
-                aria-label=""
-                slot="remove"
-                className="fr-tag--dismiss"
-              >
-                <span className="fr-sr-only">
-                  <Trans>Supprimer {item.label}</Trans>
-                </span>
-              </Button>
-            </Tag>
-          ))}
-        </TagList>
-      </TagGroup>
-    ) : null;
+  const tagGroup = !hideSelectedTags ? (
+    <TagGroup
+      items={selectedItems}
+      onRemove={(value) => onRemove(new Set([value]))}
+      fallbackFocusRef={inputRef}
+      className={`fr-tag-list${tagsBelow ? ' fr-mt-1w' : ''}`}
+      aria-label={props['aria-label']}
+    />
+  ) : null;
 
   const disabledKeys = useMemo(
     () => selectedItems.map((item) => item.value),

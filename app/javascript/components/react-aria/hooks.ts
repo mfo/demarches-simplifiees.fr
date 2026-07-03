@@ -2,10 +2,7 @@ import { fire, httpRequest } from '@utils';
 import { matchSorter, type MatchSorterOptions } from 'match-sorter';
 import type { Key } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type {
-  ComboBoxProps as AriaComboBoxProps,
-  TagGroupProps
-} from 'react-aria-components';
+import type { ComboBoxProps as AriaComboBoxProps } from 'react-aria-components';
 import isEqual from 'react-fast-compare';
 import { useAsyncList, type AsyncListOptions } from 'react-stately';
 import { useEvent } from 'react-use-event-hook';
@@ -329,22 +326,20 @@ export function useMultiList({
     }
   );
 
-  const onRemove = useEvent<NonNullable<TagGroupProps['onRemove']>>(
-    (removedKeys) => {
-      setSelectedKeys((keys) => {
-        const selectedKeys = new Set(keys.values());
-        for (const key of removedKeys) {
-          selectedKeys.delete(String(key));
-        }
-        // focus input when all items are removed
-        if (selectedKeys.size == 0) {
-          focusInput?.();
-        }
-        return selectedKeys;
-      });
-      onChange?.();
-    }
-  );
+  const onRemove = useEvent<(keys: Set<Key>) => void>((removedKeys) => {
+    setSelectedKeys((keys) => {
+      const selectedKeys = new Set(keys.values());
+      for (const key of removedKeys) {
+        selectedKeys.delete(String(key));
+      }
+      // focus input when all items are removed
+      if (selectedKeys.size == 0) {
+        focusInput?.();
+      }
+      return selectedKeys;
+    });
+    onChange?.();
+  });
 
   const onReset = useEvent(() => {
     setSelectedKeys(new Set());

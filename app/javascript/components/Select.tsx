@@ -6,20 +6,16 @@ import {
   Popover,
   Virtualizer,
   ListLayout,
-  TagGroup as AriaTagGroup,
-  TagList,
-  Tag,
   useFilter
 } from 'react-aria-components';
 import type {
   SelectProps as AriaSelectProps,
-  AutocompleteProps,
-  TagGroupProps
+  AutocompleteProps
 } from 'react-aria-components';
 import { useState, useMemo, useRef, useCallback, type Key } from 'react';
 import { flushSync } from 'react-dom';
 import * as s from 'superstruct';
-import { Plural, Trans, useLingui } from '@lingui/react/macro';
+import { Plural } from '@lingui/react/macro';
 
 import './react-aria/components/Select.css';
 import { SearchField } from './react-aria/components/SearchField';
@@ -32,6 +28,7 @@ import {
   SingleSelectProps,
   MultipleSelectProps
 } from './react-aria/props';
+import { TagGroup } from './react-aria/components/TagGroup';
 
 type SelectionMode = 'single' | 'multiple';
 type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
@@ -95,11 +92,12 @@ function Select<M extends SelectionMode = 'single'>({
 }
 
 function MultipleSelectValue() {
+  const selectButtonRef = useRef<HTMLButtonElement>(null);
   return (
     <SelectValue<Item>>
       {({ selectedItems, state, defaultChildren }) => (
         <>
-          <Button className="fr-select">
+          <Button className="fr-select" ref={selectButtonRef}>
             <span className="react-aria-SelectValue" data-placeholder>
               <Plural
                 value={selectedItems.length}
@@ -111,11 +109,13 @@ function MultipleSelectValue() {
           </Button>
           <TagGroup
             items={selectedItems.filter((item) => item != null)}
-            onRemove={(keys) => {
+            onRemove={(value) => {
               if (Array.isArray(state.value)) {
-                state.setValue(state.value.filter((k) => !keys.has(k)));
+                state.setValue(state.value.filter((k) => k !== value));
               }
             }}
+            fallbackFocusRef={selectButtonRef}
+            aria-label="Sélection"
           />
         </>
       )}
@@ -210,35 +210,5 @@ export function MultipleSelect(maybeProps: SelectProps<'multiple'>) {
         ))
       )}
     </>
-  );
-}
-
-function TagGroup({ items, ...props }: TagGroupProps & { items: Item[] }) {
-  const { t } = useLingui();
-  return (
-    <AriaTagGroup {...props} aria-label="selection">
-      <TagList items={items} className="fr-tag-list">
-        {(item) => (
-          <Tag
-            key={item.value}
-            id={item.value}
-            textValue={t`Supprimer ${item.label}`}
-            className="fr-tag fr-tag--sm fr-tag--dismiss"
-          >
-            {item.label}
-            <Button
-              aria-label=""
-              aria-labelledby=""
-              slot="remove"
-              className="fr-tag--dismiss"
-            >
-              <span className="fr-sr-only">
-                <Trans>Supprimer {item.label}</Trans>
-              </span>
-            </Button>
-          </Tag>
-        )}
-      </TagList>
-    </AriaTagGroup>
   );
 }
