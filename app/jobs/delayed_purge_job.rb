@@ -52,7 +52,8 @@ class DelayedPurgeJob < ApplicationJob
     # We should replicate the same behavior here.
     # https://github.com/rails/rails/blob/ef88965e8a0c72496c210a5a0a48b85ec9a2ed17/activestorage/app/models/active_storage/blob.rb#L53-L55
     return if blob.attachments.exists?
-    excon_response = client.copy_object(container, key, container, key, { "Content-Type" => blob.content_type, 'X-Delete-At' => delay.to_s })
+    headers = { "Content-Type" => blob.content_type, 'X-Delete-At' => delay.to_s }
+    excon_response = client.copy_object(container, key, container, key, headers)
     if excon_response.status != 201
       Sentry.capture_message("Can't expire blob", extra: { key:, headers: })
     else
