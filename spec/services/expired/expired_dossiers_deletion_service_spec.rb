@@ -47,6 +47,17 @@ describe Expired::DossiersDeletionService do
         expect { expired_brouillon.reload }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
+
+    context 'silently drains never-notified expired brouillons' do
+      let(:closed_procedure) { create(:procedure, :closed) }
+      let!(:expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+
+      before { service.process_expired_dossiers_brouillon }
+
+      it 'destroys them' do
+        expect { expired_on_closed.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
   end
 
   describe '#send_brouillon_expiration_notices' do
@@ -161,6 +172,43 @@ describe Expired::DossiersDeletionService do
       it "works" do
         expect(DossierMailer).to have_received(:notify_brouillon_deletion).once
         expect(DossierMailer).to have_received(:notify_brouillon_deletion).with(match_array([dossier_1.hash_for_deletion_mail, dossier_2.hash_for_deletion_mail]), user.email)
+      end
+    end
+  end
+
+  describe '#delete_expired_brouillons_without_notice' do
+    before { travel_to(reference_date) }
+
+    let(:closed_procedure) { create(:procedure, :closed) }
+    let!(:expired_on_closed)    { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+    let!(:notifiable_brouillon) { create(:dossier, procedure: procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+
+    before do
+      allow(DossierMailer).to receive(:notify_brouillon_deletion).and_call_original
+      allow(DossierMailer).to receive(:notify_brouillon_near_deletion).and_call_original
+    end
+
+    it 'silently deletes never-notified expired brouillons without sending email' do
+      expect { service.delete_expired_brouillons_without_notice }
+        .to change { Dossier.exists?(expired_on_closed.id) }.from(true).to(false)
+
+      expect(DossierMailer).not_to have_received(:notify_brouillon_deletion)
+      expect(DossierMailer).not_to have_received(:notify_brouillon_near_deletion)
+    end
+
+    it 'leaves notifiable brouillons untouched' do
+      service.delete_expired_brouillons_without_notice
+      expect { notifiable_brouillon.reload }.not_to raise_error
+    end
+
+    context 'when there are more expired brouillons than the per-day limit' do
+      let!(:other_expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 2.days.ago) } }
+
+      before { stub_const("#{described_class}::BROUILLON_WITHOUT_NOTICE_DELETION_LIMIT_PER_DAY", 1) }
+
+      it 'deletes at most the limit per run' do
+        expect { service.delete_expired_brouillons_without_notice }
+          .to change { Dossier.brouillon_expired_without_notice.count }.by(-1)
       end
     end
   end

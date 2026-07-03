@@ -349,12 +349,21 @@ class Dossier < ApplicationRecord
   end
 
   scope :never_touched_brouillon_expired, -> { visible_by_user.brouillon.where.missing(:etablissement, :individual).where(last_champ_updated_at: nil, identity_updated_at: nil, parent_dossier: nil, last_commentaire_updated_at: nil).where(created_at: ..2.weeks.ago) }
-  scope :brouillon_expired, -> do
+  scope :brouillon_expired_after_notice_grace, -> do
     state_brouillon
       .visible_by_user
       .where(brouillon_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
   end
-  scope :termine_expired, -> do
+
+  scope :brouillon_expired_without_notice, -> do
+    state_brouillon
+      .where(expired_at: ..Time.zone.now)
+      .where(hidden_by_user_at: nil)
+      .joins(:procedure)
+      .where("dossiers.for_procedure_preview = TRUE OR procedures.aasm_state IN (?)", %w[close brouillon])
+  end
+
+  scope :termine_expired_after_notice_grace, -> do
     state_termine
       .visible_by_user_or_administration
       .where(termine_close_to_expiration_notice_sent_at: ...(Time.zone.now - Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks))
@@ -1022,21 +1031,17 @@ class Dossier < ApplicationRecord
   end
 
   def purge_discarded
-    transaction do
+    purge_freeing_champs_cascade do
       DeletedDossier.create_from_dossier(self, hidden_by_reason)
       dossier_operation_logs.purge_discarded
-      # Vider les champs par lots libère leur cascade (geo_areas, etablissement,
-      # AS attachments) avant le destroy du dossier, évitant le pic mémoire dû
-      # au chargement complet de la cascade dependent: :destroy.
-      # Important: destroy_all (et non delete_all) preserve les callbacks Rails.
-      champs.in_batches(of: 50).each(&:destroy_all)
-      destroy
-    rescue => e
-      Sentry.capture_exception(e, extra: { dossier: id })
-      # Rollback explicite : sans cela, le rescue avale l'erreur et la transaction
-      # commit un état partiel (champs deja batch-destroy, dossier intact).
-      raise ActiveRecord::Rollback
     end
+  end
+
+  # Suppression silencieuse d'un brouillon expiré jamais notifié (preview ou
+  # procédure non-notifiable). Pas de DeletedDossier ni d'email, comme la
+  # suppression de brouillon existante.
+  def purge_without_notice
+    purge_freeing_champs_cascade
   end
 
   def skip_user_notification_email?
@@ -1124,6 +1129,24 @@ class Dossier < ApplicationRecord
   end
 
   private
+
+  # Détruit le dossier en libérant la cascade des champs (geo_areas, etablissement,
+  # AS attachments) par lots de 50 avant le destroy, évitant le pic mémoire dû au
+  # chargement complet de la cascade dependent: :destroy. Le bloc optionnel exécute
+  # la traçabilité (DeletedDossier, operation logs) dans la même transaction.
+  # Important: destroy_all (et non delete_all) preserve les callbacks Rails.
+  def purge_freeing_champs_cascade
+    transaction do
+      yield if block_given?
+      champs.in_batches(of: 50).each(&:destroy_all)
+      destroy
+    rescue => e
+      Sentry.capture_exception(e, extra: { dossier: id })
+      # Rollback explicite : sans cela, le rescue avale l'erreur et la transaction
+      # commit un état partiel (champs deja batch-destroy, dossier intact).
+      raise ActiveRecord::Rollback
+    end
+  end
 
   def build_default_champs
     build_default_champs_for(revision.types_de_champ_public) if !champs.any?(&:public?)
