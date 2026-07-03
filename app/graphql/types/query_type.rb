@@ -21,13 +21,13 @@ module Types
     field :demarches_publiques, DemarcheDescriptorType.connection_type, null: false, internal: true
 
     def demarches_publiques
-      Procedure.publiques.includes(draft_revision: :procedure, published_revision: :procedure)
+      Procedure.publiques.includes(:procedure_paths, draft_revision: :procedure, published_revision: :procedure)
     end
 
     def demarche_descriptor(demarche:)
       demarche_number = demarche.number.presence || ApplicationRecord.id_from_typed_id(demarche.id)
       Procedure
-        .includes(draft_revision: :procedure, published_revision: :procedure)
+        .includes(:procedure_paths, draft_revision: :procedure, published_revision: :procedure)
         .find(demarche_number)
     end
 
