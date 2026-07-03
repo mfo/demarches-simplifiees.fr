@@ -2,11 +2,11 @@ import { ApplicationController } from './application_controller';
 
 export class GeoAreaController extends ApplicationController {
   static values = {
-    id: Number
+    id: String
   };
   static targets = ['description'];
 
-  declare readonly idValue: number;
+  declare readonly idValue: string;
   declare readonly descriptionTarget: HTMLInputElement;
 
   onFocus() {
