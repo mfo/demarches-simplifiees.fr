@@ -1,0 +1,4 @@
+en:
+  phishing_alert_mailer:
+    notify:
+      subject: Detection of a possible usurpation of your account
