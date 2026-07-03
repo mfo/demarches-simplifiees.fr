@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Champs::DatetimeChamp < Champ
+class Champs::DatetimeChamp < ChampData
   validates_with DateLimitValidator, if: :should_validate_in_current_context?
   normalizes :value, with: -> { DateDetectionUtils.convert_to_iso8601_datetime(it) }
   validate :iso_8601
