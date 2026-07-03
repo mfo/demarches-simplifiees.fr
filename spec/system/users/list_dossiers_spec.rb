@@ -124,8 +124,8 @@ describe 'user dossiers list', js: true do
 
       visit trash_path
 
-      expect(page).to have_content(hidden.id)
-      expect(page).not_to have_content(visible.id)
+      expect(page).to have_css("#dossier_#{hidden.id}")
+      expect(page).not_to have_css("#dossier_#{visible.id}")
     end
 
     it 'does not show search or filter UI' do
