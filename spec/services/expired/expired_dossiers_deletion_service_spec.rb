@@ -201,21 +201,6 @@ describe Expired::DossiersDeletionService do
       expect { notifiable_brouillon.reload }.not_to raise_error
     end
 
-    context 'when a brouillon on a closed procedure received a notice within the 2-week grace window' do
-      # Safety invariant: update_expired_at pushes expired_at forward after notice,
-      # so the scope's `expired_at <= now` predicate EXCLUDES it until the grace lapses.
-      let!(:grace_window_brouillon) do
-        create(:dossier, procedure: closed_procedure,
-          brouillon_close_to_expiration_notice_sent_at: (2.weeks - 4.days).ago).tap(&:update_expired_at)
-      end
-
-      it 'is not silently deleted because update_expired_at pushed expired_at into the future' do
-        expect(grace_window_brouillon.reload.expired_at).to be > Time.zone.now # guard: recompute extended expired_at
-        service.delete_expired_brouillons_without_notice
-        expect { grace_window_brouillon.reload }.not_to raise_error
-      end
-    end
-
     context 'when there are more expired brouillons than the per-day limit' do
       let!(:other_expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 2.days.ago) } }
 

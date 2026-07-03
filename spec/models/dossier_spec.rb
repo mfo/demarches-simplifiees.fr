@@ -155,10 +155,8 @@ describe Dossier, type: :model do
       let!(:expired_on_published)  { create(:dossier, procedure: published_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
       let!(:not_expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.from_now) } }
       let!(:hidden_on_closed)      { create(:dossier, :hidden_by_user, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
-      # proves hidden_by_expired_at exclusion arm
-      let!(:hidden_expired_on_closed)   { create(:dossier, :hidden_by_expired, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
       # proves state_brouillon gate
-      let!(:en_construction_on_closed)  { create(:dossier, :en_construction, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
+      let!(:en_construction_on_closed) { create(:dossier, :en_construction, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
 
       it 'returns only expired brouillons structurally outside the notice path' do
         expect(Dossier.brouillon_expired_without_notice)

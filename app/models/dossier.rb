@@ -357,7 +357,7 @@ class Dossier < ApplicationRecord
   scope :brouillon_expired_without_notice, -> do
     state_brouillon
       .where(expired_at: ..Time.zone.now)
-      .where(hidden_by_user_at: nil, hidden_by_expired_at: nil)
+      .where(hidden_by_user_at: nil)
       .joins(:procedure)
       .where("dossiers.for_procedure_preview = TRUE OR procedures.aasm_state IN (?)", %w[close brouillon])
   end
