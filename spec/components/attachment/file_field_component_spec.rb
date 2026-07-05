@@ -2,7 +2,7 @@
 
 RSpec.describe Attachment::FileFieldComponent, type: :component do
   describe 'with has_many_attached (Champ.piece_justificative_file)' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champs.first }
     let(:context) { Attachment::Context.new(champ:) }
@@ -66,8 +66,8 @@ RSpec.describe Attachment::FileFieldComponent, type: :component do
   end
 
   describe 'drop_zone validation' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:dossier) { create(:dossier, procedure:) }
+    let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let_it_be(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champs.first }
     let(:context) { Attachment::Context.new(champ:) }
 
@@ -89,8 +89,8 @@ RSpec.describe Attachment::FileFieldComponent, type: :component do
   describe 'drop zone accessible name (issue #13104)' do
     include ChampAriaLabelledbyHelper
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:dossier) { create(:dossier, procedure:) }
+    let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let_it_be(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champs.first }
     let(:context) { Attachment::Context.new(champ:) }
 
@@ -107,8 +107,8 @@ RSpec.describe Attachment::FileFieldComponent, type: :component do
   end
 
   describe 'drop zone file input tab order (issue #13104)' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:dossier) { create(:dossier, procedure:) }
+    let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let_it_be(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champs.first }
     let(:context) { Attachment::Context.new(champ:) }
 
@@ -169,15 +169,9 @@ RSpec.describe Attachment::FileFieldComponent, type: :component do
         ))
       end
 
-      it 'renders format info with category name and top formats' do
+      it 'renders format info, tooltip and accessible button' do
         expect(subject).to have_content('document texte (.pdf, .docx...)')
-      end
-
-      it 'renders tooltip with full format list' do
         expect(subject).to have_selector('[role="tooltip"]')
-      end
-
-      it 'renders accessible tooltip button with aria-label' do
         expect(subject).to have_selector('button[aria-label]')
       end
     end
