@@ -3,10 +3,10 @@
 RSpec.describe Attachment::FileInputComponent, type: :component do
   include ChampAriaLabelledbyHelper
 
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-  let(:types_de_champ_public) { [{ type: :piece_justificative }] }
-  let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let_it_be(:types_de_champ_public) { [{ type: :piece_justificative }] }
+  let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+  let_it_be(:dossier) { create(:dossier, procedure:) }
+  let(:champ) { dossier.champs.reload.first }
   let(:attached_file) { champ.piece_justificative_file }
   let(:context_kwargs) { {} }
   let(:kwargs) { {} }
@@ -95,6 +95,8 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
   end
 
   context 'piece justificative nature titre_identite' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:dossier) { create(:dossier, procedure:) }
     let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'titre_identite' }] }
 
     it 'sets accept to jpg/jpeg/png only' do
@@ -110,6 +112,8 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
   end
 
   context 'piece justificative limited to document_texte' do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:dossier) { create(:dossier, procedure:) }
     let(:types_de_champ_public) { [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }] }
 
     it 'accept includes .pdf but not .zip' do
