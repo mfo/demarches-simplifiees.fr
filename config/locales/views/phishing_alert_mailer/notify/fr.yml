@@ -1,0 +1,4 @@
+fr:
+  phishing_alert_mailer:
+    notify:
+      subject: Détection d’une possible usurpation de votre compte
