@@ -3,11 +3,13 @@ en:
   administrateurs:
     api_tokens:
       nom:
+        title: New API token
         new_token: New token creation
         name: name of the token
         name-hint: 'examples: orus prod, presta'
         continue: continue
         cancel: back
+        dashboard: Dashboard
       autorisations:
         title: Token privileges « %{name} »
         token_access: This token accesses
