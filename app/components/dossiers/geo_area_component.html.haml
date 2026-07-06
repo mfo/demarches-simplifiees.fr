@@ -1,4 +1,4 @@
-%li{ class: editing ? 'fr-mb-1w' : 'flex column fr-mb-2w', data: { controller: 'geo-area', geo_area_id_value: geo_area.id } }
+%li{ class: editing ? 'fr-mb-1w' : 'flex column fr-mb-2w', data: { controller: 'geo-area', geo_area_id_value: geo_area.uuid || geo_area.id } }
   - if editing
     = link_to '#', data: { action: 'geo-area#onClick' } do
       = geo_area.label
