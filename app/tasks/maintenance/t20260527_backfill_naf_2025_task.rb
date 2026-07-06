@@ -2,9 +2,9 @@
 
 module Maintenance
   class T20260527BackfillNaf2025Task < MaintenanceTasks::Task
-    # Backfill naf_2025 et libelle_naf_2025 pour les ~6M d'établissements existants.
-    # Déduplique par SIRET : un seul appel API Entreprise v4 par SIRET unique,
-    # puis update_all de tous les établissements partageant ce SIRET.
+    # Backfill naf_2025 et libelle_naf_2025 pour les établissements existants.
+    # L'update_all par SIRET met à jour tous les doublons d'un coup ;
+    # le reload guard clause évite les appels API redondants.
 
     include Dry::Monads[:result]
 
@@ -21,14 +21,12 @@ module Maintenance
       Etablissement
         .where(naf_2025: nil)
         .where.not(siret: nil)
-        .distinct
-        .pluck(:siret)
     end
 
-    def process(siret)
-      etablissement = Etablissement.where(siret:).joins(:dossier).merge(Dossier.joins(:procedure)).first
-      etablissement ||= Etablissement.find_by(siret:)
-      return if etablissement.nil?
+    def process(etablissement)
+      return if etablissement.reload.naf_2025.present?
+
+      siret = etablissement.siret
 
       procedure_id = find_procedure_id(etablissement)
       return if procedure_id.nil?

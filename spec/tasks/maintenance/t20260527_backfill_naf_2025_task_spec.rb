@@ -18,8 +18,8 @@ module Maintenance
         create(:etablissement, dossier: create(:dossier, :en_construction, procedure:), siret: "44011762001531", naf_2025: "84.11", libelle_naf_2025: "Administration publique générale")
       end
 
-      it "returns unique sirets with nil naf_2025" do
-        expect(task.collection).to contain_exactly("44011762001530")
+      it "returns etablissements with nil naf_2025" do
+        expect(task.collection).to contain_exactly(etablissement_without_naf_2025, duplicate_same_siret)
       end
     end
 
@@ -38,7 +38,7 @@ module Maintenance
         end
 
         it "updates the etablissement with naf_2025 data" do
-          task.process(siret)
+          task.process(etablissement)
           etablissement.reload
           expect(etablissement.naf_2025).to eq("62.01")
           expect(etablissement.libelle_naf_2025).to eq("Programmation informatique")
@@ -49,7 +49,7 @@ module Maintenance
           let!(:duplicate_etablissement) { create(:etablissement, dossier: other_dossier, siret:, naf_2025: nil) }
 
           it "updates all etablissements sharing the same siret" do
-            task.process(siret)
+            task.process(etablissement)
             expect(duplicate_etablissement.reload.naf_2025).to eq("62.01")
             expect(duplicate_etablissement.libelle_naf_2025).to eq("Programmation informatique")
           end
@@ -61,7 +61,16 @@ module Maintenance
 
         it "skips without error" do
           expect(APIEntreprise::EtablissementAdapter).not_to receive(:new)
-          task.process(siret)
+          task.process(etablissement)
+        end
+      end
+
+      context "when naf_2025 already backfilled by a previous duplicate" do
+        let!(:etablissement) { create(:etablissement, dossier:, siret:, naf_2025: "62.01", libelle_naf_2025: "Programmation informatique") }
+
+        it "skips without calling API" do
+          expect(APIEntreprise::EtablissementAdapter).not_to receive(:new)
+          task.process(etablissement)
         end
       end
 
@@ -73,7 +82,7 @@ module Maintenance
         end
 
         it "leaves naf_2025 nil" do
-          task.process(siret)
+          task.process(etablissement)
           expect(etablissement.reload.naf_2025).to be_nil
         end
       end
@@ -85,7 +94,7 @@ module Maintenance
         end
 
         it "captures the exception in Sentry and continues" do
-          expect { task.process(siret) }.not_to raise_error
+          expect { task.process(etablissement) }.not_to raise_error
           expect(Sentry).to have_received(:capture_exception)
         end
       end
