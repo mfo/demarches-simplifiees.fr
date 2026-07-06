@@ -14,16 +14,18 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: selectedItems.length
-#: app/javascript/components/Select.tsx:104
+#: app/javascript/components/Select.tsx:103
 msgid "{0, plural, =0 {{defaultChildren}} one {1 choix sélectionné} other {# "
 "choix sélectionnés}}"
 msgstr "{0, plural, =0 {{defaultChildren}} one {1 choix sélectionné} other {# "
 "choix sélectionnés}}"
 
+#: app/javascript/components/Select.tsx:115
+msgid "Sélection"
+msgstr "Sélection"
+
 #. placeholder {0}: item.label
-#: app/javascript/components/ComboBox.tsx:342
-#: app/javascript/components/ComboBox.tsx:353
-#: app/javascript/components/Select.tsx:225
-#: app/javascript/components/Select.tsx:236
+#: app/javascript/components/ComboBox.tsx:341
+#: app/javascript/components/Select.tsx:124
 msgid "Supprimer {0}"
 msgstr "Supprimer {0}"
