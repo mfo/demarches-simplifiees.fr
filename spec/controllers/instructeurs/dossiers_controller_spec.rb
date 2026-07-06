@@ -1962,12 +1962,10 @@ describe Instructeurs::DossiersController, type: :controller do
   end
 
   describe '#reaffectation' do
-    let!(:gi_2) { GroupeInstructeur.create(label: 'deuxième groupe', procedure: procedure) }
-    let!(:gi_3) { GroupeInstructeur.create(label: 'troisième groupe', procedure: procedure) }
-    let!(:dossier) { create(:dossier, :en_construction, procedure: procedure, groupe_instructeur: procedure.groupe_instructeurs.reorder(:id).first) }
+    let!(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
 
     before do
-      post :reaffectation,
+      get :reaffectation,
          params: {
            procedure_id: procedure.id,
            dossier_id: dossier.id,
@@ -1975,9 +1973,9 @@ describe Instructeurs::DossiersController, type: :controller do
          }
     end
 
-    it do
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Ce dossier est affecté au groupe « défaut ». Vous pouvez le réaffecter à lʼun des 2 autres groupes instructeurs")
+    it 'redirects permanently to suivi_et_decision' do
+      expect(response).to redirect_to(suivi_et_decision_instructeur_dossier_path(procedure, dossier))
+      expect(response).to have_http_status(:moved_permanently)
     end
   end
 
@@ -2016,30 +2014,23 @@ describe Instructeurs::DossiersController, type: :controller do
   end
 
   describe '#personnes_impliquees' do
-    let(:routed_procedure) { create(:procedure, :routee, :published, :for_individual) }
-    let(:gi_1) { routed_procedure.groupe_instructeurs.reorder(:id).first }
-    let(:gi_2) { routed_procedure.groupe_instructeurs.reorder(:id).last }
-    let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: routed_procedure, groupe_instructeur: gi_1) }
-    let(:new_instructeur) { create(:instructeur) }
+    let!(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
 
     before do
-      gi_1.instructeurs << new_instructeur
-      gi_2.instructeurs << instructeur
-      new_instructeur.followed_dossiers << dossier
-      dossier.assign_to_groupe_instructeur(gi_2, DossierAssignment.modes.fetch(:manual), new_instructeur)
-
       get :personnes_impliquees,
         params: {
-          procedure_id: routed_procedure.id,
+          procedure_id: procedure.id,
           dossier_id: dossier.id,
           statut: 'a-suivre',
         }
     end
 
-    it do
-      expect(response.body).to include('a réaffecté ce dossier du groupe « défaut » au groupe « deuxième groupe »')
+    it 'redirects permanently to suivi_et_decision' do
+      expect(response).to redirect_to(suivi_et_decision_instructeur_dossier_path(procedure, dossier))
+      expect(response).to have_http_status(:moved_permanently)
     end
   end
+
 
   describe '#print' do
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }

@@ -17,9 +17,9 @@ module Instructeurs
     before_action :redirect_on_dossier_in_batch_operation, only: [:archive, :unarchive, :follow, :unfollow, :passer_en_instruction, :repasser_en_construction, :repasser_en_instruction, :terminer, :restore, :destroy, :extend_conservation]
     before_action :dossier_with_champs, only: [:show, :show_submitted_revision]
     before_action :dossier_with_submitted_revision, only: [:show_submitted_revision]
-    before_action :set_gallery_attachments, only: [:show, :pieces_jointes, :annotations_privees, :avis, :messagerie, :personnes_impliquees, :suivi_et_decision, :reaffectation, :rendez_vous, :rdv_connection]
-    before_action :retrieve_procedure_presentation, only: [:annotations_privees, :avis_new, :avis, :messagerie, :personnes_impliquees, :suivi_et_decision, :pieces_jointes, :reaffectation, :rendez_vous, :rdv_connection, :show, :dossier_labels, :passer_en_instruction, :repasser_en_construction, :repasser_en_instruction, :terminer, :pending_correction, :create_avis, :create_commentaire]
-    before_action :set_notifications, only: [:show, :annotations_privees, :avis, :avis_new, :messagerie, :personnes_impliquees, :suivi_et_decision, :pieces_jointes, :reaffectation, :rendez_vous, :rdv_connection, :dossier_labels, :repasser_en_construction, :repasser_en_instruction, :create_avis, :create_commentaire]
+    before_action :set_gallery_attachments, only: [:show, :pieces_jointes, :annotations_privees, :avis, :messagerie, :suivi_et_decision, :rendez_vous, :rdv_connection]
+    before_action :retrieve_procedure_presentation, only: [:annotations_privees, :avis_new, :avis, :messagerie, :suivi_et_decision, :pieces_jointes, :rendez_vous, :rdv_connection, :show, :dossier_labels, :passer_en_instruction, :repasser_en_construction, :repasser_en_instruction, :terminer, :pending_correction, :create_avis, :create_commentaire]
+    before_action :set_notifications, only: [:show, :annotations_privees, :avis, :avis_new, :messagerie, :suivi_et_decision, :pieces_jointes, :rendez_vous, :rdv_connection, :dossier_labels, :repasser_en_construction, :repasser_en_instruction, :create_avis, :create_commentaire]
 
     after_action :mark_demande_as_read, only: :show
     after_action :mark_messagerie_as_read, only: [:messagerie, :create_commentaire, :pending_correction]
@@ -122,14 +122,7 @@ module Instructeurs
     end
 
     def personnes_impliquees
-      # sort following_instructeurs (last follower on top) for the API of Agence de l’Eau Loire-Bretagne
-      @following_instructeurs_emails = dossier.followers_instructeurs.joins(:follows).merge(Follow.order(id: :desc)).map(&:email)
-      previous_followers = dossier.previous_followers_instructeurs - dossier.followers_instructeurs
-      @previous_following_instructeurs_emails = previous_followers.map(&:email)
-      @avis_emails = dossier.experts.map(&:email)
-      @invites_emails = dossier.invites.map(&:email)
-      @potential_recipients = dossier.groupe_instructeur.instructeurs.reject { |g| g == current_instructeur }
-      @manual_assignments = dossier.dossier_assignments.manual.includes(:groupe_instructeur, :previous_groupe_instructeur)
+      redirect_to suivi_et_decision_instructeur_dossier_path(procedure, dossier), status: :moved_permanently
     end
 
     def suivi_et_decision
@@ -454,11 +447,7 @@ module Instructeurs
     end
 
     def reaffectation
-      @dossier = current_instructeur.dossiers.find(params[:dossier_id]).with_champs
-
-      @groupe_instructeur = @dossier.groupe_instructeur
-
-      @groupes_instructeurs = @groupe_instructeur.other_groupe_instructeurs
+      redirect_to suivi_et_decision_instructeur_dossier_path(procedure, dossier), status: :moved_permanently
     end
 
     def reaffecter
@@ -475,7 +464,7 @@ module Instructeurs
         redirect_to instructeur_procedure_path(procedure)
       else
         flash.alert = t('instructeurs.dossiers.reaffectation.error')
-        redirect_to reaffectation_instructeur_dossier_path(dossier.procedure, dossier)
+        redirect_to suivi_et_decision_instructeur_dossier_path(dossier.procedure, dossier)
       end
     end
 
