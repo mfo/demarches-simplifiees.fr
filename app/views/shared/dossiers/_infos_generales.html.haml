@@ -6,17 +6,18 @@
         %li= t(:user_updated_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.last_champ_updated_at, format: :long_with_time))
       - if dossier.last_champ_instructeur_updated_at.present?
         %li= t(:instructeur_updated_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.last_champ_instructeur_updated_at, format: :long_with_time))
-      - if dossier.en_instruction_at.present?
-        %li= t(:switched_to_instruction_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.en_instruction_at, format: :long_with_time))
-      - if dossier.pending_correction?
-        %li= t(:revert_to_submitted_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.pending_correction.created_at, format: :long_with_time))
-      - if dossier.termine?
-        - if dossier.accepte?
-          %li= t(:acceptee_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.processed_at, format: :long_with_time))
-        - if dossier.refuse?
-          %li= t(:refuse_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.processed_at, format: :long_with_time))
-        - if dossier.sans_suite?
-          %li= t(:closed_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.processed_at, format: :long_with_time))
+      - unless profile == 'instructeur'
+        - if dossier.en_instruction_at.present?
+          %li= t(:switched_to_instruction_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.en_instruction_at, format: :long_with_time))
+        - if dossier.pending_correction?
+          %li= t(:revert_to_submitted_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.pending_correction.created_at, format: :long_with_time))
+        - if dossier.termine?
+          - if dossier.accepte?
+            %li= t(:acceptee_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.processed_at, format: :long_with_time))
+          - if dossier.refuse?
+            %li= t(:refuse_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.processed_at, format: :long_with_time))
+          - if dossier.sans_suite?
+            %li= t(:closed_at, scope: [:views, :shared, :dossiers, :form], datetime: l(dossier.processed_at, format: :long_with_time))
 
     .fr-highlight
       %p.fr-text--sm.fr-text-mention--grey= t('views.shared.dossiers.demande.en_construction_notice')
@@ -24,7 +25,7 @@
   - if profile == 'usager' && dossier.hide_info_with_accuse_lecture?
     = render Dossiers::AccuseLectureComponent.new(dossier: dossier)
 
-  - else
+  - elsif profile != 'instructeur'
     - if dossier.justificatif_motivation.attached?
       .fr-mb-2w
         %span.champ-label= t('views.users.dossiers.show.status_overview.justificatif')

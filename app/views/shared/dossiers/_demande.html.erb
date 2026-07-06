@@ -20,7 +20,7 @@
 
   <h2 class="fr-h6 fr-background-alt--grey fr-mb-0">
     <div class="flex-grow fr-py-3v fr-px-2w">
-      <%= t('views.shared.dossiers.demande.history') %>
+      <%= profile == 'instructeur' ? t('views.shared.dossiers.demande.depot_du_dossier') : t('views.shared.dossiers.demande.history') %>
     </div>
   </h2>
 
