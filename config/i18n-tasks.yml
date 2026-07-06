@@ -97,6 +97,8 @@ ignore_unused:
   - 'user_mailer.*.subject'
   - 'groupe_gestionnaire_mailer.*.subject'
   - 'invite_mailer.*.subject'
+  - 'instructeur_mailer.*.subject'
+  - 'phishing_alert_mailer.*.subject'
   - 'activerecord.models.*'
   - 'activerecord.attributes.*'
   - 'activemodel.attributes.map_filter.*'
