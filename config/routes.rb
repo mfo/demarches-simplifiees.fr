@@ -531,6 +531,7 @@ Rails.application.routes.draw do
               get 'avis'
               get 'avis_new'
               get 'personnes-impliquees' => 'dossiers#personnes_impliquees'
+              get 'suivi-et-decision' => 'dossiers#suivi_et_decision'
               get 'rendez-vous' => 'dossiers#rendez_vous'
               get 'rendez-vous/connexion' => 'dossiers#rdv_connection'
               patch 'follow'
