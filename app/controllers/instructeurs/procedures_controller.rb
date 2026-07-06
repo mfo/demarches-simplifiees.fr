@@ -194,7 +194,7 @@ module Instructeurs
 
       @projected_dossiers = DossierProjectionService.project(@filtered_sorted_paginated_ids, @displayed_columns)
 
-      @disable_checkbox_all = @projected_dossiers.all? { _1.batch_operation_id.present? }
+      @disable_checkbox_all = @projected_dossiers.all? { it.dossier.batch_operation_id.present? }
 
       @batch_operations = BatchOperation.joins(:groupe_instructeurs)
         .where(groupe_instructeurs: current_instructeur.groupe_instructeurs.where(procedure_id: @procedure.id))

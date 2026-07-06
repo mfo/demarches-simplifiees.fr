@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 describe Instructeurs::CellComponent do
-  let(:component) { described_class.new(dossier:, column:) }
+  let(:component) { described_class.new(dossier:, column:, champ_data:) }
+  let(:champ_data) { dossier.champ_data.index_by(&:stable_id) }
 
   describe '#call' do
     let(:procedure) { create(:procedure, :for_individual, types_de_champ_public:) }

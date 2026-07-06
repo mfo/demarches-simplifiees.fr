@@ -42,7 +42,7 @@ class RechercheController < ApplicationController
       .page(page)
       .per(ITEMS_PER_PAGE)
 
-    @projected_dossiers = DossierProjectionService.project(@paginated_ids, PROJECTIONS)
+    @projected_dossiers = DossierProjectionService.project(@paginated_ids, PROJECTIONS).map(&:dossier)
 
     @dossiers_count = matching_dossiers_ids.count
     @followed_dossiers_id = current_instructeur&.followed_dossiers&.where(id: @paginated_ids)&.ids || []

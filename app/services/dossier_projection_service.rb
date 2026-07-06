@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DossierProjectionService
+  ProjectedDossier = Data.define(:dossier, :champ_data)
+
   def self.project(dossiers_ids, columns)
     champ_columns, other_columns = columns.partition(&:champ_column?)
 
@@ -27,15 +29,17 @@ class DossierProjectionService
 
     dossiers = Dossier.includes(:procedure, :corrections, :pending_corrections, :traitements, *to_include).find(dossiers_ids)
 
-    if champ_columns.any?
+    champ_data_by_dossier_id = if champ_columns.any?
       stable_ids = champ_columns.map(&:stable_id)
-      champs = Champ.where(dossier_id: dossiers_ids, stable_id: stable_ids, stream: 'main').includes(:piece_justificative_file_attachments).group_by(&:dossier_id)
-
-      dossiers.each do |dossier|
-        dossier.association(:champ_data).target = champs[dossier.id] || []
-      end
+      Champ.where(dossier_id: dossiers_ids, stable_id: stable_ids, stream: 'main')
+        .includes(:piece_justificative_file_attachments)
+        .group_by(&:dossier_id)
+    else
+      {}
     end
 
-    dossiers
+    dossiers.map do |dossier|
+      ProjectedDossier.new(dossier:, champ_data: champ_data_by_dossier_id.fetch(dossier.id, []).index_by(&:stable_id))
+    end
   end
 end

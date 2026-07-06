@@ -17,12 +17,21 @@ describe DossierProjectionService do
     let(:columns) { [text_column] }
 
     it do
-      dossiers = subject
+      projections = subject
 
-      expect(dossiers.size).to eq(2)
+      expect(projections.size).to eq(2)
 
-      # only load the champs required for the columns
-      expect(dossiers.first.champ_data.size).to eq(1)
+      projection = projections.first
+      expect(projection.dossier).to eq(dossiers.first)
+
+      # only load the champ_data required for the columns
+      expect(projection.champ_data.keys).to eq([text_column.stable_id])
+    end
+
+    context 'without champ columns' do
+      let(:columns) { [procedure.dossier_id_column] }
+
+      it { expect(subject.first.champ_data).to eq({}) }
     end
   end
 end
