@@ -56,7 +56,7 @@ RSpec.describe Cron::Datagouv::BaseJob, type: :job do
     context 'when there is no existing data' do
       let(:csv) { default_csv }
 
-      it { is_expected.to eq([Date.parse('01/01/2024')]) }
+      it { is_expected.to eq([Time.zone.local(2024, 1, 1)]) }
     end
 
     context 'when there is existing data from last month' do
@@ -68,7 +68,7 @@ RSpec.describe Cron::Datagouv::BaseJob, type: :job do
     context 'when there is existing data before last month' do
       let(:csv) { default_csv << [format(Date.parse('01/12/2023')), 1] }
 
-      it { is_expected.to eq([Date.parse('01/01/2024')]) }
+      it { is_expected.to eq([Time.zone.local(2024, 1, 1)]) }
     end
 
     context 'when there is existing data in the future' do
