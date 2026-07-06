@@ -174,10 +174,13 @@ describe TypeDeChamp do
         expect(tdc.allowed_content_types).to match_array(['image/jpeg', 'image/png'])
       end
 
-      it 'includes doc and image types for RIB' do
-        tdc = create(:type_de_champ_piece_justificative, nature: 'rib')
-        expect(tdc.allowed_content_types).to include('application/pdf').or include('application/msword')
-        expect(tdc.allowed_content_types).to include('image/jpeg').or include('image/png')
+      ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+        it "restricts to doc and image types for #{ocr_nature}" do
+          tdc = create(:type_de_champ_piece_justificative, nature: ocr_nature)
+          expect(tdc.allowed_content_types).to include('application/pdf')
+          expect(tdc.allowed_content_types).to include('image/jpeg')
+          expect(tdc.allowed_content_types).not_to include('application/zip')
+        end
       end
 
       it 'restricts to selected families when pj_limit_formats enabled' do
@@ -819,5 +822,35 @@ describe TypeDeChamp do
     ["« Champ pré-rempli »"],
   ])
 }
+  end
+
+  describe '#ocr_compatible?' do
+    subject { type_de_champ.ocr_compatible? }
+
+    context 'with a piece justificative' do
+      let(:type_de_champ) { build(:type_de_champ_piece_justificative, nature:) }
+
+      ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+        context "when nature is #{ocr_nature}" do
+          let(:nature) { ocr_nature }
+
+          it { is_expected.to be(true) }
+        end
+      end
+
+      ['titre_identite', 'non_specifie'].each do |other_nature|
+        context "when nature is #{other_nature}" do
+          let(:nature) { other_nature }
+
+          it { is_expected.to be(false) }
+        end
+      end
+    end
+
+    context 'when the type de champ is not a piece justificative' do
+      let(:type_de_champ) { build(:type_de_champ_text) }
+
+      it { is_expected.to be(false) }
+    end
   end
 end

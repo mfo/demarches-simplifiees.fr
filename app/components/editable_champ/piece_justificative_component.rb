@@ -14,7 +14,7 @@ class EditableChamp::PieceJustificativeComponent < EditableChamp::EditableChampB
   end
 
   def max
-    if @champ.rib? || @champ.titre_identite? || @champ.justificatif_domicile? || @champ.avis_impot?
+    if @champ.titre_identite? || @champ.ocr_compatible?
       1
     elsif [true, nil].include?(@champ.procedure&.piece_justificative_multiple?)
       Attachment::FileFieldComponent::DEFAULT_MAX_ATTACHMENTS

@@ -15,5 +15,13 @@ describe EditableChamp::PieceJustificativeComponent, type: :component do
 
       it { is_expected.to eq(1) }
     end
+
+    ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+      context "when champ is a piece_justificative with #{ocr_nature} nature" do
+        let(:types_de_champ_public) { [{ type: :piece_justificative, nature: ocr_nature }] }
+
+        it { is_expected.to eq(1) }
+      end
+    end
   end
 end

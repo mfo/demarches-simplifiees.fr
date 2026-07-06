@@ -1,0 +1,25 @@
+fr:
+  nature_label: "Nature de la pièce"
+  limit_formats_label: "Limiter à certains formats de fichier"
+  auto_purge_label: "Supprimer automatiquement la pièce après traitement du dossier"
+  template_label: "Modèle de fichier proposé à l’usager"
+  max_file_size_hint: "Taille maximale autorisée : %{max_file_size}."
+  multiple_files_hint: "Les usagers pourront joindre plusieurs fichiers si nécessaire."
+  families_legend: "FORMAT(S) ACCEPTÉ(S)"
+  tooltip_examples: "Exemples : %{examples}..."
+  file_analysis: "Analyse du fichier"
+  identity_formats:
+    title: "FORMATS ACCEPTÉS"
+    desc_html: "L’usager pourra joindre une carte d’identité (uniquement le recto), passeport, titre de séjour ou autre justificatif d’identité."
+    rule_html: "Les formats acceptés pour cette pièce seront uniquement <strong>.jpg, .jpeg, .png</strong> avec une <strong>taille maximale de 20 Mo</strong>."
+  identity_deletion:
+    title: "SUPPRESSION DE LA PIÈCE JOINTE"
+    desc_html: "Dans le cadre du RGPD, le titre d’identité sera <strong>filigrané</strong> et <strong>automatiquement supprimé une fois le dossier traité</strong> (accepté, refusé ou classé sans suite)."
+    note_html: "À noter : le titre d’identité ne sera ni disponible dans les zip de dossiers, ni téléchargeable par API."
+  ocr_notice:
+    rib_html: "Le contenu du fichier joint par l’usager sera analysé automatiquement afin de récupérer et retranscrire à l’instructeur les informations suivantes : <strong>Nom du titulaire, Adresse du titulaire</strong> (si présente sur le fichier), <strong>IBAN, Code BIC, Nom de la banque</strong>."
+    justificatif_domicile_html: "Si le document comporte un cachet électronique <strong>2D-Doc</strong>, son contenu sera analysé automatiquement afin de récupérer et retranscrire à l’instructeur les informations suivantes : <strong>Nom du bénéficiaire, Adresse, Date d’émission</strong>."
+    avis_impot_html: "Si le document comporte un cachet électronique <strong>2D-Doc</strong>, son contenu sera analysé automatiquement afin de récupérer et retranscrire à l’instructeur les informations suivantes : <strong>Déclarant(s), Revenu fiscal de référence, Nombre de parts, Année des revenus, Adresse</strong>."
+  ocr_formats:
+    title: "FORMATS ACCEPTÉS"
+    desc_html: "Les formats acceptés pour cette pièce seront uniquement <strong>.pdf, .doc, .docx, .jpg, .jpeg, .png</strong>."
