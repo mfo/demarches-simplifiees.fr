@@ -4,7 +4,7 @@ This file provides guidelines for agents interacting with or contributing to the
 
 ## Project Overview
 
-demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French government web platform for digitizing administrative procedures. It's a Rails 7.2 application with a React/Stimulus frontend, built to handle sensitive user data with security as a top priority.
+demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French government web platform for digitizing administrative procedures. It's a Rails 8.0 application with a React/Stimulus frontend, built to handle sensitive user data with security as a top priority.
 
 ## Development Commands
 
@@ -92,7 +92,7 @@ The form system is based on a sophisticated type/value pattern:
 - **Administrateur** - Creates and manages procedures
 - **Instructeur** - Reviews and processes dossiers; has filters and notifications to help with instruction
 - **Expert** - Can be invited to review specific dossiers
-- **Gestionnaire** - Manages groups of administrateurs (feature-flagged)
+- **Gestionnaire** - Manages groups of administrateurs (enabled per instance, off by default)
 - **SuperAdmin** - Platform team managing the entire system
 
 Note: A single user account can have multiple roles. Different security measures protect access based on user profiles and roles.
@@ -124,13 +124,14 @@ Note: A single user account can have multiple roles. Different security measures
 - Schema in `app/graphql/`
 - Mutations in `app/graphql/mutations/`
 - Types in `app/graphql/types/`
+- Batch loading via `GraphQL::Dataloader` (custom sources in `app/graphql/sources/`)
 
 ### Frontend Architecture
 
 **Multi-Framework Approach:**
 - **Turbo/Hotwire** - Primary navigation and form handling
 - **Stimulus** - JavaScript controllers in `app/javascript/controllers/`
-- **React** - Complex interactive components in `app/javascript/components/`
+- **React** - Complex interactive components in `app/javascript/components/`; React Aria (`react-aria/`) for accessible widgets (e.g. combobox)
 - **Vite** - Build tool for JavaScript/CSS (replaces Webpacker)
 - **DSFR** - French government design system (@gouvfr/dsfr)
 
@@ -145,7 +146,7 @@ Controllers are organized by user role:
 - `app/controllers/instructeurs/` - Instructors reviewing dossiers
 - `app/controllers/administrateurs/` - Procedure creators
 - `app/controllers/manager/` - Super-admin (Administrate-based)
-- `app/controllers/gestionnaires/` - Group managers (feature-flagged)
+- `app/controllers/gestionnaires/` - Group managers (routes gated by `ADMINS_GROUP_ENABLED`)
 
 ### External API Integrations
 
@@ -160,8 +161,11 @@ Controllers are organized by user role:
 - `ApiParticulier` - Citizen data
 - Various specialized services: `AnnuaireServicePublicService`, `ApiBretagne`
 
-**LLM APIs:**
-- OpenAI-compatible (Mistral, …) for AI-powered form improvements (Simpliscore feature)
+**Other integrations:**
+- **AMI** - Pushes dossier state changes and new messages to the government AMI notification service (`app/services/ami/`, `app/jobs/ami/`); recipient keyed by a hash of the FranceConnect identity, enabled per procedure via Flipper `ami_notifications`
+- **RDV Service Public** - OAuth integration for appointment booking (`app/models/rdv.rb`, `app/controllers/rdv_service_public/`)
+- **Email delivery** - Multi-provider balancer (`app/lib/balancer_delivery_method.rb`); transactional providers include Brevo (formerly Sendinblue) and Scaleway
+- OpenAI-compatible endpoint via langchainrb/ruby-openai (e.g. Albert, the French State LLM), configured with `LLM_URI_BASE`/`LLM_MODEL_NAME`, for AI-powered form improvements (Simpliscore feature)
 
 ## Contribution Guidelines
 
@@ -230,7 +234,7 @@ Controllers are organized by user role:
 - **Image Processing**: Uploaded images are processed based on their nature
   - Identity documents (`Champs::TitreIdentiteChamp`) receive watermarks for privacy protection
   - Different attachment types get appropriate representations (previews, thumbnails)
-  - Processing logic in `BlobProcessorConcern`
+  - Processing logic in `BlobProcessorConcern`, using libvips via `ruby-vips`
 - AGPL license - all code must be compatible
 - Commits should be signed (GPG for core team)
 - Brakeman security scanner runs in CI
@@ -241,6 +245,7 @@ Controllers are organized by user role:
 - Use TDD as much as possible.
 - Prefer system specs for user-facing features
 - Use factories (FactoryBot) in `spec/factories/`
+- Use `let_it_be` (test-prof) for shared setup where possible
 - Support files in `spec/support/`
 - RSpec helper: `rails_helper.rb` (includes Rails), `spec_helper.rb` (no Rails)
 - Don't over test; test suite execution must be fast.
@@ -249,21 +254,22 @@ Controllers are organized by user role:
 
 - Uses `AASM` gem for state machines (Dossier states)
 - Flipper for feature flags
-- **Authorization**: Mostly handled directly in controllers; Pundit is used marginally
+- **Authorization**: mostly handled directly in controllers; Pundit policies (`app/policies/`, incl. per-type `app/policies/champs/`) handle champ-level authorization
 - Devise for authentication (with 2FA support)
 - FranceConnect & ProConnect for government identity integration
-- GraphQL::Batch for efficient GraphQL queries
+- GraphQL::Dataloader for batched GraphQL queries (custom sources in `app/graphql/sources/`)
 - Discard gem for soft deletes
 - Strong Migrations for database migration linting
 - Skylight for performance monitoring
 - Sentry for error tracking
 - Prometheus metrics exported for Sidekiq (via Yabeda)
-- langchainrb and anthropic gems for LLM integration
+- langchainrb + ruby-openai for LLM integration (OpenAI-compatible endpoint; no vendor-specific gem)
 - `RetryableFetchError` for graceful external API degradation
+- Object storage via ActiveStorage: default service set by `ACTIVE_STORAGE_SERVICE` (OpenStack); an `amazon` S3 service (via ds_proxy)
 
 ## Support
 
 User support is handled via **Crisp** integration.
 
 
-Last updated: December 15, 2025.
+Last updated: July 6, 2026.
