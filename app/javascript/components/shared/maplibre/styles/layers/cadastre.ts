@@ -82,6 +82,24 @@ export const layers: LayerSpecification[] = [
     }
   },
   {
+    id: 'parcelles-labels',
+    type: 'symbol',
+    source: 'cadastre',
+    'source-layer': 'parcelles',
+    minzoom: 16,
+    layout: {
+      visibility: 'visible',
+      'text-field': ['get', 'numero'],
+      'text-font': ['Noto Sans Bold'],
+      'text-size': 12
+    },
+    paint: {
+      'text-color': 'rgba(0, 0, 0, 1)',
+      'text-halo-color': 'rgba(255, 255, 255, 1)',
+      'text-halo-width': 1
+    }
+  },
+  {
     id: 'parcelle-highlighted',
     type: 'fill',
     source: 'cadastre',
