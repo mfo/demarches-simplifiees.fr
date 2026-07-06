@@ -1,5 +1,4 @@
 en:
-  title: Events and decisions made
   depose: "On %{processed_at}, this file was submitted"
   depose_correction_usager: "On %{processed_at}, corrections were submitted"
   depose_correction_instructeur: "On %{processed_at}, the instructor %{email} edited this file"

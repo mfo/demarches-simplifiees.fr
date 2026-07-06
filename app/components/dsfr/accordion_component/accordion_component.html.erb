@@ -10,7 +10,10 @@
     </button>
   <% end %>
 
-  <div id="<%= accordion_id %>" class="fr-collapse">
+  <div
+    id="<%= accordion_id %>"
+    class="fr-collapse<%= ' fr-collapse--expanded' if expanded %>"
+  >
     <% if content? %>
       <%= content %>
     <% end %>

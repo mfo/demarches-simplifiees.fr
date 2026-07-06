@@ -454,6 +454,7 @@ fr:
           affectation_du_dossier: "Affectation du dossier"
           avis_externes: "Avis externes"
           invites_par_usager: "Invités par l’usager"
+          archivage: "Archivage"
         archived_dossier: "Le dossier sera conservé 1 mois supplémentaire"
         delete_dossier: "Mettre à la corbeille"
         deleted_reason:

@@ -1,5 +1,4 @@
 fr:
-  title: Événements et décisions rendues
   depose: Le %{processed_at}, ce dossier a été déposé
   depose_correction_usager: Le %{processed_at}, des corrections ont été déposées
   depose_correction_instructeur: Le %{processed_at}, lʼinstructeur %{email} a modifié ce dossier

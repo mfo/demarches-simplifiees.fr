@@ -451,6 +451,7 @@ en:
           affectation_du_dossier: "File assignment"
           avis_externes: "External opinions"
           invites_par_usager: "Invited by user"
+          archivage: "Archiving"
         archived_dossier: "This file will be kept for an additional month"
         delete_dossier: "Move file to trash"
         deleted_reason:

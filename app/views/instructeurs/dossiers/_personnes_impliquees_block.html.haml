@@ -1,4 +1,5 @@
-.tab-title= title
+- if local_assigns[:title].present?
+  .tab-title= title
 
 - if emails_collection.present?
   %ul.tab-list

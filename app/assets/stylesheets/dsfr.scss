@@ -310,6 +310,20 @@ input[type='radio'] {
   box-shadow: none;
 }
 
+// Accordéons de la page suivi-et-décision
+#suivi-et-decision .fr-accordion__btn {
+  color: var(--text-title-grey);
+  font-weight: bold;
+}
+
+#suivi-et-decision .fr-collapse--expanded {
+  padding-bottom: 3rem;
+}
+
+#suivi-et-decision .fr-collapse--expanded > :last-child {
+  margin-bottom: 0;
+}
+
 // Réduit le margin droit du toggle lorsqu'il n'y a pas de label associé
 .fr-toggle.fr-toggle--no-label label::before {
   margin-right: 0.5rem;

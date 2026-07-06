@@ -1,2 +1,135 @@
-<%= render partial: 'header', locals: { dossier: @dossier, procedure: @dossier.procedure } %>
-<%= render partial: 'header_bottom', locals: { dossier: @dossier, procedure: @dossier.procedure } %>
+<% content_for(:title, "Suivi et décision · Dossier n° #{@dossier.id} (#{@dossier.owner_name})") %>
+
+<%= render partial: "header", locals: { dossier: @dossier, gallery_attachments: @gallery_attachments, procedure_presentation: @procedure_presentation, notifications: @notifications, notifications_sticker: @notifications_sticker } %>
+
+<div id="suivi-et-decision" class="fr-container">
+  <%# Section 1: Historique et décision rendue %>
+  <%= render Dsfr::AccordionComponent.new(id: "accordion-historique", expanded: true) do |accordion| %>
+    <% accordion.with_title { t('views.instructeurs.dossiers.suivi_et_decision.historique_et_decision') } %>
+
+    <%= render Instructeurs::DossierTraitementsComponent.new(traitements: @dossier.traitements) %>
+
+    <% if @dossier.termine? %>
+      <% if @dossier.justificatif_motivation.attached? %>
+        <div class="fr-mb-2w">
+          <span class="champ-label">
+            <%= t('views.users.dossiers.show.status_overview.justificatif') %>
+          </span>
+
+          <%= render Attachment::ShowComponent.new(attachment: @dossier.justificatif_motivation.attachment) %>
+        </div>
+      <% end %>
+      <% if @dossier.motivation.present? %>
+        <span class="champ-label">
+          <%= t('views.users.dossiers.show.status_overview.motivation') %>
+        </span>
+        <blockquote class="fr-m-0">
+          <strong><%= simple_format(@dossier.motivation) %></strong>
+        </blockquote>
+      <% end %>
+      <% if @dossier.attestation.present? && @dossier.attestation.pdf.attached? %>
+        <%= render Dossiers::RowShowComponent.new(label: t('views.users.dossiers.show.status_overview.attestation')) do |c| %>
+          <% c.with_value do %>
+            <%= render Dsfr::DownloadComponent.new(attachment: @dossier.attestation.pdf, name: t(:download_attestation, scope: [:views, :shared, :dossiers, :form]), has_name: true) %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%# Section 2: Suivi du dossier %>
+  <section class="fr-accordion">
+    <h3 class="fr-accordion__title">
+      <button
+        class="fr-accordion__btn"
+        aria-expanded="true"
+        aria-controls="accordion-suivi"
+      >
+        <%= t('views.instructeurs.dossiers.suivi_et_decision.suivi_du_dossier') %>
+      </button>
+    </h3>
+
+    <div class="fr-collapse fr-collapse--expanded" id="accordion-suivi">
+      <%= render partial: 'instructeurs/dossiers/envoyer_dossier_block', locals: { dossier: @dossier, potential_recipients: @potential_recipients } %>
+
+      <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @following_instructeurs_emails, title: "Instructeurs qui suivent actuellement le dossier", blank: "Aucun instructeur ne suit ce dossier" } %>
+
+      <% if @previous_following_instructeurs_emails.present? %>
+        <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @previous_following_instructeurs_emails, title: "Instructeurs ayant précédemment suivi le dossier", blank: " " } %>
+      <% end %>
+    </div>
+  </section>
+
+  <%# Section 3: Affectation du dossier (conditionnel) %>
+  <% if @dossier.procedure.routing_enabled? %>
+    <section class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button
+          class="fr-accordion__btn"
+          aria-expanded="true"
+          aria-controls="accordion-affectation"
+        >
+          <%= t('views.instructeurs.dossiers.suivi_et_decision.affectation_du_dossier') %>
+        </button>
+      </h3>
+
+      <div class="fr-collapse fr-collapse--expanded" id="accordion-affectation">
+        <%= render partial: 'instructeurs/dossiers/reaffectations_block', locals: { assignments: @assignments } %>
+
+        <div class="fr-mt-2w">
+          <span class="fr-hint-text">
+            <%= t('instructeurs.dossiers.reaffectation.hint', label: @groupe_instructeur.label, count: @groupes_instructeurs.count) %>
+          </span>
+
+          <%= form_with url: reaffecter_instructeur_dossier_path(procedure_id: @dossier.procedure.id, dossier_id: @dossier.id), method: :post, local: true, data: { controller: 'enable-submit-if-filled', action: 'change->enable-submit-if-filled#fillCombobox' } do |form| %>
+            <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--bottom">
+              <div class="fr-col-8">
+                <div class="fr-select-group">
+                  <react-fragment>
+                    <%= render ReactComponent.new "ComboBox/SingleComboBox",
+                      id: 'groupe_instructeur_id',
+                      name: 'groupe_instructeur_id',
+                      placeholder: t('instructeurs.dossiers.reaffectation.select'),
+                      items: @groupes_instructeurs.map { |g| { label: g.label, value: g.id.to_s } },
+                      class: 'fr-mt-1w',
+                      data: { enable_submit_if_filled_target: 'input' } %>
+                  </react-fragment>
+                </div>
+              </div>
+
+              <div class="fr-col-4">
+                <%= form.submit t('instructeurs.dossiers.reaffectation.submit'),
+                  class: 'fr-btn',
+                  data: { enable_submit_if_filled_target: 'submit', confirm: t('instructeurs.dossiers.reaffectation.confirm', dossier_id: @dossier.id, label: @groupe_instructeur.label) },
+                  disabled: true %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+  <% end %>
+
+  <%# Section 4: Avis externes %>
+  <%= render Dsfr::AccordionComponent.new(id: "accordion-avis", expanded: true) do |accordion| %>
+    <% accordion.with_title { t('views.instructeurs.dossiers.suivi_et_decision.avis_externes') } %>
+
+    <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @avis_emails, blank: "Aucun avis externe n'a été demandé" } %>
+  <% end %>
+
+  <%# Section 5: Invités par l'usager %>
+  <%= render Dsfr::AccordionComponent.new(id: "accordion-invites", expanded: true) do |accordion| %>
+    <% accordion.with_title { t('views.instructeurs.dossiers.suivi_et_decision.invites_par_usager') } %>
+
+    <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @invites_emails, blank: "Aucune personne n'a été invitée par l'usager à modifier ce dossier" } %>
+  <% end %>
+
+  <%# Section 6: Archivage (conditionnel) %>
+  <% if @dossier.archived? && @dossier.archived_at.present? %>
+    <%= render Dsfr::AccordionComponent.new(id: "accordion-archivage", expanded: true) do |accordion| %>
+      <% accordion.with_title { t('views.instructeurs.dossiers.suivi_et_decision.archivage') } %>
+
+      <%= render partial: 'instructeurs/dossiers/archived_block', locals: @dossier.slice(:archived_by, :archived_at) %>
+    <% end %>
+  <% end %>
+</div>
