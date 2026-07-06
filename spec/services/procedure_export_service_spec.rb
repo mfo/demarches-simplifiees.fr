@@ -324,6 +324,15 @@ describe ProcedureExportService do
         it 'should have headers' do
           expect(dossiers_sheet_headers).to match_array(nominal_headers)
         end
+
+        it 'streams one data row per dossier with resolved, stringified values' do
+          expect(subject.size).to eq(2) # header + 1 dossier
+
+          data_row = subject.last
+          expect(data_row[dossiers_sheet_headers.index('ID')]).to eq(dossier.id.to_s) # littéral
+          expect(data_row[dossiers_sheet_headers.index('FranceConnect ?')]).to eq('false') # booléen littéral
+          expect(data_row[dossiers_sheet_headers.index('À archiver')]).to eq('false') # Symbol résolu via send
+        end
       end
 
       it 'should have headers and data' do
