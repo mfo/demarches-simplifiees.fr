@@ -9,5 +9,33 @@ en:
         continue: continue
         cancel: back
       autorisations:
+        title: Token privileges « %{name} »
+        token_access: This token accesses
+        custom_procedures: some of my procedures
+        all_procedures: all my procedures
+        all_procedures_hint: current and future
+        select_procedures: Select authorized procedures
+        add_procedure: Add
+        no_procedure_selected: no procedure selected
+        token_permission: This token allows
+        read_only: read only
+        read_only_hint: retrieve dossiers, attachments
+        read_write: read and write
+        read_write_hint: change dossier status, write messages
         cancel: back
         continue: continue
+      edit:
+        title: 'Edit API token « %{name} »'
+        breadcrumb_api_token: 'API token: %{name}'
+        rename_button: Rename
+        enter_at_least_one_network: 'Enter at least 1 authorized network'
+        enter_authorized_ips: 'Enter authorized IP addresses'
+        networks_hint: 'network addresses separated by spaces. e.g. 176.31.79.200 192.168.33.0/24 2001:41d0:304:400::52f/128'
+        modify_button: Modify
+        pending_auto_ip_message: 'If no network is configured, the IP address will be automatically locked on the first API call.'
+        full_access_message: 'Your API token has access to all your procedures.'
+        restrict_access_button: 'Restrict access to certain procedures'
+        add_authorized_procedures: 'Add authorized procedures'
+        add_button: Add
+        delete_button: Delete
+        back_link: Back

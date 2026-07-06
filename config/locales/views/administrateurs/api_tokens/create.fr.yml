@@ -1,0 +1,28 @@
+---
+fr:
+  administrateurs:
+    api_tokens:
+      create:
+        title: "jeton « %{name} » créé"
+        ready: Votre jeton est prêt
+        intro: Vous pouvez maintenant utiliser votre jeton pour accéder à vos données.
+        warning: Attention, vous ne pourrez plus le consulter après avoir quitté cette page.
+        copy_title: Copier dans le presse-papier
+        copy: Copier
+        copied: Copié !
+        example_intro: "Voici un premier exemple d’utilisation de votre jeton d’API. Il vous permet de récupérer le titre de l’une de vos démarches :"
+        lang: bash
+        doc_text: Pour continuer, vous pouvez consulter
+        doc_link: notre documentation sur l’API
+        summary: "Résumé des informations du jeton :"
+        name: "Nom du jeton :"
+        access: "Accès :"
+        procedures: "Démarches :"
+        networks: "Réseaux autorisés :"
+        expiration: "Date de fin de validité :"
+        read_write: lecture et écriture
+        read_only: lecture
+        all_procedures: toutes
+        all_networks: tout internet
+        no_expiration: aucune
+        back_to_profile: Retour au profil
