@@ -416,6 +416,7 @@ fr:
             write_message_to_administration_placeholder: "Écrivez votre message à l’administration ici"
         demande:
           history: "Historique du dossier"
+          depot_du_dossier: "Dépôt du dossier"
           en_construction_notice: "Sauf mention contraire, les champs ont été saisis à la date du dépôt du dossier."
           requester_identity: "Identité du demandeur"
           mandataire_identity: "Identité du mandataire"
@@ -443,9 +444,16 @@ fr:
           external_opinion: Avis externes
           messaging: Messagerie
           involved_persons: Personnes impliquées
+          follow_up_and_decision: Suivi et décision
           reaffectation: Réaffectation
           attachments: Pièces jointes
           rendez_vous: Rendez-vous
+        suivi_et_decision:
+          historique_et_decision: "Historique et décision rendue"
+          suivi_du_dossier: "Suivi du dossier"
+          affectation_du_dossier: "Affectation du dossier"
+          avis_externes: "Avis externes"
+          invites_par_usager: "Invités par l’usager"
         archived_dossier: "Le dossier sera conservé 1 mois supplémentaire"
         delete_dossier: "Mettre à la corbeille"
         deleted_reason:

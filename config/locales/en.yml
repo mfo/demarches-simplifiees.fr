@@ -413,6 +413,7 @@ en:
             write_message_to_administration_placeholder: "Write your message to the administration here"
         demande:
           history: "File history"
+          depot_du_dossier: "File submission"
           en_construction_notice: "Unless otherwise indicated, fields were entered on the date the file was submitted."
           requester_identity: "Identity of the requester"
           mandataire_identity: "Identity of the mandatary"
@@ -440,9 +441,16 @@ en:
           external_opinion: External opinion
           messaging: Messaging
           involved_persons: Involved persons
+          follow_up_and_decision: Follow-up and decision
           reaffectation: reassignment
           attachments: Attachments
           rendez_vous: Appointment
+        suivi_et_decision:
+          historique_et_decision: "History and decision"
+          suivi_du_dossier: "File follow-up"
+          affectation_du_dossier: "File assignment"
+          avis_externes: "External opinions"
+          invites_par_usager: "Invited by user"
         archived_dossier: "This file will be kept for an additional month"
         delete_dossier: "Move file to trash"
         deleted_reason:
