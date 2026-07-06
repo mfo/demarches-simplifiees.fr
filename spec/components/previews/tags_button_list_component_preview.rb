@@ -14,12 +14,13 @@ class TagsButtonListComponentPreview < ViewComponent::Preview
             id: 'tdc12',
             libelle: 'Votre avis',
             description: 'Détaillez votre avis',
+            mandatory: true,
           },
           {
             id: 'tdc13',
             libelle: 'Votre avis très ' + 'long ' * 12,
             description: 'Ce libellé a été tronqué',
-            maybe_null: true,
+            mandatory: false,
           },
         ],
 

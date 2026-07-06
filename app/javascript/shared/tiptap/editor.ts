@@ -160,28 +160,39 @@ function getEditorOptions(
   }
 
   if (tags.length > 0) {
-    const optionalTagIds = new Set(
-      tags.filter((t) => t.optional).map((t) => t.id)
+    const tagInfo = new Map(
+      tags.map((t) => [t.id, { mandatory: t.mandatory, category: t.category }])
     );
-    const allChampTagIds = new Set(tags.map((t) => t.id));
 
-    const OptionalMention = Mention.extend({
+    const StyledMention = Mention.extend({
       renderHTML({ node, HTMLAttributes }) {
         const classes = ['fr-tag', 'fr-tag--sm'];
         const id = node.attrs.id;
-        if (optionalTagIds.has(id)) {
+        const info = tagInfo.get(id);
+        if (info?.mandatory) {
+          return [
+            'span',
+            { ...HTMLAttributes, class: classes.join(' ') },
+            `${node.attrs.label} *`
+          ];
+        }
+        if (
+          (info?.category === 'champ_public' ||
+            info?.category === 'champ_private') &&
+          !info?.mandatory
+        ) {
           classes.push('fr-tag--purple-glycine');
         }
-        const label =
-          allChampTagIds.has(id) && !optionalTagIds.has(id)
-            ? `${node.attrs.label} *`
-            : node.attrs.label;
-        return ['span', { ...HTMLAttributes, class: classes.join(' ') }, label];
+        return [
+          'span',
+          { ...HTMLAttributes, class: classes.join(' ') },
+          node.attrs.label
+        ];
       }
     });
 
     extensions.push(
-      OptionalMention.configure({
+      StyledMention.configure({
         renderLabel({ node }) {
           return node.attrs.label;
         },

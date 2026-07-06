@@ -11,17 +11,19 @@ RSpec.describe TagsButtonListComponent, type: :component do
           id: 'tdc12',
           libelle: 'Votre avis',
           description: 'Détaillez votre avis',
+          mandatory: true,
         },
         {
           id: 'tdc13',
           libelle: 'Un champ facultatif',
           description: 'Ce champ est facultatif',
-          maybe_null: true,
+          mandatory: false,
         },
         {
           id: 'tdc14',
           libelle: 'Un champ conditionnel',
           description: 'Ce champ est conditionnel',
+          mandatory: false,
           conditional: true,
         },
       ],
@@ -52,7 +54,7 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ facultatif")
     expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ conditionnel")
     expect(subject).to have_selector(":not(.hidden) button.fr-tag", text: "Votre avis")
-    expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnels")
+    expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnés")
   end
 
   it "applies purple-glycine style to optional and conditional tags" do
