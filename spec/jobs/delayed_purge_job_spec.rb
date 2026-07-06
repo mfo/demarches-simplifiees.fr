@@ -65,6 +65,54 @@ describe DelayedPurgeJob, type: :job do
     end
   end
 
+  context 'when a soft-deleted image has variants' do
+    let(:container) { "bucket" }
+    let(:client) { double("client") }
+
+    # Blobs are created against the real service, then the OpenStack service is
+    # mocked; the parent copy_object is stubbed to succeed.
+    def setup_image_with_variant
+      image_blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("img"), filename: "i.png", content_type: "image/png")
+      variant_blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("variant"), filename: "v.png", content_type: "image/png")
+      variant_record = ActiveStorage::VariantRecord.create!(blob: image_blob, variation_digest: "digest")
+      image_attachment = ActiveStorage::Attachment.create!(name: "image", record: variant_record, blob: variant_blob)
+
+      allow_any_instance_of(ActiveStorage::Blob).to receive(:service).and_return(double(name: :openstack, container:))
+      job = described_class.new(image_blob)
+      allow(job).to receive(:client).and_return(client)
+      allow(client).to receive(:copy_object).and_return(double(status: 201))
+
+      { job:, image_blob:, variant_blob:, variant_record:, image_attachment: }
+    end
+
+    it 'marks the variant files for expiration and keeps their rows for the cron' do
+      ctx = setup_image_with_variant
+      expect(client).to receive(:copy_object)
+        .with(container, ctx[:variant_blob].key, container, ctx[:variant_blob].key, hash_including('X-Delete-At'))
+        .and_return(double(status: 201))
+
+      ctx[:job].perform_now
+
+      expect(ActiveStorage::Blob.where(id: ctx[:variant_blob].id)).to exist
+      expect(ActiveStorage::VariantRecord.where(id: ctx[:variant_record].id)).to exist
+      expect(ActiveStorage::Attachment.where(id: ctx[:image_attachment].id)).to exist
+      expect(ActiveStorage::Blob.where(id: ctx[:image_blob].id)).to exist # parent soft-deleted
+    end
+
+    it 'reports to Sentry when a variant copy fails, keeping the rows' do
+      ctx = setup_image_with_variant
+      allow(client).to receive(:copy_object)
+        .with(container, ctx[:variant_blob].key, container, ctx[:variant_blob].key, anything)
+        .and_return(double(status: 500))
+      expect(Sentry).to receive(:capture_message).with("Can't expire blob", extra: hash_including(key: ctx[:variant_blob].key))
+
+      ctx[:job].perform_now
+
+      expect(ActiveStorage::VariantRecord.where(id: ctx[:variant_record].id)).to exist
+      expect(ActiveStorage::Blob.where(id: ctx[:variant_blob].id)).to exist
+    end
+  end
+
   context 'when destroying an instance' do
     it 'uses our custom job' do
       expect { dossier.destroy }.to have_enqueued_job(DelayedPurgeJob)

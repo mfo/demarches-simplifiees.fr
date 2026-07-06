@@ -52,14 +52,29 @@ class DelayedPurgeJob < ApplicationJob
     # We should replicate the same behavior here.
     # https://github.com/rails/rails/blob/ef88965e8a0c72496c210a5a0a48b85ec9a2ed17/activestorage/app/models/active_storage/blob.rb#L53-L55
     return if blob.attachments.exists?
+    return if !expire_file(blob)
+
+    blob.update_column(:soft_delete_at, Time.current)
+    soft_delete_variants if blob.image?
+  end
+
+  def soft_delete_variants
+    variant_blob_ids = ActiveStorage::Attachment
+      .where(record_type: 'ActiveStorage::VariantRecord', record_id: blob.variant_records.ids)
+      .pluck(:blob_id)
+
+    ActiveStorage::Blob.where(id: variant_blob_ids).find_each { expire_file(it) }
+  end
+
+  # Copy the blob's file onto itself with an X-Delete-At header so Swift expires
+  # it after the retention delay. Returns whether Swift accepted the request and
+  # reports to Sentry on failure.
+  def expire_file(blob)
     headers = { "Content-Type" => blob.content_type, 'X-Delete-At' => delay.to_s }
-    excon_response = client.copy_object(container, key, container, key, headers)
-    if excon_response.status != 201
-      Sentry.capture_message("Can't expire blob", extra: { key:, headers: })
-    else
-      blob.update_column(:soft_delete_at, Time.current)
-      service.delete_prefixed("variants/#{key}/") if blob.image?
-    end
+    return true if client.copy_object(container, blob.key, container, blob.key, headers).status == 201
+
+    Sentry.capture_message("Can't expire blob", extra: { key: blob.key, headers: })
+    false
   end
 
   def soft_delete_enabled?
