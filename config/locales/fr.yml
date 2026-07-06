@@ -443,9 +443,7 @@ fr:
           private_annotations: Annotations privées
           external_opinion: Avis externes
           messaging: Messagerie
-          involved_persons: Personnes impliquées
           follow_up_and_decision: Suivi et décision
-          reaffectation: Réaffectation
           attachments: Pièces jointes
           rendez_vous: Rendez-vous
         suivi_et_decision:

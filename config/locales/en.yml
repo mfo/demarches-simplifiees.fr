@@ -440,9 +440,7 @@ en:
           private_annotations: Private annotations
           external_opinion: External opinion
           messaging: Messaging
-          involved_persons: Involved persons
           follow_up_and_decision: Follow-up and decision
-          reaffectation: reassignment
           attachments: Attachments
           rendez_vous: Appointment
         suivi_et_decision:
