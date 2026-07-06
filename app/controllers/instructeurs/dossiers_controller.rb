@@ -180,7 +180,7 @@ module Instructeurs
         flash.alert = "Instructeur inconnu ou non présent sur la procédure"
       end
 
-      redirect_to(personnes_impliquees_instructeur_dossier_path(procedure, dossier))
+      redirect_to(suivi_et_decision_instructeur_dossier_path(procedure, dossier))
     end
 
     def follow

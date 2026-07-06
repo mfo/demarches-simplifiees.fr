@@ -45,7 +45,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
       it do
         expect(InstructeurMailer).to have_received(:send_dossier)
-        expect(response).to redirect_to(personnes_impliquees_instructeur_dossier_url)
+        expect(response).to redirect_to(suivi_et_decision_instructeur_dossier_url)
         expect(recipient.followed_dossiers).to include(dossier)
       end
     end
@@ -55,7 +55,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
       it do
         expect(InstructeurMailer).not_to have_received(:send_dossier)
-        expect(response).to redirect_to(personnes_impliquees_instructeur_dossier_url)
+        expect(response).to redirect_to(suivi_et_decision_instructeur_dossier_url)
         expect(recipient.followed_dossiers).not_to include(dossier)
       end
     end

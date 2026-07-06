@@ -176,8 +176,8 @@ describe 'Instructing a dossier:', js: true do
 
     ask_confidential_avis(instructeur_2.email, 'a good introduction')
 
-    click_on 'Personnes impliquées'
-    expect(page).to have_current_path(personnes_impliquees_instructeur_dossier_path(procedure, dossier, statut: 'suivis'))
+    click_on 'Suivi et décision'
+    expect(page).to have_current_path(suivi_et_decision_instructeur_dossier_path(procedure, dossier, statut: 'suivis'))
     expect(page).to have_text(expert_email)
     expect(page).to have_text(instructeur_2.email)
 

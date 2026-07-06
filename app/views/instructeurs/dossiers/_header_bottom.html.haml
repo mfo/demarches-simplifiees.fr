@@ -9,14 +9,8 @@
         = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.attachments'),
           pieces_jointes_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]))
 
-      = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.private_annotations'),
-        annotations_privees_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
-        notification: notifications_sticker[:annotations_privees])
-
-      = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.external_opinion'),
-        [avis_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
-        avis_new_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut])],
-        notification: notifications_sticker[:avis_externe])
+      = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.follow_up_and_decision'),
+        suivi_et_decision_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]))
 
       = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.messaging'),
         messagerie_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
@@ -27,9 +21,11 @@
           [rendez_vous_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
           rendez_vous_connexion_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut])])
 
-      = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.involved_persons'),
-        personnes_impliquees_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]))
+      = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.private_annotations'),
+        annotations_privees_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
+        notification: notifications_sticker[:annotations_privees])
 
-      - if dossier.procedure.routing_enabled?
-        = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.reaffectation'),
-          reaffectation_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]))
+      = dynamic_tab_item(t('views.instructeurs.dossiers.tab_steps.external_opinion'),
+        [avis_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
+        avis_new_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut])],
+        notification: notifications_sticker[:avis_externe])
