@@ -18,7 +18,7 @@
           <li class="<%= "fr-sidemenu__item fr-sidemenu__item#{active?(link.url) ? '--active' : ''}" %>">
             <%= link_to link.url, class: 'fr-sidemenu__link', 'aria-current': (active?(link.url) ? 'page' : nil), target: '_self' do %>
               <% if link.icon.present? %>
-                <span class="<%= link.icon %>"></span>
+                <span class="<%= link.icon %>">&nbsp;</span>
               <% end %>
 
               <%= link.name %>
