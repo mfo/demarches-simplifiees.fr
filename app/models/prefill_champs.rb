@@ -9,7 +9,7 @@ class PrefillChamps
   end
 
   def to_a
-    build_prefill_values.filter(&:prefillable?).map(&:champ_attributes).flatten
+    build_prefill_values.filter(&:prefillable?).flat_map(&:champs_with_attributes)
   end
 
   def self.digest(params)
@@ -57,6 +57,12 @@ class PrefillChamps
 
     def prefillable?
       champ.prefillable? && champ_attributes.present? && valid?
+    end
+
+    # An array of [champ, attributes] pairs; a repetition champ expands to
+    # one pair per prefilled subchamp.
+    def champs_with_attributes
+      champ.repetition? ? champ_attributes : [[champ, champ_attributes]]
     end
 
     def champ_attributes

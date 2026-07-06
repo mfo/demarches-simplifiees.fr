@@ -80,13 +80,13 @@ RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
     context 'when the value is an array with some wrong keys' do
       let(:value) { [{ "champ_#{text_repetition.to_typed_id_for_query}" => "value", "blabla" => "value2" }, { "champ_#{integer_repetition.to_typed_id_for_query}" => "value3" }, { "blabla" => "false" }] }
 
-      it { is_expected.to match([[{ id: text_repetition_champs.first.id, value: "value" }], [{ id: integer_repetition_champs.second.id, value: "value3" }]]) }
+      it { is_expected.to match([[text_repetition_champs.first, { value: "value" }], [integer_repetition_champs.second, { value: "value3" }]]) }
     end
 
     context 'when the value is an array with right keys' do
       let(:value) { [{ "champ_#{text_repetition.to_typed_id_for_query}" => "value" }, { "champ_#{text_repetition.to_typed_id_for_query}" => "value2" }] }
 
-      it { is_expected.to match([[{ id: text_repetition_champs.first.id, value: "value" }], [{ id: text_repetition_champs.second.id, value: "value2" }]]) }
+      it { is_expected.to match([[text_repetition_champs.first, { value: "value" }], [text_repetition_champs.second, { value: "value2" }]]) }
     end
   end
 end

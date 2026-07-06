@@ -159,6 +159,6 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
     let(:value) { "any@email.org" }
     subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }
 
-    it { is_expected.to match({ id: champ.id, value: value }) }
+    it { is_expected.to match({ value: value }) }
   end
 end

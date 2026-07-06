@@ -54,17 +54,17 @@ RSpec.describe DossierPrefillableConcern do
 
           let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
           let(:value_1) { "any value" }
-          let(:champ_id_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
+          let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
 
           let(:type_de_champ_2) { procedure.published_revision.types_de_champ_public.second }
           let(:value_2) { "33612345678" }
-          let(:champ_id_2) { find_champ_by_stable_id(dossier, type_de_champ_2.stable_id).id }
+          let(:champ_2) { find_champ_by_stable_id(dossier, type_de_champ_2.stable_id) }
 
           let(:type_de_champ_3) { procedure.published_revision.types_de_champ_private.first }
           let(:value_3) { "some value" }
-          let(:champ_id_3) { find_champ_by_stable_id(dossier, type_de_champ_3.stable_id).id }
+          let(:champ_3) { find_champ_by_stable_id(dossier, type_de_champ_3.stable_id) }
 
-          let(:values) { [{ id: champ_id_1, value: value_1 }, { id: champ_id_2, value: value_2 }, { id: champ_id_3, value: value_3 }] }
+          let(:values) { [[champ_1, { value: value_1 }], [champ_2, { value: value_2 }], [champ_3, { value: value_3 }]] }
 
           it_behaves_like 'a dossier marked as prefilled'
 
@@ -84,9 +84,9 @@ RSpec.describe DossierPrefillableConcern do
           let(:types_de_champ_public) { [{ type: :phone }] }
           let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
           let(:value) { "a non phone value" }
-          let(:champ_id) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
+          let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
 
-          let(:values) { [{ id: champ_id, value: value }] }
+          let(:values) { [[champ_1, { value: value }]] }
 
           it_behaves_like 'a dossier marked as prefilled'
 
@@ -110,8 +110,8 @@ RSpec.describe DossierPrefillableConcern do
           let(:types_de_champ_public) { [{ type: :text }] }
           let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
           let(:value_1) { "any value" }
-          let(:champ_id_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
-          let(:values) { [{ id: champ_id_1, value: value_1 }] }
+          let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
+          let(:values) { [[champ_1, { value: value_1 }]] }
 
           it "updates the champs with the new values and mark them as prefilled" do
             fill
@@ -128,8 +128,8 @@ RSpec.describe DossierPrefillableConcern do
       let(:types_de_champ_public) { [{ type: :pre_rempli }] }
       let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
       let(:value_1) { "valeur pré-remplie" }
-      let(:champ_id_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
-      let(:values) { [{ id: champ_id_1, value: value_1 }] }
+      let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
+      let(:values) { [[champ_1, { value: value_1 }]] }
 
       it_behaves_like 'a dossier marked as prefilled'
 
@@ -142,10 +142,10 @@ RSpec.describe DossierPrefillableConcern do
 
     context 'when dossier contains champs with external_id' do
       let(:types_de_champ_public) { [{ type: :siret }] }
-      let(:values) { [{ id: champ_id_1, external_id: value_1 }] }
+      let(:values) { [[champ_1, { external_id: value_1 }]] }
       let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
       let(:value_1) { "130 025 265 00013" }
-      let(:champ_id_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
+      let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
 
       it "updates the champs with the new values and mark them as prefilled" do
         expect { fill }.to have_enqueued_job(ChampFetchExternalDataJob).once

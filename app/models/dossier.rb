@@ -58,7 +58,9 @@ class Dossier < ApplicationRecord
   has_one_attached :justificatif_motivation
   has_one_attached :attestation_depot_pdf
 
-  has_many :champs, dependent: :destroy
+  # autosave is required to import champ validation errors on the dossier
+  # when validating with the :champs_public_value/:champs_private_value contexts
+  has_many :champs, dependent: :destroy, autosave: true
   has_many :commentaires, inverse_of: :dossier, dependent: :destroy
   has_many :commentaires_chronological, -> { chronological }, class_name: 'Commentaire', inverse_of: :dossier
   has_many :preloaded_commentaires, -> { includes(:dossier_correction, :dossier_pending_response, :instructeur, :expert, piece_jointe_attachments: :blob).order(created_at: :desc) }, class_name: 'Commentaire', inverse_of: :dossier
@@ -175,7 +177,6 @@ class Dossier < ApplicationRecord
 
   after_destroy_commit :log_destroy
 
-  accepts_nested_attributes_for :champs
   accepts_nested_attributes_for :individual, update_only: true
 
   include AASM

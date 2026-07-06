@@ -14,9 +14,9 @@ class TypesDeChamp::PrefillEpciTypeDeChamp < TypesDeChamp::PrefillTypeDeChamp
   end
 
   def to_assignable_attributes(champ, value)
-    return { id: champ.id, code_departement: nil, value: nil } if value.blank? || !value.is_a?(Array)
-    return { id: champ.id, code_departement: value.first, value: nil } if value.one?
-    { id: champ.id, code_departement: value.first, value: value.second }
+    return { code_departement: nil, value: nil } if value.blank? || !value.is_a?(Array)
+    return { code_departement: value.first, value: nil } if value.one?
+    { code_departement: value.first, value: value.second }
   end
 
   private
