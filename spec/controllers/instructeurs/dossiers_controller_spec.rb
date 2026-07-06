@@ -2031,6 +2031,47 @@ describe Instructeurs::DossiersController, type: :controller do
     end
   end
 
+  describe '#suivi_et_decision' do
+    let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
+
+    before do
+      get :suivi_et_decision,
+        params: {
+          procedure_id: procedure.id,
+          dossier_id: dossier.id,
+          statut: 'a-suivre',
+        }
+    end
+
+    it 'loads follower data' do
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:following_instructeurs_emails)).to be_an(Array)
+      expect(assigns(:avis_emails)).to be_an(Array)
+      expect(assigns(:invites_emails)).to be_an(Array)
+      expect(assigns(:potential_recipients)).to be_an(Array)
+      expect(assigns(:assignments)).to be_a(ActiveRecord::Relation)
+    end
+
+    context 'with routing enabled' do
+      let(:routed_procedure) { create(:procedure, :routee, :published, :for_individual, instructeurs: [instructeur]) }
+      let(:gi_1) { routed_procedure.groupe_instructeurs.reorder(:id).first }
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: routed_procedure, groupe_instructeur: gi_1) }
+
+      before do
+        get :suivi_et_decision,
+          params: {
+            procedure_id: routed_procedure.id,
+            dossier_id: dossier.id,
+            statut: 'a-suivre',
+          }
+      end
+
+      it 'loads routing data' do
+        expect(assigns(:groupe_instructeur)).to eq(gi_1)
+        expect(assigns(:groupes_instructeurs)).to be_present
+      end
+    end
+  end
 
   describe '#print' do
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
