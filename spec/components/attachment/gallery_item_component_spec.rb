@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Attachment::GalleryItemComponent, type: :component do
-  let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_public) { [{ type: :piece_justificative }] }
-  let(:types_de_champ_private) { [{ type: :piece_justificative }] }
+  let_it_be(:instructeur) { create(:instructeur) }
+  let_it_be(:types_de_champ_public) { [{ type: :piece_justificative }] }
+  let_it_be(:types_de_champ_private) { [{ type: :piece_justificative }] }
+  let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
   let(:dossier) { create(:dossier, :accepte, :with_populated_champs, :with_populated_annotations, :with_attestation_acceptation, procedure:) }
   let(:filename) { attachment.blob.filename.to_s }
 
