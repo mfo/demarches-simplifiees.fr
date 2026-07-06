@@ -31,13 +31,13 @@ module Instructeurs
     after_action -> { destroy_notification(:avis_externe) }, only: [:avis], if: -> { @notifications.any?(&:avis_externe?) }
 
     def extend_conservation
-      dossier.extend_conservation(1.month)
+      dossier.extend_conservation(Dossier::CONSERVATION_EXTENSION_DURATION)
       flash[:notice] = t('views.instructeurs.dossiers.archived_dossier')
       redirect_back_or_to(instructeur_dossier_path(@dossier.procedure, @dossier))
     end
 
     def extend_conservation_and_restore
-      dossier.extend_conservation_and_restore(1.month, current_instructeur)
+      dossier.extend_conservation_and_restore(Dossier::CONSERVATION_EXTENSION_DURATION, current_instructeur)
       flash[:notice] = t('views.instructeurs.dossiers.archived_dossier')
       redirect_back_or_to(instructeur_dossier_path(@dossier.procedure, @dossier))
     end
