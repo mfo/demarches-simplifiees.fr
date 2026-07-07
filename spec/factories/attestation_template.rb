@@ -40,8 +40,7 @@ FactoryBot.define do
           {
             "type" => "paragraph",
             "content" => [
-              { "text" => "Nom: ", "type" => "text" }, { "type" => "mention", "attrs" => { "id" => "individual_last_name", "label" => "prénom" } }, { "text" => " ", "type" => "text" },
-              { "type" => "mention", "attrs" => { "id" => "individual_first_name", "label" => "nom" } }, { "text" => " ", "type" => "text" },
+              { "text" => "Déposé le : ", "type" => "text" }, { "type" => "mention", "attrs" => { "id" => "dossier_depose_at", "label" => "date de dépôt" } }, { "text" => " ", "type" => "text" },
             ],
           },
         ],

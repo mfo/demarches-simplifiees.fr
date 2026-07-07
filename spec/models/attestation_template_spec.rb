@@ -227,8 +227,25 @@ describe AttestationTemplate, type: :model do
     end
 
     context 'body v2' do
-      let(:attestation) { create(:attestation_template, :v2) }
-      let(:dossier) { create(:dossier, procedure: attestation.procedure, individual: build(:individual, nom: 'Doe', prenom: 'John')) }
+      let(:procedure) { create(:procedure, :for_individual) }
+      let(:attestation) do
+        create(:attestation_template, :v2, procedure:, json_body: {
+          "type" => "doc",
+          "content" => [
+            { "type" => "title", "attrs" => { "textAlign" => "center" }, "content" => [{ "text" => "Mon titre pour ", "type" => "text" }, { "type" => "mention", "attrs" => { "id" => "dossier_procedure_libelle", "label" => "libellé démarche" } }] },
+            {
+              "type" => "paragraph",
+              "content" => [
+                { "text" => "Nom: ", "type" => "text" },
+                { "type" => "mention", "attrs" => { "id" => "individual_last_name", "label" => "nom" } },
+                { "text" => " ", "type" => "text" },
+                { "type" => "mention", "attrs" => { "id" => "individual_first_name", "label" => "prénom" } },
+              ],
+            },
+          ],
+        })
+      end
+      let(:dossier) { create(:dossier, procedure:, individual: build(:individual, nom: 'Doe', prenom: 'John')) }
 
       it do
         body = attestation.render_attributes_for(dossier: dossier)[:body]

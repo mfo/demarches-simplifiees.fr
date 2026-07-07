@@ -326,5 +326,26 @@ describe MailTemplateConcern do
       expect(mail).not_to be_valid
       expect(mail.errors[:body]).to be_present
     end
+
+    it 'invalide une mention d’une balise indisponible pour l’état du template (parité legacy)' do
+      decision_mention = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "mention", "attrs" => { "id" => "dossier_processed_at", "label" => "date de décision" } },
+            ],
+          },
+        ],
+      }
+
+      mail.json_body = decision_mention
+      expect(mail).not_to be_valid
+      expect(mail.errors[:json_body]).to be_present
+
+      closed_mail = Mails::ClosedMail.default_for_procedure(procedure)
+      closed_mail.json_body = decision_mention
+      expect(closed_mail).to be_valid
+    end
   end
 end

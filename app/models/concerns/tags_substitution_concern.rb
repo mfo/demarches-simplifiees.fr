@@ -287,11 +287,19 @@ module TagsSubstitutionConcern
         used_tags_and_libelle_for(text_or_tiptap.to_s)
       end
 
+    available_ids = nil
+
     used_tags.filter_map do |(tag, libelle)|
       if tag.nil?
         [libelle]
       elsif !tag.in?(SHARED_TAG_IDS) && tag.start_with?('tdc')
         [libelle, tag.gsub(/^tdc/, '').to_i]
+      else
+        # A tiptap mention carries its tag id verbatim, so ids of tags unknown or
+        # not available for this template's DOSSIER_STATE must be rejected here —
+        # the legacy text parsing did it implicitly (the libelle didn't resolve).
+        available_ids ||= procedure_types_de_champ_tags.map { _1[:id] }
+        [libelle] unless tag.in?(available_ids)
       end
     end
   end
