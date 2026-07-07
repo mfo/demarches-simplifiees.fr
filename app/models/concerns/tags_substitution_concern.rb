@@ -466,7 +466,7 @@ module TagsSubstitutionConcern
   end
 
   def parse_tags(text)
-    tags = procedure_types_de_champ_tags.index_by { _1[:libelle] }
+    tags = @tags_by_libelle || tags_by_libelle
 
     # MD5 should be enough and it avoids long key
     tokens = Rails.cache.fetch(["parse_tags_v2", Digest::MD5.hexdigest(text)], expires_in: 1.day) { TagsParser.parse(text) }
@@ -478,6 +478,21 @@ module TagsSubstitutionConcern
         token
       end
     end
+  end
+
+  # The libelle→tag index costs SQL and cache round-trips to build; memoize it for
+  # the duration of a block that parses many texts (e.g. converting a legacy mail
+  # template where every text node goes through parse_tags). Scoped to the block —
+  # not the instance — so a later call sees types de champ added in between.
+  def memoize_tags_by_libelle
+    @tags_by_libelle = tags_by_libelle
+    yield
+  ensure
+    @tags_by_libelle = nil
+  end
+
+  def tags_by_libelle
+    procedure_types_de_champ_tags.index_by { _1[:libelle] }
   end
 
   def used_tags_and_libelle_for(text)

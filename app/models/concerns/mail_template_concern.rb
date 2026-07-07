@@ -31,6 +31,43 @@ module MailTemplateConcern
     self.rich_body = self.body
   end
 
+  def tiptap_body
+    json_body&.to_json
+  end
+
+  def tiptap_body=(json)
+    self.json_body = JSON.parse(json)
+  end
+
+  def tiptap_subject
+    json_subject&.to_json
+  end
+
+  def tiptap_subject=(json)
+    self.json_subject = JSON.parse(json)
+  end
+
+  # The current tiptap document as a Hash: the stored one, or the legacy
+  # body/subject converted on the fly (for templates not yet migrated).
+  def tiptap_body_doc
+    json_body.presence || legacy_html_to_tiptap(body)
+  end
+
+  def tiptap_body_or_default
+    tiptap_body_doc.to_json
+  end
+
+  def tiptap_subject_doc
+    json_subject.presence || {
+      "type" => "doc",
+      "content" => [{ "type" => "paragraph", "content" => tiptap_inline_nodes_for(subject.presence || self.class::DEFAULT_SUBJECT) }],
+    }
+  end
+
+  def tiptap_subject_or_default
+    tiptap_subject_doc.to_json
+  end
+
   included do
     has_rich_text :rich_body
     before_save :update_rich_body
@@ -49,7 +86,32 @@ module MailTemplateConcern
     end
   end
 
+  def tiptap_inline_nodes_for(text)
+    return [] if text.nil?
+
+    parse_tags(text).filter_map do |token|
+      case token
+      in { tag:, id: }
+        { "type" => "mention", "attrs" => { "id" => id, "label" => tag } }
+      in { tag: }
+        { "type" => "text", "text" => "--#{tag}--" }
+      in { text: }
+        { "type" => "text", "text" => text } unless text.empty?
+      else
+        nil
+      end
+    end
+  end
+
   def dossier_tags
     super + TagsSubstitutionConcern::DOSSIER_TAGS_FOR_MAIL
+  end
+
+  private
+
+  def legacy_html_to_tiptap(html)
+    memoize_tags_by_libelle do
+      TrixToTiptapService.new(inline_resolver: method(:tiptap_inline_nodes_for)).to_document(html)
+    end
   end
 end

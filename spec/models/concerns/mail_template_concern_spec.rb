@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 describe MailTemplateConcern do
-  let(:procedure) { create(:procedure) }
+  let(:procedure) { create(:procedure, :with_type_de_champ) }
+  let(:mail) { Mails::ReceivedMail.default_for_procedure(procedure) }
   let(:dossier) { create(:dossier, procedure: procedure) }
   let(:dossier2) { create(:dossier, procedure: procedure) }
   let(:initiated_mail) { create(:initiated_mail, procedure: procedure) }
@@ -174,5 +175,60 @@ describe MailTemplateConcern do
     before { initiated_mail.update(body: "Voici le corps du mail") }
 
     it { expect(initiated_mail.rich_body.to_plain_text).to eq(initiated_mail.body) }
+  end
+
+  describe '#tiptap_inline_nodes_for' do
+    it 'résout --numéro du dossier-- en mention' do
+      nodes = mail.tiptap_inline_nodes_for('Dossier --numéro du dossier--')
+      expect(nodes).to eq([
+        { "type" => "text", "text" => "Dossier " },
+        { "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } },
+      ])
+    end
+
+    it 'garde un libellé inconnu en texte littéral' do
+      nodes = mail.tiptap_inline_nodes_for('Bonjour --libellé inexistant--')
+      expect(nodes).to eq([
+        { "type" => "text", "text" => "Bonjour " },
+        { "type" => "text", "text" => "--libellé inexistant--" },
+      ])
+    end
+
+    it 'retourne [] pour une chaîne vide' do
+      expect(mail.tiptap_inline_nodes_for('')).to eq([])
+    end
+
+    it 'préserve un texte composé uniquement d’espaces' do
+      expect(mail.tiptap_inline_nodes_for(' ')).to eq([{ "type" => "text", "text" => " " }])
+    end
+  end
+
+  describe 'accesseurs tiptap' do
+    it 'tiptap_body= parse le JSON dans json_body' do
+      mail.tiptap_body = '{"type":"doc","content":[]}'
+      expect(mail.json_body).to eq({ "type" => "doc", "content" => [] })
+    end
+
+    it 'tiptap_body_or_default renvoie json_body si présent' do
+      mail.json_body = { "type" => "doc", "content" => [{ "type" => "paragraph" }] }
+      expect(JSON.parse(mail.tiptap_body_or_default)).to eq(mail.json_body)
+    end
+
+    it 'tiptap_body_or_default convertit le body legacy sinon' do
+      mail.json_body = nil
+      mail.body = '<div>Bonjour <strong>usager</strong></div>'
+      doc = JSON.parse(mail.tiptap_body_or_default)
+      expect(doc["content"].first["type"]).to eq("paragraph")
+      expect(doc["content"].first["content"]).to include({ "type" => "text", "text" => "usager", "marks" => [{ "type" => "bold" }] })
+    end
+
+    it 'tiptap_subject_or_default convertit le subject legacy en doc mono-ligne' do
+      mail.json_subject = nil
+      mail.subject = 'Dossier --numéro du dossier--'
+      doc = JSON.parse(mail.tiptap_subject_or_default)
+      expect(doc["type"]).to eq("doc")
+      expect(doc["content"].first["type"]).to eq("paragraph")
+      expect(doc["content"].first["content"]).to include({ "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } })
+    end
   end
 end
