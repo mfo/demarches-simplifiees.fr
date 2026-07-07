@@ -13,7 +13,8 @@ namespace :lint do
     # Common french elision patterns where apostrophes are used
     # These patterns match a letter followed by an incorrect apostrophe followed by a vowel or 'h'
     # which indicates a french elision (l'exemple, d'abord, n'est, etc.)
-    vowels_and_h = "aeiouyàâäéèêëïîôùûüœæAEIOUYÀÂÄÉÈÊËÏÎÔÙÛÜŒÆhH"
+    # % is included to catch elisions before YAML interpolation variables (e.g. qu'%{profile})
+    vowels_and_h = "aeiouyàâäéèêëïîôùûüœæAEIOUYÀÂÄÉÈÊËÏÎÔÙÛÜŒÆhH%"
 
     elision_patterns = [
       # Single letter elisions: l', d', n', s', c', j', m', t'
