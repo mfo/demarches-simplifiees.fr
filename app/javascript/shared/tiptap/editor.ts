@@ -13,7 +13,6 @@ import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import Bold from '@tiptap/extension-bold';
 import Italic from '@tiptap/extension-italic';
-import Strike from '@tiptap/extension-strike';
 import Mention from '@tiptap/extension-mention';
 import Typography from '@tiptap/extension-typography';
 import Heading from '@tiptap/extension-heading';
@@ -100,9 +99,6 @@ function getEditorOptions(
         break;
       case 'underline':
         extensions.push(Underline);
-        break;
-      case 'strike':
-        extensions.push(Strike);
         break;
       case 'highlight':
         extensions.push(Highlight);

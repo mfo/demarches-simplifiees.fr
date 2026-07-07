@@ -169,8 +169,6 @@ class TiptapService
         "<em>#{text}</em>"
       in type: 'underline'
         "<u>#{text}</u>"
-      in type: 'strike'
-        "<s>#{text}</s>"
       in type: 'highlight'
         "<mark>#{text}</mark>"
       in type: 'link', attrs: { href: }

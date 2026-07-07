@@ -50,7 +50,7 @@ RSpec.describe TiptapService do
             {
               type: 'text',
               text: 'Bonjour ',
-              marks: [{ type: 'italic' }, { type: 'strike' }],
+              marks: [{ type: 'italic' }],
             },
             {
               type: 'mention',
@@ -168,7 +168,7 @@ RSpec.describe TiptapService do
         '<h2 class="body-start" style="text-align: center">Heading 2</h2>',
         '<h3 style="text-align: center">Heading 3</h3>',
         '<p style="text-align: right">First paragraph</p>',
-        '<p><s><em>Bonjour </em></s><u><strong>Paul</strong></u> <mark>!</mark></p>',
+        '<p><em>Bonjour </em><u><strong>Paul</strong></u> <mark>!</mark></p>',
         '<ul><li>Item 1</li><li>Item 2</li></ul>',
         '<ol><li>Item 1</li><li>Item 2</li></ol>',
         '<p>Langages de prédilection:</p><ul><li>ruby</li><li>rust</li></ul>',
