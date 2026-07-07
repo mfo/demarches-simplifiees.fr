@@ -182,8 +182,8 @@ describe 'Instructing a dossier:', js: true do
     expect(page).to have_text(instructeur_2.email)
 
     # Send dossier to instructeurs (inlined)
-    select_autocomplete('Emails', instructeur_2.email)
-    select_autocomplete('Emails', instructeur_3.email)
+    select_autocomplete('Envoyer ce dossier à un autre instructeur', instructeur_2.email)
+    select_autocomplete('Envoyer ce dossier à un autre instructeur', instructeur_3.email)
 
     click_on 'Envoyer'
 

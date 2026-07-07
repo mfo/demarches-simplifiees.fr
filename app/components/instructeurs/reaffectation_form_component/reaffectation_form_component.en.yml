@@ -1,0 +1,8 @@
+en:
+  title: "Reassign the file n° %{dossier_id} to another group"
+  hint:
+    one: "This file is assigned to group « %{label} ». You can reassign it to the other group"
+    other: "This file is assigned to group « %{label} ». You can reassign it to one of the %{count} other groups"
+  submit: Reassign the file to this group
+  select: Select
+  confirm: "Are you sure you want to reassign the file n° %{dossier_id} from the group « %{label} »?"

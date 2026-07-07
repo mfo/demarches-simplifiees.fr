@@ -2,7 +2,7 @@ fr:
   instructeurs:
     procedures:
       index:
-        title: "Démarches"
+        title: Démarches
       notifications_button:
         notifications_details: Détails des notifications
     procedure:
@@ -10,45 +10,39 @@ fr:
       archive_ready_html: Télécharger l’archive<br>(demandée il y a %{generated_period})
     edit:
       show:
-        title: "Modifier · Dossier n° %{dossier_id} – %{demandeur}"
-        heading: "Modifier le dossier n° %{dossier_id} – %{demandeur}"
+        title: Modifier · Dossier n° %{dossier_id} – %{demandeur}
+        heading: Modifier le dossier n° %{dossier_id} – %{demandeur}
     dossiers:
       submitted_revision:
-        download: "Télécharger le dossier (PDF)"
-        badge: "VERSION D’ORIGINE DÉPOSÉE PAR L’USAGER"
-        back: "Retour au dossier"
+        download: Télécharger le dossier (PDF)
+        badge: VERSION D’ORIGINE DÉPOSÉE PAR L’USAGER
+        back: Retour au dossier
         footer:
-          back: "Fermer et revenir au dossier"
+          back: Fermer et revenir au dossier
       edit:
-        confirm: "Les modifications que vous avez effectuées sur le dossier ne seront pas enregistrées."
-        back: "Retour au dossier"
+        confirm: Les modifications que vous avez effectuées sur le dossier ne seront
+          pas enregistrées.
+        back: Retour au dossier
       filterable_state:
-        en_construction: "En construction"
-        en_instruction: "En instruction"
-        accepte: "Accepté"
-        refuse: "Refusé"
-        sans_suite: "Classé sans suite"
+        en_construction: En construction
+        en_instruction: En instruction
+        accepte: Accepté
+        refuse: Refusé
+        sans_suite: Classé sans suite
       filterable_notification:
-        dossier_depose: 'Déposé depuis longtemps'
-        dossier_expirant: 'Expire bientôt'
-        dossier_suppression: 'Bientôt supprimé'
-        dossier_modifie: 'Dossier modifié'
-        message: 'Message'
-        # TODO: switch to ’Annotation instructeur’ during global renaming
-        annotation_instructeur: 'Annotation privée'
-        avis_externe: 'Avis externe'
-        attente_correction: 'En attente de correction'
-        attente_reponse: 'En attente de réponse'
-        attente_avis: "En attente d’avis externe"
+        dossier_depose: Déposé depuis longtemps
+        dossier_expirant: Expire bientôt
+        dossier_suppression: Bientôt supprimé
+        dossier_modifie: Dossier modifié
+        message: Message
+        annotation_instructeur: Annotation privée
+        avis_externe: Avis externe
+        attente_correction: En attente de correction
+        attente_reponse: En attente de réponse
+        attente_avis: En attente d’avis externe
       archived_block:
-        archived: 'Ce dossier a été déplacé dans « à archiver » le %{date} par %{email}'
+        archived: Ce dossier a été déplacé dans « à archiver » le %{date} par %{email}
       reaffectation:
-        title: "Réaffecter le dossier n° %{dossier_id} à un autre groupe instructeur"
-        hint:
-          one: "Ce dossier est affecté au groupe « %{label} ». Vous pouvez le réaffecter à lʼautre groupe instructeur"
-          other: "Ce dossier est affecté au groupe « %{label} ». Vous pouvez le réaffecter à lʼun des %{count} autres groupes instructeurs"
-        success: "Le dossier n° %{dossier_id} a été réaffecté au groupe d’instructeurs « %{label} »."
+        success: Le dossier n° %{dossier_id} a été réaffecté au groupe d’instructeurs
+          « %{label} ».
         error: Veuillez sélectionner un groupe instructeur dans la liste ci-dessous
-        submit: Réaffecter le dossier à ce groupe
-        select: Sélectionner
-        confirm: "Êtes-vous sûr de vouloir réaffecter le dossier n° %{dossier_id} du groupe « %{label} » ?"

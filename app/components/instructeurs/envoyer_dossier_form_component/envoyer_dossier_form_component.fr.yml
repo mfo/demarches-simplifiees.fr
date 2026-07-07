@@ -1,0 +1,5 @@
+fr:
+  title: Envoyer ce dossier à un autre instructeur
+  hint: Le destinataire suivra automatiquement le dossier
+  no_recipients: Vous êtes le seul instructeur assigné sur cette démarche
+  submit: Envoyer

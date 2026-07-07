@@ -1,0 +1,29 @@
+<% if potential_recipients.empty? %>
+  <p><%= t(".title") %></p>
+  <p class="tab-paragraph"><%= t(".no_recipients") %></p>
+<% else %>
+  <%= form_for dossier, url: send_to_instructeurs_instructeur_dossier_path(dossier.procedure, dossier), method: :post, html: { class: 'form recipients-form fr-mb-4w' } do |f| %>
+    <div class="fr-select-group">
+      <label class="fr-label fr-mb-1w" for="envoyer-dossier-select">
+        <span id="envoyer-dossier-label"><%= t(".title") %></span>
+        <span class="fr-hint-text"><%= t(".hint") %></span>
+      </label>
+
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--top">
+        <div class="fr-col-8">
+          <react-fragment>
+            <%= render ReactComponent.new "Select/MultipleSelect",
+              triggerId: 'envoyer-dossier-select',
+              'aria-labelledby': 'envoyer-dossier-label',
+              items: recipient_items,
+              name: 'recipients[]' %>
+          </react-fragment>
+        </div>
+
+        <div class="fr-col-4">
+          <%= f.submit t(".submit"), class: "fr-btn" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-describe 'instructeurs/dossiers/envoyer_dossier_block', type: :view do
+describe Instructeurs::EnvoyerDossierFormComponent, type: :component do
   let(:dossier) { create(:dossier) }
 
   subject do
-    render(
-      'instructeurs/dossiers/envoyer_dossier_block',
-      dossier: dossier,
-      potential_recipients: potential_recipients
-    )
+    render_inline(described_class.new(dossier:, potential_recipients:))
   end
 
   context "there are other instructeurs for the procedure" do
@@ -16,8 +12,9 @@ describe 'instructeurs/dossiers/envoyer_dossier_block', type: :view do
     let(:potential_recipients) { [instructeur] }
 
     it do
-      is_expected.to match(/props.*#{instructeur.email}/)
-      is_expected.to have_css(".fr-btn")
+      expect(subject.to_html).to include(instructeur.email)
+      expect(page).to have_css(".fr-btn")
+      expect(page).to have_css("label.fr-label[for='envoyer-dossier-select']")
     end
   end
 
@@ -25,9 +22,10 @@ describe 'instructeurs/dossiers/envoyer_dossier_block', type: :view do
     let(:potential_recipients) { [] }
 
     it do
-      is_expected.not_to have_css("select")
-      is_expected.not_to have_css(".fr-btn")
-      is_expected.to have_content("Vous êtes le seul instructeur assigné sur cette démarche")
+      subject
+      expect(page).not_to have_css("select")
+      expect(page).not_to have_css(".fr-btn")
+      expect(page).to have_text("Vous êtes le seul instructeur assigné sur cette démarche")
     end
   end
 end

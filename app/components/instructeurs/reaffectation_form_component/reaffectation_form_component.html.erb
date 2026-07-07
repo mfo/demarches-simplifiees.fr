@@ -1,0 +1,33 @@
+<div class="fr-mt-2w">
+  <%= form_with url: reaffecter_instructeur_dossier_path(procedure_id: dossier.procedure.id, dossier_id: dossier.id), method: :post, local: true, data: { controller: 'enable-submit-if-filled', action: 'change->enable-submit-if-filled#fillCombobox' } do |form| %>
+    <div class="fr-input-group">
+      <label class="fr-label fr-mb-1w" for="reaffectation-input">
+        <%= t(".title", dossier_id: dossier.id) %>
+
+        <span class="fr-hint-text">
+          <%= t(".hint", label: groupe_instructeur.label, count: groupes_instructeurs.count) %>
+        </span>
+      </label>
+
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--bottom">
+        <div class="fr-col-8">
+          <react-fragment>
+            <%= render ReactComponent.new "ComboBox/SingleComboBox",
+              inputId: 'reaffectation-input',
+              name: 'groupe_instructeur_id',
+              placeholder: t(".select"),
+              items: group_items,
+              data: { enable_submit_if_filled_target: 'input' } %>
+          </react-fragment>
+        </div>
+
+        <div class="fr-col-4">
+          <%= form.submit t(".submit"),
+            class: 'fr-btn',
+            data: { enable_submit_if_filled_target: 'submit', confirm: t(".confirm", dossier_id: dossier.id, label: groupe_instructeur.label) },
+            disabled: true %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

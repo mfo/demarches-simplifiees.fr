@@ -38,76 +38,27 @@
   <% end %>
 
   <%# Section 2: Suivi du dossier %>
-  <section class="fr-accordion">
-    <h3 class="fr-accordion__title">
-      <button
-        class="fr-accordion__btn"
-        aria-expanded="true"
-        aria-controls="accordion-suivi"
-      >
-        <%= t('views.instructeurs.dossiers.suivi_et_decision.suivi_du_dossier') %>
-      </button>
-    </h3>
+  <%= render Dsfr::AccordionComponent.new(id: "accordion-suivi", expanded: true) do |accordion| %>
+    <% accordion.with_title { t('views.instructeurs.dossiers.suivi_et_decision.suivi_du_dossier') } %>
 
-    <div class="fr-collapse fr-collapse--expanded" id="accordion-suivi">
-      <%= render partial: 'instructeurs/dossiers/envoyer_dossier_block', locals: { dossier: @dossier, potential_recipients: @potential_recipients } %>
+    <%= render Instructeurs::EnvoyerDossierFormComponent.new(dossier: @dossier, potential_recipients: @potential_recipients) %>
 
-      <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @following_instructeurs_emails, title: "Instructeurs qui suivent actuellement le dossier", blank: "Aucun instructeur ne suit ce dossier" } %>
+    <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @following_instructeurs_emails, title: "Instructeurs qui suivent actuellement le dossier", blank: "Aucun instructeur ne suit ce dossier" } %>
 
-      <% if @previous_following_instructeurs_emails.present? %>
-        <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @previous_following_instructeurs_emails, title: "Instructeurs ayant précédemment suivi le dossier", blank: " " } %>
-      <% end %>
-    </div>
-  </section>
+    <% if @previous_following_instructeurs_emails.present? %>
+      <%= render partial: 'instructeurs/dossiers/personnes_impliquees_block', locals: { emails_collection: @previous_following_instructeurs_emails, title: "Instructeurs ayant précédemment suivi le dossier", blank: " " } %>
+    <% end %>
+  <% end %>
 
   <%# Section 3: Affectation du dossier (conditionnel) %>
   <% if @dossier.procedure.routing_enabled? %>
-    <section class="fr-accordion">
-      <h3 class="fr-accordion__title">
-        <button
-          class="fr-accordion__btn"
-          aria-expanded="true"
-          aria-controls="accordion-affectation"
-        >
-          <%= t('views.instructeurs.dossiers.suivi_et_decision.affectation_du_dossier') %>
-        </button>
-      </h3>
+    <%= render Dsfr::AccordionComponent.new(id: "accordion-affectation", expanded: true) do |accordion| %>
+      <% accordion.with_title { t('views.instructeurs.dossiers.suivi_et_decision.affectation_du_dossier') } %>
 
-      <div class="fr-collapse fr-collapse--expanded" id="accordion-affectation">
-        <%= render partial: 'instructeurs/dossiers/reaffectations_block', locals: { assignments: @assignments } %>
+      <%= render partial: 'instructeurs/dossiers/reaffectations_block', locals: { assignments: @assignments } %>
 
-        <div class="fr-mt-2w">
-          <span class="fr-hint-text">
-            <%= t('instructeurs.dossiers.reaffectation.hint', label: @groupe_instructeur.label, count: @groupes_instructeurs.count) %>
-          </span>
-
-          <%= form_with url: reaffecter_instructeur_dossier_path(procedure_id: @dossier.procedure.id, dossier_id: @dossier.id), method: :post, local: true, data: { controller: 'enable-submit-if-filled', action: 'change->enable-submit-if-filled#fillCombobox' } do |form| %>
-            <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--bottom">
-              <div class="fr-col-8">
-                <div class="fr-select-group">
-                  <react-fragment>
-                    <%= render ReactComponent.new "ComboBox/SingleComboBox",
-                      id: 'groupe_instructeur_id',
-                      name: 'groupe_instructeur_id',
-                      placeholder: t('instructeurs.dossiers.reaffectation.select'),
-                      items: @groupes_instructeurs.map { |g| { label: g.label, value: g.id.to_s } },
-                      class: 'fr-mt-1w',
-                      data: { enable_submit_if_filled_target: 'input' } %>
-                  </react-fragment>
-                </div>
-              </div>
-
-              <div class="fr-col-4">
-                <%= form.submit t('instructeurs.dossiers.reaffectation.submit'),
-                  class: 'fr-btn',
-                  data: { enable_submit_if_filled_target: 'submit', confirm: t('instructeurs.dossiers.reaffectation.confirm', dossier_id: @dossier.id, label: @groupe_instructeur.label) },
-                  disabled: true %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </section>
+      <%= render Instructeurs::ReaffectationFormComponent.new(dossier: @dossier, groupe_instructeur: @groupe_instructeur, groupes_instructeurs: @groupes_instructeurs) %>
+    <% end %>
   <% end %>
 
   <%# Section 4: Avis externes %>

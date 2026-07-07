@@ -1,0 +1,5 @@
+en:
+  title: Send this file to another instructor
+  hint: The recipient will automatically follow the file
+  no_recipients: You are the only instructor assigned to this procedure
+  submit: Send
