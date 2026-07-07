@@ -1,0 +1,55 @@
+<% each_category do |category, tags, can_toggle_optional| %>
+  <% if category.present? %>
+    <div class="flex">
+      <p class="fr-label fr-text--sm fr-text--bold fr-mb-1w">
+        <%= t(category, scope: ".categories") %>
+      </p>
+    </div>
+    <% if can_toggle_optional %>
+      <div class="fr-fieldset__element fr-px-0">
+        <div class="fr-checkbox-group fr-checkbox-group--sm">
+          <%= check_box_tag("show_optional_#{category}", 1, false, data: { "no-autosubmit" => true, action: "change->attestation#toggleOptional"}) %>
+
+          <%= label_tag "show_optional_#{category}", for: "show_optional_#{category}" do %>
+            <%= category == :champ_public ? "Voir les champs facultatifs et/ou conditionnés" : "Voir les annotations facultatives et/ou conditionnées" %>
+
+            <span class="hidden fr-hint-text">
+              <%= category == :champ_public ? "Un champ non rempli par l’usager" : "Une annotation non remplie par l’instructeur" %>
+              restera vide dans l’attestation.
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <ul class="fr-tags-group" data-category="<%= category %>">
+    <% tags.each do |tag| %>
+      <% is_optional = can_toggle_optional && optional_tag?(tag) %>
+      <% label = button_label(tag) %>
+
+      <li
+        class="<%= class_names("hidden" => is_optional) %>"
+        data-optional-tag="<%= is_optional.presence %>"
+      >
+        <button
+          class="fr-tag fr-tag--sm <%= class_names("fr-tag--blue-ecume" => tag[:highlight], "fr-tag--purple-glycine" => is_optional) %>"
+          type="button"
+          title="<%= button_title(tag) %>"
+          data-action="click->tiptap#insertTag"
+          data-tiptap-target="tag"
+          data-tag-id="<%= tag[:id] %>"
+          data-tag-label="<%= label %>"
+          data-tag-mandatory="<%= tag[:mandatory].to_s %>"
+          data-tag-category="<%= category %>"
+        >
+          <%= label %>
+
+          <% if tag[:mandatory] %>
+            *
+          <% end %>
+        </button>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
