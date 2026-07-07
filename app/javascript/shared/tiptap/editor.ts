@@ -22,6 +22,7 @@ import HardBreak from '@tiptap/extension-hard-break';
 import {
   Editor,
   Extension,
+  type EditorEvents,
   type EditorOptions,
   type JSONContent,
   type Extensions
@@ -63,7 +64,7 @@ export function createEditor({
   content?: JSONContent;
   tags: TagSchema[];
   buttons: string[];
-  onChange(change: { editor: Editor }): void;
+  onChange(change: EditorEvents['transaction']): void;
   attributes?: Record<string, string>;
   singleLine?: boolean;
 }): Editor {
