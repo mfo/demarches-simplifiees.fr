@@ -140,6 +140,13 @@ function getEditorOptions(
     extensions.push(Heading.configure({ levels: [2, 3] }));
   }
 
+  // Line breaks (e.g. converted from legacy Trix `<br>`) can appear in any
+  // multi-line document; register the extension so such content loads even when
+  // there is no dedicated toolbar button (single-line editors forbid breaks).
+  if (!singleLine && !actions.includes('hardBreak')) {
+    extensions.push(HardBreak);
+  }
+
   if (
     actions.includes('left') ||
     actions.includes('center') ||

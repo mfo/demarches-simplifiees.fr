@@ -72,3 +72,23 @@
 #tiptap-link-modal .fr-modal__footer .fr-btns-group {
   width: auto;
 }
+
+// Subtle panel grouping the tag buttons (shared by the mail body and subject
+// editors) so they read as one block attached to the field above.
+.tags-buttons-panel {
+  padding: 0.75rem;
+  background-color: var(--background-alt-grey);
+  border-radius: 0.25rem;
+}
+
+// Collapsed tags variant of the tiptap editor: a light toggle tucked under the
+// field whose chevron flips when its collapse (the tags panel) is open.
+.tiptap-tags-collapse {
+  &__toggle::after {
+    transition: transform 0.3s;
+  }
+
+  &__toggle[aria-expanded='true']::after {
+    transform: rotate(-180deg);
+  }
+}

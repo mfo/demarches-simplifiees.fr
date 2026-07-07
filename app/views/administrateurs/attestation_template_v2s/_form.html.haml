@@ -92,7 +92,8 @@
               %strong.fr-text-title--grey @
               suivi du nom de la balise, ou cliquez sur les boutons ci-dessous.
 
-            = render TagsButtonListComponent.new(tags: attestation_template.tags_categorized)
+            .tags-buttons-panel
+              = render TagsButtonListComponent.new(tags: attestation_template.tags_categorized)
 
           .fr-fieldset__element.fr-mt-2w
             %h2.fr-h4 Pied de page
