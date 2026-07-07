@@ -23,7 +23,7 @@
   .fr-mb-2w
     = render QuotientFamilial::QuotientFamilialComponent.new(qf_data:, with_header: true, champ: @champ, for_preview: for_preview?)
 
-  - if fetched?
+  - if fetched? || for_preview?
     .fr-fieldset
       .fr-fieldset__legend--regular.fr-fieldset__legend
         = t('.external_champ.confirmation.question')
