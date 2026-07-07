@@ -3,3 +3,6 @@ fr:
   external_champ:
     header: Les données suivantes ont été récupérées de façon sécurisée auprès des administrations en charge.
     waiting_banner: Vos données sont en cours de récupération auprès des administrations en charge.
+    data_retrieval_date: Dernière récupération des données effectuées le %{updated_at}
+    button_refresh: Actualiser mes données
+    refresh_disabled_hint: Vos données ne peuvent être actualisées que toutes les 24h.

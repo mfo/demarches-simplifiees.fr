@@ -48,6 +48,6 @@ class EditableChamp::QuotientFamilialComponent < EditableChamp::EditableChampBas
   end
 
   def render_data_incorrect_callout_preview?
-    !fc_data_approved?
+    fc_data_approved? == false
   end
 end

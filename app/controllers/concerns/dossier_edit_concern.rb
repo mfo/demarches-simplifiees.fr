@@ -6,14 +6,13 @@ module DossierEditConcern
   private
 
   def update_champ_and_compute_errors(scope:)
-    champ = find_and_prepare_champ(scope:)
-    champ_changed = champ.changed_for_autosave?
+    champ, champ_changed, refresh_external_data_requested = find_and_prepare_champ(scope:)
     return if champ.type_de_champ.pre_rempli?
     saved = save_champ(champ, champ_changed, scope)
 
-    if saved && champ_changed
+    if saved && (champ_changed || refresh_external_data_requested)
       champ.update_timestamps if scope == :private || dossier.brouillon?
-      refresh_external_data(champ)
+      refresh_external_data(champ, refresh_requested: refresh_external_data_requested)
       scope == :public ? after_public_champ_saved(champ) : after_private_champ_saved
     end
 
@@ -28,8 +27,12 @@ module DossierEditConcern
     if champ.referentiel? && champ.autocomplete?
       champ_attributes = champ_attributes.merge(params.require(:dossier).require(param_key).require(public_id).permit(:data).to_h)
     end
+    refresh_external_data_requested = champ_attributes.delete("refresh_external_data") == "1"
+
     champ.assign_attributes(champ_attributes)
-    champ
+    champ_changed = champ.changed_for_autosave?
+
+    [champ, champ_changed, refresh_external_data_requested]
   end
 
   def save_champ(champ, champ_changed, scope)
@@ -62,9 +65,13 @@ module DossierEditConcern
     dossier.validate(validation_context) if should_validate
   end
 
-  def refresh_external_data(champ)
-    if champ.has_async_external_data?
-      champ.reset_external_data!
+  def refresh_external_data(champ, refresh_requested: false)
+    if champ.has_async_external_data? || (refresh_requested && champ.france_connect?)
+      reset_attrs = {}
+
+      reset_attrs[:value] = nil if champ.france_connect?
+
+      champ.reset_external_data!(reset_attrs)
       champ.fetch_later! if champ.may_fetch_later?
     end
   end
@@ -89,7 +96,7 @@ module DossierEditConcern
       :primary_value, :secondary_value, :piece_justificative_file,
       :code_departement, :accreditation_number, :accreditation_birthdate,
       :not_in_ban,
-      (:preview_state if scope == :public),
+      *([:preview_state, :refresh_external_data] if scope == :public),
       *(not_in_ban ? [:street_address, :city_name, :country_code, :commune_code, :postal_code] : [:address]),
       value: [],
     ].compact

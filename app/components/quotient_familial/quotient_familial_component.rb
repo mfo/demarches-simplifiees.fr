@@ -3,9 +3,11 @@
 class QuotientFamilial::QuotientFamilialComponent < ApplicationComponent
   attr_reader :qf_data
 
-  def initialize(qf_data:, with_header: false)
+  def initialize(qf_data:, with_header: false, champ: nil, for_preview: false)
     @qf_data = qf_data
     @with_header = with_header
+    @champ = champ
+    @for_preview = for_preview
   end
 
   def source
@@ -43,6 +45,12 @@ class QuotientFamilial::QuotientFamilialComponent < ApplicationComponent
     end
 
     rows
+  end
+
+  def refresh_disabled?
+    return true if @for_preview
+
+    @champ.updated_at > Champs::QuotientFamilialChamp::REFRESH_DELAY.ago
   end
 
   private

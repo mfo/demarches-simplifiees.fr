@@ -23,7 +23,7 @@ class Dossiers::QuotientFamilialComponent < ApplicationComponent
     if profile == 'instructeur'
       render Dsfr::NoticeComponent.new(
         closable: false,
-        data_attributes: { "data-notice-name" => "info-recuperation-donnees-qf" }
+        data_attributes: { "data-notice-name" => "info-recuperation-donnees-qf", class: 'clearfix' }
       ) do |c|
         c.with_title do
           description

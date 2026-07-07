@@ -12,7 +12,7 @@ class Dossiers::ChampUpdatedComponent < ApplicationComponent
 
   def badge_updated_class
     class_names(
-      "fr-badge fr-badge--sm" => true,
+      "fr-badge fr-badge--sm fr-mb-1v" => true,
       "fr-badge--new" => seen_at.present? && updated_at&.>(seen_at)
     )
   end

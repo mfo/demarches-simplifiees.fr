@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Champs::QuotientFamilialChamp < Champ
+  REFRESH_DELAY = 24.hours
+
   attr_accessor :preview_state
 
   def fc_data_approved? = ActiveModel::Type::Boolean.new.cast(value)
@@ -44,8 +46,8 @@ class Champs::QuotientFamilialChamp < Champ
   def libelle
     if fc_data_correct?
       ""
-    elsif fc_data_incorrect?
-      I18n.t('api_particulier.libelle.quotient_familial.fc_data_incorrect')
+    elsif fc_data_incorrect? || external_error? || idle?
+      I18n.t('api_particulier.libelle.quotient_familial.piece_justificative')
     else
       I18n.t('api_particulier.libelle.quotient_familial.default')
     end

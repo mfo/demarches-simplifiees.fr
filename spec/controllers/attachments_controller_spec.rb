@@ -146,16 +146,66 @@ describe AttachmentsController, type: :controller do
       before { sign_in(user) }
 
       context 'and dossier is owned by user' do
-        before { champ.update_columns(external_state: 'fetched', value_json: 'some value') }
+        before { champ.update_columns(external_state: 'fetched', value_json:, data:) }
 
-        it 'removes the attachment, and resets the ocr data' do
-          is_expected.to have_http_status(200)
+        context "when it is a champ with ocr data" do
+          let(:value_json) { { ocr: 'some value' } }
+          let(:data) { { ocr: 'some value' } }
 
-          champ.reload
+          it 'removes the attachment, and resets the ocr data' do
+            is_expected.to have_http_status(200)
 
-          expect(champ.piece_justificative_file.attached?).to be(false)
-          expect(champ.external_state).to eq('idle')
-          expect(champ.value_json).to be_nil
+            champ.reload
+
+            expect(champ.piece_justificative_file.attached?).to be(false)
+            expect(champ.external_state).to eq('idle')
+            expect(champ.value_json).to be_nil
+            expect(champ.data).to be_nil
+          end
+        end
+
+        context 'when it is a france connect champ, with its replacement attachment' do
+          let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
+          let(:dossier) { create(:dossier, user:, procedure:) }
+          let(:data) {
+            {
+              api_part: {
+                "quotient_familial": {
+                  "valeur": 464,
+                  "fournisseur": "CAF",
+                  "mois": "12",
+                  "annee": "2023",
+                  "mois_calcul": "12",
+                  "annee_calcul": "2023",
+                },
+              },
+            }
+          }
+          let(:value_json) {
+            {
+              api_part: {
+                "quotient_familial": {
+                  "valeur": 464,
+                  "periode_effective": "2023-12-01",
+                  "fournisseur": "CAF",
+                  "periode_calcul": "2023-12-01",
+                },
+              },
+            }
+          }
+
+          before { champ.piece_justificative_file.attach(fixture_file_upload('spec/fixtures/files/logo_test_procedure.png', 'image/png')) }
+
+          it "does not resets data" do
+            is_expected.to have_http_status(200)
+
+            champ.reload
+
+            expect(champ.piece_justificative_file.attached?).to be(false)
+            expect(champ.external_state).to eq('fetched')
+            expect(champ.value_json).not_to be_nil
+            expect(champ.data).not_to be_nil
+          end
         end
       end
 

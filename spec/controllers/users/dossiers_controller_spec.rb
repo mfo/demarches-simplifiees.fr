@@ -1416,6 +1416,79 @@ describe Users::DossiersController, type: :controller do
         expect(response.body).to include(suggestion_data[:ej_rs])
       end
     end
+
+    context 'when the champ is quotient familial' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :quotient_familial }]) }
+
+      context "when the champ has already been fetched, and user wants to refresh it" do
+        let(:submit_payload) do
+          {
+            id: dossier.id,
+            dossier: {
+              champs_public_attributes: {
+                first_champ.public_id => {
+                  refresh_external_data: '1',
+                },
+              },
+            },
+          }
+        end
+        let(:data) {
+          {
+            api_part: {
+              "quotient_familial": {
+                "valeur": 464,
+                "fournisseur": "CAF",
+                "mois": "12",
+                "annee": "2023",
+                "mois_calcul": "12",
+                "annee_calcul": "2023",
+              },
+            },
+          }
+        }
+        let(:value_json) {
+          {
+            api_part: {
+              "quotient_familial": {
+                "valeur": 464,
+                "periode_effective": "2023-12-01",
+                "fournisseur": "CAF",
+                "periode_calcul": "2023-12-01",
+              },
+            },
+          }
+        }
+
+        before do
+          first_champ.update!(
+            updated_at: 2.days.ago,
+            external_state: 'fetched',
+            data:,
+            value_json:,
+            value: 'true'
+          )
+        end
+
+        it "first resets external data" do
+          allow(first_champ).to receive(:may_fetch_later?).and_return(false)
+
+          expect {
+            subject
+            first_champ.reload
+          }.to change { first_champ.data }.to(nil)
+            .and change { first_champ.value_json }.to(nil)
+            .and change { first_champ.value }.to(nil)
+        end
+
+        it "then calls fetch!" do
+          allow_any_instance_of(Champs::QuotientFamilialChamp).to receive(:may_fetch_later?).and_return(true)
+
+          expect_any_instance_of(Champs::QuotientFamilialChamp).to receive(:fetch_later!)
+          subject
+        end
+      end
+    end
   end
 
   describe '#update en_construction (stream)' do
@@ -1720,6 +1793,80 @@ describe Users::DossiersController, type: :controller do
         annotation = dossier.project_champs_private.find { it.stable_id == 100 }
         expect(annotation.value).to eq(suggestion_data[:finess])
         expect(annotation.stream).to eq(Champ::MAIN_STREAM)
+      end
+    end
+
+    context 'when the champ is quotient familial' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :quotient_familial }]) }
+
+      context "when the champ has already been fetched, and user wants to refresh it" do
+        let(:submit_payload) do
+          {
+            id: dossier.id,
+            dossier: {
+              champs_public_attributes: {
+                first_champ.public_id => {
+                  refresh_external_data: '1',
+                },
+              },
+            },
+          }
+        end
+        let(:data) {
+          {
+            api_part: {
+              "quotient_familial": {
+                "valeur": 464,
+                "fournisseur": "CAF",
+                "mois": "12",
+                "annee": "2023",
+                "mois_calcul": "12",
+                "annee_calcul": "2023",
+              },
+            },
+          }
+        }
+        let(:value_json) {
+          {
+            api_part: {
+              "quotient_familial": {
+                "valeur": 464,
+                "periode_effective": "2023-12-01",
+                "fournisseur": "CAF",
+                "periode_calcul": "2023-12-01",
+              },
+            },
+          }
+        }
+
+        before do
+          first_champ.update!(
+            updated_at: 2.days.ago,
+            external_state: 'fetched',
+            data:,
+            value_json:,
+            value: 'true'
+          )
+        end
+
+        it "first resets external data on user_buffer_stream" do
+          allow(first_champ).to receive(:may_fetch_later?).and_return(false)
+          expect(first_champ).not_to receive(:may_fetch_later!)
+          subject
+          dossier.reload
+          expect(first_champ_user_buffer.data).to eq(nil)
+          expect(first_champ_user_buffer.value_json).to eq(nil)
+          expect(first_champ_user_buffer.value).to eq(nil)
+          expect(first_champ_user_buffer.external_state).to eq('idle')
+        end
+
+        it "then calls fetch!" do
+          allow_any_instance_of(Champs::QuotientFamilialChamp).to receive(:may_fetch_later?).and_return(true)
+
+          expect(first_champ).not_to receive(:fetch_later!)
+          expect_any_instance_of(Champs::QuotientFamilialChamp).to receive(:fetch_later!)
+          subject
+        end
       end
     end
   end
