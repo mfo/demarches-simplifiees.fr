@@ -231,4 +231,106 @@ describe MailTemplateConcern do
       expect(doc["content"].first["content"]).to include({ "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } })
     end
   end
+
+  describe 'rendu dual' do
+    let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+    it 'body_for_dossier utilise json_body si présent (rend le HTML via TiptapService)' do
+      mail.json_body = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "Dossier nº " },
+              { "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } },
+            ],
+          },
+        ],
+      }
+      html = mail.body_for_dossier(dossier)
+      expect(html).to include("Dossier nº #{dossier.id}")
+    end
+
+    it 'body_for_dossier retombe sur le legacy si json_body absent' do
+      mail.json_body = nil
+      mail.body = 'Bonjour --numéro du dossier--'
+      expect(mail.body_for_dossier(dossier)).to include(dossier.id.to_s)
+    end
+
+    it 'rend un hardBreak en simple <br> (comme le saut de ligne legacy)' do
+      mail.json_body = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "Cordialement," },
+              { "type" => "hardBreak" },
+              { "type" => "text", "text" => "Service" },
+            ],
+          },
+        ],
+      }
+      html = mail.body_for_dossier(dossier)
+      expect(html).to include("Cordialement,<br>Service")
+      expect(html).not_to include("<br><br>")
+    end
+
+    it 'subject_for_dossier utilise json_subject si présent' do
+      mail.json_subject = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "Dossier " },
+              { "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } },
+            ],
+          },
+        ],
+      }
+      expect(mail.subject_for_dossier(dossier)).to eq("Dossier #{dossier.id}")
+    end
+  end
+
+  describe 'validation des tags JSON' do
+    it 'invalide un tag de champ inexistant dans json_body' do
+      mail.json_body = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "mention", "attrs" => { "id" => "tdc999999", "label" => "champ fantôme" } },
+            ],
+          },
+        ],
+      }
+      expect(mail).not_to be_valid
+      expect(mail.errors[:json_body]).to be_present
+    end
+
+    it 'json_body vide reste valide' do
+      mail.json_body = nil
+      expect(mail).to be_valid
+    end
+
+    it 'reste valide si json_body est valide même si le body legacy contient un tag invalide' do
+      mail.json_body = { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "OK" }] }] }
+      mail.body = 'Bonjour --libellé totalement inexistant--'
+      expect(mail).to be_valid
+    end
+
+    it 'invalide via :json_body (et pas :body) quand json_body est présent et invalide' do
+      mail.json_body = { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "mention", "attrs" => { "id" => "tdc999999", "label" => "x" } }] }] }
+      mail.body = 'Bonjour'
+      expect(mail).not_to be_valid
+      expect(mail.errors[:json_body]).to be_present
+      expect(mail.errors[:body]).to be_empty
+    end
+
+    it 'valide le body legacy quand json_body est absent' do
+      mail.json_body = nil
+      mail.body = 'Bonjour --libellé totalement inexistant--'
+      expect(mail).not_to be_valid
+      expect(mail.errors[:body]).to be_present
+    end
+  end
 end
