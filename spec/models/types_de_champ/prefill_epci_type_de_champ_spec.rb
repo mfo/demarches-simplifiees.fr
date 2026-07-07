@@ -32,7 +32,7 @@ RSpec.describe TypesDeChamp::PrefillEpciTypeDeChamp do
     subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }
 
     shared_examples "a transformation to" do |code_departement, value|
-      it { is_expected.to match({ code_departement: code_departement, value: value, id: champ.id }) }
+      it { is_expected.to match({ code_departement: code_departement, value: value }) }
     end
 
     context 'when the value is nil' do

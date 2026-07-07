@@ -18,7 +18,7 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
   def to_assignable_attributes(champ, value)
     return [] unless value.is_a?(Array)
 
-    value.map.with_index do |repetition, index|
+    value.flat_map.with_index do |repetition, index|
       PrefillRepetitionRow.new(champ, repetition, index, @revision).to_assignable_attributes
     end.compact_blank
   end
@@ -58,7 +58,7 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
 
       row_id = champ.row_ids[index] || champ.add_row(updated_by: nil)
 
-      repetition.map do |key, value|
+      repetition.filter_map do |key, value|
         next if !key.is_a?(String) || !key.starts_with?("champ_")
 
         stable_id = Champ.stable_id_from_typed_id(key)
@@ -66,8 +66,9 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
         next unless type_de_champ
 
         subchamp = champ.dossier.champ_for_update(type_de_champ, row_id:, updated_by: nil)
-        TypesDeChamp::PrefillTypeDeChamp.build(subchamp.type_de_champ, revision).to_assignable_attributes(subchamp, value)
-      end.compact
+        attributes = TypesDeChamp::PrefillTypeDeChamp.build(subchamp.type_de_champ, revision).to_assignable_attributes(subchamp, value)
+        [subchamp, attributes] if attributes.present?
+      end
     end
   end
 end

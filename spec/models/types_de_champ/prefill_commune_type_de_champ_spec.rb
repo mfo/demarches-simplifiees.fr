@@ -52,7 +52,7 @@ RSpec.describe TypesDeChamp::PrefillCommuneTypeDeChamp do
     context 'when the value is an array of one element' do
       context 'when the first element is a valid postal code' do
         let(:value) { ['01540'] }
-        it { is_expected.to match({ id: champ.id, code_postal: '01540' }) }
+        it { is_expected.to match({ code_postal: '01540' }) }
       end
 
       context 'when the first element is not a valid postal code' do
@@ -65,7 +65,7 @@ RSpec.describe TypesDeChamp::PrefillCommuneTypeDeChamp do
       context 'when the first element is a valid postal code' do
         context 'when the second element is a valid insee code' do
           let(:value) { ['01540', '01457'] }
-          it { is_expected.to match({ id: champ.id, code_postal: '01540', external_id: '01457' }) }
+          it { is_expected.to match({ code_postal: '01540', external_id: '01457' }) }
         end
 
         context 'when the second element is not a valid insee code' do
@@ -84,7 +84,7 @@ RSpec.describe TypesDeChamp::PrefillCommuneTypeDeChamp do
       context 'when the first element is a valid postal code' do
         context 'when the second element is a valid insee code' do
           let(:value) { ['01540', '01457', 'hello'] }
-          it { is_expected.to match({ id: champ.id, code_postal: '01540', external_id: '01457' }) }
+          it { is_expected.to match({ code_postal: '01540', external_id: '01457' }) }
         end
 
         context 'when the second element is not a valid insee code' do

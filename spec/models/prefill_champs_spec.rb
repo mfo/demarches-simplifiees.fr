@@ -14,11 +14,11 @@ RSpec.describe PrefillChamps do
       let(:types_de_champ_public) { [{ type: :text }, { type: :textarea }] }
       let(:type_de_champ_1) { procedure.published_revision.types_de_champ_public.first }
       let(:value_1) { "any value" }
-      let(:champ_id_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id).id }
+      let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
 
       let(:type_de_champ_2) { procedure.published_revision.types_de_champ_public.second }
       let(:value_2) { "another value" }
-      let(:champ_id_2) { find_champ_by_stable_id(dossier, type_de_champ_2.stable_id).id }
+      let(:champ_2) { find_champ_by_stable_id(dossier, type_de_champ_2.stable_id) }
 
       let(:params) {
         {
@@ -27,10 +27,10 @@ RSpec.describe PrefillChamps do
         }
       }
 
-      it "builds an array of hash(id, value) matching all the given params" do
+      it "builds an array of [champ, attributes] pairs matching all the given params" do
         expect(prefill_champs_array).to match_array([
-          { id: champ_id_1, value: value_1 },
-          { id: champ_id_2, value: value_2 },
+          [champ_1, { value: value_1 }],
+          [champ_2, { value: value_2 }],
         ])
       end
     end
@@ -85,8 +85,8 @@ RSpec.describe PrefillChamps do
 
         let(:params) { { "champ_#{type_de_champ.to_typed_id_for_query}" => champ_value } }
 
-        it "builds an array of hash matching the given params", :slow do
-          expect(prefill_champs_array).to match([{ id: champ.id }.merge(attributes(champ, champ_value))])
+        it "builds an array of [champ, attributes] pairs matching the given params", :slow do
+          expect(prefill_champs_array).to match([[champ, attributes(champ, champ_value)]])
         end
       end
     end
@@ -110,8 +110,8 @@ RSpec.describe PrefillChamps do
 
         let(:params) { { "champ_#{type_de_champ.to_typed_id_for_query}" => champ_value } }
 
-        it "builds an array of hash matching the given params", :slow do
-          expect(prefill_champs_array).to match([{ id: champ.id }.merge(attributes(champ, champ_value))])
+        it "builds an array of [champ, attributes] pairs matching the given params", :slow do
+          expect(prefill_champs_array).to match([[champ, attributes(champ, champ_value)]])
         end
       end
     end
@@ -166,8 +166,8 @@ RSpec.describe PrefillChamps do
 
       let(:params) { { "champ_#{type_de_champ.to_typed_id_for_query}" => [{ "champ_#{type_de_champ_child.to_typed_id_for_query}" => type_de_champ_child_value }, { "champ_#{type_de_champ_child.to_typed_id_for_query}" => type_de_champ_child_value2 }] } }
 
-      it "builds an array of hash(id, value) matching the given params" do
-        expect(prefill_champs_array).to match([{ id: child_champs.first.id, value: type_de_champ_child_value }, { id: child_champs.second.id, value: type_de_champ_child_value2 }])
+      it "builds an array of [champ, attributes] pairs matching the given params" do
+        expect(prefill_champs_array).to match([[child_champs.first, { value: type_de_champ_child_value }], [child_champs.second, { value: type_de_champ_child_value2 }]])
       end
     end
 
@@ -208,8 +208,8 @@ RSpec.describe PrefillChamps do
 
       let(:params) { { "champ_#{type_de_champ.to_typed_id_for_query}" => [{ "champ_#{type_de_champ_child.to_typed_id_for_query}" => type_de_champ_child_value }, { "champ_#{type_de_champ_child.to_typed_id_for_query}" => type_de_champ_child_value2 }] } }
 
-      it "builds an array of hash(id, value) matching the given params" do
-        expect(prefill_champs_array).to match([{ id: child_champs.first.id, value: type_de_champ_child_value }, { id: child_champs.second.id, value: type_de_champ_child_value2 }])
+      it "builds an array of [champ, attributes] pairs matching the given params" do
+        expect(prefill_champs_array).to match([[child_champs.first, { value: type_de_champ_child_value }], [child_champs.second, { value: type_de_champ_child_value2 }]])
       end
     end
 

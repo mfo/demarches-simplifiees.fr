@@ -71,7 +71,7 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
 
   def to_assignable_attributes(champ, value)
     return nil if !acceptable_prefill_value?(value)
-    { id: champ.id, value: value }
+    { value: value }
   end
 
   def acceptable_prefill_value?(value)
