@@ -190,6 +190,41 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe 'identite turbo_stream persists the persona choice' do
+    let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
+    let(:dossier) { create(:dossier, user:, procedure:) }
+    let(:now) { Time.zone.parse('01/01/2100') }
+
+    before { sign_in(user) }
+
+    subject do
+      travel_to(now) do
+        patch :identite, params: { id: dossier.id, dossier: { for_tiers: for_tiers_value } }, format: :turbo_stream
+      end
+    end
+
+    # The choice must be persisted so that the identity form does not disappear on a page reload.
+    context 'when choosing "pour vous"' do
+      let(:for_tiers_value) { 'false' }
+
+      it 'persists for_tiers and stamps identity_updated_at' do
+        subject
+        expect(dossier.reload.for_tiers).to be false
+        expect(dossier.identity_updated_at).to eq(now)
+      end
+    end
+
+    context 'when choosing "pour une autre personne"' do
+      let(:for_tiers_value) { 'true' }
+
+      it 'persists for_tiers and stamps identity_updated_at' do
+        subject
+        expect(dossier.reload.for_tiers).to be true
+        expect(dossier.identity_updated_at).to eq(now)
+      end
+    end
+  end
+
   describe 'update_identite' do
     let(:procedure) { create(:procedure, :for_individual) }
     let(:dossier) { create(:dossier, user: user, procedure: procedure) }
