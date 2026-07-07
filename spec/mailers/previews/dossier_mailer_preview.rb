@@ -32,14 +32,6 @@ class DossierMailerPreview < ActionMailer::Preview
     DossierMailer.notify_brouillon_near_deletion([dossier], usager_email)
   end
 
-  def notify_en_construction_near_deletion_to_user
-    DossierMailer.notify_near_deletion_to_user([dossier_en_construction], usager_email)
-  end
-
-  def notify_en_construction_near_deletion_to_administration
-    DossierMailer.notify_near_deletion_to_administration([dossier_en_construction, dossier_en_construction], administration_email)
-  end
-
   def notify_termine_near_deletion_to_user
     DossierMailer.notify_near_deletion_to_user([dossier_accepte], usager_email)
   end

@@ -145,8 +145,7 @@ class DossierMailer < ApplicationMailer
 
   def notify_near_deletion_to_user(dossiers, to_email)
     I18n.with_locale(dossiers.first.user_locale) do
-      @state = dossiers.first.state
-      @subject = default_i18n_subject(count: dossiers.size, state: @state)
+      @subject = default_i18n_subject(count: dossiers.size, state: dossiers.first.state)
       @dossiers = dossiers
       @expiration_date = Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now
 
@@ -155,7 +154,6 @@ class DossierMailer < ApplicationMailer
   end
 
   def notify_near_deletion_for_tiers(dossiers, to_email)
-    @state = dossiers.first.state
     @subject = if dossiers.one?
       default_i18n_subject(count: dossiers.size, mandataire: "#{dossiers.first.mandataire_first_name} #{dossiers.first.mandataire_last_name}")
     else
@@ -168,8 +166,7 @@ class DossierMailer < ApplicationMailer
   end
 
   def notify_near_deletion_to_administration(dossiers, to_email)
-    @state = dossiers.first.state
-    @subject = default_i18n_subject(count: dossiers.size, state: @state)
+    @subject = default_i18n_subject(count: dossiers.size, state: dossiers.first.state)
     @dossiers = dossiers
     @expiration_date = Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now
 

@@ -224,20 +224,6 @@ RSpec.describe DossierMailer, type: :mailer do
   end
 
   describe '.notify_near_deletion_to_administration' do
-    describe 'en_construction' do
-      let(:dossier) { create(:dossier, :en_construction) }
-
-      subject { described_class.notify_near_deletion_to_administration([dossier], dossier.user.email) }
-
-      it 'checks email subject and body for correct inclusions for en_construction status' do
-        expect(subject.subject).to eq("Un dossier en attente d’instruction va bientôt être supprimé")
-        expect(subject.body).to include("N° #{dossier.id} ")
-        expect(subject.body).to include(dossier.procedure.libelle)
-        expect(subject.body).to include("PDF")
-        expect(subject.body).to include(I18n.l(Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now.to_date, format: :long).to_s)
-      end
-    end
-
     describe 'termine' do
       let(:dossier) { create(:dossier, :accepte) }
 
@@ -253,22 +239,6 @@ RSpec.describe DossierMailer, type: :mailer do
   end
 
   describe '.notify_near_deletion_to_user' do
-    describe 'en_construction' do
-      let(:dossier) { create(:dossier, :en_construction) }
-
-      subject { described_class.notify_near_deletion_to_user([dossier], dossier.user.email) }
-
-      it 'verifies email subject, to, and body for correct inclusions for en_construction status' do
-        expect(subject.to).to eq([dossier.user.email])
-        expect(subject.subject).to eq("Un dossier en attente d’instruction va bientôt être supprimé")
-        expect(subject.body).to include("N° #{dossier.id} ")
-        expect(subject.body).to include(dossier.procedure.libelle)
-        expect(subject.body).to include("Votre compte reste activé")
-        expect(subject.body).to include("Depuis la page de votre dossier vous avez la possibilité de :<br>- prolonger la durée de conservation")
-        expect(subject.body).to include(I18n.l(Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks.from_now.to_date, format: :long).to_s)
-      end
-    end
-
     describe 'termine' do
       let(:dossier) { create(:dossier, :accepte) }
 
@@ -304,7 +274,7 @@ RSpec.describe DossierMailer, type: :mailer do
   end
 
   describe 'notify_near_deletion_for_tiers' do
-    let!(:dossier_for_tiers) { create(:dossier, :en_construction, :for_tiers_with_notification) }
+    let!(:dossier_for_tiers) { create(:dossier, :accepte, :for_tiers_with_notification) }
 
     subject { described_class.notify_near_deletion_for_tiers([dossier_for_tiers], dossier_for_tiers.individual.email) }
 
