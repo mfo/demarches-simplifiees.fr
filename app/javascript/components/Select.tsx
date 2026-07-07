@@ -3,6 +3,8 @@ import {
   Autocomplete,
   SelectValue,
   Button,
+  Label,
+  Text,
   Popover,
   Virtualizer,
   ListLayout,
@@ -37,6 +39,9 @@ type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
 > & {
   items: Item[];
   value: M extends 'single' ? string | null : string[];
+  label?: string;
+  description?: string;
+  triggerId?: string;
   labelId?: string;
   ariaLabelledbyPrefix?: string;
   alwaysShowKey?: string;
@@ -45,6 +50,9 @@ type AutocompleteFilter = NonNullable<AutocompleteProps<Item>['filter']>;
 
 function Select<M extends SelectionMode = 'single'>({
   items,
+  label,
+  description,
+  triggerId,
   labelId,
   ariaLabelledbyPrefix,
   alwaysShowKey,
@@ -67,12 +75,22 @@ function Select<M extends SelectionMode = 'single'>({
 
   return (
     <AriaSelect {...props}>
+      {label ? (
+        <Label className="fr-label">
+          {label}
+          {description ? (
+            <Text slot="description" className="fr-hint-text">
+              {description}
+            </Text>
+          ) : null}
+        </Label>
+      ) : null}
       {props.selectionMode == 'single' ? (
-        <Button className="fr-select">
+        <Button id={triggerId} className="fr-select">
           <SelectValue />
         </Button>
       ) : (
-        <MultipleSelectValue />
+        <MultipleSelectValue triggerId={triggerId} />
       )}
       <Popover
         className="react-aria-Popover select-popover"
@@ -91,13 +109,13 @@ function Select<M extends SelectionMode = 'single'>({
   );
 }
 
-function MultipleSelectValue() {
+function MultipleSelectValue({ triggerId }: { triggerId?: string }) {
   const selectButtonRef = useRef<HTMLButtonElement>(null);
   return (
     <SelectValue<Item>>
       {({ selectedItems, state, defaultChildren }) => (
         <>
-          <Button className="fr-select" ref={selectButtonRef}>
+          <Button id={triggerId} className="fr-select" ref={selectButtonRef}>
             <span className="react-aria-SelectValue" data-placeholder>
               <Plural
                 value={selectedItems.length}
