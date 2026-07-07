@@ -171,12 +171,6 @@ describe MailTemplateConcern do
     end
   end
 
-  describe '#update_rich_body' do
-    before { initiated_mail.update(body: "Voici le corps du mail") }
-
-    it { expect(initiated_mail.rich_body.to_plain_text).to eq(initiated_mail.body) }
-  end
-
   describe '#tiptap_inline_nodes_for' do
     it 'résout --numéro du dossier-- en mention' do
       nodes = mail.tiptap_inline_nodes_for('Dossier --numéro du dossier--')

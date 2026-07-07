@@ -35,10 +35,6 @@ module MailTemplateConcern
     nil
   end
 
-  def update_rich_body
-    self.rich_body = self.body
-  end
-
   def tiptap_body
     json_body&.to_json
   end
@@ -77,9 +73,6 @@ module MailTemplateConcern
   end
 
   included do
-    has_rich_text :rich_body
-    before_save :update_rich_body
-
     validates :json_body, tags: true, if: -> { json_body.present? }
     validates :json_subject, tags: true, if: -> { json_subject.present? }
     validates :body, tags: true, if: -> { json_body.blank? }
@@ -89,9 +82,9 @@ module MailTemplateConcern
   class_methods do
     def default_for_procedure(procedure)
       template_name = default_template_name_for_procedure(procedure)
-      rich_body = ActionController::Base.render(template: template_name).gsub(/<!--.*?-->/m, '')
-      trix_rich_body = rich_body.gsub(/(?<!^|[.-])(?<!<\/strong>)\n/, ' ')
-      new(subject: const_get(:DEFAULT_SUBJECT), body: trix_rich_body, rich_body: trix_rich_body, procedure: procedure)
+      body = ActionController::Base.render(template: template_name).gsub(/<!--.*?-->/m, '')
+      body = body.gsub(/(?<!^|[.-])(?<!<\/strong>)\n/, ' ')
+      new(subject: const_get(:DEFAULT_SUBJECT), body:, procedure:)
     end
 
     def default_template_name_for_procedure(procedure)
