@@ -8,8 +8,8 @@ class TiptapService
       tags << [id, label]
     in { content:, **rest } if content.is_a?(Array)
       content.each { used_tags_and_libelle_for(_1, tags) }
-    in type:, **rest
-      # noop
+    else
+      # ignore unknown node types
     end
 
     tags
@@ -21,30 +21,31 @@ class TiptapService
     children(node[:content], substitutions, 0).gsub('<p></p>', '')
   end
 
-  def to_texts_and_tags(node, substitutions = {})
+  def to_texts_and_tags(node, substitutions = {}, strip: true)
     return '' if node.nil?
 
-    children_texts_and_tags(node[:content], substitutions)
+    children_texts_and_tags(node[:content], substitutions, strip)
   end
 
   private
 
-  def initialize
+  def initialize(hard_break: "<br>")
     @body_started = false
+    @hard_break = hard_break
   end
 
-  def children_texts_and_tags(content, substitutions)
-    content.map { node_to_texts_and_tags(_1, substitutions) }.join
+  def children_texts_and_tags(content, substitutions, strip)
+    content.map { node_to_texts_and_tags(_1, substitutions, strip) }.join
   end
 
-  def node_to_texts_and_tags(node, substitutions)
+  def node_to_texts_and_tags(node, substitutions, strip)
     case node
     in type: 'paragraph', content:
-      children_texts_and_tags(content, substitutions)
+      children_texts_and_tags(content, substitutions, strip)
     in type: 'paragraph' # empty paragraph
       ''
     in type: 'text', text:
-      text.strip
+      strip ? text.strip : text
     in type: 'mention', attrs: { id:, label: }
       if substitutions.present?
         substitutions.fetch(id) { "--#{id}--" }
@@ -53,6 +54,9 @@ class TiptapService
       end
     in type: 'pageBreak'
       ' '
+    else
+      # ignore unknown node types
+      ''
     end
   end
 
@@ -105,7 +109,7 @@ class TiptapService
     in type: 'descriptionDetails', content:
       "<dd>#{children(content, substitutions, level + 1)}</dd>"
     in type: 'hardBreak'
-      "<br><br>"
+      @hard_break
     in type: 'text', text:, **rest
       escaped = ERB::Util.html_escape(text)
       if rest[:marks].present?

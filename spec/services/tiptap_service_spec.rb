@@ -227,8 +227,14 @@ RSpec.describe TiptapService do
         }
       end
 
-      it 'renders a blank line' do
+      it 'renders a line break' do
         expect(described_class.new.to_html(json, {})).to eq(
+          '<p class="body-start">Première ligne<br>Seconde ligne</p>'
+        )
+      end
+
+      it 'renders the hard_break given at initialization (blank line for attestations)' do
+        expect(described_class.new(hard_break: '<br><br>').to_html(json, {})).to eq(
           '<p class="body-start">Première ligne<br><br>Seconde ligne</p>'
         )
       end
@@ -429,6 +435,40 @@ RSpec.describe TiptapService do
         }
         expect(described_class.new.to_texts_and_tags(json)).to eq('Avant Après')
       end
+    end
+  end
+
+  describe '.to_texts_and_tags avec strip: false (rendu texte des sujets d’email)' do
+    let(:doc) do
+      {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'Dossier nº ' },
+              { type: 'mention', attrs: { id: 'dossier_number', label: 'numéro du dossier' } },
+              { type: 'text', text: ' reçu' },
+            ],
+          },
+        ],
+      }
+    end
+
+    it 'concatène le texte en préservant les espaces et substitue les mentions' do
+      result = TiptapService.new.to_texts_and_tags(doc, { 'dossier_number' => '42' }, strip: false)
+      expect(result).to eq('Dossier nº 42 reçu')
+    end
+
+    it 'affiche --id-- pour une mention absente des substitutions' do
+      result = TiptapService.new.to_texts_and_tags(doc, { 'autre' => 'x' }, strip: false)
+      expect(result).to eq('Dossier nº --dossier_number-- reçu')
+    end
+
+    it 'ignore un type de nœud inconnu' do
+      doc[:content].first[:content] << { type: 'hardBreak' }
+      result = TiptapService.new.to_texts_and_tags(doc, { 'dossier_number' => '42' }, strip: false)
+      expect(result).to eq('Dossier nº 42 reçu')
     end
   end
 end
