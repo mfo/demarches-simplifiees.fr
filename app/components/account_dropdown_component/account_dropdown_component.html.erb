@@ -13,7 +13,7 @@
       <span class="fr-mr-1w"><%= current_email %></span>
 
       <%- if france_connected? -%>
-        <span>&nbsp;via FranceConnect</span>
+        <span>&nbsp;<%= t('.via_france_connect') %></span>
       <%- end -%>
 
       <%- if show_profile_badge? -%>

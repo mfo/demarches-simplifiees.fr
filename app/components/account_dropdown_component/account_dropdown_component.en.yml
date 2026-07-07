@@ -8,4 +8,5 @@ en:
   profile: 'See my profile'
   logout: 'Log out'
   my_account: 'My profile'
+  via_france_connect: 'via FranceConnect'
   connected_as: 'connected as %{profile}'
