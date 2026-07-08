@@ -1,6 +1,6 @@
 - if unspecified_attestation_champs.present?
 
-  = render Dsfr::AlertComponent.new(state: :warning, title: nil, size: :sm, extra_class_names: 'fr-my-2w') do |c|
+  = render Dsfr::AlertComponent.new(state: :warning, title: "L’attestation de décision est incomplète", with_prefix: false, extra_class_names: 'fr-my-2w') do |c|
     - c.with_body do
       %p
         = t('instructeurs.dossiers.alert_unspecified_attestation_champs')
@@ -9,7 +9,7 @@
 
       - if unspecified_champs.present?
         %p.fr-text--sm.fr-text--bold
-          Champs de la demande
+          Formulaire usager
         - unspecified_champs.each do |unspecified_champ|
           .fr-mb-1v
             = unspecified_champ.libelle
