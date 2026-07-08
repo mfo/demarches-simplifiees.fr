@@ -11,7 +11,7 @@ class QuotientFamilial::QuotientFamilialComponent < ApplicationComponent
   end
 
   def source
-    tag.acronym("API Quotient familial CAF & MSA")
+    tag.acronym(t(".data.source_api"))
   end
 
   def data
@@ -25,23 +25,23 @@ class QuotientFamilial::QuotientFamilialComponent < ApplicationComponent
     rows = []
 
     if qf.present?
-      rows << ["Quotient familial #{qf['fournisseur']}", qf_values(qf)]
+      rows << [t(".data.quotient_familial", fournisseur: qf['fournisseur']), qf_values(qf)]
     end
 
     allocataires&.each_with_index do |allocataire, index|
       suffix = allocataires.size > 1 ? " #{index + 1}" : ""
 
-      rows << ["Allocataire#{suffix}", individual_values(allocataire)]
+      rows << [t(".data.allocataire", suffix: suffix), individual_values(allocataire)]
     end
 
     enfants&.each_with_index do |enfant, index|
       suffix = enfants.size > 1 ? " #{index + 1}" : ""
 
-      rows << ["Enfant#{suffix}", individual_values(enfant)]
+      rows << [t(".data.enfant", suffix: suffix), individual_values(enfant)]
     end
 
     if adresse.present?
-      rows << ["Adresse de la famille", adresse_values(adresse)]
+      rows << [t(".data.adresse_famille"), adresse_values(adresse)]
     end
 
     rows
@@ -57,25 +57,25 @@ class QuotientFamilial::QuotientFamilialComponent < ApplicationComponent
 
   def qf_values(qf)
     {
-      "Valeur": number_with_delimiter(qf["valeur"], delimiter: " "),
-      "Période effective": I18n.l(Date.parse(qf["periode_effective"]), format: "%m/%Y"),
+      t(".data.valeur") => number_with_delimiter(qf["valeur"], delimiter: " "),
+      t(".data.periode_effective") => I18n.l(Date.parse(qf["periode_effective"]), format: "%m/%Y"),
     }
   end
 
   def individual_values(individual)
     [
-      ["Nom de naissance", individual["nom_naissance"]],
-      ["Nom d'usage", individual["nom_usage"]],
-      ["Prénoms", individual["prenoms"]],
-      ["Date de naissance", I18n.l(Date.parse(individual["date_naissance"]), format: :short)],
-      ["Sexe", individual["sexe"]],
+      [t(".data.nom_naissance"), individual["nom_naissance"]],
+      [t(".data.nom_usage"), individual["nom_usage"]],
+      [t(".data.prenoms"), individual["prenoms"]],
+      [t(".data.date_naissance"), I18n.l(Date.parse(individual["date_naissance"]), format: :short)],
+      [t(".data.sexe"), individual["sexe"]],
     ].reject { |_, v| v.nil? }.to_h
   end
 
   def adresse_values(adresse)
     {
-      "Identité du destinataire": adresse["destinataire"],
-      "Adresse": format_adresse(adresse),
+      t(".data.identite_destinataire") => adresse["destinataire"],
+      t(".data.adresse") => format_adresse(adresse),
     }
   end
 
