@@ -1088,7 +1088,6 @@ fr:
       aasm_error_annotations_no_url: Les annotations privées n’ont pas été correctement renseignées, elles sont indispensables pour rendre une décision.
       aasm_error_annotations: Les annotations privées n’ont pas été correctement renseignées, elles sont indispensables pour rendre une décision. <a href="%{url}">Modifier les annotations</a>.
       aasm_error_other: "Le dossier est en ce moment %{originating_state} : il n’est pas possible de le passer %{target_state}."
-      alert_error_annotations: Les annotations privées n’ont pas été correctement renseignées. Elles sont indispensables à l’instruction du dossier.
       alert_error_annotations_html: 'Les annotations privées suivantes <strong>n’ont pas été correctement renseignées</strong> et sont <strong>indispensables</strong> pour rendre une décision sur le dossier <span aria-hidden="true">:</span>'
       alert_error_annotations_link: Compléter les annotations privées
       alert_unspecified_attestation_champs: 'Les valeurs suivantes n’ont pas été renseignées et sont utilisées pour générer une attestation de décision pour l’usager :'
