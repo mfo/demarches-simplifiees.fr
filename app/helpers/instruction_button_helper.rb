@@ -62,13 +62,13 @@ module InstructionButtonHelper
       {
         template: batch ? procedure.attestation_acceptation_template : dossier.attestation_acceptation_template,
         kind: "acceptation",
-        title: "L’acceptation du dossier envoie automatiquement une attestation à l’usager",
+        title: "L’acceptation du dossier génère automatiquement une attestation à télécharger par l’usager",
       }
     when "refuse"
       {
         template: batch ? procedure.attestation_refus_template : dossier.attestation_refus_template,
         kind: "refus",
-        title: "Le refus du dossier envoie automatiquement une attestation à l’usager",
+        title: "Le refus du dossier génère automatiquement une attestation à télécharger par l’usager",
       }
     else
       { template: nil, kind: nil, title: nil }

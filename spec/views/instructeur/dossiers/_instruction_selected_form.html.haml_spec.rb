@@ -103,7 +103,7 @@ describe 'instructeurs/dossiers/_instruction_selected_form', type: :view do
       'selected instruction form',
       'accept',
       :acceptation,
-      "L’acceptation du dossier envoie automatiquement une attestation à l’usager",
+      "L’acceptation du dossier génère automatiquement une attestation à télécharger par l’usager",
       false
     )
   end
@@ -113,7 +113,7 @@ describe 'instructeurs/dossiers/_instruction_selected_form', type: :view do
       'selected instruction form',
       'refuse',
       :refus,
-      "Le refus du dossier envoie automatiquement une attestation à l’usager",
+      "Le refus du dossier génère automatiquement une attestation à télécharger par l’usager",
       true
     )
   end

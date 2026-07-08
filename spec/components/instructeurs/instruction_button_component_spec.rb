@@ -29,7 +29,7 @@ RSpec.describe Instructeurs::InstructionButtonComponent, type: :component do
       expect(rendered).to have_link('Classer sans suite le dossier')
       expect(rendered).to have_selector('a[data-turbo-method="post"]')
       expect(rendered).not_to have_field('motivation_accept')
-      expect(rendered).not_to have_text("L’acceptation du dossier envoie automatiquement une attestation à l’usager")
+      expect(rendered).not_to have_text("L’acceptation du dossier génère automatiquement une attestation à télécharger par l’usager")
     end
 
     it 'renders the annotation warning hidden by default when there are no errors' do
