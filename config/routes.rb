@@ -104,6 +104,7 @@ Rails.application.routes.draw do
     resources :dubious_procedures, only: [:index]
     resources :published_procedures, only: [:index]
     resources :safe_mailers, only: [:index, :edit, :update, :destroy, :new, :create, :show]
+    resources :top_activity_procedures, only: [:index]
 
     authenticate :super_admin do
       mount Flipper::UI.app(-> { Flipper.instance }) => "/features", as: :flipper
