@@ -1,3 +1,12 @@
 fr:
   created_at: "Ajoutée le %{datetime}"
   updated_at: "Modifiée le %{datetime}"
+  dossier_usager: "Dossier usager"
+  annotation_privee: "Annotation privée"
+  messagerie_instructeur: "Messagerie (instructeur)"
+  messagerie_expert: "Messagerie (expert)"
+  messagerie_usager: "Messagerie (usager)"
+  avis_externe_instructeur: "Avis externe (instructeur)"
+  avis_externe_expert: "Avis externe (expert)"
+  attestation_decision: "Attestation de décision"
+  justificatif_decision: "Justificatif de décision"
