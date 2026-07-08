@@ -40,6 +40,7 @@ describe 'instructeurs/dossiers/_instruction_selected_form', type: :view do
           it 'renders notice and preview link' do
             expect(rendered).to have_text(notice_text)
             expect(rendered).to have_link('Prévisualiser l’attestation')
+            expect(rendered).to have_css("a.fr-notice__link[target='_blank']")
           end
         end
 

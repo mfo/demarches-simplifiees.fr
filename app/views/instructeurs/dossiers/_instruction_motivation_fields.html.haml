@@ -61,7 +61,9 @@
           - c.with_link do
             = link_to 'Prévisualiser l’attestation',
               apercu_attestation_instructeur_dossier_path(dossier.procedure, dossier, attestation_kind: attestation_context[:kind]),
-              class: 'fr-notice__link'
+              class: 'fr-notice__link',
+              title: new_tab_suffix('Prévisualiser l’attestation'),
+              **external_link_attributes
 
     - if !batch && attestation_context[:kind].present?
       = render partial: 'instructeurs/dossiers/unspecified_champs',
