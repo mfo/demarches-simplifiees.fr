@@ -21,7 +21,11 @@ module Devise
       MAX_STORED_LOCATION_BYTES = 1024
 
       def store_location_for(resource_or_scope, location)
-        return if location && location.to_s.bytesize > MAX_STORED_LOCATION_BYTES
+        if location && location.to_s.bytesize > MAX_STORED_LOCATION_BYTES
+          scope = Devise::Mapping.find_scope!(resource_or_scope)
+          Rails.logger.info("[StoreLocationCap] skipped oversized return-to for #{scope} (#{location.to_s.bytesize} bytes > #{MAX_STORED_LOCATION_BYTES})")
+          return
+        end
 
         super
       end
