@@ -1,0 +1,4 @@
+en:
+  consult_formats_html: "View them %{formats}"
+  consult_attestation: "View the attestation"
+  data_sources: "INSEE, Infogreffe, URSSAF …"
