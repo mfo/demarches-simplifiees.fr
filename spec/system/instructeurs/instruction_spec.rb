@@ -87,7 +87,7 @@ describe 'Instructing a dossier:', js: true do
 
     find('button', text: 'Valider la décision').click
 
-    expect(page).to have_text('Dossier traité avec succès.')
+    expect(page).to have_text('Le dossier a bien été traité. L’usager a été informé que son dossier a été accepté.')
     expect(page).to have_button('Déplacer dans “à archiver“')
 
     dossier.reload

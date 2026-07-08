@@ -266,15 +266,15 @@ module Instructeurs
         when "refuser"
           target_state = :refuse
           dossier.refuser!(h)
-          flash.notice = "Dossier considéré comme refusé."
+          flash.notice = "Le dossier a bien été traité. L’usager a été informé que son dossier a été refusé."
         when "classer_sans_suite"
           target_state = :sans_suite
           dossier.classer_sans_suite!(h)
-          flash.notice = "Dossier considéré comme sans suite."
+          flash.notice = "Le dossier a bien été traité. L’usager a été informé que son dossier a été classé sans suite."
         when "accepter"
           target_state = :accepte
           dossier.accepter!(h)
-          flash.notice = "Dossier traité avec succès."
+          flash.notice = "Le dossier a bien été traité. L’usager a été informé que son dossier a été accepté."
         end
       rescue AASM::InvalidTransition => e
         flash.alert = aasm_error_message(e, target_state: target_state)
