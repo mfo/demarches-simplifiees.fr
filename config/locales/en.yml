@@ -1078,8 +1078,8 @@ en:
         trash: trash
       aasm_error_originating_state: The folder is already %{state}.
       aasm_error_etablissement_as_degraded_mode: "The SIRET data for this folder could not yet be verified: it is not possible to change it to %{state}."
-      aasm_error_annotations_no_url: The private annotations are not filled in correctly; it is not possible to change the file to %{state}.
-      aasm_error_annotations: The private annotations are not filled in correctly; it is not possible to change the file to %{state}. <a href="%{url}">Edit annotations</a>.
+      aasm_error_annotations_no_url: The private annotations have not been filled in correctly; they are essential to make a decision.
+      aasm_error_annotations: The private annotations have not been filled in correctly; they are essential to make a decision. <a href="%{url}">Edit annotations</a>.
       aasm_error_other: "The folder is currently %{originating_state}: it is not possible to change it to %{target_state}."
       alert_error_annotations: The private annotations were not filled out correctly and are necessary to make a decision on the file.
       alert_error_annotations_link: Complete the private annotations

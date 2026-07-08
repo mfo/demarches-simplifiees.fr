@@ -328,7 +328,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
     context 'finished with error messages' do
       before {
-        batch_operation.track_processed_dossier(false, dossier, "Les annotations privées ne sont pas remplis correctement")
+        batch_operation.track_processed_dossier(false, dossier, "Les annotations privées n’ont pas été correctement renseignées, elles sont indispensables pour rendre une décision.")
         batch_operation.track_processed_dossier(true, dossier_2, nil)
         batch_operation.finalize_if_complete!
         batch_operation.reload
@@ -336,7 +336,7 @@ RSpec.describe Dossiers::BatchAlertComponent, type: :component do
 
       it do
         is_expected.to have_selector('.fr-alert--warning')
-        is_expected.to have_text("Dossier #{dossier.id} : Les annotations privées ne sont pas remplis correctement")
+        is_expected.to have_text("Dossier #{dossier.id} : Les annotations privées n’ont pas été correctement renseignées, elles sont indispensables pour rendre une décision.")
       end
     end
   end
