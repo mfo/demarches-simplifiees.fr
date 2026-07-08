@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe Champs::ReferentielChamp, type: :model do
   let(:referentiel) { create(:api_referentiel, :exact_match) }
+  let(:base_stable_id) { ActiveRecord::Base.connection.select_value("SELECT last_value FROM types_de_champ_id_seq").to_i }
   let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
@@ -64,7 +65,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when prefill/mapping is configured' do
-      let(:prefillable_stable_id) { 2 }
+      let(:prefillable_stable_id) { base_stable_id + 102 }
       let(:prefilled_type_de_champ_options) { {} }
       let(:types_de_champ_public) do
         [

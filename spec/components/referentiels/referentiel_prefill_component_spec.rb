@@ -2,6 +2,7 @@
 
 RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
   let(:component) { described_class.new(referentiel:, type_de_champ:, procedure:) }
+  let(:base_stable_id) { ActiveRecord::Base.connection.select_value("SELECT last_value FROM types_de_champ_id_seq").to_i }
   let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
   let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
   let(:types_de_champ_private) { [{ type: :text, libelle: "private text" }] }
@@ -54,12 +55,12 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:string] }
         let(:types_de_champ_public) do
           [
-            { stable_id: 1, type: :text, libelle: 'before, not selectable' },
+            { stable_id: base_stable_id + 101, type: :text, libelle: 'before, not selectable' },
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 1, type: :text, libelle: 'text' },
-            { stable_id: 2, type: :textarea, libelle: 'textarea' },
-            { stable_id: 6, type: :yes_no, libelle: 'yes_no' }, # exclu (type non compatible)
-            { stable_id: 7, type: :referentiel, libelle: 'another referentiel' },
+            { stable_id: base_stable_id + 101, type: :text, libelle: 'text' },
+            { stable_id: base_stable_id + 102, type: :textarea, libelle: 'textarea' },
+            { stable_id: base_stable_id + 106, type: :yes_no, libelle: 'yes_no' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 107, type: :referentiel, libelle: 'another referentiel' },
           ]
         end
 
@@ -72,7 +73,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         end
 
         context 'when prefill_stable_id is selected' do
-          let(:prefill_stable_id) { 1 }
+          let(:prefill_stable_id) { base_stable_id + 101 }
           it 'shows the selected prefill_stable_id' do
             expect(subject).to have_select('type_de_champ[referentiel_mapping][$.jsonpath][prefill_stable_id]', selected: ['text'])
           end
@@ -84,8 +85,8 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:types_de_champ_public) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 1, type: :text, libelle: 'text' }, # exclu (type non compatible)
-            { stable_id: 3, type: :decimal_number, libelle: 'decimal' },
+            { stable_id: base_stable_id + 101, type: :text, libelle: 'text' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 103, type: :decimal_number, libelle: 'decimal' },
           ]
         end
         it 'shows only decimal_number' do
@@ -98,9 +99,9 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:types_de_champ_public) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 3, type: :decimal_number, libelle: 'decimal' }, # exclu (type non compatible)
-            { stable_id: 4, type: :integer_number, libelle: 'integer' },
-            { stable_id: 7, type: :referentiel, libelle: 'another referentiel' },
+            { stable_id: base_stable_id + 103, type: :decimal_number, libelle: 'decimal' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 104, type: :integer_number, libelle: 'integer' },
+            { stable_id: base_stable_id + 107, type: :referentiel, libelle: 'another referentiel' },
           ]
         end
         it 'shows only integer_number' do
@@ -113,9 +114,9 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:types_de_champ_public) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 1, type: :text, libelle: 'text' }, # exclu (type non compatible)
-            { stable_id: 5, type: :checkbox, libelle: 'checkbox' },
-            { stable_id: 6, type: :yes_no, libelle: 'yes_no' },
+            { stable_id: base_stable_id + 101, type: :text, libelle: 'text' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 105, type: :checkbox, libelle: 'checkbox' },
+            { stable_id: base_stable_id + 106, type: :yes_no, libelle: 'yes_no' },
           ]
         end
         it 'shows only checkbox and yes_no' do
@@ -128,8 +129,8 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:types_de_champ_public) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 7, type: :date, libelle: 'date' },
-            { stable_id: 8, type: :text, libelle: 'text' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 107, type: :date, libelle: 'date' },
+            { stable_id: base_stable_id + 108, type: :text, libelle: 'text' }, # exclu (type non compatible)
           ]
         end
         it 'shows only date' do
@@ -142,8 +143,8 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:types_de_champ_public) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 9, type: :datetime, libelle: 'datetime' },
-            { stable_id: 8, type: :text, libelle: 'text' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 109, type: :datetime, libelle: 'datetime' },
+            { stable_id: base_stable_id + 108, type: :text, libelle: 'text' }, # exclu (type non compatible)
           ]
         end
         it 'shows only datetime' do
@@ -156,8 +157,8 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         let(:types_de_champ_public) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
-            { stable_id: 10, type: :multiple_drop_down_list, libelle: 'multiple' },
-            { stable_id: 8, type: :text, libelle: 'text' }, # exclu (type non compatible)
+            { stable_id: base_stable_id + 110, type: :multiple_drop_down_list, libelle: 'multiple' },
+            { stable_id: base_stable_id + 108, type: :text, libelle: 'text' }, # exclu (type non compatible)
           ]
         end
         it 'shows only multiple_drop_down_list' do
