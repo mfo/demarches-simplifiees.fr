@@ -1,0 +1,6 @@
+fr:
+  administrateurs:
+    archives:
+      index:
+        title: "Archives"
+        breadcrumb_export_and_archives: "Export et Archives"
