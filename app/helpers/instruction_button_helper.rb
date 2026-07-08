@@ -26,6 +26,13 @@ module InstructionButtonHelper
     "#{title} n° #{dossier.id} - #{dossier.owner_name}"
   end
 
+  def invalid_annotations_libelles(dossier)
+    dossier.errors
+      .map { it.is_a?(ActiveModel::NestedError) ? it.inner_error.base : it.base }
+      .uniq
+      .filter_map { it.libelle if it.respond_to?(:libelle) }
+  end
+
   def instruction_options(batch:)
     [
       instruction_option(
