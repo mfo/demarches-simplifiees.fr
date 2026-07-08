@@ -212,7 +212,8 @@ class ProcedureRevision < ApplicationRecord
   def dependent_conditions(tdc)
     stable_id = tdc.stable_id
 
-    (tdc.public? ? public_root_type_de_champs : private_root_type_de_champs).filter do |other_tdc|
+    tdcs = tdc.public? ? public_root_type_de_champs + private_root_type_de_champs : private_root_type_de_champs
+    tdcs.filter do |other_tdc|
       next if !other_tdc.condition?
 
       other_tdc.condition.sources.include?(stable_id)
