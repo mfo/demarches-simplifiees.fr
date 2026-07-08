@@ -10,13 +10,13 @@
       - if unspecified_champs.present?
         %p.fr-text--sm.fr-text--bold
           Formulaire usager
-        - unspecified_champs.each do |unspecified_champ|
-          .fr-mb-1v
-            = unspecified_champ.libelle
+        %ul.fr-mb-0.list-style-type-disc
+          - unspecified_champs.each do |unspecified_champ|
+            %li= unspecified_champ.libelle
 
       - if unspecified_annotations_privees.present?
         %p.fr-text--sm.fr-text--bold
           Annotations privées
-        - unspecified_annotations_privees.each do |unspecified_annotations_privee|
-          .fr-mb-1v
-            = unspecified_annotations_privee.libelle
+        %ul.fr-mb-0.list-style-type-disc
+          - unspecified_annotations_privees.each do |unspecified_annotations_privee|
+            %li= unspecified_annotations_privee.libelle

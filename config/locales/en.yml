@@ -1082,6 +1082,7 @@ en:
       aasm_error_annotations: The private annotations have not been filled in correctly; they are essential to make a decision. <a href="%{url}">Edit annotations</a>.
       aasm_error_other: "The folder is currently %{originating_state}: it is not possible to change it to %{target_state}."
       alert_error_annotations: The private annotations were not filled out correctly and are necessary to make a decision on the file.
+      alert_error_annotations_html: 'The following private annotations <strong>were not filled out correctly</strong> and are <strong>necessary</strong> to make a decision on the file <span aria-hidden="true">:</span>'
       alert_error_annotations_link: Complete the private annotations
       alert_unspecified_attestation_champs: 'Please note, the following values have not been entered but are necessary to send a valid certificate:'
     avis:

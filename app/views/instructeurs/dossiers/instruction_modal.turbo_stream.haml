@@ -17,4 +17,4 @@
 
         = link_to "Retour", instruction_modal_instructeur_dossier_path(@dossier.procedure, @dossier, "reset", statut: current_statut), class: "fr-btn fr-btn--secondary", data: { turbo_method: :post, turbo: true }
   - else
-    #instruction-modal-footer
+    = render partial: 'instructeurs/dossiers/instruction_modal_footer', locals: { dossier: @dossier, batch: false }

@@ -30,4 +30,4 @@
               #instruction-modal-content
                 = render partial: "instructeurs/dossiers/instruction_modal_content", locals: { dossier: dossier, operation: nil, batch: batch, procedure: procedure, modal_title_data: helpers.instruction_modal_title_data(dossier: dossier, batch: batch) }
 
-            #instruction-modal-footer
+            = render partial: 'instructeurs/dossiers/instruction_modal_footer', locals: { dossier:, batch: }

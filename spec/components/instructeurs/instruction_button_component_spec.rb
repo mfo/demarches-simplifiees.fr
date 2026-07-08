@@ -32,29 +32,29 @@ RSpec.describe Instructeurs::InstructionButtonComponent, type: :component do
       expect(rendered).not_to have_text("L’acceptation du dossier génère automatiquement une attestation à télécharger par l’usager")
     end
 
-    it 'renders the annotation warning hidden by default when there are no errors' do
-      expect(rendered).to have_selector(
-        '#alert-error-annotation.hidden',
-        text: "Les annotations privées n’ont pas été correctement renseignées. Elles sont indispensables à l’instruction du dossier."
-      )
+    it 'renders the annotation error alert hidden by default when there are no errors' do
+      expect(rendered).to have_selector('#alert-error-annotation.hidden .fr-alert--error')
+      expect(rendered).to have_selector('#instruction-modal-footer:not(.fr-modal__footer)')
     end
   end
 
   context 'when dossier is en_instruction with invalid mandatory private annotations' do
     let(:procedure) { create(:procedure, types_de_champ_private:) }
     let(:dossier) { create(:dossier, :en_instruction, procedure:) }
-    let(:types_de_champ_public) { [] }
-    let(:types_de_champ_private) { [{ type: :text, mandatory: true }] }
+    let(:types_de_champ_private) { [{ type: :text, libelle: 'Appréciation globale', mandatory: true }] }
 
     subject(:rendered) do
       render_inline(described_class.new(dossier:, procedure:))
     end
 
-    it 'renders the annotation warning visible' do
-      expect(rendered).to have_selector(
-        '#alert-error-annotation:not(.hidden)',
-        text: "Les annotations privées n’ont pas été correctement renseignées. Elles sont indispensables à l’instruction du dossier."
-      )
+    it 'renders the error alert visible, listing the missing annotation' do
+      expect(rendered).to have_selector('#alert-error-annotation:not(.hidden) .fr-alert--error')
+      expect(rendered).to have_selector('#alert-error-annotation li', text: 'Appréciation globale')
+    end
+
+    it 'moves the complete-annotations access to a footer button, not the alert body' do
+      expect(rendered).to have_selector('#instruction-modal-footer.fr-modal__footer a.fr-btn', text: 'Compléter les annotations privées')
+      expect(rendered).not_to have_selector('#alert-error-annotation a')
     end
   end
 
