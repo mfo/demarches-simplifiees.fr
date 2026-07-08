@@ -4,7 +4,7 @@ describe Champs::EmailChamp do
   describe 'validation' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :email }, {}]) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.second }
+    let(:champ) { dossier.champ_data.second }
     let(:value) { nil }
     before { champ.value = value }
     subject { champ.validate(:champs_public_value) }

@@ -8,7 +8,7 @@ describe Champs::ReferentielChamp, type: :model do
   let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:referentiel_champ) { dossier.champs.find(&:referentiel?) }
+  let(:referentiel_champ) { dossier.champ_data.find(&:referentiel?) }
   let(:champ) { referentiel_champ }
 
   describe '#valid?' do

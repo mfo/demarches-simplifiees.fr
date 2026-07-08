@@ -40,15 +40,15 @@ module DossierRebaseConcern
     # update dossier revision
     update_column(:revision_id, target_revision.id)
 
-    # mark updated champs as rebased
-    champs.where(stable_id: updated_stable_ids).update_all(rebased_at: Time.zone.now)
+    # mark updated champ_data as rebased
+    champ_data.where(stable_id: updated_stable_ids).update_all(rebased_at: Time.zone.now)
 
     # add rows for new repetitions
     target_revision
       .types_de_champ
       .filter { _1.repetition? && _1.stable_id.in?(added_stable_ids) && (_1.mandatory? || _1.private?) }
       .each do |type_de_champ|
-        self.champs << type_de_champ.build_champ(row_id: ULID.generate, rebased_at: Time.zone.now)
+        self.champ_data << type_de_champ.build_champ(row_id: ULID.generate, rebased_at: Time.zone.now)
       end
   end
 end

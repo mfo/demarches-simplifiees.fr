@@ -4,7 +4,7 @@ describe Migrations::BatchUpdateDatetimeValuesJob, type: :job do
   let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
   let(:types_de_champ_public) { [{ type: :datetime, mandatory: }] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-  let(:datetime_champ) { dossier.champs.first }
+  let(:datetime_champ) { dossier.champ_data.first }
   let(:mandatory) { true }
 
   before do

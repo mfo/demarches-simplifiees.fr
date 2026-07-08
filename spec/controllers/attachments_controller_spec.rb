@@ -5,8 +5,8 @@ describe AttachmentsController, type: :controller do
   let(:attachment) { champ.piece_justificative_file.attachments.first }
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, :with_populated_champs, user:, procedure:) }
-  let(:champ) { dossier.champs.first }
-  let(:user_buffer_champ) { dossier.champs.reload.find(&:user_buffer_stream?) }
+  let(:champ) { dossier.champ_data.first }
+  let(:user_buffer_champ) { dossier.champ_data.reload.find(&:user_buffer_stream?) }
   let(:signed_id) { attachment.blob.signed_id }
 
   describe '#show' do
@@ -63,7 +63,7 @@ describe AttachmentsController, type: :controller do
       let(:instructeur) { create(:instructeur) }
       let(:procedure) { create(:procedure, instructeurs: [instructeur], types_de_champ_private: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_annotations, procedure:) }
-      let(:champ) { dossier.champs.private_only.first }
+      let(:champ) { dossier.champ_data.private_only.first }
 
       before { sign_in(instructeur.user) }
 
@@ -75,7 +75,7 @@ describe AttachmentsController, type: :controller do
       let(:instructeur) { create(:instructeur) }
       let(:procedure) { create(:procedure, instructeurs: [instructeur], types_de_champ_private: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_annotations, procedure:) }
-      let(:champ) { dossier.champs.private_only.first }
+      let(:champ) { dossier.champ_data.private_only.first }
 
       before { sign_in(other_instructeur.user) }
 
@@ -344,7 +344,7 @@ describe AttachmentsController, type: :controller do
         let(:procedure) { create(:procedure, instructeurs: [instructeur], types_de_champ_private: [{ type: :piece_justificative }]) }
         let(:dossier) { create(:dossier, procedure:) }
         let(:champ) do
-          dossier.champs.private_only.first.tap do |c|
+          dossier.champ_data.private_only.first.tap do |c|
             c.piece_justificative_file.attach({ io: Rails.root.join('spec/fixtures/files/Contrat.pdf').open, filename: 'Contrat.pdf' })
           end
         end

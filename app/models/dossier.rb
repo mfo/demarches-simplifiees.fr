@@ -60,7 +60,7 @@ class Dossier < ApplicationRecord
 
   # autosave is required to import champ validation errors on the dossier
   # when validating with the :champs_public_value/:champs_private_value contexts
-  has_many :champs, dependent: :destroy, autosave: true
+  has_many :champ_data, dependent: :destroy, class_name: 'Champ', autosave: true
   has_many :commentaires, inverse_of: :dossier, dependent: :destroy
   has_many :commentaires_chronological, -> { chronological }, class_name: 'Commentaire', inverse_of: :dossier
   has_many :preloaded_commentaires, -> { includes(:dossier_correction, :dossier_pending_response, :instructeur, :expert, piece_jointe_attachments: :blob).order(created_at: :desc) }, class_name: 'Commentaire', inverse_of: :dossier
@@ -280,7 +280,7 @@ class Dossier < ApplicationRecord
   scope :hidden_by_administration_since, -> (since) { where('dossiers.hidden_by_administration_at IS NOT NULL AND dossiers.hidden_by_administration_at >= ?', since) }
   scope :hidden_since,                   -> (since) { hidden_by_user_since(since).or(hidden_by_administration_since(since)) }
 
-  scope :with_type_de_champ, -> (stable_id) { joins(:champs).where(champs: { stream: 'main', stable_id: }) }
+  scope :with_type_de_champ, -> (stable_id) { joins(:champ_data).where(champs: { stream: 'main', stable_id: }) }
   scope :without_type_de_champ, -> (stable_id) { where.not(id: with_type_de_champ(stable_id).select(:id)) }
 
   scope :with_unread_messages_for_user, -> {
@@ -1139,7 +1139,7 @@ class Dossier < ApplicationRecord
   def purge_freeing_champs_cascade
     transaction do
       yield if block_given?
-      champs.in_batches(of: 50).each(&:destroy_all)
+      champ_data.in_batches(of: 50).each(&:destroy_all)
       destroy
     rescue => e
       Sentry.capture_exception(e, extra: { dossier: id })
@@ -1150,12 +1150,12 @@ class Dossier < ApplicationRecord
   end
 
   def build_default_champs
-    build_default_champs_for(revision.types_de_champ_public) if !champs.any?(&:public?)
-    build_default_champs_for(revision.types_de_champ_private) if !champs.any?(&:private?)
+    build_default_champs_for(revision.types_de_champ_public) if !champ_data.any?(&:public?)
+    build_default_champs_for(revision.types_de_champ_private) if !champ_data.any?(&:private?)
   end
 
   def build_default_champs_for(types_de_champ)
-    self.champs << types_de_champ.filter(&:fillable?).filter_map do |type_de_champ|
+    self.champ_data << types_de_champ.filter(&:fillable?).filter_map do |type_de_champ|
       if type_de_champ.repetition?
         if type_de_champ.private? || type_de_champ.mandatory?
           type_de_champ.build_champ(dossier: self, row_id: ULID.generate)

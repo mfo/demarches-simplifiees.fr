@@ -188,7 +188,7 @@ describe Etablissement do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:etablissement) { create(:etablissement) }
-    let(:champ) { dossier.champs[0] }
+    let(:champ) { dossier.champ_data[0] }
     let(:address_data) do
       {
         "street_number" => "6",

@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte }]) }
       let(:dossier) { create(:dossier, procedure:) }
-      let(:main_champ) { dossier.champs.first }
+      let(:main_champ) { dossier.champ_data.first }
       let(:main_geo_area) do
         ga = create(:geo_area, :selection_utilisateur, :polygon, champ: main_champ)
         ga.update_column(:uuid, nil)

@@ -1070,7 +1070,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when the champ is an address' do
       let(:types_de_champ_public) { [{ type: :address }] }
-      let(:address_champ) { dossier.champs.first }
+      let(:address_champ) { dossier.champ_data.first }
       let(:initial_value_json) do
         {
           'label' => '33 Rue Rébeval 75019 Paris',
@@ -2578,7 +2578,7 @@ describe Users::DossiersController, type: :controller do
     let(:types_de_champ_public) { [{ type: :text, stable_id: }] }
     let(:procedure) { create(:procedure, types_de_champ_public:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, user:) }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     before do
       sign_in(user)
@@ -2616,7 +2616,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'while the analysis is still pending' do
-        before { dossier.champs.first.update_column(:external_state, :waiting_for_job) }
+        before { dossier.champ_data.first.update_column(:external_state, :waiting_for_job) }
 
         it 'does not re-announce the pending status on a poll' do
           subject
@@ -2625,7 +2625,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when the analysis has completed' do
-        before { dossier.champs.first.update_columns(external_state: :fetched, value_json: { 'rib' => { 'iban' => 'FR7612345' } }) }
+        before { dossier.champ_data.first.update_columns(external_state: :fetched, value_json: { 'rib' => { 'iban' => 'FR7612345' } }) }
 
         it 'announces the result on the poll that observes completion' do
           subject
@@ -2639,7 +2639,7 @@ describe Users::DossiersController, type: :controller do
       let(:types_de_champ_public) { [{ type: :referentiel, referentiel:, stable_id: }] }
 
       context 'when the requested external_id had not been fetched' do
-        before { dossier.champs.first.update_columns(external_id: 'kthxbye') }
+        before { dossier.champ_data.first.update_columns(external_id: 'kthxbye') }
 
         it 'does not validates errors' do
           subject
@@ -2648,7 +2648,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when the requested external_id had been fetched' do
-        before { dossier.champs.find(&:referentiel?).update_columns(external_id: 'kthxbye', value: "OK", data: {}) }
+        before { dossier.champ_data.find(&:referentiel?).update_columns(external_id: 'kthxbye', value: "OK", data: {}) }
         it 'validates errors' do
           subject
           expect(response).not_to include('Référence trouvée : OK')
@@ -2683,7 +2683,7 @@ describe Users::DossiersController, type: :controller do
           end
 
           it 'inclut le champ principal et les champs pré-remplis dans @to_update' do
-            dossier.champs.find(&:referentiel?).update_external_data!(data: { ok: 'valeur préremplie', repetition: [{ nom: 'Jeanne' }, { nom: "Bob" }, {}] })
+            dossier.champ_data.find(&:referentiel?).update_external_data!(data: { ok: 'valeur préremplie', repetition: [{ nom: 'Jeanne' }, { nom: "Bob" }, {}] })
 
             get :champ, params: { id: dossier.id, stable_id: referentiel_stable_id }, format: :turbo_stream
 
@@ -2697,7 +2697,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when the requested external_id is in error' do
-        before { dossier.champs.first.update_columns(external_id: 'kthxbye', value: "OK", fetch_external_data_exceptions: [ExternalDataException.new(error: "thxbye", code: 429)]) }
+        before { dossier.champ_data.first.update_columns(external_id: 'kthxbye', value: "OK", fetch_external_data_exceptions: [ExternalDataException.new(error: "thxbye", code: 429)]) }
         it 'validates errors' do
           subject
           expect(response).not_to include('Trop de demandes. Nous réessayons pour vous.')
@@ -2721,8 +2721,8 @@ describe Users::DossiersController, type: :controller do
         let(:stable_id) { async_stable_id }
 
         before do
-          dossier.champs.find(&:referentiel?).update_columns(external_id: 'kthxbye', value: 'OK', data: {})
-          dossier.champs.find { _1.stable_id == checkbox_stable_id }.update_columns(value: 'true')
+          dossier.champ_data.find(&:referentiel?).update_columns(external_id: 'kthxbye', value: 'OK', data: {})
+          dossier.champ_data.find { _1.stable_id == checkbox_stable_id }.update_columns(value: 'true')
         end
 
         it 'recomputes visibility of conditional champs after polling' do
@@ -2878,6 +2878,6 @@ describe Users::DossiersController, type: :controller do
   private
 
   def find_champ_by_stable_id(dossier, stable_id)
-    dossier.champs.joins(:type_de_champ).find_by(types_de_champ: { stable_id: stable_id })
+    dossier.champ_data.joins(:type_de_champ).find_by(types_de_champ: { stable_id: stable_id })
   end
 end

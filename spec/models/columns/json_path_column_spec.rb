@@ -3,7 +3,7 @@
 describe Columns::JSONPathColumn do
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
   let(:stable_id) { champ.stable_id }
   let(:tdc_type) { champ.type_champ }
   let(:column) { described_class.new(procedure_id: procedure.id, label: 'label', stable_id:, tdc_type:, jsonpath:, displayable: true, mandatory: true) }
@@ -83,8 +83,8 @@ describe Columns::JSONPathColumn do
 
       context 'bounded on both sides (this_year)' do
         before do
-          dossier_in_range.champs.first.update(value_json: { issue_date: Date.current.iso8601 })
-          dossier_out_range.champs.first.update(value_json: { issue_date: 5.years.ago.to_date.iso8601 })
+          dossier_in_range.champ_data.first.update(value_json: { issue_date: Date.current.iso8601 })
+          dossier_out_range.champ_data.first.update(value_json: { issue_date: 5.years.ago.to_date.iso8601 })
         end
 
         subject { column.filtered_ids(Dossier.all, { operator: 'this_year' }) }
@@ -97,8 +97,8 @@ describe Columns::JSONPathColumn do
 
       context 'bounded only on the right (before operator)' do
         before do
-          dossier_in_range.champs.first.update(value_json: { issue_date: '2020-06-15' })
-          dossier_out_range.champs.first.update(value_json: { issue_date: '2022-06-15' })
+          dossier_in_range.champ_data.first.update(value_json: { issue_date: '2020-06-15' })
+          dossier_out_range.champ_data.first.update(value_json: { issue_date: '2022-06-15' })
         end
 
         subject { column.filtered_ids(Dossier.all, { operator: 'before', value: ['2021-01-01'] }) }
@@ -111,8 +111,8 @@ describe Columns::JSONPathColumn do
 
       context 'bounded only on the left (after operator)' do
         before do
-          dossier_in_range.champs.first.update(value_json: { issue_date: '2022-06-15' })
-          dossier_out_range.champs.first.update(value_json: { issue_date: '2020-06-15' })
+          dossier_in_range.champ_data.first.update(value_json: { issue_date: '2022-06-15' })
+          dossier_out_range.champ_data.first.update(value_json: { issue_date: '2020-06-15' })
         end
 
         subject { column.filtered_ids(Dossier.all, { operator: 'after', value: ['2021-01-01'] }) }
@@ -125,8 +125,8 @@ describe Columns::JSONPathColumn do
 
       context 'nil..nil range' do
         before do
-          dossier_in_range.champs.first.update(value_json: { issue_date: '2022-06-15' })
-          dossier_out_range.champs.first.update(value_json: { issue_date: '2020-06-15' })
+          dossier_in_range.champ_data.first.update(value_json: { issue_date: '2022-06-15' })
+          dossier_out_range.champ_data.first.update(value_json: { issue_date: '2020-06-15' })
         end
 
         subject { column.filtered_ids(Dossier.all, { operator: 'after', value: [nil] }) }
@@ -142,8 +142,8 @@ describe Columns::JSONPathColumn do
       let(:dossier_no_match) { create(:dossier, procedure:) }
 
       before do
-        dossier_match.champs.first.update(value_json: { issue_integer: 2000 })
-        dossier_no_match.champs.first.update(value_json: { issue_integer: 2012 })
+        dossier_match.champ_data.first.update(value_json: { issue_integer: 2000 })
+        dossier_no_match.champ_data.first.update(value_json: { issue_integer: 2012 })
       end
 
       subject { column.filtered_ids(Dossier.all, { operator: 'match', value: }) }
@@ -192,8 +192,8 @@ describe Columns::JSONPathColumn do
       let(:dossiers) { Dossier.where(id: [dossier1.id, dossier2.id, dossier3.id]) }
 
       before do
-        dossier1.champs.first.update(value_json: { postal_code: '60580' })
-        dossier2.champs.first.update(value_json: { postal_code: '75001' })
+        dossier1.champ_data.first.update(value_json: { postal_code: '60580' })
+        dossier2.champ_data.first.update(value_json: { postal_code: '75001' })
       end
 
       context 'when filter value contains only blank strings' do
@@ -212,8 +212,8 @@ describe Columns::JSONPathColumn do
       let(:dossier_with_incorrect_data) { create(:dossier, procedure:) }
 
       before do
-        dossier_with_correct_data.champs.first.update(value_json: { fc_data: 123 }, value: 'true')
-        dossier_with_incorrect_data.champs.first.update(value_json: { fc_data: 123 }, value: 'false')
+        dossier_with_correct_data.champ_data.first.update(value_json: { fc_data: 123 }, value: 'true')
+        dossier_with_incorrect_data.champ_data.first.update(value_json: { fc_data: 123 }, value: 'false')
       end
 
       subject { column.filtered_ids(Dossier.all, { operator: 'match', value: ['123'] }) }

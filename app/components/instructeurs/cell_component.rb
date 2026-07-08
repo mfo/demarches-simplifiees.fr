@@ -33,7 +33,7 @@ class Instructeurs::CellComponent < ApplicationComponent
 
   def raw_value_for_column(dossier, column)
     data = if @column.champ_column?
-      @dossier.champs.find { _1.stable_id == column.stable_id }
+      @dossier.champ_data.find { _1.stable_id == column.stable_id }
     else
       @dossier
     end

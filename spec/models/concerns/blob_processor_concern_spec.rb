@@ -27,7 +27,7 @@ describe BlobProcessorConcern do
     context 'with PieceJustificativeChamp with nature=titre_identite' do
       let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'requires watermark' do
         champ.piece_justificative_file.attach(
@@ -45,7 +45,7 @@ describe BlobProcessorConcern do
     context 'with PieceJustificativeChamp with nature=titre_identite' do
       let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'requires watermark' do
         champ.piece_justificative_file.attach(
@@ -63,7 +63,7 @@ describe BlobProcessorConcern do
     context 'with regular PieceJustificativeChamp (no nature)' do
       let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'does not require watermark' do
         champ.piece_justificative_file.attach(

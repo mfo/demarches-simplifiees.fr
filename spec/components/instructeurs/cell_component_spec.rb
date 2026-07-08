@@ -51,7 +51,7 @@ describe Instructeurs::CellComponent do
       let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'yes_no' }] }
       let(:column) { dossier.procedure.find_column(label: 'yes_no') }
 
-      before { dossier.champs.first.update(value: 'true') }
+      before { dossier.champ_data.first.update(value: 'true') }
 
       it { is_expected.to eq('Oui') }
     end
@@ -67,7 +67,7 @@ describe Instructeurs::CellComponent do
       let(:types_de_champ_public) { [{ type: :checkbox, libelle: 'checkbox' }] }
       let(:column) { dossier.procedure.find_column(label: 'checkbox') }
 
-      before { dossier.champs.first.update(value: 'true') }
+      before { dossier.champ_data.first.update(value: 'true') }
 
       it { is_expected.to eq('coché') }
     end
@@ -82,7 +82,7 @@ describe Instructeurs::CellComponent do
       let(:types_de_champ_public) { [{ type: :date, libelle: 'date' }] }
       let(:column) { dossier.procedure.find_column(label: 'date') }
 
-      before { dossier.champs.first.update(value: Date.parse("12/02/2025")) }
+      before { dossier.champ_data.first.update(value: Date.parse("12/02/2025")) }
 
       it { is_expected.to eq('12/02/2025') }
     end
@@ -91,7 +91,7 @@ describe Instructeurs::CellComponent do
       let(:types_de_champ_public) { [{ type: :datetime, libelle: 'datetime' }] }
       let(:column) { dossier.procedure.find_column(label: 'datetime') }
 
-      before { dossier.champs.first.update(value: Time.zone.parse("12/02/2025 09:19").iso8601) }
+      before { dossier.champ_data.first.update(value: Time.zone.parse("12/02/2025 09:19").iso8601) }
 
       it { is_expected.to eq('12/02/2025 09:19') }
     end
@@ -102,7 +102,7 @@ describe Instructeurs::CellComponent do
       let(:etablissement) { build(:etablissement, entreprise_date_creation: Date.new(2015, 8, 10)) }
 
       before {
-        dossier.champs.first.update(value: etablissement.siret, etablissement:)
+        dossier.champ_data.first.update(value: etablissement.siret, etablissement:)
         etablissement.update_champ_value_json!
       }
 
@@ -113,7 +113,7 @@ describe Instructeurs::CellComponent do
       let(:types_de_champ_public) { [{ type: :drop_down_list, libelle: 'drop_down_list', options: ['a', 'b', 'c'] }] }
       let(:column) { dossier.procedure.find_column(label: 'drop_down_list') }
 
-      before { dossier.champs.first.update(value: 'b') }
+      before { dossier.champ_data.first.update(value: 'b') }
 
       it { is_expected.to eq('b') }
     end
@@ -122,7 +122,7 @@ describe Instructeurs::CellComponent do
       let(:types_de_champ_public) { [{ type: :multiple_drop_down_list, libelle: 'multiple_drop_down_list', options: ['a', 'b', 'c'] }] }
       let(:column) { dossier.procedure.find_column(label: 'multiple_drop_down_list') }
 
-      before { dossier.champs.first.update(value: ['b', 'c']) }
+      before { dossier.champ_data.first.update(value: ['b', 'c']) }
 
       it { is_expected.to eq('b, c') }
     end

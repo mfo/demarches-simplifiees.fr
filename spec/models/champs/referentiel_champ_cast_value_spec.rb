@@ -8,7 +8,7 @@ describe Champs::ReferentielChamp, type: :model do
   let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:referentiel_champ) { dossier.champs.find(&:referentiel?) }
+  let(:referentiel_champ) { dossier.champ_data.find(&:referentiel?) }
 
   describe '#cast_value_for_type_de_champ' do
     subject { referentiel_champ.update_external_data!(data:) }
@@ -613,7 +613,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: [{ nom: 'Jeanne', age: 120 }, { nom: "Bob", age: 12 }, {}] } }
           it 'creates a rows' do
             subject
-            values = dossier.reload.champs.filter(&:text?).map(&:value)
+            values = dossier.reload.champ_data.filter(&:text?).map(&:value)
             expect(values).to include('Jeanne')
             expect(values).to include('Bob')
           end
@@ -628,7 +628,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { nom: 'Jeanne', age: 120 } }
           it 'creates a rows' do
             subject
-            values = dossier.reload.champs.filter(&:text?).map(&:value)
+            values = dossier.reload.champ_data.filter(&:text?).map(&:value)
             expect(values).to include('Jeanne')
           end
         end
@@ -651,7 +651,7 @@ describe Champs::ReferentielChamp, type: :model do
             },
           ]
         end
-        let(:repetition_champ) { dossier.champs.find(&:repetition?) }
+        let(:repetition_champ) { dossier.champ_data.find(&:repetition?) }
         let(:referentiel_champ) { repetition_champ.rows.first.find(&:referentiel?) }
 
         context 'when mapping and data are arrays' do
@@ -678,7 +678,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { nom: 'Jeanne' } }
           it 'update existing row' do
             subject
-            values = dossier.reload.champs.filter(&:text?).map(&:value)
+            values = dossier.reload.champ_data.filter(&:text?).map(&:value)
             expect(values).to include('Jeanne')
           end
         end

@@ -180,14 +180,14 @@ describe DossierRebaseConcern do
         # Add two rows then remove previous to last row in order to create a "hole" in the sequence
         repetition_champ.add_row(updated_by: 'test')
         repetition_champ.add_row(updated_by: 'test')
-        repetition_champ.dossier.champs.where(row_id: repetition_champ.row_ids[-2]).destroy_all
+        repetition_champ.dossier.champ_data.where(row_id: repetition_champ.row_ids[-2]).destroy_all
         dossier.reload
       end
 
       it "updates the brouillon champs with the latest revision changes", :slow do
         expect(dossier.revision).to eq(procedure.published_revision)
         expect(dossier.project_champs_public.size).to eq(5)
-        expect(dossier.champs.count(&:public?)).to eq(6)
+        expect(dossier.champ_data.count(&:public?)).to eq(6)
         expect(repetition_champ.rows.size).to eq(2)
         expect(repetition_champ.rows[0].size).to eq(1)
         expect(repetition_champ.rows[1].size).to eq(1)
@@ -200,7 +200,7 @@ describe DossierRebaseConcern do
         expect(procedure.revisions.size).to eq(3)
         expect(dossier.revision).to eq(procedure.published_revision)
         expect(dossier.project_champs_public.size).to eq(7)
-        expect(dossier.champs.count(&:public?)).to eq(7)
+        expect(dossier.champ_data.count(&:public?)).to eq(7)
         expect(rebased_text_champ.value).to eq(text_champ.value)
         expect(rebased_text_champ.type_de_champ).not_to eq(text_champ.type_de_champ)
         expect(rebased_datetime_champ.type_champ).to eq(TypeDeChamp.type_champs.fetch(:date))

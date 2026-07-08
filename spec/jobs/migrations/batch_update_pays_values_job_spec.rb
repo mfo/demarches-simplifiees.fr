@@ -4,7 +4,7 @@ describe Migrations::BatchUpdatePaysValuesJob, type: :job do
   let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
   let(:types_de_champ_public) { [{ type: :pays, mandatory: }] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-  let(:pays_champ) { dossier.champs.first }
+  let(:pays_champ) { dossier.champ_data.first }
   let(:mandatory) { true }
   before { pays_champ.update_columns(attributes) }
   subject { described_class.perform_now([pays_champ.id]) }

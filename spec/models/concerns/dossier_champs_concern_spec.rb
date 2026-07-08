@@ -95,7 +95,7 @@ RSpec.describe DossierChampsConcern do
       end
 
       context "missing champ" do
-        before { dossier.champs.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
+        before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
 
         it {
           expect(subject.new_record?).to be_truthy
@@ -130,7 +130,7 @@ RSpec.describe DossierChampsConcern do
       it { expect(subject.persisted?).to be_truthy }
 
       context "missing champ" do
-        before { dossier.champs.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
+        before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
 
         it {
           expect(subject.new_record?).to be_truthy
@@ -157,7 +157,7 @@ RSpec.describe DossierChampsConcern do
       end
 
       context "missing champ" do
-        before { dossier.champs.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
+        before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
 
         it {
           expect(subject.new_record?).to be_truthy
@@ -440,7 +440,7 @@ RSpec.describe DossierChampsConcern do
 
     it {
       subject
-      expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+      expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
       expect(champ_99.changed?).to be_truthy
       expect(champ_991.changed?).to be_truthy
       expect(champ_994.changed?).to be_truthy
@@ -455,7 +455,7 @@ RSpec.describe DossierChampsConcern do
 
       it {
         subject
-        expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+        expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
         expect(champ_99.changed?).to be_truthy
         expect(champ_991.changed?).to be_truthy
         expect(champ_994.changed?).to be_truthy
@@ -480,12 +480,12 @@ RSpec.describe DossierChampsConcern do
         end
 
         it {
-          expect { subject }.to change { dossier.champs.find_by(stable_id: 99).last_write_type_champ }
+          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
             .from(TypeDeChamp.type_champs.fetch(:text))
             .to(TypeDeChamp.type_champs.fetch(:linked_drop_down_list))
           expect(champ_99.persisted?).to be_truthy
           expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:linked_drop_down_list))
-          expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
           expect(champ_99.changed?).to be_truthy
           expect(champ_99.value).to eq('["primary",""]')
         }
@@ -505,12 +505,12 @@ RSpec.describe DossierChampsConcern do
         end
 
         it {
-          expect { subject }.to change { dossier.champs.find_by(stable_id: 99).last_write_type_champ }
+          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
             .from(TypeDeChamp.type_champs.fetch(:textarea))
             .to(TypeDeChamp.type_champs.fetch(:text))
           expect(champ_99.persisted?).to be_truthy
           expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:text))
-          expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
           expect(champ_99.changed?).to be_truthy
           expect(champ_99.value).to eq('test text')
         }
@@ -530,12 +530,12 @@ RSpec.describe DossierChampsConcern do
         end
 
         it {
-          expect { subject }.to change { dossier.champs.find_by(stable_id: 99).last_write_type_champ }
+          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
             .from(TypeDeChamp.type_champs.fetch(:yes_no))
             .to(TypeDeChamp.type_champs.fetch(:checkbox))
           expect(champ_99.persisted?).to be_truthy
           expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:checkbox))
-          expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
           expect(champ_99.changed?).to be_truthy
           expect(champ_99.value).to eq('true')
         }
@@ -555,12 +555,12 @@ RSpec.describe DossierChampsConcern do
         end
 
         it {
-          expect { subject }.to change { dossier.champs.find_by(stable_id: 99).last_write_type_champ }
+          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
             .from(TypeDeChamp.type_champs.fetch(:regions))
             .to(TypeDeChamp.type_champs.fetch(:text))
           expect(champ_99.persisted?).to be_truthy
           expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:text))
-          expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
           expect(champ_99.changed?).to be_truthy
           expect(champ_99.value).to eq('test text')
         }
@@ -588,7 +588,7 @@ RSpec.describe DossierChampsConcern do
 
     it {
       subject
-      expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+      expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
       expect(annotation_995.changed?).to be_truthy
       expect(annotation_995.value).to eq("Hello")
     }
@@ -598,7 +598,7 @@ RSpec.describe DossierChampsConcern do
 
       it {
         subject
-        expect(dossier.champs.any?(&:changed_for_autosave?)).to be_truthy
+        expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
         expect(annotation_995.changed?).to be_truthy
         expect(annotation_995.value).to eq("Hello")
       }
@@ -721,7 +721,7 @@ RSpec.describe DossierChampsConcern do
       }
 
       context "missing champs" do
-        before { dossier; Champs::TextChamp.destroy_all; dossier.champs.reload }
+        before { dossier; Champs::TextChamp.destroy_all; dossier.champ_data.reload }
 
         it {
           subject
@@ -944,7 +944,7 @@ RSpec.describe DossierChampsConcern do
         expect(dossier.history.size).to eq(0)
 
         dossier.merge_instructeur_buffer_stream!
-        dossier.champs.reload
+        dossier.champ_data.reload
 
         expect(main_champ_99.value).to eq("Hello")
         expect(main_champ_991.value).to eq("World")
@@ -972,7 +972,7 @@ RSpec.describe DossierChampsConcern do
 
           dossier.merge_user_buffer_stream!
           dossier.touch(:en_construction_at)
-          dossier.champs.reload
+          dossier.champ_data.reload
         end
 
         expect(draft_champ_99.value).to eq("Hello???")
@@ -982,7 +982,7 @@ RSpec.describe DossierChampsConcern do
 
         travel_to(30.minutes.from_now) do
           dossier.merge_instructeur_buffer_stream!
-          dossier.champs.reload
+          dossier.champ_data.reload
         end
 
         expect(main_champ_99.value).to eq("Hello???")
@@ -1006,7 +1006,7 @@ RSpec.describe DossierChampsConcern do
           dossier.with_instructeur_buffer_stream { assign_champs_attributes(attributes_2) }
           dossier.save!
           dossier.merge_instructeur_buffer_stream!
-          dossier.champs.reload
+          dossier.champ_data.reload
         end
 
         expect(main_champ_99.value).to eq("Hello...")
@@ -1027,7 +1027,7 @@ RSpec.describe DossierChampsConcern do
   describe '#set_default_value_for_france_connect_champs' do
     let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, types_de_champ_public:, for_individual: true) }
     let(:types_de_champ_public) { [{ type: :quotient_familial }] }
-    let(:champ_qf) { dossier.champs.first }
+    let(:champ_qf) { dossier.champ_data.first }
     let!(:fci) { create(:france_connect_information, user: dossier.user) }
 
     context 'when dossier is in a brouillon' do

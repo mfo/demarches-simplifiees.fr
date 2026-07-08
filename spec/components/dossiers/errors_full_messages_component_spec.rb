@@ -17,7 +17,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
     end
 
     context 'when dossier have error' do
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       subject do
         dossier.validate(:champs_public_value)
@@ -26,7 +26,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
       end
 
       context 'when champ is repetition' do
-        let(:champ_repetition) { dossier.champs.first }
+        let(:champ_repetition) { dossier.champ_data.first }
         let(:rows) { champ_repetition.rows }
         let(:champ_child) { rows.first.first }
 

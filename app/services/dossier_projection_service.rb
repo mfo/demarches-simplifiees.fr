@@ -32,7 +32,7 @@ class DossierProjectionService
       champs = Champ.where(dossier_id: dossiers_ids, stable_id: stable_ids, stream: 'main').includes(:piece_justificative_file_attachments).group_by(&:dossier_id)
 
       dossiers.each do |dossier|
-        dossier.association(:champs).target = champs[dossier.id] || []
+        dossier.association(:champ_data).target = champs[dossier.id] || []
       end
     end
 

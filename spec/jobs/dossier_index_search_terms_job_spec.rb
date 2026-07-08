@@ -5,7 +5,7 @@ RSpec.describe DossierIndexSearchTermsJob, type: :job do
   let(:types_de_champ_public) { [{ type: :text }] }
   let(:types_de_champ_private) { [{ type: :text }] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-  let(:champ_siret) { dossier.champs.first }
+  let(:champ_siret) { dossier.champ_data.first }
 
   subject(:perform_job) { described_class.perform_now(dossier.reload) }
 

@@ -578,7 +578,7 @@ describe Experts::AvisController, type: :controller do
         let(:invite_linked_dossiers) { true }
 
         before do
-          dossier_link_champ = dossier.champs.find_by(type: "Champs::DossierLinkChamp")
+          dossier_link_champ = dossier.champ_data.find_by(type: "Champs::DossierLinkChamp")
           dossier_link_champ.update!(value: linked_dossier.id)
         end
 

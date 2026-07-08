@@ -12,7 +12,7 @@ describe 'Inviting an expert:', js: true do
   let(:expert_password) { 'mot de passe d’expert' }
   let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], types_de_champ_public: [{ type: :dossier_link }]) }
   let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
-  let(:linked_dossier) { Dossier.find_by(id: dossier.champs.first.value) }
+  let(:linked_dossier) { Dossier.find_by(id: dossier.champ_data.first.value) }
 
   before do
     clear_emails

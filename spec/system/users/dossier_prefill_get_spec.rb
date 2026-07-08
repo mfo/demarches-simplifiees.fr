@@ -106,7 +106,7 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
     let(:types_de_champ_public) { [{}] }
 
     before do
-      dossier.champs.first.update(value: text_value)
+      dossier.champ_data.first.update(value: text_value)
       page.set_rack_session(prefill_token: "token")
       page.set_rack_session(prefill_params_digest: PrefillChamps.digest({ "champ_#{type_de_champ_text.to_typed_id}" => text_value }))
 

@@ -97,7 +97,7 @@ module Recovery
           import(dossier.justificatif_motivation)
         end
 
-        dossier.champs.each do |champ|
+        dossier.champ_data.each do |champ|
           champ.piece_justificative_file.each { |pj| import(pj) }
 
           if champ.etablissement.present?

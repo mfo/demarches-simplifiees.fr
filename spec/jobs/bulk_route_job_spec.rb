@@ -26,9 +26,9 @@ describe BulkRouteJob, type: :job do
     end
 
     before do
-      dossier1.champs.first.update(value: 'Paris')
-      dossier2.champs.first.update(value: 'Lyon')
-      dossier3.champs.first.update(value: 'Marseille')
+      dossier1.champ_data.first.update(value: 'Paris')
+      dossier2.champ_data.first.update(value: 'Lyon')
+      dossier3.champ_data.first.update(value: 'Marseille')
       subject
     end
 

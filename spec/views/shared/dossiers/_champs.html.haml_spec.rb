@@ -78,7 +78,7 @@ describe 'shared/dossiers/champs', type: :view do
     let(:types_de_champ_public) { [{ type: :dossier_link }] }
 
     before do
-      dossier.champs.first.update(value: dossier.id)
+      dossier.champ_data.first.update(value: dossier.id)
     end
 
     it "renders the no-access modal trigger" do
@@ -98,7 +98,7 @@ describe 'shared/dossiers/champs', type: :view do
     let(:types_de_champ_public) { [{ type: :dossier_link, mandatory: false }] }
 
     before do
-      dossier.champs.first.update(value: nil)
+      dossier.champ_data.first.update(value: nil)
     end
 
     it { is_expected.not_to include("non saisi") }
@@ -113,7 +113,7 @@ describe 'shared/dossiers/champs', type: :view do
     let(:types_de_champ_public) { [{ type: :piece_justificative, mandatory: false }] }
 
     before do
-      dossier.champs.first.piece_justificative_file.purge
+      dossier.champ_data.first.piece_justificative_file.purge
     end
 
     it { is_expected.not_to include("pièce justificative non saisie") }
@@ -127,7 +127,7 @@ describe 'shared/dossiers/champs', type: :view do
   context "with seen_at" do
     let(:types_de_champ_public) { [{ type: :checkbox }] }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, depose_at: 1.day.ago.change(usec: 0)) }
-    let(:champ1) { dossier.champs.first }
+    let(:champ1) { dossier.champ_data.first }
 
     context "with a demande_seen_at after champ updated_at" do
       let(:demande_seen_at) { champ1.updated_at + 1.hour }

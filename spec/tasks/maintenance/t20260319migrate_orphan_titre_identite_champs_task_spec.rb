@@ -10,11 +10,11 @@ module Maintenance
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let!(:titre_identite_champ) do
-        dossier.champs.first.tap { it.update_column(:type, "Champs::TitreIdentiteChamp") }
+        dossier.champ_data.first.tap { it.update_column(:type, "Champs::TitreIdentiteChamp") }
       end
       let!(:piece_justificative_champ) do
         other_dossier = create(:dossier, :with_populated_champs, procedure:)
-        other_dossier.champs.first
+        other_dossier.champ_data.first
       end
 
       it "migrates orphan TitreIdentiteChamp to PieceJustificativeChamp" do

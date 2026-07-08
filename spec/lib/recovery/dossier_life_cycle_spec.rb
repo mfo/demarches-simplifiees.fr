@@ -50,9 +50,9 @@ describe 'Dossier::Recovery::LifeCycle' do
     end
 
     def repetition(d) = d.project_champs_public.find(&:repetition?)
-    def pj_champ(d) = d.champs.find_by(type: "Champs::PieceJustificativeChamp")
-    def carte(d) = d.champs.find_by(type: "Champs::CarteChamp")
-    def siret(d) = d.champs.find_by(type: "Champs::SiretChamp")
+    def pj_champ(d) = d.champ_data.find_by(type: "Champs::PieceJustificativeChamp")
+    def carte(d) = d.champ_data.find_by(type: "Champs::CarteChamp")
+    def siret(d) = d.champ_data.find_by(type: "Champs::SiretChamp")
 
     def cleanup_export_file
       if File.exist?(fp)
@@ -69,7 +69,7 @@ describe 'Dossier::Recovery::LifeCycle' do
     after { cleanup_export_file }
     it 'reloads the full grappe', :slow do
       expect(Dossier.count).to eq(1)
-      expect(Dossier.first.champs.count).not_to be(0)
+      expect(Dossier.first.champ_data.count).not_to be(0)
 
       @dossier_ids = Dossier.ids
 
@@ -81,7 +81,7 @@ describe 'Dossier::Recovery::LifeCycle' do
 
       reloaded_dossier = Dossier.first
 
-      expect(reloaded_dossier.champs.count).not_to be(0)
+      expect(reloaded_dossier.champ_data.count).not_to be(0)
 
       expect(repetition(reloaded_dossier).rows.flatten.map(&:type)).to match_array(["Champs::PieceJustificativeChamp", "Champs::PieceJustificativeChamp", "Champs::PieceJustificativeChamp"])
       expect(pj_champ(reloaded_dossier).piece_justificative_file).to be_attached

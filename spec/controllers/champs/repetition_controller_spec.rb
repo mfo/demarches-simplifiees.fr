@@ -33,12 +33,12 @@ describe Champs::RepetitionController, type: :controller do
   end
 
   describe '#remove' do
-    let(:row) { dossier.champs.find(&:row?) }
+    let(:row) { dossier.champ_data.find(&:row?) }
 
     subject { delete :remove, params: { dossier_id: dossier, stable_id: repetition.stable_id, row_id: row.row_id }, format: :turbo_stream }
 
     context 'removes repetition' do
-      it { expect { subject }.not_to change { dossier.reload.champs.size } }
+      it { expect { subject }.not_to change { dossier.reload.champ_data.size } }
       it { expect { subject }.to change { dossier.reload; dossier.project_champs_public.find(&:repetition?).row_ids.size }.from(1).to(0) }
       it { expect { subject }.to change { row.reload.discarded_at }.from(nil).to(Time) }
       it { expect { subject }.to change { dossier.reload.last_champ_updated_at } }
@@ -49,7 +49,7 @@ describe Champs::RepetitionController, type: :controller do
     subject { post :add, params: { dossier_id: dossier, stable_id: repetition.stable_id }, format: :turbo_stream }
 
     context 'add repetition' do
-      it { expect { subject }.to change { dossier.reload.champs.size } }
+      it { expect { subject }.to change { dossier.reload.champ_data.size } }
       it { expect { subject }.to change { dossier.reload.last_champ_updated_at } }
     end
   end

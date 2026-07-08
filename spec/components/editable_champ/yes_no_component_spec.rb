@@ -4,7 +4,7 @@ describe EditableChamp::YesNoComponent, type: :component do
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:tdc) { procedure.active_revision.types_de_champ.first }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
 
   subject(:render) do
     component = nil

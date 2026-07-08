@@ -8,7 +8,7 @@ module Maintenance
       subject(:process) { described_class.process(champ) }
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:address_champ) { dossier.champs.first }
+      let(:address_champ) { dossier.champ_data.first }
 
       it do
         address_champ.update_columns(value: "123 Main St", value_json: {})

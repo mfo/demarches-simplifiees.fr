@@ -5,7 +5,7 @@ describe Champs::DecimalNumberChamp do
   let(:types_de_champ_private) { [] }
   let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first.tap { _1.update(value:) } }
+  let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
   let(:value) { nil }
 
   describe 'validation' do

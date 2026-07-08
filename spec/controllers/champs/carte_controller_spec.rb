@@ -16,7 +16,7 @@ describe Champs::CarteController, type: :controller do
       stable_id: champ.stable_id,
     }
   end
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
 
   describe 'ensure_legitimate_access' do
     before do

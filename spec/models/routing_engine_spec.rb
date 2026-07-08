@@ -50,7 +50,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_eq(champ_value(drop_down_tdc.stable_id), constant('Lyon')))
-          dossier.champs.first.update(value: 'Lyon')
+          dossier.champ_data.first.update(value: 'Lyon')
         end
 
         it { is_expected.to eq(gi_2) }
@@ -65,7 +65,7 @@ describe RoutingEngine, type: :model do
       context 'with a non equals rule' do
         before do
           gi_2.update(routing_rule: ds_not_eq(champ_value(drop_down_tdc.stable_id), constant('Lyon')))
-          dossier.champs.first.update(value: 'Paris')
+          dossier.champ_data.first.update(value: 'Paris')
         end
 
         it do
@@ -87,7 +87,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_eq(champ_value(departements_tdc.stable_id), constant('43')))
-          dossier.champs.first.update(value: 'Haute-Loire')
+          dossier.champ_data.first.update(value: 'Haute-Loire')
         end
 
         it { is_expected.to eq(gi_2) }
@@ -106,7 +106,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_eq(champ_value(regions_tdc.stable_id), constant('04')))
-          dossier.champs.first.update(value: 'La Réunion')
+          dossier.champ_data.first.update(value: 'La Réunion')
         end
 
         it { is_expected.to eq(gi_2) }
@@ -125,7 +125,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_in_departement(champ_value(communes_tdc.stable_id), constant('92')))
-          dossier.champs.first.update(code_postal: '92500', external_id: '92063')
+          dossier.champ_data.first.update(code_postal: '92500', external_id: '92063')
         end
 
         it { is_expected.to eq(gi_2) }
@@ -144,7 +144,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_in_departement(champ_value(epci_tdc.stable_id), constant('42')))
-          dossier.champs.first.update_columns(
+          dossier.champ_data.first.update_columns(
             external_id: 244200895,
             value: 'CC du Pilat Rhodanien',
             value_json: { code_departement: '42' }
@@ -169,7 +169,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_in_departement(champ_value(address_tdc.stable_id), constant('42')))
-          dossier.champs.first.update_columns(
+          dossier.champ_data.first.update_columns(
             value: "2 rue de l'Hôtel de Ville 42000 Saint-Étienne",
             value_json: { department_code: '42', region_code: '83', city_code: '42218', postal_code: '42000', street_address: "2 rue de l'Hôtel de Ville", country_code: 'FR' }
           )
@@ -193,7 +193,7 @@ describe RoutingEngine, type: :model do
       context 'with a matching rule' do
         before do
           gi_2.update(routing_rule: ds_eq(champ_value(pays_tdc.stable_id), constant('BE')))
-          dossier.champs.first.update_columns(
+          dossier.champ_data.first.update_columns(
             value: "Belgique"
           )
         end
@@ -221,7 +221,7 @@ describe RoutingEngine, type: :model do
           defaut_groupe.update(label: 'a')
           gi_2.update(label: 'b', routing_rule: ds_not_eq(champ_value(drop_down_tdc.stable_id), constant('Lyon')))
           gi_3.update(routing_rule: ds_eq(champ_value(drop_down_tdc.stable_id), constant('Marseille')))
-          dossier.champs.first.update(value: 'Marseille')
+          dossier.champ_data.first.update(value: 'Marseille')
         end
 
         it 'computes by groups label order' do

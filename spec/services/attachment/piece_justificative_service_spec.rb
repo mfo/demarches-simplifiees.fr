@@ -3,7 +3,7 @@
 RSpec.describe Attachment::PieceJustificativeService do
   let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
 
   let(:blob_1) { ActiveStorage::Blob.create_and_upload!(io: StringIO.new("file1"), filename: "file1.pdf", content_type: "application/pdf") }
   let(:blob_2) { ActiveStorage::Blob.create_and_upload!(io: StringIO.new("file2"), filename: "file2.pdf", content_type: "application/pdf") }

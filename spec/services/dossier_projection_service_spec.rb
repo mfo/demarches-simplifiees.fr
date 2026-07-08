@@ -22,7 +22,7 @@ describe DossierProjectionService do
       expect(dossiers.size).to eq(2)
 
       # only load the champs required for the columns
-      expect(dossiers.first.champs.size).to eq(1)
+      expect(dossiers.first.champ_data.size).to eq(1)
     end
   end
 end

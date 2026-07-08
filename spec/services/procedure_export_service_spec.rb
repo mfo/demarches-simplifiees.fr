@@ -213,7 +213,7 @@ describe ProcedureExportService do
         let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
         let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
         let(:types_de_champ_public) { [{ type: :text, libelle: 'text' }] }
-        before { dossier.champs.first.update(value: user_input) }
+        before { dossier.champ_data.first.update(value: user_input) }
         let(:user_input) { "franco￾allemand" }
         it 'can be read with BOM content' do
           expect(dossiers_sheet).not_to be_nil
@@ -226,7 +226,7 @@ describe ProcedureExportService do
         let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
         let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
         let(:types_de_champ_public) { [{ type: :text, libelle: 'text' }] }
-        before { dossier.champs.first.update(value: user_input) }
+        before { dossier.champ_data.first.update(value: user_input) }
         let(:user_input) { "Notation <A B C is OK" }
         it 'is not escaped' do
           expect(dossiers_sheet).not_to be_nil

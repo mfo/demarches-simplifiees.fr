@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, stable_id: 3, libelle: 'Justificatif de domicile' }]) }
       let(:dossier) { create(:dossier, procedure:) }
-      let(:champ_pj) { dossier.champs.first }
+      let(:champ_pj) { dossier.champ_data.first }
 
       before do
         champ_pj.piece_justificative_file.attach(

@@ -5,7 +5,7 @@ describe TypesDeChamp::QuotientFamilialTypeDeChamp do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
     let(:tdc_quotient_familial) { procedure.active_revision.types_de_champ.first }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     subject { tdc_quotient_familial.champ_blank?(champ) }
 

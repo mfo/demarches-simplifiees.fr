@@ -7,7 +7,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
   let!(:instructeur) { create(:instructeur, password: password) }
 
   def buffered_value(dossier, stable_id)
-    dossier.reload.champs
+    dossier.reload.champ_data
       .find { _1.stream == Champ::INSTRUCTEUR_BUFFER_STREAM && _1.stable_id == stable_id }
       &.value
   end
@@ -15,7 +15,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
   # The merge moves the previous main champ to the history stream and promotes
   # the buffered champ as the new main one, so we must look it up by stream.
   def main_value(dossier, stable_id)
-    dossier.reload.champs
+    dossier.reload.champ_data
       .find { _1.stream == Champ::MAIN_STREAM && _1.stable_id == stable_id }
       &.value
   end
@@ -123,7 +123,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
     before { login_as(instructeur.user, scope: :user) }
 
     def buffered_pj(stable_id)
-      dossier.reload.champs
+      dossier.reload.champ_data
         .find { _1.stream == Champ::INSTRUCTEUR_BUFFER_STREAM && _1.stable_id == stable_id }
         &.piece_justificative_file
     end

@@ -248,6 +248,6 @@ RSpec.describe API::Public::V1::DossiersController, type: :controller do
   private
 
   def find_champ_by_stable_id(dossier, stable_id)
-    dossier.champs.find_by(stable_id:)
+    dossier.champ_data.find_by(stable_id:)
   end
 end

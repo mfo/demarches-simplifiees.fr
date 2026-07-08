@@ -3,7 +3,7 @@
 describe EditableChamp::PieceJustificativeComponent, type: :component do
   let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champs.first }
+  let(:champ) { dossier.champ_data.first }
 
   let(:component) { described_class.new(form: nil, champ:) }
 

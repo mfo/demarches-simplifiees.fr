@@ -391,14 +391,14 @@ module DossierStateConcern
   private
 
   def remove_not_in_revision_champs!
-    champs.where.not(stable_id: revision_stable_ids).where(stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where.not(stable_id: revision_stable_ids).where(stream: Champ::MAIN_STREAM).destroy_all
   end
 
   def remove_discarded_rows!
-    row_to_remove_ids = champs.filter { _1.row? && _1.discarded? }.map(&:row_id)
+    row_to_remove_ids = champ_data.filter { _1.row? && _1.discarded? }.map(&:row_id)
 
     return if row_to_remove_ids.empty?
-    champs.where(row_id: row_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where(row_id: row_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
   end
 
   def remove_not_visible_or_empty_repetitions!
@@ -407,7 +407,7 @@ module DossierStateConcern
       .flat_map(&:row_ids)
 
     return if row_to_remove_ids.empty?
-    champs.where(row_id: row_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where(row_id: row_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
   end
 
   def clear_not_visible_or_empty_champs!
@@ -415,19 +415,19 @@ module DossierStateConcern
       .reject(&:repetition?)
       .filter { _1.blank? || !_1.visible? }
 
-    champs.where(id: champs_to_clear, stream: Champ::MAIN_STREAM).find_each(&:clear)
+    champ_data.where(id: champs_to_clear, stream: Champ::MAIN_STREAM).find_each(&:clear)
   end
 
   def clear_france_connect_champs_piece_justificatives!
     champs_to_clear = project_champs_public.filter(&:france_connect?)
 
     return if champs_to_clear.empty?
-    champs.where(id: champs_to_clear).find_each(&:clear_piece_justificative)
+    champ_data.where(id: champs_to_clear).find_each(&:clear_piece_justificative)
   end
 
   def clear_titres_identite!
-    champ_to_clear_stable_ids = champs.filter do |champ|
-      # Use STI type to avoid querying type_de_champ for orphaned champs
+    champ_to_clear_stable_ids = champ_data.filter do |champ|
+      # Use STI type to avoid querying type_de_champ for orphaned champ_data
       next false unless champ.is_a?(Champs::PieceJustificativeChamp)
 
       begin
@@ -438,7 +438,7 @@ module DossierStateConcern
       end
     end.to_set(&:stable_id)
 
-    champs.where(stable_id: champ_to_clear_stable_ids).find_each(&:clear)
+    champ_data.where(stable_id: champ_to_clear_stable_ids).find_each(&:clear)
   end
 
   def clear_auto_purged_piece_justificatives!
@@ -450,7 +450,7 @@ module DossierStateConcern
       .filter(&:pj_auto_purge?)
       .map(&:stable_id)
 
-    champs.where(stable_id: champ_to_clear_stable_ids).find_each(&:clear)
+    champ_data.where(stable_id: champ_to_clear_stable_ids).find_each(&:clear)
   end
 
   def remove_attente_avis_notification
@@ -462,7 +462,7 @@ module DossierStateConcern
 
     return if champ_to_remove_ids.empty?
 
-    champs.where(id: champ_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where(id: champ_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
   end
 
   def enqueue_ami_notification(trigger: :dossier_state_change, state: nil)

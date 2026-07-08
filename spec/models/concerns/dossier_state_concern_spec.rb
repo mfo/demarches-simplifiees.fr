@@ -30,17 +30,17 @@ RSpec.describe DossierStateConcern do
       dossier.reload
       champ_repetition = dossier.project_champs_public.find { _1.stable_id == 94 }
       row_id = champ_repetition.row_ids.first
-      dossier.champs.filter(&:row?).find { _1.row_id == row_id }.touch(:discarded_at)
+      dossier.champ_data.filter(&:row?).find { _1.row_id == row_id }.touch(:discarded_at)
     end
   end
 
   describe 'submit brouillon' do
     it do
-      expect(dossier.champs.size).to eq(20)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
-      expect(dossier.champs.filter { _1.row? && _1.discarded? }.size).to eq(1)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(4)
-      expect(dossier.champs.filter { _1.stable_id.in?([90, 92, 93, 97, 961, 951]) }.size).to eq(8)
+      expect(dossier.champ_data.size).to eq(20)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
+      expect(dossier.champ_data.filter { _1.row? && _1.discarded? }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(4)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([90, 92, 93, 97, 961, 951]) }.size).to eq(8)
 
       champ_text = dossier.project_champs_public.find { _1.stable_id == 90 }
       champ_text.update(value: '')
@@ -48,11 +48,11 @@ RSpec.describe DossierStateConcern do
       dossier.passer_en_construction!
       dossier.reload
 
-      expect(dossier.champs.size).to eq(7)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
-      expect(dossier.champs.filter { _1.row? && _1.discarded? }.size).to eq(0)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(0)
-      expect(dossier.champs.filter { _1.stable_id.in?([90, 92, 93, 97, 961, 951]) && !(_1.blank? || !_1.visible?) }.size).to eq(0)
+      expect(dossier.champ_data.size).to eq(7)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.row? && _1.discarded? }.size).to eq(0)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(0)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([90, 92, 93, 97, 961, 951]) && !(_1.blank? || !_1.visible?) }.size).to eq(0)
       expect(dossier.submitted_revision_id).to eq(dossier.revision_id)
     end
 
@@ -83,20 +83,20 @@ RSpec.describe DossierStateConcern do
     let(:dossier_state) { :en_construction }
 
     it do
-      expect(dossier.champs.size).to eq(20)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
-      expect(dossier.champs.filter { _1.row? && _1.discarded? }.size).to eq(1)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(4)
-      expect(dossier.champs.filter { _1.stable_id.in?([92, 93, 97, 961, 951]) }.size).to eq(7)
+      expect(dossier.champ_data.size).to eq(20)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
+      expect(dossier.champ_data.filter { _1.row? && _1.discarded? }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(4)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([92, 93, 97, 961, 951]) }.size).to eq(7)
 
       dossier.usager_submit_en_construction!
       dossier.reload
 
-      expect(dossier.champs.size).to eq(7)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
-      expect(dossier.champs.filter { _1.row? && _1.discarded? }.size).to eq(0)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(0)
-      expect(dossier.champs.filter { _1.stable_id.in?([92, 93, 97, 961, 951]) && !(_1.blank? || !_1.visible?) }.size).to eq(0)
+      expect(dossier.champ_data.size).to eq(7)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.row? && _1.discarded? }.size).to eq(0)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id.in?([95, 96]) }.size).to eq(0)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([92, 93, 97, 961, 951]) && !(_1.blank? || !_1.visible?) }.size).to eq(0)
       expect(dossier.submitted_revision_id).to eq(dossier.revision_id)
     end
 
@@ -181,16 +181,16 @@ RSpec.describe DossierStateConcern do
     let(:dossier_state) { :en_instruction }
 
     it do
-      expect(dossier.champs.size).to eq(20)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
-      expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
+      expect(dossier.champ_data.size).to eq(20)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
 
       dossier.accepter!(motivation: 'test')
       dossier.reload
 
-      expect(dossier.champs.size).to eq(17)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
-      expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
+      expect(dossier.champ_data.size).to eq(17)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
     end
 
     context "when dossier has attente_avis notification" do
@@ -209,16 +209,16 @@ RSpec.describe DossierStateConcern do
     let(:dossier_state) { :en_instruction }
 
     it do
-      expect(dossier.champs.size).to eq(20)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
-      expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
+      expect(dossier.champ_data.size).to eq(20)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
 
       dossier.refuser!(motivation: 'test')
       dossier.reload
 
-      expect(dossier.champs.size).to eq(17)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
-      expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
+      expect(dossier.champ_data.size).to eq(17)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
     end
 
     context "when dossier has attente_avis notification" do
@@ -237,16 +237,16 @@ RSpec.describe DossierStateConcern do
     let(:dossier_state) { :en_instruction }
 
     it '', :slow do
-      expect(dossier.champs.size).to eq(20)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
-      expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
+      expect(dossier.champ_data.size).to eq(20)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
 
       dossier.classer_sans_suite!(motivation: 'test')
       dossier.reload
 
-      expect(dossier.champs.size).to eq(17)
-      expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
-      expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
+      expect(dossier.champ_data.size).to eq(17)
+      expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
+      expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
     end
 
     context "when dossier has an attestation from a previous acceptation" do
@@ -281,16 +281,16 @@ RSpec.describe DossierStateConcern do
       let(:declarative_with_state) { Dossier.states.fetch(:accepte) }
 
       it do
-        expect(dossier.champs.size).to eq(20)
-        expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
-        expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
+        expect(dossier.champ_data.size).to eq(20)
+        expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(2)
+        expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) }.size).to eq(2)
 
         dossier.accepter_automatiquement!
         dossier.reload
 
-        expect(dossier.champs.size).to eq(17)
-        expect(dossier.champs.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
-        expect(dossier.champs.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
+        expect(dossier.champ_data.size).to eq(17)
+        expect(dossier.champ_data.filter { _1.row? && _1.stable_id == 94 }.size).to eq(1)
+        expect(dossier.champ_data.filter { _1.stable_id.in?([93, 98]) && _1.blank? }.size).to eq(2)
       end
     end
 
@@ -319,7 +319,7 @@ RSpec.describe DossierStateConcern do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'destroys champ on accepter' do
         champ.piece_justificative_file.attach(file)
@@ -332,7 +332,7 @@ RSpec.describe DossierStateConcern do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'destroys champ on accepter' do
         champ.piece_justificative_file.attach(file)
@@ -345,7 +345,7 @@ RSpec.describe DossierStateConcern do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, pj_auto_purge: '1' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'destroys champ on accepter' do
         champ.piece_justificative_file.attach(file)
@@ -358,7 +358,7 @@ RSpec.describe DossierStateConcern do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       it 'keeps attachments on accepter' do
         champ.piece_justificative_file.attach(file)
@@ -409,7 +409,7 @@ RSpec.describe DossierStateConcern do
   describe '#clear_france_connect_champs_piece_justificatives (after user submits a dossier or modifications)' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     subject { dossier.send(:clear_france_connect_champs_piece_justificatives!) }
 

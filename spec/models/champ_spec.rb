@@ -497,7 +497,7 @@ describe Champ do
     context 'when type_champ is type_de_champ_piece_justificative' do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       context 'and there is a blob' do
         before do
@@ -527,7 +527,7 @@ describe Champ do
     context 'when type_champ is piece_justificative with titre_identite nature' do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, procedure:) }
-      let(:champ) { dossier.champs.first }
+      let(:champ) { dossier.champ_data.first }
 
       before do
         allow(ClamavService).to receive(:safe_file?).and_return(true)
@@ -585,7 +585,7 @@ describe Champ do
     let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
     let(:types_de_champ_private) { [] }
     let(:types_de_champ_public) { [] }
-    let(:champ) { dossier.champs.first }
+    let(:champ) { dossier.champ_data.first }
 
     subject { champ.clone }
 
@@ -620,7 +620,7 @@ describe Champ do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, mandatory: false, children: [{ type: :text }] }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
-    let(:champ) { dossier.champs.where(type: "Champs::TextChamp").first }
+    let(:champ) { dossier.champ_data.where(type: "Champs::TextChamp").first }
 
     it "returns the parent" do
       expect(champ.parent).to eq(TypeDeChamp.find_by(type_champ: "repetition"))
@@ -630,7 +630,7 @@ describe Champ do
   describe '#clone_value_from' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:source_champ) { dossier.champs.first }
+    let(:source_champ) { dossier.champ_data.first }
     let(:target_champ) { source_champ.dup.tap { it.stream = Champ::USER_BUFFER_STREAM } }
 
     before do

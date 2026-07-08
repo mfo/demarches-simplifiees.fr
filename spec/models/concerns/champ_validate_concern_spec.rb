@@ -18,7 +18,7 @@ RSpec.describe ChampValidateConcern do
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end
@@ -29,7 +29,7 @@ RSpec.describe ChampValidateConcern do
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).not_to be_empty
       }
     end
@@ -45,7 +45,7 @@ RSpec.describe ChampValidateConcern do
       }
       it {
         expect(dossier.revision.revision_types_de_champ).to be_empty
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end
@@ -60,7 +60,7 @@ RSpec.describe ChampValidateConcern do
       }
       it {
         expect(dossier.revision.revision_types_de_champ).to be_empty
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end
@@ -75,7 +75,7 @@ RSpec.describe ChampValidateConcern do
       }
       it {
         expect(dossier.revision.revision_types_de_champ).to be_empty
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end
@@ -86,13 +86,13 @@ RSpec.describe ChampValidateConcern do
       before do
         allow_any_instance_of(Champs::PieceJustificativeChamp).to receive(:external_data_needed_for_validation?).and_return(true)
 
-        dossier.champs.first.update_column(:external_state, 'waiting_for_job')
+        dossier.champ_data.first.update_column(:external_state, 'waiting_for_job')
         dossier.revision.revision_types_de_champ.delete_all
 
         dossier.reload
       end
 
-      it { expect(dossier.champs.first.send(:validate_external_data_response?)).to be(false) }
+      it { expect(dossier.champ_data.first.send(:validate_external_data_response?)).to be(false) }
     end
   end
 
@@ -105,9 +105,9 @@ RSpec.describe ChampValidateConcern do
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.champs.first.last_write_type_champ).to eq('email')
+        expect(dossier.champ_data.first.last_write_type_champ).to eq('email')
         expect(type_de_champ.type_champ).to eq('text')
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end
@@ -125,7 +125,7 @@ RSpec.describe ChampValidateConcern do
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end
@@ -136,7 +136,7 @@ RSpec.describe ChampValidateConcern do
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).not_to be_empty
       }
     end
@@ -149,7 +149,7 @@ RSpec.describe ChampValidateConcern do
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.champs).not_to be_empty
+        expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
     end

@@ -27,7 +27,7 @@ module DossierCloneConcern
         kopy.parent_dossier = original
         kopy.user = user || original.user
         kopy.state = Dossier.states.fetch(:brouillon)
-        kopy.champs = cloned_champs.map do |champ|
+        kopy.champ_data = cloned_champs.map do |champ|
           champ.dossier = kopy
           champ
         end
