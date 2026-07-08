@@ -25,7 +25,7 @@ class ApplicationJob < ActiveJob::Base
 
   around_perform do |job, block|
     Rails.logger.info("#{job.class.name} started at #{Time.zone.now}")
-    Current.set(request_id: job.request_id) do
+    Current.set(request_id: job.request_id, job_id: job.job_id) do
       block.call
     end
     Rails.logger.info("#{job.class.name} ended at #{Time.zone.now}")

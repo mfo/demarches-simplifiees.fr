@@ -6,6 +6,7 @@ class Current < ActiveSupport::CurrentAttributes
   attribute :browser
   attribute :contact_email
   attribute :host
+  attribute :job_id
   attribute :no_reply_email
   attribute :request_id
   attribute :user
