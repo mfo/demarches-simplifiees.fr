@@ -15,8 +15,15 @@ class TypesDeChamp::PrefillEpciTypeDeChamp < TypesDeChamp::PrefillTypeDeChamp
 
   def to_assignable_attributes(champ, value)
     return { code_departement: nil, value: nil } if value.blank? || !value.is_a?(Array)
-    return { code_departement: value.first, value: nil } if value.one?
-    { code_departement: value.first, value: value.second }
+
+    code_departement = value.first
+    return nil if APIGeoService.departement_name(code_departement).blank?
+
+    epci_code = value.second
+    return { code_departement:, value: nil } if epci_code.blank?
+    return nil if APIGeoService.epci_name(code_departement, epci_code).blank?
+
+    { code_departement:, value: epci_code }
   end
 
   private

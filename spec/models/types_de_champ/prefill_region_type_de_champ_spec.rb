@@ -20,4 +20,39 @@ RSpec.describe TypesDeChamp::PrefillRegionTypeDeChamp, type: :model do
       expect(possible_values).to eq(expected_values)
     }
   end
+
+  describe '#to_assignable_attributes' do
+    let(:champ) { Champs::RegionChamp.new }
+    subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }
+
+    context 'when the value is a region code' do
+      let(:value) { '53' }
+
+      it { is_expected.to eq({ value: '53' }) }
+    end
+
+    context 'when the value is a region name' do
+      let(:value) { 'Bretagne' }
+
+      it { is_expected.to eq({ value: 'Bretagne' }) }
+    end
+
+    context 'when the value is an unknown region code' do
+      let(:value) { '00' }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the value is not a region' do
+      let(:value) { 'value' }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the value is not a String' do
+      let(:value) { ['53'] }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end
