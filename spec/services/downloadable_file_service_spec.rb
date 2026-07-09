@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 describe DownloadableFileService do
+  include ZipHelpers
+
   let(:procedure) { create(:procedure, :published) }
   let(:service) { ProcedureArchiveService.new(procedure) }
 
@@ -39,6 +41,36 @@ describe DownloadableFileService do
         expect(File.exist?(expected_zip_path)).to be_truthy
       end
       expect(File.exist?(expected_zip_path)).to be_falsey
+    end
+
+    context 'when attachments target the same path' do
+      def fake_attachment(content, id)
+        ActiveStorage::FakeAttachment.new(
+          file: StringIO.new(content),
+          filename: 'test.pdf',
+          name: 'pdf_export_for_instructeur',
+          id:,
+          created_at: Time.zone.now
+        )
+      end
+
+      let(:attachments) do
+        [
+          [fake_attachment('fichier 1', 1), 'dossier-1/test.pdf'],
+          [fake_attachment('fichier 2', 2), 'dossier-1/test.pdf'],
+          [fake_attachment('fichier 3', 3), 'dossier-1/test.pdf'],
+        ]
+      end
+
+      it 'deduplicates paths so no file is overwritten' do
+        DownloadableFileService.download_and_zip(procedure, attachments, filename) do |zip_path|
+          entries = read_zip_entries(zip_path)
+          expect(entries).to include('export/dossier-1/test.pdf', 'export/dossier-1/test-2.pdf', 'export/dossier-1/test-3.pdf')
+          expect(read_zip_file_content(zip_path, 'export/dossier-1/test.pdf')).to eq('fichier 1')
+          expect(read_zip_file_content(zip_path, 'export/dossier-1/test-2.pdf')).to eq('fichier 2')
+          expect(read_zip_file_content(zip_path, 'export/dossier-1/test-3.pdf')).to eq('fichier 3')
+        end
+      end
     end
   end
 end
