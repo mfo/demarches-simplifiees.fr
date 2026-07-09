@@ -15,19 +15,41 @@ class CreateAvisService
 
       emails, restricted_emails = filter_restricted_emails(dossier.procedure, emails)
 
-      # create experts
-      users, invalids = emails.map { User.create_or_promote_to_expert(it, SecureRandom.hex) }.partition(&:valid?)
+      # create experts — batch-find existing users by email to avoid N+1
+      existing_users_by_email = User.where(email: emails).index_by(&:email)
+      users = []
+      invalids = []
+      emails.each do |email|
+        user = existing_users_by_email[email]
+        if user.nil?
+          user = User.create_or_promote_to_expert(email, SecureRandom.hex)
+        elsif user.valid? && user.expert.nil?
+          user.create_expert!
+        end
+        (user.valid? ? users : invalids) << user
+      end
       failed_emails = invalids.map { { email: it.email, messages: it.errors.full_messages } }
       failed_emails += restricted_emails.map { { email: it, messages: [I18n.t('create_avis_service.errors.expert_not_allowed')] } }
 
       # list all related dossiers
       dossiers = avis.invite_linked_dossiers.present? ? [dossier, *dossier.linked_dossiers_for(claimant)] : [dossier]
 
-      # create expert <-> procedure
-      experts = users.map(&:expert)
-      experts_procedures_h = dossiers.map(&:procedure).uniq
-        .flat_map { |procedure| experts.map { |expert| [[expert, procedure], ExpertsProcedure.find_or_create_by(procedure:, expert:)] } }
-        .to_h
+      # create expert <-> procedure — batch-load experts and ExpertsProcedure records
+      experts = User.where(id: users.map(&:id)).includes(:expert).map(&:expert)
+      procedures = dossiers.map(&:procedure).uniq
+
+      existing_eps = ExpertsProcedure.where(procedure_id: procedures.map(&:id), expert_id: experts.map(&:id))
+        .index_by { |ep| [ep.expert_id, ep.procedure_id] }
+
+      experts_procedures_h = {}
+      procedures.each do |procedure|
+        experts.each do |expert|
+          key = [expert, procedure]
+          ep = existing_eps[[expert.id, procedure.id]]
+          ep ||= ExpertsProcedure.find_or_create_by(procedure:, expert:)
+          experts_procedures_h[key] = ep
+        end
+      end
 
       # create avis on all related dossiers
       persisted, failed = experts.flat_map do |expert|
