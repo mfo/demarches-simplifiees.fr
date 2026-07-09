@@ -1,6 +1,6 @@
 - if unspecified_attestation_champs.present?
 
-  = render Dsfr::AlertComponent.new(state: :warning, title: nil, size: :sm, extra_class_names: 'fr-my-2w') do |c|
+  = render Dsfr::AlertComponent.new(state: :warning, title: t('instructeurs.dossiers.alert_unspecified_attestation_title'), with_prefix: false, extra_class_names: 'fr-my-2w') do |c|
     - c.with_body do
       %p
         = t('instructeurs.dossiers.alert_unspecified_attestation_champs')
@@ -9,14 +9,14 @@
 
       - if unspecified_champs.present?
         %p.fr-text--sm.fr-text--bold
-          Champs de la demande
-        - unspecified_champs.each do |unspecified_champ|
-          .fr-mb-1v
-            = unspecified_champ.libelle
+          = t('instructeurs.dossiers.unspecified_champs_group')
+        %ul.fr-mb-0.list-style-type-disc
+          - unspecified_champs.each do |unspecified_champ|
+            %li= unspecified_champ.libelle
 
       - if unspecified_annotations_privees.present?
         %p.fr-text--sm.fr-text--bold
-          Annotations privées
-        - unspecified_annotations_privees.each do |unspecified_annotations_privee|
-          .fr-mb-1v
-            = unspecified_annotations_privee.libelle
+          = t('instructeurs.dossiers.unspecified_annotations_group')
+        %ul.fr-mb-0.list-style-type-disc
+          - unspecified_annotations_privees.each do |unspecified_annotations_privee|
+            %li= unspecified_annotations_privee.libelle

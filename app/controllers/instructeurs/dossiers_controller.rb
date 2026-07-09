@@ -266,16 +266,14 @@ module Instructeurs
         when "refuser"
           target_state = :refuse
           dossier.refuser!(h)
-          flash.notice = "Dossier considéré comme refusé."
         when "classer_sans_suite"
           target_state = :sans_suite
           dossier.classer_sans_suite!(h)
-          flash.notice = "Dossier considéré comme sans suite."
         when "accepter"
           target_state = :accepte
           dossier.accepter!(h)
-          flash.notice = "Dossier traité avec succès."
         end
+        flash.notice = t('instructeurs.dossiers.terminer_notice', state: dossier_display_state(target_state, lower: true))
       rescue AASM::InvalidTransition => e
         flash.alert = aasm_error_message(e, target_state: target_state)
       end
@@ -569,7 +567,7 @@ module Instructeurs
       elsif exception.failures.include?(:can_terminer?) && dossier.any_etablissement_as_degraded_mode?
         t('instructeurs.dossiers.aasm_error_etablissement_as_degraded_mode', state: dossier_display_state(target_state, lower: true))
       elsif exception.failures.include?(:can_terminer?) && !dossier.champs_private_valid?
-        t('instructeurs.dossiers.aasm_error_annotations', url: annotations_privees_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]), state: dossier_display_state(target_state, lower: true))
+        t('instructeurs.dossiers.aasm_error_annotations', url: annotations_privees_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]))
       else
         t('instructeurs.dossiers.aasm_error_other', originating_state: dossier_display_state(exception.originating_state, lower: true), target_state: dossier_display_state(target_state, lower: true))
       end

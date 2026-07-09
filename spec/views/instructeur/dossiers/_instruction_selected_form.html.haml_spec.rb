@@ -40,6 +40,7 @@ describe 'instructeurs/dossiers/_instruction_selected_form', type: :view do
           it 'renders notice and preview link' do
             expect(rendered).to have_text(notice_text)
             expect(rendered).to have_link('Prévisualiser l’attestation')
+            expect(rendered).to have_css("a.fr-notice__link[target='_blank']")
           end
         end
 
@@ -103,7 +104,7 @@ describe 'instructeurs/dossiers/_instruction_selected_form', type: :view do
       'selected instruction form',
       'accept',
       :acceptation,
-      "L’acceptation du dossier envoie automatiquement une attestation à l’usager",
+      "L’acceptation du dossier génère automatiquement une attestation à télécharger par l’usager",
       false
     )
   end
@@ -113,7 +114,7 @@ describe 'instructeurs/dossiers/_instruction_selected_form', type: :view do
       'selected instruction form',
       'refuse',
       :refus,
-      "Le refus du dossier envoie automatiquement une attestation à l’usager",
+      "Le refus du dossier génère automatiquement une attestation à télécharger par l’usager",
       true
     )
   end

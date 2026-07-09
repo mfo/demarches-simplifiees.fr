@@ -46,6 +46,11 @@
   list-style-type: none;
 }
 
+.list-style-type-disc {
+  --ul-type: disc;
+  --ul-start: 1rem;
+}
+
 .horizontal-list {
   list-style-type: none;
   padding: 0;

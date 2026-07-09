@@ -26,6 +26,13 @@ module InstructionButtonHelper
     "#{title} n° #{dossier.id} - #{dossier.owner_name}"
   end
 
+  def invalid_annotations_libelles(dossier)
+    dossier.errors
+      .map { it.is_a?(ActiveModel::NestedError) ? it.inner_error.base : it.base }
+      .uniq
+      .filter_map { it.libelle if it.respond_to?(:libelle) }
+  end
+
   def instruction_options(batch:)
     [
       instruction_option(
@@ -62,13 +69,13 @@ module InstructionButtonHelper
       {
         template: batch ? procedure.attestation_acceptation_template : dossier.attestation_acceptation_template,
         kind: "acceptation",
-        title: "L’acceptation du dossier envoie automatiquement une attestation à l’usager",
+        title: t('instructeurs.dossiers.attestation_notice_accept'),
       }
     when "refuse"
       {
         template: batch ? procedure.attestation_refus_template : dossier.attestation_refus_template,
         kind: "refus",
-        title: "Le refus du dossier envoie automatiquement une attestation à l’usager",
+        title: t('instructeurs.dossiers.attestation_notice_refuse'),
       }
     else
       { template: nil, kind: nil, title: nil }
