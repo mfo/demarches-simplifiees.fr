@@ -7,7 +7,7 @@ describe Champs::EmailChamp do
     let(:champ) { dossier.champ_data.second }
     let(:value) { nil }
     before { champ.value = value }
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     context 'when nil' do
       it { is_expected.to be_truthy }
@@ -25,7 +25,7 @@ describe Champs::EmailChamp do
 
         invalid_emails.each do |email|
           champ.value = email
-          expect(champ.validate(:champs_public_value)).to be_falsey
+          expect(champ.validate(:champ_value)).to be_falsey
         end
       end
     end
@@ -43,7 +43,7 @@ describe Champs::EmailChamp do
 
         valid_emails.each do |email|
           champ.value = email
-          expect(champ.validate(:champs_public_value)).to be_truthy
+          expect(champ.validate(:champ_value)).to be_truthy
         end
       end
     end
@@ -57,9 +57,15 @@ describe Champs::EmailChamp do
     end
 
     context 'when type_de_champ is not in dossier revision anymore' do
-      before { dossier.revision.remove_type_de_champ(champ.stable_id) }
-      let(:value) { 'username' }
-      it { is_expected.to be_truthy }
+      before {
+        champ.update_column(:value, 'username')
+        dossier.revision.remove_type_de_champ(champ.stable_id)
+        dossier.reload
+      }
+
+      it 'is not projected, so the dossier does not validate the invalid value' do
+        expect(dossier.validate(:champs_public_value)).to be_truthy
+      end
     end
   end
 end

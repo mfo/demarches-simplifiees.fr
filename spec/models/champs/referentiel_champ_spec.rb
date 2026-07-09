@@ -16,7 +16,7 @@ describe Champs::ReferentielChamp, type: :model do
       before { champ.update_columns(external_state: 'waiting_for_job') }
 
       it 'adds the correct error message' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
         expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.api_response_pending'))
       end
     end
@@ -25,7 +25,7 @@ describe Champs::ReferentielChamp, type: :model do
       before { champ.update_columns(external_state: 'fetched') }
 
       it 'is valid' do
-        expect(champ.validate(:champs_public_value)).to be_truthy
+        expect(champ.validate(:champ_value)).to be_truthy
       end
     end
 
@@ -37,7 +37,7 @@ describe Champs::ReferentielChamp, type: :model do
       before { champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: [external_data_exceptions]) }
 
       it 'adds the correct error message' do
-        champ.validate(:champs_public_value)
+        champ.validate(:champ_value)
 
         expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.code_404'))
       end
@@ -47,7 +47,7 @@ describe Champs::ReferentielChamp, type: :model do
       before { champ.update_columns(external_state: 'external_error', fetch_external_data_exceptions: []) }
 
       it 'adds the code_unknown error message without raising an error' do
-        expect { champ.validate(:champs_public_value) }.not_to raise_error
+        expect { champ.validate(:champ_value) }.not_to raise_error
         expect(champ.errors[:external_id]).to include(I18n.t('activerecord.errors.messages.code_unknown'))
       end
     end

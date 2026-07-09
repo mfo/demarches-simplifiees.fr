@@ -6,7 +6,7 @@ describe Champs::IntegerNumberChamp do
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
   let(:value) { nil }
-  subject { champ.validate(:champs_public_value) }
+  subject { champ.validate(:champ_value) }
 
   describe '#valid?' do
     context 'when the value is integer number' do

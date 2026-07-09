@@ -22,7 +22,7 @@ module Mutations
         annotation.value = value
       end
 
-      if annotation.validate(:champs_private_value) && annotation.save
+      if annotation.validate(:champ_value) && annotation.save
         { annotation: }
       else
         { errors: annotation.errors.full_messages }

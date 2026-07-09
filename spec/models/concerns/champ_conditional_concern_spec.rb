@@ -25,10 +25,10 @@ describe ChampConditionalConcern do
     context "when there are no condition" do
       it {
         expect(champ.visible?).to eq(true)
-        expect(champ.valid?(:champs_public_value)).to eq(false)
+        expect(champ.valid?(:champ_value)).to eq(false)
 
         expect(last_champ.visible?).to eq(true)
-        expect(last_champ.valid?(:champs_public_value)).to eq(false)
+        expect(last_champ.valid?(:champ_value)).to eq(false)
       }
     end
 
@@ -37,10 +37,10 @@ describe ChampConditionalConcern do
 
       it {
         expect(champ.visible?).to eq(true)
-        expect(champ.valid?(:champs_public_value)).to eq(false)
+        expect(champ.valid?(:champ_value)).to eq(false)
 
         expect(last_champ.visible?).to eq(false)
-        expect(last_champ.valid?(:champs_public_value)).to eq(true)
+        expect(last_champ.valid?(:champ_value)).to eq(true)
       }
     end
 

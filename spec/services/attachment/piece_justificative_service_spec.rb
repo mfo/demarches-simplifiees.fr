@@ -52,5 +52,30 @@ RSpec.describe Attachment::PieceJustificativeService do
         expect(champ.reload).to be_idle
       end
     end
+
+    context 'when the PJ is conditioned on a champ edited in the user buffer' do
+      include Logic
+
+      let(:procedure) do
+        create(:procedure, :published, types_de_champ_public: [
+          { type: :yes_no, stable_id: 99 },
+          { type: :piece_justificative, stable_id: 999, condition: ds_eq(champ_value(99), constant(true)) },
+        ])
+      end
+      let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
+      let(:invalid_blob) { ActiveStorage::Blob.create_and_upload!(io: StringIO.new("x"), filename: "bad.exe", content_type: "application/x-ms-dos-executable") }
+
+      it 'computes visibility on the update stream, so the upload is validated' do
+        dossier.champ_data.find { _1.stable_id == 99 }.update_column(:value, 'false')
+
+        dossier.with_update_stream(dossier.user)
+        yes_no_champ = dossier.champ_for_update(dossier.find_type_de_champ_by_stable_id(99), row_id: nil, updated_by: dossier.user.email)
+        yes_no_champ.update(value: 'true')
+        pj_champ = dossier.champ_for_update(dossier.find_type_de_champ_by_stable_id(999), row_id: nil, updated_by: dossier.user.email)
+
+        expect(described_class.attach_champ_pj(pj_champ, invalid_blob.signed_id)).to be_falsey
+        expect(pj_champ.errors[:piece_justificative_file]).to be_present
+      end
+    end
   end
 end

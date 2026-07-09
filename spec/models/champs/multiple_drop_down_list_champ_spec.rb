@@ -8,7 +8,7 @@ describe Champs::MultipleDropDownListChamp do
   let(:value) { nil }
 
   describe 'validations' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     describe 'inclusion' do
       context 'when the value is nil' do

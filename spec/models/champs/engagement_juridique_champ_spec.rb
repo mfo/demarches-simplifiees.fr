@@ -8,7 +8,7 @@ describe Champs::EngagementJuridiqueChamp do
     let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
     let(:value) { nil }
 
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     context 'with [A-Z]' do
       let(:value) { "ABC" }

@@ -12,7 +12,7 @@ describe Champs::DropDownListChamp do
 
   describe 'validations' do
     describe 'inclusion' do
-      subject { champ.validate(:champs_public_value) }
+      subject { champ.validate(:champ_value) }
 
       context 'when the other value is accepted' do
         let(:other) { true }

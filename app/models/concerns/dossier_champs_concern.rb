@@ -58,7 +58,7 @@ module DossierChampsConcern
   end
 
   def project_champs_public_all
-    revision.types_de_champ_public.flat_map do |type_de_champ|
+    @project_champs_public_all ||= revision.types_de_champ_public.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -69,7 +69,7 @@ module DossierChampsConcern
   end
 
   def project_champs_private_all
-    revision.types_de_champ_private.flat_map do |type_de_champ|
+    @project_champs_private_all ||= revision.types_de_champ_private.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -539,6 +539,8 @@ module DossierChampsConcern
     @filled_champs_private = nil
     @project_champs_public = nil
     @project_champs_private = nil
+    @project_champs_public_all = nil
+    @project_champs_private_all = nil
     @repetition_row_ids = nil
     @revision_stable_ids = nil
     @champs_on_stream = nil

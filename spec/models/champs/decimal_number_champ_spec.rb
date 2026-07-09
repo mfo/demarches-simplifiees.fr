@@ -9,15 +9,15 @@ describe Champs::DecimalNumberChamp do
   let(:value) { nil }
 
   describe 'validation' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     context 'when the value is a valid number' do
       it 'validates integer and decimal numbers' do
         champ.value = 2
-        expect(champ.validate(:champs_public_value)).to be_truthy
+        expect(champ.validate(:champ_value)).to be_truthy
 
         champ.value = 2.6
-        expect(champ.validate(:champs_public_value)).to be_truthy
+        expect(champ.validate(:champ_value)).to be_truthy
       end
     end
 
@@ -47,10 +47,10 @@ describe Champs::DecimalNumberChamp do
     context 'when the value is blank or nil' do
       it 'validates empty values' do
         champ.value = ''
-        expect(champ.validate(:champs_public_value)).to be_truthy
+        expect(champ.validate(:champ_value)).to be_truthy
 
         champ.value = nil
-        expect(champ.validate(:champs_public_value)).to be_truthy
+        expect(champ.validate(:champ_value)).to be_truthy
       end
     end
 
@@ -124,12 +124,12 @@ describe Champs::DecimalNumberChamp do
       end
     end
 
-    context 'when the champ is private, value is invalid, but validation is public' do
+    context 'when the champ is private and the value is invalid' do
       let(:types_de_champ_public) { [] }
       let(:types_de_champ_private) { [{ type: :decimal_number }] }
       let(:value) { '2.6666' }
 
-      it { is_expected.to be_truthy }
+      it { is_expected.to be_falsey }
     end
   end
 

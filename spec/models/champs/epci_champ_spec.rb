@@ -8,7 +8,7 @@ describe Champs::EpciChamp, type: :model do
   let(:code_departement) { nil }
 
   describe 'validations' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     describe 'code_departement' do
       context 'when nil' do

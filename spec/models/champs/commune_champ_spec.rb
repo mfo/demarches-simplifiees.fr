@@ -42,7 +42,7 @@ describe Champs::CommuneChamp do
 
       it 'fails' do
         expect(champ).to receive(:instrument_external_id_error)
-        expect(champ.validate(:champs_public_value)).to be_falsey
+        expect(champ.validate(:champ_value)).to be_falsey
         expect(champ.errors).to include('external_id')
       end
     end

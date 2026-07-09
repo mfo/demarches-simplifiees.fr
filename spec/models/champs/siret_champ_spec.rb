@@ -8,7 +8,7 @@ describe Champs::SiretChamp do
   let(:etablissement) { nil }
 
   describe '#validate' do
-    subject { champ.tap { _1.validate(:champs_public_value) } }
+    subject { champ.tap { _1.validate(:champ_value) } }
 
     context 'when empty' do
       let(:external_id) { nil }

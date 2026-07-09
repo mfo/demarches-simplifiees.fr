@@ -8,7 +8,7 @@ describe Champs::DepartementChamp, type: :model do
   let(:external_id) { nil }
 
   describe 'validations' do
-    subject { champ.validate(:champs_public_value) }
+    subject { champ.validate(:champ_value) }
 
     describe 'external link' do
       context 'when nil' do

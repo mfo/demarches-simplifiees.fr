@@ -105,7 +105,7 @@ describe Champs::RepetitionChamp do
       end
 
       it "adds a repetition_too_few error" do
-        champ.valid?(:champs_public_value)
+        champ.valid?(:champ_value)
         expect(champ.errors.where(:value, :repetition_too_few)).to be_present
       end
     end
@@ -120,7 +120,7 @@ describe Champs::RepetitionChamp do
 
       it "adds a repetition_too_few error even without any rows" do
         fresh_champ = dossier.reload.project_champs_public.find(&:repetition?)
-        fresh_champ.valid?(:champs_public_value)
+        fresh_champ.valid?(:champ_value)
         expect(fresh_champ.errors.where(:value, :repetition_too_few)).to be_present
       end
     end
@@ -136,7 +136,7 @@ describe Champs::RepetitionChamp do
       end
 
       it "adds a repetition_too_many error" do
-        champ.valid?(:champs_public_value)
+        champ.valid?(:champ_value)
         expect(champ.errors.where(:value, :repetition_too_many)).to be_present
       end
     end
@@ -150,7 +150,7 @@ describe Champs::RepetitionChamp do
       end
 
       it "does not add any errors" do
-        champ.valid?(:champs_public_value)
+        champ.valid?(:champ_value)
         expect(champ.errors).to be_empty
       end
     end

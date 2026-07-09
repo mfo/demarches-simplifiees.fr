@@ -77,7 +77,10 @@ class Migrations::BatchUpdatePaysValuesJob < ApplicationJob
     ids.each do |id|
       pays_champ = Champs::PaysChamp.find(id)
 
-      next if pays_champ.valid?(pays_champ.public? ? :champs_public_value : :champs_private_value)
+      # orphaned champs (stable_id no longer in the dossier revision) can not
+      # be validated: resolving their type_de_champ raises
+      next unless pays_champ.dossier.stable_id_in_revision?(pays_champ.stable_id)
+      next if pays_champ.valid?(:champ_value)
       code = APIGeoService.country_code(pays_champ.value)
       value = if code.present?
         APIGeoService.country_name(code)
