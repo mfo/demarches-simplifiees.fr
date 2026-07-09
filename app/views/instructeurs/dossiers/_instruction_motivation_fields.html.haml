@@ -32,7 +32,7 @@
         type: "button",
         onclick: "DS.showImportJustificatif('#{opt[:operation]}');"
       }
-        Ajouter un justificatif (facultatif)
+        = t('instructeurs.dossiers.add_justificatif')
 
     .hidden{ id: "justificatif_motivation_import_#{opt[:operation]}" }
       - if batch
@@ -59,10 +59,10 @@
           = attestation_context[:title]
         - if !batch && attestation_context[:kind].present?
           - c.with_link do
-            = link_to 'Prévisualiser l’attestation',
+            = link_to t('instructeurs.dossiers.preview_attestation'),
               apercu_attestation_instructeur_dossier_path(dossier.procedure, dossier, attestation_kind: attestation_context[:kind]),
               class: 'fr-notice__link',
-              title: new_tab_suffix('Prévisualiser l’attestation'),
+              title: new_tab_suffix(t('instructeurs.dossiers.preview_attestation')),
               **external_link_attributes
 
     - if !batch && attestation_context[:kind].present?

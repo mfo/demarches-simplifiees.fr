@@ -1084,6 +1084,14 @@ en:
       alert_error_annotations_html: 'The following private annotations <strong>were not filled out correctly</strong> and are <strong>necessary</strong> to make a decision on the file <span aria-hidden="true">:</span>'
       alert_error_annotations_link: Complete the private annotations
       alert_unspecified_attestation_champs: 'Please note, the following values have not been entered but are necessary to send a valid certificate:'
+      attestation_notice_accept: Accepting the file automatically generates a certificate for the user to download
+      attestation_notice_refuse: Refusing the file automatically generates a certificate for the user to download
+      preview_attestation: Preview the certificate
+      terminer_notice: The file has been processed. The user has been informed that their file has been %{state}.
+      alert_unspecified_attestation_title: The decision certificate is incomplete
+      unspecified_champs_group: User form
+      unspecified_annotations_group: Private annotations
+      add_justificatif: Add a supporting document (optional)
     avis:
       revoquer:
         revoked: "%{email} can no longer give their opinion on this file."
