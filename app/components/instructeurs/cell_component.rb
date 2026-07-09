@@ -3,9 +3,10 @@
 class Instructeurs::CellComponent < ApplicationComponent
   include DossierHelper
 
-  def initialize(dossier:, column:)
+  def initialize(dossier:, column:, champ_data:)
     @dossier = dossier
     @column = column
+    @champ_data = champ_data
   end
 
   def call
@@ -25,20 +26,20 @@ class Instructeurs::CellComponent < ApplicationComponent
   end
 
   def simple_layout
-    raw_value = raw_value_for_column(@dossier, @column)
+    raw_value = raw_value_for_column(@dossier, @column, @champ_data)
     return '' if raw_value.nil?
 
     format(raw_value, @column.type)
   end
 
-  def raw_value_for_column(dossier, column)
-    data = if @column.champ_column?
-      @dossier.champ_data.find { _1.stable_id == column.stable_id }
+  def raw_value_for_column(dossier, column, champ_data)
+    data = if column.champ_column?
+      champ_data[column.stable_id]
     else
-      @dossier
+      dossier
     end
 
-    @column.value(data)
+    column.value(data)
   end
 
   def format(raw_value, type)

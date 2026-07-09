@@ -90,7 +90,8 @@
                   %tbody
                     = render Dossiers::BatchSelectMoreComponent.new(dossiers_count: @dossiers_count, filtered_sorted_ids: @filtered_sorted_ids)
 
-                    - @projected_dossiers.each do |dossier|
+                    - @projected_dossiers.each do |projected_dossier|
+                      - dossier, champ_data = projected_dossier.dossier, projected_dossier.champ_data
                       - path = instructeur_dossier_path(@procedure, dossier.id, statut: params[:statut])
                       %tr{ class: class_names("file-hidden-by-user" => dossier.hidden_by_user_at.present?), id: "table-dossiers-row-#{dossier.id}", "aria-selected" => "false", "data-row-key" => dossier.id }
                         - if batch_operation_component.render?
@@ -128,11 +129,11 @@
                           %td.fr-cell--multiline
                             - if dossier.hidden_by_administration_at.present?
                               %span
-                                = render Instructeurs::CellComponent.new(dossier:, column:)
+                                = render Instructeurs::CellComponent.new(dossier:, column:, champ_data:)
                                 = "- #{t("views.instructeurs.dossiers.deleted_reason.#{dossier.hidden_by_reason}")}" if dossier.hidden_by_user_at.present?
                             - else
                               %a{ href: path }
-                                = render Instructeurs::CellComponent.new(dossier:, column:)
+                                = render Instructeurs::CellComponent.new(dossier:, column:, champ_data:)
                                 = "- #{t("views.instructeurs.dossiers.deleted_reason.#{dossier.hidden_by_reason}")}" if dossier.hidden_by_user_at.present?
 
                         %td
