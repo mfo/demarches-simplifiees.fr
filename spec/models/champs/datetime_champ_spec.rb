@@ -17,8 +17,13 @@ describe Champs::DatetimeChamp do
       expect(champ.value).to be_nil
     end
 
-    it 'converts to nil if not ISO8601' do
+    it 'converts unambiguous US format to ISO8601' do
       champ = champ_with_value("12-21-2023 03:20")
+      expect(champ.value).to eq(Time.zone.parse("2023-12-21T03:20:00").iso8601)
+    end
+
+    it 'converts to nil if not a valid datetime' do
+      champ = champ_with_value("13/13/2023 03:20")
       expect(champ.value).to be_nil
     end
 

@@ -19,8 +19,14 @@ describe Champs::DateChamp do
       expect(champ.value).to be_nil
     end
 
-    it 'converts to nil if not ISO8601' do
+    it 'converts unambiguous US format to ISO' do
       champ = champ_with_value("12-21-2023")
+      champ.validate
+      expect(champ.value).to eq("2023-12-21")
+    end
+
+    it 'converts to nil if not a valid date' do
+      champ = champ_with_value("13/13/2023")
       champ.validate
       expect(champ.value).to be_nil
     end
