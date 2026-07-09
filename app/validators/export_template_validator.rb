@@ -54,8 +54,10 @@ class ExportTemplateValidator < ActiveModel::Validator
   end
 
   def validate_different_templates(export_template)
+    # templates containing the original filename tag resolve to a different name per attachment
     templates = [export_template.export_pdf, *export_template.pjs]
       .filter(&:enabled?)
+      .reject { mentions(_1.template).include?('original-filename') }
       .map(&:template_string)
 
     return if templates.uniq.size == templates.size
