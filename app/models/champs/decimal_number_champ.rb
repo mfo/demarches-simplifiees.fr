@@ -1,30 +1,7 @@
 # frozen_string_literal: true
 
 class Champs::DecimalNumberChamp < Champ
+  validates_with NumberFormatValidator, if: :should_validate_in_current_context?
   validates_with NumberLimitValidator, if: :should_validate_in_current_context?
-  before_validation :format_value
-
-  validates :value, numericality: {
-    allow_nil: true,
-    allow_blank: true,
-    message: -> (object, _data) {
-      object.errors.generate_message(:value, :not_a_number)
-    },
-  }, format: {
-    with: /\A-?[0-9]+([\.,][0-9]{1,3})?\z/,
-    allow_nil: true,
-    allow_blank: true,
-    message: -> (object, _data) {
-      # i18n-tasks-use t('errors.messages.not_a_float')
-      object.errors.generate_message(:value, :not_a_float)
-    },
-  }, if: :should_validate_in_current_context?
-
-  private
-
-  def format_value
-    return if value.blank?
-
-    self.value = value.tr(",", ".").gsub(/[[:space:]]/, "")
-  end
+  normalizes :value, with: -> { NumberFormatValidator.normalize(it, decimal: true) }
 end
