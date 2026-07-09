@@ -1,19 +1,16 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::PrefillBooleanTypeDeChamp < TypesDeChamp::PrefillTypeDeChamp
-  def to_assignable_attributes(champ, value)
-    casted_value = cast_value(value)
-    return nil if casted_value.nil?
-
-    { value: casted_value.to_s }
-  end
+  TRUE_VALUES = [true, 1, "1", "t", "T", "true", "TRUE", "on", "ON"].to_set
+  FALSE_VALUES = ActiveModel::Type::Boolean::FALSE_VALUES
 
   private
 
-  def cast_value(value)
-    case value
-    when true, false, String, Numeric
-      ActiveModel::Type::Boolean.new.cast(value)
+  def screened_value(champ, value)
+    if TRUE_VALUES.include?(value)
+      'true'
+    elsif FALSE_VALUES.include?(value)
+      'false'
     end
   end
 end

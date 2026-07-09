@@ -2,7 +2,7 @@
 
 class Champs::DatetimeChamp < Champ
   validates_with DateLimitValidator, if: :should_validate_in_current_context?
-  normalizes :value, with: -> v { DateDetectionUtils.convert_to_iso8601_datetime(v) }
+  normalizes :value, with: -> { DateDetectionUtils.convert_to_iso8601_datetime(it) }
   validate :iso_8601
 
   def search_terms

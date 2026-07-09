@@ -56,10 +56,10 @@ RSpec.describe TypesDeChamp::PrefillBooleanTypeDeChamp do
       end
     end
 
-    context 'when the value is any other string it casts to true' do
-      let(:value) { 'value' }
+    context 'when the value is an unrecognized string' do
+      let(:value) { 'non' }
 
-      it { is_expected.to eq({ value: 'true' }) }
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is blank' do

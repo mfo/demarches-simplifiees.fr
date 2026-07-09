@@ -3,9 +3,9 @@
 class TypesDeChamp::PrefillCiviliteTypeDeChamp < TypesDeChamp::PrefillTypeDeChamp
   CIVILITES = [Individual::GENDER_MALE, Individual::GENDER_FEMALE].freeze
 
-  def to_assignable_attributes(champ, value)
-    return nil if !value.in?(CIVILITES)
+  private
 
-    { value: }
+  def screened_value(champ, value)
+    value if value.in?(CIVILITES)
   end
 end

@@ -39,11 +39,12 @@ class NumberFormatValidator < ActiveModel::Validator
     end
 
     def decimal_violations(value)
-      violations = []
-      violations << [:not_a_number, {}] if Float(value, exception: false).nil?
-      # i18n-tasks-use t('errors.messages.not_a_float')
-      violations << [:not_a_float, {}] if !value.match?(DECIMAL_FORMAT)
-      violations
+      if value.match?(DECIMAL_FORMAT)
+        []
+      else
+        # i18n-tasks-use t('errors.messages.not_a_float')
+        [[:not_a_float, {}]]
+      end
     end
   end
 end

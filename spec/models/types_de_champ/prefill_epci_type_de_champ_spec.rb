@@ -38,19 +38,19 @@ RSpec.describe TypesDeChamp::PrefillEpciTypeDeChamp do
     context 'when the value is nil' do
       let(:value) { nil }
 
-      it_behaves_like "a transformation to", nil, nil
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is empty' do
       let(:value) { '' }
 
-      it_behaves_like "a transformation to", nil, nil
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is a string' do
       let(:value) { 'hello' }
 
-      it_behaves_like "a transformation to", nil, nil
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is an array of one element' do

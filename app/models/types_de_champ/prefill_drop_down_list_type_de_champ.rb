@@ -13,16 +13,16 @@ class TypesDeChamp::PrefillDropDownListTypeDeChamp < TypesDeChamp::PrefillTypeDe
     all_possible_values.first
   end
 
+  private
+
   # Advanced (referentiel-backed) lists and lists accepting "other" take
   # values the options don't enumerate, so only simple lists are screened.
-  def to_assignable_attributes(champ, value)
+  def screened_value(champ, value)
     return nil if !value.is_a?(String)
     return nil if screenable? && DropDownOptionsValidator.violations([value], self).any?
 
-    { value: }
+    value
   end
-
-  private
 
   def screenable?
     drop_down_simple? && !drop_down_other?
