@@ -2,7 +2,7 @@
 
 class Champs::MultipleDropDownListChamp < Champ
   store_accessor :value_json, :referentiels
-  validate :values_are_in_options, if: -> { value.present? && should_validate_in_current_context? }
+  validates_with DropDownOptionsValidator, if: -> { value.present? && should_validate_in_current_context? }
   before_save :store_referentiels, if: :drop_down_advanced?
 
   THRESHOLD_NB_OPTIONS_AS_CHECKBOX = 5
@@ -105,14 +105,5 @@ class Champs::MultipleDropDownListChamp < Champ
     end
   rescue JSON::ParserError
     {}
-  end
-
-  def values_are_in_options
-    json = selected_options.compact_blank
-    return if json.empty?
-    return if (json - drop_down_options).empty? && !drop_down_advanced?
-    return if drop_down_advanced? && referentiels.present? && (json - referentiels.keys).empty?
-
-    errors.add(:value, :not_in_options)
   end
 end
