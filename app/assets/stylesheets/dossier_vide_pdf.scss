@@ -91,8 +91,11 @@ dl.identity {
 .explanation {
   break-after: avoid;
 }
+// Champ descriptions stay italic to read as helper text; the procedure
+// presentation (.presentation) keeps the admin's own formatting instead.
 .description,
-.explanation {
+.explanation,
+.mailing {
   font-style: italic;
 }
 .explanation {

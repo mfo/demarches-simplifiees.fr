@@ -36,6 +36,10 @@
   <div class="presentation"><%= simple_format(procedure.description) %></div>
 <% end %>
 
+<% if mailing_instruction %>
+  <p class="mailing"><%= mailing_instruction %></p>
+<% end %>
+
 <% types_de_champ_public.each do |type_de_champ| %>
   <section class="champ"><%= render_champ(type_de_champ) %></section>
 <% end %>

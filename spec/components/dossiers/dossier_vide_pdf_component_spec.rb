@@ -33,6 +33,23 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
   end
 
+  describe 'mailing instruction' do
+    context 'with a service' do
+      let(:service) { create(:service, nom: 'DDT du Rhône', adresse: "12 rue de la Paix\n69000 Lyon") }
+      let(:procedure) { create(:procedure, :published, service:) }
+
+      it 'tells where to send the form on a single line' do
+        expect(subject).to have_selector('.mailing', text: 'À envoyer à DDT du Rhône - 12 rue de la Paix 69000 Lyon')
+      end
+    end
+
+    context 'without a service' do
+      let(:procedure) { create(:procedure, :published, service: nil) }
+
+      it { is_expected.not_to have_selector('.mailing') }
+    end
+  end
+
   describe 'dispatch per champ type' do
     let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
 

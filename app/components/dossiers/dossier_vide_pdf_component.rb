@@ -19,6 +19,13 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
 
   def organisation = procedure.organisation_name.presence || "En attente de saisie"
 
+  def mailing_instruction
+    service = procedure.service
+    return if service.blank?
+
+    ["À envoyer à #{service.nom}", service.adresse.to_s.squish.presence].compact.join(' - ')
+  end
+
   # Empty field to fill in by hand: a bordered box (meaning carried by the preceding label)
   def fillable_box(height: :line)
     tag.div('', class: "box box--#{height}", aria: { hidden: true })
