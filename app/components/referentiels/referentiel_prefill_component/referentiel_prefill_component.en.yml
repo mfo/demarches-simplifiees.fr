@@ -1,0 +1,10 @@
+en:
+  caption: "Indicate which user form fields should be prefilled with referent data"
+  property: "Property"
+  example_data: "Example data"
+  data_type: "Data type"
+  prefill_field: "User form field to prefill"
+  confirm_reset_prefill: "Are you sure you want to reset the prefilling?"
+  reset_prefill: "Reset prefilling"
+  public_fields_group: "Fields"
+  private_annotations_group: "Private annotations"
