@@ -77,5 +77,29 @@ describe ExportTemplateValidator do
 
       it { expect(errors(export_template)).to eq([[:base, "Les fichiers doivent avoir des noms différents"]]) }
     end
+
+    context 'with multiple pjs using the original filename tag' do
+      def original_filename_template(stable_id:)
+        {
+          template: {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "mention", attrs: { id: 'original-filename', label: 'nom original du fichier' } }],
+              },
+            ],
+          },
+          enabled: true,
+          stable_id:,
+        }
+      end
+
+      let(:export_template) do
+        build(:export_template, pjs: [original_filename_template(stable_id: 3), original_filename_template(stable_id: 4)])
+      end
+
+      it { expect(export_template.errors.count).to eq(0) }
+    end
   end
 end
