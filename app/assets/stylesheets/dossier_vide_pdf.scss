@@ -82,7 +82,7 @@ dl.identity {
 
 .label {
   font-weight: bold;
-  margin-bottom: 1mm;
+  margin-bottom: 1.5mm;
 }
 // Keep a label (and any description/instruction that follows it) attached to the
 // field below it, so a page break never leaves the label stranded from its box.
@@ -100,11 +100,11 @@ dl.identity {
 }
 .explanation {
   margin-top: 1mm;
-  margin-bottom: 0;
+  margin-bottom: 1.5mm;
 }
 
 .champ {
-  margin-bottom: 4mm;
+  margin-bottom: 7mm;
 }
 
 .annexes {
@@ -143,6 +143,9 @@ ul.options li.secondary {
   display: inline-flex;
   align-items: center;
   gap: 2mm;
+  // Centre the checkbox on the line instead of letting it hang above the
+  // baseline, which otherwise inflates the gap above and between checkboxes.
+  vertical-align: middle;
 }
 .checkbox {
   display: inline-block;
