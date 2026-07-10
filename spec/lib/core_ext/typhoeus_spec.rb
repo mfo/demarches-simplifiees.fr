@@ -2,6 +2,8 @@
 
 RSpec.describe Typhoeus::EasyFactory do
   describe 'proxy tracing headers' do
+    before { ActiveSupport::CurrentAttributes.reset_all }
+
     let(:request) { Typhoeus::Request.new('http://example.com') }
 
     subject(:easy) { described_class.new(request).get }
