@@ -94,10 +94,21 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
         [{ type: :drop_down_list, libelle: 'Choix', options: }]
       end
 
-      it 'falls back to a fillable box instead of listing every option' do
+      it 'falls back to a fillable box in the form, without listing options inline' do
         expect(subject).to have_content('Choix')
-        expect(subject).to have_selector('.box')
-        expect(subject).not_to have_selector('ul.options li')
+        expect(subject).to have_selector('.champ .box')
+        expect(subject).not_to have_selector('.champ ul.options li')
+      end
+
+      it 'references the annex from the form field with the single-value instruction' do
+        expect(subject).to have_selector('.champ', text: 'La liste complète des options figure en Annexe 1. Renseignez la mention applicable, une seule valeur possible')
+      end
+
+      it 'lists every option as a plain list without checkboxes in an Annexes page' do
+        expect(subject).to have_selector('section.annexes h2', text: 'Annexes')
+        expect(subject).to have_selector('.annexes h3', text: 'Annexe 1 : Choix')
+        expect(subject).to have_selector('.annexes ul li', count: options.size)
+        expect(subject).not_to have_selector('.annexes .checkbox')
       end
     end
 
@@ -119,10 +130,43 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
         [{ type: :multiple_drop_down_list, libelle: 'Choix', options: }]
       end
 
-      it 'falls back to a fillable box instead of listing every option' do
+      it 'falls back to a fillable box in the form, without listing options inline' do
         expect(subject).to have_content('Choix')
-        expect(subject).to have_selector('.box')
-        expect(subject).not_to have_selector('ul.options li')
+        expect(subject).to have_selector('.champ .box')
+        expect(subject).not_to have_selector('.champ ul.options li')
+      end
+
+      it 'references the annex from the form field with the multiple-values instruction' do
+        expect(subject).to have_selector('.champ', text: 'La liste complète des options figure en Annexe 1. Renseignez les mentions applicables, plusieurs valeurs possibles')
+      end
+
+      it 'lists every option as a plain list without checkboxes' do
+        expect(subject).to have_selector('.annexes h3', text: 'Annexe 1 : Choix')
+        expect(subject).to have_selector('.annexes ul li', count: options.size)
+        expect(subject).not_to have_selector('.annexes .checkbox')
+      end
+    end
+
+    context 'several champs with too many options' do
+      let(:options) { (1..Champs::DropDownListChamp::THRESHOLD_NB_OPTIONS_AS_AUTOCOMPLETE).map { |i| "Option #{i}" } }
+      let(:types_de_champ_public) do
+        [
+          { type: :drop_down_list, libelle: 'Premier', options: },
+          { type: :multiple_drop_down_list, libelle: 'Second', options: },
+        ]
+      end
+
+      it 'numbers the annexes in document order' do
+        expect(subject).to have_selector('.annexes h3', text: 'Annexe 1 : Premier')
+        expect(subject).to have_selector('.annexes h3', text: 'Annexe 2 : Second')
+      end
+    end
+
+    context 'no champ needs an annex' do
+      let(:types_de_champ_public) { [{ type: :text, libelle: 'Votre nom' }] }
+
+      it 'does not render an Annexes section' do
+        expect(subject).not_to have_selector('section.annexes')
       end
     end
 

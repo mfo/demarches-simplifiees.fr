@@ -39,3 +39,15 @@
 <% types_de_champ_public.each do |type_de_champ| %>
   <section class="champ"><%= render_champ(type_de_champ) %></section>
 <% end %>
+
+<% if annexes.any? %>
+  <section class="annexes">
+    <h2>Annexes</h2>
+
+    <% annexes.each_with_index do |type_de_champ, index| %>
+      <section class="annex">
+        <%= render_annex(type_de_champ, index + 1) %>
+      </section>
+    <% end %>
+  </section>
+<% end %>

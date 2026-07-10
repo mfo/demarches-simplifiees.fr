@@ -104,6 +104,16 @@ dl.identity {
   margin-bottom: 4mm;
 }
 
+.annexes {
+  page-break-before: always;
+}
+.annex {
+  margin-bottom: 6mm;
+}
+.annex h3 {
+  break-after: avoid;
+}
+
 .box {
   border: 1px solid #161616;
 }

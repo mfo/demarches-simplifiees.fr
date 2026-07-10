@@ -6,11 +6,16 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
   def initialize(revision:)
     @revision = revision
     @procedure = revision.procedure
+    @annexes = []
   end
 
   private
 
   def types_de_champ_public = revision.root_types_de_champ_public
+
+  # Populated while rendering champs (see boxed_field_with_annex); read by the
+  # template after the form to append the "Annexes" pages.
+  def annexes = @annexes
 
   def organisation = procedure.organisation_name.presence || "En attente de saisie"
 
@@ -45,14 +50,18 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
     when TypeDeChamp.type_champs.fetch(:civilite)
       field_with_options(type_de_champ, [Individual::GENDER_FEMALE, Individual::GENDER_MALE])
     when TypeDeChamp.type_champs.fetch(:drop_down_list)
-      if type_de_champ.drop_down_advanced? || too_many_options?(type_de_champ)
+      if type_de_champ.drop_down_advanced?
         libelle_and_box(type_de_champ)
+      elsif too_many_options?(type_de_champ)
+        boxed_field_with_annex(type_de_champ, multiple: false)
       else
         field_with_options(type_de_champ, type_de_champ.drop_down_options, explanation: 'Cochez la mention applicable, une seule valeur possible')
       end
     when TypeDeChamp.type_champs.fetch(:multiple_drop_down_list)
-      if too_many_options?(type_de_champ)
+      if type_de_champ.drop_down_advanced?
         libelle_and_box(type_de_champ)
+      elsif too_many_options?(type_de_champ)
+        boxed_field_with_annex(type_de_champ, multiple: true)
       else
         field_with_options(type_de_champ, type_de_champ.drop_down_options, explanation: 'Cochez la mention applicable, plusieurs valeurs possibles')
       end
@@ -129,8 +138,39 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
   def option_label(option) = option.is_a?(Array) ? option.first : option
 
   # Past this many options the web form switches to a searchable combobox, so
-  # listing every option on paper would span pages: fall back to a write-in box.
+  # listing every option inline would span pages: keep a write-in box in the
+  # form and move the full list to an annex at the end of the document.
   def too_many_options?(type_de_champ)
     type_de_champ.drop_down_options.size >= Champs::DropDownListChamp::THRESHOLD_NB_OPTIONS_AS_AUTOCOMPLETE
+  end
+
+  # Write-in box referencing the annex that lists every option. The annex is a
+  # reference the applicant reads to fill in the box, not something to print/tick.
+  def boxed_field_with_annex(type_de_champ, multiple:)
+    number = register_annex(type_de_champ)
+    instruction = if multiple
+      'Renseignez les mentions applicables, plusieurs valeurs possibles'
+    else
+      'Renseignez la mention applicable, une seule valeur possible'
+    end
+    reference = tag.p("La liste complète des options figure en Annexe #{number}. #{instruction}", class: 'explanation')
+    safe_join([libelle(type_de_champ), description(type_de_champ), reference, fillable_box(height: :block)].compact)
+  end
+
+  # Records the champ (once, even across repetition occurrences) and returns its
+  # 1-based annex number, following document order.
+  def register_annex(type_de_champ)
+    @annexes << type_de_champ unless @annexes.include?(type_de_champ)
+    @annexes.index(type_de_champ) + 1
+  end
+
+  # A plain reference list (no checkboxes): the applicant reads it to fill in the
+  # form and can skip printing it when it is long.
+  def render_annex(type_de_champ, number)
+    items = type_de_champ.drop_down_options.map { |option| tag.li(option_label(option)) }
+    safe_join([
+      tag.h3("Annexe #{number} : #{type_de_champ.libelle}"),
+      tag.ul(safe_join(items), class: 'annex-options'),
+    ])
   end
 end
