@@ -7,6 +7,10 @@ class Instructeurs::EditDossierButtonComponent < ApplicationComponent
     @dossier = dossier
   end
 
+  def render?
+    dossier.procedure.instructeurs_can_edit_dossiers?
+  end
+
   def title
     if dossier.en_instruction?
       t('.title.en_instruction')
