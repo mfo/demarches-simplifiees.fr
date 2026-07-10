@@ -6,6 +6,9 @@ import {
   Popover,
   Virtualizer,
   ListLayout,
+  ListBoxSection,
+  Collection,
+  Header,
   useFilter
 } from 'react-aria-components';
 import type {
@@ -25,6 +28,7 @@ import {
 } from './react-aria/components/ListBox';
 import {
   type Item,
+  type Section,
   SingleSelectProps,
   MultipleSelectProps
 } from './react-aria/props';
@@ -35,7 +39,8 @@ type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
   Item,
   M
 > & {
-  items: Item[];
+  items?: Item[];
+  sections?: Section[];
   value: M extends 'single' ? string | null : string[];
   labelId?: string;
   ariaLabelledbyPrefix?: string;
@@ -45,6 +50,7 @@ type AutocompleteFilter = NonNullable<AutocompleteProps<Item>['filter']>;
 
 function Select<M extends SelectionMode = 'single'>({
   items,
+  sections,
   labelId,
   ariaLabelledbyPrefix,
   alwaysShowKey,
@@ -60,6 +66,10 @@ function Select<M extends SelectionMode = 'single'>({
     },
     [contains, alwaysShowKey]
   );
+
+  if (!items && !sections) {
+    throw new Error('Select must be provided with either items or sections');
+  }
 
   if (!props['aria-label'] && labelId && ariaLabelledbyPrefix) {
     props['aria-labelledby'] = `${ariaLabelledbyPrefix} ${labelId}`;
@@ -81,8 +91,25 @@ function Select<M extends SelectionMode = 'single'>({
         <Autocomplete<Item> filter={filter}>
           <SearchField autoFocus style={{ margin: 4 }} />
           <Virtualizer layout={ListLayout}>
-            <SelectListBox items={items}>
-              {(item) => <SelectItem id={item.value}>{item.label}</SelectItem>}
+            <SelectListBox items={sections ? undefined : items}>
+              {sections ? (
+                <Collection items={sections}>
+                  {(section) => (
+                    <ListBoxSection id={section.label}>
+                      <Header className="dropdown-section-header">
+                        {section.label}
+                      </Header>
+                      <Collection items={section.items}>
+                        {(item) => (
+                          <SelectItem id={item.value}>{item.label}</SelectItem>
+                        )}
+                      </Collection>
+                    </ListBoxSection>
+                  )}
+                </Collection>
+              ) : (
+                (item) => <SelectItem id={item.value}>{item.label}</SelectItem>
+              )}
             </SelectListBox>
           </Virtualizer>
         </Autocomplete>

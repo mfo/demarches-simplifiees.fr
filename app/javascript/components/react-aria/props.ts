@@ -104,6 +104,8 @@ export type RemoteComboBoxProps = s.Infer<typeof RemoteComboBoxProps> & {
 
 const SelectProps = s.partial(
   s.object({
+    items: s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]),
+    sections: s.array(Section),
     id: s.string(),
     className: s.string(),
     name: s.string(),
@@ -124,7 +126,6 @@ const SelectProps = s.partial(
 export const SingleSelectProps = s.assign(
   SelectProps,
   s.object({
-    items: s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]),
     value: s.defaulted(s.nullable(s.string()), '')
   })
 );
@@ -132,7 +133,6 @@ export const SingleSelectProps = s.assign(
 export const MultipleSelectProps = s.assign(
   SelectProps,
   s.object({
-    items: s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]),
     value: s.defaulted(s.array(s.string()), [])
   })
 );
