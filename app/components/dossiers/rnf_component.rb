@@ -41,6 +41,6 @@ class Dossiers::RNFComponent < ApplicationComponent
   def label(key) = champ.class.human_attribute_name(key)
 
   def source
-    tag.acronym("RNF", title: "Répertoire National des Fondations")
+    tag.acronym("RNF", title: t(".rnf_title"))
   end
 end
