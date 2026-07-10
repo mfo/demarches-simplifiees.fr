@@ -608,7 +608,7 @@ module Instructeurs
           .map(&:id)
 
         avis_attachments_ids = dossier
-          .avis.flat_map { [_1.introduction_file, _1.piece_justificative_file] }
+          .avis.includes(:introduction_file_attachment, :piece_justificative_file_attachment).flat_map { [_1.introduction_file, _1.piece_justificative_file] }
           .flat_map(&:attachments)
           .compact
           .map(&:id)

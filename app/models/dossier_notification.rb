@@ -264,9 +264,9 @@ class DossierNotification < ApplicationRecord
 
     return types.transform_values { false } if dossier.archived
 
-    notifications = DossierNotification.where(dossier:, instructeur:)
+    existing_types = DossierNotification.where(dossier:, instructeur:).pluck(:notification_type)
 
-    types.transform_values { |type| notifications.exists?(notification_type: type) }
+    types.transform_values { |type| existing_types.include?(type.to_s) }
   end
 
   def self.notifications_counts_for_instructeur_procedures(groupe_instructeur_ids, instructeur)
