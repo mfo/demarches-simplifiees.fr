@@ -6,3 +6,18 @@ en:
     data_retrieval_date: Last data retrieval performed on %{updated_at}
     button_refresh: Update my information
     refresh_disabled_hint: Your data can only be updated once every 24 hours.
+  data:
+    source_api: "Family quotient API (CAF & MSA)"
+    quotient_familial: "Family quotient %{fournisseur}"
+    allocataire: "Allocatee%{suffix}"
+    enfant: "Child%{suffix}"
+    adresse_famille: "Family address"
+    valeur: "Value"
+    periode_effective: "Effective period"
+    nom_naissance: "Birth name"
+    nom_usage: "Maiden name"
+    prenoms: "First names"
+    date_naissance: "Birth date"
+    sexe: "Sex"
+    identite_destinataire: "Recipient identity"
+    adresse: "Address"

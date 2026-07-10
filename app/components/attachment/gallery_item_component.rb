@@ -15,24 +15,24 @@ class Attachment::GalleryItemComponent < ApplicationComponent
   def origin
     case record
     in Champ if record.public?
-      'Dossier usager'
+      t(".dossier_usager")
     in Champ if record.private?
-      'Annotation privée'
+      t(".annotation_privee")
     in Commentaire if record.instructeur.present?
-      'Messagerie (instructeur)'
+      t(".messagerie_instructeur")
     in Commentaire if record.expert.present?
-      'Messagerie (expert)'
+      t(".messagerie_expert")
     in Commentaire
-      'Messagerie (usager)'
+      t(".messagerie_usager")
     in Avis if attachment.name == 'introduction_file'
-      'Avis externe (instructeur)'
+      t(".avis_externe_instructeur")
     in Avis if attachment.name == 'piece_justificative_file'
-      'Avis externe (expert)'
+      t(".avis_externe_expert")
     in Attestation
-      'Attestation de décision'
+      t(".attestation_decision")
     else
       if attachment.name == 'justificatif_motivation'
-        'Justificatif de décision'
+        t(".justificatif_decision")
       end
     end
   end

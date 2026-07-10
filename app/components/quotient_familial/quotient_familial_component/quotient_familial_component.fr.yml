@@ -6,3 +6,18 @@ fr:
     data_retrieval_date: Dernière récupération des données effectuées le %{updated_at}
     button_refresh: Actualiser mes données
     refresh_disabled_hint: Vos données ne peuvent être actualisées que toutes les 24h.
+  data:
+    source_api: "API Quotient familial CAF & MSA"
+    quotient_familial: "Quotient familial %{fournisseur}"
+    allocataire: "Allocataire%{suffix}"
+    enfant: "Enfant%{suffix}"
+    adresse_famille: "Adresse de la famille"
+    valeur: "Valeur"
+    periode_effective: "Période effective"
+    nom_naissance: "Nom de naissance"
+    nom_usage: "Nom d’usage"
+    prenoms: "Prénoms"
+    date_naissance: "Date de naissance"
+    sexe: "Sexe"
+    identite_destinataire: "Identité du destinataire"
+    adresse: "Adresse"

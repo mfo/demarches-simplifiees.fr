@@ -25,3 +25,5 @@ en:
   select_template_label: Select the export template
   configure_templates: Configure export templates
   no_template: No template configured
+  include_archived_plural: <span>Include the <strong>%{count} dossiers to be archived</strong></span>
+  include_archived_singular: <span>Include the <strong>dossier to be archived</strong></span>
