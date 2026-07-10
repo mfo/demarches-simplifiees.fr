@@ -14,8 +14,8 @@ class Dossiers::RegionComponent < ApplicationComponent
   private
 
   def data
-    [['Région', champ.name], ['Code INSEE', champ.code]]
+    [[t(".region_label"), champ.name], [t(".insee_code_label"), champ.code]]
   end
 
-  def source = "référentiels géographiques nationaux"
+  def source = t(".source")
 end
