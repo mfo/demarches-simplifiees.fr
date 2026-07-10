@@ -212,7 +212,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with not found annotation' do
-      let(:annotation_id) { GraphQL::Schema::UniqueWithinType.encode('Champ', 123) }
+      let(:annotation_id) { GraphQL::Schema::UniqueWithinType.encode('Champ', Float::INFINITY) }
       let(:annotations) { [{ id: annotation_id, value: { text: '' } }] }
 
       it 'returns error' do
