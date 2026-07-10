@@ -329,6 +329,13 @@ ul.dropdown-items {
       }
     }
 
+    // In a dropdown, `.inactive` only marks a non-clickable item (see `:not(.inactive)`
+    // above); it must not inherit the global `.inactive { opacity: .5 }` utility, which
+    // would fade the correction/completion form it wraps.
+    &.inactive {
+      opacity: 1;
+    }
+
     &.form-inside {
       background-color: $white;
       margin-top: -2px;
