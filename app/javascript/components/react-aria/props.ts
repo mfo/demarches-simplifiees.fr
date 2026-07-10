@@ -33,6 +33,7 @@ export type Section = { label: string; items: Item[] };
 const ComboBoxPropsSchema = s.partial(
   s.object({
     id: s.string(),
+    inputId: s.string(),
     className: s.string(),
     name: s.string(),
     label: s.string(),
@@ -105,8 +106,10 @@ export type RemoteComboBoxProps = s.Infer<typeof RemoteComboBoxProps> & {
 const SelectProps = s.partial(
   s.object({
     id: s.string(),
+    triggerId: s.string(),
     className: s.string(),
     name: s.string(),
+    label: s.string(),
     description: s.string(),
     isRequired: s.boolean(),
     isDisabled: s.boolean(),
