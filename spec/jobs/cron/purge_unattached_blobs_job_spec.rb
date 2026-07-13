@@ -20,7 +20,7 @@ RSpec.describe Cron::PurgeUnattachedBlobsJob, type: :job do
     end
 
     context 'when the blob has already been soft-deleted' do
-      before { blob.update_column(:soft_delete_at, 1.hour.ago) }
+      before { blob.update_column(:soft_deleted_at, 1.hour.ago) }
 
       it 'does not enqueue a purge' do
         expect { subject }.not_to have_enqueued_job(DelayedPurgeJob)
