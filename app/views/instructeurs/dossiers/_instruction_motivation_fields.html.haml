@@ -39,7 +39,7 @@
 
     / Justificatif
     .optional-justificatif{ id: "justificatif_motivation_suggest_#{opt[:operation]}", data: { motivation_justificatif_target: 'suggest' } }
-      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-attachment-line{
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-btn--align-on-content.fr-icon-attachment-line{
         type: "button",
         data: { action: 'motivation-justificatif#showImport' }
       }
@@ -58,7 +58,7 @@
           data: { motivation_justificatif_target: 'input', action: 'change->motivation-justificatif#fileSelected' }
 
     .hidden{ id: "delete_motivation_import_#{opt[:operation]}", data: { motivation_justificatif_target: 'delete' } }
-      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-delete-line{
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-btn--align-on-content.fr-icon-delete-line{
         type: "button",
         data: { action: 'motivation-justificatif#delete' }
       }
