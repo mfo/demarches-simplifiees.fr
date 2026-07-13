@@ -54,7 +54,7 @@ class DelayedPurgeJob < ApplicationJob
     return if blob.attachments.exists?
     return if !expire_file(blob)
 
-    blob.update_column(:soft_delete_at, Time.current)
+    blob.update_column(:soft_deleted_at, Time.current)
     soft_delete_variants if blob.image?
   end
 

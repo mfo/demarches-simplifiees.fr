@@ -40,16 +40,16 @@ describe DelayedPurgeJob, type: :job do
         .and_return(double(status: 201))
       subject
       perform_enqueued_jobs
-      expect(blob.reload.soft_delete_at).to be_present
+      expect(blob.reload.soft_deleted_at).to be_present
     end
 
-    it 'does not mark soft_delete_at when the copy fails' do
+    it 'does not mark soft_deleted_at when the copy fails' do
       dossier.champ_data.first.piece_justificative_file.first.delete
       expect(client).to receive(:copy_object).and_return(double(status: 500))
       expect(Sentry).to receive(:capture_message)
       subject
       perform_enqueued_jobs
-      expect(blob.reload.soft_delete_at).to be_nil
+      expect(blob.reload.soft_deleted_at).to be_nil
     end
 
     it 'with cloned dossier' do
