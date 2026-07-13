@@ -21,7 +21,7 @@ describe Expired::UsersDeletionService do
       let(:dossier) { create(:dossier, user:, created_at: last_signed_in_expired) }
 
       context 'when user was not notified' do
-        let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: before_close_to_expiration) }
+        let(:user) { create(:user, current_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: before_close_to_expiration) }
 
         it 'update user.inactive_close_to_expiration_notice_sent_at ' do
           expect(UserMailer).to receive(:notify_inactive_close_to_deletion).with(user).and_return(mail_double)
@@ -32,7 +32,7 @@ describe Expired::UsersDeletionService do
       end
 
       context 'user has been notified 1 week ago' do
-        let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: notified_close_to_expiration) }
+        let(:user) { create(:user, current_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: notified_close_to_expiration) }
 
         it 'do nothing' do
           expect { subject }.not_to change { Dossier.count }
@@ -41,7 +41,7 @@ describe Expired::UsersDeletionService do
       end
 
       context 'user has been notified 3 weeks ago' do
-        let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: due_close_to_expiration) }
+        let(:user) { create(:user, current_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: due_close_to_expiration) }
 
         it 'destroys user and dossier' do
           expect { subject }.to change { Dossier.count }.by(-1)
@@ -86,7 +86,7 @@ describe Expired::UsersDeletionService do
       let(:dossier) { nil }
 
       context 'when user was not notified' do
-        let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: before_close_to_expiration) }
+        let(:user) { create(:user, current_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: before_close_to_expiration) }
 
         it 'update user.inactive_close_to_expiration_notice_sent_at ' do
           expect(UserMailer).to receive(:notify_inactive_close_to_deletion).with(user).and_return(mail_double)
@@ -97,7 +97,7 @@ describe Expired::UsersDeletionService do
       end
 
       context 'when user has been notified 1 week ago' do
-        let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: notified_close_to_expiration) }
+        let(:user) { create(:user, current_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: notified_close_to_expiration) }
 
         it 'do nothing' do
           expect { subject }.not_to change { Dossier.count }
@@ -106,7 +106,7 @@ describe Expired::UsersDeletionService do
       end
 
       context 'when user has been notified 3 weeks ago' do
-        let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: due_close_to_expiration) }
+        let(:user) { create(:user, current_sign_in_at: last_signed_in_expired, inactive_close_to_expiration_notice_sent_at: due_close_to_expiration) }
 
         it 'destroys user and dossier' do
           subject
@@ -121,44 +121,49 @@ describe Expired::UsersDeletionService do
     subject { Expired::UsersDeletionService.new.send(:expired_users_without_dossiers) }
 
     context 'when user last_sign_in_at is 1 year ago and has no dossier' do
-      let(:user) { create(:user, last_sign_in_at: last_signed_in_not_expired) }
+      let(:user) { create(:user, current_sign_in_at: last_signed_in_not_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user last_sign_in_at is 3 year ago and has no dossier' do
-      let(:user) { create(:user, last_sign_in_at: last_signed_in_expired) }
+      let(:user) { create(:user, current_sign_in_at: last_signed_in_expired) }
       it { is_expected.to include(user) }
     end
 
+    context 'when user signed in once recently but last_sign_in_at is still old (regression #13260)' do
+      let(:user) { create(:user, last_sign_in_at: last_signed_in_expired, current_sign_in_at: last_signed_in_not_expired) }
+      it { is_expected.not_to include(user) }
+    end
+
     context 'when user is expired and has an expert' do
-      let(:user) { create(:user, expert: create(:expert), last_sign_in_at: last_signed_in_expired) }
+      let(:user) { create(:user, expert: create(:expert), current_sign_in_at: last_signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user is expired and has an instructeur' do
-      let(:user) { create(:user, instructeur: create(:instructeur), last_sign_in_at: last_signed_in_expired) }
+      let(:user) { create(:user, instructeur: create(:instructeur), current_sign_in_at: last_signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user is expired and has an admin' do
-      let(:user) { create(:user, administrateur: administrateurs(:default_admin), last_sign_in_at: last_signed_in_expired) }
+      let(:user) { create(:user, administrateur: administrateurs(:default_admin), current_sign_in_at: last_signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user is expired but have a dossier' do
-      let(:user) { users(:default_user_admin).tap { _1.update(last_sign_in_at: last_signed_in_expired) } }
+      let(:user) { users(:default_user_admin).tap { _1.update(current_sign_in_at: last_signed_in_expired) } }
       let(:dossier) { create(:dossier, :brouillon, user:, created_at: last_signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
   end
 
   describe '#expired_users_with_dossiers' do
-    let(:user) { create(:user, last_sign_in_at: last_signed_in_expired) }
+    let(:user) { create(:user, current_sign_in_at: last_signed_in_expired) }
     let(:dossier) { create(:dossier, :brouillon, user:, created_at: last_signed_in_expired) }
     subject { Expired::UsersDeletionService.new.send(:expired_users_with_dossiers) }
 
     context 'when user is not expired' do
-      let(:user) { create(:user, last_sign_in_at: last_signed_in_not_expired) }
+      let(:user) { create(:user, current_sign_in_at: last_signed_in_not_expired) }
       it { is_expected.not_to include(user) }
     end
 
@@ -200,19 +205,19 @@ describe Expired::UsersDeletionService do
 
     context 'when user is expired and has an expert' do
       let(:dossier) { create(:dossier, user:, created_at: last_signed_in_expired) }
-      let(:user) { create(:user, expert: create(:expert), last_sign_in_at: last_signed_in_expired) }
+      let(:user) { create(:user, expert: create(:expert), current_sign_in_at: last_signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user is expired and has an instructeur' do
       let(:dossier) { create(:dossier, user:, created_at: last_signed_in_expired) }
-      let(:user) { create(:user, instructeur: create(:instructeur), last_sign_in_at: last_signed_in_expired) }
+      let(:user) { create(:user, instructeur: create(:instructeur), current_sign_in_at: last_signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user is expired and has an admin' do
       let(:dossier) { create(:dossier, user:, created_at: last_signed_in_expired) }
-      let(:user) { users(:default_user_admin).tap { _1.update(last_sign_in_at: last_signed_in_expired) } }
+      let(:user) { users(:default_user_admin).tap { _1.update(current_sign_in_at: last_signed_in_expired) } }
       it { is_expected.not_to include(user) }
     end
   end
