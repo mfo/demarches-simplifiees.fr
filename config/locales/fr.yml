@@ -508,12 +508,7 @@ fr:
         merci:
           thanks: Merci !
           dossier_success: Votre dossier a bien été déposé sur la démarche “%{libelle}”.
-          dossier_acces_l1: Vous avez désormais accès à votre
-          dossier_acces_l2: dossier en ligne.
-          dossier_edit_l1: Vous pouvez
-          dossier_edit_l2: le modifier
-          dossier_edit_l3: et
-          dossier_edit_l4: échanger avec un instructeur.
+          dossier_acces_html: Vous avez désormais accès à votre <strong>dossier en ligne</strong> pour suivre son traitement et échanger si besoin avec l’administration par la messagerie.
           download_dossier: Télécharger mon dossier
           download_attestation: Télécharger mon attestation
           acces_dossier: Accéder au dossier

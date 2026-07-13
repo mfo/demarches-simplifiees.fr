@@ -20,26 +20,7 @@
         </h1>
 
         <p class="fr-my-2w">
-          <%= t('views.users.dossiers.merci.dossier_acces_l1') %>
-
-          <strong>
-            <%= t('views.users.dossiers.merci.dossier_acces_l2') %>
-          </strong>
-        </p>
-
-        <p class="fr-my-2w">
-          <%= t('views.users.dossiers.merci.dossier_edit_l1') %>
-
-          <% if !dossier&.read_only? && !procedure.declarative_accepte? && !procedure.sva_svr_enabled? %>
-            <strong>
-              <%= t('views.users.dossiers.merci.dossier_edit_l2') %>
-            </strong>
-            <%= t('views.users.dossiers.merci.dossier_edit_l3') %>
-          <% end %>
-
-          <strong>
-            <%= t('views.users.dossiers.merci.dossier_edit_l4') %>
-          </strong>
+          <%= t('views.users.dossiers.merci.dossier_acces_html') %>
         </p>
 
         <% dsm = local_assigns[:dossier_submitted_message] || procedure.active_dossier_submitted_message %>
