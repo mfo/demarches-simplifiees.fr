@@ -6,6 +6,14 @@ module Instructeurs
     before_action :ensure_ownership!
 
     def create
+      operation = params.dig(:batch_operation, :operation)
+      motivation = params.dig(:batch_operation, :motivation)
+
+      if operation.in?(%w[refuser classer_sans_suite]) && motivation.blank?
+        flash.alert = t('instructeurs.dossiers.motivation_missing_error')
+        return redirect_back_or_to(instructeur_procedure_url(@procedure.id))
+      end
+
       batch = BatchOperation.safe_create!(batch_operation_params)
       flash[:alert] = "Le traitement de masse n’a pas été lancé. Vérifiez que l’action demandée est possible pour les dossiers sélectionnés" if batch.blank?
       redirect_back_or_to(instructeur_procedure_url(@procedure.id))

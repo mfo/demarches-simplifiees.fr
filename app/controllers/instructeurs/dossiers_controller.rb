@@ -259,6 +259,11 @@ module Instructeurs
       motivation = params[:dossier] && params[:dossier][:motivation]
       justificatif = params[:dossier] && params[:dossier][:justificatif_motivation]
 
+      if params[:process_action] != "accepter" && motivation.blank?
+        flash.alert = t('instructeurs.dossiers.motivation_missing_error')
+        return redirect_back_or_to(instructeur_dossier_path(dossier.procedure, dossier))
+      end
+
       h = { instructeur: current_instructeur, motivation: motivation, justificatif: justificatif }
 
       begin

@@ -362,7 +362,7 @@ describe Instructeurs::DossiersController, type: :controller do
       end
 
       context 'simple refusal' do
-        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { motivation: "Motif du refus" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'change state to refuse' do
           subject
@@ -386,7 +386,7 @@ describe Instructeurs::DossiersController, type: :controller do
       end
 
       context 'refusal with a justificatif' do
-        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { justificatif_motivation: fake_justificatif }, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { justificatif_motivation: fake_justificatif, motivation: "Motif du refus" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'attachs a justificatif' do
           subject
@@ -401,7 +401,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
       context 'when the dossier does not have any attestation' do
         it 'Notification email is sent' do
-          subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }, format: :turbo_stream }
+          subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { motivation: "Motif du refus" }, statut: 'a-suivre' }, format: :turbo_stream }
           subject
         end
       end
@@ -414,7 +414,7 @@ describe Instructeurs::DossiersController, type: :controller do
           allow_any_instance_of(Dossier).to receive(:build_attestation).and_return(attestation)
         end
 
-        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { motivation: "Motif du refus" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'The instructeur is sent back to the dossier page' do
           subject
@@ -456,7 +456,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
       context 'with dossier in batch_operation' do
         let!(:batch_operation) { create(:batch_operation, operation: :archiver, dossiers: [dossier], instructeur: instructeur) }
-        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "refuser", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { motivation: "Motif du refus" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it do
           expect { subject }.not_to change { dossier.reload.state }
@@ -475,7 +475,7 @@ describe Instructeurs::DossiersController, type: :controller do
         sign_in(instructeur.user)
       end
       context 'without continuation' do
-        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier_for_tiers.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier_for_tiers.id, dossier: { motivation: "Motif du classement sans suite" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'Notification email is sent' do
           expect(NotificationMailer).to receive(:send_sans_suite_notification)
@@ -501,7 +501,7 @@ describe Instructeurs::DossiersController, type: :controller do
         sign_in(instructeur.user)
       end
       context 'without continuation' do
-        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier_for_tiers_without_notif.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier_for_tiers_without_notif.id, dossier: { motivation: "Motif du classement sans suite" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'Notification email is sent' do
           expect(NotificationMailer).to receive(:send_sans_suite_notification)
@@ -527,7 +527,7 @@ describe Instructeurs::DossiersController, type: :controller do
         sign_in(instructeur.user)
       end
       context 'with classer_sans_suite' do
-        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure_accuse_lecture.id, dossier_id: dossier_accuse_lecture.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure_accuse_lecture.id, dossier_id: dossier_accuse_lecture.id, dossier: { motivation: "Motif du classement sans suite" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'Notification accuse de lecture email is sent and not the others' do
           expect(NotificationMailer).to receive(:send_accuse_lecture_notification)
@@ -555,7 +555,7 @@ describe Instructeurs::DossiersController, type: :controller do
         sign_in(instructeur.user)
       end
       context 'without attachment' do
-        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier.id, dossier: { motivation: "Motif du classement sans suite" }, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'change state to sans_suite' do
           subject
@@ -580,7 +580,7 @@ describe Instructeurs::DossiersController, type: :controller do
       end
 
       context 'with attachment' do
-        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre', dossier: { justificatif_motivation: fake_justificatif } }, format: :turbo_stream }
+        subject { post :terminer, params: { process_action: "classer_sans_suite", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre', dossier: { justificatif_motivation: fake_justificatif, motivation: "Motif du classement sans suite" } }, format: :turbo_stream }
 
         it 'change state to sans_suite' do
           subject
