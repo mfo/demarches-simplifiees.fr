@@ -6,7 +6,7 @@ class Migrations::BackfillStableIdJob < ApplicationJob
   DEFAULT_LIMIT = 50_000
 
   def perform(iteration, limit = DEFAULT_LIMIT)
-    sql = "UPDATE champs SET stable_id = t.stable_id, stream = 'main'
+    sql = "UPDATE champs SET stable_id = t.stable_id, stream = '#{Dossier::MAIN_STREAM}'
       FROM types_de_champ t
         WHERE champs.type_de_champ_id = t.id
         AND champs.id IN (SELECT id FROM champs WHERE champs.stable_id IS NULL LIMIT ?);"

@@ -391,14 +391,14 @@ module DossierStateConcern
   private
 
   def remove_not_in_revision_champs!
-    champ_data.where.not(stable_id: revision_stable_ids).where(stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where.not(stable_id: revision_stable_ids).where(stream: Dossier::MAIN_STREAM).destroy_all
   end
 
   def remove_discarded_rows!
     row_to_remove_ids = champ_data.filter { _1.row? && _1.discarded? }.map(&:row_id)
 
     return if row_to_remove_ids.empty?
-    champ_data.where(row_id: row_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where(row_id: row_to_remove_ids, stream: Dossier::MAIN_STREAM).destroy_all
   end
 
   def remove_not_visible_or_empty_repetitions!
@@ -407,7 +407,7 @@ module DossierStateConcern
       .flat_map(&:row_ids)
 
     return if row_to_remove_ids.empty?
-    champ_data.where(row_id: row_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where(row_id: row_to_remove_ids, stream: Dossier::MAIN_STREAM).destroy_all
   end
 
   def clear_not_visible_or_empty_champs!
@@ -415,7 +415,7 @@ module DossierStateConcern
       .reject(&:repetition?)
       .filter { _1.blank? || !_1.visible? }
 
-    champ_data.where(id: champs_to_clear, stream: Champ::MAIN_STREAM).find_each(&:clear)
+    champ_data.where(id: champs_to_clear, stream: Dossier::MAIN_STREAM).find_each(&:clear)
   end
 
   def clear_france_connect_champs_piece_justificatives!
@@ -462,7 +462,7 @@ module DossierStateConcern
 
     return if champ_to_remove_ids.empty?
 
-    champ_data.where(id: champ_to_remove_ids, stream: Champ::MAIN_STREAM).destroy_all
+    champ_data.where(id: champ_to_remove_ids, stream: Dossier::MAIN_STREAM).destroy_all
   end
 
   def enqueue_ami_notification(trigger: :dossier_state_change, state: nil)

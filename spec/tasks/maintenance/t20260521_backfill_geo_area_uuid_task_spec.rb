@@ -32,7 +32,7 @@ module Maintenance
       context 'when a matching geo_area exists in another stream' do
         let(:buffer_champ) do
           champ = main_champ.dup
-          champ.stream = Champ::USER_BUFFER_STREAM
+          champ.stream = Dossier::USER_BUFFER_STREAM
           champ.save!(validate: false)
           champ
         end
@@ -47,7 +47,7 @@ module Maintenance
       context 'when a geo_area in another stream has a different geometry' do
         let(:buffer_champ) do
           champ = main_champ.dup
-          champ.stream = Champ::USER_BUFFER_STREAM
+          champ.stream = Dossier::USER_BUFFER_STREAM
           champ.save!(validate: false)
           champ
         end

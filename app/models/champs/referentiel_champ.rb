@@ -100,7 +100,7 @@ class Champs::ReferentielChamp < Champ
   private
 
   def prefillable_types_de_champ
-    if stream == Champ::MAIN_STREAM
+    if main_stream?
       dossier.revision.types_de_champ
     else
       dossier.types_de_champ_public_all

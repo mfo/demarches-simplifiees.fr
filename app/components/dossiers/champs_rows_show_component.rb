@@ -26,7 +26,7 @@ class Dossiers::ChampsRowsShowComponent < ApplicationComponent
   end
 
   def updated_by(champ)
-    if usager? && champ.source_stream == Champ::INSTRUCTEUR_BUFFER_STREAM && champ.procedure.hide_instructeurs_email?
+    if usager? && champ.instructeur_buffer_source_stream? && champ.procedure.hide_instructeurs_email?
       nil
     else
       champ.updated_by

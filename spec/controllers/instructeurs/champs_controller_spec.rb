@@ -44,7 +44,7 @@ describe Instructeurs::ChampsController, type: :controller do
       is_expected.to redirect_to(instructeur_dossier_path(procedure, dossier))
       expect(flash[:notice]).to end_with("ont bien été modifiées.")
 
-      mains, others = Champ.where(stable_id: champ.stable_id, row_id: champ.row_id).partition { it.stream == 'main' }
+      mains, others = Champ.where(stable_id: champ.stable_id, row_id: champ.row_id).partition(&:main_stream?)
       expect((mains + others).count).to eq(2)
 
       main = mains.first
@@ -52,7 +52,7 @@ describe Instructeurs::ChampsController, type: :controller do
       expect(main.external_state).to eq('fetched')
 
       history_champ = others.first
-      expect(history_champ.stream).to start_with('history:')
+      expect(history_champ.stream).to start_with(Dossier::HISTORY_STREAM)
     end
 
     context 'when the public_id points to a public champ that is not a RIB' do
@@ -75,7 +75,7 @@ describe Instructeurs::ChampsController, type: :controller do
       it 'rejects the request and does not overwrite the address champ' do
         expect { cross_type_request }.to raise_error(ActiveRecord::RecordNotFound)
 
-        main_address = Champ.find_by!(dossier_id: dossier.id, stable_id: address_champ.stable_id, stream: Champ::MAIN_STREAM)
+        main_address = Champ.find_by!(dossier_id: dossier.id, stable_id: address_champ.stable_id, stream: Dossier::MAIN_STREAM)
         expect(main_address.value_json).not_to have_key('rib')
         expect(main_address.value_json).to include('label' => original_address['label'])
         expect(main_address.type).to eq('Champs::AddressChamp')

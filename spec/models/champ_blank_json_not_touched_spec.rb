@@ -21,7 +21,7 @@ RSpec.describe 'A blank champ must not be touched when another champ is correcte
   let(:user) { dossier.user }
 
   def second_champ
-    dossier.reload.champ_data.find { _1.stream == Champ::MAIN_STREAM && _1.stable_id == 100 }
+    dossier.reload.champ_data.find { _1.stream == Dossier::MAIN_STREAM && _1.stable_id == 100 }
   end
 
   # Reproduces the usager correction flow: edit only the text champ on the user

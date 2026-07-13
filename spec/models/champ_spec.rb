@@ -631,7 +631,7 @@ describe Champ do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:source_champ) { dossier.champ_data.first }
-    let(:target_champ) { source_champ.dup.tap { it.stream = Champ::USER_BUFFER_STREAM } }
+    let(:target_champ) { source_champ.dup.tap { it.stream = Dossier::USER_BUFFER_STREAM } }
 
     before do
       source_champ.update_columns(external_state: 'fetched')

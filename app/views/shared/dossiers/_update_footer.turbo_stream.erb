@@ -1,5 +1,5 @@
 <%= turbo_stream.replace_all '.dossier-edit-footer' do %>
-  <% if dossier.stream == Champ::INSTRUCTEUR_BUFFER_STREAM %>
+  <% if dossier.instructeur_buffer_stream? %>
     <%= render Instructeurs::EditDossierFooterComponent.new(dossier:) %>
   <% else %>
     <%= render Dossiers::EditFooterComponent.new(dossier:, annotation: false) %>
