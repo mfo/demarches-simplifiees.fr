@@ -181,6 +181,85 @@ describe Champs::CarteController, type: :controller do
       end
     end
 
+    describe 'as an invited user on a dossier en_construction' do
+      let(:invited_user) { create(:user) }
+      let(:dossier) { create(:dossier, :en_construction, user: user, procedure: procedure) }
+
+      before do
+        create(:invite, dossier: dossier, user: invited_user, email: invited_user.email)
+        sign_in invited_user
+      end
+
+      describe 'POST #create' do
+        let(:params) do
+          {
+            dossier_id: champ.dossier_id,
+            stable_id: champ.stable_id,
+            feature: feature,
+            source: GeoArea.sources.fetch(:selection_utilisateur),
+          }
+        end
+
+        subject { post :create, params: params }
+
+        it 'creates the geo area' do
+          expect { subject }.to change { GeoArea.count }.by(1)
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      describe 'PATCH #update' do
+        let(:params) do
+          {
+            dossier_id: champ.dossier_id,
+            stable_id: champ.stable_id,
+            id: geo_area.to_feature[:properties][:id],
+            feature: feature,
+          }
+        end
+
+        subject { patch :update, params: params }
+
+        context 'geometry' do
+          let(:feature) { attributes_for(:geo_area, :point) }
+
+          it 'updates the geo area' do
+            subject
+            expect(response).to have_http_status(:no_content)
+            expect(GeoArea.where("geometry->>'type' = 'Point'")).to exist
+          end
+        end
+
+        context 'description' do
+          let(:feature) { { properties: { description: 'un point' } } }
+
+          it 'updates the geo area' do
+            subject
+            expect(response).to have_http_status(:no_content)
+          end
+        end
+      end
+
+      describe 'DELETE #destroy' do
+        let(:params) do
+          {
+            dossier_id: champ.dossier_id,
+            stable_id: champ.stable_id,
+            id: geo_area.to_feature[:properties][:id],
+          }
+        end
+
+        before { geo_area }
+
+        subject { delete :destroy, params: params }
+
+        it 'destroys the geo area' do
+          subject
+          expect(response).to have_http_status(:no_content)
+        end
+      end
+    end
+
     describe 'GET #index' do
       render_views
 
