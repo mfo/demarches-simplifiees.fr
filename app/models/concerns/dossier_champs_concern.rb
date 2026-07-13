@@ -499,6 +499,7 @@ module DossierChampsConcern
     reset_champs_cache
 
     champ.save!
+    champ.type_de_champ = type_de_champ
     champ
   end
 
