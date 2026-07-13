@@ -80,7 +80,7 @@ class Migrations::BatchUpdatePaysValuesJob < ApplicationJob
       # orphaned champs (stable_id no longer in the dossier revision) can not
       # be validated: resolving their type_de_champ raises
       next unless pays_champ.dossier.stable_id_in_revision?(pays_champ.stable_id)
-      next if pays_champ.valid?(:champ_value)
+      next if valid_country?(pays_champ)
       code = APIGeoService.country_code(pays_champ.value)
       value = if code.present?
         APIGeoService.country_name(code)
@@ -93,5 +93,17 @@ class Migrations::BatchUpdatePaysValuesJob < ApplicationJob
         pays_champ.update_columns(value: value, external_id: associated_country_code)
       end
     end
+  end
+
+  private
+
+  # same check as the :champ_value validations on Champs::PaysChamp, without
+  # instantiating a projected champ (these are raw, possibly historical, records)
+  def valid_country?(champ)
+    country_names = APIGeoService.countries.pluck(:name)
+    country_codes = APIGeoService.countries.pluck(:code)
+
+    (champ.value.nil? || champ.value.in?(country_names)) &&
+      (champ.external_id.nil? || champ.external_id.in?(country_codes))
   end
 end

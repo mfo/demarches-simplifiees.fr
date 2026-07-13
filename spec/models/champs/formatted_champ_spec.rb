@@ -4,7 +4,7 @@ describe Champs::FormattedChamp do
   let(:types_de_champ_public) { [tdc_definition] }
   let(:procedure) { create(:procedure, types_de_champ_public:) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.champ_data.first }
+  let(:champ) { dossier.project_champs_public.first }
 
   before do
     champ.value = value
