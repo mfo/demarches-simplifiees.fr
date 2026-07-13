@@ -196,6 +196,15 @@ class User < ApplicationRecord
     last_sign_in_at.present?
   end
 
+  # Devise Trackable calls this on every active authentication (password,
+  # FranceConnect, ProConnect, remember-me, session re-auth), never on a plain
+  # per-request session fetch. Clearing the pending-deletion notice here ensures
+  # a returning user is never deleted without a fresh notice.
+  def update_tracked_fields(request)
+    super
+    self.inactive_close_to_expiration_notice_sent_at = nil
+  end
+
   def administrateur?
     administrateur.present?
   end
