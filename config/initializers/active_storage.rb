@@ -154,3 +154,31 @@ module Fog::OpenStack::Auth::Catalog
     end
   end
 end
+
+# fog-openstack 1.1.x builds the bulk-delete request body with `URI.encode`, which
+# Ruby removed in 3.0, so `delete_multiple_objects` raises NoMethodError on any
+# non-empty object list. `URI::DEFAULT_PARSER.escape` is the drop-in replacement:
+# same escaping rules, and it keeps the `container/object` slash literal (unlike
+# `ERB::Util.url_encode`, which would encode it and break the path).
+#
+# https://github.com/fog/fog-openstack/blob/v1.1.5/lib/fog/openstack/storage/requests/delete_multiple_objects.rb
+require 'fog/openstack'
+
+class Fog::OpenStack::Storage::Real
+  def delete_multiple_objects(container, object_names, options = {})
+    body = object_names.map do |name|
+      object_name = container ? "#{container}/#{name}" : name
+      URI::DEFAULT_PARSER.escape(object_name)
+    end.join("\n")
+
+    response = request({
+      expects: 200,
+      method: 'DELETE',
+      headers: options.merge('Content-Type' => 'text/plain', 'Accept' => 'application/json'),
+      body:,
+      query: { 'bulk-delete' => true },
+    }, false)
+    response.body = Fog::JSON.decode(response.body)
+    response
+  end
+end

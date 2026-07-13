@@ -16,6 +16,7 @@ class Cron::PurgeUnattachedBlobsJob < Cron::CronJob
     # caveats: the job needs to be run at least once a week to avoid missing blobs
     ActiveStorage::Blob
       .where(created_at: 1.week.ago..1.day.ago)
+      .where(soft_delete_at: nil)
       .unattached
       .select(:id, :service_name)
       .in_batches do |relation|
