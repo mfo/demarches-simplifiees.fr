@@ -74,3 +74,8 @@ en:
     labels:
       simple: Manual
       advanced: Import referential
+  france_connect:
+    quotient_familial: "This field allows you to automatically and reliably retrieve the identity details, the CAF or MSA family quotient, and the family composition of the user logged in via FranceConnect"
+    etudiant_boursier: "This field allows you to automatically and reliably retrieve the status and grant tier details of a student logged in via FranceConnect"
+    aah: "This field allows you to automatically and reliably retrieve data on the status of the user logged in via FranceConnect as a recipient of the Adult Disability Allowance (AAH)"
+    aeeh: "This field allows you to automatically and reliably retrieve data on the status of the user logged in via FranceConnect as a recipient of the Education Allowance for Disabled Children (AEEH)"

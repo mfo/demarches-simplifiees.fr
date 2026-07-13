@@ -1,0 +1,25 @@
+fr:
+  authorization_required_html: "L'utilisation de ce champ nécessite une <strong>autorisation spécifique</strong>."
+  api_token_required_html: "Vous devez renseigner un <strong>jeton API Particulier</strong> sur cette démarche en vous rendant sur l'écran "
+  api_tokens_link: "Jetons API"
+
+  success_title: "Si les données sont récupérées correctement"
+  success_description: "L'usager n'a pas besoin de transmettre %{justificatif_label}."
+
+  failure_title: "Si les données ne sont pas récupérées ou incorrectes"
+  failure_description: "L'usager doit transmettre %{justificatif_label}."
+
+  important_information: "Information importante"
+
+  notice_intro: 'Un champ de type "Pièce à joindre" sera affiché dans les cas suivants :'
+
+  notice_cases:
+    - "L'usager ne s'est pas connecté via FranceConnect ;"
+    - "L'usager s'est connecté via FranceConnect mais n'a pas confirmé l'exactitude des données récupérées ;"
+    - "L'usager s'est connecté via FranceConnect mais la récupération automatique des données n'a pas fonctionné."
+
+  justificatif_labels:
+    quotient_familial: "un justificatif de quotient familial"
+    etudiant_boursier: "un justificatif d'étudiant boursier"
+    aah: "un justificatif de bénéficiaire de l'AAH"
+    aeeh: "un justificatif de bénéficiaire de l'AEEH"

@@ -1,0 +1,25 @@
+en:
+  authorization_required_html: "Using this field requires a <strong>specific authorization</strong>."
+  api_token_required_html: "You must configure an <strong>API Particulier token</strong> for this procedure by visiting the "
+  api_tokens_link: "API Tokens"
+
+  success_title: "If the data is successfully retrieved"
+  success_description: "The user does not need to provide %{justificatif_label}."
+
+  failure_title: "If the data is not retrieved or is incorrect"
+  failure_description: "The user must provide %{justificatif_label}."
+
+  important_information: "Important information"
+
+  notice_intro: 'A "Supporting document" field will be displayed in the following cases:'
+
+  notice_cases:
+    - "The user did not log in using FranceConnect;"
+    - "The user logged in using FranceConnect but did not confirm the accuracy of the retrieved data;"
+    - "The automatic retrieval of data failed."
+
+  justificatif_labels:
+    quotient_familial: "proof of family quotient"
+    etudiant_boursier: "proof of student grant status"
+    aah: "proof of AAH beneficiary status"
+    aeeh: "proof of AEEH beneficiary status"

@@ -224,9 +224,9 @@
               </div>
             <% end %>
 
-            <% if type_de_champ.quotient_familial? %>
+            <% if type_de_champ.france_connect? %>
               <div class="cell fr-my-auto fr-mx-3w">
-                <%= t(".quotient_familial_hint") %>
+                <%= t(".france_connect.#{type_de_champ.type_champ}") %>
               </div>
             <% end %>
 
@@ -434,8 +434,8 @@
       <%= render(TypesDeChampEditor::InfoReferentielComponent.new(procedure:, type_de_champ:)) %>
     <% end %>
 
-    <% if type_de_champ.quotient_familial? %>
-      <%= render(TypesDeChampEditor::QuotientFamilialComponent.new(procedure:)) %>
+    <% if type_de_champ.france_connect? %>
+      <%= render(TypesDeChampEditor::FranceConnectComponent.new(procedure:, type_de_champ:)) %>
     <% end %>
 
     <% if type_de_champ.repetition? %>
