@@ -1555,7 +1555,7 @@ describe Users::DossiersController, type: :controller do
         subject
         dossier.reload
         expect(dossier.user_buffer_changes?).to be_truthy
-        expect(first_champ_user_buffer.stream).to eq(Champ::USER_BUFFER_STREAM)
+        expect(first_champ_user_buffer.stream).to eq(Dossier::USER_BUFFER_STREAM)
         expect(first_champ_user_buffer.value).to eq('beautiful value')
         expect(first_champ_user_buffer.updated_at).to eq(now)
       end
@@ -1571,7 +1571,7 @@ describe Users::DossiersController, type: :controller do
           subject
           dossier.reload
           expect(dossier.user_buffer_changes?).to be_truthy
-          expect(piece_justificative_champ_user_buffer.stream).to eq(Champ::USER_BUFFER_STREAM)
+          expect(piece_justificative_champ_user_buffer.stream).to eq(Dossier::USER_BUFFER_STREAM)
           expect(piece_justificative_champ_user_buffer.piece_justificative_file).to be_attached
         end
       end
@@ -1792,7 +1792,7 @@ describe Users::DossiersController, type: :controller do
         dossier.reload
         annotation = dossier.project_champs_private.find { it.stable_id == 100 }
         expect(annotation.value).to eq(suggestion_data[:finess])
-        expect(annotation.stream).to eq(Champ::MAIN_STREAM)
+        expect(annotation.stream).to eq(Dossier::MAIN_STREAM)
       end
     end
 

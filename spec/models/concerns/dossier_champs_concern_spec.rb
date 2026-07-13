@@ -374,7 +374,7 @@ RSpec.describe DossierChampsConcern do
         it {
           expect(subject.persisted?).to be_truthy
           expect(subject.is_a?(Champs::CarteChamp)).to be_truthy
-          expect(subject.stream).to eq(Champ::MAIN_STREAM)
+          expect(subject.stream).to eq(Dossier::MAIN_STREAM)
           expect(subject.geo_areas.size).to eq(0)
         }
 
@@ -394,7 +394,7 @@ RSpec.describe DossierChampsConcern do
           it {
             expect(subject.persisted?).to be_truthy
             expect(subject.is_a?(Champs::CarteChamp)).to be_truthy
-            expect(subject.stream).to eq(Champ::USER_BUFFER_STREAM)
+            expect(subject.stream).to eq(Dossier::USER_BUFFER_STREAM)
             expect(subject.geo_areas.size).to eq(2)
             expect(subject.geo_areas.size).to eq(main_champ.geo_areas.size)
             expect(subject.geo_areas.first.id).not_to eq(main_champ.geo_areas.first.id)
@@ -671,18 +671,18 @@ RSpec.describe DossierChampsConcern do
 
         expect(dossier.user_buffer_changes?).to be_truthy
 
-        expect(main_champ_99.stream).to eq(Champ::MAIN_STREAM)
-        expect(main_champ_991.stream).to eq(Champ::MAIN_STREAM)
-        expect(main_champ_994.stream).to eq(Champ::MAIN_STREAM)
+        expect(main_champ_99.stream).to eq(Dossier::MAIN_STREAM)
+        expect(main_champ_991.stream).to eq(Dossier::MAIN_STREAM)
+        expect(main_champ_994.stream).to eq(Dossier::MAIN_STREAM)
         expect(main_champ_99.source_stream).to be_nil
 
         expect(main_champ_99.value).to be_nil
         expect(main_champ_991.value).to be_nil
         expect(main_champ_994.value).to be_nil
 
-        expect(draft_champ_99.stream).to eq(Champ::USER_BUFFER_STREAM)
-        expect(draft_champ_991.stream).to eq(Champ::USER_BUFFER_STREAM)
-        expect(draft_champ_994.stream).to eq(Champ::USER_BUFFER_STREAM)
+        expect(draft_champ_99.stream).to eq(Dossier::USER_BUFFER_STREAM)
+        expect(draft_champ_991.stream).to eq(Dossier::USER_BUFFER_STREAM)
+        expect(draft_champ_994.stream).to eq(Dossier::USER_BUFFER_STREAM)
 
         expect(draft_champ_99.value).to eq("Hello")
         expect(draft_champ_991.value).to eq("World")
@@ -727,9 +727,9 @@ RSpec.describe DossierChampsConcern do
           subject
           dossier.save!
 
-          expect(draft_champ_99.stream).to eq(Champ::USER_BUFFER_STREAM)
-          expect(draft_champ_991.stream).to eq(Champ::USER_BUFFER_STREAM)
-          expect(draft_champ_994.stream).to eq(Champ::USER_BUFFER_STREAM)
+          expect(draft_champ_99.stream).to eq(Dossier::USER_BUFFER_STREAM)
+          expect(draft_champ_991.stream).to eq(Dossier::USER_BUFFER_STREAM)
+          expect(draft_champ_994.stream).to eq(Dossier::USER_BUFFER_STREAM)
 
           expect(draft_champ_99.value).to eq("Hello")
           expect(draft_champ_991.value).to eq("World")
@@ -926,17 +926,17 @@ RSpec.describe DossierChampsConcern do
 
         expect(dossier.instructeur_buffer_changes?).to be_truthy
 
-        expect(main_champ_99.stream).to eq(Champ::MAIN_STREAM)
-        expect(main_champ_991.stream).to eq(Champ::MAIN_STREAM)
-        expect(main_champ_994.stream).to eq(Champ::MAIN_STREAM)
+        expect(main_champ_99.stream).to eq(Dossier::MAIN_STREAM)
+        expect(main_champ_991.stream).to eq(Dossier::MAIN_STREAM)
+        expect(main_champ_994.stream).to eq(Dossier::MAIN_STREAM)
 
         expect(main_champ_99.value).to eq('Bonjour')
         expect(main_champ_991.value).to eq('Au revoir')
         expect(main_champ_994.value).to be_nil
 
-        expect(draft_champ_99.stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
-        expect(draft_champ_991.stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
-        expect(draft_champ_994.stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
+        expect(draft_champ_99.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+        expect(draft_champ_991.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+        expect(draft_champ_994.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
 
         expect(draft_champ_99.value).to eq("Hello")
         expect(draft_champ_991.value).to eq("World")
@@ -1017,9 +1017,9 @@ RSpec.describe DossierChampsConcern do
         expect(user_history_champ_991.value).to eq("World")
         expect(user_history_champ_994.value).to eq("Greer")
 
-        expect(user_history_champ_99.source_stream).to eq(Champ::USER_BUFFER_STREAM)
-        expect(user_history_champ_991.source_stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
-        expect(user_history_champ_994.source_stream).to eq(Champ::INSTRUCTEUR_BUFFER_STREAM)
+        expect(user_history_champ_99.source_stream).to eq(Dossier::USER_BUFFER_STREAM)
+        expect(user_history_champ_991.source_stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+        expect(user_history_champ_994.source_stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
       }
     end
   end

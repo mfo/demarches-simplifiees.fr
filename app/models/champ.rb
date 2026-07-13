@@ -5,6 +5,7 @@ class Champ < ApplicationRecord
   include ChampValidateConcern
   include ChampRevisionConcern
   include ChampExternalDataConcern
+  include ChampStreamConcern
 
   self.ignored_columns += [:type_de_champ_id, :parent_id]
 
@@ -265,7 +266,7 @@ class Champ < ApplicationRecord
     deep_clone(only: champ_attributes + value_attributes, include: relationships, validate: true) do |original, kopy|
       if original.is_a?(Champ)
         kopy.write_attribute(:stable_id, original.stable_id)
-        kopy.write_attribute(:stream, 'main')
+        kopy.write_attribute(:stream, Dossier::MAIN_STREAM)
         # TODO: overwrite row_id "N" with nil
         kopy.write_attribute(:row_id, kopy.row_id)
       end
@@ -283,32 +284,6 @@ class Champ < ApplicationRecord
 
   def html_id
     type_de_champ.html_id(row_id)
-  end
-
-  MAIN_STREAM = 'main'
-  USER_BUFFER_STREAM = 'user:buffer'
-  INSTRUCTEUR_BUFFER_STREAM = 'instructeur:buffer'
-  USER_HISTORY_STREAM = 'user:history'
-  HISTORY_STREAM = 'history:'
-
-  def main_stream?
-    stream == MAIN_STREAM
-  end
-
-  def user_buffer_stream?
-    stream == USER_BUFFER_STREAM
-  end
-
-  def instructeur_buffer_stream?
-    stream == INSTRUCTEUR_BUFFER_STREAM
-  end
-
-  def history_stream?
-    stream.start_with?(HISTORY_STREAM)
-  end
-
-  def buffer_stream?
-    persisted? && (user_buffer_stream? || instructeur_buffer_stream?)
   end
 
   def clear

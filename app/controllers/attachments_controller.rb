@@ -73,7 +73,7 @@ class AttachmentsController < ApplicationController
   end
 
   def instructeur_changing_an_attachment?
-    (champ&.private? || champ&.stream == Champ::INSTRUCTEUR_BUFFER_STREAM) && current_user.instructeur? && current_instructeur.in?(champ.dossier.groupe_instructeur.instructeurs)
+    (champ&.private? || champ&.instructeur_buffer_stream?) && current_user.instructeur? && current_instructeur.in?(champ.dossier.groupe_instructeur.instructeurs)
   end
 
   def admin_changing_its_procedure?

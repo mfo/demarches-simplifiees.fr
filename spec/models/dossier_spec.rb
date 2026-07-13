@@ -2977,7 +2977,7 @@ describe Dossier, type: :model do
     let(:dossier) { create(:dossier, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:changed_champs) { dossier.champ_data.filter(&:text?) }
 
-    subject { -> { dossier.update_champs_timestamps(changed_champs, Champ::USER_BUFFER_STREAM) } }
+    subject { -> { dossier.update_champs_timestamps(changed_champs, Dossier::USER_BUFFER_STREAM) } }
 
     it do
       is_expected.to change(dossier, :last_champ_updated_at)

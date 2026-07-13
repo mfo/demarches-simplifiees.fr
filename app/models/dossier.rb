@@ -13,6 +13,7 @@ class Dossier < ApplicationRecord
   include DossierSearchableConcern
   include DossierSectionsConcern
   include DossierStateConcern
+  include DossierStreamConcern
   include DossierChampsConcern
   include DossierExportConcern
   include DossierValidateConcern
@@ -281,7 +282,7 @@ class Dossier < ApplicationRecord
   scope :hidden_by_administration_since, -> (since) { where('dossiers.hidden_by_administration_at IS NOT NULL AND dossiers.hidden_by_administration_at >= ?', since) }
   scope :hidden_since,                   -> (since) { hidden_by_user_since(since).or(hidden_by_administration_since(since)) }
 
-  scope :with_type_de_champ, -> (stable_id) { joins(:champ_data).where(champs: { stream: 'main', stable_id: }) }
+  scope :with_type_de_champ, -> (stable_id) { joins(:champ_data).where(champs: { stream: MAIN_STREAM, stable_id: }) }
   scope :without_type_de_champ, -> (stable_id) { where.not(id: with_type_de_champ(stable_id).select(:id)) }
 
   scope :with_unread_messages_for_user, -> {
@@ -1103,9 +1104,9 @@ class Dossier < ApplicationRecord
     return if changed_champs.empty?
     updated_at = Time.zone.now
     attributes = { updated_at: }
-    if stream == Champ::USER_BUFFER_STREAM
+    if stream == USER_BUFFER_STREAM
       attributes[:last_champ_updated_at] = updated_at
-    elsif stream == Champ::INSTRUCTEUR_BUFFER_STREAM
+    elsif stream == INSTRUCTEUR_BUFFER_STREAM
       attributes[:last_champ_instructeur_updated_at] = updated_at
     end
     update_columns(attributes)

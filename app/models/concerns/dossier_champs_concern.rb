@@ -183,35 +183,35 @@ module DossierChampsConcern
   end
 
   def merge_user_buffer_stream!
-    buffer_ids, changed_ids = changed_champ_ids_for_merge(Champ::USER_BUFFER_STREAM)
+    buffer_ids, changed_ids = changed_champ_ids_for_merge(Dossier::USER_BUFFER_STREAM)
 
     return if buffer_ids.blank?
 
-    merge_buffer_champs(buffer_ids, changed_ids, Champ::USER_BUFFER_STREAM)
+    merge_buffer_champs(buffer_ids, changed_ids, Dossier::USER_BUFFER_STREAM)
   end
 
   def merge_instructeur_buffer_stream!
-    buffer_ids, changed_ids = changed_champ_ids_for_merge(Champ::INSTRUCTEUR_BUFFER_STREAM)
+    buffer_ids, changed_ids = changed_champ_ids_for_merge(Dossier::INSTRUCTEUR_BUFFER_STREAM)
 
     return if buffer_ids.blank?
 
-    merge_buffer_champs(buffer_ids, changed_ids, Champ::INSTRUCTEUR_BUFFER_STREAM)
+    merge_buffer_champs(buffer_ids, changed_ids, Dossier::INSTRUCTEUR_BUFFER_STREAM)
   end
 
   def reset_user_buffer_stream!
-    champ_data.where(stream: Champ::USER_BUFFER_STREAM).destroy_all
+    champ_data.where(stream: Dossier::USER_BUFFER_STREAM).destroy_all
 
     # update loaded champ instances
-    association(:champ_data).target = champ_data.filter { _1.stream != Champ::USER_BUFFER_STREAM }
+    association(:champ_data).target = champ_data.reject(&:user_buffer_stream?)
 
     reset_champs_cache
   end
 
   def reset_instructeur_buffer_stream!
-    champ_data.where(stream: Champ::INSTRUCTEUR_BUFFER_STREAM).destroy_all
+    champ_data.where(stream: Dossier::INSTRUCTEUR_BUFFER_STREAM).destroy_all
 
     # update loaded champ instances
-    association(:champ_data).target = champ_data.filter { _1.stream != Champ::INSTRUCTEUR_BUFFER_STREAM }
+    association(:champ_data).target = champ_data.reject(&:instructeur_buffer_stream?)
 
     reset_champs_cache
   end
@@ -222,49 +222,6 @@ module DossierChampsConcern
 
   def instructeur_buffer_changes?
     champs_on_instructeur_buffer_stream.present?
-  end
-
-  def can_update_as_user?(user)
-    return false unless en_construction?
-    user.owns_or_invite?(self)
-  end
-
-  def can_update_as_instructeur?(user)
-    return false unless en_construction?
-    return false unless procedure.instructeurs_can_edit_dossiers?
-    return false unless user.instructeur?
-    return false if can_update_as_user?(user)
-    groupe_instructeur.instructeurs.include?(user.instructeur)
-  end
-
-  def with_update_stream(user, &block)
-    if can_update_as_user?(user)
-      with_stream(Champ::USER_BUFFER_STREAM, &block)
-    elsif can_update_as_instructeur?(user)
-      with_stream(Champ::INSTRUCTEUR_BUFFER_STREAM, &block)
-    else
-      with_stream(Champ::MAIN_STREAM, &block)
-    end
-  end
-
-  def with_main_stream(&block)
-    with_stream(Champ::MAIN_STREAM, &block)
-  end
-
-  def with_instructeur_buffer_stream(&block)
-    with_stream(Champ::INSTRUCTEUR_BUFFER_STREAM, &block)
-  end
-
-  def with_user_history_stream(&block)
-    with_stream(Champ::USER_HISTORY_STREAM, &block)
-  end
-
-  def with_champ_stream(champ, &block)
-    with_stream(champ.stream, &block)
-  end
-
-  def stream
-    @stream || Champ::MAIN_STREAM
   end
 
   def history
@@ -308,7 +265,7 @@ module DossierChampsConcern
 
     return [[], []] if stream_h.empty?
 
-    main_h = champ_data.where(stream: Champ::MAIN_STREAM, stable_id: revision_stable_ids)
+    main_h = champ_data.where(stream: Dossier::MAIN_STREAM, stable_id: revision_stable_ids)
       .pluck(:stable_id, :row_id, :id)
       .to_h { |(stable_id, row_id, id)| [TypeDeChamp.public_id(stable_id, row_id), id] }
 
@@ -325,7 +282,7 @@ module DossierChampsConcern
       .pluck(:row_id)
 
     if discarded_row_ids.present?
-      changed_ids += champ_data.where(stream: Champ::MAIN_STREAM, row_id: discarded_row_ids).pluck(:id)
+      changed_ids += champ_data.where(stream: Dossier::MAIN_STREAM, row_id: discarded_row_ids).pluck(:id)
     end
 
     [stream_ids, changed_ids]
@@ -333,21 +290,21 @@ module DossierChampsConcern
 
   def merge_buffer_champs(buffer_ids, changed_ids, stream)
     now = Time.zone.now
-    history_stream = "#{Champ::HISTORY_STREAM}#{now}"
+    history_stream = "#{Dossier::HISTORY_STREAM}#{now}"
     buffer_champs = champ_data.filter { buffer_ids.member?(it.id) }
 
     transaction do
       # if merging user buffer, discard any instructeur made changes
-      if stream == Champ::USER_BUFFER_STREAM
+      if stream == Dossier::USER_BUFFER_STREAM
         champ_data.where(id: buffer_ids, stream:).pluck(:stable_id, :row_id).each do |(stable_id, row_id)|
-          champ_data.where(stream: Champ::INSTRUCTEUR_BUFFER_STREAM, stable_id:, row_id:).destroy_all
+          champ_data.where(stream: Dossier::INSTRUCTEUR_BUFFER_STREAM, stable_id:, row_id:).destroy_all
         end
       end
 
       # move champ_data with changes from "main" to "history" stream
-      champ_data.where(id: changed_ids, stream: Champ::MAIN_STREAM).update_all(stream: history_stream)
+      champ_data.where(id: changed_ids, stream: Dossier::MAIN_STREAM).update_all(stream: history_stream)
       # move champ_data from "buffer" to "main"
-      champ_data.where(id: buffer_ids, stream:).update_all(stream: Champ::MAIN_STREAM, updated_at: now, checkpoint: history_stream)
+      champ_data.where(id: buffer_ids, stream:).update_all(stream: Dossier::MAIN_STREAM, updated_at: now, checkpoint: history_stream)
       update_champs_timestamps(buffer_champs, stream)
     end
 
@@ -356,7 +313,7 @@ module DossierChampsConcern
       if champ.id.in?(changed_ids)
         champ.stream = history_stream
       elsif champ.id.in?(buffer_ids)
-        champ.stream = Champ::MAIN_STREAM
+        champ.stream = Dossier::MAIN_STREAM
         champ.checkpoint = history_stream
       end
     end
@@ -370,22 +327,6 @@ module DossierChampsConcern
     history_stream
   end
 
-  def with_stream(stream)
-    if block_given?
-      previous_stream = @stream
-      @stream = stream
-      reset_champs_cache
-      result = yield
-      @stream = previous_stream
-      reset_champs_cache
-      result
-    else
-      @stream = stream
-      reset_champs_cache
-      self
-    end
-  end
-
   def champs_by_public_id
     @champs_by_public_id ||= champs_on_stream.index_by(&:public_id)
   end
@@ -395,12 +336,11 @@ module DossierChampsConcern
   end
 
   def champs_on_stream
-    @champs_on_stream ||= case stream
-    when Champ::USER_BUFFER_STREAM
+    @champs_on_stream ||= if user_buffer_stream?
       (champs_on_user_buffer_stream + champs_on_main_stream).uniq(&:public_id)
-    when Champ::INSTRUCTEUR_BUFFER_STREAM
+    elsif instructeur_buffer_stream?
       (champs_on_instructeur_buffer_stream + champs_on_main_stream).uniq(&:public_id)
-    when Champ::USER_HISTORY_STREAM
+    elsif user_history_stream?
       champ_data
         # only "main" and "history"
         .reject(&:buffer_stream?)
@@ -480,8 +420,8 @@ module DossierChampsConcern
     if champ.class != type_de_champ.champ_class
       champ = champ.becomes!(type_de_champ.champ_class)
       champ.assign_attributes(value: nil, value_json: nil, external_id: nil, data: nil)
-    elsif stream != Champ::MAIN_STREAM && champ.previously_new_record?
-      main_stream_champ = champ_data.find_by(stable_id: type_de_champ.stable_id, row_id:, stream: Champ::MAIN_STREAM)
+    elsif !main_stream? && champ.previously_new_record?
+      main_stream_champ = champ_data.find_by(stable_id: type_de_champ.stable_id, row_id:, stream: Dossier::MAIN_STREAM)
       champ.clone_value_from(main_stream_champ) if main_stream_champ.present?
     end
 
@@ -505,10 +445,10 @@ module DossierChampsConcern
 
   def check_valid_stream_on_write?(type_de_champ)
     if type_de_champ.private?
-      if stream != Champ::MAIN_STREAM
+      if !main_stream?
         raise "Can not write a private champ to \"#{stream}\" stream"
       end
-    elsif stream == Champ::MAIN_STREAM && en_construction?
+    elsif main_stream? && en_construction?
       raise 'Can not write to "main" stream on a dossier "en construction"'
     end
   end

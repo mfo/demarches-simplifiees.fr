@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :champ_do_not_use, class: 'Champ' do
-    stream { 'main' }
+    stream { Dossier::MAIN_STREAM }
     add_attribute(:private) { false }
 
     factory :champ_do_not_use_text, class: 'Champs::TextChamp' do

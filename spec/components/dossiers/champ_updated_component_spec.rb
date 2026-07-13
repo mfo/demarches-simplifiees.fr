@@ -6,7 +6,7 @@ RSpec.describe Dossiers::ChampUpdatedComponent, type: :component do
   let(:updated_at) { Time.zone.local(2026, 5, 19, 10, 30) }
   let(:seen_at) { nil }
   let(:updated_by) { nil }
-  let(:source_stream) { Champ::MAIN_STREAM }
+  let(:source_stream) { Dossier::MAIN_STREAM }
 
   context 'when updated_at is nil' do
     let(:updated_at) { nil }
@@ -17,7 +17,7 @@ RSpec.describe Dossiers::ChampUpdatedComponent, type: :component do
   end
 
   context 'when updated on usager stream' do
-    let(:source_stream) { Champ::MAIN_STREAM }
+    let(:source_stream) { Dossier::MAIN_STREAM }
 
     it 'renders the usager source and no tooltip' do
       expect(subject).to have_content('usager')
@@ -35,7 +35,7 @@ RSpec.describe Dossiers::ChampUpdatedComponent, type: :component do
   end
 
   context 'when updated on instructeur buffer stream' do
-    let(:source_stream) { Champ::INSTRUCTEUR_BUFFER_STREAM }
+    let(:source_stream) { Dossier::INSTRUCTEUR_BUFFER_STREAM }
 
     it 'renders the instructeur source' do
       expect(subject).to have_content('instructeur')
@@ -68,7 +68,7 @@ RSpec.describe Dossiers::ChampUpdatedComponent, type: :component do
   end
 
   describe 'new badge styling' do
-    let(:source_stream) { Champ::MAIN_STREAM }
+    let(:source_stream) { Dossier::MAIN_STREAM }
 
     context 'when updated_at is after seen_at' do
       let(:seen_at) { updated_at - 1.hour }

@@ -256,7 +256,7 @@ class GeoArea < ApplicationRecord
   end
 
   def set_default_uuid
-    if champ.stream == Champ::MAIN_STREAM
+    if champ.main_stream?
       self.uuid ||= SecureRandom.uuid
     end
   end

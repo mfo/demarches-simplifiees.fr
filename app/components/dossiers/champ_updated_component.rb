@@ -30,7 +30,7 @@ class Dossiers::ChampUpdatedComponent < ApplicationComponent
   end
 
   def instructeur?
-    source_stream == Champ::INSTRUCTEUR_BUFFER_STREAM
+    source_stream == Dossier::INSTRUCTEUR_BUFFER_STREAM
   end
 
   def tooltip_id

@@ -12,7 +12,7 @@ module Maintenance
     # run_on_first_deploy
 
     def collection
-      GeoArea.joins(:champ).where(champs: { stream: Champ::MAIN_STREAM })
+      GeoArea.joins(:champ).where(champs: { stream: Dossier::MAIN_STREAM })
     end
 
     def process(geo_area)
@@ -21,7 +21,7 @@ module Maintenance
       champ = geo_area.champ
       GeoArea.joins(:champ)
         .where(geometry: geo_area.geometry, champs: { dossier_id: champ.dossier_id, stable_id: champ.stable_id, row_id: champ.row_id })
-        .where.not(champs: { stream: Champ::MAIN_STREAM })
+        .where.not(champs: { stream: Dossier::MAIN_STREAM })
         .update_all(uuid:)
     end
   end

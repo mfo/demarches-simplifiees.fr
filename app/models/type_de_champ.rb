@@ -317,7 +317,7 @@ class TypeDeChamp < ApplicationRecord
       private: private?,
       type: champ_class.name,
       stable_id:,
-      stream: Champ::MAIN_STREAM,
+      stream: Dossier::MAIN_STREAM,
     }
   end
 

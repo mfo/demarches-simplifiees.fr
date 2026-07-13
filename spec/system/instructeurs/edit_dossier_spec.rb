@@ -8,7 +8,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
 
   def buffered_value(dossier, stable_id)
     dossier.reload.champ_data
-      .find { _1.stream == Champ::INSTRUCTEUR_BUFFER_STREAM && _1.stable_id == stable_id }
+      .find { _1.stream == Dossier::INSTRUCTEUR_BUFFER_STREAM && _1.stable_id == stable_id }
       &.value
   end
 
@@ -16,7 +16,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
   # the buffered champ as the new main one, so we must look it up by stream.
   def main_value(dossier, stable_id)
     dossier.reload.champ_data
-      .find { _1.stream == Champ::MAIN_STREAM && _1.stable_id == stable_id }
+      .find { _1.stream == Dossier::MAIN_STREAM && _1.stable_id == stable_id }
       &.value
   end
 
@@ -124,7 +124,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
 
     def buffered_pj(stable_id)
       dossier.reload.champ_data
-        .find { _1.stream == Champ::INSTRUCTEUR_BUFFER_STREAM && _1.stable_id == stable_id }
+        .find { _1.stream == Dossier::INSTRUCTEUR_BUFFER_STREAM && _1.stable_id == stable_id }
         &.piece_justificative_file
     end
 
