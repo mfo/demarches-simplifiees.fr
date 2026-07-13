@@ -353,7 +353,7 @@ GEM
       activesupport
       i18n (>= 0.7)
       multi_json
-    graphql (2.5.23)
+    graphql (2.5.26)
       base64
       fiber-storage
       logger
