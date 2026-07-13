@@ -141,13 +141,6 @@ class Champ < ApplicationRecord
     row_id.present? && is_type?(TypeDeChamp.type_champs.fetch(:repetition))
   end
 
-  NULL_ROW_ID = 'N'
-
-  def row_id
-    row_id_or_null = super
-    row_id_or_null == Champ::NULL_ROW_ID ? nil : row_id_or_null
-  end
-
   # used for the `required` html attribute
   # check visibility to avoid hidden required input
   # which prevent the form from being sent.
@@ -267,8 +260,6 @@ class Champ < ApplicationRecord
       if original.is_a?(Champ)
         kopy.write_attribute(:stable_id, original.stable_id)
         kopy.write_attribute(:stream, Dossier::MAIN_STREAM)
-        # TODO: overwrite row_id "N" with nil
-        kopy.write_attribute(:row_id, kopy.row_id)
       end
       ClonePiecesJustificativesService.clone_attachments(original, kopy) if !private?
     end

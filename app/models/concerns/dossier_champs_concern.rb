@@ -402,9 +402,6 @@ module DossierChampsConcern
     check_valid_stream_on_write?(type_de_champ)
     check_valid_row_id_on_write?(type_de_champ, row_id)
 
-    # FIXME: This is a temporary on-demand migration. It will be removed once the full migration is over.
-    Champ.where(dossier_id: id, row_id: Champ::NULL_ROW_ID).update_all(row_id: nil)
-
     # FIXME: Try to find the champ in memory before querying the database
     champ = champ_data.find { _1.stream == stream && _1.public_id == type_de_champ.public_id(row_id) }
 

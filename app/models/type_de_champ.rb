@@ -875,7 +875,7 @@ class TypeDeChamp < ApplicationRecord
 
   class << self
     def public_id(stable_id, row_id)
-      if row_id.blank? || row_id == Champ::NULL_ROW_ID
+      if row_id.blank?
         stable_id.to_s
       else
         "#{stable_id}-#{row_id}"
