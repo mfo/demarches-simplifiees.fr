@@ -20,8 +20,18 @@ module Ethon
 
         @proxy_header_list = list && FFI::AutoPointer.new(list, Curl.method(:slist_free_all))
       end
+
+      # Ethon::Easy#reset clears the libcurl handle (curl_easy_reset) but not our
+      # ivars. Handles are pooled and reused (Typhoeus::Pool.release calls reset),
+      # so keep the mirror in sync, otherwise a recycled handle reports stale
+      # proxy_headers even though libcurl no longer sends them.
+      def reset
+        super
+        @proxy_headers = nil
+        @proxy_header_list = nil
+      end
     end
 
-    include ProxyHeaders
+    prepend ProxyHeaders
   end
 end
