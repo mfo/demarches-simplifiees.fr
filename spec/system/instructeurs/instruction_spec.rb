@@ -103,6 +103,31 @@ describe 'Instructing a dossier:', js: true do
     expect(page).not_to have_button('Repasser en instruction')
   end
 
+  scenario 'shows DSFR error when motivation is missing before refusing a dossier' do
+    dossier.passer_en_instruction!(instructeur: instructeur)
+    login_as(instructeur.user, scope: :user)
+
+    visit instructeur_dossier_path(procedure, dossier)
+    click_on 'Rendre une décision'
+
+    within('.instruction-button') { find_link('Refuser').click }
+
+    expect(page).to have_field('motivation_refuse')
+    find('button', text: 'Valider la décision').click
+
+    expect(page).to have_css('.fr-input-group--error')
+    expect(page).to have_css('#motivation_refuse-error:not(.hidden)', text: '« Motivation » doit être rempli')
+    expect(dossier.reload.state).to eq(Dossier.states.fetch(:en_instruction))
+
+    fill_in('motivation_refuse', with: 'dossier irrecevable')
+    expect(page).to have_no_css('.fr-input-group--error')
+
+    find('button', text: 'Valider la décision').click
+
+    expect(page).to have_text('Le dossier a bien été traité')
+    expect(dossier.reload.state).to eq(Dossier.states.fetch(:refuse))
+  end
+
   scenario 'A instructeur can follow/unfollow a dossier and request an export' do
     login_as(instructeur.user, scope: :user)
     visit instructeur_procedures_path

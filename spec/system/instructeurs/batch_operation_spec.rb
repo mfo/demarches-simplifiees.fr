@@ -551,7 +551,19 @@ describe 'BatchOperation a dossier:', js: true do
     click_on "Refuser les dossiers"
 
     expect(page).to have_field("motivation_refuse")
+
+    # le confirm se déclenche avant la validation (statu quo produit),
+    # puis la validation cliente bloque la soumission vide
+    expect(page).to have_selector('button[data-confirm="Êtes-vous sûr de vouloir appliquer cette décision aux dossiers sélectionnés ?"]')
+    page.execute_script('window.confirm = () => true')
+    click_on "Valider la décision"
+
+    expect(page).to have_css(".fr-input-group--error")
+    expect(page).to have_css('#motivation_refuse-error:not(.hidden)', text: "« Motivation » doit être rempli")
+    expect(BatchOperation.count).to eq(0)
+
     fill_in("motivation_refuse", with: "Refus batch avec justificatif")
+    expect(page).to have_no_css(".fr-input-group--error")
 
     within(".motivation.refuse") do
       find('input[type="file"]', visible: :all).attach_file(
