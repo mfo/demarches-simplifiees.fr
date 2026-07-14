@@ -2,7 +2,7 @@
 
 class Champs::PieceJustificativeChampPolicy < ChampPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, "wrong type de champ" if !record.piece_justificative? && !record.quotient_familial?
+    raise Pundit::NotAuthorizedError, "wrong type de champ" if !record.piece_justificative? && !record.france_connect?
     super
   end
 end
