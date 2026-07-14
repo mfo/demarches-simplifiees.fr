@@ -39,7 +39,7 @@ class EditableChamp::FranceConnectChampBaseComponent < EditableChamp::EditableCh
   end
 
   def external_data_component
-    FranceConnectChamp::ExternalChampComponent.new(type: @champ.type_champ, data: api_part_data, with_header: true, champ: @champ, for_preview: for_preview?)
+    FranceConnectChamp::ExternalChampComponent.new(type_champ: @champ.type_champ, data: api_part_data, with_header: true, champ: @champ, for_preview: for_preview?)
   end
 
   private
@@ -62,14 +62,14 @@ class EditableChamp::FranceConnectChampBaseComponent < EditableChamp::EditableCh
       File.read(
         File.join(
           __dir__,
-          api_part_preview_data_file_name
+          api_part_preview_data_file_path
         )
       )
     )
   end
 
-  def api_part_preview_data_file_name
-    "france_connect_champ_base_component/api_part_preview_data/preview_#{@champ.type_champ}_data.json"
+  def api_part_preview_data_file_path
+    TypesDeChamp::FranceConnectTypeDeChamp.config_for(@champ.type_champ)[:preview_data_file_path]
   end
 
   def justificatif_label

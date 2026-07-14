@@ -46,7 +46,7 @@ class Dossiers::FranceConnectChampComponent < ApplicationComponent
 
   def champ_content
     if fc_data_correct?
-      render FranceConnectChamp::ExternalChampComponent.new(type: champ.type_champ, data: champ.value_json['api_part'], with_header: false)
+      render FranceConnectChamp::ExternalChampComponent.new(type_champ: champ.type_champ, data: champ.value_json['api_part'], with_header: false)
     else
       render partial: "shared/champs/piece_justificative/show", locals: { champ:, profile: }
     end

@@ -3,8 +3,8 @@
 class FranceConnectChamp::ExternalChampComponent < ApplicationComponent
   attr_reader :data
 
-  def initialize(type:, data:, with_header: false, champ: nil, for_preview: false)
-    @type = type
+  def initialize(type_champ:, data:, with_header: false, champ: nil, for_preview: false)
+    @type_champ = type_champ
     @data = data
     @with_header = with_header
     @champ = champ
@@ -12,7 +12,7 @@ class FranceConnectChamp::ExternalChampComponent < ApplicationComponent
   end
 
   def source
-    tag.acronym(t(".external_champ.source.#{@type}"))
+    tag.acronym(t(".external_champ.source.#{@type_champ}"))
   end
 
   def rows
@@ -30,6 +30,6 @@ class FranceConnectChamp::ExternalChampComponent < ApplicationComponent
   private
 
   def rows_builder
-    "FranceConnectChamp::#{@type.camelcase}RowsBuilder".constantize
+    TypesDeChamp::FranceConnectTypeDeChamp.config_for(@type_champ)[:rows_builder]
   end
 end

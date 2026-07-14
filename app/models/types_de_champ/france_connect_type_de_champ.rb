@@ -5,21 +5,29 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
     quotient_familial: {
       resource: 'v3/dss/quotient_familial/identite',
       schema: "app/schemas/quotient-familial.json",
+      preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_quotient_familial_data.json",
+      rows_builder: FranceConnectChamp::QuotientFamilialRowsBuilder,
       columns: Columns::FranceConnectChampColumn::QUOTIENT_FAMILIAL_COLUMNS,
     },
     etudiant_boursier: {
       resource: 'v4/cnous/etudiant_boursier/identite',
       schema: "app/schemas/etudiant-boursier.json",
+      preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_etudiant_boursier_data.json",
+      rows_builder: FranceConnectChamp::EtudiantBoursierRowsBuilder,
       columns: Columns::FranceConnectChampColumn::ETUDIANT_BOURSIER_COLUMNS,
     },
     aah: {
       resource: 'v3/dss/allocation_adulte_handicape/identite',
       schema: "app/schemas/aah.json",
+      preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_aah_data.json",
+      rows_builder: FranceConnectChamp::AahRowsBuilder,
       columns: Columns::FranceConnectChampColumn::AAH_COLUMNS,
     },
     aeeh: {
       resource: 'v3/dss/allocation_enfant_handicape/identite',
       schema: "app/schemas/aeeh.json",
+      preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_aeeh_data.json",
+      rows_builder: FranceConnectChamp::AeehRowsBuilder,
       columns: Columns::FranceConnectChampColumn::AEEH_COLUMNS,
     },
   }.freeze
