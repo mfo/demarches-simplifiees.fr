@@ -1,0 +1,13 @@
+---
+en:
+  external_champ:
+    header: The following data has been securely retrieved from the relevant authorities.
+    waiting_banner: Your data is being retrieved from the relevant authorities.
+    data_retrieval_date: Last data retrieval performed on %{updated_at}
+    button_refresh: Update my information
+    refresh_disabled_hint: Your data can only be updated once every 24 hours.
+    source:
+      quotient_familial: "CAF & MSA Family Quota API"
+      etudiant_boursier: "Scholarship Student Status API"
+      aah: "Adult Disability Allowance (AAH) Status API"
+      aeeh: "Disabled Child Education Allowance (AEEH) Status API"

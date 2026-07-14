@@ -39,9 +39,7 @@ class EditableChamp::FranceConnectChampBaseComponent < EditableChamp::EditableCh
   end
 
   def external_data_component
-    if @champ.quotient_familial?
-      QuotientFamilial::QuotientFamilialComponent.new(qf_data: api_part_data, with_header: true, champ: @champ, for_preview: for_preview?)
-    end
+    FranceConnectChamp::ExternalChampComponent.new(type: @champ.type_champ, data: api_part_data, with_header: true, champ: @champ, for_preview: for_preview?)
   end
 
   private

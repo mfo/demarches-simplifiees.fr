@@ -1,4 +1,4 @@
-= render Dossiers::ExternalChampComponent.new(data:, source:) do |c|
+= render Dossiers::ExternalChampComponent.new(data: rows, source:) do |c|
   - if @with_header
     - c.with_header do
       = render Dsfr::AlertComponent.new(state: :info, with_prefix: false, extra_class_names: 'fr-mb-2w clearfix') do |c|
