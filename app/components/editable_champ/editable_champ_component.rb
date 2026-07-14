@@ -49,18 +49,21 @@ class EditableChamp::EditableChampComponent < ApplicationComponent
   private
 
   def has_label?(champ)
-    types_without_label = [
+    types_without_label = TypeDeChamp::API_PART_FC_TDC + [
       TypeDeChamp.type_champs.fetch(:header_section),
       TypeDeChamp.type_champs.fetch(:explication),
       TypeDeChamp.type_champs.fetch(:repetition),
       TypeDeChamp.type_champs.fetch(:linked_drop_down_list),
-      TypeDeChamp.type_champs.fetch(:quotient_familial),
     ]
     !types_without_label.include?(@champ.type_champ)
   end
 
   def component_class
-    "EditableChamp::#{@champ.type_champ.camelcase}Component".constantize
+    if @champ.france_connect?
+      EditableChamp::FranceConnectChampBaseComponent
+    else
+      "EditableChamp::#{@champ.type_champ.camelcase}Component".constantize
+    end
   end
 
   def html_options

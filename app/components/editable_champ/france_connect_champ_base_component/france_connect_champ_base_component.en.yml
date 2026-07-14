@@ -1,0 +1,26 @@
+---
+en:
+  admin:
+    scenario_question: "Select the scenario you want to view:"
+    data_fetched: User connected with FranceConnect and data retrieved
+    data_not_fetched: User not connected with FranceConnect or date not retrieved
+    preview_simulation:
+      quotient_familial: "Data simulation for 2 parents and 2 children:"
+      etudiant_boursier: todo
+      aah: todo
+      aeeh: todo
+  external_champ:
+    confirmation:
+      question: Is this information correct?
+      true: Yes
+      false: No
+    incorrect_qf_data: We will not use this data to review your folder. You must attach %{justificatif_label}.
+  piece_justificative_champ:
+    data_not_found: We have not been able to find any information about your situation from the authorities. You must attach %{justificatif_label}.
+    data_not_recovered: We were unable to retrieve your data from the relevant authorities. You must attach %{justificatif_label}.
+
+  justificatif_labels:
+    quotient_familial: "proof of family quotient"
+    etudiant_boursier: "proof of student grant status"
+    aah: "proof of AAH beneficiary status"
+    aeeh: "proof of AEEH beneficiary status"

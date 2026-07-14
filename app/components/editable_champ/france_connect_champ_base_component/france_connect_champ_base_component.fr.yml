@@ -1,0 +1,26 @@
+---
+fr:
+  admin:
+    scenario_question: "Sélectionnez le cas de figure que vous souhaitez visualiser :"
+    data_fetched: Usager connecté via FranceConnect et données récupérées
+    data_not_fetched: Usager non connecté via FranceConnect ou données non récupérées
+    preview_simulation:
+      quotient_familial: "Simulation de données pour 2 parents et 2 enfants à charge :"
+      etudiant_boursier: todo
+      aah: todo
+      aeeh: todo
+  external_champ:
+    confirmation:
+      question: Ces informations sont-elles correctes ?
+      true: Oui
+      false: Non
+    incorrect_qf_data: Nous n’utiliserons pas ces données pour examiner votre dossier. Vous devez joindre un %{justificatif_label}.
+  piece_justificative_champ:
+    data_not_found: Nous n’avons pas trouvé d'information sur votre situation auprès de l’administration. Vous devez joindre un %{justificatif_label}.
+    data_not_recovered: Nous n’avons pu récupérer les données de votre situation auprès de l’administration. Vous devez joindre un %{justificatif_label}.
+
+  justificatif_labels:
+    quotient_familial: "justificatif de quotient familial"
+    etudiant_boursier: "justificatif d'étudiant boursier"
+    aah: "justificatif de bénéficiaire de l'AAH"
+    aeeh: "justificatif de bénéficiaire de l'AEEH"
