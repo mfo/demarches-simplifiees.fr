@@ -8,6 +8,7 @@
   - elsif @deleted_dossier.present?
     .fr-alert.fr-alert--info.fr-alert--sm.fr-mt-3w
       = p t('views.instructeurs.search.deleted_dossier', dossier_id: @deleted_dossier.dossier_id, procedure_libelle: @deleted_dossier.procedure.libelle, deleted_at: l(@deleted_dossier.deleted_at))
+      = link_to t('views.instructeurs.search.deleted_dossier_link'), deleted_dossiers_instructeur_procedure_path(@deleted_dossier.procedure)
 
   - elsif @hidden_dossier.present?
     .fr-alert.fr-alert--info.fr-alert--sm.fr-mt-3w

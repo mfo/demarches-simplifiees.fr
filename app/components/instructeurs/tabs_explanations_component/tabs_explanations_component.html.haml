@@ -23,4 +23,9 @@
               - else
                 - %w(a_suivre suivis traites tous expirant archives supprimes).each do |tab|
                   %p
-                    = t(".modal.tabs_#{tab}_html", app_name: APPLICATION_NAME)
+                    - if tab == "supprimes"
+                      - days = Dossier::REMAINING_WEEKS_BEFORE_DELETION * 7
+                      - months = Dossier::CONSERVATION_EXTENSION_DURATION / 1.month
+                      = t(".modal.tabs_#{tab}_html", app_name: APPLICATION_NAME, days_part: t('.modal.tabs_supprimes_days', count: days), months_part: t(".modal.tabs_supprimes_months.#{months}"))
+                    - else
+                      = t(".modal.tabs_#{tab}_html", app_name: APPLICATION_NAME)

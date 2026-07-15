@@ -114,7 +114,7 @@ class BatchOperation < ApplicationRecord
     when BatchOperation.operations.fetch(:follow)
       instructeur.follow(dossier)
     when BatchOperation.operations.fetch(:repousser_expiration)
-      dossier.extend_conservation(1.month)
+      dossier.extend_conservation(Dossier::CONSERVATION_EXTENSION_DURATION)
     when BatchOperation.operations.fetch(:repasser_en_construction)
       dossier.repasser_en_construction!(instructeur: instructeur)
     when BatchOperation.operations.fetch(:unfollow)
@@ -142,7 +142,7 @@ class BatchOperation < ApplicationRecord
       commentaire = CommentaireService.create(instructeur, dossier, { email: dossier.user.email, body:, piece_jointe: })
       dossier.flag_as_pending_response!(commentaire) if mark_as_pending_response && commentaire.errors.empty?
     when BatchOperation.operations.fetch(:restaurer_repousser_expiration)
-      dossier.extend_conservation_and_restore(1.month, instructeur)
+      dossier.extend_conservation_and_restore(Dossier::CONSERVATION_EXTENSION_DURATION, instructeur)
     end
   end
 
