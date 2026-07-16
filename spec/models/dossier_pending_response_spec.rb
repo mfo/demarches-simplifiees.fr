@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-describe DossierPendingResponse do
-  let(:dossier) { create(:dossier, :en_construction) }
-  let(:instructeur) { create(:instructeur) }
-  let(:commentaire) { create(:commentaire, dossier: dossier, instructeur: instructeur) }
+describe DossierPendingResponse, :oaken do
+  before { seed "cases/messagerie" }
+
+  let(:dossier) { dossiers.en_construction }
+  let(:instructeur) { instructeurs.default }
+  let(:commentaire) { commentaires.from_instructeur }
 
   describe '#pending?' do
     context 'when responded_at is nil' do
