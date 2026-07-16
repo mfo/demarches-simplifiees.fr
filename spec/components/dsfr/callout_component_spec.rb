@@ -16,4 +16,10 @@ RSpec.describe Dsfr::CalloutComponent, type: :component do
 
     it { is_expected.to have_css(".fr-callout.fr-callout--brown-caramel") }
   end
+
+  context "with the blue_ecume theme" do
+    let(:theme) { :blue_ecume }
+
+    it { is_expected.to have_css(".fr-callout.fr-callout--blue-ecume") }
+  end
 end
