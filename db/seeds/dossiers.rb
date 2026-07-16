@@ -14,7 +14,9 @@ labels = %w[brouillon en_construction en_instruction accepte refuse].to_h do |st
 
   if state != Dossier.states.fetch(:brouillon)
     dossier.state = state
-    processed_at = DossierWithReferenceDate.assign(dossier)
+    # Deposited dossiers are backdated so that specs freezing time to earlier
+    # today still see the seeded traitements in the past.
+    processed_at = DossierWithReferenceDate.assign(dossier, reference_date: 1.day.ago)
 
     case state
     when Dossier.states.fetch(:en_construction)
