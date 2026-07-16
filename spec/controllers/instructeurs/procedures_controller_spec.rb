@@ -746,8 +746,13 @@ describe Instructeurs::ProceduresController, type: :controller do
         let!(:dossier_2) { create(:dossier, :en_construction, procedure:, groupe_instructeur: gi_2) }
         let(:statut) { 'tous' }
         let(:label_id) { procedure.find_column(label: 'Labels') }
-        let!(:procedure_presentation) do
-          ProcedurePresentation.create!(assign_to: AssignTo.first)
+        # the instructeur belongs to several groupes of the procedure and the
+        # controller resolves its AssignTo with an unordered find_by: create a
+        # presentation on every AssignTo so the resolution order can't matter
+        let!(:procedure_presentations) do
+          AssignTo.joins(:groupe_instructeur)
+            .where(instructeur:, groupe_instructeurs: { procedure_id: procedure.id })
+            .map { ProcedurePresentation.create!(assign_to: it) }
         end
         render_views
 
@@ -756,9 +761,7 @@ describe Instructeurs::ProceduresController, type: :controller do
           DossierLabel.create(dossier_id: dossier.id, label_id: dossier.procedure.labels.second.id)
           DossierLabel.create(dossier_id: dossier_2.id, label_id: dossier.procedure.labels.last.id)
 
-          procedure_presentation.update(displayed_columns: [
-            label_id.id,
-          ])
+          procedure_presentations.each { it.update(displayed_columns: [label_id.id]) }
 
           subject
         end
