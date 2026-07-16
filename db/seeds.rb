@@ -1,28 +1,21 @@
 # frozen_string_literal: true
 
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-
+# Seed data is managed with Oaken (https://github.com/kaspth/oaken) and shared
+# between development and test:
 #
-# Create an initial user who can use all roles
+# - db/seeds/setup.rb        — helpers and defaults (loaded automatically)
+# - db/seeds/users.rb        — usager / administrateur / instructeur personas
+# - db/seeds/procedures.rb   — a published demo procedure with common types de champ
+# - db/seeds/dossiers.rb     — dossiers in various states on the individual procedure
+# - db/seeds/development/    — development-only records (super-admin, fixer instructeur)
+# - db/seeds/cases/          — scenario-specific data (expert avis, messagerie, …)
 #
-
-default_user = "test@exemple.fr"
-default_password = "this is a very complicated password !"
-
-puts "Create test user '#{default_user}'"
-SuperAdmin.create!(email: default_user, password: default_password)
-user = User.create!(
-  email: default_user,
-  password: default_password,
-  confirmed_at: Time.zone.now,
-  email_verified_at: Time.zone.now
-)
-user.create_instructeur!
-user.create_administrateur!
-
-user_fixer = User.create(email: ENV.fetch('DEFAULT_INSTRUCTEUR_EMAIL') { CONTACT_EMAIL },
-  password: Random.srand,
-  confirmed_at: Time.zone.now,
-  email_verified_at: Time.zone.now)
-user_fixer.create_instructeur!
+# In specs, tag an example group with :oaken to load these seeds and access the
+# labeled records (users.usager, procedures.individual, dossiers.en_construction, …).
+# Scenario seeds are loaded per spec with e.g. `before { seed "cases/avis" }`.
+#
+# Seeds assume an empty database and are not re-runnable: specs load them in
+# rolled-back transactions, and a development database is refreshed with
+# `bin/rails db:seed:replant` (truncate + reseed).
+Oaken.seed :users, :procedures, :dossiers
+Oaken.seed :cases if Rails.env.development?
