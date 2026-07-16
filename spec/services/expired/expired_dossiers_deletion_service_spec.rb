@@ -110,6 +110,8 @@ describe Expired::DossiersDeletionService do
     subject { service.process_never_touched_dossiers_brouillon }
 
     context 'with never touched brouillon dossiers' do
+      empty_seeds Dossier
+
       let!(:never_touched_brouillon) { travel_to(20.days.ago) { create(:dossier, procedure: procedure, last_champ_updated_at: nil) } }
       let!(:never_touched_brouillon_2) { travel_to(7.days.ago) { create(:dossier, procedure: procedure, last_champ_updated_at: nil) } }
       let!(:never_touched_en_construction) { travel_to(20.days.ago) { create(:dossier, :en_construction, procedure: procedure, last_champ_updated_at: nil) } }
