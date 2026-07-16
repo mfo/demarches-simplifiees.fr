@@ -5,7 +5,9 @@ require 'system/administrateurs/procedure_spec_helper'
 describe 'As an administrateur I wanna clone a procedure', js: true do
   include ProcedureSpecHelper
 
-  let(:administrateur) { administrateurs(:default_admin) }
+  # procedure counts are asserted per admin: use the seeded blank
+  # administrateur, who is guaranteed to own nothing
+  let(:administrateur) { administrateurs.blank }
 
   before do
     create(:procedure, :with_service, :with_instructeur, :with_zone,
@@ -32,8 +34,10 @@ describe 'As an administrateur I wanna clone a procedure', js: true do
       end
 
       expect(page).to have_content(Procedure.last.libelle)
-      find('.button_to>button').click
-      click_on 'Cloner'
+      # the platform-wide list also shows seeded procedures: scope to our row
+      # (re-found after the detail toggle re-renders it)
+      within(find('tr', text: 'libellé de la procédure')) { find('.button_to>button').click }
+      within(find('tr', text: 'libellé de la procédure')) { click_on 'Cloner' }
       check 'Instructeurs', allow_label_click: true
       click_on 'Cloner la démarche'
       visit admin_procedures_path(statut: "brouillons")
