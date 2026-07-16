@@ -2,7 +2,7 @@
 
 describe Manager::AdministrateursController, type: :controller do
   let(:super_admin) { create(:super_admin) }
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
 
   before do
     sign_in super_admin
@@ -62,6 +62,8 @@ describe Manager::AdministrateursController, type: :controller do
   end
 
   describe '#delete' do
+    # deletion needs an admin who owns nothing, not the shared default one
+    let(:administrateur) { administrateurs.blank }
     subject { delete :delete, params: { id: administrateur.id } }
 
     it 'deletes the admin' do
