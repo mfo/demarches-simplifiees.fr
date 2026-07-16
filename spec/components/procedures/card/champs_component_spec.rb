@@ -2,7 +2,7 @@
 
 describe Procedure::Card::ChampsComponent, type: :component do
   describe 'render' do
-    let(:procedure) { create(:procedure, id: 1, types_de_champ_private:, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
     let(:types_de_champ_private) { [] }
     let(:types_de_champ_public) { [] }
     before { procedure.validate(:publication) }

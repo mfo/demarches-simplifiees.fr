@@ -5,7 +5,6 @@ describe 'instructeur/dossiers/expiration_banner', type: :view do
   let(:duree_conservation_dossiers_dans_ds) { 3 }
   let(:dossier) do
     create(:dossier, state, attributes.merge(
-                              id: 1,
                               state: state,
                               procedure: create(:procedure, duree_conservation_dossiers_dans_ds: duree_conservation_dossiers_dans_ds)
                             ))

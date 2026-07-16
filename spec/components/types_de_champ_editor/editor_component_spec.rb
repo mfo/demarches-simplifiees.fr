@@ -2,7 +2,7 @@
 
 describe TypesDeChampEditor::EditorComponent, type: :component do
   let(:revision) { procedure.draft_revision }
-  let(:procedure) { create(:procedure, id: 1, types_de_champ_private:, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
   let(:types_de_champ_private) { [{ type: :repetition, children: [], libelle: 'private' }] }
   let(:types_de_champ_public) { [{ type: :repetition, children: [], libelle: 'public' }] }
 

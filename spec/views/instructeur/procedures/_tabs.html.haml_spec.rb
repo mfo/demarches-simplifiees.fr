@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'instructeurs/procedures/_tabs', type: :view do
-  let(:procedure) { create(:procedure, id: 1) }
+  let(:procedure) { create(:procedure) }
 
   before { allow(view).to receive(:current_instructeur).and_return(create(:instructeur)) }
 
