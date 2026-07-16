@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Crisp::WebhookProcessor do
-  let!(:user) { users(:default_user) }
+  let!(:user) { users.usager }
   let(:event) { "message:send" }
   let(:email) { user.email }
   let(:session_id) { "session_d57cb2d9-4607-42fe-a6be-000001112222" }

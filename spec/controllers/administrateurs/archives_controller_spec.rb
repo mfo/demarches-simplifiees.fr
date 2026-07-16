@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::ArchivesController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create :procedure, groupe_instructeurs: [groupe_instructeur1, groupe_instructeur2] }
   let(:groupe_instructeur1) { create(:groupe_instructeur) }
   let(:groupe_instructeur2) { create(:groupe_instructeur) }

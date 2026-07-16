@@ -1,3 +1,0 @@
-default_instructeur_admin:
-  user: default_user_admin
-  bypass_email_login_token: true

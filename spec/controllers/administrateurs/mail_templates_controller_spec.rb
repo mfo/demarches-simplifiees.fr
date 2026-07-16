@@ -4,7 +4,7 @@ describe Administrateurs::MailTemplatesController, type: :controller do
   render_views
   let(:procedure) { create :procedure }
 
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
 
   before do
     sign_in(procedure.administrateurs.first.user)

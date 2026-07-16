@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe API::V2::GraphqlController do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:generated_token) { APIToken.generate(admin) }
   let(:api_token) { generated_token.first }
   let(:token) { generated_token.second }

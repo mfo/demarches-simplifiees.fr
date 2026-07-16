@@ -7,7 +7,7 @@ describe WebhookController, type: :controller do
         "event" => "message:send",
         "data" => {
           "from" => "user",
-          "user" => { "user_id" => "default_user@user.com" },
+          "user" => { "user_id" => "usager@exemple.fr" },
         },
       }
     end

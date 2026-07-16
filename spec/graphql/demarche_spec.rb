@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Types::DemarcheType, type: :graphql do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:admin_2) { create(:administrateur) }
   let(:query) { '' }
   let(:context) { { administrateur_id: admin.id, procedure_ids: admin.procedure_ids, write_access: true, remote_ip: '192.168.1.23' } }

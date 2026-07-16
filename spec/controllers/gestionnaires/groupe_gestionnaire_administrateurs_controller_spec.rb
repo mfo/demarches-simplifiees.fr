@@ -53,7 +53,7 @@ describe Gestionnaires::GroupeGestionnaireAdministrateursController, type: :cont
     end
 
     context 'when administrateur has some procedure' do
-      let(:administrateur_with_procedure) { administrateurs(:default_admin) }
+      let(:administrateur_with_procedure) { administrateurs.default }
       let!(:procedure) { create(:procedure_with_dossiers, administrateur: administrateur_with_procedure) }
       before do
         groupe_gestionnaire.administrateurs << administrateur_with_procedure
@@ -67,7 +67,7 @@ describe Gestionnaires::GroupeGestionnaireAdministrateursController, type: :cont
     end
 
     context 'when administrateur is not in the groupe_gestionnaire' do
-      let(:other_administrateur) { administrateurs(:default_admin) }
+      let(:other_administrateur) { administrateurs.default }
 
       it 'does not disclose the unrelated administrateur email' do
         expect { destroy(other_administrateur) }.to raise_error(ActiveRecord::RecordNotFound)

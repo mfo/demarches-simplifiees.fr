@@ -43,7 +43,7 @@ describe APIController, type: :controller do
   end
 
   describe 'ensure_authorized_network and token is not expired' do
-    let(:admin) { administrateurs(:default_admin) }
+    let(:admin) { administrateurs.default }
     let(:token_bearer_couple) { APIToken.generate(admin) }
     let(:token) { token_bearer_couple[0] }
     let(:bearer) { token_bearer_couple[1] }

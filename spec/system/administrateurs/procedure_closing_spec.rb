@@ -5,7 +5,7 @@ require 'system/administrateurs/procedure_spec_helper'
 describe 'Closing a procedure', js: true do
   include ProcedureSpecHelper
 
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let!(:procedure) do
     create(:procedure_with_dossiers,
       :published,

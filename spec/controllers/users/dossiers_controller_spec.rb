@@ -3,7 +3,7 @@
 describe Users::DossiersController, type: :controller do
   include ActiveSupport::Testing::TimeHelpers
 
-  let(:user) { users(:default_user) }
+  let(:user) { users.usager }
 
   describe 'before_actions' do
     it 'are present' do

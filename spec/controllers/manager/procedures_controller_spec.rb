@@ -3,7 +3,7 @@
 describe Manager::ProceduresController, type: :controller do
   let(:super_admin) { create :super_admin }
   let(:administrateur) { create(:administrateur, email: super_admin.email) }
-  let(:autre_administrateur) { administrateurs(:default_admin) }
+  let(:autre_administrateur) { administrateurs.default }
   before { sign_in super_admin }
 
   describe '#whitelist' do

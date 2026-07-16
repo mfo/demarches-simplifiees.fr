@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :administrateurs_procedure do
-    administrateur { Administrateur.find_by(user: { email: "default_admin@admin.com" }) }
+    administrateur { Administrateur.find_by(user: { email: "admin@exemple.fr" }) }
     association :procedure
   end
 end

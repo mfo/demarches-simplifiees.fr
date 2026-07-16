@@ -5,9 +5,9 @@ require "rails_helper"
 RSpec.describe Instructeurs::ProcedureSummaryComponent, type: :component do
   include Rails.application.routes.url_helpers
 
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let(:procedure) { create(:procedure) }
-  let(:instructeur) { instructeurs(:default_instructeur_admin) }
+  let(:instructeur) { instructeurs.admin }
 
   # Default empty counters, using Hash.new(0) for simplicity
   let(:component) { described_class.new(procedure:) }

@@ -86,7 +86,7 @@ module Maintenance
 
             expect(TaskLog.count).to eq(1)
             expect(TaskLog.last.data).to eq({
-              "email" => "default_user@user.com",
+              "email" => "usager@exemple.fr",
               "state" => "lost",
               "blob_key" => blob.key,
               "dossier_id" => dossier.id,

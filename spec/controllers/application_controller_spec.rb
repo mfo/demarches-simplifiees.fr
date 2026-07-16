@@ -74,7 +74,7 @@ describe ApplicationController, type: :controller do
     context 'when someone is logged as a user, instructeur, administrateur and super_admin' do
       let(:current_user) { create(:user) }
       let(:current_instructeur) { create(:instructeur) }
-      let(:current_administrateur) { administrateurs(:default_admin) }
+      let(:current_administrateur) { administrateurs.default }
       let(:current_super_admin) { create(:super_admin) }
 
       it "configure sentry user" do
@@ -300,7 +300,7 @@ describe ApplicationController, type: :controller do
     end
 
     context 'when an administrateur is logged in' do
-      let(:administrateur) { administrateurs(:default_admin) }
+      let(:administrateur) { administrateurs.default }
 
       before do
         allow(@controller).to receive(:current_user).and_return(administrateur.user)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::ContactInformationsController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateurs: [admin]) }
   let(:groupe_instructeur) { procedure.defaut_groupe_instructeur }
 

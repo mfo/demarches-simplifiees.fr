@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::DossierSubmittedMessagesController, type: :controller do
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let(:tiptap_body) { { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'hello' }] }] }.to_json }
 
   before { sign_in(administrateur.user) }

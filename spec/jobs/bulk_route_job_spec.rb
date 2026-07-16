@@ -3,7 +3,7 @@
 describe BulkRouteJob, type: :job do
   include Logic
   describe 'perform' do
-    let(:admin) { administrateurs(:default_admin) }
+    let(:admin) { administrateurs.default }
     let!(:procedure) do
       create(:procedure,
              types_de_champ_public: [

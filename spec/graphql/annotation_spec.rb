@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_private:, administrateurs: [admin]) }
   let(:types_de_champ_private) do
     [

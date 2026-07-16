@@ -99,7 +99,7 @@ describe Users::ActivateController, type: :controller do
     end
 
     context 'when the token is ok and user is admin' do
-      let(:admin) { administrateurs(:default_admin) }
+      let(:admin) { administrateurs.default }
       let!(:user) { admin.user }
 
       it 'trusts the device because admin has an instructeur profile' do

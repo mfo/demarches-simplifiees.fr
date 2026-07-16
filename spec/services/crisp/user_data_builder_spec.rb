@@ -3,13 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe Crisp::UserDataBuilder do
-  let(:user) { users(:default_user) }
+  let(:user) { users.usager }
   let(:builder) { described_class.new(user) }
 
   subject(:build) { builder.build_data }
 
   describe '#build_data' do
     context 'without instructeur' do
+      before { user.update!(email_verified_at: nil) }
+
       it 'retourne les liens de base' do
         data = build
 

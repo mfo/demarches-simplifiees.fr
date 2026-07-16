@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'the playground', js: true do
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let!(:procedure) { create(:procedure, administrateurs: [administrateur]) }
   before { sign_in administrateur.user }
 
