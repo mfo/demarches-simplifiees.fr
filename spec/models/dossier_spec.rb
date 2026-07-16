@@ -1772,7 +1772,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#can_repasser_en_construction?' do
-    let(:dossier) { create(:dossier, :en_instruction) }
+    let(:dossier) { dossiers.en_instruction }
     it { expect(dossier.can_repasser_en_construction?).to be_truthy }
 
     context 'when procedure is sva' do
@@ -1783,7 +1783,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#can_passer_en_instruction?' do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
 
     it { expect(dossier.can_passer_en_instruction?).to be_truthy }
 
@@ -1812,7 +1812,11 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#can_passer_automatiquement_en_instruction?' do
-    let(:dossier) { create(:dossier, :en_construction, declarative_triggered_at: declarative_triggered_at) }
+    let(:dossier) do
+      dossiers.en_construction.tap do |d|
+        d.update_columns(declarative_triggered_at:) if declarative_triggered_at
+      end
+    end
     let(:declarative_triggered_at) { nil }
 
     it { expect(dossier.can_passer_automatiquement_en_instruction?).to be_falsey }
@@ -1873,7 +1877,11 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#can_accepter_automatiquement?' do
-    let(:dossier) { create(:dossier, state: initial_state, declarative_triggered_at: declarative_triggered_at) }
+    let(:dossier) do
+      dossiers.send(initial_state).tap do |d|
+        d.update_columns(declarative_triggered_at:) if declarative_triggered_at
+      end
+    end
     let(:initial_state) { :en_construction }
     let(:declarative_triggered_at) { nil }
 
@@ -1911,7 +1919,7 @@ describe Dossier, :oaken, type: :model do
       end
 
       context 'when dossier has pending correction' do
-        let(:dossier) { create(:dossier, :en_construction) }
+        let(:dossier) { dossiers.en_construction }
         let!(:dossier_correction) { create(:dossier_correction, dossier:) }
 
         it { expect(dossier.can_accepter_automatiquement?).to be_falsey }
@@ -1932,7 +1940,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#can_refuser_automatiquement?' do
-    let(:dossier) { create(:dossier, state: initial_state) }
+    let(:dossier) { dossiers.send(initial_state) }
     let(:initial_state) { :en_instruction }
 
     it { expect(dossier.can_refuser_automatiquement?).to be_falsey }
@@ -1964,7 +1972,7 @@ describe Dossier, :oaken, type: :model do
         end
 
         context 'when dossier has pending correction' do
-          let(:dossier) { create(:dossier, :en_construction) }
+          let(:dossier) { dossiers.en_construction }
           let!(:dossier_correction) { create(:dossier_correction, dossier:) }
 
           it { expect(dossier.can_refuser_automatiquement?).to be_falsey }
@@ -2395,7 +2403,7 @@ describe Dossier, :oaken, type: :model do
     let(:etablissement_geo_adresse_lon) { "-74.0059731" }
 
     let(:result) { { lat: lat, lon: lon, zoom: zoom } }
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     it 'should geolocate' do
       expect(dossier.geo_position).to eq(result)
@@ -2462,15 +2470,13 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe 'dossier_operation_log after dossier deletion' do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
     let(:dossier_operation_log) { create(:dossier_operation_log, dossier: dossier) }
 
     it 'should nullify dossier link' do
       expect(dossier_operation_log.dossier).to eq(dossier)
-      expect(DossierOperationLog.count).to eq(1)
-      dossier.destroy
+      expect { dossier.destroy }.not_to change { DossierOperationLog.count }
       expect(dossier_operation_log.reload.dossier).to be_nil
-      expect(DossierOperationLog.count).to eq(1)
     end
   end
 
@@ -2480,22 +2486,23 @@ describe Dossier, :oaken, type: :model do
     let(:reason) { DeletedDossier.reasons.fetch(:user_request) }
 
     before do
-      create(:dossier, user: user)
-      create(:dossier, :en_construction, user: user)
-      create(:dossier, user: user).hide_and_keep_track!(user, reason)
-      create(:dossier, :en_construction, user: user).hide_and_keep_track!(user, reason)
+      create(:dossier, user:, procedure: procedures.individual)
+      create(:dossier, :en_construction, user:, procedure: procedures.individual)
+      create(:dossier, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
+      create(:dossier, :en_construction, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
 
       travel_to(2.months.ago) do
-        create(:dossier, user: user).hide_and_keep_track!(user, reason)
-        create(:dossier, :en_construction, user: user).hide_and_keep_track!(user, reason)
+        create(:dossier, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
+        create(:dossier, :en_construction, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
 
-        create(:dossier, user: user).procedure.discard_and_keep_track!(administrateur)
+        # These two procedures get discarded, so they can't share procedures.individual
+        create(:dossier, user:).procedure.discard_and_keep_track!(administrateur)
         create(:dossier, :en_construction, user: user).procedure.discard_and_keep_track!(administrateur)
       end
 
       travel_to(2.weeks.ago) do
-        create(:dossier, user: user).hide_and_keep_track!(user, reason)
-        create(:dossier, :en_construction, user: user).hide_and_keep_track!(user, reason)
+        create(:dossier, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
+        create(:dossier, :en_construction, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
       end
     end
 
@@ -2734,7 +2741,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#log_api_entreprise_job_exception' do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     context "add execption to the log" do
       before do
@@ -2772,20 +2779,20 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe "#spreadsheet_columns" do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     context 'user france connected' do
-      let(:dossier) { build(:dossier, user: build(:user, france_connect_informations: [build(:france_connect_information)])) }
+      let(:dossier) { build(:dossier, user: build(:user, france_connect_informations: [build(:france_connect_information)]), procedure: procedures.individual) }
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["FranceConnect ?", true]) }
     end
 
     context 'user not france connected' do
-      let(:dossier) { build(:dossier) }
+      let(:dossier) { build(:dossier, procedure: procedures.individual) }
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["FranceConnect ?", false]) }
     end
 
     context 'for_individual' do
-      let(:dossier) { create(:dossier, procedure: create(:procedure, :for_individual)) }
+      let(:dossier) { dossiers.brouillon }
       it do
         expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Dépôt pour un tiers", :for_tiers])
         expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(['Nom du mandataire', :mandataire_last_name])
@@ -2905,7 +2912,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe 'BatchOperation' do
-    subject { build(:dossier) }
+    subject { build(:dossier, procedure: procedures.individual) }
     it { is_expected.to belong_to(:batch_operation).optional }
   end
 
@@ -2914,13 +2921,13 @@ describe Dossier, :oaken, type: :model do
 
     context 'when the dossier is prefilled' do
       context 'when the dossier has a user' do
-        let(:dossier) { build(:dossier, :prefilled) }
+        let(:dossier) { build(:dossier, :prefilled, procedure: procedures.individual) }
 
         it { expect(orphan).to be_falsey }
       end
 
       context 'when the dossier does not have a user' do
-        let(:dossier) { build(:dossier, :prefilled, user: nil) }
+        let(:dossier) { build(:dossier, :prefilled, user: nil, procedure: procedures.individual) }
 
         it { expect(orphan).to be_truthy }
       end
@@ -2928,13 +2935,13 @@ describe Dossier, :oaken, type: :model do
 
     context 'when the dossier is not prefilled' do
       context 'when the dossier has a user' do
-        let(:dossier) { build(:dossier) }
+        let(:dossier) { build(:dossier, procedure: procedures.individual) }
 
         it { expect(orphan).to be_falsey }
       end
 
       context 'when the dossier does not have a user' do
-        let(:dossier) { build(:dossier, user: nil) }
+        let(:dossier) { build(:dossier, user: nil, procedure: procedures.individual) }
 
         it { expect(orphan).to be_falsey }
       end
@@ -2945,28 +2952,28 @@ describe Dossier, :oaken, type: :model do
     subject(:owned_by) { dossier.owned_by?(user) }
 
     context 'when the dossier is orphan' do
-      let(:dossier) { build(:dossier, user: nil) }
+      let(:dossier) { build(:dossier, user: nil, procedure: procedures.individual) }
       let(:user) { build(:user) }
 
       it { expect(owned_by).to be_falsey }
     end
 
     context 'when the given user is nil' do
-      let(:dossier) { build(:dossier) }
+      let(:dossier) { build(:dossier, procedure: procedures.individual) }
       let(:user) { nil }
 
       it { expect(owned_by).to be_falsey }
     end
 
     context 'when the dossier has a user and it is not the given user' do
-      let(:dossier) { build(:dossier) }
+      let(:dossier) { build(:dossier, procedure: procedures.individual) }
       let(:user) { build(:user) }
 
       it { expect(owned_by).to be_falsey }
     end
 
     context 'when the dossier has a user and it is the given user' do
-      let(:dossier) { build(:dossier, user: user) }
+      let(:dossier) { build(:dossier, user:, procedure: procedures.individual) }
       let(:user) { build(:user) }
 
       it { expect(owned_by).to be_truthy }
@@ -2983,7 +2990,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#sva_svr_decision_in_days' do
-    let(:dossier) { create(:dossier, :en_instruction, sva_svr_decision_on: 10.days.from_now) }
+    let(:dossier) { dossiers.en_instruction.tap { it.update_columns(sva_svr_decision_on: 10.days.from_now) } }
 
     it { expect(dossier.sva_svr_decision_in_days).to eq 10 }
   end
