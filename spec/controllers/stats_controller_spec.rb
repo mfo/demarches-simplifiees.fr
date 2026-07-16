@@ -71,6 +71,8 @@ describe StatsController, type: :controller do
   end
 
   describe '#cumulative_hash' do
+    empty_seeds Dossier, Procedure
+
     before do
       travel_to(Time.zone.local(2016, 10, 2))
       create(:procedure, created_at: 55.days.ago, updated_at: 43.days.ago)
