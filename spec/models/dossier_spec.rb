@@ -3,6 +3,8 @@
 describe Dossier, :oaken, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
+  before_all { seed "cases/entreprise" }
+
   let(:user) { create(:user) }
 
   describe 'has_many preloaded_commentaires' do
@@ -26,8 +28,8 @@ describe Dossier, :oaken, type: :model do
     end
 
     describe '.without_followers' do
-      let!(:dossier_with_follower) { create(:dossier, :followed, :with_entreprise, user: user) }
-      let!(:dossier_without_follower) { create(:dossier, :with_entreprise, user: user) }
+      let!(:dossier_with_follower) { create(:dossier, :followed, :with_entreprise, user:, procedure: procedures.entreprise) }
+      let!(:dossier_without_follower) { create(:dossier, :with_entreprise, user:, procedure: procedures.entreprise) }
 
       it do
         expect(Dossier.without_followers).to include(dossier_without_follower)
@@ -924,12 +926,12 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '.ordered_for_export' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.entreprise }
     let!(:dossier2) { create(:dossier, :with_entreprise, procedure: procedure, state: Dossier.states.fetch(:en_construction), depose_at: Time.zone.parse('03/01/2010')) }
     let!(:dossier3) { create(:dossier, :with_entreprise, procedure: procedure, state: Dossier.states.fetch(:en_instruction), depose_at: Time.zone.parse('01/01/2010')) }
     let!(:dossier4) { create(:dossier, :with_entreprise, procedure: procedure, state: Dossier.states.fetch(:en_instruction), archived: true, depose_at: Time.zone.parse('02/01/2010')) }
 
-    subject { procedure.dossiers.ordered_for_export }
+    subject { procedure.dossiers.where(id: [dossier2, dossier3, dossier4]).ordered_for_export }
 
     it { is_expected.to match([dossier3, dossier4, dossier2]) }
   end
@@ -1249,7 +1251,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context 'when there is entreprise' do
-      let(:dossier) { create(:dossier, :with_entreprise, procedure: procedure) }
+      let(:dossier) { dossiers.avec_siret }
 
       it { is_expected.to eq(dossier.etablissement.entreprise_raison_sociale) }
     end
@@ -1998,8 +2000,8 @@ describe Dossier, :oaken, type: :model do
     let(:motivation) { 'motivation' }
 
     context "when dossier is en_instruction" do
-      let(:dossier_incomplete) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: true) }
-      let(:dossier_ok) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: false) }
+      let(:dossier_incomplete) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: true, procedure: procedures.entreprise) }
+      let(:dossier_ok) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: false, procedure: procedures.entreprise) }
 
       it "can't accepter" do
         expect(dossier_incomplete.may_accepter?(instructeur:, motivation:)).to be_falsey
@@ -2018,8 +2020,8 @@ describe Dossier, :oaken, type: :model do
     end
 
     context "when dossier is en_construction" do
-      let(:dossier_incomplete) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: true) }
-      let(:dossier_ok) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: false) }
+      let(:dossier_incomplete) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: true, procedure: procedures.entreprise) }
+      let(:dossier_ok) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: false, procedure: procedures.entreprise) }
 
       it "can't accepter_automatiquement" do
         expect(dossier_incomplete.may_accepter_automatiquement?(instructeur:, motivation:)).to be_falsey
@@ -2420,7 +2422,7 @@ describe Dossier, :oaken, type: :model do
         )
       end
 
-      let(:dossier) { create(:dossier, :with_entreprise) }
+      let(:dossier) { dossiers.avec_siret }
       let(:result) { { lat: etablissement_geo_adresse_lat, lon: etablissement_geo_adresse_lon, zoom: zoom } }
 
       it 'should geolocate' do
