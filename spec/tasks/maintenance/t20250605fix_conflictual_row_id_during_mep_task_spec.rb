@@ -11,14 +11,14 @@ module Maintenance
       let(:type_de_champ) { dossier.revision.types_de_champ_public.first }
 
       before {
-        dossier.champ_data.create(**type_de_champ.params_for_champ.merge(row_id: Champ::NULL_ROW_ID))
+        dossier.champ_data.create(**type_de_champ.params_for_champ.merge(row_id: 'N'))
       }
 
       it { expect { subject }.not_to change { dossier.reload.updated_at } }
       it { expect { subject }.not_to change { dossier.champ_data.order(id: :desc).first.id } }
       it { expect { subject }.to change { dossier.champ_data.order(:id).first.id } }
       it { expect { subject }.to change { dossier.champ_data.count }.by(-1) }
-      it { expect { subject }.to change { dossier.champ_data.where(row_id: Champ::NULL_ROW_ID).count }.from(1).to(0) }
+      it { expect { subject }.to change { dossier.champ_data.where(row_id: 'N').count }.from(1).to(0) }
     end
   end
 end

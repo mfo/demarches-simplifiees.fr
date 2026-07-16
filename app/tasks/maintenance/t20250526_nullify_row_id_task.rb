@@ -17,7 +17,7 @@ module Maintenance
 
     def process(dossier)
       with_nil_row_id, with_null_row_id = dossier.champ_data
-        .where(row_id: [nil, Champ::NULL_ROW_ID])
+        .where(row_id: [nil, 'N'])
         .pluck(:row_id, :stream, :stable_id, :id, :updated_at)
         .partition { _1.first == nil }
         .map { _1.index_by { |(_, stream, stable_id)| [stream, stable_id] } }
