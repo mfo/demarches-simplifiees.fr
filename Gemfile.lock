@@ -223,7 +223,7 @@ GEM
     crack (1.0.0)
       bigdecimal
       rexml
-    crass (1.0.6)
+    crass (1.0.7)
     css_parser (3.0.0)
       addressable
       ssrf_filter (~> 1.5)
@@ -392,7 +392,7 @@ GEM
       reline
     htmlentities (4.3.4)
     http_accept_language (2.1.1)
-    i18n (1.14.8)
+    i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     i18n-tasks (1.1.2)
       activesupport (>= 4.0.2)
@@ -491,7 +491,7 @@ GEM
       railties (>= 4)
       request_store (~> 1.0)
     logstash-event (1.2.02)
-    loofah (2.25.1)
+    loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mail (2.8.1)
@@ -946,7 +946,7 @@ GEM
     vcr (6.4.0)
     vernier (1.10.1)
     version_gem (1.1.9)
-    view_component (4.10.0)
+    view_component (4.12.0)
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
       concurrent-ruby (~> 1)
