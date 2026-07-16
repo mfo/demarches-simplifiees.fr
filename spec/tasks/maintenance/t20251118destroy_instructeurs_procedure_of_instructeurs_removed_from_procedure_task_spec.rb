@@ -13,6 +13,8 @@ module Maintenance
     let!(:groupe_instructeur_2_1) { create(:groupe_instructeur, procedure: procedure_2, instructeurs: [instructeur_2]) }
 
     describe "#collection" do
+      empty_seeds Dossier, Procedure
+
       subject(:collection) { described_class.collection }
 
       it "returns instructeur_ids group by procedure_id" do
