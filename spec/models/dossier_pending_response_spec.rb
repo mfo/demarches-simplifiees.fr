@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe DossierPendingResponse, :oaken do
-  before { seed "cases/messagerie" }
+  before_all { seed "cases/messagerie" }
 
   let(:dossier) { dossiers.en_construction }
   let(:instructeur) { instructeurs.default }
