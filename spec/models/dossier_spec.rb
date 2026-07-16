@@ -20,33 +20,31 @@ describe Dossier, :oaken, type: :model do
 
   describe 'scopes' do
     describe '.default_scope' do
+      empty_seeds Dossier
+
       let!(:dossier) { create(:dossier) }
 
       subject { Dossier.all }
 
-      it { is_expected.to include(dossier) }
+      it { is_expected.to match_array([dossier]) }
     end
 
     describe '.without_followers' do
+      empty_seeds Dossier
+
       let!(:dossier_with_follower) { create(:dossier, :followed, :with_entreprise, user:, procedure: procedures.entreprise) }
       let!(:dossier_without_follower) { create(:dossier, :with_entreprise, user:, procedure: procedures.entreprise) }
 
-      it do
-        expect(Dossier.without_followers).to include(dossier_without_follower)
-        expect(Dossier.without_followers).not_to include(dossier_with_follower)
-      end
+      it { expect(Dossier.without_followers.to_a).to eq([dossier_without_follower]) }
     end
 
     describe 'brouillons_recently_updated' do
+      empty_seeds Dossier
+
       let!(:dossier_en_brouillon) { create(:dossier) }
       let!(:dossier_en_brouillon_2) { create(:dossier) }
 
-      it 'returns brouillons most recently updated first' do
-        recently_updated = Dossier.brouillons_recently_updated.to_a
-
-        expect(recently_updated).to include(dossier_en_brouillon_2, dossier_en_brouillon)
-        expect(recently_updated.index(dossier_en_brouillon_2)).to be < recently_updated.index(dossier_en_brouillon)
-      end
+      it { expect(Dossier.brouillons_recently_updated).to eq([dossier_en_brouillon_2, dossier_en_brouillon]) }
     end
 
     describe 'by_statut' do
@@ -97,12 +95,15 @@ describe Dossier, :oaken, type: :model do
     end
 
     describe '.brouillon_expired_after_notice_grace' do
+      empty_seeds Dossier
+
       let(:interval_between_first_and_second_expiration) { Dossier::MONTHS_AFTER_EXPIRATION.months + Dossier::DAYS_AFTER_EXPIRATION.days }
 
       let!(:dossier_brouillon_expired_and_noticed_long_time_ago) do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :brouillon,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: 1.day.ago)
         end
       end
@@ -110,7 +111,8 @@ describe Dossier, :oaken, type: :model do
       let!(:dossier_brouillon_not_expired) do
         travel_to(1.month.ago) do
           create(:dossier,
-            state: :brouillon)
+            state: :brouillon,
+            procedure: procedures.individual)
         end
       end
 
@@ -118,6 +120,7 @@ describe Dossier, :oaken, type: :model do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :brouillon,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: (4.months + 20.days).from_now)
         end
       end
@@ -125,7 +128,8 @@ describe Dossier, :oaken, type: :model do
       let!(:dossier_brouillon_expired_but_not_noticed_yet) do
         travel_to(5.months.ago) do
           create(:dossier,
-            state: :brouillon)
+            state: :brouillon,
+            procedure: procedures.individual)
         end
       end
 
@@ -133,6 +137,7 @@ describe Dossier, :oaken, type: :model do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :en_instruction,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: 1.day.ago)
         end
       end
@@ -141,27 +146,23 @@ describe Dossier, :oaken, type: :model do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :brouillon,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: 1.day.ago,
             hidden_by_user_at: Time.zone.now)
         end
       end
 
       it 'returns only visible brouillon dossiers whose expiration notice period has passed' do
-        expect(Dossier.brouillon_expired_after_notice_grace).to include(dossier_brouillon_expired_and_noticed_long_time_ago)
-        expect(Dossier.brouillon_expired_after_notice_grace).not_to include(
-          dossier_brouillon_not_expired,
-          dossier_brouillon_expired_but_noticed_recently,
-          dossier_brouillon_expired_but_not_noticed_yet,
-          dossier_instruction_expired,
-          dossier_hidden
-        )
+        expect(Dossier.brouillon_expired_after_notice_grace).to contain_exactly(dossier_brouillon_expired_and_noticed_long_time_ago)
       end
     end
 
     describe '.brouillon_expired_without_notice' do
-      let(:published_procedure) { create(:procedure, :published) }
-      let(:closed_procedure)    { create(:procedure, :closed) }
-      let(:draft_procedure)     { create(:procedure, :draft) }
+      empty_seeds Dossier
+
+      let(:published_procedure) { procedures.individual }
+      let_it_be(:closed_procedure) { create(:procedure, :closed) }
+      let_it_be(:draft_procedure)  { create(:procedure, :draft) }
 
       # targets: expired + structurally never notified
       let!(:expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
@@ -177,9 +178,7 @@ describe Dossier, :oaken, type: :model do
 
       it 'returns only expired brouillons structurally outside the notice path' do
         expect(Dossier.brouillon_expired_without_notice)
-          .to include(expired_on_closed, expired_on_draft, expired_preview)
-        expect(Dossier.brouillon_expired_without_notice)
-          .not_to include(expired_on_published, not_expired_on_closed, hidden_on_closed, en_construction_on_closed)
+          .to contain_exactly(expired_on_closed, expired_on_draft, expired_preview)
       end
     end
   end
@@ -402,7 +401,7 @@ describe Dossier, :oaken, type: :model do
       end
 
       context 'when the dossier belongs to a procedure for individuals' do
-        let(:procedure) { create(:procedure, for_individual: true) }
+        let(:procedure) { procedures.individual }
 
         it 'creates a default individual' do
           subject
@@ -435,7 +434,7 @@ describe Dossier, :oaken, type: :model do
       end
 
       context 'when the dossier belongs to a procedure for moral personas' do
-        let(:procedure) { create(:procedure, for_individual: false) }
+        let(:procedure) { procedures.entreprise }
 
         it 'doesn’t create a individual' do
           subject
@@ -445,7 +444,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     describe '#prefill_champs_from_france_connect' do
-      let(:procedure) { create(:procedure, :for_individual, types_de_champ_public: [{ type: :date }]) }
+      let_it_be(:procedure) { create(:procedure, :for_individual, types_de_champ_public: [{ type: :date }]) }
       let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
       let(:dossier) { create(:dossier, procedure:, user:) }
       let(:tdc) { procedure.active_revision.root_types_de_champ_public.first }
@@ -515,9 +514,8 @@ describe Dossier, :oaken, type: :model do
     end
 
     describe '#update_for_tiers' do
-      let(:procedure) { create(:procedure, :for_individual) }
       let(:individual) { build(:individual, nom: 'Dupont', prenom: 'Jean', gender: Individual::GENDER_MALE, birthdate: Date.new(1980, 1, 1)) }
-      let(:dossier) { create(:dossier, procedure:, user:, individual:) }
+      let(:dossier) { create(:dossier, procedure: procedures.individual, user:, individual:) }
 
       context 'when user is connected via FranceConnect with one identity' do
         let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
@@ -888,13 +886,13 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '.with_unread_messages_for_user' do
-    let(:dossier_with_unread_instructeur) { create(:dossier, :en_construction, procedure: procedures.individual) }
-    let(:dossier_with_read_instructeur) { create(:dossier, :en_construction, procedure: procedures.individual) }
-    let(:dossier_with_unread_expert) { create(:dossier, :en_construction, procedure: procedures.individual) }
-    let(:dossier_with_only_usager_message) { create(:dossier, :en_construction, procedure: procedures.individual) }
-    let(:dossier_with_discarded_unread) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_unread_instructeur) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_read_instructeur) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_unread_expert) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_only_usager_message) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_discarded_unread) { create(:dossier, :en_construction, procedure: procedures.individual) }
 
-    before do
+    before_all do
       create(:commentaire, dossier: dossier_with_unread_instructeur, instructeur: create(:instructeur), seen_by_recipient_at: nil)
       create(:commentaire, dossier: dossier_with_read_instructeur, instructeur: create(:instructeur), seen_by_recipient_at: 1.day.ago)
       create(:commentaire, dossier: dossier_with_unread_expert, expert: create(:expert), seen_by_recipient_at: nil)
@@ -1112,22 +1110,30 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe "#unspecified_attestation_champs" do
-    let(:procedure) { create(:procedure, attestation_acceptation_template:, types_de_champ_public:, types_de_champ_private:) }
-    let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+    def types_de_champ_public
+      [
+        { libelle: "specified champ-in-title" },
+        { libelle: "unspecified champ-in-title" },
+        { libelle: "specified champ-in-body" },
+        { libelle: "unspecified champ-in-body" },
+      ]
+    end
 
-    let(:types_de_champ_public) { [tdc_1, tdc_2, tdc_3, tdc_4] }
-    let(:types_de_champ_private) { [tdc_5, tdc_6, tdc_7, tdc_8] }
+    def types_de_champ_private
+      [
+        { libelle: "specified annotation privée-in-title" },
+        { libelle: "unspecified annotation privée-in-title" },
+        { libelle: "specified annotation privée-in-body" },
+        { libelle: "unspecified annotation privée-in-body" },
+      ]
+    end
 
-    let(:tdc_1) { { libelle: "specified champ-in-title" } }
-    let(:tdc_2) { { libelle: "unspecified champ-in-title" } }
-    let(:tdc_3) { { libelle: "specified champ-in-body" } }
-    let(:tdc_4) { { libelle: "unspecified champ-in-body" } }
-    let(:tdc_5) { { libelle: "specified annotation privée-in-title" } }
-    let(:tdc_6) { { libelle: "unspecified annotation privée-in-title" } }
-    let(:tdc_7) { { libelle: "specified annotation privée-in-body" } }
-    let(:tdc_8) { { libelle: "unspecified annotation privée-in-body" } }
+    let_it_be(:procedure, reload: true) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
+    let_it_be(:dossier, reload: true) { create(:dossier, :en_instruction, procedure:) }
 
     before do
+      procedure.attestation_acceptation_template = attestation_acceptation_template if attestation_acceptation_template
+
       (dossier.root_champs_public + dossier.root_champs_private)
         .filter { |c| c.libelle.match?(/^specified/) }
         .each { |c| c.update_attribute(:value, "specified") }
@@ -1586,7 +1592,7 @@ describe Dossier, :oaken, type: :model do
   describe '#accepter_automatiquement!' do
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let!(:now) { Time.zone.parse('01/01/2100') }
-    let(:procedure) { create(:procedure, :for_individual, :published) }
+    let(:procedure) { procedures.individual }
     let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
     before do
@@ -1621,7 +1627,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context 'as sva procedure' do
-      let(:procedure) { create(:procedure, :for_individual, :published, :sva) }
+      let_it_be(:procedure) { create(:procedure, :for_individual, :published, :sva) }
       let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, sva_svr_decision_on: Date.current, en_instruction_at: DateTime.new(2021, 5, 1, 12)) }
       let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
@@ -1644,7 +1650,7 @@ describe Dossier, :oaken, type: :model do
   describe '#refuser_automatiquement' do
     context 'as svr procedure' do
       let(:last_operation) { dossier.dossier_operation_logs.last }
-      let(:procedure) { create(:procedure, :for_individual, :published, :svr) }
+      let_it_be(:procedure) { create(:procedure, :for_individual, :published, :svr) }
       let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, sva_svr_decision_on: Date.current, en_instruction_at: DateTime.new(2021, 5, 1, 12)) }
 
       before {
@@ -1722,7 +1728,7 @@ describe Dossier, :oaken, type: :model do
     let(:instructeur) { create(:instructeur) }
 
     context "via procedure declarative en instruction" do
-      let(:dossier) { create(:dossier, :en_construction, :with_declarative_en_instruction) }
+      let(:dossier) { create(:dossier, :en_construction, :with_declarative_en_instruction, procedure: procedures.individual) }
 
       subject do
         dossier.process_declarative!
@@ -1742,7 +1748,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context "via procedure sva" do
-      let(:procedure) { create(:procedure, :sva, :published, :for_individual) }
+      let_it_be(:procedure) { create(:procedure, :sva, :published, :for_individual) }
       let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:, sva_svr_decision_on: 10.days.from_now) }
       let(:sva_svr_decision_on) { SVASVRDecisionDateCalculatorService.new(dossier, procedure).decision_date }
 
@@ -2047,10 +2053,9 @@ describe Dossier, :oaken, type: :model do
 
   describe "can't transition to terminer when annotations privees are not valid" do
     let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, types_de_champ_private:) }
+    let_it_be(:procedure) { create(:procedure, types_de_champ_private: [{ type: :text, mandatory: true }]) }
     let(:dossier_incomplete) { create(:dossier, :en_instruction, procedure:) }
     let(:dossier_ok) { create(:dossier, :en_instruction, :with_populated_annotations, procedure:) }
-    let(:types_de_champ_private) { [{ type: :text, mandatory: true }] }
 
     context "when dossier is en_instruction" do
       it "can't accepter" do
@@ -2483,6 +2488,8 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe 'brouillon_expired and en_construction_expired' do
+    empty_seeds Dossier
+
     let(:administrateur) { administrateurs(:default_admin) }
     let(:user) { administrateur.user }
     let(:reason) { DeletedDossier.reasons.fetch(:user_request) }
@@ -2509,8 +2516,8 @@ describe Dossier, :oaken, type: :model do
     end
 
     it do
-      expect(Dossier.en_brouillon_expired_to_delete.where(user:).count).to eq(2)
-      expect(Dossier.en_construction_expired_to_delete.where(user:).count).to eq(2)
+      expect(Dossier.en_brouillon_expired_to_delete.count).to eq(2)
+      expect(Dossier.en_construction_expired_to_delete.count).to eq(2)
     end
   end
 
@@ -2564,6 +2571,8 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe "with_notifiable_procedure" do
+    empty_seeds Dossier
+
     let_it_be(:test_procedure) { create(:procedure) }
     let_it_be(:published_procedure) { create(:procedure, :published) }
     let_it_be(:closed_procedure) { create(:procedure, :closed) }
@@ -2578,16 +2587,14 @@ describe Dossier, :oaken, type: :model do
     let(:dossiers) { Dossier.with_notifiable_procedure(notify_on_closed: notify_on_closed) }
 
     it 'should find dossiers with notifiable procedure' do
-      expect(dossiers).to include(dossier_on_published_procedure, dossier_on_unpublished_procedure)
-      expect(dossiers).not_to include(dossier_on_test_procedure, dossier_on_closed_procedure)
+      expect(dossiers).to match_array([dossier_on_published_procedure, dossier_on_unpublished_procedure])
     end
 
     context 'when notify on closed is true' do
       let(:notify_on_closed) { true }
 
       it 'should find dossiers with notifiable procedure' do
-        expect(dossiers).to include(dossier_on_published_procedure, dossier_on_closed_procedure, dossier_on_unpublished_procedure)
-        expect(dossiers).not_to include(dossier_on_test_procedure)
+        expect(dossiers).to match_array([dossier_on_published_procedure, dossier_on_closed_procedure, dossier_on_unpublished_procedure])
       end
     end
   end
@@ -2874,10 +2881,10 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#archivable_by_month' do
-    let(:procedure) { create(:procedure, :published, groupe_instructeurs: [groupe_instructeurs]) }
-    let(:groupe_instructeurs) { create(:groupe_instructeur) }
+    let_it_be(:groupe_instructeurs) { create(:groupe_instructeur) }
+    let_it_be(:procedure) { create(:procedure, :published, groupe_instructeurs: [groupe_instructeurs]) }
 
-    before do
+    before_all do
       create_dossier_for_month(procedure, 2021, 3)
       create_dossier_for_month(procedure, 2021, 3)
       create_archived_dossier_for_month(procedure, 2021, 3)
