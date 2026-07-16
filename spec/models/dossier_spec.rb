@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Dossier, type: :model do
+describe Dossier, :oaken, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
   let(:user) { create(:user) }
@@ -22,21 +22,29 @@ describe Dossier, type: :model do
 
       subject { Dossier.all }
 
-      it { is_expected.to match_array([dossier]) }
+      it { is_expected.to include(dossier) }
     end
 
     describe '.without_followers' do
       let!(:dossier_with_follower) { create(:dossier, :followed, :with_entreprise, user: user) }
       let!(:dossier_without_follower) { create(:dossier, :with_entreprise, user: user) }
 
-      it { expect(Dossier.without_followers.to_a).to eq([dossier_without_follower]) }
+      it do
+        expect(Dossier.without_followers).to include(dossier_without_follower)
+        expect(Dossier.without_followers).not_to include(dossier_with_follower)
+      end
     end
 
     describe 'brouillons_recently_updated' do
       let!(:dossier_en_brouillon) { create(:dossier) }
       let!(:dossier_en_brouillon_2) { create(:dossier) }
 
-      it { expect(Dossier.brouillons_recently_updated).to eq([dossier_en_brouillon_2, dossier_en_brouillon]) }
+      it 'returns brouillons most recently updated first' do
+        recently_updated = Dossier.brouillons_recently_updated.to_a
+
+        expect(recently_updated).to include(dossier_en_brouillon_2, dossier_en_brouillon)
+        expect(recently_updated.index(dossier_en_brouillon_2)).to be < recently_updated.index(dossier_en_brouillon)
+      end
     end
 
     describe 'by_statut' do
@@ -137,7 +145,14 @@ describe Dossier, type: :model do
       end
 
       it 'returns only visible brouillon dossiers whose expiration notice period has passed' do
-        expect(Dossier.brouillon_expired_after_notice_grace).to contain_exactly(dossier_brouillon_expired_and_noticed_long_time_ago)
+        expect(Dossier.brouillon_expired_after_notice_grace).to include(dossier_brouillon_expired_and_noticed_long_time_ago)
+        expect(Dossier.brouillon_expired_after_notice_grace).not_to include(
+          dossier_brouillon_not_expired,
+          dossier_brouillon_expired_but_noticed_recently,
+          dossier_brouillon_expired_but_not_noticed_yet,
+          dossier_instruction_expired,
+          dossier_hidden
+        )
       end
     end
 
@@ -160,7 +175,9 @@ describe Dossier, type: :model do
 
       it 'returns only expired brouillons structurally outside the notice path' do
         expect(Dossier.brouillon_expired_without_notice)
-          .to contain_exactly(expired_on_closed, expired_on_draft, expired_preview)
+          .to include(expired_on_closed, expired_on_draft, expired_preview)
+        expect(Dossier.brouillon_expired_without_notice)
+          .not_to include(expired_on_published, not_expired_on_closed, hidden_on_closed, en_construction_on_closed)
       end
     end
   end
@@ -1535,11 +1552,11 @@ describe Dossier, type: :model do
   end
 
   describe '#accepter!' do
-    let(:procedure) { create(:procedure, :for_individual, :published) }
-    let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.en_instruction }
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let(:operation_serialized) { last_operation.data }
-    let!(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
     let!(:now) { Time.zone.parse('01/01/2100') }
     let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
@@ -1673,10 +1690,10 @@ describe Dossier, type: :model do
   end
 
   describe '#passer_en_instruction!' do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let(:operation_serialized) { last_operation.data }
-    let(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
     let!(:correction) { create(:dossier_correction, dossier:) } # correction has a commentaire
 
     subject(:passer_en_instruction) { dossier.passer_en_instruction!(instructeur: instructeur) }
@@ -2317,12 +2334,22 @@ describe Dossier, type: :model do
   end
 
   describe '#repasser_en_instruction!' do
-    let(:dossier) { create(:dossier, :refuse, :with_attestation_acceptation, :with_justificatif, archived: true, termine_close_to_expiration_notice_sent_at: Time.zone.now, sva_svr_decision_on: 1.day.ago) }
-    let!(:instructeur) { create(:instructeur) }
+    let(:dossier) { dossiers.refuse }
+    let(:instructeur) { instructeurs.default }
     let(:last_operation) { dossier.dossier_operation_logs.last }
 
     before do
       freeze_time
+      create(:attestation_template, :refus, procedure: dossier.procedure, state: :published)
+      AttestationPdfGenerationJob.perform_now(dossier)
+      expect(dossier.reload.attestation).to be_present
+      dossier.justificatif_motivation.attach(
+        io: StringIO.new('Hello World'),
+        filename: 'hello.txt',
+        # we don't want to run virus scanner on this file
+        metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE }
+      )
+      dossier.update!(archived: true, termine_close_to_expiration_notice_sent_at: Time.zone.now, sva_svr_decision_on: 1.day.ago)
       allow(NotificationMailer).to receive(:send_repasser_en_instruction_notification).and_return(double(deliver_later: true))
       dossier.repasser_en_instruction!(instructeur: instructeur)
       dossier.reload
@@ -2483,8 +2510,8 @@ describe Dossier, type: :model do
     end
 
     it do
-      expect(Dossier.en_brouillon_expired_to_delete.count).to eq(2)
-      expect(Dossier.en_construction_expired_to_delete.count).to eq(2)
+      expect(Dossier.en_brouillon_expired_to_delete.where(user:).count).to eq(2)
+      expect(Dossier.en_construction_expired_to_delete.where(user:).count).to eq(2)
     end
   end
 
@@ -2552,14 +2579,16 @@ describe Dossier, type: :model do
     let(:dossiers) { Dossier.with_notifiable_procedure(notify_on_closed: notify_on_closed) }
 
     it 'should find dossiers with notifiable procedure' do
-      expect(dossiers).to match_array([dossier_on_published_procedure, dossier_on_unpublished_procedure])
+      expect(dossiers).to include(dossier_on_published_procedure, dossier_on_unpublished_procedure)
+      expect(dossiers).not_to include(dossier_on_test_procedure, dossier_on_closed_procedure)
     end
 
     context 'when notify on closed is true' do
       let(:notify_on_closed) { true }
 
       it 'should find dossiers with notifiable procedure' do
-        expect(dossiers).to match_array([dossier_on_published_procedure, dossier_on_closed_procedure, dossier_on_unpublished_procedure])
+        expect(dossiers).to include(dossier_on_published_procedure, dossier_on_closed_procedure, dossier_on_unpublished_procedure)
+        expect(dossiers).not_to include(dossier_on_test_procedure)
       end
     end
   end
@@ -2815,35 +2844,32 @@ describe Dossier, type: :model do
 
   describe '#archivable_in_month' do
     let(:dossier_accepte_at) { DateTime.new(2022, 3, 31, 12, 0) }
-    before do
-      travel_to(dossier_accepte_at) do
-        dossier = create(:dossier, :accepte)
-      end
-    end
+    let!(:dossier) { travel_to(dossier_accepte_at) { create(:dossier, :accepte) } }
 
     context 'given a date' do
       let(:archive_date) { Date.new(2022, 3, 1) }
       it 'includes a dossier processed_at at last day of month' do
-        expect(Dossier.archivable_in_month(archive_date).count).to eq(1)
+        expect(Dossier.archivable_in_month(archive_date)).to include(dossier)
       end
     end
 
     context 'given a datetime' do
       let(:archive_date) { DateTime.new(2022, 3, 1, 12, 0) }
       it 'includes a dossier processed_at at last day of month' do
-        expect(Dossier.archivable_in_month(archive_date).count).to eq(1)
+        expect(Dossier.archivable_in_month(archive_date)).to include(dossier)
       end
     end
 
     context 'with a dossier hidden by administration' do
-      before do
+      let!(:hidden_dossier) do
         travel_to(dossier_accepte_at) do
           create(:dossier, :accepte, :hidden_by_administration)
         end
       end
 
       it 'excludes hidden dossiers' do
-        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1)).count).to eq(1)
+        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1))).to include(dossier)
+        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1))).not_to include(hidden_dossier)
       end
     end
   end
@@ -3012,13 +3038,19 @@ describe Dossier, type: :model do
 
     subject { Dossier.never_touched_brouillon_expired }
 
-    it { is_expected.to contain_exactly(dossier) }
+    it do
+      is_expected.to include(dossier)
+      is_expected.not_to include(dossier_2, dossier_with_champ_updated, dossier_en_construction)
+    end
 
     context 'when the dossier has been cloned' do
       let!(:cloned_dossier) { travel_to(3.weeks.ago) { dossier.clone } }
       let!(:cloned_dossier_2) { travel_to(3.weeks.ago) { dossier_with_champ_updated.clone } }
 
-      it { is_expected.to contain_exactly(dossier) }
+      it do
+        is_expected.to include(dossier)
+        is_expected.not_to include(cloned_dossier, cloned_dossier_2)
+      end
     end
 
     context 'when the dossier has an etablissement' do

@@ -7,7 +7,7 @@ labels = %w[brouillon en_construction en_instruction accepte refuse].to_h do |st
     user: users.usager,
     revision: procedure.active_revision,
     groupe_instructeur: procedure.defaut_groupe_instructeur,
-    individual: Individual.new,
+    individual: Individual.new(gender: "Mme", nom: "Dupont", prenom: "Jeanne", birthdate: Date.new(1985, 3, 12)),
     autorisation_donnees: true
   )
   dossier.build_default_values
