@@ -20,7 +20,11 @@ export class MotivationJustificatifController extends ApplicationController {
 
   showImport() {
     show(this.importTarget);
+    // move focus off the button before hiding it so it does not fall back to
+    // the document body, then open the native file picker
+    this.inputTarget.focus();
     hide(this.suggestTarget);
+    this.inputTarget.click();
   }
 
   fileSelected() {

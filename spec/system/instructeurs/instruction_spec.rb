@@ -128,6 +128,22 @@ describe 'Instructing a dossier:', js: true do
     expect(dossier.reload.state).to eq(Dossier.states.fetch(:refuse))
   end
 
+  scenario 'moves focus to the justificatif file input when adding a justificatif' do
+    dossier.passer_en_instruction!(instructeur: instructeur)
+    login_as(instructeur.user, scope: :user)
+
+    visit instructeur_dossier_path(procedure, dossier)
+    click_on 'Rendre une décision'
+
+    within('.instruction-button') { find_link('Refuser').click }
+    expect(page).to have_field('motivation_refuse')
+
+    within('.refuse.motivation') { click_on 'Ajouter un justificatif' }
+
+    expect(page).to have_css('#dossier_justificatif_motivation_refuse:focus')
+    expect(page).to have_no_css('#motivation_refuse:focus')
+  end
+
   scenario 'A instructeur can follow/unfollow a dossier and request an export' do
     login_as(instructeur.user, scope: :user)
     visit instructeur_procedures_path
