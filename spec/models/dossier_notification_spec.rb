@@ -222,6 +222,8 @@ RSpec.describe DossierNotification, type: :model do
     let(:instructeur) { create(:instructeur) }
 
     context "when notification_type is dossier_depose" do
+      empty_seeds Dossier
+
       let(:notification_type) { :dossier_depose }
       let!(:dossier_to_notify) { create(:dossier, state: :en_construction, follows: []) }
       let!(:dossier_not_to_notify_1) { create(:dossier, :en_construction) }
