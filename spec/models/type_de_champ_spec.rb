@@ -2,14 +2,16 @@
 
 describe TypeDeChamp do
   describe 'validation' do
-    context 'type' do
+    context 'type', :oaken do
+      before_all { seed "cases/champs" }
+
       it do
         is_expected.not_to allow_value(nil).for(:type_champ)
         is_expected.not_to allow_value('').for(:type_champ)
       end
 
-      let(:procedure) { create(:procedure, :with_all_champs) }
-      let(:dossier) { create(:dossier, procedure:) }
+      let(:procedure) { procedures.tous_champs }
+      let(:dossier) { dossiers.tous_champs }
 
       it do
         dossier.revision.root_types_de_champ_public.each do |type_de_champ|

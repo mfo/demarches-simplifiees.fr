@@ -3,7 +3,7 @@
 describe Dossier, :oaken, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
-  before_all { seed "cases/entreprise" }
+  before_all { seed "cases/entreprise", "cases/sva" }
 
   let(:user) { create(:user) }
 
@@ -48,7 +48,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     describe 'by_statut' do
-      let_it_be(:procedure) { create(:procedure) }
+      let_it_be(:procedure) { procedures.brouillon }
       let_it_be(:dossier_en_construction) { create(:dossier, :en_construction, procedure:) }
       let_it_be(:dossier_en_instruction) { create(:dossier, :en_instruction, procedure:) }
       let_it_be(:dossier_accepte) { create(:dossier, :accepte, procedure:) }
@@ -184,7 +184,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe 'validations' do
-    let(:procedure) { create(:procedure, :for_individual) }
+    let(:procedure) { procedures.individual }
     subject(:dossier) { create(:dossier, procedure: procedure) }
 
     it 'validates presence of required attributes' do
@@ -935,7 +935,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe "#assign_to_groupe_instructeur" do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     let(:new_groupe_instructeur_new_procedure) { create(:groupe_instructeur) }
     let(:new_instructeur) { create(:instructeur) }
     let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure, instructeurs: [new_instructeur]) }
@@ -952,7 +952,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context "when the groupe instructeur change" do
-      let(:procedure) { create(:procedure) }
+      let(:procedure) { procedures.brouillon }
       let(:instructeur) { create(:instructeur) }
       let(:new_instructeur) { create(:instructeur) }
       let(:previous_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [instructeur]) }
@@ -1012,7 +1012,7 @@ describe Dossier, :oaken, type: :model do
         let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [new_instructeur]) }
 
         context "when notification is dossier_expirant" do
-          let(:procedure) { create(:procedure) }
+          let(:procedure) { procedures.brouillon }
           let(:dossier) { create(:dossier, :accepte, procedure:) }
           before { dossier.update(expired_at: 1.week.from_now) }
 
@@ -1247,7 +1247,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#owner_name' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     subject { dossier.owner_name }
 
     context 'when there is no entreprise or individual' do
@@ -1627,7 +1627,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context 'as sva procedure' do
-      let_it_be(:procedure) { create(:procedure, :for_individual, :published, :sva) }
+      let(:procedure) { procedures.sva }
       let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, sva_svr_decision_on: Date.current, en_instruction_at: DateTime.new(2021, 5, 1, 12)) }
       let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
@@ -1650,7 +1650,7 @@ describe Dossier, :oaken, type: :model do
   describe '#refuser_automatiquement' do
     context 'as svr procedure' do
       let(:last_operation) { dossier.dossier_operation_logs.last }
-      let_it_be(:procedure) { create(:procedure, :for_individual, :published, :svr) }
+      let(:procedure) { procedures.svr }
       let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, sva_svr_decision_on: Date.current, en_instruction_at: DateTime.new(2021, 5, 1, 12)) }
 
       before {
@@ -1748,7 +1748,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context "via procedure sva" do
-      let_it_be(:procedure) { create(:procedure, :sva, :published, :for_individual) }
+      let(:procedure) { procedures.sva }
       let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:, sva_svr_decision_on: 10.days.from_now) }
       let(:sva_svr_decision_on) { SVASVRDecisionDateCalculatorService.new(dossier, procedure).decision_date }
 
@@ -1784,7 +1784,7 @@ describe Dossier, :oaken, type: :model do
     it { expect(dossier.can_repasser_en_construction?).to be_truthy }
 
     context 'when procedure is sva' do
-      let(:dossier) { create(:dossier, :en_instruction, procedure: create(:procedure, :sva)) }
+      let(:dossier) { create(:dossier, :en_instruction, procedure: procedures.sva) }
 
       it { expect(dossier.can_repasser_en_construction?).to be_falsey }
     end
@@ -1871,7 +1871,7 @@ describe Dossier, :oaken, type: :model do
     end
 
     context 'when procedure has sva or svr enabled' do
-      let(:procedure) { create(:procedure, :published, :sva) }
+      let(:procedure) { procedures.sva }
       let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
       it { expect(dossier.can_passer_automatiquement_en_instruction?).to be_truthy }
@@ -2490,7 +2490,7 @@ describe Dossier, :oaken, type: :model do
   describe 'brouillon_expired and en_construction_expired' do
     empty_seeds Dossier
 
-    let(:administrateur) { administrateurs(:default_admin) }
+    let(:administrateur) { administrateurs.default }
     let(:user) { administrateur.user }
     let(:reason) { DeletedDossier.reasons.fetch(:user_request) }
 
@@ -2812,20 +2812,20 @@ describe Dossier, :oaken, type: :model do
     it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["État du dossier", "Brouillon"]) }
 
     context 'procedure sva' do
-      let(:dossier) { build(:dossier, :en_instruction, procedure: create(:procedure, :sva)) }
+      let(:dossier) { build(:dossier, :en_instruction, procedure: procedures.sva) }
 
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Date décision SVA", :sva_svr_decision_on]) }
     end
 
     context 'procedure svr' do
-      let(:dossier) { build(:dossier, :en_instruction, procedure: create(:procedure, :svr)) }
+      let(:dossier) { build(:dossier, :en_instruction, procedure: procedures.svr) }
 
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Date décision SVR", :sva_svr_decision_on]) }
     end
   end
 
   describe '#archivable' do
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.individual }
 
     it 'includes visible termine dossiers' do
       dossier = create(:dossier, :accepte, procedure:)
@@ -3005,7 +3005,7 @@ describe Dossier, :oaken, type: :model do
   end
 
   describe '#update_champs_timestamps' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
+    let_it_be(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:changed_champs) { dossier.champ_data.filter(&:text?) }
 
@@ -3092,7 +3092,7 @@ describe Dossier, :oaken, type: :model do
 
   describe "#skip_user_notification_email?" do
     context "when the dossier is brouillon for a declarative procedure" do
-      let(:procedure) { create(:procedure, :published, declarative_with_state: :en_instruction) }
+      let(:procedure) { procedures.individual.tap { it.update!(declarative_with_state: :en_instruction) } }
       let(:dossier) { create(:dossier, :brouillon, procedure:) }
 
       it "allows the email to be sent (bug fix  06/2026)" do

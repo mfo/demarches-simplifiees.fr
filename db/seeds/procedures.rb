@@ -30,3 +30,16 @@ procedure.publish_or_reopen!(administrateurs.default, "demarche-demo")
 instructeurs.default.assign_to_procedure(procedure)
 
 procedures.label individual: procedure
+
+brouillon_procedure = Procedure.new(
+  libelle: "Démarche de démonstration (brouillon)",
+  description: "Une démarche de démonstration encore en brouillon.",
+  cadre_juridique: "https://www.legifrance.gouv.fr/",
+  duree_conservation_dossiers_dans_ds: 3,
+  max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
+  administrateurs: [administrateurs.default]
+)
+brouillon_procedure.draft_revision = brouillon_procedure.revisions.build
+brouillon_procedure.save!
+
+procedures.label brouillon: brouillon_procedure
