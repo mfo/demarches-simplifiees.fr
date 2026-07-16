@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Dossier, :oaken, type: :model do
+describe Dossier, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
   before_all { seed "cases/entreprise", "cases/sva" }

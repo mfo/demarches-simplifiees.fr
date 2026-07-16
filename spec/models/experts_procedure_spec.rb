@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe ExpertsProcedure, :oaken, type: :model do
+RSpec.describe ExpertsProcedure, type: :model do
   before_all { seed "cases/avis" }
 
   describe '#invited_expert_emails' do

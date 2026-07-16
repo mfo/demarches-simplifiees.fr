@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Avis, :oaken, type: :model do
+RSpec.describe Avis, type: :model do
   before_all { seed "cases/avis" }
 
   describe '#email_to_display' do

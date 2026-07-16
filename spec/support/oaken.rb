@@ -1,34 +1,12 @@
 # frozen_string_literal: true
 
-require 'test_prof/recipes/rspec/before_all'
-
-# Oaken seeds (db/seeds/) are opt-in: tag an example group with :oaken to load
-# the shared seed data once per group (via test-prof's before_all transaction)
-# and access the labeled records (users.usager, procedures.individual,
-# dossiers.en_construction, …). Scenario seeds (db/seeds/cases/) load with
-# `before_all { seed "cases/avis" }`; per-example mutations of seeded records
-# roll back to the group snapshot after each example.
-module OakenSupport
-  # The global fixtures (config.global_fixtures) define `users`, `instructeurs`
-  # and `administrateurs` accessors directly on each example group, shadowing
-  # Oaken's. Prepend to route no-arg calls to Oaken; calls with fixture names
-  # (e.g. `users(:default_user)`) still reach the fixture accessor via super.
-  [:users, :instructeurs, :administrateurs].each do |name|
-    define_method(name) do |*fixture_names|
-      fixture_names.empty? ? Oaken::Seeds.public_send(name) : super(*fixture_names)
-    end
-  end
-end
-
-RSpec.shared_context 'with oaken seeds' do
-  before_all { Oaken.loader.seed :users, :procedures, :dossiers }
-end
-
-RSpec.configure do |config|
-  config.include Oaken.loader.context, :oaken
-  config.prepend OakenSupport, :oaken
-  config.include_context 'with oaken seeds', :oaken
-end
+# Oaken seeds (db/seeds/) replace ActiveRecord fixtures. oaken/rspec_setup
+# replants them (truncate + load users, procedures, dossiers) once per suite
+# and includes the labeled-record accessors (users.usager, procedures.individual,
+# dossiers.en_construction, …) in every example; per-example mutations roll
+# back via transactional fixtures. Scenario seeds (db/seeds/cases/) still load
+# per group with `before_all { seed "cases/avis" }`.
+require 'oaken/rspec_setup'
 
 # Specs asserting on global aggregates or unparameterized scopes (raw SQL over
 # a whole table, `Dossier.some_scope`, `Procedure.all`) can't scope their

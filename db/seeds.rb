@@ -10,12 +10,13 @@
 # - db/seeds/development/    — development-only records (super-admin, fixer instructeur)
 # - db/seeds/cases/          — scenario-specific data (expert avis, messagerie, …)
 #
-# In specs, tag an example group with :oaken to load these seeds and access the
-# labeled records (users.usager, procedures.individual, dossiers.en_construction, …).
-# Scenario seeds are loaded per spec with e.g. `before { seed "cases/avis" }`.
+# In specs, these seeds load once per suite (see spec/support/oaken.rb) and the
+# labeled records (users.usager, procedures.individual, dossiers.en_construction, …)
+# are available in every example.
+# Scenario seeds are loaded per spec group with e.g. `before_all { seed "cases/avis" }`.
 #
-# Seeds assume an empty database and are not re-runnable: specs load them in
-# rolled-back transactions, and a development database is refreshed with
+# Seeds assume an empty database and are not re-runnable: specs replant once
+# per suite, and a development database is refreshed with
 # `bin/rails db:seed:replant` (truncate + reseed).
 Oaken.seed :users, :procedures, :dossiers
 Oaken.seed :cases if Rails.env.development?

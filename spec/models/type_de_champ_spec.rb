@@ -2,7 +2,7 @@
 
 describe TypeDeChamp do
   describe 'validation' do
-    context 'type', :oaken do
+    context 'type' do
       before_all { seed "cases/champs" }
 
       it do

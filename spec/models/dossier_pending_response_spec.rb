@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe DossierPendingResponse, :oaken do
+describe DossierPendingResponse do
   before_all { seed "cases/messagerie" }
 
   let(:dossier) { dossiers.en_construction }
