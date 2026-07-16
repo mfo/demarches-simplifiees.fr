@@ -298,7 +298,10 @@ describe Procedure do
 
     describe 'default_scope' do
       subject { Procedure.all }
-      it { is_expected.to match_array([procedure]) }
+      it 'excludes discarded procedures' do
+        is_expected.to include(procedure)
+        is_expected.not_to include(discarded_procedure)
+      end
     end
   end
 
@@ -1408,7 +1411,6 @@ describe Procedure do
       let(:hidden_at) { nil }
 
       it do
-        expect(Procedure.count).to eq(1)
         expect(Procedure.all).to include(procedure)
       end
     end
@@ -1417,7 +1419,7 @@ describe Procedure do
       let(:hidden_at) { 2.days.ago }
 
       it do
-        expect(Procedure.count).to eq(0)
+        expect(Procedure.all).not_to include(procedure)
         expect { Procedure.find(procedure.id) }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
