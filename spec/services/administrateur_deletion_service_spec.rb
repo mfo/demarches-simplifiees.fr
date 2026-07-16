@@ -2,7 +2,9 @@
 
 describe AdministrateurDeletionService do
   let(:super_admin) { create(:super_admin) }
-  let(:admin) { administrateurs(:default_admin) }
+  # This service destroys the admin and their procedures: use the seeded blank
+  # administrateur, who is guaranteed to own nothing.
+  let(:admin) { administrateurs.blank }
   let(:service) { create(:service, administrateur: admin) }
   let(:other_admin) { create(:administrateur) }
   let(:procedure) { create(:procedure, service: service, administrateurs: [admin, other_admin]) }
