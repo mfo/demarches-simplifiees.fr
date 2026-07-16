@@ -15,7 +15,7 @@ describe Administrateur, type: :model do
     subject { administrateur.can_be_deleted? }
 
     context "when the administrateur's procedures have other administrateurs" do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.blank }
       let!(:autre_administrateur) { create(:administrateur) }
       let!(:procedure) { create(:procedure, administrateurs: [administrateur, autre_administrateur]) }
 
@@ -23,14 +23,14 @@ describe Administrateur, type: :model do
     end
 
     context "when the administrateur has a procedure with dossiers where they is the only admin" do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.blank }
       let!(:procedure) { create(:procedure_with_dossiers, :published, administrateurs: [administrateur]) }
 
       it { is_expected.to be false }
     end
 
     context "when the administrateur has a procedure with dossiers and with other admins" do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.blank }
       let!(:administrateur2) { create(:administrateur) }
       let!(:procedure) { create(:procedure_with_dossiers, :published, administrateurs: [administrateur, administrateur2]) }
 
@@ -38,21 +38,21 @@ describe Administrateur, type: :model do
     end
 
     context "when the administrateur has a discarded procedure with dossiers" do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.blank }
       let!(:procedure) { create(:procedure_with_dossiers, :closed, :discarded, administrateurs: [administrateur]) }
 
       it { is_expected.to be false }
     end
 
     context "when the administrateur has a procedure without dossiers" do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.blank }
       let!(:procedure) { create(:procedure, :published, administrateurs: [administrateur]) }
 
       it { is_expected.to be true }
     end
 
     context "when the administrateur has no non-draft procedure" do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.blank }
       let!(:procedure) { create(:procedure_with_dossiers, :draft, administrateurs: [administrateur]) }
 
       it { is_expected.to be true }
@@ -60,7 +60,9 @@ describe Administrateur, type: :model do
   end
 
   describe '#merge' do
-    let(:new_admin) { administrateurs(:default_admin) }
+    # merge semantics depend on the admin's own records: use the seeded blank
+    # administrateur, who is guaranteed to own nothing
+    let(:new_admin) { administrateurs.blank }
     let(:old_admin) { create(:administrateur) }
 
     subject { new_admin.merge(old_admin) }
@@ -188,7 +190,7 @@ describe Administrateur, type: :model do
   describe 'unused' do
     subject { Administrateur.unused }
 
-    let(:new_admin) { administrateurs(:default_admin) }
+    let(:new_admin) { administrateurs.blank }
     let(:unused_admin) { create(:administrateur, :with_api_token) }
 
     before do
@@ -240,7 +242,7 @@ describe Administrateur, type: :model do
   end
 
   describe 'zones' do
-    let(:admin) { administrateurs(:default_admin) }
+    let(:admin) { administrateurs.default }
     let(:zone1) { create(:zone) }
     let(:zone2) { create(:zone) }
     let!(:procedure) { create(:procedure, administrateurs: [admin], zones: [zone1, zone2]) }
@@ -253,7 +255,7 @@ describe Administrateur, type: :model do
   describe "#unread_commentaires?" do
     context "commentaire_seen_at is nil" do
       let(:gestionnaire) { create(:gestionnaire) }
-      let(:administrateur) { administrateurs(:default_admin) }
+      let(:administrateur) { administrateurs.default }
       let(:groupe_gestionnaire) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
       let!(:commentaire_groupe_gestionnaire) { create(:commentaire_groupe_gestionnaire, groupe_gestionnaire: groupe_gestionnaire, sender: administrateur, gestionnaire: gestionnaire, created_at: 12.hours.ago) }
 
@@ -288,7 +290,7 @@ describe Administrateur, type: :model do
   describe "#mark_commentaire_as_seen" do
     let(:now) { Time.zone.now.beginning_of_minute }
     let(:gestionnaire) { create(:gestionnaire) }
-    let(:administrateur) { administrateurs(:default_admin) }
+    let(:administrateur) { administrateurs.default }
     let(:groupe_gestionnaire) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
     let!(:commentaire_groupe_gestionnaire) { create(:commentaire_groupe_gestionnaire, groupe_gestionnaire: groupe_gestionnaire, sender: administrateur, created_at: 12.hours.ago) }
 
