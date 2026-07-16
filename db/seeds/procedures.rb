@@ -29,6 +29,19 @@ end
 procedure.publish_or_reopen!(administrateurs.default, "demarche-demo")
 instructeurs.default.assign_to_procedure(procedure)
 
+# A published procedure without a service is nagged about on every admin page.
+procedure.update!(service: Service.create!(
+  nom: "Service de démonstration",
+  administrateur: administrateurs.default,
+  organisme: "Organisme de démonstration",
+  type_organisme: Service.type_organismes.fetch(:administration_centrale),
+  email: "contact@exemple.fr",
+  telephone: "0102030405",
+  horaires: "Du lundi au vendredi, de 9 h à 18 h",
+  adresse: "20 avenue de Ségur, 75007 Paris",
+  siret: "13002526500013"
+))
+
 procedures.label individual: procedure
 
 brouillon_procedure = Procedure.new(
