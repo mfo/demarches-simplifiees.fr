@@ -13,8 +13,8 @@
           Besoin d’aide ?
           %br
           > Vous pouvez
-          = link_to "visionner cette vidéo",
-            "https://vimeo.com/261478872",
+          = link_to "visionner le replay de notre webinaire",
+            REPLAY_WEBINAIRE_URL,
             target: "_blank"
           %br
           > Vous pouvez lire notre
@@ -22,10 +22,8 @@
             ADMINISTRATEUR_TUTORIAL_URL,
             target: "_blank"
           %br
-          > Vous pouvez enfin
-          = link_to "prendre un rendez-vous téléphonique avec nous",
-            CALENDLY_URL,
-            target: "_blank"
+          > Vous pouvez enfin nous contacter à l’adresse mail :
+          = mail_to CONTACT_EMAIL
     :javascript
       document.addEventListener("DOMContentLoaded", function() {
         $crisp.push(["do", "trigger:run", ["admin-signup"]]);
