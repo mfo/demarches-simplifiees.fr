@@ -51,11 +51,6 @@ const EDITOR_ACTIONS: Record<string, (editor: Editor) => EditorAction> = {
     isActive: () => editor.isActive('underline'),
     isDisabled: () => false
   }),
-  strike: (editor) => ({
-    run: () => editor.chain().focus().toggleStrike().run(),
-    isActive: () => editor.isActive('strike'),
-    isDisabled: () => editor.isActive('heading') || editor.isActive('title')
-  }),
   highlight: (editor) => ({
     run: () => editor.chain().focus().toggleHighlight().run(),
     isActive: () => editor.isActive('highlight'),

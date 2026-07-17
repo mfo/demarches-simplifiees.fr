@@ -57,6 +57,16 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnés")
   end
 
+  it "wires the optional toggle to its own controller, with a unique per-instance id" do
+    fragment = Nokogiri::HTML.fragment(render_inline(component).to_html)
+    checkbox = fragment.at_css("input[type='checkbox']")
+    expect(checkbox["data-action"]).to eq("change->tags-button-list#toggleOptional")
+    expect(fragment.at_css("label")[:for]).to eq(checkbox[:id])
+
+    other_checkbox = Nokogiri::HTML.fragment(render_inline(described_class.new(tags:)).to_html).at_css("input[type='checkbox']")
+    expect(other_checkbox[:id]).not_to eq(checkbox[:id])
+  end
+
   it "applies purple-glycine style to optional and conditional tags" do
     expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ facultatif")
     expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ conditionnel")

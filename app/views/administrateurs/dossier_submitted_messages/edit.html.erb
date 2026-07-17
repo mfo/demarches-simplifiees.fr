@@ -30,7 +30,7 @@
           </legend>
 
           <div class="fr-fieldset__element">
-            <%= render TiptapEditorComponent.new(form: f, field_name: :tiptap_body, preview_url: preview_admin_procedure_dossier_submitted_message_path(@procedure)) %>
+            <%= render TiptapEditorComponent.new(form: f, field_name: :tiptap_body, label: "Message personnalisé", preview_url: preview_admin_procedure_dossier_submitted_message_path(@procedure)) %>
           </div>
         </fieldset>
       </div>

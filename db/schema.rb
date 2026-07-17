@@ -293,6 +293,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   create_table "closed_mails", id: :serial, force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", precision: nil, null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
     t.integer "procedure_id"
     t.string "subject"
     t.datetime "updated_at", precision: nil, null: false
@@ -869,6 +871,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   create_table "initiated_mails", id: :serial, force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", precision: nil, null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
     t.integer "procedure_id"
     t.string "subject"
     t.datetime "updated_at", precision: nil, null: false
@@ -1215,6 +1219,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   create_table "re_instructed_mails", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
     t.integer "procedure_id", null: false
     t.string "subject"
     t.datetime "updated_at", null: false
@@ -1224,6 +1230,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   create_table "received_mails", id: :serial, force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", precision: nil, null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
     t.integer "procedure_id"
     t.string "subject"
     t.datetime "updated_at", precision: nil, null: false
@@ -1262,6 +1270,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   create_table "refused_mails", id: :serial, force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", precision: nil, null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
     t.integer "procedure_id"
     t.string "subject"
     t.datetime "updated_at", precision: nil, null: false
@@ -1458,6 +1468,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
   create_table "without_continuation_mails", id: :serial, force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", precision: nil, null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
     t.integer "procedure_id"
     t.string "subject"
     t.datetime "updated_at", precision: nil, null: false

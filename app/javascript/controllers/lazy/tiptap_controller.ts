@@ -69,7 +69,8 @@ export class TiptapController extends ApplicationController {
       buttons: this.menuButtons,
       singleLine: this.singleLineValue,
       attributes: { class: 'fr-input', ...this.attributesValue },
-      onChange: ({ editor }) => {
+      onChange: ({ editor, transaction }) => {
+        // Button state depends on the selection, so refresh it on every transaction.
         for (const button of this.buttonTargets) {
           const action = getAction(editor, button);
           button.classList.toggle('fr-btn--secondary', !action.isActive());
@@ -84,17 +85,24 @@ export class TiptapController extends ApplicationController {
           }
         }
 
-        const previousValue = this.inputTarget.value;
-        const value = JSON.stringify(editor.getJSON());
-        this.inputTarget.value = value;
-
-        // Dispatch input event only if the value has changed and not during initialization
+        // The first transaction is the initial content load: sync the hidden input
+        // once, but don't trigger a preview.
         if (this.#initializing) {
           this.#initializing = false;
-        } else if (value != previousValue) {
-          this.dispatch('input', { target: this.inputTarget, prefix: '' });
-          this.#schedulePreview();
+          this.inputTarget.value = JSON.stringify(editor.getJSON());
+          return;
         }
+
+        // Selection-only transactions (cursor moves) leave the document untouched;
+        // skip the re-serialization and the preview refresh they don't need.
+        if (!transaction.docChanged) return;
+
+        const value = JSON.stringify(editor.getJSON());
+        if (value == this.inputTarget.value) return;
+
+        this.inputTarget.value = value;
+        this.dispatch('input', { target: this.inputTarget, prefix: '' });
+        this.#schedulePreview();
       }
     });
   }

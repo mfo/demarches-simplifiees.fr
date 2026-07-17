@@ -13,7 +13,6 @@ import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import Bold from '@tiptap/extension-bold';
 import Italic from '@tiptap/extension-italic';
-import Strike from '@tiptap/extension-strike';
 import Mention from '@tiptap/extension-mention';
 import Typography from '@tiptap/extension-typography';
 import Heading from '@tiptap/extension-heading';
@@ -23,6 +22,7 @@ import HardBreak from '@tiptap/extension-hard-break';
 import {
   Editor,
   Extension,
+  type EditorEvents,
   type EditorOptions,
   type JSONContent,
   type Extensions
@@ -64,7 +64,7 @@ export function createEditor({
   content?: JSONContent;
   tags: TagSchema[];
   buttons: string[];
-  onChange(change: { editor: Editor }): void;
+  onChange(change: EditorEvents['transaction']): void;
   attributes?: Record<string, string>;
   singleLine?: boolean;
 }): Editor {
@@ -100,9 +100,6 @@ function getEditorOptions(
         break;
       case 'underline':
         extensions.push(Underline);
-        break;
-      case 'strike':
-        extensions.push(Strike);
         break;
       case 'highlight':
         extensions.push(Highlight);
@@ -142,6 +139,13 @@ function getEditorOptions(
 
   if (actions.includes('heading2') || actions.includes('heading3')) {
     extensions.push(Heading.configure({ levels: [2, 3] }));
+  }
+
+  // Line breaks (e.g. converted from legacy Trix `<br>`) can appear in any
+  // multi-line document; register the extension so such content loads even when
+  // there is no dedicated toolbar button (single-line editors forbid breaks).
+  if (!singleLine && !actions.includes('hardBreak')) {
+    extensions.push(HardBreak);
   }
 
   if (

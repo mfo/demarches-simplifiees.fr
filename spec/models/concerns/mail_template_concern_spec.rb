@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 describe MailTemplateConcern do
-  let(:procedure) { create(:procedure) }
+  let(:procedure) { create(:procedure, :with_type_de_champ) }
+  let(:mail) { Mails::ReceivedMail.default_for_procedure(procedure) }
   let(:dossier) { create(:dossier, procedure: procedure) }
   let(:dossier2) { create(:dossier, procedure: procedure) }
   let(:initiated_mail) { create(:initiated_mail, procedure: procedure) }
@@ -170,9 +171,181 @@ describe MailTemplateConcern do
     end
   end
 
-  describe '#update_rich_body' do
-    before { initiated_mail.update(body: "Voici le corps du mail") }
+  describe '#tiptap_inline_nodes_for' do
+    it 'résout --numéro du dossier-- en mention' do
+      nodes = mail.tiptap_inline_nodes_for('Dossier --numéro du dossier--')
+      expect(nodes).to eq([
+        { "type" => "text", "text" => "Dossier " },
+        { "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } },
+      ])
+    end
 
-    it { expect(initiated_mail.rich_body.to_plain_text).to eq(initiated_mail.body) }
+    it 'garde un libellé inconnu en texte littéral' do
+      nodes = mail.tiptap_inline_nodes_for('Bonjour --libellé inexistant--')
+      expect(nodes).to eq([
+        { "type" => "text", "text" => "Bonjour " },
+        { "type" => "text", "text" => "--libellé inexistant--" },
+      ])
+    end
+
+    it 'retourne [] pour une chaîne vide' do
+      expect(mail.tiptap_inline_nodes_for('')).to eq([])
+    end
+
+    it 'préserve un texte composé uniquement d’espaces' do
+      expect(mail.tiptap_inline_nodes_for(' ')).to eq([{ "type" => "text", "text" => " " }])
+    end
+  end
+
+  describe 'accesseurs tiptap' do
+    it 'tiptap_body= parse le JSON dans json_body' do
+      mail.tiptap_body = '{"type":"doc","content":[]}'
+      expect(mail.json_body).to eq({ "type" => "doc", "content" => [] })
+    end
+
+    it 'tiptap_body_or_default renvoie json_body si présent' do
+      mail.json_body = { "type" => "doc", "content" => [{ "type" => "paragraph" }] }
+      expect(JSON.parse(mail.tiptap_body_or_default)).to eq(mail.json_body)
+    end
+
+    it 'tiptap_body_or_default convertit le body legacy sinon' do
+      mail.json_body = nil
+      mail.body = '<div>Bonjour <strong>usager</strong></div>'
+      doc = JSON.parse(mail.tiptap_body_or_default)
+      expect(doc["content"].first["type"]).to eq("paragraph")
+      expect(doc["content"].first["content"]).to include({ "type" => "text", "text" => "usager", "marks" => [{ "type" => "bold" }] })
+    end
+
+    it 'tiptap_subject_or_default convertit le subject legacy en doc mono-ligne' do
+      mail.json_subject = nil
+      mail.subject = 'Dossier --numéro du dossier--'
+      doc = JSON.parse(mail.tiptap_subject_or_default)
+      expect(doc["type"]).to eq("doc")
+      expect(doc["content"].first["type"]).to eq("paragraph")
+      expect(doc["content"].first["content"]).to include({ "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } })
+    end
+  end
+
+  describe 'rendu dual' do
+    let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+    it 'body_for_dossier utilise json_body si présent (rend le HTML via TiptapService)' do
+      mail.json_body = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "Dossier nº " },
+              { "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } },
+            ],
+          },
+        ],
+      }
+      html = mail.body_for_dossier(dossier)
+      expect(html).to include("Dossier nº #{dossier.id}")
+    end
+
+    it 'body_for_dossier retombe sur le legacy si json_body absent' do
+      mail.json_body = nil
+      mail.body = 'Bonjour --numéro du dossier--'
+      expect(mail.body_for_dossier(dossier)).to include(dossier.id.to_s)
+    end
+
+    it 'rend un hardBreak en simple <br> (comme le saut de ligne legacy)' do
+      mail.json_body = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "Cordialement," },
+              { "type" => "hardBreak" },
+              { "type" => "text", "text" => "Service" },
+            ],
+          },
+        ],
+      }
+      html = mail.body_for_dossier(dossier)
+      expect(html).to include("Cordialement,<br>Service")
+      expect(html).not_to include("<br><br>")
+    end
+
+    it 'subject_for_dossier utilise json_subject si présent' do
+      mail.json_subject = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "text", "text" => "Dossier " },
+              { "type" => "mention", "attrs" => { "id" => "dossier_number", "label" => "numéro du dossier" } },
+            ],
+          },
+        ],
+      }
+      expect(mail.subject_for_dossier(dossier)).to eq("Dossier #{dossier.id}")
+    end
+  end
+
+  describe 'validation des tags JSON' do
+    it 'invalide un tag de champ inexistant dans json_body' do
+      mail.json_body = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "mention", "attrs" => { "id" => "tdc999999", "label" => "champ fantôme" } },
+            ],
+          },
+        ],
+      }
+      expect(mail).not_to be_valid
+      expect(mail.errors[:json_body]).to be_present
+    end
+
+    it 'json_body vide reste valide' do
+      mail.json_body = nil
+      expect(mail).to be_valid
+    end
+
+    it 'reste valide si json_body est valide même si le body legacy contient un tag invalide' do
+      mail.json_body = { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "OK" }] }] }
+      mail.body = 'Bonjour --libellé totalement inexistant--'
+      expect(mail).to be_valid
+    end
+
+    it 'invalide via :json_body (et pas :body) quand json_body est présent et invalide' do
+      mail.json_body = { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "mention", "attrs" => { "id" => "tdc999999", "label" => "x" } }] }] }
+      mail.body = 'Bonjour'
+      expect(mail).not_to be_valid
+      expect(mail.errors[:json_body]).to be_present
+      expect(mail.errors[:body]).to be_empty
+    end
+
+    it 'valide le body legacy quand json_body est absent' do
+      mail.json_body = nil
+      mail.body = 'Bonjour --libellé totalement inexistant--'
+      expect(mail).not_to be_valid
+      expect(mail.errors[:body]).to be_present
+    end
+
+    it 'invalide une mention d’une balise indisponible pour l’état du template (parité legacy)' do
+      decision_mention = {
+        "type" => "doc",
+        "content" => [
+          {
+            "type" => "paragraph", "content" => [
+              { "type" => "mention", "attrs" => { "id" => "dossier_processed_at", "label" => "date de décision" } },
+            ],
+          },
+        ],
+      }
+
+      mail.json_body = decision_mention
+      expect(mail).not_to be_valid
+      expect(mail.errors[:json_body]).to be_present
+
+      closed_mail = Mails::ClosedMail.default_for_procedure(procedure)
+      closed_mail.json_body = decision_mention
+      expect(closed_mail).to be_valid
+    end
   end
 end

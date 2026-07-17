@@ -180,7 +180,8 @@ class AttestationTemplate < ApplicationRecord
     dossier = params[:dossier]
 
     json = json_body&.deep_symbolize_keys
-    tiptap = TiptapService.new
+    # Attestations render a hard break as a blank line.
+    tiptap = TiptapService.new(hard_break: "<br><br>")
 
     if dossier.present?
       # 2x faster this way than with `replace_tags` which would reparse text

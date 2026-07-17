@@ -1,0 +1,55 @@
+#mail-template-edit {
+  // Blue "backdrop" that hugs the preview (title + email card + hint) and follows
+  // the scroll. Generous padding gives the white card room to breathe.
+  .mail-preview-panel {
+    position: sticky;
+    top: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+
+  // The email fills this container edge to edge (it already carries its own white
+  // background and content frame); a shadow + rounded corners let it float on the
+  // blue backdrop. No border/padding here, so the only spacing around the email is
+  // the panel's own — even on every side.
+  //
+  // `height: auto` lets the card hug the zoomed email, so it never wastes space below
+  // it — even on tall screens. The cap is the space available once the panel is stuck
+  // to the top (the 19rem reserves the title, hint, sticky offset and fixed footer);
+  // a taller email scrolls there. No scrollbar gutter is reserved: the controller
+  // computes the zoom from `offsetWidth`, which is unaffected by the scrollbar.
+  .mail-preview {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 18rem;
+    max-height: calc(100vh - 19rem);
+    background-color: #fff;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  // A live-preview update loads its iframe here, off-screen, until it is ready to
+  // replace the visible one (see the mail-preview controller).
+  .mail-preview-frame--pending {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+  }
+
+  .mail-preview-frame {
+    display: block;
+    // `zoom` (not `transform: scale`) so the email's thin 1px borders stay crisp when
+    // shrunk; it scales layout too, so the card sizes to the zoomed email on its own.
+    zoom: var(--mail-preview-scale, 1);
+    // The controller sets `height` to the email's own content height; with the global
+    // `border-box`, the padding-top below would eat into the document's render area
+    // and trigger the iframe scrollbar, so size `height` as content.
+    box-sizing: content-box;
+    width: 636px; // email content 620px + body margins; keep in sync with EMAIL_WIDTH in mail_preview_controller.ts
+    // match horizontal inner spacing between table border & edges
+    padding-top: 16px;
+    border: 0;
+  }
+}

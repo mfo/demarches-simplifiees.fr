@@ -120,7 +120,7 @@ describe Procedure do
     let(:procedure) { create(:procedure, attestation_acceptation_template: attestation_template) }
     let(:attestation_template) { nil }
 
-    subject { procedure.accepter_email_template.rich_body.body.to_html }
+    subject { procedure.accepter_email_template.body }
 
     context 'for procedures without an attestation' do
       it { is_expected.not_to include('lien attestation') }
@@ -147,7 +147,7 @@ describe Procedure do
     let(:procedure) { create(:procedure, attestation_refus_template: attestation_template) }
     let(:attestation_template) { nil }
 
-    subject { procedure.refuser_email_template.rich_body.body.to_html }
+    subject { procedure.refuser_email_template.body }
 
     context 'for procedures without an attestation' do
       it { is_expected.not_to include('lien attestation') }

@@ -32,21 +32,6 @@ export class AttestationController extends ApplicationController {
     });
   }
 
-  toggleOptional(event: Event) {
-    const checkbox = event.target as HTMLInputElement;
-    const visible = checkbox.checked;
-
-    checkbox.nextElementSibling
-      ?.querySelector('.fr-hint-text')
-      ?.classList?.toggle('hidden', !visible);
-
-    checkbox?.parentElement?.parentElement?.nextElementSibling
-      ?.querySelectorAll('li[data-optional-tag]')
-      .forEach((tag) => {
-        tag.classList.toggle('hidden', !visible);
-      });
-  }
-
   private get isStateLayout() {
     return this.layoutToggleTarget.checked;
   }

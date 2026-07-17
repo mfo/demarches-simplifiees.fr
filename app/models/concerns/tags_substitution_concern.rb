@@ -287,11 +287,19 @@ module TagsSubstitutionConcern
         used_tags_and_libelle_for(text_or_tiptap.to_s)
       end
 
+    available_ids = nil
+
     used_tags.filter_map do |(tag, libelle)|
       if tag.nil?
         [libelle]
       elsif !tag.in?(SHARED_TAG_IDS) && tag.start_with?('tdc')
         [libelle, tag.gsub(/^tdc/, '').to_i]
+      else
+        # A tiptap mention carries its tag id verbatim, so ids of tags unknown or
+        # not available for this template's DOSSIER_STATE must be rejected here —
+        # the legacy text parsing did it implicitly (the libelle didn't resolve).
+        available_ids ||= procedure_types_de_champ_tags.map { _1[:id] }
+        [libelle] unless tag.in?(available_ids)
       end
     end
   end
@@ -466,7 +474,7 @@ module TagsSubstitutionConcern
   end
 
   def parse_tags(text)
-    tags = procedure_types_de_champ_tags.index_by { _1[:libelle] }
+    tags = @tags_by_libelle || tags_by_libelle
 
     # MD5 should be enough and it avoids long key
     tokens = Rails.cache.fetch(["parse_tags_v2", Digest::MD5.hexdigest(text)], expires_in: 1.day) { TagsParser.parse(text) }
@@ -478,6 +486,21 @@ module TagsSubstitutionConcern
         token
       end
     end
+  end
+
+  # The libelle→tag index costs SQL and cache round-trips to build; memoize it for
+  # the duration of a block that parses many texts (e.g. converting a legacy mail
+  # template where every text node goes through parse_tags). Scoped to the block —
+  # not the instance — so a later call sees types de champ added in between.
+  def memoize_tags_by_libelle
+    @tags_by_libelle = tags_by_libelle
+    yield
+  ensure
+    @tags_by_libelle = nil
+  end
+
+  def tags_by_libelle
+    procedure_types_de_champ_tags.index_by { _1[:libelle] }
   end
 
   def used_tags_and_libelle_for(text)

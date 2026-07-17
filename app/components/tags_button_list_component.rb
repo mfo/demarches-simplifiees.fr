@@ -7,6 +7,12 @@ class TagsButtonListComponent < ApplicationComponent
     @tags = tags
   end
 
+  # Unique per instance so several tag lists on one page (e.g. the mail subject
+  # and body editors) don't wire their labels to another list's checkbox.
+  def optional_toggle_id
+    @optional_toggle_id ||= "show_optional_#{SecureRandom.hex(4)}"
+  end
+
   def button_label(tag)
     tag[:libelle].truncate_words(12)
   end
