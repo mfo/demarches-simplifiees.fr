@@ -27,6 +27,17 @@ class TagsButtonListComponent < ApplicationComponent
     end
   end
 
+  LEGEND_CATEGORIES = [:champ_public, :champ_private].freeze
+
+  # Unique per instance, for the same reason as optional_toggle_id.
+  def legend_modal_id
+    @legend_modal_id ||= "tags-legend-#{SecureRandom.hex(4)}"
+  end
+
+  def legend?
+    tags.keys.any? { can_toggle_optional?(_1) }
+  end
+
   private
 
   def optional_or_conditional_tag?(tag)
@@ -34,7 +45,7 @@ class TagsButtonListComponent < ApplicationComponent
   end
 
   def can_toggle_optional?(category)
-    return false if category != :champ_public && category != :champ_private
+    return false unless LEGEND_CATEGORIES.include?(category)
 
     tags[category].any? { optional_or_conditional_tag?(_1) }
   end

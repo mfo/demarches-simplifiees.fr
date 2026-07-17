@@ -73,6 +73,13 @@
   width: auto;
 }
 
+// Tags legend modal: static tag samples mirror the editor's tag colors
+// (plain DSFR span tags would render grey).
+.tags-legend-modal .fr-tag:not(.fr-tag--purple-glycine) {
+  color: var(--text-action-high-blue-france);
+  background-color: var(--background-action-low-blue-france);
+}
+
 // Subtle panel grouping the tag buttons (shared by the mail body and subject
 // editors) so they read as one block attached to the field above.
 .tags-buttons-panel {
