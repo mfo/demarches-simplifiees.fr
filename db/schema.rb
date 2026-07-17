@@ -269,6 +269,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
     t.string "fetch_external_data_exceptions", array: true
     t.bigint "parent_id"
     t.boolean "prefilled"
+    t.jsonb "prefilled_original_value"
     t.boolean "private", default: false, null: false
     t.datetime "rebased_at", precision: nil
     t.string "row_id"

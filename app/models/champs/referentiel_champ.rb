@@ -233,7 +233,8 @@ class Champs::ReferentielChamp < Champ
 
   def update_prefillable_champ(type_de_champ:, raw_value:, row_id: nil)
     prefill_champ = dossier.champ_for_update(type_de_champ, row_id:, updated_by:)
-    prefill_champ.update(cast_value_for_type_de_champ(raw_value, type_de_champ))
+    attributes = cast_value_for_type_de_champ(raw_value, type_de_champ)
+    prefill_champ.update(attributes.merge(prefilled_original_value: attributes.except(:prefilled)))
     prefill_champ
   end
 
