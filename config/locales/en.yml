@@ -693,6 +693,9 @@ en:
           connection: Sign in
           find_procedure: Find your procedure
           subtitle: "Sign in with your email"
+        new_invite:
+          flash_alert: "You must sign in or create an account to continue."
+          no_account: "Don't have an account?"
         link_sent:
           consult_help_page_html: If you're seeing this page too often, <a target="_blank" rel="noopener noreferrer" href="%{href}">please consult our help page</a>.
           email_cta_html: "We have to validate your email address <strong>%{email}</strong>."

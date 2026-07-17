@@ -88,8 +88,8 @@ describe TargetedUserLinksController, type: :controller do
       context 'when invite user does not exists' do
         let(:user) { nil }
         before { get :show, params: { id: targeted_user_link.id } }
-        it 'requires authentication before exposing the invite' do
-          expect(response).to redirect_to(new_user_session_path)
+        it 'redirects to invite sign-in page and stores location' do
+          expect(response).to redirect_to(new_user_session_path(context: 'invite'))
           expect(controller.stored_location_for(:user)).to eq(controller.request.fullpath)
         end
       end
@@ -146,8 +146,8 @@ describe TargetedUserLinksController, type: :controller do
       context 'when invite user does not exists' do
         let(:user) { nil }
         before { get :show, params: { id: targeted_user_link.id } }
-        it 'requires authentication before exposing the invite' do
-          expect(response).to redirect_to(new_user_session_path)
+        it 'redirects to invite sign-in page and stores location' do
+          expect(response).to redirect_to(new_user_session_path(context: 'invite'))
           expect(controller.stored_location_for(:user)).to eq(controller.request.fullpath)
         end
       end
@@ -177,9 +177,9 @@ describe TargetedUserLinksController, type: :controller do
         expect(response).not_to redirect_to(invite_path(invite, email: invite_email))
       end
 
-      it 'requires authentication and stores the location for return after sign-in' do
+      it 'redirects to invite sign-in page and stores the location for return after sign-in' do
         anonymous_show
-        expect(response).to redirect_to(new_user_session_path)
+        expect(response).to redirect_to(new_user_session_path(context: 'invite'))
         expect(controller.stored_location_for(:user)).to eq(controller.request.fullpath)
       end
     end

@@ -9,7 +9,8 @@ class TargetedUserLinksController < ApplicationController
     targeted_user_link.target_email
     if targeted_user_link.invalid_signed_in_user?(current_user)
       if !user_signed_in?
-        authenticate_user!
+        flash[:alert] = t('views.users.sessions.new_invite.flash_alert')
+        redirect_to new_user_session_path(context: 'invite')
       else
         render
       end

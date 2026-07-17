@@ -1,5 +1,8 @@
 = content_for(:page_id, 'auth')
 = content_for(:title, t('metas.signin.title'))
+- invite_context = params[:context] == 'invite'
+- if invite_context
+  = content_for(:hide_header_signin, true)
 
 #session-new.auth-form.sign-in-form
   = form_for resource, url: user_session_path, html: { class: "fr-py-5w" } do |f|
@@ -7,7 +10,7 @@
     %h1.fr-h2= t('views.users.sessions.new.sign_in', application_name: Current.application_name)
 
     = render partial: 'shared/france_connect_login', locals: { url: france_connect_path }
-    - if params[:with_proconnect]
+    - if invite_context || params[:with_proconnect]
       = render ProConnectLoginComponent.new
 
     %p.fr-hr-or= t('views.shared.france_connect_login.separator')
@@ -40,3 +43,8 @@
 
       .fr-fieldset__element.fr-mt-1w
         .fr-btns-group= f.submit t('views.users.sessions.new.connection'), class: "fr-btn"
+
+    - if invite_context
+      %h2.fr-h6.fr-mt-4w= t('views.users.sessions.new_invite.no_account')
+      .fr-btns-group
+        = link_to t('views.shared.account.create', application_name: Current.application_name), new_user_registration_path, class: "fr-btn fr-btn--secondary"
