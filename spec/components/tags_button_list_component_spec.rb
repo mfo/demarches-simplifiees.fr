@@ -12,18 +12,27 @@ RSpec.describe TagsButtonListComponent, type: :component do
           libelle: 'Votre avis',
           description: 'Détaillez votre avis',
           mandatory: true,
+          conditional: false,
         },
         {
           id: 'tdc13',
           libelle: 'Un champ facultatif',
           description: 'Ce champ est facultatif',
           mandatory: false,
+          conditional: false,
         },
         {
           id: 'tdc14',
           libelle: 'Un champ conditionnel',
           description: 'Ce champ est conditionnel',
           mandatory: false,
+          conditional: true,
+        },
+        {
+          id: 'tdc15',
+          libelle: 'Un champ obligatoire conditionnel',
+          description: '',
+          mandatory: true,
           conditional: true,
         },
       ],
@@ -53,6 +62,7 @@ RSpec.describe TagsButtonListComponent, type: :component do
   it "hides optional and conditional tags by default" do
     expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ facultatif")
     expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ conditionnel")
+    expect(subject).to have_selector(".hidden button.fr-tag", text: "Un champ obligatoire conditionnel")
     expect(subject).to have_selector(":not(.hidden) button.fr-tag", text: "Votre avis")
     expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnés")
   end
@@ -67,9 +77,17 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(other_checkbox[:id]).not_to eq(checkbox[:id])
   end
 
-  it "applies purple-glycine style to optional and conditional tags" do
-    expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ facultatif")
+  it "suffixes mandatory tags with * and conditional tags with [conditionné]" do
+    expect(subject).to have_selector("button.fr-tag", text: /\A\s*Votre avis\s+\*\s*\z/)
+    expect(subject).to have_selector("button.fr-tag", text: /\A\s*Un champ facultatif\s*\z/)
+    expect(subject).to have_selector("button.fr-tag", text: /\A\s*Un champ conditionnel\s+\[conditionné\]\s*\z/)
+    expect(subject).to have_selector("button.fr-tag", text: /\A\s*Un champ obligatoire conditionnel\s+\*\s+\[conditionné\]\s*\z/)
+  end
+
+  it "applies purple-glycine style to conditional tags only" do
     expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ conditionnel")
+    expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ obligatoire conditionnel")
+    expect(subject).not_to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ facultatif")
     expect(subject).not_to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Votre avis")
   end
 

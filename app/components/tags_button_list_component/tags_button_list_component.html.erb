@@ -29,7 +29,7 @@
 
     <ul class="fr-tags-group" data-category="<%= category %>">
       <% tags.each do |tag| %>
-        <% is_optional = can_toggle_optional && optional_tag?(tag) %>
+        <% is_optional = can_toggle_optional && optional_or_conditional_tag?(tag) %>
         <% label = button_label(tag) %>
 
         <li
@@ -37,7 +37,7 @@
           data-tags-button-list-target="<%= is_optional ? "optionalItem" : nil %>"
         >
           <button
-            class="fr-tag fr-tag--sm <%= class_names("fr-tag--blue-ecume" => tag[:highlight], "fr-tag--purple-glycine" => is_optional) %>"
+            class="fr-tag fr-tag--sm <%= class_names("fr-tag--blue-ecume" => tag[:highlight], "fr-tag--purple-glycine" => tag[:conditional]) %>"
             type="button"
             title="<%= button_title(tag) %>"
             data-action="click->tiptap#insertTag"
@@ -45,12 +45,16 @@
             data-tag-id="<%= tag[:id] %>"
             data-tag-label="<%= label %>"
             data-tag-mandatory="<%= tag[:mandatory].to_s %>"
-            data-tag-category="<%= category %>"
+            data-tag-conditional="<%= tag[:conditional].to_s %>"
           >
             <%= label %>
 
             <% if tag[:mandatory] %>
               *
+            <% end %>
+
+            <% if tag[:conditional] %>
+              [conditionné]
             <% end %>
           </button>
         </li>

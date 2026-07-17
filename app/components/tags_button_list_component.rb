@@ -29,13 +29,13 @@ class TagsButtonListComponent < ApplicationComponent
 
   private
 
-  def optional_tag?(tag)
-    !tag[:mandatory]
+  def optional_or_conditional_tag?(tag)
+    !tag[:mandatory] || tag[:conditional]
   end
 
   def can_toggle_optional?(category)
     return false if category != :champ_public && category != :champ_private
 
-    tags[category].any? { optional_tag?(_1) }
+    tags[category].any? { optional_or_conditional_tag?(_1) }
   end
 end
