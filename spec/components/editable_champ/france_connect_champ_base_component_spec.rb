@@ -59,6 +59,22 @@ describe EditableChamp::FranceConnectChampBaseComponent, type: :component do
           expect(subject).to have_css('input[type="file"]')
         end
       end
+
+      context "when last update is older than refresh delay" do
+        before { champ.update(updated_at: 2.days.ago) }
+
+        it "renders enabled refresh button" do
+          expect(subject).to have_button('Actualiser mes données', disabled: false)
+        end
+      end
+
+      context "when last update is recent (< refresh delay)" do
+        before { champ.update(updated_at: 1.hour.ago) }
+
+        it "renders disabled refresh button" do
+          expect(subject).to have_button('Actualiser mes données', disabled: true)
+        end
+      end
     end
 
     context "when data have not been recovered from API Particulier" do
@@ -79,7 +95,7 @@ describe EditableChamp::FranceConnectChampBaseComponent, type: :component do
         before { champ.update(external_state: 'external_error', fetch_external_data_exceptions: [exception]) }
 
         it 'informs the user that he does not have a beneficiary record' do
-          expect(subject).to have_text("Nous n’avons pas trouvé d'information sur votre situation auprès de l’administration")
+          expect(subject).to have_text("Nous n’avons pas trouvé d’information sur votre situation auprès de l’administration")
         end
       end
 
