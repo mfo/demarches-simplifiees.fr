@@ -27,7 +27,6 @@ en:
   range_date_label: "This date must be within date limits"
   start_date_label: "start date"
   end_date_label: "end date"
-  quotient_familial_hint: "This field allows to automatically and reliably retrieve identity data, the CAF or MSA family quotient and the family composition of the user connected via FranceConnect"
   procedures_limit_label: "Limit to specific procedures"
   procedures_limit_notice: "Only dossiers submitted by the user themselves will be proposed"
   limit_repetitions_legend: "Limit the number of items"

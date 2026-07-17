@@ -27,7 +27,6 @@ fr:
   range_date_label: "Cette date doit être comprise entre des dates limites"
   start_date_label: "date de début"
   end_date_label: "date de fin"
-  quotient_familial_hint: "Ce champ permet de récupérer automatiquement et de façon fiable les données d’identité, le quotient familial CAF ou MSA et la composition familiale de l’usager connecté via FranceConnect"
   procedures_limit_label: "Limiter à certaines démarches"
   procedures_limit_notice: "Seuls les dossiers déposés par l’usager lui-même seront proposés"
   limit_repetitions_legend: "Limiter le nombre d’éléments"
