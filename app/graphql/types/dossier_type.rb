@@ -168,17 +168,17 @@ module Types
 
     def champs(id: nil)
       if id.present?
-        find_record_by_typed_id(object.project_champs_public, id, attribute: :stable_id)
+        find_record_by_typed_id(object.root_champs_public, id, attribute: :stable_id)
       else
-        object.project_champs_public.filter(&:visible?)
+        object.root_champs_public.filter(&:visible?)
       end
     end
 
     def annotations(id: nil)
       if id.present?
-        find_record_by_typed_id(object.project_champs_private, id, attribute: :stable_id)
+        find_record_by_typed_id(object.root_champs_private, id, attribute: :stable_id)
       else
-        object.project_champs_private.filter(&:visible?)
+        object.root_champs_private.filter(&:visible?)
       end
     end
 

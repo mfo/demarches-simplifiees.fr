@@ -14,8 +14,8 @@ class ProcedureRevision < ApplicationRecord
   def revision_types_de_champ_public = revision_types_de_champ.filter { _1.root? && _1.public? }.sort_by(&:position)
   def revision_types_de_champ_private = revision_types_de_champ.filter { _1.root? && _1.private? }.sort_by(&:position)
   def types_de_champ = revision_types_de_champ.map(&:type_de_champ)
-  def types_de_champ_public = revision_types_de_champ_public.map(&:type_de_champ)
-  def types_de_champ_private = revision_types_de_champ_private.map(&:type_de_champ)
+  def root_types_de_champ_public = revision_types_de_champ_public.map(&:type_de_champ)
+  def root_types_de_champ_private = revision_types_de_champ_private.map(&:type_de_champ)
 
   has_one :draft_procedure, -> { with_discarded }, class_name: 'Procedure', foreign_key: :draft_revision_id, dependent: :nullify, inverse_of: :draft_revision
   has_one :published_procedure, -> { with_discarded }, class_name: 'Procedure', foreign_key: :published_revision_id, dependent: :nullify, inverse_of: :published_revision
@@ -215,7 +215,7 @@ class ProcedureRevision < ApplicationRecord
   def dependent_conditions(tdc)
     stable_id = tdc.stable_id
 
-    (tdc.public? ? types_de_champ_public : types_de_champ_private).filter do |other_tdc|
+    (tdc.public? ? root_types_de_champ_public : root_types_de_champ_private).filter do |other_tdc|
       next if !other_tdc.condition?
 
       other_tdc.condition.sources.include?(stable_id)
@@ -236,11 +236,11 @@ class ProcedureRevision < ApplicationRecord
   end
 
   def carte?
-    types_de_champ_public.any?(&:carte?)
+    root_types_de_champ_public.any?(&:carte?)
   end
 
   def has_france_connect_type_de_champ?
-    types_de_champ_public.any?(&:france_connect?)
+    root_types_de_champ_public.any?(&:france_connect?)
   end
 
   def coordinate_and_tdc(stable_id)
@@ -254,7 +254,7 @@ class ProcedureRevision < ApplicationRecord
   end
 
   def simple_routable_types_de_champ
-    types_de_champ_public.filter(&:simple_routable?)
+    root_types_de_champ_public.filter(&:simple_routable?)
   end
 
   def conditionable_types_de_champ
@@ -334,7 +334,7 @@ class ProcedureRevision < ApplicationRecord
   private
 
   def compute_estimated_fill_duration
-    types_de_champ_public.sum do |tdc|
+    root_types_de_champ_public.sum do |tdc|
       next tdc.estimated_read_duration unless tdc.fillable?
 
       duration = tdc.estimated_read_duration + tdc.estimated_fill_duration(self)

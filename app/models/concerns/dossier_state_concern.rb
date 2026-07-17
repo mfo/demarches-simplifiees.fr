@@ -402,7 +402,7 @@ module DossierStateConcern
   end
 
   def remove_not_visible_or_empty_repetitions!
-    row_to_remove_ids = project_champs_public
+    row_to_remove_ids = root_champs_public
       .filter { _1.repetition? && (_1.blank? || !_1.visible?) }
       .flat_map(&:row_ids)
 
@@ -411,7 +411,7 @@ module DossierStateConcern
   end
 
   def clear_not_visible_or_empty_champs!
-    champs_to_clear = project_champs_public_all
+    champs_to_clear = flat_champs_public
       .reject(&:repetition?)
       .filter { _1.blank? || !_1.visible? }
 
@@ -419,7 +419,7 @@ module DossierStateConcern
   end
 
   def clear_france_connect_champs_piece_justificatives!
-    champs_to_clear = project_champs_public.filter(&:france_connect?)
+    champs_to_clear = root_champs_public.filter(&:france_connect?)
 
     return if champs_to_clear.empty?
     champ_data.where(id: champs_to_clear).find_each(&:clear_piece_justificative)

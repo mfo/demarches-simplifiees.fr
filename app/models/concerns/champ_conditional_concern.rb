@@ -59,7 +59,7 @@ module ChampConditionalConcern
 
     return false if parent_tdc.nil?
 
-    parent = dossier.project_champs
+    parent = dossier.champs
       .find { it.type_de_champ == parent_tdc }
 
     !parent.visible?

@@ -24,7 +24,7 @@ module Maintenance
     end
 
     def process(dossier)
-      pjs = dossier.project_champs_public
+      pjs = dossier.root_champs_public
         .filter { it.type == "Champs::PieceJustificativeChamp" && it.rib? == true }
 
       pjs.filter(&:idle?).each do |pj|

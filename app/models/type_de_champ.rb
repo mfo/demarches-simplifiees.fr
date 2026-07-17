@@ -581,7 +581,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def current_section_level(revision)
-    tdcs = private? ? revision.types_de_champ_private.to_a : revision.types_de_champ_public.to_a
+    tdcs = private? ? revision.root_types_de_champ_private.to_a : revision.root_types_de_champ_public.to_a
 
     previous_section_level(tdcs.take(tdcs.find_index(self)))
   end

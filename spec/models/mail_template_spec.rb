@@ -2,7 +2,7 @@
 
 describe Mails::InitiatedMail, type: :model do
   let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'nom' }]) }
-  let(:type_de_champ) { procedure.draft_revision.types_de_champ_public.first }
+  let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public.first }
   let(:mail) { described_class.default_for_procedure(procedure) }
 
   let(:email_subject) { '' }

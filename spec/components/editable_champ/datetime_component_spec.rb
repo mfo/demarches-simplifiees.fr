@@ -3,7 +3,7 @@
 describe EditableChamp::DatetimeComponent, type: :component do
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :datetime, stable_id: 99, mandatory: true }]) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.project_champs.first }
+  let(:champ) { dossier.champs.first }
 
   let(:component) {
     described_class.new(form: instance_double(ActionView::Helpers::FormBuilder, object_name: "dossier[champs_public_attributes]"), champ:)

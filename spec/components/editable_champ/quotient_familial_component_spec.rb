@@ -3,7 +3,7 @@
 describe EditableChamp::QuotientFamilialComponent, type: :component do
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:champ) { dossier.project_champs_public.first }
+  let(:champ) { dossier.root_champs_public.first }
 
   subject(:render) do
     component = nil

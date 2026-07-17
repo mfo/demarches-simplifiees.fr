@@ -31,10 +31,10 @@ describe 'dossiers/show.pdf', type: :view do
 
     let(:dossier) do
       d = create(:dossier, :en_construction, procedure: procedure)
-      d.project_champs_public.find { _1.libelle == 'Nom' }&.update(value: 'Dupont')
-      d.project_champs_public.find { _1.libelle == 'Prénom' }&.update(value: 'Jean')
-      d.project_champs_public.find { _1.libelle == 'Email' }&.update(value: 'jean.dupont@example.fr')
-      d.project_champs_public.find { _1.libelle == 'Numéro' }&.update(value: 'AB123456')
+      d.root_champs_public.find { _1.libelle == 'Nom' }&.update(value: 'Dupont')
+      d.root_champs_public.find { _1.libelle == 'Prénom' }&.update(value: 'Jean')
+      d.root_champs_public.find { _1.libelle == 'Email' }&.update(value: 'jean.dupont@example.fr')
+      d.root_champs_public.find { _1.libelle == 'Numéro' }&.update(value: 'AB123456')
       d
     end
 
@@ -131,7 +131,7 @@ describe 'dossiers/show.pdf', type: :view do
     end
     let(:dossier) do
       d = create(:dossier, :en_construction, procedure: procedure)
-      d.project_champs_public.find { _1.stable_id == stable_id_number }&.update(value: 1)
+      d.root_champs_public.find { _1.stable_id == stable_id_number }&.update(value: 1)
       d.reload
       d
     end

@@ -72,7 +72,7 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
 
       describe 'when a champ has a other value' do
         let(:dossier) { create(:dossier, procedure:) }
-        let(:champ) { dossier.project_champs.first }
+        let(:champ) { dossier.champs.first }
 
         it 'matches other' do
           champ.value = '__other__'

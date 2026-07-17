@@ -7,7 +7,7 @@ RSpec.describe Dossiers::ChampsRowsShowComponent, type: :component do
     ])
   end
   let(:dossier) { create(:dossier, procedure:, populate_champs: true) }
-  let(:champs) { dossier.project_champs_public }
+  let(:champs) { dossier.root_champs_public }
 
   before { render_inline(component).to_html }
 
