@@ -21,7 +21,12 @@ module Types
     field :demarches_publiques, DemarcheDescriptorType.connection_type, null: false, internal: true
 
     def demarches_publiques
-      Procedure.publiques.includes(:procedure_paths, draft_revision: :procedure, published_revision: :procedure)
+      Procedure.publiques.includes(
+        :procedure_paths,
+        published_revision: {
+          revision_types_de_champ: :type_de_champ,
+        }
+      )
     end
 
     def demarche_descriptor(demarche:)
