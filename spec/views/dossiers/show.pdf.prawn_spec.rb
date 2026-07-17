@@ -160,4 +160,19 @@ describe 'dossiers/show.pdf', type: :view do
       expect { render_and_extract(dossier, procedure, 'varied_types') }.not_to raise_error
     end
   end
+
+  describe 'france connect champ whose data is not rendered yet' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :aah, libelle: 'AAH' }]) }
+    let(:dossier) do
+      d = create(:dossier, :en_construction, procedure:)
+      d.project_champs_public.first.update(external_state: 'fetched', value: 'true', value_json: { api_part: { est_beneficiaire: true } })
+      d
+    end
+
+    it 'does not print the raw confirmation value', if: PDFTOTEXT_AVAILABLE do
+      text = render_and_extract(dossier, procedure, 'aah')
+
+      expect(text).not_to include('true')
+    end
+  end
 end

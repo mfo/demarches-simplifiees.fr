@@ -287,12 +287,12 @@ def add_single_champ(pdf, champ)
   when 'Champs::TextareaChamp'
     value = champ.blank? ? 'Non communiqué' : champ.to_s
     format_in_2_lines(pdf, tdc.libelle, clean_string_for_pdf(value))
-  when 'Champs::QuotientFamilialChamp'
+  when 'Champs::QuotientFamilialChamp', 'Champs::AahChamp', 'Champs::AeehChamp', 'Champs::EtudiantBoursierChamp'
     if champ.fc_data_correct?
       pdf.font 'marianne', style: :bold do
         pdf.text champ.libelle
       end
-      add_quotient_familial(pdf, champ.value_json['api_part'])
+      add_quotient_familial(pdf, champ.value_json['api_part']) if champ.type == 'Champs::QuotientFamilialChamp'
     else
       format_in_2_lines(pdf, champ.libelle, champ.piece_justificative_file.map { |pj| "- #{pj.filename}" }.join("\n"))
     end
