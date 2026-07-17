@@ -11,8 +11,8 @@ class Columns::FranceConnectChampColumn < Columns::JSONPathColumn
   ]
 
   ETUDIANT_BOURSIER_COLUMNS = [
-    ['Boursier', '$.api_part.est_boursier', :boolean],
-    ['Radié', '$.api_part.est_radie', :boolean],
+    ['Boursier', '$.api_part.statut_boursier.est_boursier', :boolean],
+    ['Radié', '$.api_part.statut_boursier.est_radie', :boolean],
     ['Début de versement', '$.api_part.periode_versement_bourse.date_rentree', :date],
     ['Nombre de mois de versement', '$.api_part.periode_versement_bourse.duree', :integer],
     ["Commune d'études", '$.api_part.etablissement_etudes.nom_commune', :text],

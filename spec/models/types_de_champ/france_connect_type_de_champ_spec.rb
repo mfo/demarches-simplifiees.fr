@@ -64,4 +64,30 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
       end
     end
   end
+
+  context "when type de champ is etudiant_boursier" do
+    describe '#columns' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :etudiant_boursier, libelle: 'eb' }]) }
+      let(:tdc_etudiant_boursier) { procedure.active_revision.types_de_champ.first }
+      let(:dossier) { create(:dossier, procedure:) }
+      let(:champ) { dossier.champ_data.first }
+
+      before do
+        champ.update(
+          external_state: 'fetched',
+          value: 'true',
+          value_json: { api_part: { statut_boursier: { est_boursier: true, est_radie: false } } }
+        )
+      end
+
+      def column_value(label)
+        tdc_etudiant_boursier.columns(procedure_id: procedure.id).find { it.label == label }.value(champ)
+      end
+
+      it 'extracts values nested under statut_boursier' do
+        expect(column_value('eb – Boursier')).to be(true)
+        expect(column_value('eb – Radié')).to be(false)
+      end
+    end
+  end
 end
