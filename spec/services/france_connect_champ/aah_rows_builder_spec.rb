@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe FranceConnectChamp::AahRowsBuilder do
+describe FranceConnectChamp::AAHRowsBuilder do
   describe '#build' do
     subject { described_class.new.build(data) }
 

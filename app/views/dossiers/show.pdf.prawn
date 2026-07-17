@@ -287,7 +287,7 @@ def add_single_champ(pdf, champ)
   when 'Champs::TextareaChamp'
     value = champ.blank? ? 'Non communiqué' : champ.to_s
     format_in_2_lines(pdf, tdc.libelle, clean_string_for_pdf(value))
-  when 'Champs::QuotientFamilialChamp', 'Champs::AahChamp', 'Champs::AeehChamp', 'Champs::EtudiantBoursierChamp'
+  when 'Champs::QuotientFamilialChamp', 'Champs::AAHChamp', 'Champs::AEEHChamp', 'Champs::EtudiantBoursierChamp'
     if champ.fc_data_correct?
       pdf.font 'marianne', style: :bold do
         pdf.text champ.libelle

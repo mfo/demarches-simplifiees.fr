@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module FranceConnectChamp
-  class AahRowsBuilder < BaseRowsBuilder
+  class AAHRowsBuilder < BaseRowsBuilder
     def build(data)
       rows = []
 

@@ -181,10 +181,10 @@ FactoryBot.define do
     factory :champ_do_not_use_etudiant_boursier, class: 'Champs::EtudiantBoursierChamp' do
     end
 
-    factory :champ_do_not_use_aah, class: 'Champs::AahChamp' do
+    factory :champ_do_not_use_aah, class: 'Champs::AAHChamp' do
     end
 
-    factory :champ_do_not_use_aeeh, class: 'Champs::AeehChamp' do
+    factory :champ_do_not_use_aeeh, class: 'Champs::AEEHChamp' do
     end
   end
 end

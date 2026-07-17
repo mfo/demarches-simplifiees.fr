@@ -3,7 +3,35 @@ Requires that exactly one field must be supplied and that field must not be `nul
 """
 directive @oneOf on INPUT_OBJECT
 
-type AahChampDescriptor implements ChampDescriptor {
+type AAHChampDescriptor implements ChampDescriptor {
+  """
+  Description des champs d’un bloc répétable.
+  """
+  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
+
+  """
+  Description du champ.
+  """
+  description: String
+  id: ID!
+
+  """
+  Libellé du champ.
+  """
+  label: String!
+
+  """
+  Est-ce que le champ est obligatoire ?
+  """
+  required: Boolean!
+
+  """
+  Type de la valeur du champ.
+  """
+  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
+}
+
+type AEEHChampDescriptor implements ChampDescriptor {
   """
   Description des champs d’un bloc répétable.
   """
@@ -192,34 +220,6 @@ enum AddressType {
   position « à la voie », placé approximativement au centre de celle-ci
   """
   street
-}
-
-type AeehChampDescriptor implements ChampDescriptor {
-  """
-  Description des champs d’un bloc répétable.
-  """
-  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
-
-  """
-  Description du champ.
-  """
-  description: String
-  id: ID!
-
-  """
-  Libellé du champ.
-  """
-  label: String!
-
-  """
-  Est-ce que le champ est obligatoire ?
-  """
-  required: Boolean!
-
-  """
-  Type de la valeur du champ.
-  """
-  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
 }
 
 input AnnotationInput {

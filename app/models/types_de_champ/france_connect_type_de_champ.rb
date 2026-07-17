@@ -20,14 +20,14 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
       resource: 'v3/dss/allocation_adulte_handicape/identite',
       schema: "app/schemas/aah.json",
       preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_aah_data.json",
-      rows_builder: FranceConnectChamp::AahRowsBuilder,
+      rows_builder: FranceConnectChamp::AAHRowsBuilder,
       columns: Columns::FranceConnectChampColumn::AAH_COLUMNS,
     },
     aeeh: {
       resource: 'v3/dss/allocation_enfant_handicape/identite',
       schema: "app/schemas/aeeh.json",
       preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_aeeh_data.json",
-      rows_builder: FranceConnectChamp::AeehRowsBuilder,
+      rows_builder: FranceConnectChamp::AEEHRowsBuilder,
       columns: Columns::FranceConnectChampColumn::AEEH_COLUMNS,
     },
   }.freeze

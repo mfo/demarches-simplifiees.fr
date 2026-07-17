@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-class Champs::AeehChamp < Champs::FranceConnectChamp
+class Champs::AEEHChamp < Champs::FranceConnectChamp
 end

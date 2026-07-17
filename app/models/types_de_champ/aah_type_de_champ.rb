@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::AahTypeDeChamp < TypesDeChamp::FranceConnectTypeDeChamp
+class TypesDeChamp::AAHTypeDeChamp < TypesDeChamp::FranceConnectTypeDeChamp
 end

@@ -104,9 +104,9 @@ module Types
         when TypeDeChamp.type_champs.fetch(:etudiant_boursier)
           Types::Champs::Descriptor::EtudiantBoursierChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:aah)
-          Types::Champs::Descriptor::AahChampDescriptorType
+          Types::Champs::Descriptor::AAHChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:aeeh)
-          Types::Champs::Descriptor::AeehChampDescriptorType
+          Types::Champs::Descriptor::AEEHChampDescriptorType
         end
       end
     end

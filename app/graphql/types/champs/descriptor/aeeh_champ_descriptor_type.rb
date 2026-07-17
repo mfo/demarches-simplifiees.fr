@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Types::Champs::Descriptor
-  class AeehChampDescriptorType < Types::BaseObject
+  class AEEHChampDescriptorType < Types::BaseObject
     implements Types::ChampDescriptorType
   end
 end
