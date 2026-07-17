@@ -117,4 +117,14 @@ describe EditableChamp::FranceConnectChampBaseComponent, type: :component do
       end
     end
   end
+
+  context "when type_champ is aah" do
+    let(:type_champ) { 'aah' }
+
+    before { champ.update(external_state: 'idle') }
+
+    it 'keeps the acronym untouched in the justificatif label' do
+      expect(subject).to have_text('Justificatif de bénéficiaire de l’AAH')
+    end
+  end
 end

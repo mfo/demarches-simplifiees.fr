@@ -51,4 +51,28 @@ describe Champs::FranceConnectChamp, type: :model do
       end
     end
   end
+
+  describe '#libelle' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :aah }], for_individual: true) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:champ) { dossier.champ_data.first }
+
+    subject { champ.libelle }
+
+    context 'when data has not been fetched' do
+      before { champ.update(external_state: 'idle') }
+
+      it 'keeps the acronym untouched' do
+        is_expected.to eq('Justificatif de statut allocation adulte handicapé (AAH)')
+      end
+    end
+
+    context 'when data is being fetched' do
+      before { champ.update(external_state: 'waiting_for_job') }
+
+      it 'keeps the acronym untouched' do
+        is_expected.to eq('Statut allocation adulte handicapé (AAH) (France Connect)')
+      end
+    end
+  end
 end

@@ -49,7 +49,7 @@ class Champs::FranceConnectChamp < Champ
     elsif fc_data_incorrect? || external_error? || idle?
       I18n.t('france_connect_champ.libelle.piece_justificative', type_champ: type_champ_for_libelle)
     else
-      I18n.t('france_connect_champ.libelle.default', type_champ: type_champ_for_libelle.capitalize)
+      I18n.t('france_connect_champ.libelle.default', type_champ: type_champ_for_libelle.upcase_first)
     end
   end
 

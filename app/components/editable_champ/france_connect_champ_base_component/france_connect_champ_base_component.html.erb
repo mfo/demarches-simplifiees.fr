@@ -124,7 +124,7 @@
       <% end %>
     <% end %>
   <% end %>
-  <%= justificatif_label.capitalize %>
+  <%= justificatif_label.upcase_first %>
   <%= render EditableChamp::AsteriskMandatoryComponent.new %>
   <%= render Attachment::FileFieldComponent.new(
     context: Attachment::Context.new(
