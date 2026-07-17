@@ -17,20 +17,20 @@ module DossierChampsConcern
     end
   end
 
-  def project_champs_public
-    @project_champs_public ||= revision.types_de_champ_public.map { project_champ(_1) }
+  def root_champs_public
+    @root_champs_public ||= revision.root_types_de_champ_public.map { project_champ(_1) }
   end
 
-  def project_champs_private
-    @project_champs_private ||= revision.types_de_champ_private.map { project_champ(_1) }
+  def root_champs_private
+    @root_champs_private ||= revision.root_types_de_champ_private.map { project_champ(_1) }
   end
 
-  def project_champs
-    project_champs_public + project_champs_private
+  def champs
+    root_champs_public + root_champs_private
   end
 
   def filled_champs_public
-    @filled_champs_public ||= project_champs_public.flat_map do |champ|
+    @filled_champs_public ||= root_champs_public.flat_map do |champ|
       if champ.repetition?
         champ.rows.flatten.filter { _1.persisted? && _1.fillable? }
       elsif champ.persisted? && champ.fillable?
@@ -42,7 +42,7 @@ module DossierChampsConcern
   end
 
   def filled_champs_private
-    @filled_champs_private ||= project_champs_private.flat_map do |champ|
+    @filled_champs_private ||= root_champs_private.flat_map do |champ|
       if champ.repetition?
         champ.rows.flatten.filter { _1.persisted? && _1.fillable? }
       elsif champ.persisted? && champ.fillable?
@@ -57,8 +57,8 @@ module DossierChampsConcern
     filled_champs_public + filled_champs_private
   end
 
-  def project_champs_public_all
-    @project_champs_public_all ||= revision.types_de_champ_public.flat_map do |type_de_champ|
+  def flat_champs_public
+    @flat_champs_public ||= revision.root_types_de_champ_public.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -68,8 +68,8 @@ module DossierChampsConcern
     end
   end
 
-  def project_champs_private_all
-    @project_champs_private_all ||= revision.types_de_champ_private.flat_map do |type_de_champ|
+  def flat_champs_private
+    @flat_champs_private ||= revision.root_types_de_champ_private.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -229,7 +229,7 @@ module DossierChampsConcern
   end
 
   def set_default_value_for_france_connect_champs(user_email)
-    revision.types_de_champ_public.filter(&:france_connect?).each do |type_de_champ|
+    revision.root_types_de_champ_public.filter(&:france_connect?).each do |type_de_champ|
       existing_champ_on_main_stream = champs_on_main_stream.any? { _1.stable_id == type_de_champ.stable_id }
 
       next if existing_champ_on_main_stream && en_construction?
@@ -475,10 +475,10 @@ module DossierChampsConcern
     @discarded_champs_by_public_id = nil
     @filled_champs_public = nil
     @filled_champs_private = nil
-    @project_champs_public = nil
-    @project_champs_private = nil
-    @project_champs_public_all = nil
-    @project_champs_private_all = nil
+    @root_champs_public = nil
+    @root_champs_private = nil
+    @flat_champs_public = nil
+    @flat_champs_private = nil
     @repetition_row_ids = nil
     @revision_stable_ids = nil
     @champs_on_stream = nil

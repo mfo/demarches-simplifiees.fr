@@ -9,7 +9,7 @@ module Maintenance
         create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'rib' }])
       end
       let(:dossier) { create(:dossier, procedure:) }
-      let(:pj) { dossier.project_champs_public.first }
+      let(:pj) { dossier.root_champs_public.first }
 
       subject(:process) { described_class.process(dossier) }
 

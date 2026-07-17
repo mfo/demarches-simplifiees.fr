@@ -136,11 +136,11 @@ describe RechercheController, type: :controller do
 
     describe 'by champs' do
       before do
-        dossier.project_champs_public[0].value = "Name of district A"
-        dossier.project_champs_public[1].value = "75000"
+        dossier.root_champs_public[0].value = "Name of district A"
+        dossier.root_champs_public[1].value = "75000"
         dossier.save!
 
-        dossier_with_expert.project_champs_public[0].value = "Name of district B"
+        dossier_with_expert.root_champs_public[0].value = "Name of district B"
         dossier_with_expert.save!
 
         perform_enqueued_jobs(only: DossierIndexSearchTermsJob)
@@ -189,7 +189,7 @@ describe RechercheController, type: :controller do
       let(:query) { 'invalid' }
 
       before do
-        dossier_with_expert.project_champs_private[1].value = "Dossier B is invalid"
+        dossier_with_expert.root_champs_private[1].value = "Dossier B is invalid"
         dossier_with_expert.save!
 
         perform_enqueued_jobs(only: DossierIndexSearchTermsJob)

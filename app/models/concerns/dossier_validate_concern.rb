@@ -10,24 +10,24 @@ module DossierValidateConcern
 
   def champs_public_valid?
     validate(:champs_public_value)
-    check_mandatory_and_visible_champs_for(project_champs_public)
+    check_mandatory_and_visible_champs_for(root_champs_public)
     errors.blank?
   end
 
   def champs_private_valid?
     validate(:champs_private_value)
-    check_mandatory_and_visible_champs_for(project_champs_private)
+    check_mandatory_and_visible_champs_for(root_champs_private)
     errors.blank?
   end
 
   private
 
   def validate_champs_public_value
-    validate_projected_champs(project_champs_public_all)
+    validate_projected_champs(flat_champs_public)
   end
 
   def validate_champs_private_value
-    validate_projected_champs(project_champs_private_all)
+    validate_projected_champs(flat_champs_private)
   end
 
   def validate_projected_champs(champs)

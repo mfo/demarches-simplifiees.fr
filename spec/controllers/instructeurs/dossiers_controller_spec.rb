@@ -1366,12 +1366,12 @@ describe Instructeurs::DossiersController, type: :controller do
     let(:another_instructeur) { create(:instructeur) }
     let(:now) { Time.zone.parse('01/01/2100') }
 
-    let(:champ_repetition) { dossier.project_champs_private.fourth }
+    let(:champ_repetition) { dossier.root_champs_private.fourth }
     let(:champ_text) { champ_repetition.rows.first.first }
-    let(:champ_multiple_drop_down_list) { dossier.project_champs_private.first }
-    let(:champ_linked_drop_down_list) { dossier.project_champs_private.second }
-    let(:champ_datetime) { dossier.project_champs_private.third }
-    let(:champ_drop_down_list) { dossier.project_champs_private.fifth }
+    let(:champ_multiple_drop_down_list) { dossier.root_champs_private.first }
+    let(:champ_linked_drop_down_list) { dossier.root_champs_private.second }
+    let(:champ_datetime) { dossier.root_champs_private.third }
+    let(:champ_drop_down_list) { dossier.root_champs_private.fifth }
 
     context 'when no invalid champs_public' do
       context "with new values for champs_private" do
@@ -1573,7 +1573,7 @@ describe Instructeurs::DossiersController, type: :controller do
         ]
       end
 
-      let(:champ_decimal_number) { dossier.project_champs_public.first }
+      let(:champ_decimal_number) { dossier.root_champs_public.first }
 
       let(:params) do
         {
@@ -1634,7 +1634,7 @@ describe Instructeurs::DossiersController, type: :controller do
       let(:types_de_champ_private) { [{ type: :pre_rempli }] }
       let(:types_de_champ_public) { [] }
       let(:dossier) { create(:dossier, :en_construction, :with_populated_annotations, procedure:) }
-      let(:pre_rempli_annotation) { dossier.project_champs_private.first }
+      let(:pre_rempli_annotation) { dossier.root_champs_private.first }
 
       before { pre_rempli_annotation.update_column(:value, 'original') }
 
@@ -1688,7 +1688,7 @@ describe Instructeurs::DossiersController, type: :controller do
       it 'recomputes visibility of conditional annotations after polling' do
         subject
 
-        explication_annotation = assigns(:dossier).project_champs_private_all
+        explication_annotation = assigns(:dossier).flat_champs_private
           .find { _1.type_de_champ.stable_id == explication_stable_id }
         expect(assigns(:to_show)).to include("##{explication_annotation.input_group_id}")
       end

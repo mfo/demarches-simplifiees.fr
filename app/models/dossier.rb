@@ -168,7 +168,7 @@ class Dossier < ApplicationRecord
   has_one :attestation_acceptation_template, through: :procedure
   has_one :attestation_refus_template, through: :procedure
 
-  delegate :types_de_champ_public, :types_de_champ_private, :has_france_connect_type_de_champ?, to: :revision
+  delegate :root_types_de_champ_public, :root_types_de_champ_private, :has_france_connect_type_de_champ?, to: :revision
 
   belongs_to :transfer, class_name: 'DossierTransfer', foreign_key: 'dossier_transfer_id', optional: true, inverse_of: :dossiers
   has_many :transfer_logs, class_name: 'DossierTransferLog', dependent: :destroy
@@ -1090,7 +1090,7 @@ class Dossier < ApplicationRecord
   end
 
   def has_annotations?
-    revision.types_de_champ_private.present?
+    revision.root_types_de_champ_private.present?
   end
 
   def hide_info_with_accuse_lecture?
@@ -1153,8 +1153,8 @@ class Dossier < ApplicationRecord
   end
 
   def build_default_champs
-    build_default_champs_for(revision.types_de_champ_public) if !champ_data.any?(&:public?)
-    build_default_champs_for(revision.types_de_champ_private) if !champ_data.any?(&:private?)
+    build_default_champs_for(revision.root_types_de_champ_public) if !champ_data.any?(&:public?)
+    build_default_champs_for(revision.root_types_de_champ_private) if !champ_data.any?(&:private?)
   end
 
   def build_default_champs_for(types_de_champ)

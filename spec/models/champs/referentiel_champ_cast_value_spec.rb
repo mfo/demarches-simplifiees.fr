@@ -44,7 +44,7 @@ describe Champs::ReferentielChamp, type: :model do
 
         it 'update the prefiiable stable_id with the jsonpath value of the external data' do
           expect { subject }
-            .to change { dossier.reload.project_champs.find(&:text?).value }.from(nil).to("ok")
+            .to change { dossier.reload.champs.find(&:text?).value }.from(nil).to("ok")
         end
       end
 
@@ -55,7 +55,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "42" } }
           it 'casts and updates the integer_number with the jsonpath value as integer' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:integer_number?).value }.from(nil).to("42")
+              .to change { dossier.reload.champs.find(&:integer_number?).value }.from(nil).to("42")
           end
         end
 
@@ -63,7 +63,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 42 } }
           it 'casts and updates the integer_number with the jsonpath value as integer' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:integer_number?).value }.from(nil).to("42")
+              .to change { dossier.reload.champs.find(&:integer_number?).value }.from(nil).to("42")
           end
         end
 
@@ -71,7 +71,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 42.2 } }
           it 'casts and updates the integer_number with the jsonpath value as integer' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:integer_number?).value }.from(nil).to("42")
+              .to change { dossier.reload.champs.find(&:integer_number?).value }.from(nil).to("42")
           end
         end
 
@@ -79,7 +79,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'casts and updates the integer_number with the jsonpath value as integer' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:integer_number?).value }
+              .not_to change { dossier.reload.champs.find(&:integer_number?).value }
           end
         end
 
@@ -87,7 +87,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "" } }
           it 'casts and updates the integer_number with the jsonpath value as integer' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:integer_number?).value }
+              .not_to change { dossier.reload.champs.find(&:integer_number?).value }
           end
         end
       end
@@ -99,7 +99,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 3.14 } }
           it 'casts and updates the decimal_number with the jsonpath value as float' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:decimal_number?).value }.from(nil).to("3.14")
+              .to change { dossier.reload.champs.find(&:decimal_number?).value }.from(nil).to("3.14")
           end
         end
 
@@ -107,7 +107,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "3.14" } }
           it 'casts and updates the decimal_number with the jsonpath value as float' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:decimal_number?).value }.from(nil).to("3.14")
+              .to change { dossier.reload.champs.find(&:decimal_number?).value }.from(nil).to("3.14")
           end
         end
 
@@ -115,7 +115,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 2 } }
           it 'casts and updates the decimal_number with the jsonpath value as float' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:decimal_number?).value }.from(nil).to("2.0")
+              .to change { dossier.reload.champs.find(&:decimal_number?).value }.from(nil).to("2.0")
           end
         end
 
@@ -123,7 +123,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "2" } }
           it 'casts and updates the decimal_number with the jsonpath value as float' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:decimal_number?).value }.from(nil).to("2.0")
+              .to change { dossier.reload.champs.find(&:decimal_number?).value }.from(nil).to("2.0")
           end
         end
 
@@ -131,7 +131,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'does not update the decimal_number value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:decimal_number?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:decimal_number?).value }.from(nil)
           end
         end
 
@@ -139,7 +139,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "" } }
           it 'does not update the decimal_number value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:decimal_number?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:decimal_number?).value }.from(nil)
           end
         end
       end
@@ -151,7 +151,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: true } }
           it 'casts and updates the checkbox with the jsonpath value as "true"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:checkbox?).value }.from(nil).to("true")
+              .to change { dossier.reload.champs.find(&:checkbox?).value }.from(nil).to("true")
           end
         end
 
@@ -159,7 +159,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "true" } }
           it 'casts and updates the checkbox with the jsonpath value as "true"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:checkbox?).value }.from(nil).to("true")
+              .to change { dossier.reload.champs.find(&:checkbox?).value }.from(nil).to("true")
           end
         end
 
@@ -167,7 +167,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 1 } }
           it 'casts and updates the checkbox with the jsonpath value as "true"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:checkbox?).value }.from(nil).to("true")
+              .to change { dossier.reload.champs.find(&:checkbox?).value }.from(nil).to("true")
           end
         end
 
@@ -175,7 +175,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "1" } }
           it 'casts and updates the checkbox with the jsonpath value as "true"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:checkbox?).value }.from(nil).to("true")
+              .to change { dossier.reload.champs.find(&:checkbox?).value }.from(nil).to("true")
           end
         end
 
@@ -183,7 +183,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'does not update the checkbox value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:checkbox?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:checkbox?).value }.from(nil)
           end
         end
 
@@ -191,7 +191,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "" } }
           it 'does not update the checkbox value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:checkbox?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:checkbox?).value }.from(nil)
           end
         end
       end
@@ -203,7 +203,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: false } }
           it 'casts and updates the yes_no with the jsonpath value as "false"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:yes_no?).value }.from(nil).to("false")
+              .to change { dossier.reload.champs.find(&:yes_no?).value }.from(nil).to("false")
           end
         end
 
@@ -211,7 +211,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "false" } }
           it 'casts and updates the yes_no with the jsonpath value as "false"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:yes_no?).value }.from(nil).to("false")
+              .to change { dossier.reload.champs.find(&:yes_no?).value }.from(nil).to("false")
           end
         end
 
@@ -219,7 +219,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 0 } }
           it 'casts and updates the yes_no with the jsonpath value as "false"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:yes_no?).value }.from(nil).to("false")
+              .to change { dossier.reload.champs.find(&:yes_no?).value }.from(nil).to("false")
           end
         end
 
@@ -227,7 +227,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "0" } }
           it 'casts and updates the yes_no with the jsonpath value as "false"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:yes_no?).value }.from(nil).to("false")
+              .to change { dossier.reload.champs.find(&:yes_no?).value }.from(nil).to("false")
           end
         end
 
@@ -235,7 +235,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'does not update the yes_no value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:yes_no?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:yes_no?).value }.from(nil)
           end
         end
 
@@ -243,7 +243,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: "" } }
           it 'does not update the yes_no value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:yes_no?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:yes_no?).value }.from(nil)
           end
         end
       end
@@ -255,7 +255,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '2024-06-14' } }
           it 'casts and updates the date with the jsonpath value as ISO8601' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:date?).value }.from(nil).to('2024-06-14')
+              .to change { dossier.reload.champs.find(&:date?).value }.from(nil).to('2024-06-14')
           end
         end
 
@@ -264,7 +264,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: date.to_time.to_i } } # 2025-07-10T00:00:00Z
           it 'convert to ISO8601 date' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:date?).value }.from(nil).to(date.iso8601)
+              .to change { dossier.reload.champs.find(&:date?).value }.from(nil).to(date.iso8601)
           end
         end
 
@@ -273,7 +273,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: date.to_time.to_i.to_s } } # 2025-07-10T00:00:00Z
           it 'convert to ISO8601 date' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:date?).value }.from(nil).to(date.iso8601)
+              .to change { dossier.reload.champs.find(&:date?).value }.from(nil).to(date.iso8601)
           end
         end
 
@@ -281,7 +281,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'not_a_timestamp' } }
           it 'noops' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:date?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:date?).value }.from(nil)
           end
         end
 
@@ -289,7 +289,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '14/06/2024' } }
           it 'casts and updates the date with the jsonpath value as ISO8601' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:date?).value }.from(nil).to('2024-06-14')
+              .to change { dossier.reload.champs.find(&:date?).value }.from(nil).to('2024-06-14')
           end
         end
 
@@ -297,7 +297,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '2024-13-14' } }
           it 'does not update the date value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:date?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:date?).value }.from(nil)
           end
         end
       end
@@ -309,7 +309,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '2024-06-14T12:34' } }
           it 'casts and updates the datetime with the jsonpath value as ISO8601' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:datetime?).value }.from(nil).to(Time.zone.parse('2024-06-14T12:34').iso8601)
+              .to change { dossier.reload.champs.find(&:datetime?).value }.from(nil).to(Time.zone.parse('2024-06-14T12:34').iso8601)
           end
         end
 
@@ -317,7 +317,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '14/06/2024 12:34' } }
           it 'casts and updates the datetime with the jsonpath value as ISO8601' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:datetime?).value }.from(nil).to(Time.zone.parse('2024-06-14T12:34').iso8601)
+              .to change { dossier.reload.champs.find(&:datetime?).value }.from(nil).to(Time.zone.parse('2024-06-14T12:34').iso8601)
           end
         end
 
@@ -325,7 +325,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '2024-06-14T25:00' } }
           it 'does not update the datetime value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:datetime?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:datetime?).value }.from(nil)
           end
         end
 
@@ -334,7 +334,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: datetime.to_f } }
           it 'convert to ISO8601 datetime' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:datetime?).value }.from(nil).to(datetime.iso8601)
+              .to change { dossier.reload.champs.find(&:datetime?).value }.from(nil).to(datetime.iso8601)
           end
         end
 
@@ -343,7 +343,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: datetime.to_f.to_s } }
           it 'convert to ISO8601 datetime' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:datetime?).value }.from(nil).to(datetime.iso8601)
+              .to change { dossier.reload.champs.find(&:datetime?).value }.from(nil).to(datetime.iso8601)
           end
         end
 
@@ -351,7 +351,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'not_a_timestamp' } }
           it 'noops' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:datetime?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:datetime?).value }.from(nil)
           end
         end
       end
@@ -364,7 +364,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'valid' } }
           it 'casts and updates the drop_down_list with the jsonpath value as string' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:drop_down_list?).value }.from(nil).to('valid')
+              .to change { dossier.reload.champs.find(&:drop_down_list?).value }.from(nil).to('valid')
           end
         end
 
@@ -373,7 +373,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'invalid' } }
           it 'does not cast' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:drop_down_list?).value }
+              .not_to change { dossier.reload.champs.find(&:drop_down_list?).value }
           end
         end
 
@@ -382,7 +382,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'anything' } }
           it 'allows other' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:drop_down_list?).value }.from(nil).to('anything')
+              .to change { dossier.reload.champs.find(&:drop_down_list?).value }.from(nil).to('anything')
           end
         end
 
@@ -390,7 +390,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'does not update the drop_down_list value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:drop_down_list?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:drop_down_list?).value }.from(nil)
           end
         end
       end
@@ -400,10 +400,10 @@ describe Champs::ReferentielChamp, type: :model do
         let(:data) { { ok: '13002526500013' } }
         it 'casts and updates the siret champ' do
           expect { subject }
-            .to change { dossier.reload.project_champs.find(&:siret?).external_id }.from(nil).to('13002526500013')
+            .to change { dossier.reload.champs.find(&:siret?).external_id }.from(nil).to('13002526500013')
         end
         it 'enqueue job' do
-          expect { subject }.to have_enqueued_job(ChampFetchExternalDataJob).with(dossier.reload.project_champs.find(&:siret?), '13002526500013')
+          expect { subject }.to have_enqueued_job(ChampFetchExternalDataJob).with(dossier.reload.champs.find(&:siret?), '13002526500013')
         end
       end
 
@@ -413,10 +413,10 @@ describe Champs::ReferentielChamp, type: :model do
         let(:data) { { ok: 'champdapi' } }
         it 'casts and updates the siret champ' do
           expect { subject }
-            .to change { dossier.reload.project_champs.reverse.find(&:referentiel?).external_id }.from(nil).to('champdapi')
+            .to change { dossier.reload.champs.reverse.find(&:referentiel?).external_id }.from(nil).to('champdapi')
         end
         it 'enqueue job' do
-          expect { subject }.to have_enqueued_job(ChampFetchExternalDataJob).with(dossier.reload.project_champs.reverse.find(&:referentiel?), 'champdapi')
+          expect { subject }.to have_enqueued_job(ChampFetchExternalDataJob).with(dossier.reload.champs.reverse.find(&:referentiel?), 'champdapi')
         end
       end
 
@@ -428,7 +428,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: ['valid', 'valid_one'] } }
           it 'casts and updates the multiple_drop_down_list with the jsonpath value as JSON array' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:multiple_drop_down_list?).value }.from(nil).to(['valid', 'valid_one'].to_json)
+              .to change { dossier.reload.champs.find(&:multiple_drop_down_list?).value }.from(nil).to(['valid', 'valid_one'].to_json)
           end
         end
 
@@ -436,7 +436,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: [{ choice: '1' }, { choice: '2' }] } }
           it 'passthru' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:multiple_drop_down_list?).value }
+              .not_to change { dossier.reload.champs.find(&:multiple_drop_down_list?).value }
           end
         end
 
@@ -444,7 +444,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'does not update the multiple_drop_down_list value (remains nil)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:multiple_drop_down_list?).value }.from(nil)
+              .not_to change { dossier.reload.champs.find(&:multiple_drop_down_list?).value }.from(nil)
           end
         end
 
@@ -452,7 +452,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: ['valid', 'invalid_option'] } }
           it 'allows invalid value due to validation afterward' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:multiple_drop_down_list?).value }.from(nil).to(['valid', 'invalid_option'].to_json)
+              .to change { dossier.reload.champs.find(&:multiple_drop_down_list?).value }.from(nil).to(['valid', 'invalid_option'].to_json)
           end
         end
       end
@@ -462,7 +462,7 @@ describe Champs::ReferentielChamp, type: :model do
         let(:data) { { ok: 'texte <b>formaté</b>' } }
         it 'update le champ formatted avec la valeur string' do
           expect { subject }
-            .to change { dossier.reload.project_champs.find(&:formatted?).value }.from(nil).to('texte <b>formaté</b>')
+            .to change { dossier.reload.champs.find(&:formatted?).value }.from(nil).to('texte <b>formaté</b>')
         end
       end
 
@@ -473,7 +473,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'Monsieur' } }
           it 'casts to "M."' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:civilite?).value }.from(nil).to("M.")
+              .to change { dossier.reload.champs.find(&:civilite?).value }.from(nil).to("M.")
           end
         end
 
@@ -481,7 +481,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'M' } }
           it 'casts to "M."' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:civilite?).value }.from(nil).to("M.")
+              .to change { dossier.reload.champs.find(&:civilite?).value }.from(nil).to("M.")
           end
         end
 
@@ -489,7 +489,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'male' } }
           it 'casts to "M."' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:civilite?).value }.from(nil).to("M.")
+              .to change { dossier.reload.champs.find(&:civilite?).value }.from(nil).to("M.")
           end
         end
 
@@ -497,7 +497,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'Mme' } }
           it 'casts to "Mme"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:civilite?).value }.from(nil).to("Mme")
+              .to change { dossier.reload.champs.find(&:civilite?).value }.from(nil).to("Mme")
           end
         end
 
@@ -505,7 +505,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'Mademoiselle' } }
           it 'casts to "Mme" (CNIL conformity)' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:civilite?).value }.from(nil).to("Mme")
+              .to change { dossier.reload.champs.find(&:civilite?).value }.from(nil).to("Mme")
           end
         end
 
@@ -513,7 +513,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'female' } }
           it 'casts to "Mme"' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:civilite?).value }.from(nil).to("Mme")
+              .to change { dossier.reload.champs.find(&:civilite?).value }.from(nil).to("Mme")
           end
         end
 
@@ -521,7 +521,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'Dr' } }
           it 'does not update the civilite' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:civilite?).value }
+              .not_to change { dossier.reload.champs.find(&:civilite?).value }
           end
         end
 
@@ -529,7 +529,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '' } }
           it 'does not update the civilite' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:civilite?).value }
+              .not_to change { dossier.reload.champs.find(&:civilite?).value }
           end
         end
       end
@@ -541,12 +541,12 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '20 avenue de Segur Paris' } }
           it 'sets external_id on the address champ' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:address?).external_id }.from(nil).to("20 avenue de Segur Paris")
+              .to change { dossier.reload.champs.find(&:address?).external_id }.from(nil).to("20 avenue de Segur Paris")
           end
 
           it 'does not set value (stays nil until async BAN resolution)' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:address?).value }
+              .not_to change { dossier.reload.champs.find(&:address?).value }
           end
         end
 
@@ -554,7 +554,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: '' } }
           it 'does not update the address champ' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:address?).external_id }
+              .not_to change { dossier.reload.champs.find(&:address?).external_id }
           end
         end
 
@@ -562,7 +562,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: nil } }
           it 'does not update the address champ' do
             expect { subject }
-              .not_to change { dossier.reload.project_champs.find(&:address?).external_id }
+              .not_to change { dossier.reload.champs.find(&:address?).external_id }
           end
         end
       end
@@ -574,7 +574,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 'valeur' } }
           it 'casts to string' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:pre_rempli?).value }.from(nil).to('valeur')
+              .to change { dossier.reload.champs.find(&:pre_rempli?).value }.from(nil).to('valeur')
           end
         end
 
@@ -582,7 +582,7 @@ describe Champs::ReferentielChamp, type: :model do
           let(:data) { { ok: 42 } }
           it 'casts to string via to_s' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:pre_rempli?).value }.from(nil).to('42')
+              .to change { dossier.reload.champs.find(&:pre_rempli?).value }.from(nil).to('42')
           end
         end
       end
@@ -704,7 +704,7 @@ describe Champs::ReferentielChamp, type: :model do
 
           it 'update the prefiiable stable_id with the jsonpath value of the external data' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:text?).value }.from(nil).to("ok")
+              .to change { dossier.reload.champs.find(&:text?).value }.from(nil).to("ok")
           end
         end
       end
@@ -739,7 +739,7 @@ describe Champs::ReferentielChamp, type: :model do
 
           it 'update the prefiiable stable_id with the jsonpath value of the external data' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:text?).value }.from(nil).to("ok")
+              .to change { dossier.reload.champs.find(&:text?).value }.from(nil).to("ok")
           end
         end
       end
@@ -776,7 +776,7 @@ describe Champs::ReferentielChamp, type: :model do
 
           it 'update the prefiiable stable_id with the jsonpath value of the external data' do
             expect { subject }
-              .to change { dossier.reload.project_champs.find(&:text?).value }.from(nil).to("ok")
+              .to change { dossier.reload.champs.find(&:text?).value }.from(nil).to("ok")
           end
         end
       end

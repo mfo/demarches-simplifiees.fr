@@ -166,7 +166,7 @@ describe 'The user', js: true do
 
   let(:procedure_with_repetition_limited) do
     procedure = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :repetition, libelle: 'bloc', children: [{ libelle: 'sous champ' }] }])
-    tdc = procedure.draft_revision.types_de_champ_public.first
+    tdc = procedure.draft_revision.root_types_de_champ_public.first
     tdc.update!(limit_repetitions: '1', max_repetitions: '2')
     procedure
   end
@@ -677,7 +677,7 @@ describe 'The user', js: true do
   end
 
   def champ_for(libelle)
-    champs = user_dossier.reload.project_champs_public
+    champs = user_dossier.reload.root_champs_public
     champ = champs.find { |c| c.libelle == libelle }
     champ.reload
   end

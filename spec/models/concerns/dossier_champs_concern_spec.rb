@@ -178,8 +178,8 @@ RSpec.describe DossierChampsConcern do
     end
   end
 
-  describe '#project_champs_public' do
-    subject { dossier.project_champs_public }
+  describe '#root_champs_public' do
+    subject { dossier.root_champs_public }
 
     it do
       expect(subject.size).to eq(4)
@@ -187,8 +187,8 @@ RSpec.describe DossierChampsConcern do
     end
   end
 
-  describe '#project_champs_private' do
-    subject { dossier.project_champs_private }
+  describe '#root_champs_private' do
+    subject { dossier.root_champs_private }
 
     it { expect(subject.size).to eq(1) }
   end
@@ -274,7 +274,7 @@ RSpec.describe DossierChampsConcern do
   end
 
   describe "#champ_values_for_export" do
-    subject { dossier.champ_values_for_export(dossier.revision.types_de_champ_public, format: :xlsx) }
+    subject { dossier.champ_values_for_export(dossier.revision.root_types_de_champ_public, format: :xlsx) }
 
     it do
       expect(subject.size).to eq(4)
@@ -1068,8 +1068,8 @@ RSpec.describe DossierChampsConcern do
           dossier.reload
           dossier.rebase!
 
-          @old_qf = dossier.project_champs_public.sort_by(&:stable_id).first
-          @new_qf = dossier.project_champs_public.sort_by(&:stable_id).last
+          @old_qf = dossier.root_champs_public.sort_by(&:stable_id).first
+          @new_qf = dossier.root_champs_public.sort_by(&:stable_id).last
 
           @fetched_instances = []
 
@@ -1117,8 +1117,8 @@ RSpec.describe DossierChampsConcern do
           dossier.reload
           dossier.rebase!
 
-          @old_qf = dossier.project_champs_public.sort_by(&:stable_id).first
-          @new_qf = dossier.project_champs_public.sort_by(&:stable_id).last
+          @old_qf = dossier.root_champs_public.sort_by(&:stable_id).first
+          @new_qf = dossier.root_champs_public.sort_by(&:stable_id).last
 
           @fetched_instances = []
 

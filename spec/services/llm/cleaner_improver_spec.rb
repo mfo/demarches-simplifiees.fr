@@ -26,7 +26,7 @@ RSpec.describe LLM::CleanerImprover do
     end
 
     it 'normalises destroy tool calls' do
-      tdcs = revision.types_de_champ_public
+      tdcs = revision.root_types_de_champ_public
       commune_stable_id = tdcs.find { it.libelle == 'Commune' }.stable_id
 
       calls = [

@@ -463,11 +463,11 @@ prawn_document(page_size: "A4") do |pdf|
   end
 
   add_title(pdf, 'Formulaire')
-  add_champs(pdf, @dossier.project_champs_public)
+  add_champs(pdf, @dossier.root_champs_public)
 
   if @acls[:include_infos_administration] && @dossier.has_annotations?
     add_title(pdf, "Annotations privées")
-    add_champs(pdf, @dossier.project_champs_private)
+    add_champs(pdf, @dossier.root_champs_private)
   end
 
   if @acls[:include_infos_administration] && @dossier.avis.present?
