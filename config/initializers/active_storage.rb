@@ -161,10 +161,16 @@ end
 # same escaping rules, and it keeps the `container/object` slash literal (unlike
 # `ERB::Util.url_encode`, which would encode it and break the path).
 #
+# We PREPEND a module rather than reopen the class: fog requires the original request
+# file lazily, on the first `Fog::OpenStack::Storage.new` (setup_requirements ->
+# require_requests_and_mock), which happens AFTER this initializer. A class reopen
+# would then be redefined (clobbered) by that require; a prepended module stays ahead
+# of Real in the ancestor chain and wins whatever the load order.
+#
 # https://github.com/fog/fog-openstack/blob/v1.1.5/lib/fog/openstack/storage/requests/delete_multiple_objects.rb
 require 'fog/openstack'
 
-class Fog::OpenStack::Storage::Real
+module OpenStackBulkDeletePatch
   def delete_multiple_objects(container, object_names, options = {})
     body = object_names.map do |name|
       object_name = container ? "#{container}/#{name}" : name
@@ -182,3 +188,5 @@ class Fog::OpenStack::Storage::Real
     response
   end
 end
+
+Fog::OpenStack::Storage::Real.prepend(OpenStackBulkDeletePatch)
