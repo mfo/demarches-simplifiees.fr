@@ -20,4 +20,39 @@ RSpec.describe TypesDeChamp::PrefillPaysTypeDeChamp, type: :model do
       expect(possible_values).to match(expected_values)
     }
   end
+
+  describe '#to_assignable_attributes' do
+    let(:champ) { Champs::PaysChamp.new }
+    subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }
+
+    context 'when the value is a country code' do
+      let(:value) { 'FR' }
+
+      it { is_expected.to eq({ value: 'FR' }) }
+    end
+
+    context 'when the value is a country name' do
+      let(:value) { 'France' }
+
+      it { is_expected.to eq({ value: 'France' }) }
+    end
+
+    context 'when the value is an unknown country code' do
+      let(:value) { 'ZZ' }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the value is not a country' do
+      let(:value) { 'value' }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the value is not a String' do
+      let(:value) { ['FR'] }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

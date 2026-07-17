@@ -7,4 +7,15 @@ class TypesDeChamp::PrefillMultipleDropDownListTypeDeChamp < TypesDeChamp::Prefi
 
     [all_possible_values.first, all_possible_values.second]
   end
+
+  private
+
+  def screened_value(champ, value)
+    return nil if !acceptable_prefill_value?(value)
+
+    values = Champs::MultipleDropDownListChamp.parse_values(value)
+    return nil if DropDownOptionsValidator.violations(values, self).any?
+
+    value
+  end
 end

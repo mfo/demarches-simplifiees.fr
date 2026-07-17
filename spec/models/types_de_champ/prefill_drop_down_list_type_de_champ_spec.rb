@@ -43,4 +43,49 @@ RSpec.describe TypesDeChamp::PrefillDropDownListTypeDeChamp do
 
     it { expect(example_value).to eq(type_de_champ.drop_down_options.first) }
   end
+
+  describe '#to_assignable_attributes' do
+    let(:procedure) { create(:procedure) }
+    let(:type_de_champ) { build(:type_de_champ_drop_down_list, procedure:) }
+    let(:champ) { Champs::DropDownListChamp.new }
+    subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }
+
+    context 'when the value is in the options' do
+      let(:value) { "val1" }
+
+      it { is_expected.to eq({ value: "val1" }) }
+    end
+
+    context 'when the value is blank' do
+      let(:value) { "" }
+
+      it { is_expected.to eq({ value: "" }) }
+    end
+
+    context 'when the value is not in the options' do
+      let(:value) { "value" }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the value is not a string' do
+      let(:value) { ["val1"] }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "when the drop down list accepts 'other'" do
+      let(:type_de_champ) { build(:type_de_champ_drop_down_list, :with_other, procedure:) }
+      let(:value) { "value" }
+
+      it { is_expected.to eq({ value: "value" }) }
+    end
+
+    context 'when the drop down list is advanced (referentiel-backed)' do
+      let(:type_de_champ) { build(:type_de_champ_drop_down_list, drop_down_mode: 'advanced', procedure:) }
+      let(:value) { "value" }
+
+      it { is_expected.to eq({ value: "value" }) }
+    end
+  end
 end

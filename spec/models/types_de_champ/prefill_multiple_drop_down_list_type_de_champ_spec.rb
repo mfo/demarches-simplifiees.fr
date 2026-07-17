@@ -31,4 +31,34 @@ RSpec.describe TypesDeChamp::PrefillMultipleDropDownListTypeDeChamp do
       it { expect(example_value).to eq(["value1", "value2"]) }
     end
   end
+
+  describe '#to_assignable_attributes' do
+    let(:type_de_champ) { build(:type_de_champ_multiple_drop_down_list, procedure: procedure) }
+    let(:champ) { Champs::MultipleDropDownListChamp.new }
+    subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }
+
+    context 'when all the values are in the options' do
+      let(:value) { ["val1", "val2"] }
+
+      it { is_expected.to eq({ value: ["val1", "val2"] }) }
+    end
+
+    context 'when the value is a single option' do
+      let(:value) { "val1" }
+
+      it { is_expected.to eq({ value: "val1" }) }
+    end
+
+    context 'when a value is not in the options' do
+      let(:value) { ["value"] }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the value contains a Hash (malicious input)' do
+      let(:value) { [{ "injected" => "x" }] }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

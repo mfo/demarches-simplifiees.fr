@@ -140,6 +140,28 @@ RSpec.describe DossierPrefillableConcern do
       end
     end
 
+    context 'when a prefill value was rejected by the PrefillTypeDeChamp screening' do
+      # Regression: rejected prefill values used to be assigned to the champ while
+      # screening with champ.valid?(:prefill), and could leak to the database
+      # through the dossier champ_data autosave when a valid champ triggered a save.
+      let(:types_de_champ_public) { [{ type: :text }, { type: :date }] }
+      let(:text_type_de_champ) { procedure.published_revision.types_de_champ_public.first }
+      let(:date_type_de_champ) { procedure.published_revision.types_de_champ_public.second }
+      let(:params) do
+        {
+          "champ_#{text_type_de_champ.to_typed_id_for_query}" => "any value",
+          "champ_#{date_type_de_champ.to_typed_id_for_query}" => "not a date",
+        }
+      end
+      let(:values) { PrefillChamps.new(dossier, params).to_a }
+
+      it 'prefills the valid champ and does not persist the rejected value' do
+        fill
+        expect(find_champ_by_stable_id(dossier, text_type_de_champ.stable_id).value).to eq("any value")
+        expect(find_champ_by_stable_id(dossier, date_type_de_champ.stable_id)&.value).to be_nil
+      end
+    end
+
     context 'when dossier contains champs with external_id' do
       let(:types_de_champ_public) { [{ type: :siret }] }
       let(:values) { [[champ_1, { external_id: value_1 }]] }

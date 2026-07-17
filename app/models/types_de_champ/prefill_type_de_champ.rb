@@ -39,6 +39,16 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
       TypesDeChamp::PrefillReferentielTypeDeChamp.new(type_de_champ, revision)
     when TypeDeChamp.type_champs.fetch(:pre_rempli)
       TypesDeChamp::PrefillPreRempliTypeDeChamp.new(type_de_champ, revision)
+    when TypeDeChamp.type_champs.fetch(:date), TypeDeChamp.type_champs.fetch(:datetime)
+      TypesDeChamp::PrefillDateTypeDeChamp.new(type_de_champ, revision)
+    when TypeDeChamp.type_champs.fetch(:integer_number), TypeDeChamp.type_champs.fetch(:decimal_number)
+      TypesDeChamp::PrefillNumberTypeDeChamp.new(type_de_champ, revision)
+    when TypeDeChamp.type_champs.fetch(:civilite)
+      TypesDeChamp::PrefillCiviliteTypeDeChamp.new(type_de_champ, revision)
+    when TypeDeChamp.type_champs.fetch(:yes_no), TypeDeChamp.type_champs.fetch(:checkbox)
+      TypesDeChamp::PrefillBooleanTypeDeChamp.new(type_de_champ, revision)
+    when TypeDeChamp.type_champs.fetch(:dossier_link)
+      TypesDeChamp::PrefillDossierLinkTypeDeChamp.new(type_de_champ, revision)
     else
       new(type_de_champ, revision)
     end
@@ -69,9 +79,16 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
     I18n.t("views.prefill_descriptions.edit.examples.#{type_champ}")
   end
 
+  # Screens a raw prefill input and returns the assignable attributes, or nil
+  # when the input must be rejected (the champ is then not prefilled at all).
+  # Subclasses screening a single value override screened_value to return the
+  # normalized value or nil; subclasses assigning several attributes override
+  # this method directly.
   def to_assignable_attributes(champ, value)
-    return nil if !acceptable_prefill_value?(value)
-    { value: value }
+    screened = screened_value(champ, value)
+    return nil if screened.nil?
+
+    { value: screened }
   end
 
   def acceptable_prefill_value?(value)
@@ -87,6 +104,10 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
   end
 
   private
+
+  def screened_value(champ, value)
+    value if acceptable_prefill_value?(value)
+  end
 
   def link_to_all_possible_values
     return unless prefillable?

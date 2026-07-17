@@ -38,19 +38,19 @@ RSpec.describe TypesDeChamp::PrefillEpciTypeDeChamp do
     context 'when the value is nil' do
       let(:value) { nil }
 
-      it_behaves_like "a transformation to", nil, nil
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is empty' do
       let(:value) { '' }
 
-      it_behaves_like "a transformation to", nil, nil
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is a string' do
       let(:value) { 'hello' }
 
-      it_behaves_like "a transformation to", nil, nil
+      it { is_expected.to be_nil }
     end
 
     context 'when the value is an array of one element' do
@@ -65,10 +65,28 @@ RSpec.describe TypesDeChamp::PrefillEpciTypeDeChamp do
       it_behaves_like "a transformation to", '01', '200042935'
     end
 
+    context 'when the value is a valid departement with a blank epci' do
+      let(:value) { ['01', ''] }
+
+      it_behaves_like "a transformation to", '01', nil
+    end
+
     context 'when the value is an array of three or more elements' do
       let(:value) { ['01', '200042935', 'hello'] }
 
       it_behaves_like "a transformation to", '01', '200042935'
+    end
+
+    context 'when the departement code is unknown' do
+      let(:value) { ['000'] }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when the epci code is unknown' do
+      let(:value) { ['01', 'unknown'] }
+
+      it { is_expected.to be_nil }
     end
   end
 

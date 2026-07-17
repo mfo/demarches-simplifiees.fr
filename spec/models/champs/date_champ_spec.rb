@@ -6,53 +6,19 @@ describe Champs::DateChamp do
   let(:dossier) { create(:dossier, procedure:) }
   let(:date_champ) { dossier.champ_data.first }
 
-  describe '#convert_to_iso8601_date' do
-    it 'preserves nil' do
-      champ = champ_with_value(nil)
-      champ.validate
-      expect(champ.value).to be_nil
-    end
-
-    it 'converts to nil if empty string' do
-      champ = champ_with_value("")
-      champ.validate
-      expect(champ.value).to be_nil
-    end
-
-    it 'converts unambiguous US format to ISO' do
-      champ = champ_with_value("12-21-2023")
-      champ.validate
-      expect(champ.value).to eq("2023-12-21")
+  # The conversion matrix itself is covered by spec/lib/date_detection_utils_spec.rb;
+  # here we only check that assignment is wired to it.
+  describe 'value normalization' do
+    it 'converts a non-ISO date to ISO on assignment' do
+      expect(champ_with_value("31/12/2017").value).to eq("2017-12-31")
     end
 
     it 'converts to nil if not a valid date' do
-      champ = champ_with_value("13/13/2023")
-      champ.validate
-      expect(champ.value).to be_nil
+      expect(champ_with_value("13/13/2023").value).to be_nil
     end
 
-    it 'converts to nil if not date' do
-      champ = champ_with_value("value")
-      champ.validate
-      expect(champ.value).to be_nil
-    end
-
-    it "converts %d/%m/%Y format to ISO" do
-      champ = champ_with_value("31/12/2017")
-      champ.validate
-      expect(champ.value).to eq("2017-12-31")
-    end
-
-    it 'preserves if ISO8601' do
-      champ = champ_with_value("2023-12-21")
-      champ.validate
-      expect(champ.value).to eq("2023-12-21")
-    end
-
-    it 'converts to nil if false iso' do
-      champ = champ_with_value("2023-27-02")
-      champ.validate
-      expect(champ.value).to eq(nil)
+    it 'preserves nil' do
+      expect(champ_with_value(nil).value).to be_nil
     end
   end
 
@@ -62,8 +28,8 @@ describe Champs::DateChamp do
       expect(date_champ.to_s).to eq("20 juin 2020")
     end
 
-    it "does not fail when value is not iso" do
-      champ_with_value("2023-30-01")
+    it "does not fail when a legacy value stored in database is not iso" do
+      allow(date_champ).to receive(:value).and_return("2023-30-01")
       expect(date_champ.to_s).to eq("2023-30-01")
     end
   end

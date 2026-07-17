@@ -10,14 +10,7 @@ module ChampValidateConcern
   private
 
   def should_validate_in_current_context?
-    case validation_context
-    when :champ_value
-      visible?
-    when :prefill
-      true
-    else
-      false
-    end
+    validation_context == :champ_value && visible?
   end
 
   def validate_external_data_response?

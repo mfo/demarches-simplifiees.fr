@@ -4,7 +4,7 @@ class Champs::DateChamp < Champ
   attr_accessor :prefilling_from_france_connect_information
 
   validates_with DateLimitValidator, if: :should_validate_in_current_context?
-  before_validation :convert_to_iso8601_date, unless: -> { validation_context == :prefill }
+  normalizes :value, with: -> { DateDetectionUtils.convert_to_iso8601_date(it) }
   before_save :clear_prefilled_from_france_connect_information_flag_if_modified
   validate :iso_8601
 
@@ -20,10 +20,6 @@ class Champs::DateChamp < Champ
     return if data.blank?
 
     data.delete("prefilled_from_france_connect_information")
-  end
-
-  def convert_to_iso8601_date
-    self.value = DateDetectionUtils.convert_to_iso8601_date(value)
   end
 
   def iso_8601

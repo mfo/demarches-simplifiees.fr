@@ -8,43 +8,6 @@ describe Champs::DossierLinkChamp, type: :model do
   let(:value) { nil }
   let(:mandatory) { false }
 
-  describe 'prefilling validations' do
-    let(:linked_dossier) { create(:dossier, :en_construction) }
-    describe 'value' do
-      subject { champ.valid?(:prefill) }
-
-      context 'when nil' do
-        let(:value) { nil }
-
-        it { expect(subject).to eq(true) }
-      end
-
-      context 'when empty' do
-        let(:value) { '' }
-
-        it { expect(subject).to eq(true) }
-      end
-
-      context 'when an integer' do
-        let(:value) { linked_dossier.id }
-
-        it { expect(subject).to eq(true) }
-      end
-
-      context 'when a string representing an integer' do
-        let(:value) { linked_dossier.id.to_s }
-
-        it { expect(subject).to eq(true) }
-      end
-
-      context 'when it can be casted as integer' do
-        let(:value) { 'totoro' }
-
-        it { expect(subject).to eq(false) }
-      end
-    end
-  end
-
   describe 'validation' do
     subject { champ.validate(:champ_value) }
 
