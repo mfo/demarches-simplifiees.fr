@@ -79,6 +79,7 @@ export function ComboBox({
   ariaLabelledbyPrefix,
   description,
   className,
+  inputId,
   inputRef,
   isLoading,
   isOpen,
@@ -86,6 +87,7 @@ export function ComboBox({
   items,
   ...props
 }: ComboBoxProps & {
+  inputId?: string;
   inputRef?: RefObject<HTMLInputElement | null>;
   isOpen?: boolean;
   placeholder?: string;
@@ -119,6 +121,7 @@ export function ComboBox({
       ) : null}
       <div className="fr-ds-combobox__input" style={{ position: 'relative' }}>
         <Input
+          id={inputId}
           className="fr-select fr-autocomplete"
           ref={inputRef}
           aria-busy={isLoading}
