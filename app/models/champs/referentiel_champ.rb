@@ -114,8 +114,8 @@ class Champs::ReferentielChamp < Champ
     self.fetch_external_data_exceptions = []
   end
 
-  def call_caster(mapping_or_type_champ, value, type_de_champ = nil)
-    case [mapping_or_type_champ&.to_sym, value]
+  def cast_display_value(type, value)
+    case [type&.to_sym, value]
     in [:integer_number, v] if v.present?
       v.to_i
     in [:decimal_number, v] if v.present?
@@ -123,7 +123,7 @@ class Champs::ReferentielChamp < Champ
     in [:datetime, v] if DateDetectionUtils.likely_string_timestamp?(v)
       timestamp = DateDetectionUtils.convert_unix_timestamp(v)
       return nil if timestamp.nil?
-      Time.zone.at(timestamp).iso8601 # (0) # 2 digits of precision, meaning we keep the seconds and 2 digits of milliseconds
+      Time.zone.at(timestamp).iso8601
     in [:datetime, v]
       DateDetectionUtils.convert_to_iso8601_datetime(v)
     in [:date, v] if DateDetectionUtils.likely_string_timestamp?(v)
@@ -132,33 +132,10 @@ class Champs::ReferentielChamp < Champ
       Time.zone.at(timestamp).to_date.iso8601
     in [:date, v]
       DateDetectionUtils.convert_to_iso8601_date(v)
-    # cases of type from tdc, used to store in a champ
-    in [:drop_down_list, Array => arr] if ReferentielMappingUtils.array_of_supported_simple_types?(arr)
-      arr.first.to_s
-    in [:drop_down_list, v] if type_de_champ&.value_is_in_options?(v) || type_de_champ&.drop_down_other?
-      v.to_s
-    in [:multiple_drop_down_list, Array => arr] if ReferentielMappingUtils.array_of_supported_simple_types?(arr)
-      arr.compact.to_json
-    in [:checkbox | :yes_no, v]
-      bool = ActiveModel::Type::Boolean.new.cast(v)
-      bool.nil? ? nil : (bool ? Champs::BooleanChamp::TRUE_VALUE : Champs::BooleanChamp::FALSE_VALUE)
-    in [:text | :textarea | :engagement_juridique | :dossier_link | :email | :phone | :iban | :siret | :formatted | :referentiel | :pre_rempli, v]
-      v.to_s
-    # case of type from mapping, used to store for display
     in [:boolean, v]
       ActiveModel::Type::Boolean.new.cast(v)
     in [:array, Array => arr] if ReferentielMappingUtils.array_of_supported_simple_types?(arr)
       Array(arr)
-    in [:civilite, v] if v.present?
-      normalized = v.to_s.strip.downcase
-      case normalized
-      when 'm.', 'm', 'mr', 'monsieur', 'male', 'homme'
-        Individual::GENDER_MALE
-      when 'mme', 'madame', 'mlle', 'mademoiselle', 'female', 'femme'
-        Individual::GENDER_FEMALE
-      end
-    in [:address, v] if v.present?
-      v.to_s
     in [:string, v]
       v.to_s
     else
@@ -166,19 +143,19 @@ class Champs::ReferentielChamp < Champ
     end
   end
 
-  def cast_value_for_type_de_champ(value, type_de_champ)
-    case type_de_champ.type_champ.to_sym
-    when :siret, :referentiel, :address
-      { external_id: call_caster(type_de_champ.type_champ, value, type_de_champ) }
+  def normalize_api_value(value, type_de_champ)
+    case [type_de_champ.type_champ.to_sym, value]
+    in [:drop_down_list, Array => arr] if ReferentielMappingUtils.array_of_supported_simple_types?(arr)
+      arr.first.to_s
     else
-      { value: call_caster(type_de_champ.type_champ, value, type_de_champ) }
-    end.merge(prefilled: true)
+      value
+    end
   end
 
   def cast_displayable_values(json)
     referentiel_mapping_displayable.reduce({}) do |accu, (jsonpath, mapping)|
       json = json.first if json.is_a?(Array) # when json is an array, we take the first element
-      casted_value = call_caster(mapping[:type], JSONPathUtil.on_safe(json, jsonpath).first)
+      casted_value = cast_display_value(mapping[:type], JSONPathUtil.on_safe(json, jsonpath).first)
       accu[jsonpath] = casted_value if !casted_value.nil?
       accu
     end
@@ -233,7 +210,13 @@ class Champs::ReferentielChamp < Champ
 
   def update_prefillable_champ(type_de_champ:, raw_value:, row_id: nil)
     prefill_champ = dossier.champ_for_update(type_de_champ, row_id:, updated_by:)
-    attributes = cast_value_for_type_de_champ(raw_value, type_de_champ)
+    normalized = normalize_api_value(raw_value, type_de_champ)
+    attributes = TypesDeChamp::PrefillTypeDeChamp
+      .build(type_de_champ, dossier.revision)
+      .to_assignable_attributes(prefill_champ, normalized)
+    return prefill_champ if attributes.nil?
+
+    attributes[:prefilled] = true
     prefill_champ.update(attributes.merge(prefilled_original_value: attributes.except(:prefilled)))
     prefill_champ
   end
