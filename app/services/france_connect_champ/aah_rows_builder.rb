@@ -8,7 +8,7 @@ module FranceConnectChamp
       beneficiaire = data["est_beneficiaire"]
       date_debut_droit = data["date_debut_droit"]
 
-      if beneficiaire.present?
+      if !beneficiaire.nil?
         rows << ["Bénéficiaire de l’AAH", beneficiaire ? 'Oui' : 'Non']
       end
 
