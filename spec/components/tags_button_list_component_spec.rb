@@ -67,6 +67,11 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(subject).to have_text("Voir les champs facultatifs et/ou conditionnés")
   end
 
+  it "always displays the empty-value hint" do
+    expect(subject).to have_selector("span.fr-hint-text:not(.hidden)", text: /Un champ non rempli par l’usager\s+restera vide\./)
+    expect(subject).to have_selector("span.fr-hint-text:not(.hidden)", text: /Une annotation non remplie par l’instructeur\s+restera vide\./)
+  end
+
   it "wires the optional toggle to its own controller, with a unique per-instance id" do
     fragment = Nokogiri::HTML.fragment(render_inline(component).to_html)
     checkbox = fragment.at_css("input[type='checkbox']")
@@ -89,17 +94,5 @@ RSpec.describe TagsButtonListComponent, type: :component do
     expect(subject).to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ obligatoire conditionnel")
     expect(subject).not_to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Un champ facultatif")
     expect(subject).not_to have_selector("button.fr-tag.fr-tag--purple-glycine", text: "Votre avis")
-  end
-
-  context "no optional or conditional champs" do
-    let(:tags) do
-      {
-        champ_public: [
-          { id: 'tdc12', libelle: 'Votre avis', description: '' },
-        ],
-      }
-    end
-
-    it { expect(subject).not_to have_text("Voir les champs facultatifs et conditionnels") }
   end
 end

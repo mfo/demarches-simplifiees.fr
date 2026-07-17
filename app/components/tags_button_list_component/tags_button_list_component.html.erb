@@ -14,10 +14,7 @@
             <%= label_tag "#{optional_toggle_id}_#{category}", for: "#{optional_toggle_id}_#{category}" do %>
               <%= category == :champ_public ? "Voir les champs facultatifs et/ou conditionnés" : "Voir les annotations facultatives et/ou conditionnées" %>
 
-              <span
-                class="hidden fr-hint-text"
-                data-tags-button-list-target="hint"
-              >
+              <span class="fr-hint-text">
                 <%= category == :champ_public ? "Un champ non rempli par l’usager" : "Une annotation non remplie par l’instructeur" %>
                 restera vide.
               </span>
