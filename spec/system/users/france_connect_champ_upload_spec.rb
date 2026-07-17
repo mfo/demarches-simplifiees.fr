@@ -5,7 +5,6 @@ describe 'Quotient familial piece justificative upload', js: true do
   let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :quotient_familial }]) }
 
   before do
-    Flipper.enable(:quotient_familial_type_de_champ, procedure)
     login_as user, scope: :user
   end
 
