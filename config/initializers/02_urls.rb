@@ -25,7 +25,7 @@ DS_PROXY_URL = ENV.fetch("DS_PROXY_URL", "")
 # External services URLs
 WEBINAIRE_URL = "https://app.livestorm.co/demarches-simplifiees"
 INSCRIPTION_WEBINAIRE_URL = "https://bbb-dinum-scalelite.visio.education.fr/playback/presentation/2.3/cbb6e43626fa1b67755d9fb05ecf5e7f3be50d48-1675342730585"
-CALENDLY_URL = "https://calendly.com/demarches-simplifiees/accompagnement-administrateur-demarches-simplifiees-fr"
+REPLAY_WEBINAIRE_URL = "https://webinaire.bbb-dinum-scalelite.visio.education.fr/playback/presentation/2.3/61e131c1d5a2ebac8e1570a43c03064a8eaaeebe-1782993030421"
 
 DOC_URL = ENV.fetch("DOC_URL", "https://doc.demarche.numerique.gouv.fr")
 DOC_NOUVEAUTES_URL = [DOC_URL, "nouveautes"].join("/")
