@@ -94,6 +94,7 @@ export class TurboController extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.#actions?.disconnect();
     this.#root?.destroy();
   }

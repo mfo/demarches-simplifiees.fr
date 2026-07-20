@@ -36,6 +36,7 @@ export class TypeDeChampEditorController extends ApplicationController {
   }
 
   disconnect() {
+    super.disconnect();
     this.#latestPromise = Promise.resolve();
     for (const { controller } of this.#inFlightForms.values()) {
       controller.abort();

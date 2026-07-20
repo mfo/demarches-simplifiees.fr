@@ -50,8 +50,10 @@ export class AutosaveController extends ApplicationController {
   }
 
   disconnect() {
+    super.disconnect();
     this.#abortController?.abort();
     this.#latestPromise = Promise.resolve();
+    clearTimeout(this.#spinnerTimeoutId);
   }
 
   private onChange(event: Event) {
@@ -166,6 +168,7 @@ export class AutosaveController extends ApplicationController {
 
   private didFail(error: ResponseError) {
     this.#pendingPromiseCount -= 1;
+    clearTimeout(this.#spinnerTimeoutId);
     this.globalDispatch('autosave:error', { error });
   }
 
@@ -187,6 +190,8 @@ export class AutosaveController extends ApplicationController {
           throw error;
         }
       })
+      // Dispatched even after a handled failure: it re-enables the submit
+      // button so the user can retry or submit the rest of the form.
       .then(() => {
         this.globalDispatch('autosave:end');
       });

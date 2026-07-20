@@ -24,6 +24,7 @@ export default class extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.abortController?.abort();
   }
 

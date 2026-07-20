@@ -52,6 +52,7 @@ export class RepetitionToggleAllController extends ApplicationController {
   }
 
   disconnect() {
+    super.disconnect();
     if (!this.hasButtonTarget) {
       return;
     }
