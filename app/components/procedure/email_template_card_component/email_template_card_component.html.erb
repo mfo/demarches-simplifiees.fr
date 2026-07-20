@@ -1,0 +1,15 @@
+<%= render Dsfr::CardVerticalComponent.new(title: title, desc: desc, error: error, tags: [tag]) do |c| %>
+  <% c.with_footer_button do %>
+    <% if not_editable? %>
+      <a <%# herb:disable html-anchor-require-href %>
+        role="link"
+        aria-disabled="true"
+        class="fr-link fr-icon-arrow-right-line fr-link--icon-right"
+      >
+        Modifier
+      </a>
+    <% else %>
+      <%= link_to 'Modifier', edit_path, class: 'fr-link fr-icon-arrow-right-line fr-link--icon-right' %>
+    <% end %>
+  <% end %>
+<% end %>
