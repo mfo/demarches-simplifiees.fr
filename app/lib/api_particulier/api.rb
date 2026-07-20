@@ -63,7 +63,18 @@ class APIParticulier::API
     body = parse_response_body(response.body)
 
     if response.success?
-      return Failure(retryable: false, error: StandardError.new("Not retryable: invalid schema"), code: :invalid_schema) if !schema.valid?(body)
+      if !schema.valid?(body)
+        Sentry.capture_message(
+          "Invalid API schema response",
+          extra: {
+            url: url,
+            response: body,
+            schema_errors: schema.validate(body).map { |e| e["error"] }.join("\n"),
+          }
+        )
+
+        return Failure(retryable: false, error: StandardError.new("Not retryable: invalid schema"), code: :invalid_schema)
+      end
 
       Success(body[:data])
     else
