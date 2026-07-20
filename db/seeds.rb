@@ -7,9 +7,9 @@
 # - db/seeds/users.rb        — usager / administrateur / instructeur personas
 # - db/seeds/procedures.rb   — a published demo procedure with common types de champ
 # - db/seeds/dossiers.rb     — dossiers in various states on the individual procedure
-# - db/seeds/avis.rb         — an expert with a pending and an answered avis
-# - db/seeds/entreprise.rb   — an entreprise procedure with a dossier avec siret
-# - db/seeds/messagerie.rb   — an instructeur message on the en_construction dossier
+# - db/seeds/avis.rb         — two experts with pending, answered, confidentiel and file-attached avis
+# - db/seeds/entreprise.rb   — an entreprise procedure with en_construction and en_instruction dossiers
+# - db/seeds/messagerie.rb   — instructeur and usager messages on the en_construction dossier
 # - db/seeds/development/    — development-only records (super-admin, fixer instructeur)
 # - db/seeds/cases/          — scenario-specific data (champs, sva, …)
 #

@@ -15,6 +15,8 @@ describe Instructeurs::AvisController, type: :controller do
       let!(:notification) { create(:dossier_notification, dossier:, instructeur:, notification_type: :attente_avis) }
 
       before do
+        # notifications are only destroyed once the dossier has no unanswered avis left
+        avis.confidentiel.destroy
         patch :revoquer, params: { procedure_id: procedure.id, id: pending_avis.id, statut: 'a-suivre' }
       end
 

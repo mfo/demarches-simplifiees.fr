@@ -12,7 +12,7 @@ RSpec.describe Avis, type: :model do
       let!(:avis2) { create(:avis, dossier: dossiers.en_instruction, experts_procedure: experts_procedures.default, updated_at: 4.hours.ago) }
       let!(:avis3) { create(:avis, dossier: dossiers.en_instruction, experts_procedure: experts_procedures.default, updated_at: 3.hours.ago) }
 
-      subject { Avis.where(dossier: dossiers.en_instruction).by_latest }
+      subject { Avis.where(dossier: dossiers.en_instruction, experts_procedure: experts_procedures.default).by_latest }
 
       it { is_expected.to eq([avis.pending, avis3, avis2]) }
     end

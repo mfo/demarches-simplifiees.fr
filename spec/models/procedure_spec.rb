@@ -1600,12 +1600,10 @@ describe Procedure do
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
 
     before do
-      create(:dossier, :accepte, :with_populated_champs, procedure:)
-      create(:dossier, :accepte, :with_populated_champs, procedure:)
-      create(:dossier, :accepte, :with_populated_champs, procedure:)
-      ActiveStorage::Blob.first.update!(byte_size: 4)
-      ActiveStorage::Blob.second.update!(byte_size: 5)
-      ActiveStorage::Blob.third.update!(byte_size: 6)
+      [4, 5, 6].each do |byte_size|
+        dossier = create(:dossier, :accepte, :with_populated_champs, procedure:)
+        dossier.champs.flat_map(&:piece_justificative_file_attachments).each { it.blob.update!(byte_size:) }
+      end
     end
 
     it 'estimates average dossier weight' do
