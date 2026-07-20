@@ -23,7 +23,7 @@
           - else
             Le délai du #{sva_svr_human_decision} reprendra lorsqu’il déclarera avoir corrigé le dossier.
 
-  - menu.with_item(class: "inactive form-inside fr-pt-1v", data: { panels_target: 'panel', panels_name: 'pending_correction' }) do
+  - menu.with_item(class: "form-inside fr-pt-1v", data: { panels_target: 'panel', panels_name: 'pending_correction' }) do
     = render partial: 'instructeurs/dossiers/dropdown_motivation_form',
       locals: { form_path: pending_correction_instructeur_dossier_path(dossier.procedure, dossier, statut: params[:statut]),
         placeholder: 'Expliquez au demandeur quelle(s) correction(s) sont attendues',
@@ -42,7 +42,7 @@
           %h4= t('.request_completion')
           L’usager sera informé que son dossier est incomplet. Le délai du #{sva_svr_human_decision} sera réinitialisé lorque il déclarera avoir complété le dossier.
 
-    - menu.with_item(class: "inactive form-inside fr-pt-1v", data: { panels_target: 'panel', panels_name: 'pending_completion' }) do
+    - menu.with_item(class: "form-inside fr-pt-1v", data: { panels_target: 'panel', panels_name: 'pending_completion' }) do
       = render partial: 'instructeurs/dossiers/dropdown_motivation_form',
         locals: { form_path: pending_correction_instructeur_dossier_path(dossier.procedure, dossier, reason: :incomplete),
           placeholder: 'Expliquez au demandeur comment compléter son dossier',

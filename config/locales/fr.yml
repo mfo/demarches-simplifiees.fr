@@ -1091,6 +1091,7 @@ fr:
       unspecified_champs_group: Formulaire usager
       unspecified_annotations_group: Annotations privées
       add_justificatif: Ajouter un justificatif (facultatif)
+      motivation_missing_error: « Motivation » doit être rempli
     avis:
       revoquer:
         revoked: "%{email} ne peut plus donner son avis sur ce dossier."

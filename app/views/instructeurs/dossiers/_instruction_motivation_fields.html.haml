@@ -2,33 +2,44 @@
   .motivation{ class: "#{opt[:operation]}", data: { controller: 'motivation-justificatif' } }
 
     - field_id = "motivation_#{opt[:operation]}"
+    - required = opt[:operation] != 'accept'
 
     - if batch
-      %label.fr-label{ for: field_id }
-        = opt[:label]
-        - if opt[:hint].present?
+      .fr-input-group{ id: "motivation-group-#{opt[:operation]}" }
+        %label.fr-label{ for: field_id }
+          = opt[:label]
+          - if opt[:hint].present?
+            %span.fr-hint-text
+              = opt[:hint]
+
+        = form.text_area :motivation,
+          id: field_id,
+          class: "fr-input js_batch_operation_motivation_#{opt[:operation]}",
+          required: required,
+          aria: { describedby: required ? "#{field_id}-error" : nil }
+
+        - if required
+          %p.fr-error-text.hidden{ id: "#{field_id}-error" }= t('instructeurs.dossiers.motivation_missing_error')
+
+    - else
+      .fr-input-group{ id: "motivation-group-#{opt[:operation]}" }
+        = label_tag field_id, class: "fr-label" do
+          = opt[:label]
           %span.fr-hint-text
             = opt[:hint]
 
-      = form.text_area :motivation,
-        id: field_id,
-        class: "fr-input js_batch_operation_motivation_#{opt[:operation]}",
-        required: opt[:operation] != 'accept'
+        = text_area_tag "dossier[motivation]", nil,
+          id: field_id,
+          class: "fr-input",
+          required: required,
+          aria: { describedby: required ? "#{field_id}-error" : nil }
 
-    - else
-      = label_tag field_id, class: "fr-label" do
-        = opt[:label]
-        %span.fr-hint-text
-          = opt[:hint]
-
-      = text_area_tag "dossier[motivation]", nil,
-        id: field_id,
-        class: "fr-input",
-        required: opt[:operation] != 'accept'
+        - if required
+          %p.fr-error-text.hidden{ id: "#{field_id}-error" }= t('instructeurs.dossiers.motivation_missing_error')
 
     / Justificatif
     .optional-justificatif{ id: "justificatif_motivation_suggest_#{opt[:operation]}", data: { motivation_justificatif_target: 'suggest' } }
-      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-attachment-line{
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-btn--align-on-content.fr-icon-attachment-line{
         type: "button",
         data: { action: 'motivation-justificatif#showImport' }
       }
@@ -47,7 +58,7 @@
           data: { motivation_justificatif_target: 'input', action: 'change->motivation-justificatif#fileSelected' }
 
     .hidden{ id: "delete_motivation_import_#{opt[:operation]}", data: { motivation_justificatif_target: 'delete' } }
-      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-delete-line{
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-btn--align-on-content.fr-icon-delete-line{
         type: "button",
         data: { action: 'motivation-justificatif#delete' }
       }

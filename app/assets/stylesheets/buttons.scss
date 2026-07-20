@@ -181,7 +181,7 @@
 
 [data-fr-theme='dark'] .dropdown-items {
   li {
-    &:not(.inactive) {
+    &:not(.form-inside) {
       &:hover,
       &.selected {
         background: var(--background-action-low-blue-france-hover);
@@ -320,20 +320,13 @@ ul.dropdown-items {
       }
     }
 
-    &:not(.inactive) {
+    &:not(.form-inside) {
       cursor: pointer;
 
       &:hover,
       &.selected {
         background: $light-grey;
       }
-    }
-
-    // In a dropdown, `.inactive` only marks a non-clickable item (see `:not(.inactive)`
-    // above); it must not inherit the global `.inactive { opacity: .5 }` utility, which
-    // would fade the correction/completion form it wraps.
-    &.inactive {
-      opacity: 1;
     }
 
     &.form-inside {

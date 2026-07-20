@@ -1084,6 +1084,7 @@ en:
       unspecified_champs_group: User form
       unspecified_annotations_group: Private annotations
       add_justificatif: Add a supporting document (optional)
+      motivation_missing_error: '"Motivation" must be filled in'
     avis:
       revoquer:
         revoked: "%{email} can no longer give their opinion on this file."
