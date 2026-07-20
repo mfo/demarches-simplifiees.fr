@@ -1,4 +1,4 @@
-.motivation{ class: popup_class }
+.motivation{ class: popup_class, data: { controller: 'motivation-justificatif' } }
   = form_tag form_path,
     method: :post,
     data: { turbo: true, turbo_confirm: confirm },
@@ -10,25 +10,25 @@
       placeholder: placeholder,
       required: required
 
-    .optional-justificatif{ id: "justificatif_motivation_suggest_#{popup_class}", onclick: "DS.showImportJustificatif('#{popup_class}');" }
-      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-attachment-line.fr-ml-0{ type: 'button' }
+    .optional-justificatif{ id: "justificatif_motivation_suggest_#{popup_class}", data: { motivation_justificatif_target: 'suggest' } }
+      %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-attachment-line.fr-ml-0{ type: 'button', data: { action: 'motivation-justificatif#showImport' } }
         = button_justificatif_label
 
-    .hidden{ id: "justificatif_motivation_import_#{popup_class}" }
+    .hidden{ id: "justificatif_motivation_import_#{popup_class}", data: { motivation_justificatif_target: 'import' } }
       = file_field_tag 'dossier[justificatif_motivation]',
         direct_upload: true,
         id: "dossier_justificatif_motivation_#{popup_class}",
-        onchange: "DS.showDeleteJustificatif('#{popup_class}');"
+        data: { motivation_justificatif_target: 'input', action: 'change->motivation-justificatif#fileSelected' }
 
-    .hidden.js_delete_motivation{ id: "delete_motivation_import_#{popup_class}" }
+    .hidden{ id: "delete_motivation_import_#{popup_class}", data: { motivation_justificatif_target: 'delete' } }
       %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-delete-line.fr-ml-0.fr-mt-1w{
         type: 'button',
-        onclick: "DS.deleteJustificatif('#{popup_class}');"
+        data: { action: 'motivation-justificatif#delete' }
       }
         Supprimer le justificatif
 
     .fr-btns-group.fr-btns-group--sm.fr-mt-2w
-      %button.fr-btn.fr-btn--secondary{ type: 'reset', onclick: 'DS.motivationCancel();' }
+      %button.fr-btn.fr-btn--secondary{ type: 'reset', data: { action: 'panels#hideAll' } }
         Annuler
 
       %button.fr-btn{ type: 'submit', title: title }

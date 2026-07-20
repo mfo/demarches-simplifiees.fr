@@ -1,5 +1,5 @@
 .motivation-wrapper{ class: local_assigns[:visible] ? nil : "hidden", data: { operation: opt[:operation], action: opt[:action]} }
-  .motivation{ class: "#{opt[:operation]}" }
+  .motivation{ class: "#{opt[:operation]}", data: { controller: 'motivation-justificatif' } }
 
     - field_id = "motivation_#{opt[:operation]}"
 
@@ -27,29 +27,29 @@
         required: opt[:operation] != 'accept'
 
     / Justificatif
-    .optional-justificatif{ id: "justificatif_motivation_suggest_#{opt[:operation]}" }
+    .optional-justificatif{ id: "justificatif_motivation_suggest_#{opt[:operation]}", data: { motivation_justificatif_target: 'suggest' } }
       %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-attachment-line{
         type: "button",
-        onclick: "DS.showImportJustificatif('#{opt[:operation]}');"
+        data: { action: 'motivation-justificatif#showImport' }
       }
         = t('instructeurs.dossiers.add_justificatif')
 
-    .hidden{ id: "justificatif_motivation_import_#{opt[:operation]}" }
+    .hidden{ id: "justificatif_motivation_import_#{opt[:operation]}", data: { motivation_justificatif_target: 'import' } }
       - if batch
         = form.file_field :justificatif_motivation,
           id: "dossier_justificatif_motivation_#{opt[:operation]}",
           direct_upload: true,
-          onchange: "DS.showDeleteJustificatif('#{opt[:operation]}');"
+          data: { motivation_justificatif_target: 'input', action: 'change->motivation-justificatif#fileSelected' }
       - else
         = file_field_tag "dossier[justificatif_motivation]",
           id: "dossier_justificatif_motivation_#{opt[:operation]}",
           direct_upload: true,
-          onchange: "DS.showDeleteJustificatif('#{opt[:operation]}');"
+          data: { motivation_justificatif_target: 'input', action: 'change->motivation-justificatif#fileSelected' }
 
-    .hidden.js_delete_motivation{ id: "delete_motivation_import_#{opt[:operation]}" }
+    .hidden{ id: "delete_motivation_import_#{opt[:operation]}", data: { motivation_justificatif_target: 'delete' } }
       %button.fr-btn.fr-btn--tertiary-no-outline.fr-btn--icon-left.fr-icon-delete-line{
         type: "button",
-        onclick: "DS.deleteJustificatif('#{opt[:operation]}');"
+        data: { action: 'motivation-justificatif#delete' }
       }
         Supprimer le justificatif
 
