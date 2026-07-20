@@ -2,25 +2,25 @@
 
 RSpec.describe GeoArea, type: :model do
   describe '#area' do
-    let(:geo_area) { build(:geo_area, :polygon, champ: nil) }
+    let(:geo_area) { build(:geo_area, :polygon, champ_data: nil) }
 
     it { expect(geo_area.area).to eq(103.6) }
   end
 
   describe '#area (hourglass polygon)' do
-    let(:geo_area) { build(:geo_area, :hourglass_polygon, champ: nil) }
+    let(:geo_area) { build(:geo_area, :hourglass_polygon, champ_data: nil) }
 
     it { expect(geo_area.area).to eq(32.4) }
   end
 
   describe '#length' do
-    let(:geo_area) { build(:geo_area, :line_string, champ: nil) }
+    let(:geo_area) { build(:geo_area, :line_string, champ_data: nil) }
 
     it { expect(geo_area.length).to eq(21.2) }
   end
 
   describe '#location' do
-    let(:geo_area) { build(:geo_area, :point, champ: nil) }
+    let(:geo_area) { build(:geo_area, :point, champ_data: nil) }
 
     it { expect(geo_area.location).to eq("46°32'19\"N 2°25'42\"E") }
   end
@@ -30,17 +30,17 @@ RSpec.describe GeoArea, type: :model do
       subject! { geo_area.validate }
 
       context 'polygon' do
-        let(:geo_area) { build(:geo_area, :polygon, champ: nil) }
+        let(:geo_area) { build(:geo_area, :polygon, champ_data: nil) }
         it { expect(geo_area.errors).not_to have_key(:geometry) }
       end
 
       context 'line_string' do
-        let(:geo_area) { build(:geo_area, :line_string, champ: nil) }
+        let(:geo_area) { build(:geo_area, :line_string, champ_data: nil) }
         it { expect(geo_area.errors).not_to have_key(:geometry) }
       end
 
       context 'point' do
-        let(:geo_area) { build(:geo_area, :point, champ: nil) }
+        let(:geo_area) { build(:geo_area, :point, champ_data: nil) }
         it { expect(geo_area.errors).not_to have_key(:geometry) }
       end
 
@@ -58,7 +58,7 @@ RSpec.describe GeoArea, type: :model do
       end
 
       context 'invalid point' do
-        let(:geo_area) { build(:geo_area, :invalid_point, champ: nil) }
+        let(:geo_area) { build(:geo_area, :invalid_point, champ_data: nil) }
         it do
           expect(geo_area.errors).to have_key(:geometry)
           expect(geo_area.errors[:geometry]).to include(I18n.t('activerecord.errors.models.geo_area.attributes.geometry.invalid_crs'))
@@ -66,32 +66,32 @@ RSpec.describe GeoArea, type: :model do
       end
 
       context 'invalid_right_hand_rule_polygon' do
-        let(:geo_area) { build(:geo_area, :invalid_right_hand_rule_polygon, champ: nil) }
+        let(:geo_area) { build(:geo_area, :invalid_right_hand_rule_polygon, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'hourglass_polygon' do
-        let(:geo_area) { build(:geo_area, :hourglass_polygon, champ: nil) }
+        let(:geo_area) { build(:geo_area, :hourglass_polygon, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'point_invalid' do
-        let(:geo_area) { build(:geo_area, :point_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :point_invalid, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'linestring_invalid' do
-        let(:geo_area) { build(:geo_area, :linestring_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :linestring_invalid, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'multipoint_invalid' do
-        let(:geo_area) { build(:geo_area, :multipoint_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :multipoint_invalid, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'polygon_invalid' do
-        let(:geo_area) { build(:geo_area, :polygon_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :polygon_invalid, champ_data: nil) }
         it do
           expect(geo_area.errors).to have_key(:geometry)
           expect(geo_area.errors[:geometry]).to include(I18n.t('activerecord.errors.models.geo_area.attributes.geometry.invalid_crs'))
@@ -99,25 +99,25 @@ RSpec.describe GeoArea, type: :model do
       end
 
       context 'multilinestring_invalid' do
-        let(:geo_area) { build(:geo_area, :multilinestring_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :multilinestring_invalid, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'multipolygon_invalid' do
-        let(:geo_area) { build(:geo_area, :multipolygon_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :multipolygon_invalid, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
 
       context 'geometrycollection_invalid' do
-        let(:geo_area) { build(:geo_area, :geometrycollection_invalid, champ: nil) }
+        let(:geo_area) { build(:geo_area, :geometrycollection_invalid, champ_data: nil) }
         it { expect(geo_area.errors).to have_key(:geometry) }
       end
     end
   end
 
   describe "cadastre properties" do
-    let(:geo_area) { build(:geo_area, :cadastre, champ: nil) }
-    let(:legacy_geo_area) { build(:geo_area, :legacy_cadastre, champ: nil) }
+    let(:geo_area) { build(:geo_area, :cadastre, champ_data: nil) }
+    let(:legacy_geo_area) { build(:geo_area, :legacy_cadastre, champ_data: nil) }
 
     it "should be backward compatible" do
       expect("#{geo_area.code_dep}#{geo_area.code_com}").to eq(geo_area.commune)
@@ -137,7 +137,7 @@ RSpec.describe GeoArea, type: :model do
 
   describe 'description' do
     context 'when properties is nil' do
-      let(:geo_area) { build(:geo_area, properties: nil, champ: nil) }
+      let(:geo_area) { build(:geo_area, properties: nil, champ_data: nil) }
 
       it { expect(geo_area.description).to be_nil }
     end
@@ -145,7 +145,7 @@ RSpec.describe GeoArea, type: :model do
 
   describe "#label" do
     context "when geo is a line" do
-      let(:geo_area) { build(:geo_area, :selection_utilisateur, :line_string, champ: nil) }
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :line_string, champ_data: nil) }
       it "should return the label" do
         expect(geo_area.label).to eq("Une ligne longue de 21,2 m")
       end
@@ -157,7 +157,7 @@ RSpec.describe GeoArea, type: :model do
     end
 
     context "when geo is a polygon" do
-      let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon, champ: nil) }
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon, champ_data: nil) }
       it "should return the label" do
         expect(geo_area.label).to eq("Une aire de surface 103,6 m²")
       end
@@ -169,27 +169,27 @@ RSpec.describe GeoArea, type: :model do
     end
 
     context "when geo is a point" do
-      let(:geo_area) { build(:geo_area, :selection_utilisateur, :point, champ: nil) }
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :point, champ_data: nil) }
       it "should return the label" do
         expect(geo_area.label).to eq("Un point situé à 46°32'19\"N 2°25'42\"E")
       end
     end
 
     context "when geo is a point with elevation" do
-      let(:geo_area) { build(:geo_area, :selection_utilisateur, :point_with_z, champ: nil) }
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :point_with_z, champ_data: nil) }
       it "should return the label" do
         expect(geo_area.label).to eq("Un point situé à 46°32'19\"N 2°25'42\"E")
       end
     end
 
     context "when geo is a cadastre parcelle" do
-      let(:geo_area) { build(:geo_area, :selection_utilisateur, :cadastre, champ: nil) }
+      let(:geo_area) { build(:geo_area, :selection_utilisateur, :cadastre, champ_data: nil) }
       it "should return the label" do
         expect(geo_area.label).to eq("Parcelle n° 42 - Feuille 000 A11 - 123 m² – commune 75127")
       end
 
       context "when area is nil" do
-        let(:geo_area) { build(:geo_area, :selection_utilisateur, :cadastre, properties: { "description" => "48°51'45.81\"N 2°17'15,33\"E" }, geometry: { "type" => "Point", "coordinates" => [7.754444, 48.610556] }, champ: nil) }
+        let(:geo_area) { build(:geo_area, :selection_utilisateur, :cadastre, properties: { "description" => "48°51'45.81\"N 2°17'15,33\"E" }, geometry: { "type" => "Point", "coordinates" => [7.754444, 48.610556] }, champ_data: nil) }
 
         before { allow(geo_area).to receive(:area).and_return(nil) }
 

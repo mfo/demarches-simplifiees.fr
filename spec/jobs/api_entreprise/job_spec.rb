@@ -20,7 +20,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
         champ = dossier.champ_data.first
         champ.update!(value: '12345678901234')
 
-        etablissement = create(:etablissement, champ:)
+        etablissement = create(:etablissement, champ_data: champ)
 
         expect { ErrorJob.perform_now(etablissement) }
           .to raise_error(StandardError, /API Entreprise error/)

@@ -48,7 +48,7 @@ module Maintenance
     private
 
     def find_procedure_id(etablissement)
-      (etablissement.dossier || etablissement.champ&.dossier)&.procedure&.id
+      (etablissement.dossier || etablissement.champ_data&.dossier)&.procedure&.id
     end
   end
 end

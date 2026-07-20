@@ -9,7 +9,7 @@ module Maintenance
 
     def collection
       with_statement_timeout("5min") do
-        Etablissement.where(dossier_id: nil).where.missing(:champ)
+        Etablissement.where(dossier_id: nil).where.missing(:champ_data)
       end
     end
 

@@ -256,8 +256,8 @@ describe TagsSubstitutionConcern, type: :model do
 
       context 'with cadastre geo areas' do
         before do
-          create(:geo_area, :cadastre, champ:)
-          create(:geo_area, :cadastre, champ:, properties: { numero: '0103', section: 'CD', prefixe: '000', commune: '75056', contenance: 5678, id: '75056000CD0103' })
+          create(:geo_area, :cadastre, champ_data: champ)
+          create(:geo_area, :cadastre, champ_data: champ, properties: { numero: '0103', section: 'CD', prefixe: '000', commune: '75056', contenance: 5678, id: '75056000CD0103' })
           dossier.reload
         end
 
@@ -266,7 +266,7 @@ describe TagsSubstitutionConcern, type: :model do
 
       context 'with legacy cadastre geo areas' do
         before do
-          create(:geo_area, :legacy_cadastre, champ:, properties: { numero: '42', section: 'A11', code_com: '127', code_dep: '75', code_arr: '000', surface_parcelle: 1234, surface_intersection: 1234 })
+          create(:geo_area, :legacy_cadastre, champ_data: champ, properties: { numero: '42', section: 'A11', code_com: '127', code_dep: '75', code_arr: '000', surface_parcelle: 1234, surface_intersection: 1234 })
           dossier.reload
         end
 
@@ -275,7 +275,7 @@ describe TagsSubstitutionConcern, type: :model do
 
       context 'with selection_utilisateur polygon' do
         before do
-          create(:geo_area, :selection_utilisateur, :polygon, champ:)
+          create(:geo_area, :selection_utilisateur, :polygon, champ_data: champ)
           dossier.reload
         end
 
@@ -284,7 +284,7 @@ describe TagsSubstitutionConcern, type: :model do
 
       context 'with selection_utilisateur line_string' do
         before do
-          create(:geo_area, :selection_utilisateur, :line_string, champ:)
+          create(:geo_area, :selection_utilisateur, :line_string, champ_data: champ)
           dossier.reload
         end
 
@@ -293,7 +293,7 @@ describe TagsSubstitutionConcern, type: :model do
 
       context 'with selection_utilisateur point' do
         before do
-          create(:geo_area, :selection_utilisateur, :point, champ:)
+          create(:geo_area, :selection_utilisateur, :point, champ_data: champ)
           dossier.reload
         end
 

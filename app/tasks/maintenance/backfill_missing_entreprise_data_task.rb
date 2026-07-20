@@ -10,7 +10,7 @@ module Maintenance
         .where(created_at: 6.months.ago..)
         .where.not(siret: nil)
         .where(entreprise_siren: nil)
-        .left_joins(:dossier, :champ)
+        .left_joins(:dossier, :champ_data)
         .where("dossiers.id IS NOT NULL OR champs.id IS NOT NULL")
         .distinct
     end
@@ -41,7 +41,7 @@ module Maintenance
     end
 
     def dossier(etablissement)
-      etablissement.dossier || etablissement.champ&.dossier
+      etablissement.dossier || etablissement.champ_data&.dossier
     end
   end
 end

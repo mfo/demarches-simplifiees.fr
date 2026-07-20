@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Champs::FranceConnectChamp < Champ
+class Champs::FranceConnectChamp < ChampData
   REFRESH_DELAY = 24.hours
 
   attr_accessor :preview_state

@@ -3,7 +3,7 @@
 class Etablissement < ApplicationRecord
   belongs_to :dossier, optional: true, touch: true
 
-  has_one :champ, class_name: 'Champs::SiretChamp', touch: true
+  has_one :champ_data, class_name: 'ChampData', touch: true, inverse_of: :etablissement
 
   has_many :exercices, dependent: :destroy
 
@@ -241,9 +241,9 @@ class Etablissement < ApplicationRecord
   end
 
   def update_champ_value_json!
-    return if champ.nil?
+    return if champ_data.nil?
 
-    champ.update!(value_json: champ_value_json)
+    champ_data.update!(value_json: champ_value_json)
   end
 
   def champ_value_json
@@ -283,13 +283,13 @@ class Etablissement < ApplicationRecord
   def dossier_id_for_export
     if dossier_id
       dossier_id.to_s
-    elsif champ
-      champ.dossier_id.to_s
+    elsif champ_data
+      champ_data.dossier_id.to_s
     end
   end
 
   def libelle_for_export
-    champ&.libelle || 'Dossier'
+    champ_data&.libelle || 'Dossier'
   end
 
   def bilans_headers

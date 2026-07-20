@@ -789,13 +789,13 @@ RSpec.describe DossierChampsConcern do
 
       def main_row(stable_id, row_id)
         dossier.with_main_stream do
-          dossier.send(:champs_on_stream).find { _1.stable_id == stable_id && _1.row_id == row_id }
+          dossier.send(:champ_data_on_stream).find { _1.stable_id == stable_id && _1.row_id == row_id }
         end
       end
 
       def draft_row(stable_id, row_id)
         dossier.with_update_stream(dossier.user) do
-          dossier.send(:champs_on_stream).find { _1.stable_id == stable_id && _1.row_id == row_id }
+          dossier.send(:champ_data_on_stream).find { _1.stable_id == stable_id && _1.row_id == row_id }
         end
       end
 
@@ -1102,7 +1102,7 @@ RSpec.describe DossierChampsConcern do
         it 'does not set a default champ on user_buffer, and does not attempt to fetch the main_stream_champ again' do
           subject
           expect(champ_qf).not_to have_received(:may_fetch_later!)
-          expect(dossier.send(:champs_on_user_buffer_stream)).to be_empty
+          expect(dossier.send(:champ_data_on_user_buffer_stream)).to be_empty
         end
       end
 
@@ -1134,8 +1134,8 @@ RSpec.describe DossierChampsConcern do
           fetched_ids = @fetched_instances.map(&:stable_id)
           expect(fetched_ids).to include(@new_qf.stable_id)
           expect(fetched_ids).not_to include(@old_qf.stable_id)
-          expect(dossier.send(:champs_on_user_buffer_stream).count).to eq(1)
-          expect(dossier.send(:champs_on_user_buffer_stream).first.stable_id).to eq(dossier.revision.types_de_champ.sort_by(&:created_at).last.stable_id)
+          expect(dossier.send(:champ_data_on_user_buffer_stream).count).to eq(1)
+          expect(dossier.send(:champ_data_on_user_buffer_stream).first.stable_id).to eq(dossier.revision.types_de_champ.sort_by(&:created_at).last.stable_id)
         end
       end
     end

@@ -9,7 +9,7 @@ module Maintenance
       let(:dossier) { create(:dossier, procedure:) }
       let(:main_champ) { dossier.champ_data.first }
       let(:main_geo_area) do
-        ga = create(:geo_area, :selection_utilisateur, :polygon, champ: main_champ)
+        ga = create(:geo_area, :selection_utilisateur, :polygon, champ_data: main_champ)
         ga.update_column(:uuid, nil)
         ga.reload
       end
@@ -36,7 +36,7 @@ module Maintenance
           champ.save!(validate: false)
           champ
         end
-        let!(:buffer_geo_area) { create(:geo_area, :selection_utilisateur, :polygon, champ: buffer_champ) }
+        let!(:buffer_geo_area) { create(:geo_area, :selection_utilisateur, :polygon, champ_data: buffer_champ) }
 
         it 'propagates the same uuid to the matching geo_area' do
           process
@@ -51,7 +51,7 @@ module Maintenance
           champ.save!(validate: false)
           champ
         end
-        let!(:buffer_geo_area) { create(:geo_area, :selection_utilisateur, :point, champ: buffer_champ) }
+        let!(:buffer_geo_area) { create(:geo_area, :selection_utilisateur, :point, champ_data: buffer_champ) }
 
         it 'does not update its uuid' do
           expect(buffer_geo_area.reload.uuid).to be_nil

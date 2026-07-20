@@ -4,7 +4,7 @@ RSpec.describe Dossiers::GeoAreaComponent, type: :component do
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
-  let(:geo_area) { create(:geo_area, :selection_utilisateur, :polygon, champ:) }
+  let(:geo_area) { create(:geo_area, :selection_utilisateur, :polygon, champ_data: champ) }
 
   before { render_inline(described_class.new(geo_area:, editing:)) }
 

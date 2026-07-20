@@ -12,7 +12,7 @@ module Maintenance
       let(:champ) { dossier.champ_data.first }
 
       context "with a valid geo_area (point)" do
-        let!(:geo_area) { create(:geo_area, :point, champ:) }
+        let!(:geo_area) { create(:geo_area, :point, champ_data: champ) }
         let(:element) { geo_area }
         it "does not destroy the geo_area" do
           expect { process }.not_to change { GeoArea.exists?(geo_area.id) }.from(true)
@@ -20,7 +20,7 @@ module Maintenance
       end
 
       context "with an invalid geo_area (invalid_point)" do
-        let!(:geo_area) { create(:geo_area, :point, champ:) }
+        let!(:geo_area) { create(:geo_area, :point, champ_data: champ) }
         let(:invalid_geometry) { build(:geo_area, :invalid_point).geometry }
         before { geo_area.update_column(:geometry, invalid_geometry) }
         let(:element) { geo_area }

@@ -489,7 +489,7 @@ describe ProcedureExportService do
       context 'with empty repetition' do
         before do
           dossiers.flat_map { |dossier| dossier.root_champs_public.filter(&:repetition?) }.each do |champ|
-            Champ.where(row_id: champ.row_ids).destroy_all
+            ChampData.where(row_id: champ.row_ids).destroy_all
           end
         end
 
@@ -515,10 +515,10 @@ describe ProcedureExportService do
           rep = -> (dossier, stable_id) { dossier.root_champs_public.find { _1.repetition? && _1.stable_id == stable_id } }
 
           dossiers.first.update!(depose_at: 2.days.ago)
-          Champ.where(row_id: rep.call(dossiers.first, canonical.first.stable_id).row_ids).destroy_all
+          ChampData.where(row_id: rep.call(dossiers.first, canonical.first.stable_id).row_ids).destroy_all
 
           dossiers.second.update!(depose_at: 1.day.ago)
-          Champ.where(row_id: rep.call(dossiers.second, canonical.last.stable_id).row_ids).destroy_all
+          ChampData.where(row_id: rep.call(dossiers.second, canonical.last.stable_id).row_ids).destroy_all
 
           dossiers.each(&:reload)
         end
@@ -630,7 +630,7 @@ describe ProcedureExportService do
     let(:properties) { subject['features'].first['properties'] }
 
     before do
-      create(:geo_area, :polygon, champ: champ_carte)
+      create(:geo_area, :polygon, champ_data: champ_carte)
     end
 
     it 'should have features' do

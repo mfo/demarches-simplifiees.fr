@@ -89,7 +89,7 @@ class DossierPreloader
       },
     ]
 
-    all_champs = Champ
+    all_champs = ChampData
       .includes(to_include)
       .where(dossier_id: dossiers)
       .to_a
@@ -112,7 +112,7 @@ class DossierPreloader
       etablissement = etablissements_by_id[champ.etablissement_id]
       champ.association(:etablissement).target = etablissement
       if etablissement
-        etablissement.association(:champ).target = champ
+        etablissement.association(:champ_data).target = champ
       end
     end
   end
@@ -136,7 +136,7 @@ class DossierPreloader
         champ.piece_justificative_file.attachments.each do |attachment|
           if attachment.blob.attachments.loaded?
             attachment.blob.attachments.each do |blob_attachment|
-              if blob_attachment.record.is_a?(Champ)
+              if blob_attachment.record.is_a?(ChampData)
                 blob_attachment.record.association(:dossier).target = dossier
               end
             end
@@ -145,11 +145,11 @@ class DossierPreloader
       end
     end
 
-    # We need to do this because of the check on `Etablissement#champ` in
+    # We need to do this because of the check on `Etablissement#champ_data` in
     # `Etablissement#libelle_for_export`. By assigning `nil` to `target` we mark association
-    # as loaded and so the check on `Etablissement#champ` will not trigger n+1 query.
+    # as loaded and so the check on `Etablissement#champ_data` will not trigger n+1 query.
     if dossier.etablissement
-      dossier.etablissement.association(:champ).target = nil
+      dossier.etablissement.association(:champ_data).target = nil
     end
 
     dossier.send(:reset_champs_cache)

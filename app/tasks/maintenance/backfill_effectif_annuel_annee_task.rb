@@ -10,7 +10,7 @@ module Maintenance
 
     def process(etablissement)
       year = etablissement.created_at.year - 1
-      procedure = (etablissement.dossier || etablissement.champ&.dossier)&.procedure
+      procedure = (etablissement.dossier || etablissement.champ_data&.dossier)&.procedure
       APIEntreprise::EffectifsAnnuelsJob.perform_later(etablissement.id, procedure&.id, year)
     end
   end

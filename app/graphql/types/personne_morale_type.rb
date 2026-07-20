@@ -118,7 +118,7 @@ module Types
     field :complement_adresse, String, null: true, deprecation_reason: "Utilisez le champ `address` à la place."
 
     def address
-      address = object.champ&.value_json
+      address = object.champ_data&.value_json
       if address.blank? || !address.key?("departement_code")
         address = APIGeoService.parse_etablissement_address(object)
       end
