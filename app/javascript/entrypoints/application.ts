@@ -15,34 +15,18 @@ import { registerControllers } from '../shared/stimulus-loader';
 
 import '../new_design/form-validation';
 
-import { toggleCondidentielExplanation } from '../new_design/avis';
-import {
-  showMotivation,
-  motivationCancel,
-  showImportJustificatif,
-  showDeleteJustificatif,
-  deleteJustificatif
-} from '../new_design/instruction-button';
-import { showFusion, showNewAccount } from '../new_design/fc-fusion';
-
 import { setupLocale } from '../shared/i18n';
+
+declare global {
+  interface Window {
+    _rails_loaded?: boolean;
+  }
+}
 
 await setupLocale();
 
 const application = Application.start();
 registerControllers(application);
-
-// This is the global application namespace where we expose helpers used from rails views
-const DS = {
-  toggleCondidentielExplanation,
-  showMotivation,
-  motivationCancel,
-  showImportJustificatif,
-  showDeleteJustificatif,
-  deleteJustificatif,
-  showFusion,
-  showNewAccount
-};
 
 // Start Rails helpers
 ActiveStorage.start();
@@ -50,9 +34,6 @@ if (!window._rails_loaded) {
   Rails.start();
 }
 Turbo.session.drive = false;
-
-// Expose globals
-window.DS = window.DS || DS;
 
 import('../shared/track/matomo');
 import('../shared/track/sentry');

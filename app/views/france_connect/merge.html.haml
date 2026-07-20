@@ -1,6 +1,6 @@
 = content_for :title, "Fusion des comptes FC et #{Current.application_name}"
 
-.fr-container
+.fr-container{ data: { controller: 'panels' } }
   %h1.page-title= t('.title', application_name: Current.application_name)
 
   %p= t('.subtitle_html', email: @fci.email_france_connect, application_name: Current.application_name)
@@ -9,15 +9,15 @@
     %legend.fr-fieldset__legend#merge-account= t('.label_select_merge_flow', email: @fci.email_france_connect)
     .fr-fieldset__element.fr-fieldset__element--inline
       .fr-radio-group
-        %input{ type: 'radio', id: 'it-is-mine', name: 'value', value: 'true', autocomplete: "off", onclick: "DS.showFusion(event);" }
+        %input{ type: 'radio', id: 'it-is-mine', name: 'value', value: 'true', autocomplete: "off", data: { action: 'panels#show', panels_name_param: 'fusion' } }
         %label{ for: 'it-is-mine' }= t('utils.yes')
     .fr-fieldset__element.fr-fieldset__element--inline
       .fr-radio-group
-        %input{ type: 'radio', id: 'it-is-not-mine', name: 'value', value: 'false', autocomplete: "off", onclick: "DS.showNewAccount(event);" }
+        %input{ type: 'radio', id: 'it-is-not-mine', name: 'value', value: 'false', autocomplete: "off", data: { action: 'panels#show', panels_name_param: 'new-account' } }
         %label{ for: 'it-is-not-mine' }= t('utils.no')
 
 
-  .fusion.hidden
+  .fusion.hidden{ data: { panels_target: 'panel', panels_name: 'fusion' } }
     %p= t('.title_fill_in_password')
 
     = render partial: 'password_confirmation', locals: { fci: @fci, wrong_password: @wrong_password }
@@ -29,7 +29,7 @@
         class: 'fr-btn fr-btn--secondary'
 
 
-  .new-account.hidden
+  .new-account.hidden{ data: { panels_target: 'panel', panels_name: 'new-account' } }
     %p= t('.title_fill_in_email', application_name: Current.application_name)
 
     = form_tag france_connect_send_email_merge_request_path, class: 'fr-mt-4v form' do
@@ -37,6 +37,3 @@
       = label_tag :email, t('views.registrations.new.email_label'), for: dom_id(@fci, :new_account_email), class: 'fr-label'
       = email_field_tag :email, "", required: true, id: dom_id(@fci, :new_account_email), class: 'fr-mb-2v fr-input'
       = submit_tag t('.button_use_this_email'), class: 'fr-btn'
-
-
-  #new-account-password-confirmation.hidden
