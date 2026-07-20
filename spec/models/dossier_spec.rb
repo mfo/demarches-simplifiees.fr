@@ -3,7 +3,7 @@
 describe Dossier, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
-  before_all { seed "cases/entreprise", "cases/sva" }
+  before_all { seed "cases/sva" }
 
   let(:user) { create(:user) }
 
@@ -648,8 +648,6 @@ describe Dossier, type: :model do
   end
 
   describe '#avis_for' do
-    before_all { seed "cases/avis" }
-
     let(:instructeur) { instructeurs.default }
     let(:expert_1) { experts.default }
     let(:procedure) { procedures.individual }

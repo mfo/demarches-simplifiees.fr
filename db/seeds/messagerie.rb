@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # A message sent by the default instructeur on the en_construction dossier.
-# Load in a spec with `seed "cases/messagerie"`.
 
 message = commentaires.create(
   dossier: dossiers.en_construction,

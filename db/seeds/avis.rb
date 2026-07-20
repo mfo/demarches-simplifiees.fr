@@ -2,7 +2,7 @@
 
 # An expert invited on the individual procedure, with a pending avis requested by the
 # default instructeur on the en_instruction dossier and an answered avis on the
-# accepte dossier. Load in a spec with `seed "cases/avis"`.
+# accepte dossier.
 
 expert_user = users.create :expert, email: "expert@exemple.fr"
 expert_user.create_expert!

@@ -54,7 +54,7 @@ describe 'Inviting an expert:', js: true do
         expect(page).to have_content('Bonjour, merci de me donner votre avis sur ce dossier.')
       end
 
-      expect(Avis.count).to eq(8)
+      expect(Avis.where(dossier: [dossier, linked_dossier]).count).to eq(8)
       expect(emails_sent_to(expert.email.to_s).size).to eq(1)
       expect(emails_sent_to(expert2.email.to_s).size).to eq(1)
       invitation_email = open_email(expert.email.to_s)

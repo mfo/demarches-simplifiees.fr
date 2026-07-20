@@ -2,7 +2,6 @@
 
 # A published procedure for entreprises (for_individual: false) with an
 # en_construction dossier carrying a fully populated etablissement.
-# Load in a spec with `seed "cases/entreprise"`.
 
 procedure = Procedure.new(
   libelle: "Démarche de démonstration (entreprises)",

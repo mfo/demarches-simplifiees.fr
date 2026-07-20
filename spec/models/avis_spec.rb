@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe Avis, type: :model do
-  before_all { seed "cases/avis" }
-
   describe '#email_to_display' do
     context 'when expert is known' do
       it { expect(avis.pending.email_to_display).to eq(experts.default.email) }
