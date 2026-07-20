@@ -38,7 +38,7 @@ describe Champs::CarteController, type: :controller do
 
   describe 'features' do
     let(:feature) { attributes_for(:geo_area, :polygon) }
-    let(:geo_area) { create(:geo_area, :selection_utilisateur, :polygon, champ: champ) }
+    let(:geo_area) { create(:geo_area, :selection_utilisateur, :polygon, champ_data: champ) }
 
     before do
       sign_in user

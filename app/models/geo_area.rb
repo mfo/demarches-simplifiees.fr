@@ -2,7 +2,7 @@
 
 class GeoArea < ApplicationRecord
   include ActionView::Helpers::NumberHelper
-  belongs_to :champ, class_name: 'ChampData', optional: false, inverse_of: :geo_areas
+  belongs_to :champ_data, class_name: 'ChampData', foreign_key: :champ_id, optional: false, inverse_of: :geo_areas
   before_create :set_default_uuid
 
   enum :cadastre_state, %w[cadastre_fetched cadastre_error].index_by(&:itself)
@@ -59,11 +59,11 @@ class GeoArea < ApplicationRecord
         description: description,
         filename: filename,
         id: (uuid || id).to_s,
-        champ_label: champ.libelle,
-        champ_id: champ.stable_id,
-        champ_row: champ.row_id,
-        champ_private: champ.private?,
-        dossier_id: champ.dossier_id
+        champ_label: champ_data.libelle,
+        champ_id: champ_data.stable_id,
+        champ_row: champ_data.row_id,
+        champ_private: champ_data.private?,
+        dossier_id: champ_data.dossier_id
       ).compact,
     }
   end
@@ -256,7 +256,7 @@ class GeoArea < ApplicationRecord
   end
 
   def set_default_uuid
-    if champ.main_stream?
+    if champ_data.main_stream?
       self.uuid ||= SecureRandom.uuid
     end
   end

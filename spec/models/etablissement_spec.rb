@@ -203,7 +203,7 @@ describe Etablissement do
         .with(etablissement)
         .and_return(address_data.dup)
 
-      etablissement.champ = champ
+      etablissement.champ_data = champ
     end
 
     subject(:value_json) {

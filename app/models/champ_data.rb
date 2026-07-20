@@ -37,11 +37,8 @@ class ChampData < ApplicationRecord
 
   # We declare champ specific relationships (Champs::CarteChamp, Champs::SiretChamp and Champs::RepetitionChamp)
   # here because otherwise we can't easily use includes in our queries.
-  has_many :geo_areas, -> { order(:created_at) }, dependent: :destroy, inverse_of: :champ
-  # inverse_of can no longer be inferred automatically: Rails derives the
-  # inverse name from the defining class (:champ_data), but the association
-  # on the other side is still named :champ.
-  belongs_to :etablissement, optional: true, dependent: :destroy, inverse_of: :champ
+  has_many :geo_areas, -> { order(:created_at) }, dependent: :destroy, inverse_of: :champ_data
+  belongs_to :etablissement, optional: true, dependent: :destroy, inverse_of: :champ_data
 
   delegate :procedure, to: :dossier
   normalizes :value, with: NORMALIZES_NON_PRINTABLE_PROC

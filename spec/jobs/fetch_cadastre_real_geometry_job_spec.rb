@@ -5,7 +5,7 @@ describe FetchCadastreRealGeometryJob, type: :job do
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :carte, options: { cadastres: true } }]) }
     let(:dossier) { create(:dossier, procedure: procedure) }
     let(:champ) { dossier.champ_data.first }
-    let!(:geo_area) { create(:geo_area, :cadastre, properties:, champ:) }
+    let!(:geo_area) { create(:geo_area, :cadastre, properties:, champ_data: champ) }
     let(:job) { described_class.new(geo_area) }
     subject { job.perform_now }
 

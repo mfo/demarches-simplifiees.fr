@@ -8,9 +8,9 @@ describe Cron::FallbackFetchCadastreRealGeometryJob, type: :job do
 
     context 'when cadastre lookup works' do
       it 'processes pending geo areas' do
-        create(:geo_area, :selection_utilisateur, cadastre_state: nil, champ:)
-        create(:geo_area, :cadastre, cadastre_state: :cadastre_fetched, champ:)
-        enqueued_geoarea = create(:geo_area, :cadastre, cadastre_state: nil, champ:)
+        create(:geo_area, :selection_utilisateur, cadastre_state: nil, champ_data: champ)
+        create(:geo_area, :cadastre, cadastre_state: :cadastre_fetched, champ_data: champ)
+        enqueued_geoarea = create(:geo_area, :cadastre, cadastre_state: nil, champ_data: champ)
         expect { described_class.perform_now }.to have_enqueued_job(FetchCadastreRealGeometryJob).with(enqueued_geoarea)
       end
     end

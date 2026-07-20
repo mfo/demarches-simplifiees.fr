@@ -22,9 +22,9 @@ class Cron::BackfillSiretDegradedModeJob < Cron::CronJob
   end
 
   def fix_etablissement_with_champs
-    Etablissement.joins(:champ).where(adresse: nil).find_each do |etablissement|
+    Etablissement.joins(:champ_data).where(adresse: nil).find_each do |etablissement|
       begin
-        procedure_id = etablissement.champ.procedure.id
+        procedure_id = etablissement.champ_data.procedure.id
 
         APIEntrepriseService.update_etablissement_from_degraded_mode(etablissement, procedure_id)
       rescue => e

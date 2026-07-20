@@ -24,11 +24,11 @@ module Maintenance
       Etablissement
         .where(entreprise_siren: nil)
         .where.not(siret: nil)
-        .includes(dossier: :procedure, champ: { dossier: :procedure })
+        .includes(dossier: :procedure, champ_data: { dossier: :procedure })
     end
 
     def process(etablissement)
-      procedure_id = etablissement.dossier&.procedure&.id || etablissement.champ&.dossier&.procedure&.id
+      procedure_id = etablissement.dossier&.procedure&.id || etablissement.champ_data&.dossier&.procedure&.id
       return if procedure_id.nil?
 
       result = APIEntreprise::EtablissementAdapter.new(etablissement.siret, procedure_id).to_params

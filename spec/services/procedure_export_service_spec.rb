@@ -630,7 +630,7 @@ describe ProcedureExportService do
     let(:properties) { subject['features'].first['properties'] }
 
     before do
-      create(:geo_area, :polygon, champ: champ_carte)
+      create(:geo_area, :polygon, champ_data: champ_carte)
     end
 
     it 'should have features' do
