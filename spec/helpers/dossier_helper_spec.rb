@@ -361,4 +361,85 @@ RSpec.describe DossierHelper, type: :helper do
       end
     end
   end
+
+  describe "#show_new_message_notification?" do
+    let(:user) { create(:user) }
+    let(:dossier) { create(:dossier, :en_construction) }
+
+    subject { helper.show_new_message_notification?(dossier) }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+      Flipper.enable(:usager_dossiers_alert_filters, user)
+    end
+
+    context "when an instructeur sent an unread message" do
+      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context "when an expert sent an unread message" do
+      before { create(:commentaire, dossier:, expert: create(:expert), seen_by_recipient_at: nil) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context "when the dossier is en_instruction" do
+      let(:dossier) { create(:dossier, :en_instruction) }
+
+      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context "when the feature flag is disabled" do
+      before do
+        Flipper.disable(:usager_dossiers_alert_filters, user)
+        create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+      end
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the agent message has been seen" do
+      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: 1.day.ago) }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the agent message is discarded" do
+      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil, discarded_at: Time.current) }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the message was sent by the usager" do
+      before { create(:commentaire, dossier:, seen_by_recipient_at: nil) }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the dossier has no message" do
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the dossier is pending_correction" do
+      before do
+        create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+        create(:dossier_correction, dossier:)
+      end
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when the dossier is pending_response" do
+      before do
+        create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+        create(:dossier_pending_response, dossier:)
+      end
+
+      it { is_expected.to be_falsey }
+    end
+  end
 end
