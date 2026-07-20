@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ExternalDataChampValidator < ActiveModel::Validator
-  # Required checks are delegated to check_mandatory_and_visible_champs_public.
+  # Required checks are delegated to Champ#validate_completed (:champ_completeness context).
   def validate(record)
     if record.pending?
       # User filled the field, but background job is still running.
