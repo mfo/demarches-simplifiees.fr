@@ -128,6 +128,25 @@ module DossierHelper
     )
   end
 
+  def new_message_badge(html_class: nil)
+    tag.span(
+      Dossier.human_attribute_name("new_message.for_user"),
+      class: class_names("fr-badge fr-badge--sm fr-badge--new", html_class => true)
+    )
+  end
+
+  def show_new_message_notification?(dossier)
+    return false unless current_user.dossiers_alerts_enabled?
+
+    # Le badge « nouveau message » passe derrière « à corriger » et « en attente
+    # de réponse » : on n'affiche qu'un seul badge de type messagerie à la fois.
+    return false if dossier.pending_correction? || dossier.pending_response?
+
+    # `.any?` lit l'association préchargée en mémoire (cf. USER_LIST_PRELOADS) :
+    # aucune requête supplémentaire dans la liste des dossiers.
+    dossier.unread_messages_for_user.any?
+  end
+
   def pending_correction_badge(profile, html_class: nil)
     tag.span(Dossier.human_attribute_name("pending_correction.#{profile}"), class:
       class_names(

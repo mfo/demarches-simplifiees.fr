@@ -329,6 +329,23 @@ RSpec.describe Users::DossierFilterService do
     end
   end
 
+  describe '#dossiers preloading of unread_messages_for_user' do
+    let(:user) { create(:user) }
+    let(:service) { described_class.new(user:, params: ActionController::Parameters.new) }
+
+    before do
+      dossier = create(:dossier, :en_construction, user:)
+      create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+    end
+
+    it 'preloads unread_messages_for_user to avoid N+1 in the list' do
+      dossiers = service.dossiers.to_a
+
+      expect(dossiers).to be_present
+      expect(dossiers.map { it.unread_messages_for_user.loaded? }).to all(be(true))
+    end
+  end
+
   describe '#dossiers with alert filter' do
     let!(:dossier_pending_correction) { create(:dossier, :en_construction, user: user) }
     let!(:dossier_pending_response) { create(:dossier, :en_construction, user: user) }
@@ -336,7 +353,12 @@ RSpec.describe Users::DossierFilterService do
 
     before do
       Flipper.enable_actor(:usager_dossiers_alert_filters, user)
+      # A pending correction/response always carries an unread agent message,
+      # so these dossiers must NOT surface under the « nouveau_message » filter:
+      # their prioritary badge is « à corriger » / « en attente de réponse ».
+      create(:commentaire, dossier: dossier_pending_correction, instructeur: create(:instructeur), seen_by_recipient_at: nil)
       create(:dossier_correction, dossier: dossier_pending_correction)
+      create(:commentaire, dossier: dossier_pending_response, instructeur: create(:instructeur), seen_by_recipient_at: nil)
       create(:dossier_pending_response, dossier: dossier_pending_response)
       create(:commentaire, dossier: dossier_unread_message, instructeur: create(:instructeur), seen_by_recipient_at: nil)
     end

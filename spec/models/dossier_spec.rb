@@ -891,6 +891,8 @@ describe Dossier, type: :model do
     let_it_be(:dossier_with_unread_expert) { create(:dossier, :en_construction, procedure: procedures.individual) }
     let_it_be(:dossier_with_only_usager_message) { create(:dossier, :en_construction, procedure: procedures.individual) }
     let_it_be(:dossier_with_discarded_unread) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_pending_correction) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_pending_response) { create(:dossier, :en_construction, procedure: procedures.individual) }
 
     before_all do
       create(:commentaire, dossier: dossier_with_unread_instructeur, instructeur: create(:instructeur), seen_by_recipient_at: nil)
@@ -898,9 +900,13 @@ describe Dossier, type: :model do
       create(:commentaire, dossier: dossier_with_unread_expert, expert: create(:expert), seen_by_recipient_at: nil)
       create(:commentaire, dossier: dossier_with_only_usager_message, seen_by_recipient_at: nil)
       create(:commentaire, dossier: dossier_with_discarded_unread, instructeur: create(:instructeur), seen_by_recipient_at: nil, discarded_at: Time.current)
+      create(:commentaire, dossier: dossier_with_pending_correction, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+      create(:dossier_correction, dossier: dossier_with_pending_correction)
+      create(:commentaire, dossier: dossier_with_pending_response, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+      create(:dossier_pending_response, dossier: dossier_with_pending_response)
     end
 
-    subject { Dossier.with_unread_messages_for_user }
+    subject { procedures.individual.dossiers.with_unread_messages_for_user }
 
     it 'includes dossiers with unread instructeur messages' do
       expect(subject).to include(dossier_with_unread_instructeur)
@@ -920,6 +926,14 @@ describe Dossier, type: :model do
 
     it 'excludes dossiers where the unread message is discarded' do
       expect(subject).not_to include(dossier_with_discarded_unread)
+    end
+
+    it 'excludes dossiers pending a correction (the « à corriger » badge takes precedence)' do
+      expect(subject).not_to include(dossier_with_pending_correction)
+    end
+
+    it 'excludes dossiers pending a response (the « en attente de réponse » badge takes precedence)' do
+      expect(subject).not_to include(dossier_with_pending_response)
     end
   end
 
