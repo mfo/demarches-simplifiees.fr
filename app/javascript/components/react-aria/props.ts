@@ -26,10 +26,11 @@ const ArrayOfStrings = s.coerce(s.array(Item), s.array(s.string()), (items) =>
 const ItemsSchema = s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]);
 
 export const Section = s.object({
+  id: s.optional(s.string()),
   label: s.string(),
   items: ItemsSchema
 });
-export type Section = { label: string; items: Item[] };
+export type Section = { id?: string; label: string; items: Item[] };
 
 const ComboBoxPropsSchema = s.partial(
   s.object({

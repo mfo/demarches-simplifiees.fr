@@ -121,7 +121,7 @@ function Select<M extends SelectionMode = 'single'>({
               {sections ? (
                 <Collection items={sections}>
                   {(section) => (
-                    <ListBoxSection id={section.label}>
+                    <ListBoxSection id={section.id ?? section.label}>
                       <Header className="dropdown-section-header">
                         {section.label}
                       </Header>

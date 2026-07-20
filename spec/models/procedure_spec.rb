@@ -2347,7 +2347,7 @@ describe Procedure do
 
     it 'groups personnalisable columns under their preceding section, in form order' do
       result = procedure.personnalisable_columns_by_section
-      labels = result.map { |section_label, columns| [section_label, columns.map(&:label)] }
+      labels = result.map { |_stable_id, section_label, columns| [section_label, columns.map(&:label)] }
 
       expect(labels).to eq([
         [nil, ['Avant section']],
@@ -2364,7 +2364,7 @@ describe Procedure do
         { type: :text, libelle: 'Court' },
       ])
 
-      sections = procedure.personnalisable_columns_by_section.map(&:first)
+      sections = procedure.personnalisable_columns_by_section.map { |_stable_id, label, _columns| label }
       expect(sections).to eq(['2. Pleine'])
     end
 
@@ -2376,8 +2376,27 @@ describe Procedure do
         { type: :text, libelle: 'Champ enfant' },
       ])
 
-      sections = procedure.personnalisable_columns_by_section.map(&:first)
+      sections = procedure.personnalisable_columns_by_section.map { |_stable_id, label, _columns| label }
       expect(sections).to eq(['1. Parent', '1.1. Enfant'])
+    end
+
+    it 'does not auto-number when the admin already numbered at least one section' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :header_section, libelle: '1. Identité' },
+        { type: :text, libelle: 'Nom' },
+        { type: :header_section, libelle: 'Représentant légal' },
+        { type: :text, libelle: 'Fonction' },
+      ])
+
+      sections = procedure.personnalisable_columns_by_section.map { |_stable_id, label, _columns| label }
+      expect(sections).to eq(['1. Identité', 'Représentant légal'])
+    end
+
+    it 'returns the section header stable_id as a stable key' do
+      stable_ids = procedure.personnalisable_columns_by_section.map(&:first)
+      header_stable_ids = procedure.published_revision.root_types_de_champ_public.filter(&:header_section?).map(&:stable_id)
+
+      expect(stable_ids).to eq([nil, *header_stable_ids])
     end
 
     it 'does not query procedure_revisions or type_de_champs on each call (no N+1)' do
@@ -2409,7 +2428,7 @@ describe Procedure do
       procedure.reload
 
       expect { procedure.personnalisable_columns_by_section }.not_to raise_error
-      all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_section, cols| cols.map(&:label) }
+      all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, cols| cols.map(&:label) }
       expect(all_column_labels).not_to include('Champ legacy')
       expect(all_column_labels).to include('Champ valide')
     end
@@ -2421,8 +2440,8 @@ describe Procedure do
         { type: :text, libelle: 'Champ valide' },
         { type: :text, libelle: 'Champ legacy' },
       ])
-      valid_tdc = procedure.published_revision.types_de_champ_public.find { _1.libelle == 'Champ valide' }
-      legacy_tdc_id = procedure.published_revision.types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
+      valid_tdc = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ valide' }
+      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
       TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
       expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
       procedure.reload
