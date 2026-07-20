@@ -23,6 +23,7 @@ RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
     it 'renders the subject excerpt with the tag styled as a chip' do
       expect(rendered).to have_text('Accusé pour le dossier numéro du dossier')
       expect(rendered).to have_selector('.fr-tag', text: 'numéro du dossier')
+      expect(rendered).to have_selector('.fr-tag.fr-tag--blue-ecume', text: /modifié le/)
     end
   end
 
@@ -42,6 +43,7 @@ RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
       expect(rendered).to have_text('a bien été déposé')
       expect(rendered).to have_selector('.fr-tag', text: 'numéro du dossier')
       expect(rendered).to have_selector('.fr-tag', text: 'Modèle standard')
+      expect(rendered).to have_no_selector('.fr-tag--blue-ecume')
     end
 
     it 'renders the context description' do
