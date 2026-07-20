@@ -4,10 +4,10 @@
       %div
         - if error_messages.present?
           %p.fr-badge.fr-badge--warning À modifier
-        - elsif fully_customized?
-          %p.fr-badge.fr-badge--success Validé
+        - elsif customized?
+          %p.fr-badge.fr-badge--info.fr-badge--no-icon Configurés
         - else
-          %p.fr-badge.fr-badge--info À configurer
+          %p.fr-badge Configurés par défaut
       %div
         .line-count.fr-my-1w
           %p.fr-tag= customized_progress

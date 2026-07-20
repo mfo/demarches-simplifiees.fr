@@ -11,8 +11,8 @@ class Procedure::Card::EmailsComponent < ApplicationComponent
     "#{customized_count} / #{CUSTOMIZABLE_COUNT}"
   end
 
-  def fully_customized?
-    customized_count == CUSTOMIZABLE_COUNT
+  def customized?
+    customized_count.positive?
   end
 
   private
