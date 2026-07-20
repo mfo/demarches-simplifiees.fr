@@ -177,5 +177,14 @@ FactoryBot.define do
 
     factory :champ_do_not_use_quotient_familial, class: 'Champs::QuotientFamilialChamp' do
     end
+
+    factory :champ_do_not_use_etudiant_boursier, class: 'Champs::EtudiantBoursierChamp' do
+    end
+
+    factory :champ_do_not_use_aah, class: 'Champs::AAHChamp' do
+    end
+
+    factory :champ_do_not_use_aeeh, class: 'Champs::AEEHChamp' do
+    end
   end
 end

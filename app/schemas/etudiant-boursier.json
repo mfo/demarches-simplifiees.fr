@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://demarche.numerique.gouv.fr/etudiant-boursier.schema.json",
+  "title": "etudiant boursier",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "anyOf": [
+        { "required": ["statut_boursier"] },
+        { "required": ["periode_versement_bourse"] },
+        { "required": ["etablissement_etudes"] },
+        { "required": ["echelon_bourse"] },
+        { "required": ["email"] },
+        { "required": ["identite"] }
+      ],
+      "properties": {
+        "statut_boursier": {
+          "type": "object",
+          "required": [
+            "est_boursier",
+            "est_radie",
+            "date_radiation"
+          ],
+          "properties": {
+            "est_boursier": {
+              "type": "boolean"
+            },
+            "est_radie": {
+              "type": "boolean"
+            },
+            "date_radiation": {
+              "type": ["string", "null"],
+              "format": "date"
+            }
+          }
+        },
+        "periode_versement_bourse": {
+          "type": "object",
+          "required": [
+            "date_rentree",
+            "duree"
+          ],
+          "properties": {
+            "date_rentree": {
+              "type": "string",
+              "format": "date"
+            },
+            "duree": {
+              "type": "integer"
+            }
+          }
+        },
+        "etablissement_etudes": {
+          "type": "object",
+          "required": [
+            "nom_commune",
+            "nom_etablissement"
+          ],
+          "properties": {
+            "nom_commune": {
+              "type": "string"
+            },
+            "nom_etablissement": {
+              "type": "string"
+            }
+          }
+        },
+        "echelon_bourse": {
+          "type": "object",
+          "required": [
+            "echelon",
+            "echelon_bourse_regionale_provisoire"
+          ],
+          "properties": {
+            "echelon": {
+              "type": "string"
+            },
+            "echelon_bourse_regionale_provisoire": {
+              "type": "boolean"
+            }
+          }
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "identite": {
+          "type": "object",
+          "required": [
+            "nom",
+            "prenoms",
+            "date_naissance",
+            "nom_commune_naissance",
+            "sexe"
+          ],
+          "properties": {
+            "nom": {
+              "type": "string"
+            },
+            "prenoms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "date_naissance": {
+              "type": "string",
+              "format": "date"
+            },
+            "nom_commune_naissance": {
+              "type": "string"
+            },
+            "sexe": {
+              "type": "string",
+              "enum": ["M", "F"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

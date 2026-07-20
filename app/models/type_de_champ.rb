@@ -6,7 +6,6 @@ class TypeDeChamp < ApplicationRecord
   FEATURE_FLAGS = {
     engagement_juridique: :engagement_juridique_type_de_champ,
     cojo: :cojo_type_de_champ,
-    quotient_familial: :quotient_familial_type_de_champ,
     pre_rempli: :pre_rempli_type_de_champ,
   }
 
@@ -52,7 +51,6 @@ class TypeDeChamp < ApplicationRecord
     date: STANDARD,
     datetime: STANDARD,
     piece_justificative: STANDARD,
-
     checkbox: CHOICE,
     drop_down_list: CHOICE,
     multiple_drop_down_list: CHOICE,
@@ -64,6 +62,9 @@ class TypeDeChamp < ApplicationRecord
     carte: REFERENTIEL_EXTERNE,
     cojo: REFERENTIEL_EXTERNE,
     quotient_familial: FRANCE_CONNECT,
+    etudiant_boursier: FRANCE_CONNECT,
+    aah: FRANCE_CONNECT,
+    aeeh: FRANCE_CONNECT,
   }
 
   enum :type_champ, {
@@ -91,7 +92,6 @@ class TypeDeChamp < ApplicationRecord
     date: 'date',
     datetime: 'datetime',
     piece_justificative: 'piece_justificative',
-
     checkbox: 'checkbox',
     drop_down_list: 'drop_down_list',
     multiple_drop_down_list: 'multiple_drop_down_list',
@@ -104,8 +104,11 @@ class TypeDeChamp < ApplicationRecord
     epci: 'epci',
     cojo: 'cojo',
     referentiel: 'referentiel',
-    quotient_familial: 'quotient_familial',
     pre_rempli: 'pre_rempli',
+    quotient_familial: 'quotient_familial',
+    etudiant_boursier: 'etudiant_boursier',
+    aah: 'aah',
+    aeeh: 'aeeh',
   }
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
@@ -124,7 +127,12 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:engagement_juridique),
   ]
 
-  API_PART_FC_TDC = [type_champs.fetch(:quotient_familial)]
+  API_PART_FC_TDC = [
+    type_champs.fetch(:quotient_familial),
+    type_champs.fetch(:etudiant_boursier),
+    type_champs.fetch(:aah),
+    type_champs.fetch(:aeeh),
+  ]
 
   PUBLIC_ONLY_TYPES = API_PART_FC_TDC
 

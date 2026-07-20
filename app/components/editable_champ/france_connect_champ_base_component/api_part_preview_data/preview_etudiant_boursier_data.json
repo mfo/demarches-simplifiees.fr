@@ -1,0 +1,27 @@
+{
+  "statut_boursier": {
+    "est_boursier": true,
+    "est_radie": false,
+    "date_radiation": null
+  },
+  "periode_versement_bourse": {
+    "date_rentree": "2019-09-01",
+    "duree": 12
+  },
+  "etablissement_etudes": {
+    "nom_commune": "Brest",
+    "nom_etablissement": "Carnot"
+  },
+  "echelon_bourse": {
+    "echelon": "6",
+    "echelon_bourse_regionale_provisoire": true
+  },
+  "email": "georges@moustaki.fr",
+  "identite": {
+    "nom": "Moustaki",
+    "prenoms": "PIERRE RICHARD",
+    "date_naissance": "1992-11-29",
+    "nom_commune_naissance": "Poitiers",
+    "sexe": "M"
+  }
+}

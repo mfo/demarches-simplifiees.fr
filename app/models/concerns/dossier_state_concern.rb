@@ -419,10 +419,10 @@ module DossierStateConcern
   end
 
   def clear_france_connect_champs_piece_justificatives!
-    champs_to_clear = root_champs_public.filter(&:france_connect?)
+    champs_to_clear_ids = root_champs_public.filter(&:france_connect?).map(&:stable_id)
 
-    return if champs_to_clear.empty?
-    champ_data.where(id: champs_to_clear).find_each(&:clear_piece_justificative)
+    return if champs_to_clear_ids.empty?
+    champ_data.where(stable_id: champs_to_clear_ids, stream: Dossier::MAIN_STREAM).find_each(&:clear_piece_justificative)
   end
 
   def clear_titres_identite!

@@ -3,6 +3,62 @@ Requires that exactly one field must be supplied and that field must not be `nul
 """
 directive @oneOf on INPUT_OBJECT
 
+type AAHChampDescriptor implements ChampDescriptor {
+  """
+  Description des champs d’un bloc répétable.
+  """
+  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
+
+  """
+  Description du champ.
+  """
+  description: String
+  id: ID!
+
+  """
+  Libellé du champ.
+  """
+  label: String!
+
+  """
+  Est-ce que le champ est obligatoire ?
+  """
+  required: Boolean!
+
+  """
+  Type de la valeur du champ.
+  """
+  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
+}
+
+type AEEHChampDescriptor implements ChampDescriptor {
+  """
+  Description des champs d’un bloc répétable.
+  """
+  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
+
+  """
+  Description du champ.
+  """
+  description: String
+  id: ID!
+
+  """
+  Libellé du champ.
+  """
+  label: String!
+
+  """
+  Est-ce que le champ est obligatoire ?
+  """
+  required: Boolean!
+
+  """
+  Type de la valeur du champ.
+  """
+  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
+}
+
 type Address {
   """
   code INSEE de la commune
@@ -3258,6 +3314,34 @@ type EpciChampDescriptor implements ChampDescriptor {
   type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
 }
 
+type EtudiantBoursierChampDescriptor implements ChampDescriptor {
+  """
+  Description des champs d’un bloc répétable.
+  """
+  champDescriptors: [ChampDescriptor!] @deprecated(reason: "Utilisez le champ `RepetitionChampDescriptor.champ_descriptors` à la place.")
+
+  """
+  Description du champ.
+  """
+  description: String
+  id: ID!
+
+  """
+  Libellé du champ.
+  """
+  label: String!
+
+  """
+  Est-ce que le champ est obligatoire ?
+  """
+  required: Boolean!
+
+  """
+  Type de la valeur du champ.
+  """
+  type: TypeDeChamp! @deprecated(reason: "Utilisez le champ `__typename` à la place.")
+}
+
 type ExplicationChamp implements Champ {
   """
   L’identifiant du champDescriptor de ce champ
@@ -5540,9 +5624,19 @@ enum TraitementEvent {
 
 enum TypeDeChamp {
   """
+  Statut allocation adulte handicapé
+  """
+  aah
+
+  """
   Adresse
   """
   address
+
+  """
+  Statut allocation d’éducation de l’enfant handicapé
+  """
+  aeeh
 
   """
   Annuaire de l’éducation
@@ -5618,6 +5712,11 @@ enum TypeDeChamp {
   EPCI
   """
   epci
+
+  """
+  Statut étudiant boursier
+  """
+  etudiant_boursier
 
   """
   Explication

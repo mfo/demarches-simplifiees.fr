@@ -56,6 +56,9 @@ fr:
           formatted: Champ formaté
           referentiel: 'Référentiel configurable (avancé)'
           quotient_familial: 'Quotient familial'
+          etudiant_boursier: 'Statut étudiant boursier'
+          aah: 'Statut allocation adulte handicapé'
+          aeeh: "Statut allocation d’éducation de l’enfant handicapé"
           pre_rempli: 'Champ pré-rempli'
         default_libelle:
           annuaire_education: Établissement

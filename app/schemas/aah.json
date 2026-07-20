@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://demarche.numerique.gouv.fr/aah.schema.json",
+  "title": "aah",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "anyOf": [
+        { "required": ["est_beneficiaire"] },
+        { "required": ["date_debut_droit"] }
+      ],
+      "properties": {
+        "est_beneficiaire": {
+          "type": "boolean"
+        },
+        "date_debut_droit": {
+          "type": ["string", "null"],
+          "format": "date"
+        }
+      }
+    }
+  }
+}

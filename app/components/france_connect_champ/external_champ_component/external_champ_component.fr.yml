@@ -1,0 +1,13 @@
+---
+fr:
+  external_champ:
+    header: Les données suivantes ont été récupérées de façon sécurisée auprès des administrations en charge.
+    waiting_banner: Vos données sont en cours de récupération auprès des administrations en charge.
+    data_retrieval_date: Dernière récupération des données effectuées le %{updated_at}
+    button_refresh: Actualiser mes données
+    refresh_disabled_hint: Vos données ne peuvent être actualisées que toutes les 24h.
+    source:
+      quotient_familial: "API Quotient familial CAF & MSA"
+      etudiant_boursier: "API Statut étudiant boursier"
+      aah: "API Statut allocation adulte handicapé (AAH)"
+      aeeh: "API Statut allocation d’éducation de l’enfant handicapé (AEEH)"

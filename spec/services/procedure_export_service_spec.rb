@@ -128,6 +128,9 @@ describe ProcedureExportService do
             "yes_no",
             "referentiel",
             "quotient_familial",
+            "etudiant_boursier",
+            "aah",
+            "aeeh",
             "pre_rempli",
           ]
         end

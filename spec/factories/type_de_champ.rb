@@ -207,6 +207,15 @@ FactoryBot.define do
     factory :type_de_champ_quotient_familial do
       type_champ { TypeDeChamp.type_champs.fetch(:quotient_familial) }
     end
+    factory :type_de_champ_etudiant_boursier do
+      type_champ { TypeDeChamp.type_champs.fetch(:etudiant_boursier) }
+    end
+    factory :type_de_champ_aah do
+      type_champ { TypeDeChamp.type_champs.fetch(:aah) }
+    end
+    factory :type_de_champ_aeeh do
+      type_champ { TypeDeChamp.type_champs.fetch(:aeeh) }
+    end
     factory :type_de_champ_repetition do
       type_champ { TypeDeChamp.type_champs.fetch(:repetition) }
 

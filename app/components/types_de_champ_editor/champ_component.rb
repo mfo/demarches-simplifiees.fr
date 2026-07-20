@@ -19,16 +19,15 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   end
 
   def libelle_configurable?
-    !type_de_champ.type_champ.in?([
-      TypeDeChamp.type_champs.fetch(:quotient_familial),
-    ])
+    !type_de_champ.type_champ.in?(TypeDeChamp::API_PART_FC_TDC)
   end
 
   def description_configurable?
-    !type_de_champ.type_champ.in?([
-      TypeDeChamp.type_champs.fetch(:quotient_familial),
-      TypeDeChamp.type_champs.fetch(:header_section),
-    ])
+    !type_de_champ.type_champ.in?(
+      TypeDeChamp::API_PART_FC_TDC + [
+        TypeDeChamp.type_champs.fetch(:header_section),
+      ]
+    )
   end
 
   def type_de_champ_path
@@ -114,9 +113,8 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     }
   end
 
-  EXCLUDE_FROM_BLOCK = [
+  EXCLUDE_FROM_BLOCK = TypeDeChamp::API_PART_FC_TDC + [
     TypeDeChamp.type_champs.fetch(:repetition),
-    TypeDeChamp.type_champs.fetch(:quotient_familial),
   ]
 
   def filter_block_type_champ(type_champ)

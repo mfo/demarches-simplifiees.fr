@@ -56,6 +56,9 @@ en:
           formatted: 'Formatted field'
           referentiel: 'External data to configure (advanced)'
           quotient_familial: 'Family quotient'
+          etudiant_boursier: 'Student grant recipient status'
+          aah: 'Adult disability allowance status'
+          aeeh: "Disabled child education allowance status"
           pre_rempli: 'Pre-filled field'
         default_libelle:
           annuaire_education: Educational institution
