@@ -116,9 +116,9 @@ describe API::V2::GraphqlController do
       end
 
       context 'with entreprise' do
-        let(:types_de_champ_public) { [{ type: :siret }] }
-        let(:procedure) { create(:procedure, :published, :with_service, administrateurs: [admin], types_de_champ_public:) }
-        let(:dossier) { create(:dossier, :en_construction, :with_entreprise, :with_populated_champs, procedure: procedure) }
+        let(:procedure) { procedures.entreprise }
+        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
+        let(:dossier) { Oaken::Seeds.dossiers.avec_siret }
 
         it {
           expect(gql_errors).to be_nil
@@ -1087,8 +1087,9 @@ describe API::V2::GraphqlController do
       end
 
       context 'with entreprise' do
-        let(:procedure) { create(:procedure, :published, :with_service, administrateurs: [admin]) }
-        let(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
+        let(:procedure) { procedures.entreprise }
+        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
+        let(:dossier) { Oaken::Seeds.dossiers.entreprise_en_instruction }
 
         it {
           expect(gql_errors).to be_nil
@@ -1186,8 +1187,9 @@ describe API::V2::GraphqlController do
       end
 
       context 'with entreprise' do
-        let(:procedure) { create(:procedure, :published, :with_service, administrateurs: [admin]) }
-        let(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
+        let(:procedure) { procedures.entreprise }
+        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
+        let(:dossier) { Oaken::Seeds.dossiers.entreprise_en_instruction }
 
         it '', :slow do
           expect(gql_errors).to be_nil
@@ -1247,8 +1249,9 @@ describe API::V2::GraphqlController do
       end
 
       context 'with entreprise' do
-        let(:procedure) { create(:procedure, :published, :with_service, administrateurs: [admin]) }
-        let(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
+        let(:procedure) { procedures.entreprise }
+        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
+        let(:dossier) { Oaken::Seeds.dossiers.entreprise_en_instruction }
 
         it {
           expect(gql_errors).to be_nil

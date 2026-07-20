@@ -1204,19 +1204,12 @@ describe Instructeurs::DossiersController, type: :controller do
 
   describe "#show" do
     context "when the dossier is exported as PDF" do
-      let(:instructeur) { create(:instructeur) }
+      # the local `let(:instructeurs)` shadows the seed accessor, so go through Oaken::Seeds
+      let(:instructeur) { Oaken::Seeds.instructeurs.default }
       let(:expert) { create(:expert) }
-      let(:procedure) { create(:procedure, :published, instructeurs: instructeurs) }
+      let(:procedure) { procedures.entreprise }
       let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
-      let(:dossier) do
-        create(:dossier,
-          :accepte,
-          :with_populated_champs,
-          :with_populated_annotations,
-          :with_motivation,
-          :with_entreprise,
-          :with_commentaires, procedure: procedure)
-      end
+      let(:dossier) { dossiers.entreprise_en_instruction }
       let!(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure) }
 
       subject do

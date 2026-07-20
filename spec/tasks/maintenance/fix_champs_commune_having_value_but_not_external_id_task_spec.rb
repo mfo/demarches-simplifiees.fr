@@ -34,7 +34,7 @@ module Maintenance
 
           it 'flags as pending correction' do
             expect { subject }.to change { champ.reload.value }.from('Marseille').to(nil)
-            expect(Commentaire.first.instructeur).to eq(instructeur)
+            expect(dossier.commentaires.first.instructeur).to eq(instructeur)
             expect(champ.dossier.state).to eq("en_construction")
           end
         end

@@ -91,8 +91,7 @@ describe ExportTemplate do
     end
 
     context 'for avis attachment' do
-      let(:avis) { create(:avis, :with_introduction, dossier: dossier) }
-      let(:attachment) { avis.introduction_file.attachment }
+      let(:attachment) { avis.with_file.introduction_file.attachment }
       let(:export_template) { build(:export_template, groupe_instructeur:, avis_attachments: true) }
 
       it 'returns avis attachment and its custom name' do

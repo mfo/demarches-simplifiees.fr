@@ -613,8 +613,8 @@ describe API::V2::GraphqlController do
       end
 
       context "for entreprise" do
-        let(:procedure_for_entreprise) { create(:procedure, :published, administrateurs: [admin]) }
-        let(:dossier) { create(:dossier, :en_construction, :with_entreprise, procedure: procedure_for_entreprise) }
+        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
+        let(:dossier) { Oaken::Seeds.dossiers.avec_siret }
 
         let(:query) do
           "{

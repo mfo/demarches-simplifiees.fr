@@ -100,7 +100,7 @@ describe AttachmentsController, type: :controller do
 
     context 'when another expert tries to view avis attachment' do
       let(:expert) { create(:expert) }
-      let(:other_expert) { create(:expert) }
+      let(:other_expert) { experts.second }
       let(:procedure) { create(:procedure) }
       let(:experts_procedure) { create(:experts_procedure, procedure:, expert:) }
       let(:avis) { create(:avis, dossier:, experts_procedure:) }
@@ -326,7 +326,7 @@ describe AttachmentsController, type: :controller do
       end
 
       context 'when the expert does not own the avis' do
-        let(:other_expert) { create(:expert) }
+        let(:other_expert) { experts.second }
         before { sign_in(other_expert.user) }
 
         it 'can’t remove the attachment' do
