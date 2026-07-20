@@ -3110,6 +3110,51 @@ describe Users::DossiersController, type: :controller do
       expect(flash[:notice]).to be_nil
       expect(flash[:alert]).to eq(I18n.t('views.users.dossiers.personnalisation.error'))
     end
+
+    context 'with forged column ids' do
+      include Logic
+
+      it 'does not persist a private annotation column' do
+        procedure_with_private = create(:procedure, :published,
+          types_de_champ_public: [{ type: :text, libelle: 'Ville' }],
+          types_de_champ_private: [{ type: :text, libelle: 'Note instructeur' }])
+        create(:dossier, user:, procedure: procedure_with_private)
+        private_column = procedure_with_private.columns.find { _1.label == 'Note instructeur' }
+
+        patch :update_personnalisation, params: {
+          personnalisations: { procedure_with_private.id.to_s => { displayed_columns: [private_column.id] } },
+        }
+
+        perso = DossiersListPersonnalisation.find_by(user:, procedure: procedure_with_private)
+        expect(perso&.displayed_columns || []).to eq([])
+      end
+
+      it 'does not persist a conditional champ column' do
+        procedure_with_condition = create(:procedure, :published, types_de_champ_public: [
+          { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+          { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+        ])
+        create(:dossier, user:, procedure: procedure_with_condition)
+        conditional_column = procedure_with_condition.columns.find { _1.label == 'Conditionné' }
+
+        patch :update_personnalisation, params: {
+          personnalisations: { procedure_with_condition.id.to_s => { displayed_columns: [conditional_column.id] } },
+        }
+
+        perso = DossiersListPersonnalisation.find_by(user:, procedure: procedure_with_condition)
+        expect(perso&.displayed_columns || []).to eq([])
+      end
+
+      it 'ignores a column id that is not valid JSON' do
+        patch :update_personnalisation, params: {
+          personnalisations: { procedure.id.to_s => { displayed_columns: ['garbage'] } },
+        }
+
+        expect(response).to redirect_to(dossiers_path)
+        perso = DossiersListPersonnalisation.find_by(user:, procedure:)
+        expect(perso&.displayed_columns || []).to eq([])
+      end
+    end
   end
 
   describe 'GET #index with personnalisation values' do

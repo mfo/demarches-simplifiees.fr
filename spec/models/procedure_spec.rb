@@ -2342,6 +2342,31 @@ describe Procedure do
 
       expect(procedure.personnalisable_columns.map(&:label)).to eq(['Toujours visible'])
     end
+
+    it 'excludes a champ conditioned in the published revision even if unconditioned in an older revision' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Cible', stable_id: 2 },
+      ])
+      tdc = procedure.draft_revision.find_and_ensure_exclusive_use(2)
+      tdc.update!(condition: ds_eq(champ_value(1), constant(true)))
+      procedure.publish_revision!(procedure.administrateurs.first)
+      procedure.reload
+
+      expect(procedure.personnalisable_columns.map(&:label)).not_to include('Cible')
+    end
+
+    it 'excludes a champ removed from the published revision even if present in an older revision' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :text, libelle: 'Conservé', stable_id: 1 },
+        { type: :text, libelle: 'Supprimé', stable_id: 2 },
+      ])
+      procedure.draft_revision.remove_type_de_champ(2)
+      procedure.publish_revision!(procedure.administrateurs.first)
+      procedure.reload
+
+      expect(procedure.personnalisable_columns.map(&:label)).to eq(['Conservé'])
+    end
   end
 
   describe '#personnalisable_columns_by_section' do

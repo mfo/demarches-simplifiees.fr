@@ -524,11 +524,20 @@ module Users
     def update_personnalisation
       return redirect_to dossiers_path if !personnalisation_available?
 
-      allowed_ids = user_procedures.pluck(:id).map(&:to_s)
-      results = personnalisation_params.map do |procedure_id, attrs|
-        next true if !procedure_id.to_s.in?(allowed_ids)
+      personnalisations = personnalisation_params
+      procedures_by_id = user_procedures.where(id: personnalisations.keys).index_by { _1.id.to_s }
+      results = personnalisations.map do |procedure_id, attrs|
+        procedure = procedures_by_id[procedure_id.to_s]
+        next true if procedure.nil?
 
-        columns = Array(attrs[:displayed_columns]).compact_blank.map { ColumnType.new.cast(_1) }.compact
+        submitted_ids = Array(attrs[:displayed_columns]).compact_blank
+        columns =
+          if submitted_ids.empty?
+            []
+          else
+            columns_by_id = procedure.personnalisable_columns.index_by(&:id)
+            submitted_ids.filter_map { columns_by_id[_1] }
+          end
         perso = current_user.dossiers_list_personnalisations.find_or_initialize_by(procedure_id:)
         perso.update(displayed_columns: columns)
       end
