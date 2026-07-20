@@ -38,8 +38,9 @@ RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
   context 'when the email is a standard (unedited) template' do
     let(:email_template) { Mails::InitiatedMail.default_for_procedure(procedure) }
 
-    it 'renders no description and the standard-model tag' do
-      expect(rendered).to have_no_selector('.fr-card__desc')
+    it 'renders the default subject with tags as chips and the standard-model tag' do
+      expect(rendered).to have_selector('.fr-card__desc', text: 'a bien été déposé')
+      expect(rendered).to have_selector('.fr-card__desc .fr-tag', text: 'numéro du dossier')
       expect(rendered).to have_selector('.fr-tag', text: 'Modèle standard')
     end
   end

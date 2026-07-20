@@ -12,8 +12,6 @@ class Procedure::EmailTemplateCardComponent < ApplicationComponent
   end
 
   def desc
-    return unless edited?
-
     subject_doc = @email_template.tiptap_subject_doc.deep_symbolize_keys
     sanitize(TiptapService.new.to_texts_and_tags(subject_doc, strip: false))
   end
