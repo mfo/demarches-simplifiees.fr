@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 describe APIToken, type: :model do
-  let(:administrateur) { administrateurs(:default_admin) }
+  # Tokens expose all the admin's procedures: use the seeded blank
+  # administrateur, who is guaranteed to own nothing.
+  let(:administrateur) { administrateurs.blank }
 
   describe '#generate' do
     let(:api_token_and_packed_token) { APIToken.generate(administrateur) }

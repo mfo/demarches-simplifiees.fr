@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::GroupeGestionnaireController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
 
   describe "#show" do
     subject { get :show }

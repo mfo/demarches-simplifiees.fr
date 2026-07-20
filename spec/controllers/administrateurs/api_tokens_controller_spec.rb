@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::APITokensController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateur: admin) }
 
   before { sign_in(admin.user) }
@@ -167,6 +167,9 @@ describe Administrateurs::APITokensController, type: :controller do
   end
 
   describe 'remove_procedure' do
+    # a full-access token materializes all the admin's procedures on removal:
+    # use the seeded blank administrateur, who is guaranteed to own nothing
+    let(:admin) { administrateurs.blank }
     let!(:procedure1) { create(:procedure, administrateurs: [admin]) }
     let!(:procedure2) { create(:procedure, administrateurs: [admin]) }
     let(:token) { APIToken.generate(admin).first }

@@ -3,7 +3,7 @@
 describe Administrateurs::ProceduresController, type: :controller do
   include Logic
 
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:administrateur_2) { create(:administrateur) }
   let(:administrateur_3) { create(:administrateur) }
   let(:instructeur_2) { create(:instructeur) }
@@ -384,8 +384,9 @@ describe Administrateurs::ProceduresController, type: :controller do
         expect(assigns(:admins)).not_to include(admin2)
         expect(assigns(:admins)).not_to include(admin4)
         expect(assigns(:admins)).not_to include(admin3)
-        expect(assigns(:admins)[0].procedures).not_to include(published_procedure)
-        expect(assigns(:admins)[0].procedures).to include(antoher_published_procedure_for_admin1)
+        assigned_admin1 = assigns(:admins).find { it.id == admin1.id }
+        expect(assigned_admin1.procedures).not_to include(published_procedure)
+        expect(assigned_admin1.procedures).to include(antoher_published_procedure_for_admin1)
       end
     end
   end
@@ -988,7 +989,7 @@ describe Administrateurs::ProceduresController, type: :controller do
     end
 
     context 'when procedure has invalid fields' do
-      let(:admin_2) { administrateurs(:default_admin) }
+      let(:admin_2) { administrateurs.default }
       let(:path) { 'spec/fixtures/files/invalid_file_format.json' }
 
       before do

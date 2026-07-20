@@ -24,7 +24,7 @@ RSpec.describe ProcedurePath, type: :model do
     context 'when it is the only path' do
       it 'prevents destruction' do
         expect { procedure.procedure_paths.first.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
-        expect { procedure.procedure_paths.first.destroy }.not_to change(ProcedurePath, :count).from(1)
+        expect { procedure.procedure_paths.first.destroy }.not_to change { procedure.procedure_paths.count }.from(1)
       end
     end
 
@@ -32,7 +32,7 @@ RSpec.describe ProcedurePath, type: :model do
       let!(:procedure_path1) { create(:procedure_path, procedure: procedure) }
 
       it 'allows destruction' do
-        expect { procedure_path1.destroy }.to change(ProcedurePath, :count).from(2).to(1)
+        expect { procedure_path1.destroy }.to change { procedure.procedure_paths.count }.from(2).to(1)
       end
     end
 
@@ -41,7 +41,7 @@ RSpec.describe ProcedurePath, type: :model do
 
       it 'prevents destruction' do
         expect { procedure_path.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
-        expect { procedure_path.destroy }.not_to change(ProcedurePath, :count)
+        expect { procedure_path.destroy }.not_to change { procedure.procedure_paths.count }
       end
     end
 
@@ -49,7 +49,7 @@ RSpec.describe ProcedurePath, type: :model do
       let!(:procedure_path) { create(:procedure_path, procedure: procedure, path: '123e4567-e89b-12d3-a456-426614174000') }
 
       it 'allows destruction' do
-        expect { procedure.destroy }.to change(ProcedurePath, :count).from(2).to(0)
+        expect { procedure.destroy }.to change { ProcedurePath.where(procedure:).count }.from(2).to(0)
       end
     end
   end

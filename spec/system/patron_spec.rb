@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'Accessing the /patron page:' do
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   before { sign_in administrateur.user }
 
   scenario 'I can display a page with all form fields and UI elements' do

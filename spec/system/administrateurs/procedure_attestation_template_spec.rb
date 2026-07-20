@@ -5,7 +5,7 @@ require 'system/administrateurs/procedure_spec_helper'
 describe 'As an administrateur, I want to manage the procedure’s attestation', js: true do
   include ProcedureSpecHelper
 
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
 
   before do
     login_as(administrateur.user, scope: :user)

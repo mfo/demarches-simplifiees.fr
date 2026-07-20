@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe CrispMattermostTechNotificationJob, type: :job do
-  let(:user) { users(:default_user) }
+  let(:user) { users.usager }
   let(:session_id) { "session_310b13c9-f115-42f5-bd83-f5e22b8e50dd" }
   let(:website_id) { "test-website-id" }
   let(:inbox_id) { "123-456" }

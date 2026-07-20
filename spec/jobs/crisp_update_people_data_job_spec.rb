@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe CrispUpdatePeopleDataJob, type: :job do
-  let(:user) { users(:default_user) }
+  let(:user) { users.usager }
   let(:session_id) { "session_d57cb2d9-4607-42fe-a6be-000001112222" }
   let(:email) { nil }
   let(:job) { described_class.new(session_id, email) }

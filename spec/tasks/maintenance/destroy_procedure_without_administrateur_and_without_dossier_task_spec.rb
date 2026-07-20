@@ -6,17 +6,17 @@ module Maintenance
   RSpec.describe DestroyProcedureWithoutAdministrateurAndWithoutDossierTask do
     describe "#process" do
       subject(:process) { described_class.process(procedure) }
-      let(:procedure) { create(:procedure) }
+      let(:administrateur) { administrateurs.blank }
+      let!(:procedure) { create(:procedure, administrateurs: [administrateur]) }
 
       before do
-        administrateur = procedure.administrateurs.first
         AdministrateursProcedure.where(administrateur_id: administrateur.id).delete_all
         administrateur.destroy
       end
 
       it "destroys procedure" do
         subject
-        expect(Procedure.count).to eq 0
+        expect(Procedure.with_discarded.exists?(procedure.id)).to be(false)
       end
     end
   end

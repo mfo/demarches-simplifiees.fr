@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe InstructeursProceduresCountersService do
-  let(:instructeur) { instructeurs(:default_instructeur_admin) }
+  let(:instructeur) { instructeurs.admin }
 
   describe '#call' do
     subject { described_class.new(instructeur:, procedures: instructeur.procedures.kept).call }

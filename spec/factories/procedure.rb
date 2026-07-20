@@ -28,7 +28,7 @@ FactoryBot.define do
     end
 
     transient do
-      administrateur { Administrateur.find_by(user: { email: "default_admin@admin.com" }) }
+      administrateur { Administrateur.find_by(user: { email: "admin@exemple.fr" }) }
       instructeurs { [] }
       types_de_champ_public { [] }
       types_de_champ_private { [] }
@@ -85,7 +85,7 @@ FactoryBot.define do
       end
 
       after(:create) do |procedure, evaluator|
-        user = User.find_by(email: "default_user@user.com")
+        user = User.find_by(email: "usager@exemple.fr")
         create_list(:dossier, evaluator.dossiers_count, procedure: procedure, user: user)
       end
     end

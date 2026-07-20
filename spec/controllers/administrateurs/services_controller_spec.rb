@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 describe Administrateurs::ServicesController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateur: admin) }
 
   describe '#new' do
-    let(:admin) { administrateurs(:default_admin) }
+    let(:admin) { administrateurs.default }
     let(:procedure) { create(:procedure, administrateur: admin) }
 
     before do
@@ -352,7 +352,7 @@ describe Administrateurs::ServicesController, type: :controller do
   end
 
   describe "#index" do
-    let(:admin) { administrateurs(:default_admin) }
+    let(:admin) { administrateurs.default }
 
     before do
       sign_in(admin.user)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::JetonsController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateur: admin) }
 
   context 'API Entreprise' do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'Administrateurs can upload files on procedure informations', js: true do
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateur:) }
 
   before do

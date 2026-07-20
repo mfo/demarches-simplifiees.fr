@@ -416,7 +416,7 @@ describe Instructeur, type: :model do
     subject { instructeur.can_be_deleted? }
 
     context 'when the instructeur is an administrateur' do
-      let!(:administrateur) { administrateurs(:default_admin) }
+      let!(:administrateur) { administrateurs.default }
       let(:instructeur) { administrateur.instructeur }
 
       it { is_expected.to be false }
@@ -719,7 +719,7 @@ describe Instructeur, type: :model do
     end
 
     context 'when the old instructeur is on on admin list' do
-      let(:administrateur) { administrateurs(:default_admin) }
+      let(:administrateur) { administrateurs.default }
 
       before do
         administrateur.instructeurs << old_instructeur
@@ -732,7 +732,7 @@ describe Instructeur, type: :model do
     end
 
     context 'when both are on the same admin list' do
-      let(:administrateur) { administrateurs(:default_admin) }
+      let(:administrateur) { administrateurs.default }
 
       before do
         administrateur.instructeurs << old_instructeur

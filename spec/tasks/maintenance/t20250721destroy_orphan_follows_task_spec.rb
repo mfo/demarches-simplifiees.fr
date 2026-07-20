@@ -11,6 +11,9 @@ module Maintenance
       let(:instructeur) { create(:instructeur) }
       let!(:valid_follow) { create(:follow, dossier:, instructeur:) }
 
+      let(:missing_instructeur_id) { Instructeur.maximum(:id).to_i + 1000 }
+      let(:missing_dossier_id) { Dossier.maximum(:id).to_i + 1000 }
+
       # Following the insertion of constraints into the database by #11970,
       # these must be bypassed in order to create orphan follows.
       before do
@@ -18,12 +21,12 @@ module Maintenance
 
         Follow.connection.execute <<~SQL.squish
           INSERT INTO follows (instructeur_id, dossier_id, annotations_privees_seen_at, avis_seen_at, demande_seen_at, messagerie_seen_at, created_at, updated_at)
-          VALUES (9999, #{valid_follow.dossier_id}, NOW(), NOW(), NOW(), NOW(), NOW(), NOW())
+          VALUES (#{missing_instructeur_id}, #{valid_follow.dossier_id}, NOW(), NOW(), NOW(), NOW(), NOW(), NOW())
         SQL
 
         Follow.connection.execute <<~SQL.squish
           INSERT INTO follows (instructeur_id, dossier_id, annotations_privees_seen_at, avis_seen_at, demande_seen_at, messagerie_seen_at, created_at, updated_at)
-          VALUES (#{valid_follow.instructeur_id}, 9999, NOW(), NOW(), NOW(), NOW(), NOW(), NOW())
+          VALUES (#{valid_follow.instructeur_id}, #{missing_dossier_id}, NOW(), NOW(), NOW(), NOW(), NOW(), NOW())
         SQL
 
         Follow.connection.execute("ALTER TABLE follows ENABLE TRIGGER ALL")
@@ -34,8 +37,8 @@ module Maintenance
 
         expect(result.count).to eq(2)
         expect(result).not_to include(valid_follow)
-        expect(result.map(&:instructeur_id)).to include(9999)
-        expect(result.map(&:dossier_id)).to include(9999)
+        expect(result.map(&:instructeur_id)).to include(missing_instructeur_id)
+        expect(result.map(&:dossier_id)).to include(missing_dossier_id)
       end
     end
 

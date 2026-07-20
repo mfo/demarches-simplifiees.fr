@@ -4,7 +4,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   render_views
   include Logic
 
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, :routee, :published, :for_individual, administrateurs: [admin]) }
 
   let!(:gi_1_1) { procedure.defaut_groupe_instructeur }

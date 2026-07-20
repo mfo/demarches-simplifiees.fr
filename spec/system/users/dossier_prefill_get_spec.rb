@@ -122,7 +122,7 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
     end
 
     it "should not create a new dossier" do
-      expect(Dossier.count).to eq(1)
+      expect(procedure.dossiers.count).to eq(1)
       expect(dossier.reload.user).to eq(user)
 
       expect(page).to have_current_path(brouillon_dossier_path(dossier))

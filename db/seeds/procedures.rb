@@ -1,0 +1,58 @@
+# frozen_string_literal: true
+
+procedure = Procedure.new(
+  libelle: "Démarche de démonstration",
+  description: "Une démarche de démonstration avec les types de champ les plus courants.",
+  cadre_juridique: "https://www.legifrance.gouv.fr/",
+  lien_site_web: "https://www.exemple.fr",
+  duree_conservation_dossiers_dans_ds: 3,
+  max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
+  for_individual: true,
+  administrateurs: [administrateurs.default]
+)
+procedure.draft_revision = procedure.revisions.build
+procedure.save!
+
+[
+  { type_champ: "text", libelle: "Nom du projet", mandatory: true },
+  { type_champ: "textarea", libelle: "Description du projet", mandatory: true },
+  { type_champ: "date", libelle: "Date de début" },
+  { type_champ: "drop_down_list", libelle: "Type de projet", drop_down_options: ["Association", "Entreprise", "Collectivité"] },
+  { type_champ: "checkbox", libelle: "Le projet bénéficie d'un financement public" },
+  { type_champ: "piece_justificative", libelle: "Justificatif" },
+].reduce(nil) do |previous, params|
+  type_de_champ = procedure.draft_revision.add_type_de_champ(**params, after_stable_id: previous&.stable_id)
+  raise type_de_champ.errors.full_messages.to_sentence if type_de_champ.errors.any?
+  type_de_champ
+end
+
+procedure.publish_or_reopen!(administrateurs.default, "demarche-demo")
+instructeurs.default.assign_to_procedure(procedure)
+
+# A published procedure without a service is nagged about on every admin page.
+procedure.update!(service: Service.create!(
+  nom: "Service de démonstration",
+  administrateur: administrateurs.default,
+  organisme: "Organisme de démonstration",
+  type_organisme: Service.type_organismes.fetch(:administration_centrale),
+  email: "contact@exemple.fr",
+  telephone: "0102030405",
+  horaires: "Du lundi au vendredi, de 9 h à 18 h",
+  adresse: "20 avenue de Ségur, 75007 Paris",
+  siret: "13002526500013"
+))
+
+procedures.label individual: procedure
+
+brouillon_procedure = Procedure.new(
+  libelle: "Démarche de démonstration (brouillon)",
+  description: "Une démarche de démonstration encore en brouillon.",
+  cadre_juridique: "https://www.legifrance.gouv.fr/",
+  duree_conservation_dossiers_dans_ds: 3,
+  max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
+  administrateurs: [administrateurs.default]
+)
+brouillon_procedure.draft_revision = brouillon_procedure.revisions.build
+brouillon_procedure.save!
+
+procedures.label brouillon: brouillon_procedure

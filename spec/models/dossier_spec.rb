@@ -3,6 +3,8 @@
 describe Dossier, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
+  before_all { seed "cases/entreprise", "cases/sva" }
+
   let(:user) { create(:user) }
 
   describe 'has_many preloaded_commentaires' do
@@ -18,6 +20,8 @@ describe Dossier, type: :model do
 
   describe 'scopes' do
     describe '.default_scope' do
+      empty_seeds Dossier
+
       let!(:dossier) { create(:dossier) }
 
       subject { Dossier.all }
@@ -26,13 +30,17 @@ describe Dossier, type: :model do
     end
 
     describe '.without_followers' do
-      let!(:dossier_with_follower) { create(:dossier, :followed, :with_entreprise, user: user) }
-      let!(:dossier_without_follower) { create(:dossier, :with_entreprise, user: user) }
+      empty_seeds Dossier
+
+      let!(:dossier_with_follower) { create(:dossier, :followed, :with_entreprise, user:, procedure: procedures.entreprise) }
+      let!(:dossier_without_follower) { create(:dossier, :with_entreprise, user:, procedure: procedures.entreprise) }
 
       it { expect(Dossier.without_followers.to_a).to eq([dossier_without_follower]) }
     end
 
     describe 'brouillons_recently_updated' do
+      empty_seeds Dossier
+
       let!(:dossier_en_brouillon) { create(:dossier) }
       let!(:dossier_en_brouillon_2) { create(:dossier) }
 
@@ -40,7 +48,7 @@ describe Dossier, type: :model do
     end
 
     describe 'by_statut' do
-      let_it_be(:procedure) { create(:procedure) }
+      let_it_be(:procedure) { procedures.brouillon }
       let_it_be(:dossier_en_construction) { create(:dossier, :en_construction, procedure:) }
       let_it_be(:dossier_en_instruction) { create(:dossier, :en_instruction, procedure:) }
       let_it_be(:dossier_accepte) { create(:dossier, :accepte, procedure:) }
@@ -87,12 +95,15 @@ describe Dossier, type: :model do
     end
 
     describe '.brouillon_expired_after_notice_grace' do
+      empty_seeds Dossier
+
       let(:interval_between_first_and_second_expiration) { Dossier::MONTHS_AFTER_EXPIRATION.months + Dossier::DAYS_AFTER_EXPIRATION.days }
 
       let!(:dossier_brouillon_expired_and_noticed_long_time_ago) do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :brouillon,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: 1.day.ago)
         end
       end
@@ -100,7 +111,8 @@ describe Dossier, type: :model do
       let!(:dossier_brouillon_not_expired) do
         travel_to(1.month.ago) do
           create(:dossier,
-            state: :brouillon)
+            state: :brouillon,
+            procedure: procedures.individual)
         end
       end
 
@@ -108,6 +120,7 @@ describe Dossier, type: :model do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :brouillon,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: (4.months + 20.days).from_now)
         end
       end
@@ -115,7 +128,8 @@ describe Dossier, type: :model do
       let!(:dossier_brouillon_expired_but_not_noticed_yet) do
         travel_to(5.months.ago) do
           create(:dossier,
-            state: :brouillon)
+            state: :brouillon,
+            procedure: procedures.individual)
         end
       end
 
@@ -123,6 +137,7 @@ describe Dossier, type: :model do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :en_instruction,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: 1.day.ago)
         end
       end
@@ -131,6 +146,7 @@ describe Dossier, type: :model do
         travel_to(5.months.ago) do
           create(:dossier,
             state: :brouillon,
+            procedure: procedures.individual,
             brouillon_close_to_expiration_notice_sent_at: 1.day.ago,
             hidden_by_user_at: Time.zone.now)
         end
@@ -142,9 +158,11 @@ describe Dossier, type: :model do
     end
 
     describe '.brouillon_expired_without_notice' do
-      let(:published_procedure) { create(:procedure, :published) }
-      let(:closed_procedure)    { create(:procedure, :closed) }
-      let(:draft_procedure)     { create(:procedure, :draft) }
+      empty_seeds Dossier
+
+      let(:published_procedure) { procedures.individual }
+      let_it_be(:closed_procedure) { create(:procedure, :closed) }
+      let_it_be(:draft_procedure)  { create(:procedure, :draft) }
 
       # targets: expired + structurally never notified
       let!(:expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
@@ -166,7 +184,7 @@ describe Dossier, type: :model do
   end
 
   describe 'validations' do
-    let(:procedure) { create(:procedure, :for_individual) }
+    let(:procedure) { procedures.individual }
     subject(:dossier) { create(:dossier, procedure: procedure) }
 
     it 'validates presence of required attributes' do
@@ -337,14 +355,14 @@ describe Dossier, type: :model do
   describe "#extend_conservation" do
     subject { dossier.extend_conservation(1.month) }
 
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
 
     context "when the dossier has a dossier_expirant notification" do
       let!(:notification_expirant) { create(:dossier_notification, dossier:, notification_type: :dossier_expirant) }
 
       it "destroys dossier_expirant notification" do
         subject
-        expect(DossierNotification.count).to eq(0)
+        expect(DossierNotification.where(dossier:).count).to eq(0)
       end
     end
   end
@@ -352,17 +370,17 @@ describe Dossier, type: :model do
   describe "#restore" do
     subject { dossier.restore(author) }
 
-    let(:dossier) { create(:dossier, :en_construction, :with_individual, hidden_by_administration_at: 1.hour.ago) }
+    let(:dossier) { dossiers.en_construction.tap { it.update_columns(hidden_by_administration_at: 1.hour.ago) } }
 
     context "when an instructeur restore the dossier" do
-      let(:author) { create(:instructeur) }
+      let(:author) { instructeurs.default }
 
       context "when there is a dossier_suppression notification" do
         let!(:notification_suppression) { create(:dossier_notification, dossier:, notification_type: :dossier_suppression) }
 
         it "destroys the notification" do
           subject
-          expect(DossierNotification.count).to eq(0)
+          expect(DossierNotification.where(dossier:).count).to eq(0)
         end
       end
     end
@@ -383,7 +401,7 @@ describe Dossier, type: :model do
       end
 
       context 'when the dossier belongs to a procedure for individuals' do
-        let(:procedure) { create(:procedure, for_individual: true) }
+        let(:procedure) { procedures.individual }
 
         it 'creates a default individual' do
           subject
@@ -416,7 +434,7 @@ describe Dossier, type: :model do
       end
 
       context 'when the dossier belongs to a procedure for moral personas' do
-        let(:procedure) { create(:procedure, for_individual: false) }
+        let(:procedure) { procedures.entreprise }
 
         it 'doesn’t create a individual' do
           subject
@@ -426,7 +444,7 @@ describe Dossier, type: :model do
     end
 
     describe '#prefill_champs_from_france_connect' do
-      let(:procedure) { create(:procedure, :for_individual, types_de_champ_public: [{ type: :date }]) }
+      let_it_be(:procedure) { create(:procedure, :for_individual, types_de_champ_public: [{ type: :date }]) }
       let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
       let(:dossier) { create(:dossier, procedure:, user:) }
       let(:tdc) { procedure.active_revision.root_types_de_champ_public.first }
@@ -496,9 +514,8 @@ describe Dossier, type: :model do
     end
 
     describe '#update_for_tiers' do
-      let(:procedure) { create(:procedure, :for_individual) }
       let(:individual) { build(:individual, nom: 'Dupont', prenom: 'Jean', gender: Individual::GENDER_MALE, birthdate: Date.new(1980, 1, 1)) }
-      let(:dossier) { create(:dossier, procedure:, user:, individual:) }
+      let(:dossier) { create(:dossier, procedure: procedures.individual, user:, individual:) }
 
       context 'when user is connected via FranceConnect with one identity' do
         let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
@@ -560,8 +577,8 @@ describe Dossier, type: :model do
     end
 
     describe '#last_booked_rdv' do
-      let(:dossier) { create(:dossier) }
-      let(:instructeur) { create(:instructeur) }
+      let(:dossier) { dossiers.brouillon }
+      let(:instructeur) { instructeurs.default }
 
       context 'when there are no booked RDVs' do
         it 'returns nil' do
@@ -582,13 +599,12 @@ describe Dossier, type: :model do
   end
 
   context 'when dossier is followed' do
-    let(:procedure) { create(:procedure, :with_type_de_champ, :with_type_de_champ_private) }
-    let(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
     let(:date1) { 1.day.ago }
     let(:date2) { 1.hour.ago }
     let(:date3) { 1.minute.ago }
     let(:dossier) do
-      d = create(:dossier, :with_entreprise, user: user, procedure: procedure)
+      d = dossiers.brouillon
       travel_to(date1)
       d.passer_en_construction!
       travel_to(date2)
@@ -632,13 +648,15 @@ describe Dossier, type: :model do
   end
 
   describe '#avis_for' do
-    let_it_be(:instructeur) { create(:instructeur) }
-    let_it_be(:expert_1) { create(:expert) }
+    before_all { seed "cases/avis" }
+
+    let(:instructeur) { instructeurs.default }
+    let(:expert_1) { experts.default }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.en_construction }
+    let(:experts_procedure) { experts_procedures.default }
     let_it_be(:expert_2) { create(:expert) }
-    let_it_be(:procedure) { create(:procedure, :published, instructeurs: [instructeur]) }
-    let_it_be(:dossier) { create(:dossier, procedure:, state: Dossier.states.fetch(:en_construction)) }
-    let_it_be(:experts_procedure) { create(:experts_procedure, expert: expert_1, procedure:) }
-    let_it_be(:experts_procedure_2) { create(:experts_procedure, expert: expert_2, procedure:) }
+    let_it_be(:experts_procedure_2) { create(:experts_procedure, expert: expert_2, procedure: procedures.individual) }
 
     context 'when there is a public advice asked from the dossiers instructeur' do
       let!(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure, confidentiel: false) }
@@ -707,16 +725,16 @@ describe Dossier, type: :model do
     end
 
     context 'when they are a advice published on another dossier' do
-      let!(:avis) { create(:avis, dossier: create(:dossier, procedure: procedure), claimant: instructeur, experts_procedure: experts_procedure, confidentiel: false, created_at: Time.zone.parse('9/01/2010')) }
+      let!(:avis) { create(:avis, dossier: dossiers.brouillon, claimant: instructeur, experts_procedure: experts_procedure, confidentiel: false, created_at: Time.zone.parse('9/01/2010')) }
 
       it { expect(dossier.avis_for_expert(expert_1)).to match([]) }
     end
   end
 
   describe '#update_state_dates' do
-    let(:dossier) { create(:dossier, :brouillon, :with_individual) }
+    let(:dossier) { dossiers.brouillon }
     let(:beginning_of_day) { Time.zone.now.beginning_of_day }
-    let(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
 
     before { travel_to(beginning_of_day) }
 
@@ -787,8 +805,7 @@ describe Dossier, type: :model do
     end
 
     context 'when dossier is en_instruction' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual) }
-      let(:instructeur) { create(:instructeur) }
+      let(:dossier) { dossiers.en_construction }
 
       before do
         dossier.passer_en_instruction!(instructeur: instructeur)
@@ -817,7 +834,7 @@ describe Dossier, type: :model do
     end
 
     context 'when dossier is accepte' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual) }
+      let(:dossier) { dossiers.en_instruction }
 
       before do
         dossier.accepter!(instructeur: instructeur)
@@ -834,7 +851,7 @@ describe Dossier, type: :model do
     end
 
     context 'when dossier is refuse' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual) }
+      let(:dossier) { dossiers.en_instruction }
 
       before do
         dossier.refuser!(instructeur: instructeur)
@@ -851,7 +868,7 @@ describe Dossier, type: :model do
     end
 
     context 'when dossier is sans_suite' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual) }
+      let(:dossier) { dossiers.en_instruction }
 
       before do
         dossier.classer_sans_suite!(instructeur: instructeur)
@@ -869,13 +886,13 @@ describe Dossier, type: :model do
   end
 
   describe '.with_unread_messages_for_user' do
-    let(:dossier_with_unread_instructeur) { create(:dossier, :en_construction) }
-    let(:dossier_with_read_instructeur) { create(:dossier, :en_construction) }
-    let(:dossier_with_unread_expert) { create(:dossier, :en_construction) }
-    let(:dossier_with_only_usager_message) { create(:dossier, :en_construction) }
-    let(:dossier_with_discarded_unread) { create(:dossier, :en_construction) }
+    let_it_be(:dossier_with_unread_instructeur) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_read_instructeur) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_unread_expert) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_only_usager_message) { create(:dossier, :en_construction, procedure: procedures.individual) }
+    let_it_be(:dossier_with_discarded_unread) { create(:dossier, :en_construction, procedure: procedures.individual) }
 
-    before do
+    before_all do
       create(:commentaire, dossier: dossier_with_unread_instructeur, instructeur: create(:instructeur), seen_by_recipient_at: nil)
       create(:commentaire, dossier: dossier_with_read_instructeur, instructeur: create(:instructeur), seen_by_recipient_at: 1.day.ago)
       create(:commentaire, dossier: dossier_with_unread_expert, expert: create(:expert), seen_by_recipient_at: nil)
@@ -907,18 +924,18 @@ describe Dossier, type: :model do
   end
 
   describe '.ordered_for_export' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.entreprise }
     let!(:dossier2) { create(:dossier, :with_entreprise, procedure: procedure, state: Dossier.states.fetch(:en_construction), depose_at: Time.zone.parse('03/01/2010')) }
     let!(:dossier3) { create(:dossier, :with_entreprise, procedure: procedure, state: Dossier.states.fetch(:en_instruction), depose_at: Time.zone.parse('01/01/2010')) }
     let!(:dossier4) { create(:dossier, :with_entreprise, procedure: procedure, state: Dossier.states.fetch(:en_instruction), archived: true, depose_at: Time.zone.parse('02/01/2010')) }
 
-    subject { procedure.dossiers.ordered_for_export }
+    subject { procedure.dossiers.where(id: [dossier2, dossier3, dossier4]).ordered_for_export }
 
     it { is_expected.to match([dossier3, dossier4, dossier2]) }
   end
 
   describe "#assign_to_groupe_instructeur" do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     let(:new_groupe_instructeur_new_procedure) { create(:groupe_instructeur) }
     let(:new_instructeur) { create(:instructeur) }
     let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure, instructeurs: [new_instructeur]) }
@@ -935,7 +952,7 @@ describe Dossier, type: :model do
     end
 
     context "when the groupe instructeur change" do
-      let(:procedure) { create(:procedure) }
+      let(:procedure) { procedures.brouillon }
       let(:instructeur) { create(:instructeur) }
       let(:new_instructeur) { create(:instructeur) }
       let(:previous_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [instructeur]) }
@@ -995,7 +1012,7 @@ describe Dossier, type: :model do
         let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure:, instructeurs: [new_instructeur]) }
 
         context "when notification is dossier_expirant" do
-          let(:procedure) { create(:procedure) }
+          let(:procedure) { procedures.brouillon }
           let(:dossier) { create(:dossier, :accepte, procedure:) }
           before { dossier.update(expired_at: 1.week.from_now) }
 
@@ -1035,11 +1052,11 @@ describe Dossier, type: :model do
   end
 
   describe "#unfollow_stale_instructeurs" do
-    let(:procedure) { create(:procedure, :published, :for_individual) }
+    let(:procedure) { procedures.individual }
     let(:instructeur) { create(:instructeur) }
     let(:new_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure) }
     let(:instructeur2) { create(:instructeur, groupe_instructeurs: [procedure.defaut_groupe_instructeur, new_groupe_instructeur]) }
-    let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
+    let(:dossier) { dossiers.en_construction }
     let(:last_operation) { DossierOperationLog.last }
 
     before do
@@ -1074,9 +1091,8 @@ describe Dossier, type: :model do
   end
 
   describe "#send_dossier_received" do
-    let(:procedure) { create(:procedure) }
-    let(:dossier) { create(:dossier, procedure: procedure, state: Dossier.states.fetch(:en_construction)) }
-    let(:instructeur) { create(:instructeur) }
+    let(:dossier) { dossiers.en_construction }
+    let(:instructeur) { instructeurs.default }
 
     before do
       allow(NotificationMailer).to receive(:send_en_instruction_notification).and_return(double(deliver_later: nil))
@@ -1094,22 +1110,30 @@ describe Dossier, type: :model do
   end
 
   describe "#unspecified_attestation_champs" do
-    let(:procedure) { create(:procedure, attestation_acceptation_template:, types_de_champ_public:, types_de_champ_private:) }
-    let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+    def types_de_champ_public
+      [
+        { libelle: "specified champ-in-title" },
+        { libelle: "unspecified champ-in-title" },
+        { libelle: "specified champ-in-body" },
+        { libelle: "unspecified champ-in-body" },
+      ]
+    end
 
-    let(:types_de_champ_public) { [tdc_1, tdc_2, tdc_3, tdc_4] }
-    let(:types_de_champ_private) { [tdc_5, tdc_6, tdc_7, tdc_8] }
+    def types_de_champ_private
+      [
+        { libelle: "specified annotation privée-in-title" },
+        { libelle: "unspecified annotation privée-in-title" },
+        { libelle: "specified annotation privée-in-body" },
+        { libelle: "unspecified annotation privée-in-body" },
+      ]
+    end
 
-    let(:tdc_1) { { libelle: "specified champ-in-title" } }
-    let(:tdc_2) { { libelle: "unspecified champ-in-title" } }
-    let(:tdc_3) { { libelle: "specified champ-in-body" } }
-    let(:tdc_4) { { libelle: "unspecified champ-in-body" } }
-    let(:tdc_5) { { libelle: "specified annotation privée-in-title" } }
-    let(:tdc_6) { { libelle: "unspecified annotation privée-in-title" } }
-    let(:tdc_7) { { libelle: "specified annotation privée-in-body" } }
-    let(:tdc_8) { { libelle: "unspecified annotation privée-in-body" } }
+    let_it_be(:procedure, reload: true) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
+    let_it_be(:dossier, reload: true) { create(:dossier, :en_instruction, procedure:) }
 
     before do
+      procedure.attestation_acceptation_template = attestation_acceptation_template if attestation_acceptation_template
+
       (dossier.root_champs_public + dossier.root_champs_private)
         .filter { |c| c.libelle.match?(/^specified/) }
         .each { |c| c.update_attribute(:value, "specified") }
@@ -1191,7 +1215,7 @@ describe Dossier, type: :model do
   end
 
   describe 'updated_at' do
-    let!(:dossier) { create(:dossier) }
+    let!(:dossier) { dossiers.en_construction }
     let(:modif_date) { Time.zone.parse('01/01/2100') }
 
     before { travel_to(modif_date) }
@@ -1210,20 +1234,20 @@ describe Dossier, type: :model do
     end
 
     context 'when a commentaire is modified' do
-      before { dossier.commentaires << create(:commentaire) }
+      before { create(:commentaire, dossier:) }
 
       it { is_expected.to eq(modif_date) }
     end
 
     context 'when an avis is modified' do
-      before { dossier.avis << create(:avis) }
+      before { create(:avis, dossier:) }
 
       it { is_expected.to eq(modif_date) }
     end
   end
 
   describe '#owner_name' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     subject { dossier.owner_name }
 
     context 'when there is no entreprise or individual' do
@@ -1233,21 +1257,20 @@ describe Dossier, type: :model do
     end
 
     context 'when there is entreprise' do
-      let(:dossier) { create(:dossier, :with_entreprise, procedure: procedure) }
+      let(:dossier) { dossiers.avec_siret }
 
       it { is_expected.to eq(dossier.etablissement.entreprise_raison_sociale) }
     end
 
     context 'when there is an individual' do
-      let(:procedure) { create(:procedure, :for_individual) }
-      let(:dossier) { create(:dossier, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.brouillon }
 
       it { is_expected.to eq("#{dossier.individual.nom} #{dossier.individual.prenom}") }
     end
   end
 
   describe "#hide_and_keep_track!" do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
     let(:user) { dossier.user }
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let(:reason) { :user_request }
@@ -1259,7 +1282,7 @@ describe Dossier, type: :model do
     subject! { dossier.hide_and_keep_track!(user, reason) }
 
     context 'brouillon' do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.brouillon }
 
       it 'hide the dossier' do
         expect(dossier.reload.hidden_by_user_at).to be_present
@@ -1290,7 +1313,7 @@ describe Dossier, type: :model do
       end
 
       context 'when dossier is brouillon' do
-        let(:dossier) { create(:dossier) }
+        let(:dossier) { dossiers.brouillon }
         it 'do not notifies the procedure administrateur' do
           expect(DossierMailer).not_to have_received(:notify_en_construction_deletion_to_administration)
         end
@@ -1309,10 +1332,9 @@ describe Dossier, type: :model do
       end
 
       context 'notifications to administration (en_construction)' do
-        let(:procedure) { create(:procedure) }
-        let(:groupe_instructeur) { create(:groupe_instructeur, instructeurs: [instructeur]) }
-        let(:dossier) { create(:dossier, :en_construction, groupe_instructeur:, procedure:) }
-        let(:instructeur) { create(:instructeur) }
+        let(:procedure) { procedures.individual }
+        let(:dossier) { dossiers.en_construction }
+        let(:instructeur) { create(:instructeur, groupe_instructeurs: [procedure.defaut_groupe_instructeur]) }
 
         context 'when the instructeur is not follower' do
           let!(:ip) { create(:instructeurs_procedure, instructeur:, procedure:, instant_email_dossier_deletion: true) }
@@ -1355,7 +1377,7 @@ describe Dossier, type: :model do
     end
 
     context 'termine' do
-      let(:dossier) { create(:dossier, state: "accepte", hidden_by_administration_at: 1.hour.ago) }
+      let(:dossier) { dossiers.accepte.tap { it.update_columns(hidden_by_administration_at: 1.hour.ago) } }
       before { subject }
 
       it 'affect the right deletion reason to the dossier' do
@@ -1363,27 +1385,26 @@ describe Dossier, type: :model do
       end
 
       context "when the instructeur hide the dossier" do
-        let(:groupe_instructeur) { create(:groupe_instructeur, instructeurs: [create(:instructeur)]) }
         let(:user) { create(:instructeur) }
         let(:reason) { :instructeur_request }
 
         context "when the dossier is already hidden by user" do
-          let(:dossier) { create(:dossier, state: "accepte", groupe_instructeur:, hidden_by_user_at: Time.zone.yesterday) }
+          let(:dossier) { dossiers.accepte.tap { it.update_columns(hidden_by_user_at: Time.zone.yesterday) } }
 
           it "creates dossier_suppression notification with correct delay" do
             subject
-            expect(DossierNotification.count).to eq(1)
+            notifications = DossierNotification.where(dossier:)
+            expect(notifications.count).to eq(1)
 
-            notification = DossierNotification.last
-            expect(notification.dossier_id).to eq(dossier.id)
-            expect(notification.instructeur_id).to eq(groupe_instructeur.instructeur_ids.first)
+            notification = notifications.first
+            expect(notification.instructeur_id).to eq(dossier.groupe_instructeur.instructeur_ids.first)
             expect(notification.notification_type).to eq("dossier_suppression")
             expect(notification.display_at.to_date).to eq(Time.zone.now.to_date)
           end
         end
 
         context "when the dossier is not hidden by user" do
-          let(:dossier) { create(:dossier, state: "accepte", groupe_instructeur:) }
+          let(:dossier) { dossiers.accepte }
 
           it "does not create dossier_suppression notification" do
             expect { subject }.not_to change { DossierNotification.count }
@@ -1392,25 +1413,23 @@ describe Dossier, type: :model do
       end
 
       context "when the user hide the dossier" do
-        let(:groupe_instructeur) { create(:groupe_instructeur, instructeurs: [create(:instructeur)]) }
-
         context "when the dossier is already hidden by administration" do
-          let(:dossier) { create(:dossier, state: "accepte", groupe_instructeur:, hidden_by_administration_at: Time.zone.yesterday) }
+          let(:dossier) { dossiers.accepte.tap { it.update_columns(hidden_by_administration_at: Time.zone.yesterday) } }
 
           it "creates dossier_suppression notification with correct delay" do
             subject
-            expect(DossierNotification.count).to eq(1)
+            notifications = DossierNotification.where(dossier:)
+            expect(notifications.count).to eq(1)
 
-            notification = DossierNotification.last
-            expect(notification.dossier_id).to eq(dossier.id)
-            expect(notification.instructeur_id).to eq(groupe_instructeur.instructeur_ids.first)
+            notification = notifications.first
+            expect(notification.instructeur_id).to eq(dossier.groupe_instructeur.instructeur_ids.first)
             expect(notification.notification_type).to eq("dossier_suppression")
             expect(notification.display_at.to_date).to eq(Time.zone.now.to_date)
           end
         end
 
         context "when the dossier is not hidden by administration" do
-          let(:dossier) { create(:dossier, state: "accepte", groupe_instructeur:) }
+          let(:dossier) { dossiers.accepte }
 
           it "does not create dossier_suppression notification" do
             expect { subject }.not_to change { DossierNotification.count }
@@ -1421,8 +1440,8 @@ describe Dossier, type: :model do
   end
 
   describe 'webhook' do
-    let(:dossier) { create(:dossier) }
-    let(:instructeur) { create(:instructeur) }
+    let(:dossier) { dossiers.brouillon }
+    let(:instructeur) { instructeurs.default }
 
     it 'should not call webhook' do
       expect {
@@ -1468,50 +1487,46 @@ describe Dossier, type: :model do
   end
 
   describe "#can_transition_to_en_construction?" do
-    let(:procedure) { create(:procedure, :published) }
-    let(:dossier) { create(:dossier, state: state, procedure: procedure) }
-
     subject { dossier.can_transition_to_en_construction? }
 
     context "dossier state is brouillon" do
-      let(:state) { Dossier.states.fetch(:brouillon) }
+      let(:dossier) { dossiers.brouillon }
       it { is_expected.to be true }
 
       context "procedure is closed" do
-        before { procedure.close! }
+        before { dossier.procedure.close! }
         it { is_expected.to be false }
       end
     end
 
     context "dossier state is en_construction" do
-      let(:state) { Dossier.states.fetch(:en_construction) }
+      let(:dossier) { dossiers.en_construction }
       it { is_expected.to be false }
     end
 
     context "dossier state is en_instruction" do
-      let(:state) { Dossier.states.fetch(:en_instruction) }
+      let(:dossier) { dossiers.en_instruction }
       it { is_expected.to be false }
     end
 
-    context "dossier state is en_instruction" do
-      let(:state) { Dossier.states.fetch(:accepte) }
+    context "dossier state is accepte" do
+      let(:dossier) { dossiers.accepte }
       it { is_expected.to be false }
     end
 
-    context "dossier state is en_instruction" do
-      let(:state) { Dossier.states.fetch(:refuse) }
+    context "dossier state is refuse" do
+      let(:dossier) { dossiers.refuse }
       it { is_expected.to be false }
     end
 
-    context "dossier state is en_instruction" do
-      let(:state) { Dossier.states.fetch(:sans_suite) }
+    context "dossier state is sans_suite" do
+      let(:dossier) { create(:dossier, state: Dossier.states.fetch(:sans_suite), procedure: procedures.individual) }
       it { is_expected.to be false }
     end
   end
 
   describe "#messagerie_available?" do
-    let(:procedure) { create(:procedure) }
-    let(:dossier) { create(:dossier, procedure: procedure) }
+    let(:dossier) { dossiers.brouillon }
 
     subject { dossier.messagerie_available? }
 
@@ -1535,11 +1550,11 @@ describe Dossier, type: :model do
   end
 
   describe '#accepter!' do
-    let(:procedure) { create(:procedure, :for_individual, :published) }
-    let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.en_instruction }
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let(:operation_serialized) { last_operation.data }
-    let!(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
     let!(:now) { Time.zone.parse('01/01/2100') }
     let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
@@ -1577,7 +1592,7 @@ describe Dossier, type: :model do
   describe '#accepter_automatiquement!' do
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let!(:now) { Time.zone.parse('01/01/2100') }
-    let(:procedure) { create(:procedure, :for_individual, :published) }
+    let(:procedure) { procedures.individual }
     let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
     before do
@@ -1612,7 +1627,7 @@ describe Dossier, type: :model do
     end
 
     context 'as sva procedure' do
-      let(:procedure) { create(:procedure, :for_individual, :published, :sva) }
+      let(:procedure) { procedures.sva }
       let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, sva_svr_decision_on: Date.current, en_instruction_at: DateTime.new(2021, 5, 1, 12)) }
       let!(:attestation_template) { create(:attestation_template, procedure:, kind: :acceptation, state: :published) }
 
@@ -1635,7 +1650,7 @@ describe Dossier, type: :model do
   describe '#refuser_automatiquement' do
     context 'as svr procedure' do
       let(:last_operation) { dossier.dossier_operation_logs.last }
-      let(:procedure) { create(:procedure, :for_individual, :published, :svr) }
+      let(:procedure) { procedures.svr }
       let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, sva_svr_decision_on: Date.current, en_instruction_at: DateTime.new(2021, 5, 1, 12)) }
 
       before {
@@ -1673,10 +1688,10 @@ describe Dossier, type: :model do
   end
 
   describe '#passer_en_instruction!' do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
     let(:last_operation) { dossier.dossier_operation_logs.last }
     let(:operation_serialized) { last_operation.data }
-    let(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
     let!(:correction) { create(:dossier_correction, dossier:) } # correction has a commentaire
 
     subject(:passer_en_instruction) { dossier.passer_en_instruction!(instructeur: instructeur) }
@@ -1713,7 +1728,7 @@ describe Dossier, type: :model do
     let(:instructeur) { create(:instructeur) }
 
     context "via procedure declarative en instruction" do
-      let(:dossier) { create(:dossier, :en_construction, :with_declarative_en_instruction) }
+      let(:dossier) { create(:dossier, :en_construction, :with_declarative_en_instruction, procedure: procedures.individual) }
 
       subject do
         dossier.process_declarative!
@@ -1733,7 +1748,7 @@ describe Dossier, type: :model do
     end
 
     context "via procedure sva" do
-      let(:procedure) { create(:procedure, :sva, :published, :for_individual) }
+      let(:procedure) { procedures.sva }
       let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:, sva_svr_decision_on: 10.days.from_now) }
       let(:sva_svr_decision_on) { SVASVRDecisionDateCalculatorService.new(dossier, procedure).decision_date }
 
@@ -1765,18 +1780,18 @@ describe Dossier, type: :model do
   end
 
   describe '#can_repasser_en_construction?' do
-    let(:dossier) { create(:dossier, :en_instruction) }
+    let(:dossier) { dossiers.en_instruction }
     it { expect(dossier.can_repasser_en_construction?).to be_truthy }
 
     context 'when procedure is sva' do
-      let(:dossier) { create(:dossier, :en_instruction, procedure: create(:procedure, :sva)) }
+      let(:dossier) { create(:dossier, :en_instruction, procedure: procedures.sva) }
 
       it { expect(dossier.can_repasser_en_construction?).to be_falsey }
     end
   end
 
   describe '#can_passer_en_instruction?' do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
 
     it { expect(dossier.can_passer_en_instruction?).to be_truthy }
 
@@ -1805,7 +1820,11 @@ describe Dossier, type: :model do
   end
 
   describe '#can_passer_automatiquement_en_instruction?' do
-    let(:dossier) { create(:dossier, :en_construction, declarative_triggered_at: declarative_triggered_at) }
+    let(:dossier) do
+      dossiers.en_construction.tap do |d|
+        d.update_columns(declarative_triggered_at:) if declarative_triggered_at
+      end
+    end
     let(:declarative_triggered_at) { nil }
 
     it { expect(dossier.can_passer_automatiquement_en_instruction?).to be_falsey }
@@ -1852,7 +1871,7 @@ describe Dossier, type: :model do
     end
 
     context 'when procedure has sva or svr enabled' do
-      let(:procedure) { create(:procedure, :published, :sva) }
+      let(:procedure) { procedures.sva }
       let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
       it { expect(dossier.can_passer_automatiquement_en_instruction?).to be_truthy }
@@ -1866,7 +1885,11 @@ describe Dossier, type: :model do
   end
 
   describe '#can_accepter_automatiquement?' do
-    let(:dossier) { create(:dossier, state: initial_state, declarative_triggered_at: declarative_triggered_at) }
+    let(:dossier) do
+      dossiers.send(initial_state).tap do |d|
+        d.update_columns(declarative_triggered_at:) if declarative_triggered_at
+      end
+    end
     let(:initial_state) { :en_construction }
     let(:declarative_triggered_at) { nil }
 
@@ -1904,7 +1927,7 @@ describe Dossier, type: :model do
       end
 
       context 'when dossier has pending correction' do
-        let(:dossier) { create(:dossier, :en_construction) }
+        let(:dossier) { dossiers.en_construction }
         let!(:dossier_correction) { create(:dossier_correction, dossier:) }
 
         it { expect(dossier.can_accepter_automatiquement?).to be_falsey }
@@ -1925,7 +1948,7 @@ describe Dossier, type: :model do
   end
 
   describe '#can_refuser_automatiquement?' do
-    let(:dossier) { create(:dossier, state: initial_state) }
+    let(:dossier) { dossiers.send(initial_state) }
     let(:initial_state) { :en_instruction }
 
     it { expect(dossier.can_refuser_automatiquement?).to be_falsey }
@@ -1957,7 +1980,7 @@ describe Dossier, type: :model do
         end
 
         context 'when dossier has pending correction' do
-          let(:dossier) { create(:dossier, :en_construction) }
+          let(:dossier) { dossiers.en_construction }
           let!(:dossier_correction) { create(:dossier_correction, dossier:) }
 
           it { expect(dossier.can_refuser_automatiquement?).to be_falsey }
@@ -1983,8 +2006,8 @@ describe Dossier, type: :model do
     let(:motivation) { 'motivation' }
 
     context "when dossier is en_instruction" do
-      let(:dossier_incomplete) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: true) }
-      let(:dossier_ok) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: false) }
+      let(:dossier_incomplete) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: true, procedure: procedures.entreprise) }
+      let(:dossier_ok) { create(:dossier, :en_instruction, :with_entreprise, as_degraded_mode: false, procedure: procedures.entreprise) }
 
       it "can't accepter" do
         expect(dossier_incomplete.may_accepter?(instructeur:, motivation:)).to be_falsey
@@ -2003,8 +2026,8 @@ describe Dossier, type: :model do
     end
 
     context "when dossier is en_construction" do
-      let(:dossier_incomplete) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: true) }
-      let(:dossier_ok) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: false) }
+      let(:dossier_incomplete) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: true, procedure: procedures.entreprise) }
+      let(:dossier_ok) { create(:dossier, :en_construction, :with_entreprise, :with_declarative_accepte, as_degraded_mode: false, procedure: procedures.entreprise) }
 
       it "can't accepter_automatiquement" do
         expect(dossier_incomplete.may_accepter_automatiquement?(instructeur:, motivation:)).to be_falsey
@@ -2030,10 +2053,9 @@ describe Dossier, type: :model do
 
   describe "can't transition to terminer when annotations privees are not valid" do
     let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, types_de_champ_private:) }
+    let_it_be(:procedure) { create(:procedure, types_de_champ_private: [{ type: :text, mandatory: true }]) }
     let(:dossier_incomplete) { create(:dossier, :en_instruction, procedure:) }
     let(:dossier_ok) { create(:dossier, :en_instruction, :with_populated_annotations, procedure:) }
-    let(:types_de_champ_private) { [{ type: :text, mandatory: true }] }
 
     context "when dossier is en_instruction" do
       it "can't accepter" do
@@ -2317,12 +2339,22 @@ describe Dossier, type: :model do
   end
 
   describe '#repasser_en_instruction!' do
-    let(:dossier) { create(:dossier, :refuse, :with_attestation_acceptation, :with_justificatif, archived: true, termine_close_to_expiration_notice_sent_at: Time.zone.now, sva_svr_decision_on: 1.day.ago) }
-    let!(:instructeur) { create(:instructeur) }
+    let(:dossier) { dossiers.refuse }
+    let(:instructeur) { instructeurs.default }
     let(:last_operation) { dossier.dossier_operation_logs.last }
 
     before do
       freeze_time
+      create(:attestation_template, :refus, procedure: dossier.procedure, state: :published)
+      AttestationPdfGenerationJob.perform_now(dossier)
+      expect(dossier.reload.attestation).to be_present
+      dossier.justificatif_motivation.attach(
+        io: StringIO.new('Hello World'),
+        filename: 'hello.txt',
+        # we don't want to run virus scanner on this file
+        metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE }
+      )
+      dossier.update!(archived: true, termine_close_to_expiration_notice_sent_at: Time.zone.now, sva_svr_decision_on: 1.day.ago)
       allow(NotificationMailer).to receive(:send_repasser_en_instruction_notification).and_return(double(deliver_later: true))
       dossier.repasser_en_instruction!(instructeur: instructeur)
       dossier.reload
@@ -2378,7 +2410,7 @@ describe Dossier, type: :model do
     let(:etablissement_geo_adresse_lon) { "-74.0059731" }
 
     let(:result) { { lat: lat, lon: lon, zoom: zoom } }
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     it 'should geolocate' do
       expect(dossier.geo_position).to eq(result)
@@ -2395,7 +2427,7 @@ describe Dossier, type: :model do
         )
       end
 
-      let(:dossier) { create(:dossier, :with_entreprise) }
+      let(:dossier) { dossiers.avec_siret }
       let(:result) { { lat: etablissement_geo_adresse_lat, lon: etablissement_geo_adresse_lon, zoom: zoom } }
 
       it 'should geolocate' do
@@ -2445,40 +2477,41 @@ describe Dossier, type: :model do
   end
 
   describe 'dossier_operation_log after dossier deletion' do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
     let(:dossier_operation_log) { create(:dossier_operation_log, dossier: dossier) }
 
     it 'should nullify dossier link' do
       expect(dossier_operation_log.dossier).to eq(dossier)
-      expect(DossierOperationLog.count).to eq(1)
-      dossier.destroy
+      expect { dossier.destroy }.not_to change { DossierOperationLog.count }
       expect(dossier_operation_log.reload.dossier).to be_nil
-      expect(DossierOperationLog.count).to eq(1)
     end
   end
 
   describe 'brouillon_expired and en_construction_expired' do
-    let(:administrateur) { administrateurs(:default_admin) }
+    empty_seeds Dossier
+
+    let(:administrateur) { administrateurs.default }
     let(:user) { administrateur.user }
     let(:reason) { DeletedDossier.reasons.fetch(:user_request) }
 
     before do
-      create(:dossier, user: user)
-      create(:dossier, :en_construction, user: user)
-      create(:dossier, user: user).hide_and_keep_track!(user, reason)
-      create(:dossier, :en_construction, user: user).hide_and_keep_track!(user, reason)
+      create(:dossier, user:, procedure: procedures.individual)
+      create(:dossier, :en_construction, user:, procedure: procedures.individual)
+      create(:dossier, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
+      create(:dossier, :en_construction, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
 
       travel_to(2.months.ago) do
-        create(:dossier, user: user).hide_and_keep_track!(user, reason)
-        create(:dossier, :en_construction, user: user).hide_and_keep_track!(user, reason)
+        create(:dossier, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
+        create(:dossier, :en_construction, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
 
-        create(:dossier, user: user).procedure.discard_and_keep_track!(administrateur)
+        # These two procedures get discarded, so they can't share procedures.individual
+        create(:dossier, user:).procedure.discard_and_keep_track!(administrateur)
         create(:dossier, :en_construction, user: user).procedure.discard_and_keep_track!(administrateur)
       end
 
       travel_to(2.weeks.ago) do
-        create(:dossier, user: user).hide_and_keep_track!(user, reason)
-        create(:dossier, :en_construction, user: user).hide_and_keep_track!(user, reason)
+        create(:dossier, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
+        create(:dossier, :en_construction, user:, procedure: procedures.individual).hide_and_keep_track!(user, reason)
       end
     end
 
@@ -2538,6 +2571,8 @@ describe Dossier, type: :model do
   end
 
   describe "with_notifiable_procedure" do
+    empty_seeds Dossier
+
     let_it_be(:test_procedure) { create(:procedure) }
     let_it_be(:published_procedure) { create(:procedure, :published) }
     let_it_be(:closed_procedure) { create(:procedure, :closed) }
@@ -2715,7 +2750,7 @@ describe Dossier, type: :model do
   end
 
   describe '#log_api_entreprise_job_exception' do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     context "add execption to the log" do
       before do
@@ -2753,20 +2788,20 @@ describe Dossier, type: :model do
   end
 
   describe "#spreadsheet_columns" do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     context 'user france connected' do
-      let(:dossier) { build(:dossier, user: build(:user, france_connect_informations: [build(:france_connect_information)])) }
+      let(:dossier) { build(:dossier, user: build(:user, france_connect_informations: [build(:france_connect_information)]), procedure: procedures.individual) }
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["FranceConnect ?", true]) }
     end
 
     context 'user not france connected' do
-      let(:dossier) { build(:dossier) }
+      let(:dossier) { build(:dossier, procedure: procedures.individual) }
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["FranceConnect ?", false]) }
     end
 
     context 'for_individual' do
-      let(:dossier) { create(:dossier, procedure: create(:procedure, :for_individual)) }
+      let(:dossier) { dossiers.brouillon }
       it do
         expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Dépôt pour un tiers", :for_tiers])
         expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(['Nom du mandataire', :mandataire_last_name])
@@ -2777,20 +2812,20 @@ describe Dossier, type: :model do
     it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["État du dossier", "Brouillon"]) }
 
     context 'procedure sva' do
-      let(:dossier) { build(:dossier, :en_instruction, procedure: create(:procedure, :sva)) }
+      let(:dossier) { build(:dossier, :en_instruction, procedure: procedures.sva) }
 
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Date décision SVA", :sva_svr_decision_on]) }
     end
 
     context 'procedure svr' do
-      let(:dossier) { build(:dossier, :en_instruction, procedure: create(:procedure, :svr)) }
+      let(:dossier) { build(:dossier, :en_instruction, procedure: procedures.svr) }
 
       it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Date décision SVR", :sva_svr_decision_on]) }
     end
   end
 
   describe '#archivable' do
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.individual }
 
     it 'includes visible termine dossiers' do
       dossier = create(:dossier, :accepte, procedure:)
@@ -2815,44 +2850,41 @@ describe Dossier, type: :model do
 
   describe '#archivable_in_month' do
     let(:dossier_accepte_at) { DateTime.new(2022, 3, 31, 12, 0) }
-    before do
-      travel_to(dossier_accepte_at) do
-        dossier = create(:dossier, :accepte)
-      end
-    end
+    let!(:dossier) { travel_to(dossier_accepte_at) { create(:dossier, :accepte) } }
 
     context 'given a date' do
       let(:archive_date) { Date.new(2022, 3, 1) }
       it 'includes a dossier processed_at at last day of month' do
-        expect(Dossier.archivable_in_month(archive_date).count).to eq(1)
+        expect(Dossier.archivable_in_month(archive_date)).to include(dossier)
       end
     end
 
     context 'given a datetime' do
       let(:archive_date) { DateTime.new(2022, 3, 1, 12, 0) }
       it 'includes a dossier processed_at at last day of month' do
-        expect(Dossier.archivable_in_month(archive_date).count).to eq(1)
+        expect(Dossier.archivable_in_month(archive_date)).to include(dossier)
       end
     end
 
     context 'with a dossier hidden by administration' do
-      before do
+      let!(:hidden_dossier) do
         travel_to(dossier_accepte_at) do
           create(:dossier, :accepte, :hidden_by_administration)
         end
       end
 
       it 'excludes hidden dossiers' do
-        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1)).count).to eq(1)
+        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1))).to include(dossier)
+        expect(Dossier.archivable_in_month(Date.new(2022, 3, 1))).not_to include(hidden_dossier)
       end
     end
   end
 
   describe '#archivable_by_month' do
-    let(:procedure) { create(:procedure, :published, groupe_instructeurs: [groupe_instructeurs]) }
-    let(:groupe_instructeurs) { create(:groupe_instructeur) }
+    let_it_be(:groupe_instructeurs) { create(:groupe_instructeur) }
+    let_it_be(:procedure) { create(:procedure, :published, groupe_instructeurs: [groupe_instructeurs]) }
 
-    before do
+    before_all do
       create_dossier_for_month(procedure, 2021, 3)
       create_dossier_for_month(procedure, 2021, 3)
       create_archived_dossier_for_month(procedure, 2021, 3)
@@ -2889,7 +2921,7 @@ describe Dossier, type: :model do
   end
 
   describe 'BatchOperation' do
-    subject { build(:dossier) }
+    subject { build(:dossier, procedure: procedures.individual) }
     it { is_expected.to belong_to(:batch_operation).optional }
   end
 
@@ -2898,13 +2930,13 @@ describe Dossier, type: :model do
 
     context 'when the dossier is prefilled' do
       context 'when the dossier has a user' do
-        let(:dossier) { build(:dossier, :prefilled) }
+        let(:dossier) { build(:dossier, :prefilled, procedure: procedures.individual) }
 
         it { expect(orphan).to be_falsey }
       end
 
       context 'when the dossier does not have a user' do
-        let(:dossier) { build(:dossier, :prefilled, user: nil) }
+        let(:dossier) { build(:dossier, :prefilled, user: nil, procedure: procedures.individual) }
 
         it { expect(orphan).to be_truthy }
       end
@@ -2912,13 +2944,13 @@ describe Dossier, type: :model do
 
     context 'when the dossier is not prefilled' do
       context 'when the dossier has a user' do
-        let(:dossier) { build(:dossier) }
+        let(:dossier) { build(:dossier, procedure: procedures.individual) }
 
         it { expect(orphan).to be_falsey }
       end
 
       context 'when the dossier does not have a user' do
-        let(:dossier) { build(:dossier, user: nil) }
+        let(:dossier) { build(:dossier, user: nil, procedure: procedures.individual) }
 
         it { expect(orphan).to be_falsey }
       end
@@ -2929,28 +2961,28 @@ describe Dossier, type: :model do
     subject(:owned_by) { dossier.owned_by?(user) }
 
     context 'when the dossier is orphan' do
-      let(:dossier) { build(:dossier, user: nil) }
+      let(:dossier) { build(:dossier, user: nil, procedure: procedures.individual) }
       let(:user) { build(:user) }
 
       it { expect(owned_by).to be_falsey }
     end
 
     context 'when the given user is nil' do
-      let(:dossier) { build(:dossier) }
+      let(:dossier) { build(:dossier, procedure: procedures.individual) }
       let(:user) { nil }
 
       it { expect(owned_by).to be_falsey }
     end
 
     context 'when the dossier has a user and it is not the given user' do
-      let(:dossier) { build(:dossier) }
+      let(:dossier) { build(:dossier, procedure: procedures.individual) }
       let(:user) { build(:user) }
 
       it { expect(owned_by).to be_falsey }
     end
 
     context 'when the dossier has a user and it is the given user' do
-      let(:dossier) { build(:dossier, user: user) }
+      let(:dossier) { build(:dossier, user:, procedure: procedures.individual) }
       let(:user) { build(:user) }
 
       it { expect(owned_by).to be_truthy }
@@ -2958,7 +2990,7 @@ describe Dossier, type: :model do
   end
 
   describe 'update procedure dossiers count' do
-    let(:dossier) { create(:dossier, :brouillon, :with_individual) }
+    let(:dossier) { dossiers.brouillon }
 
     it 'update procedure dossiers count when passing to construction' do
       expect(dossier.procedure).to receive(:compute_dossiers_count)
@@ -2967,13 +2999,13 @@ describe Dossier, type: :model do
   end
 
   describe '#sva_svr_decision_in_days' do
-    let(:dossier) { create(:dossier, :en_instruction, sva_svr_decision_on: 10.days.from_now) }
+    let(:dossier) { dossiers.en_instruction.tap { it.update_columns(sva_svr_decision_on: 10.days.from_now) } }
 
     it { expect(dossier.sva_svr_decision_in_days).to eq 10 }
   end
 
   describe '#update_champs_timestamps' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
+    let_it_be(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:changed_champs) { dossier.champ_data.filter(&:text?) }
 
@@ -3012,13 +3044,19 @@ describe Dossier, type: :model do
 
     subject { Dossier.never_touched_brouillon_expired }
 
-    it { is_expected.to contain_exactly(dossier) }
+    it do
+      is_expected.to include(dossier)
+      is_expected.not_to include(dossier_2, dossier_with_champ_updated, dossier_en_construction)
+    end
 
     context 'when the dossier has been cloned' do
       let!(:cloned_dossier) { travel_to(3.weeks.ago) { dossier.clone } }
       let!(:cloned_dossier_2) { travel_to(3.weeks.ago) { dossier_with_champ_updated.clone } }
 
-      it { is_expected.to contain_exactly(dossier) }
+      it do
+        is_expected.to include(dossier)
+        is_expected.not_to include(cloned_dossier, cloned_dossier_2)
+      end
     end
 
     context 'when the dossier has an etablissement' do
@@ -3054,7 +3092,7 @@ describe Dossier, type: :model do
 
   describe "#skip_user_notification_email?" do
     context "when the dossier is brouillon for a declarative procedure" do
-      let(:procedure) { create(:procedure, :published, declarative_with_state: :en_instruction) }
+      let(:procedure) { procedures.individual.tap { it.update!(declarative_with_state: :en_instruction) } }
       let(:dossier) { create(:dossier, :brouillon, procedure:) }
 
       it "allows the email to be sent (bug fix  06/2026)" do

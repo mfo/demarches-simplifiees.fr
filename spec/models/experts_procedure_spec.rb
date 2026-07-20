@@ -1,19 +1,21 @@
 # frozen_string_literal: true
 
 RSpec.describe ExpertsProcedure, type: :model do
+  before_all { seed "cases/avis" }
+
   describe '#invited_expert_emails' do
-    let!(:procedure) { create(:procedure, :published) }
-    let(:claimant) { create(:instructeur) }
-    let(:expert) { create(:expert) }
+    let(:procedure) { procedures.individual }
+    let(:claimant) { instructeurs.default }
+    let(:expert) { experts.default }
     let(:expert2) { create(:expert) }
     let(:expert3) { create(:expert) }
-    let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
+    let(:experts_procedure) { experts_procedures.default }
     let(:experts_procedure2) { create(:experts_procedure, expert: expert2, procedure: procedure) }
     let(:experts_procedure3) { create(:experts_procedure, expert: expert3, procedure: procedure) }
     subject { procedure.experts_procedures }
 
     context 'when there is one dossier' do
-      let!(:dossier) { create(:dossier, procedure: procedure) }
+      let(:dossier) { dossiers.en_construction }
 
       context 'when a procedure has one avis and known instructeur' do
         let!(:avis) { create(:avis, dossier: dossier, claimant: claimant, experts_procedure: experts_procedure) }
@@ -38,8 +40,8 @@ RSpec.describe ExpertsProcedure, type: :model do
     end
 
     context 'when there are two dossiers' do
-      let!(:dossier) { create(:dossier, procedure: procedure) }
-      let!(:dossier2) { create(:dossier, procedure: procedure) }
+      let(:dossier) { dossiers.en_construction }
+      let(:dossier2) { dossiers.en_instruction }
 
       context 'and each one has an avis from 3 different experts' do
         let!(:avis) { create(:avis, dossier: dossier, experts_procedure: experts_procedure) }

@@ -234,12 +234,12 @@ describe Users::CommencerController, type: :controller do
 
         shared_examples 'a prefilled brouillon dossier creator' do
           it 'creates a dossier' do
-            subject
-            expect(Dossier.count).to eq(1)
-            expect(session[:prefill_token]).to eq(Dossier.last.prefill_token)
+            expect { subject }.to change { published_procedure.dossiers.count }.by(1)
+            dossier = published_procedure.dossiers.last
+            expect(session[:prefill_token]).to eq(dossier.prefill_token)
             expect(session[:prefill_params_digest]).to eq(PrefillChamps.digest({ "champ_#{type_de_champ_text.to_typed_id}" => "blabla" }))
-            expect(Dossier.last.champ_data.where(stable_id: type_de_champ_text.stable_id).first.value).to eq("blabla")
-            expect(Dossier.last.individual.nom).to eq("Dupont")
+            expect(dossier.champ_data.where(stable_id: type_de_champ_text.stable_id).first.value).to eq("blabla")
+            expect(dossier.individual.nom).to eq("Dupont")
           end
         end
 
@@ -252,7 +252,7 @@ describe Users::CommencerController, type: :controller do
 
           it_behaves_like 'a prefilled brouillon dossier creator'
 
-          it { expect { subject }.to change { Dossier.last&.user }.from(nil).to(user) }
+          it { expect { subject }.to change { published_procedure.dossiers.last&.user }.from(nil).to(user) }
 
           it 'sends the notify_new_draft email and enqueues AMI notification' do
             allow(Ami::CreateNotificationService).to receive(:call)
@@ -275,8 +275,7 @@ describe Users::CommencerController, type: :controller do
           let!(:dossier) { create(:dossier, :prefilled, procedure:, prefill_token: "token") }
 
           it "does not create a new dossier" do
-            subject
-            expect(Dossier.count).to eq(1)
+            expect { subject }.not_to change(Dossier, :count)
             expect(assigns(:prefilled_dossier)).to eq(dossier)
           end
         end
@@ -297,8 +296,7 @@ describe Users::CommencerController, type: :controller do
           let!(:dossier) { create(:dossier, :prefilled, prefill_token: "token") }
 
           it "does not create a new dossier" do
-            subject
-            expect(Dossier.count).to eq(1)
+            expect { subject }.not_to change(Dossier, :count)
             expect(assigns(:prefilled_dossier)).to eq(dossier)
           end
         end

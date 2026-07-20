@@ -7,6 +7,8 @@ module Maintenance
     let(:procedure) { create(:procedure, :published) }
 
     describe "#collection" do
+      empty_seeds Dossier
+
       let!(:en_construction_with_expired_at) { create(:dossier, :en_construction, procedure:) }
       let!(:en_construction_clean) do
         create(:dossier, :en_construction, procedure:).tap { it.update_column(:expired_at, nil) }

@@ -7,7 +7,7 @@ module Maintenance
     include Logic
 
     let(:procedure) { create(:procedure, routing_enabled: true, administrateur: admin) }
-    let(:admin) { administrateurs(:default_admin) }
+    let(:admin) { administrateurs.default }
     let(:stable_id) { procedure.published_revision.root_types_de_champ_public.last.stable_id }
 
     before do

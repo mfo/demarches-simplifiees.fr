@@ -48,7 +48,7 @@ describe Procedure::ErrorsSummary, type: :component do
     include Logic
 
     let(:procedure) do
-      create(:procedure, id: 1, types_de_champ_public: [
+      create(:procedure, types_de_champ_public: [
         { libelle: 'repetition requires children', type: :repetition, children: [] },
         { libelle: 'drop down list requires options', type: :drop_down_list, options: [] },
         { libelle: 'invalid condition', type: :text, condition: ds_eq(constant(true), constant(1)) },

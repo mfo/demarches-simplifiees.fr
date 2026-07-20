@@ -68,18 +68,17 @@ describe 'Dossier::Recovery::LifeCycle' do
 
     after { cleanup_export_file }
     it 'reloads the full grappe', :slow do
-      expect(Dossier.count).to eq(1)
-      expect(Dossier.first.champ_data.count).not_to be(0)
+      expect(dossier.champ_data.count).not_to be(0)
 
-      @dossier_ids = Dossier.ids
+      @dossier_ids = [dossier.id]
 
       Recovery::Exporter.new(dossier_ids: @dossier_ids, file_path: fp).dump
       Dossier.where(id: @dossier_ids).destroy_all
       Recovery::Importer.new(file_path: fp).load
 
-      expect(Dossier.count).to eq(1)
+      expect(Dossier.exists?(dossier.id)).to be(true)
 
-      reloaded_dossier = Dossier.first
+      reloaded_dossier = Dossier.find(dossier.id)
 
       expect(reloaded_dossier.champ_data.count).not_to be(0)
 
@@ -128,22 +127,21 @@ describe 'Dossier::Recovery::LifeCycle' do
       parent.destroy
       Recovery::Importer.new(file_path: fp).load
 
-      expect(Dossier.count).to eq(1)
+      expect(Dossier.exists?(dossier.id)).to be(true)
+      expect(Dossier.exists?(parent.id)).to be(false)
     end
 
     it 'does not insert follow when instructeur does not exists any more', :slow do
-      expect(Dossier.count).to eq(1)
-
-      @dossier_ids = Dossier.ids
+      @dossier_ids = [dossier.id]
 
       Recovery::Exporter.new(dossier_ids: @dossier_ids, file_path: fp).dump
       Dossier.where(id: @dossier_ids).destroy_all
       instructeur.destroy
       Recovery::Importer.new(file_path: fp).load
 
-      expect(Dossier.count).to eq(1)
+      expect(Dossier.exists?(dossier.id)).to be(true)
 
-      reloaded_dossier = Dossier.first
+      reloaded_dossier = Dossier.find(dossier.id)
 
       expect(reloaded_dossier.followers_instructeurs).to match_array([])
     end

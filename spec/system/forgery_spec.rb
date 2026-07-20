@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe 'Protecting against request forgeries:', :allow_forgery_protection, :show_exception_pages do
-  let(:user) { users(:default_user) }
-  let(:password) { SECURE_PASSWORD }
+  let(:user) { users.usager }
+  let(:password) { users.default_password }
   let(:assert_text) { "Mes dossiers" }
 
   before do

@@ -2,7 +2,7 @@
 
 RSpec.describe Cron::SendAPIEntrepriseTokenExpirationNoticeJob, type: :job do
   describe 'perform' do
-    let(:administrateur) { administrateurs(:default_admin) }
+    let(:administrateur) { administrateurs.default }
     let(:expires_at) { 6.months.from_now }
     let(:token) { JWT.encode({ exp: expires_at.to_i }, nil, 'none') }
     let!(:procedure) { create(:procedure, administrateurs: [administrateur], api_entreprise_token: token) }

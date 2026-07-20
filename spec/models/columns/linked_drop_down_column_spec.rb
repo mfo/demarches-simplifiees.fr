@@ -7,7 +7,7 @@ describe Columns::LinkedDropDownColumn do
     let(:kept_dossier) { create(:dossier, procedure: procedure) }
     let(:discarded_dossier) { create(:dossier, procedure: procedure) }
 
-    subject { column.filtered_ids(Dossier.all, { operator: 'match', value: search_terms }) }
+    subject { column.filtered_ids(procedure.dossiers, { operator: 'match', value: search_terms }) }
 
     context "when search_terms is an empty string" do
       let(:column) { procedure.find_column(label: 'linked') }
@@ -26,7 +26,7 @@ describe Columns::LinkedDropDownColumn do
 
     context "when filter value is missing" do
       let(:column) { procedure.find_column(label: 'linked') }
-      subject { column.filtered_ids(Dossier.all, { operator: 'match' }) }
+      subject { column.filtered_ids(procedure.dossiers, { operator: 'match' }) }
       before { kept_dossier; discarded_dossier }
 
       it { is_expected.to match_array([kept_dossier.id, discarded_dossier.id]) }

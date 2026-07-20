@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'Groupe instructeur signature upload', js: true do
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateur:) }
   let(:groupe_instructeur) { procedure.defaut_groupe_instructeur }
 

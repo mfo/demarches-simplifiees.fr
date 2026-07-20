@@ -11,8 +11,9 @@ describe 'support' do
     end
     after { rake_task.reenable }
 
-    # the admin to remove
-    let(:admin) { administrateurs(:default_admin) }
+    # the admin to remove: the seeded blank administrateur, who is guaranteed
+    # to own nothing
+    let(:admin) { administrateurs.blank }
 
     # the super admin doing the removal
     let(:super_admin) { create(:super_admin) }

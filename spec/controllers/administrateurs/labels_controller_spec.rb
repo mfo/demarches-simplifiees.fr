@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Administrateurs::LabelsController, type: :controller do
-  let(:admin) { administrateurs(:default_admin) }
+  let(:admin) { administrateurs.default }
   let(:procedure) { create(:procedure, administrateur: admin) }
   let(:admin_2) { create(:administrateur) }
   let(:procedure_2) { create(:procedure, administrateur: admin_2) }

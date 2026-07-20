@@ -146,12 +146,12 @@ describe Expired::UsersDeletionService do
     end
 
     context 'when user is expired and has an admin' do
-      let(:user) { create(:user, administrateur: administrateurs(:default_admin), current_sign_in_at: signed_in_expired) }
+      let(:user) { create(:user, administrateur: administrateurs.default, current_sign_in_at: signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
 
     context 'when user is expired but have a dossier' do
-      let(:user) { users(:default_user_admin).tap { _1.update(current_sign_in_at: signed_in_expired) } }
+      let(:user) { users.admin.tap { it.update(current_sign_in_at: signed_in_expired) } }
       let(:dossier) { create(:dossier, :brouillon, user:, created_at: signed_in_expired) }
       it { is_expected.not_to include(user) }
     end
@@ -217,7 +217,7 @@ describe Expired::UsersDeletionService do
 
     context 'when user is expired and has an admin' do
       let(:dossier) { create(:dossier, user:, created_at: signed_in_expired) }
-      let(:user) { users(:default_user_admin).tap { _1.update(current_sign_in_at: signed_in_expired) } }
+      let(:user) { users.admin.tap { it.update(current_sign_in_at: signed_in_expired) } }
       it { is_expected.not_to include(user) }
     end
   end

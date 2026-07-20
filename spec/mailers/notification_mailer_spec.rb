@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe NotificationMailer, type: :mailer do
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let(:user) { create(:user) }
   let(:procedure) { create(:simple_procedure, :with_service) }
 

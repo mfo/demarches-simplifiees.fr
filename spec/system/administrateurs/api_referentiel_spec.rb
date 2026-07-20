@@ -196,7 +196,7 @@ describe 'Referentiel API:' do
 
             # check we can create a dossier
             click_on("Déposer le dossier")
-            wait_until { Dossier.en_construction.count == 1 }
+            wait_until { procedure.dossiers.en_construction.count == 1 }
 
             created_dossier = Dossier.last
             # check data is also visible on demande page as an usager
@@ -310,7 +310,7 @@ describe 'Referentiel API:' do
           expect(page).to have_content("GEORGES GIRERD")
 
           click_on("Déposer le dossier")
-          wait_until { Dossier.en_construction.count == 1 }
+          wait_until { procedure.dossiers.en_construction.count == 1 }
 
           created_dossier = Dossier.last
 
@@ -508,7 +508,7 @@ describe 'Referentiel API:' do
 
           # check we can create a dossier
           click_on("Déposer le dossier")
-          wait_until { Dossier.en_construction.count == 1 }
+          wait_until { procedure.dossiers.en_construction.count == 1 }
         end
       end
     end

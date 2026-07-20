@@ -25,7 +25,7 @@ describe GroupeGestionnaire, type: :model do
   describe "#add_administrateur" do
     let(:groupe_gestionnaire) { create(:groupe_gestionnaire) }
     let(:gestionnaire) { create(:gestionnaire) }
-    let(:administrateur) { administrateurs(:default_admin) }
+    let(:administrateur) { administrateurs.default }
 
     subject { groupe_gestionnaire.add_administrateur(administrateur) }
 

@@ -5,7 +5,7 @@ require 'system/administrateurs/procedure_spec_helper'
 describe 'Administrateurs can manage administrateurs', js: true do
   include ProcedureSpecHelper
 
-  let(:administrateur) { administrateurs(:default_admin) }
+  let(:administrateur) { administrateurs.default }
   let(:procedure) { create(:procedure) }
   let(:manager) { false }
   before do

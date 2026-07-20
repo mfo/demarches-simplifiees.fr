@@ -24,6 +24,9 @@ describe Stat, type: :model do
   end
 
   describe '.dossiers_states' do
+    # the metric is a global aggregate: run it against an empty dossiers table
+    empty_seeds Dossier
+
     let(:procedure) { create(:procedure, :published) }
     before do
       create_list(:dossier, 2, :en_construction, depose_at: 10.days.ago, procedure:)

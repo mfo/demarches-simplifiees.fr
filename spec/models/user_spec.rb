@@ -125,7 +125,7 @@ describe User, type: :model do
       end
 
       context 'with an administrateur' do
-        let(:admins) { [administrateurs(:default_admin)] }
+        let(:admins) { [administrateurs.default] }
 
         it do
           user = subject
@@ -144,7 +144,7 @@ describe User, type: :model do
       end
 
       context 'with an existing instructeur' do
-        let(:old_admins) { [administrateurs(:default_admin)] }
+        let(:old_admins) { [administrateurs.default] }
         let(:admins) { [create(:administrateur)] }
         let!(:instructeur) { create(:instructeur, email: 'i@mail.com', administrateurs: old_admins) }
 
@@ -277,7 +277,7 @@ describe User, type: :model do
 
   describe 'invite_administrateur!' do
     let(:super_admin) { create(:super_admin) }
-    let(:administrateur) { administrateurs(:default_admin) }
+    let(:administrateur) { administrateurs.default }
     let(:user) { administrateur.user }
 
     let(:mailer_double) { double('mailer', deliver_later: true) }
@@ -345,7 +345,7 @@ describe User, type: :model do
 
   describe '#can_be_deleted?' do
     let(:user) { create(:user) }
-    let(:administrateur) { administrateurs(:default_admin) }
+    let(:administrateur) { administrateurs.default }
     let(:instructeur) { create(:instructeur) }
     let(:expert) { create(:expert) }
 
@@ -464,7 +464,7 @@ describe User, type: :model do
     end
 
     context 'for administrateurs' do
-      let(:user) { build(:user, email: 'admin@exemple.fr', password: password, administrateur: build(:administrateur, user: nil)) }
+      let(:user) { build(:user, email: 'nouvel-admin@exemple.fr', password: password, administrateur: build(:administrateur, user: nil)) }
 
       context 'when the password is too short' do
         let(:password) { 's' * (PASSWORD_MIN_LENGTH - 1) }

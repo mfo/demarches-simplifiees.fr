@@ -1,145 +1,109 @@
 # frozen_string_literal: true
 
 RSpec.describe Avis, type: :model do
-  let(:claimant) { create(:instructeur) }
+  before_all { seed "cases/avis" }
 
   describe '#email_to_display' do
-    let(:invited_email) { 'invited@avis.com' }
-    let(:expert) { create(:expert) }
-    let(:procedure) { create(:procedure) }
-    let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
-
-    subject { avis.email_to_display }
-
     context 'when expert is known' do
-      let!(:avis) { create(:avis, claimant: claimant, dossier: create(:dossier), experts_procedure: experts_procedure) }
-
-      it { is_expected.to eq(avis.expert.email) }
+      it { expect(avis.pending.email_to_display).to eq(experts.default.email) }
     end
   end
 
   describe '.by_latest' do
-    context 'with 3 avis' do
-      let!(:avis) { create(:avis) }
-      let!(:avis2) { create(:avis, updated_at: 4.hours.ago) }
-      let!(:avis3) { create(:avis, updated_at: 3.hours.ago) }
+    context 'with 3 avis on the same dossier' do
+      let!(:avis2) { create(:avis, dossier: dossiers.en_instruction, experts_procedure: experts_procedures.default, updated_at: 4.hours.ago) }
+      let!(:avis3) { create(:avis, dossier: dossiers.en_instruction, experts_procedure: experts_procedures.default, updated_at: 3.hours.ago) }
 
-      subject { Avis.by_latest }
+      subject { Avis.where(dossier: dossiers.en_instruction).by_latest }
 
-      it { expect(subject).to eq([avis, avis3, avis2]) }
+      it { is_expected.to eq([avis.pending, avis3, avis2]) }
     end
   end
 
-  describe "an avis is linked to an expert_procedure" do
-    let(:procedure) { create(:procedure) }
-    let(:expert) { create(:expert) }
-    let(:experts_procedure) { create(:experts_procedure, procedure: procedure, expert: expert) }
-
-    context 'an avis is linked to an experts_procedure' do
-      let!(:avis) { create(:avis, experts_procedure: experts_procedure) }
-
-      before do
-        avis.reload
-      end
-      it do
-        expect(avis.valid?).to be_truthy
-        expect(avis.experts_procedure).to eq(experts_procedure)
-      end
+  describe "an avis is linked to an experts_procedure" do
+    it do
+      expect(avis.pending.valid?).to be_truthy
+      expect(avis.pending.experts_procedure).to eq(experts_procedures.default)
     end
   end
 
   describe ".revoke_by!" do
-    let(:claimant) { create(:instructeur) }
-
     context "when no answer" do
-      let(:avis) { create(:avis, claimant: claimant) }
-
       it "supprime l’avis" do
-        avis.revoke_by!(claimant)
-        expect(avis).to be_destroyed
-        expect(Avis.count).to eq 0
+        pending_avis = avis.pending
+        expect { pending_avis.revoke_by!(instructeurs.default) }.to change { Avis.exists?(pending_avis.id) }.from(true).to(false)
+        expect(pending_avis).to be_destroyed
       end
     end
 
     context "with answer" do
-      let(:avis) { create(:avis, :with_answer, claimant: claimant) }
-
       it "revoque l’avis" do
-        avis.revoke_by!(claimant)
-        expect(avis).not_to be_destroyed
-        expect(avis).to be_revoked
+        answered_avis = avis.answered
+        answered_avis.revoke_by!(instructeurs.default)
+        expect(answered_avis).not_to be_destroyed
+        expect(answered_avis).to be_revoked
       end
     end
 
     context "by an instructeur who can't revoke" do
-      let(:avis) { create(:avis, :with_answer, claimant: claimant) }
-      let(:expert) { create(:instructeur) }
+      let(:other_instructeur) { create(:instructeur) }
 
       it "doesn't revoke avis and returns false" do
-        result = avis.revoke_by!(expert)
-        expect(result).to be_falsey
-        expect(avis).not_to be_destroyed
-        expect(avis).not_to be_revoked
+        answered_avis = avis.answered
+        expect(answered_avis.revoke_by!(other_instructeur)).to be_falsey
+        expect(answered_avis).not_to be_destroyed
+        expect(answered_avis).not_to be_revoked
       end
     end
   end
 
   describe "revokable_by?" do
-    let(:instructeur) { create(:instructeur) }
-    let(:instructeurs) { [instructeur] }
-    let(:procedure) { create(:procedure, :published, instructeurs: instructeurs) }
-    let(:dossier) { create(:dossier, :en_instruction, procedure: procedure) }
+    let(:instructeur) { instructeurs.default }
     let(:claimant_expert) { create(:instructeur) }
-    let(:expert) { create(:expert) }
-    let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
     let(:another_expert) { create(:expert) }
+    let(:dossier) { dossiers.en_instruction }
 
     context "when avis claimed by an expert" do
-      let(:avis) { create(:avis, dossier: dossier, claimant: claimant_expert, experts_procedure: experts_procedure) }
-      let(:another_avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure) }
+      let(:claimed_avis) { create(:avis, dossier:, claimant: claimant_expert, experts_procedure: experts_procedures.default) }
+
       it "is revokable by this expert or any instructeurs of the dossier" do
-        expect(avis.revokable_by?(claimant_expert)).to be_truthy
-        expect(avis.revokable_by?(another_expert)).to be_falsy
-        expect(avis.revokable_by?(instructeur)).to be_truthy
+        expect(claimed_avis.revokable_by?(claimant_expert)).to be_truthy
+        expect(claimed_avis.revokable_by?(another_expert)).to be_falsy
+        expect(claimed_avis.revokable_by?(instructeur)).to be_truthy
       end
     end
 
     context "when avis claimed by an instructeur" do
-      let(:expert) { create(:expert) }
-      let(:expert_2) { create(:expert) }
-      let!(:procedure) { create(:procedure, :published, instructeurs: instructeurs) }
-      let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
-      let(:experts_procedure_2) { create(:experts_procedure, expert: expert_2, procedure: procedure) }
-      let(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure) }
-      let(:another_avis) { create(:avis, dossier: dossier, claimant: expert, experts_procedure: experts_procedure_2) }
       let(:another_instructeur) { create(:instructeur) }
-      let(:instructeurs) { [instructeur, another_instructeur] }
+      let(:claimed_avis) { create(:avis, dossier:, claimant: instructeur, experts_procedure: experts_procedures.default) }
+
+      before { another_instructeur.assign_to_procedure(procedures.individual) }
 
       it "is revokable by any instructeur of the dossier, not by an expert" do
-        expect(avis.revokable_by?(instructeur)).to be_truthy
-        expect(avis.revokable_by?(another_expert)).to be_falsy
-        expect(avis.revokable_by?(another_instructeur)).to be_truthy
+        expect(claimed_avis.revokable_by?(instructeur)).to be_truthy
+        expect(claimed_avis.revokable_by?(another_expert)).to be_falsy
+        expect(claimed_avis.revokable_by?(another_instructeur)).to be_truthy
       end
     end
   end
 
   describe "question_label cleanup" do
     it "nullify empty" do
-      avis = create(:avis, question_label: " ")
-      expect(avis.question_label).to be_nil
+      created_avis = create(:avis, question_label: " ", dossier: dossiers.en_construction, experts_procedure: experts_procedures.default, claimant: instructeurs.default)
+      expect(created_avis.question_label).to be_nil
     end
 
     it "strip" do
-      avis = create(:avis, question_label: "my question ")
-      expect(avis.question_label).to eq("my question")
+      created_avis = create(:avis, question_label: "my question ", dossier: dossiers.en_construction, experts_procedure: experts_procedures.default, claimant: instructeurs.default)
+      expect(created_avis.question_label).to eq("my question")
     end
   end
 
   describe 'normalization' do
     it 'removes non-printable characters from answer (ASCII control character "End of Transmission Block), seen in pdf' do
-      avis = build(:avis, answer: "Valid\x17Answer")
-      avis.validate
-      expect(avis.answer).to eq("ValidAnswer")
+      built_avis = build(:avis, answer: "Valid\x17Answer", dossier: dossiers.en_construction, experts_procedure: experts_procedures.default)
+      built_avis.validate
+      expect(built_avis.answer).to eq("ValidAnswer")
     end
   end
 end
