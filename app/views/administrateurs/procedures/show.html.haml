@@ -87,23 +87,23 @@
 
 .fr-container
   %h2= "Gestion de la démarche № #{number_with_html_delimiter(@procedure.id)}"
-  %h3.fr-h6 Indispensable avant publication
+  %h3.fr-h6 Paramètres prioritaires
   .fr-grid-row.fr-grid-row--gutters.fr-mb-5w
     = render Procedure::Card::PresentationComponent.new(procedure: @procedure)
     = render Procedure::Card::ZonesComponent.new(procedure: @procedure) if Rails.application.config.ds_zonage_enabled
     = render Procedure::Card::ChampsComponent.new(procedure: @procedure)
     = render Procedure::Card::AiComponent.new(procedure: @procedure)
-    = render Procedure::Card::IneligibiliteDossierComponent.new(procedure: @procedure)
     = render Procedure::Card::ServiceComponent.new(procedure: @procedure, administrateur: current_administrateur)
     = render Procedure::Card::AdministrateursComponent.new(procedure: @procedure)
     = render Procedure::Card::InstructeursComponent.new(procedure: @procedure)
+    = render Procedure::Card::EmailsComponent.new(procedure: @procedure)
 
   %h3.fr-h6 Autres paramètres
   .fr-grid-row.fr-grid-row--gutters.fr-mb-5w
+    = render Procedure::Card::IneligibiliteDossierComponent.new(procedure: @procedure)
     = render Procedure::Card::AttestationComponent.new(procedure: @procedure, kind: AttestationTemplate.kinds.fetch(:acceptation))
     = render Procedure::Card::AttestationComponent.new(procedure: @procedure, kind: AttestationTemplate.kinds.fetch(:refus))
     = render Procedure::Card::ExpertsComponent.new(procedure: @procedure)
-    = render Procedure::Card::EmailsComponent.new(procedure: @procedure)
     = render Procedure::Card::AnnotationsComponent.new(procedure: @procedure)
     = render Procedure::Card::APITokenComponent.new(procedure: @procedure)
     = render Procedure::Card::SVASVRComponent.new(procedure: @procedure)
