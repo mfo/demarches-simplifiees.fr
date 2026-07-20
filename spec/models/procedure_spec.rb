@@ -2261,6 +2261,8 @@ describe Procedure do
   end
 
   describe '#personnalisable_columns' do
+    include Logic
+
     let(:procedure) do
       create(:procedure, :published,
              types_de_champ_public: [
@@ -2330,9 +2332,21 @@ describe Procedure do
       expect(procedure.personnalisable_columns.map(&:label)).not_to include('Champ legacy')
       expect(procedure.personnalisable_columns.map(&:label)).to include('Champ valide')
     end
+
+    it 'excludes champs that carry a condition' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Toujours visible' },
+        { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+      ])
+
+      expect(procedure.personnalisable_columns.map(&:label)).to eq(['Toujours visible'])
+    end
   end
 
   describe '#personnalisable_columns_by_section' do
+    include Logic
+
     let(:procedure) do
       create(:procedure, :published,
              types_de_champ_public: [
@@ -2431,6 +2445,17 @@ describe Procedure do
       all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, cols| cols.map(&:label) }
       expect(all_column_labels).not_to include('Champ legacy')
       expect(all_column_labels).to include('Champ valide')
+    end
+
+    it 'excludes champs that carry a condition' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Toujours visible' },
+        { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+      ])
+
+      labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, columns| columns.map(&:label) }
+      expect(labels).to eq(['Toujours visible'])
     end
   end
 

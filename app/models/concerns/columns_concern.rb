@@ -134,6 +134,7 @@ module ColumnsConcern
   def personnalisable_columns
     all_revisions_types_de_champ.public_only
       .filter { _1.type_champ.in?(TypeDeChamp::PERSONNALISABLE_TYPE_CHAMPS) }
+      .filter { _1.condition.nil? }
       .filter_map { _1.personnalisation_column(procedure_id: id) }
       .uniq(&:stable_id)
   end
@@ -145,6 +146,7 @@ module ColumnsConcern
 
     personnalisable_by_stable_id = tdcs_public
       .filter(&:dynamic_type)
+      .filter { _1.condition.nil? }
       .flat_map { _1.columns(procedure_id: id) }
       .filter { _1.tdc_type.in?(TypeDeChamp::PERSONNALISABLE_TYPE_CHAMPS) && _1.displayable }
       .uniq(&:stable_id)
