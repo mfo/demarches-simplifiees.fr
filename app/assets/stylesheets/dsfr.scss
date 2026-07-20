@@ -348,6 +348,18 @@ input[type='radio'] {
     var(--underline-hover-width) calc(var(--underline-thickness) * 2),
     var(--underline-idle-width) var(--underline-thickness);
   transition: background-size;
+
+  // pas de fond au survol/actif, comme sur un vrai lien DSFR : seul le
+  // soulignement doit apparaître
+  --hover-tint: var(--idle);
+  --active-tint: var(--idle);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-href]:hover,
+  [data-href]:active {
+    --underline-hover-width: var(--underline-max-width);
+  }
 }
 
 // Hack pour la modale d'instruction qui est déclarée
