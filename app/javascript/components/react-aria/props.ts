@@ -124,7 +124,8 @@ const SelectProps = s.partial(
     labelId: s.string(), // if label is not in the component, we need to pass the label id
     ariaLabelledbyPrefix: s.string(),
     alwaysShowKey: s.string(),
-    emptyHint: s.optional(s.string())
+    emptyHint: s.optional(s.string()),
+    selectedLabels: s.object({ one: s.string(), other: s.string() })
   })
 );
 

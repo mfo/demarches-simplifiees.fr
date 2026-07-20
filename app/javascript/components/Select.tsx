@@ -51,6 +51,7 @@ type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
   ariaLabelledbyPrefix?: string;
   alwaysShowKey?: string;
   emptyHint?: string;
+  selectedLabels?: { one: string; other: string };
 };
 type AutocompleteFilter = NonNullable<AutocompleteProps<Item>['filter']>;
 
@@ -64,6 +65,7 @@ function Select<M extends SelectionMode = 'single'>({
   ariaLabelledbyPrefix,
   alwaysShowKey,
   emptyHint,
+  selectedLabels,
   ...props
 }: SelectProps<M>) {
   const { contains } = useFilter({ sensitivity: 'base', numeric: true });
@@ -102,7 +104,11 @@ function Select<M extends SelectionMode = 'single'>({
           <SelectValue />
         </Button>
       ) : (
-        <MultipleSelectValue triggerId={triggerId} emptyHint={emptyHint} />
+        <MultipleSelectValue
+          triggerId={triggerId}
+          emptyHint={emptyHint}
+          selectedLabels={selectedLabels}
+        />
       )}
       <Popover
         className="react-aria-Popover select-popover"
@@ -144,12 +150,21 @@ function Select<M extends SelectionMode = 'single'>({
   );
 }
 
+function selectedLabel(count: number, labels?: { one: string; other: string }) {
+  if (!labels || count == 0) {
+    return null;
+  }
+  return count == 1 ? labels.one : labels.other.replace('#', String(count));
+}
+
 function MultipleSelectValue({
   triggerId,
-  emptyHint
+  emptyHint,
+  selectedLabels
 }: {
   triggerId?: string;
   emptyHint?: string;
+  selectedLabels?: { one: string; other: string };
 }) {
   const selectButtonRef = useRef<HTMLButtonElement>(null);
   return (
@@ -158,16 +173,18 @@ function MultipleSelectValue({
         <>
           <Button id={triggerId} className="fr-select" ref={selectButtonRef}>
             <span className="react-aria-SelectValue" data-placeholder>
-              <Plural
-                value={selectedItems.length}
-                _0={defaultChildren}
-                one="1 choix sélectionné"
-                other="# choix sélectionnés"
-              />
+              {selectedLabel(selectedItems.length, selectedLabels) ?? (
+                <Plural
+                  value={selectedItems.length}
+                  _0={defaultChildren}
+                  one="1 choix sélectionné"
+                  other="# choix sélectionnés"
+                />
+              )}
             </span>
           </Button>
           {selectedItems.length === 0 && emptyHint ? (
-            <p className="select-empty-hint fr-hint-text fr-mt-1w">
+            <p className="select-empty-hint fr-text--sm fr-text-mention--grey fr-mt-1w fr-mb-0">
               {emptyHint}
             </p>
           ) : (

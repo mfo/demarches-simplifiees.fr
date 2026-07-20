@@ -2,5 +2,7 @@
 en:
   default_section: Information
   empty_hint: No custom display for this procedure's dossiers.
-  placeholder: Select one or more fields
+  hint: Select one or more fields
+  selected_one: 1 field selected
+  selected_other: "# fields selected"
   aria_label: "Fields to display for the procedure %{libelle}"
