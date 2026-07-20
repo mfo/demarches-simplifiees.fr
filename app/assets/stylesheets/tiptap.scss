@@ -91,4 +91,18 @@
   &__toggle[aria-expanded='true']::after {
     transform: rotate(-180deg);
   }
+
+  // WebKit only: before the DSFR collapse JS replaces the --collapse fallback
+  // (-99999px) with the measured height, the ::before negative margin leaks into
+  // the flex line intrinsic height of the surrounding .fr-fieldset, which gets
+  // laid out ~100000px tall and never recovers. Sizing the closed state to zero
+  // without the huge margin avoids that first-layout state; once expanded, the
+  // DSFR mechanics take over untouched.
+  .fr-collapse:not(.fr-collapse--expanded) {
+    max-height: 0;
+
+    &::before {
+      margin-top: 0;
+    }
+  }
 }
