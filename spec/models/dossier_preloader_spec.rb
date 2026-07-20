@@ -50,8 +50,8 @@ describe DossierPreloader do
 
   describe '#in_batches (preloading for PDF/zip export)' do
     let(:instructeur) { create(:instructeur) }
-    let(:expert) { create(:expert) }
-    let(:experts_procedure) { create(:experts_procedure, expert:, procedure:) }
+    let(:expert) { experts.default }
+    let(:experts_procedure) { experts_procedures.default }
     let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: [instructeur]) }
 
     let!(:dossiers) do

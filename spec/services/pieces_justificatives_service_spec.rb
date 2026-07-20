@@ -242,7 +242,8 @@ describe PiecesJustificativesService do
       end
 
       context 'with an etablissement' do
-        let(:dossier) { create(:dossier, :with_entreprise) }
+        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
+        let(:dossier) { Oaken::Seeds.dossiers.avec_siret }
         let(:attestation_sociale) { dossier.etablissement.entreprise_attestation_sociale }
         let(:attestation_fiscale) { dossier.etablissement.entreprise_attestation_fiscale }
 

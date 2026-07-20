@@ -62,17 +62,12 @@ describe 'Breadcrumbs by role', js: false do
   end
 
   describe 'as EXPERT' do
-    let(:expert) { create(:expert) }
-    let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur]) }
-    let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
-    let(:dossier) { create(:dossier, :en_instruction, procedure: procedure) }
-    let!(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure) }
+    let(:pending_avis) { avis.pending }
 
-    before { login_as expert.user, scope: :user }
+    before { login_as users.expert, scope: :user }
 
     scenario 'shows root "Accueil - Avis" on the dossier review page' do
-      visit expert_avis_path(dossier.procedure, avis)
+      visit expert_avis_path(pending_avis.procedure, pending_avis)
       within('.fr-breadcrumb__list') do
         expect(page).to have_link('Accueil - Avis', href: expert_all_avis_path)
       end

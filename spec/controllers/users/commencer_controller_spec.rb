@@ -524,7 +524,7 @@ describe Users::CommencerController, type: :controller do
     before { allow(ProConnectService).to receive(:enabled?).and_return(true) }
 
     context 'when procedure is moral and flag is enabled' do
-      let(:procedure) { create(:procedure, :published, for_individual: false) }
+      let(:procedure) { procedures.entreprise }
 
       it 'shows both FranceConnect and ProConnect' do
         subject
@@ -535,7 +535,7 @@ describe Users::CommencerController, type: :controller do
     end
 
     context 'when procedure is moral but flag is disabled (legacy procedure)' do
-      let(:procedure) { create(:procedure, :published, for_individual: false) }
+      let(:procedure) { procedures.entreprise }
 
       before { procedure.update_column(:pro_connect_for_moral_procedure, false) }
 

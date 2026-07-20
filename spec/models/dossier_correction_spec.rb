@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe DossierCorrection do
-  let(:dossier) { create(:dossier, :en_construction) }
-  let(:commentaire) { create(:commentaire, dossier: dossier) }
+  let(:dossier) { dossiers.en_construction }
+  let(:commentaire) { commentaires.from_instructeur }
   let(:correction) { create(:dossier_correction, dossier: dossier, commentaire: commentaire) }
 
   describe '#pending?' do

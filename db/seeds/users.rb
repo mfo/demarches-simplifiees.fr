@@ -7,7 +7,7 @@ admin.create_instructeur!(bypass_email_login_token: true)
 admin.create_administrateur!
 
 instructeur = users.create :instructeur, email: "instructeur@exemple.fr"
-instructeur.create_instructeur!
+instructeur.create_instructeur!(bypass_email_login_token: true)
 
 # An administrateur guaranteed to own nothing — no procedures, no services, no
 # API tokens. For specs whose subject is the admin's own aggregate state

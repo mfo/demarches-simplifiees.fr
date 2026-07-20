@@ -2,7 +2,7 @@
 
 describe DossierCorrectableConcern do
   describe "#pending_correction?" do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
 
     context "when dossier has no correction" do
       it { expect(dossier.pending_correction?).to be_falsey }
@@ -21,7 +21,7 @@ describe DossierCorrectableConcern do
     end
 
     context "when dossier is not en_construction" do
-      let(:dossier) { create(:dossier, :en_instruction) }
+      let(:dossier) { dossiers.en_instruction }
       before { create(:dossier_correction, dossier:) }
 
       it { expect(dossier.pending_correction?).to be_falsey }
@@ -29,8 +29,8 @@ describe DossierCorrectableConcern do
   end
 
   describe '#flag_as_pending_correction!' do
-    let(:dossier) { create(:dossier, :en_construction) }
-    let(:instructeur) { create(:instructeur) }
+    let(:dossier) { dossiers.en_construction }
+    let(:instructeur) { instructeurs.default }
     let(:commentaire) { create(:commentaire, dossier:, instructeur:) }
 
     subject(:flag) { dossier.flag_as_pending_correction!(commentaire) }
@@ -52,7 +52,7 @@ describe DossierCorrectableConcern do
     end
 
     context 'when dossier is en_instruction' do
-      let(:dossier) { create(:dossier, :en_instruction) }
+      let(:dossier) { dossiers.en_instruction }
 
       it 'creates a correction' do
         expect { flag }.to change { dossier.corrections.pending.count }.by(1)
@@ -80,7 +80,7 @@ describe DossierCorrectableConcern do
     end
 
     context 'when dossier is not en_construction and may not be repassed en_construction' do
-      let(:dossier) { create(:dossier, :accepte) }
+      let(:dossier) { dossiers.accepte }
 
       it 'does not create a correction' do
         expect { flag }.not_to change { dossier.corrections.pending.count }
@@ -166,7 +166,7 @@ describe DossierCorrectableConcern do
   end
 
   describe "#resolve_pending_correction!" do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
 
     subject(:resolve) { dossier.resolve_pending_correction! }
 
@@ -184,7 +184,7 @@ describe DossierCorrectableConcern do
 
     context "when dossier has attente_correction notification" do
       let!(:correction) { create(:dossier_correction, dossier:) }
-      let!(:instructeur) { create(:instructeur) }
+      let(:instructeur) { instructeurs.default }
       let!(:notification) { create(:dossier_notification, dossier:, instructeur:, notification_type: :attente_correction) }
 
       it "destroy notification for all instructeurs" do

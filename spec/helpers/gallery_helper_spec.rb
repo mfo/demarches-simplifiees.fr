@@ -116,7 +116,7 @@ RSpec.describe GalleryHelper, type: :helper do
     end
 
     context "when record is an Avis" do
-      let(:record) { create(:avis, dossier:) }
+      let(:record) { avis.pending }
 
       it { is_expected.to eq("Pièce jointe à l’avis") }
     end

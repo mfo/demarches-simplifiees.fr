@@ -563,7 +563,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#etablissement' do
-    let(:dossier) { create(:dossier, :with_entreprise, user: user) }
+    let(:dossier) { dossiers.avec_siret }
 
     before { sign_in(user) }
 
@@ -572,7 +572,7 @@ describe Users::DossiersController, type: :controller do
     it { is_expected.to render_template(:etablissement) }
 
     context 'when the dossier has no etablissement yet' do
-      let(:dossier) { create(:dossier, user: user) }
+      let(:dossier) { dossiers.en_construction }
       it { is_expected.to redirect_to siret_dossier_path(dossier) }
     end
   end

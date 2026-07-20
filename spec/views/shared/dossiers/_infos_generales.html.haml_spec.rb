@@ -10,7 +10,7 @@ describe 'shared/dossiers/_infos_generales', type: :view do
   end
 
   context 'when expert' do
-    let(:current_role) { create(:expert) }
+    let(:current_role) { experts.default }
 
     context 'with an attestation' do
       let(:dossier) { create :dossier, :accepte, :with_attestation_acceptation }
