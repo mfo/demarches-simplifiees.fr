@@ -40,6 +40,8 @@ describe 'Usager personnalise la liste des dossiers', js: true do
     expect(page).to have_content(procedure.libelle)
     find('.dom-ready')
 
+    expect(page).to have_button('Enregistrer', disabled: true)
+
     find('button.fr-select', match: :first).click
 
     expect(page).to have_css('.dropdown-section-header', text: 'Identité')
@@ -48,6 +50,8 @@ describe 'Usager personnalise la liste des dossiers', js: true do
     find('[role="option"]', text: 'Nom du titre').click
     find('[role="option"]', text: 'Numéro CPPAP').click
     send_keys(:escape)
+
+    expect(page).to have_button('Enregistrer', disabled: false)
 
     click_button('Enregistrer')
 
