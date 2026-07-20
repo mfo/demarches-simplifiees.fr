@@ -73,7 +73,7 @@
       <% end %>
 
       <% if @statut != "dossiers-supprimes" %>
-        <div class="flex justify-end no-flex-xs">
+        <div class="flex justify-end no-flex-xs fr-mt-1w">
           <%= render partial: 'dossier_actions', locals: { dossier: dossier } %>
         </div>
       <% end %>
@@ -89,7 +89,7 @@
       <% end %>
 
       <% if @statut == "dossiers-supprimes" %>
-        <div class="flex justify-end no-flex-xs">
+        <div class="flex justify-end no-flex-xs fr-mt-1w">
           <% if dossier.hidden_by_reason != 'expired' %>
             <%= link_to restore_dossier_path(dossier.id), method: :patch, class: "fr-btn fr-btn--sm" do %>
               <%= t("views.users.dossiers.dossier_action.restore") %>
