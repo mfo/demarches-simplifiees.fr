@@ -207,7 +207,7 @@ describe Columns::JSONPathColumn do
 
     context "on a champ which requires the user to confirm the accuracy of the data (champs FC)" do
       let(:jsonpath) { '$.fc_data' }
-      let(:column) { Columns::QuotientFamilialColumn.new(procedure_id: procedure.id, label: 'label', stable_id:, tdc_type:, jsonpath:, type: :integer, displayable: true, mandatory: true) }
+      let(:column) { Columns::FranceConnectChampColumn.new(procedure_id: procedure.id, label: 'label', stable_id:, tdc_type:, jsonpath:, type: :integer, displayable: true, mandatory: true) }
       let(:dossier_with_correct_data) { create(:dossier, procedure:) }
       let(:dossier_with_incorrect_data) { create(:dossier, procedure:) }
 

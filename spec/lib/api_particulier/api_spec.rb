@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-describe APIParticulier::QuotientFamilial do
-  describe '#quotient_familial' do
-    let(:procedure) { create(:procedure, :with_api_particulier_token, :with_service) }
-    let(:api) { APIParticulier::QuotientFamilial.new(procedure) }
-    let(:fci) { create(:france_connect_information) }
-    let(:subject) { api.quotient_familial(fci) }
+describe APIParticulier::API do
+  let(:procedure) { create(:procedure, :with_api_particulier_token, :with_service) }
+  let(:api) { APIParticulier::API.new(procedure, type_champ) }
+  let(:fci) { create(:france_connect_information) }
+  let(:subject) { api.call_with_fci(fci) }
+
+  context ' when type_champ is quotient_familial' do
+    let(:type_champ) { 'quotient_familial' }
 
     before do
       stub_request(:get, /https:\/\/particulier.api.gouv.fr\/v3\/dss\/quotient_familial\/identite/)

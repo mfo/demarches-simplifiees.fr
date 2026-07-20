@@ -101,6 +101,12 @@ module Types
           Types::Champs::Descriptor::FormattedChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:quotient_familial)
           Types::Champs::Descriptor::QuotientFamilialChampDescriptorType
+        when TypeDeChamp.type_champs.fetch(:etudiant_boursier)
+          Types::Champs::Descriptor::EtudiantBoursierChampDescriptorType
+        when TypeDeChamp.type_champs.fetch(:aah)
+          Types::Champs::Descriptor::AahChampDescriptorType
+        when TypeDeChamp.type_champs.fetch(:aeeh)
+          Types::Champs::Descriptor::AeehChampDescriptorType
         end
       end
     end
