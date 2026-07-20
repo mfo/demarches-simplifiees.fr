@@ -1,6 +1,0 @@
-fr:
-  api_particulier:
-    libelle:
-      quotient_familial:
-        piece_justificative: Justificatif de quotient familial
-        default: Quotient familial

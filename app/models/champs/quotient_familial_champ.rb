@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
 class Champs::QuotientFamilialChamp < Champs::FranceConnectChamp
-  def libelle
-    if fc_data_correct?
-      ""
-    elsif fc_data_incorrect? || external_error? || idle?
-      I18n.t('api_particulier.libelle.quotient_familial.piece_justificative')
-    else
-      I18n.t('api_particulier.libelle.quotient_familial.default')
-    end
-  end
-
   private
 
   def extract_value_json(data:)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Dossiers::QuotientFamilialComponent < ApplicationComponent
+class Dossiers::FranceConnectChampComponent < ApplicationComponent
   delegate :fc_data_correct?, :fc_data_incorrect?, :fc_data_not_found?, to: :@champ
 
   attr_reader :champ, :profile
@@ -23,7 +23,7 @@ class Dossiers::QuotientFamilialComponent < ApplicationComponent
     if profile == 'instructeur'
       render Dsfr::NoticeComponent.new(
         closable: false,
-        data_attributes: { "data-notice-name" => "info-recuperation-donnees-qf", class: 'clearfix' }
+        data_attributes: { "data-notice-name" => "info-recuperation-donnees", class: 'clearfix' }
       ) do |c|
         c.with_title do
           description
@@ -34,21 +34,25 @@ class Dossiers::QuotientFamilialComponent < ApplicationComponent
 
   def description
     if fc_data_correct?
-      t(".correct_qf_data")
+      t(".fc_data_correct", type_champ:)
     elsif fc_data_incorrect?
-      t(".incorrect_qf_data")
+      t(".fc_data_incorrect", type_champ:)
     elsif fc_data_not_found?
-      t(".qf_data_not_found")
+      t(".fc_data_not_found", type_champ:)
     else
-      t(".qf_data_not_recovered")
+      t(".fc_data_not_recovered", type_champ:)
     end
   end
 
   def champ_content
     if fc_data_correct?
-      render QuotientFamilial::QuotientFamilialComponent.new(qf_data: champ.value_json['api_part'], with_header: false)
+      render FranceConnectChamp::ExternalChampComponent.new(type: champ.type_champ, data: champ.value_json['api_part'], with_header: false)
     else
       render partial: "shared/champs/piece_justificative/show", locals: { champ:, profile: }
     end
+  end
+
+  def type_champ
+    t(".type_champ.#{champ.type_champ}")
   end
 end

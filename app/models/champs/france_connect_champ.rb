@@ -43,6 +43,16 @@ class Champs::FranceConnectChamp < Champ
     end
   end
 
+  def libelle
+    if fc_data_correct?
+      ""
+    elsif fc_data_incorrect? || external_error? || idle?
+      I18n.t('france_connect_champ.libelle.piece_justificative', type_champ: type_champ_for_libelle)
+    else
+      I18n.t('france_connect_champ.libelle.default', type_champ: type_champ_for_libelle.capitalize)
+    end
+  end
+
   private
 
   def api_class
@@ -50,4 +60,8 @@ class Champs::FranceConnectChamp < Champ
   end
 
   def extract_value_json(data:)= data
+
+  def type_champ_for_libelle
+    I18n.t("france_connect_champ.type_champ.#{type_champ}")
+  end
 end

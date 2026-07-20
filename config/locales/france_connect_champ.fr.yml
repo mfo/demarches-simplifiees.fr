@@ -1,0 +1,11 @@
+fr:
+  france_connect_champ:
+    libelle:
+      piece_justificative: "Justificatif de %{type_champ}"
+      default: "%{type_champ} (France Connect)"
+
+    type_champ:
+      quotient_familial: quotient familial
+      etudiant_boursier: statut étudiant boursier
+      aah: statut allocation adulte handicapé (AAH)
+      aeeh: statut allocation d'éducation de l'enfant handicap (AEEH)
