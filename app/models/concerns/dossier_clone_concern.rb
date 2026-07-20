@@ -12,10 +12,10 @@ module DossierCloneConcern
     dossier_attributes = [:autorisation_donnees, :revision_id]
     relationships = [:individual, :etablissement]
 
-    discarded_row_ids = champs_on_main_stream
+    discarded_row_ids = champ_data_on_main_stream
       .filter { _1.row? && _1.discarded? }
       .to_set(&:row_id)
-    champs_to_clone = champs_on_main_stream
+    champs_to_clone = champ_data_on_main_stream
       .reject { discarded_row_ids.member?(_1.row_id) }
     ActiveRecord::Associations::Preloader.new(records: champs_to_clone, associations: [:geo_areas, :etablissement]).call
     cloned_champs = champs_to_clone.map(&:clone)
