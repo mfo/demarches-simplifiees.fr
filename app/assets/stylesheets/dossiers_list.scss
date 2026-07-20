@@ -1,6 +1,6 @@
 .mes-dossiers-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
@@ -17,6 +17,14 @@
 
   &__personnalisation {
     --underline-img: none;
+
+    // Le DSFR déclare --icon-size et un margin-right (prévu pour un lien avec
+    // texte) directement sur le pseudo-élément : la surcharge doit cibler ::before.
+    &::before {
+      --icon-size: 1.25rem;
+
+      margin-right: 0;
+    }
   }
 
   &__corbeille {
