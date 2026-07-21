@@ -35,7 +35,7 @@ import {
   HeaderColumn,
   PageBreak
 } from './nodes';
-import { createSuggestionMenu, type TagSchema } from './tags';
+import { createSuggestionMenu, tagDisplay, type TagSchema } from './tags';
 
 const SingleLineDocument = Document.extend({
   content: 'block'
@@ -165,33 +165,21 @@ function getEditorOptions(
 
   if (tags.length > 0) {
     const tagInfo = new Map(
-      tags.map((t) => [t.id, { mandatory: t.mandatory, category: t.category }])
+      tags.map((t) => [
+        t.id,
+        { mandatory: t.mandatory, conditional: t.conditional }
+      ])
     );
 
     const StyledMention = Mention.extend({
       renderHTML({ node, HTMLAttributes }) {
-        const classes = ['fr-tag', 'fr-tag--sm'];
-        const id = node.attrs.id;
-        const info = tagInfo.get(id);
-        if (info?.mandatory) {
-          return [
-            'span',
-            { ...HTMLAttributes, class: classes.join(' ') },
-            `${node.attrs.label} *`
-          ];
-        }
-        if (
-          (info?.category === 'champ_public' ||
-            info?.category === 'champ_private') &&
-          !info?.mandatory
-        ) {
-          classes.push('fr-tag--purple-glycine');
-        }
-        return [
-          'span',
-          { ...HTMLAttributes, class: classes.join(' ') },
-          node.attrs.label
-        ];
+        const info = tagInfo.get(node.attrs.id);
+        const { text, classes } = tagDisplay({
+          label: node.attrs.label,
+          mandatory: info?.mandatory,
+          conditional: info?.conditional
+        });
+        return ['span', { ...HTMLAttributes, class: classes.join(' ') }, text];
       }
     });
 

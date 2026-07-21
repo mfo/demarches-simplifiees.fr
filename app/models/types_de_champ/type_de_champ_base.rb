@@ -22,7 +22,7 @@ class TypesDeChamp::TypeDeChampBase
         libelle: TagsSubstitutionConcern::TagsParser.normalize(path[:libelle]),
         id: path[:path] == :value ? "tdc#{stable_id}" : "tdc#{stable_id}/#{path[:path]}",
         conditional:,
-        mandatory: mandatory? && !conditional,
+        mandatory: mandatory?,
         lambda: -> (dossier) { dossier.champ_value_for_tag(type_de_champ, path[:path]) }
       )
     end

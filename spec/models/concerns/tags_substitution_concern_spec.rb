@@ -622,15 +622,15 @@ describe TagsSubstitutionConcern, type: :model do
       let(:types_de_champ_public) do
         [
           { type: :text, libelle: 'public' },
-          { type: :text, libelle: 'conditional', condition: condition },
+          { type: :text, libelle: 'conditional', condition: condition, mandatory: true },
         ]
       end
 
       subject { template_concern.tags }
 
       it do
-        is_expected.to include(include({ libelle: 'public' }))
-        is_expected.to include(include({ libelle: 'conditional' }))
+        is_expected.to include(include({ libelle: 'public', conditional: false }))
+        is_expected.to include(include({ libelle: 'conditional', conditional: true, mandatory: true }))
       end
     end
   end

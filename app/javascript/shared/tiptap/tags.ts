@@ -8,22 +8,46 @@ export const tagSchema = s.coerce(
     label: s.string(),
     id: s.string(),
     mandatory: s.optional(s.boolean()),
-    category: s.optional(s.string())
+    conditional: s.optional(s.boolean())
   }),
   s.type({
     tagLabel: s.string(),
     tagId: s.string(),
     tagMandatory: s.optional(s.string()),
-    tagCategory: s.optional(s.string())
+    tagConditional: s.optional(s.string())
   }),
-  ({ tagId, tagLabel, tagMandatory, tagCategory }) => ({
+  ({ tagId, tagLabel, tagMandatory, tagConditional }) => ({
     label: tagLabel,
     id: tagId,
     mandatory: tagMandatory === 'true',
-    category: tagCategory
+    conditional: tagConditional === 'true'
   })
 );
 export type TagSchema = s.Infer<typeof tagSchema>;
+
+export function tagDisplay({
+  label,
+  mandatory,
+  conditional
+}: Pick<TagSchema, 'label' | 'mandatory' | 'conditional'>): {
+  text: string;
+  classes: string[];
+} {
+  let text = label;
+  if (mandatory) {
+    text += ' *';
+  }
+  if (conditional) {
+    text += ' [conditionné]';
+  }
+
+  const classes = ['fr-tag', 'fr-tag--sm'];
+  if (conditional) {
+    classes.push('fr-tag--purple-glycine');
+  }
+
+  return { text, classes };
+}
 
 class SuggestionMenu {
   #selectedIndex = 0;
@@ -126,13 +150,14 @@ class SuggestionMenu {
     this.#props.items.forEach((item, i) => {
       const li = document.createElement('li');
       const button = document.createElement('button');
-      button.className = 'fr-tag fr-tag--sm';
+      const { text, classes } = tagDisplay(item);
+      button.className = classes.join(' ');
       button.setAttribute(
         'aria-pressed',
         i == this.#selectedIndex ? 'true' : 'false'
       );
       button.dataset.tagIndex = String(i);
-      button.textContent = item.label;
+      button.textContent = text;
       li.append(button);
       list.append(li);
     });
