@@ -17,10 +17,7 @@
         <% c.with_value do %>
           <% prefilled_badge = Dossiers::ChampPrefilledBadgeComponent.new(champ:, profile: @profile) %>
 
-          <div
-            class="<%= class_names("flex align-baseline wrap" => prefilled_badge.render?) %>"
-            style="column-gap: 0.5rem"
-          >
+          <div class="<%= class_names("flex align-baseline wrap flex-column-gap-1" => prefilled_badge.render?) %>">
             <% case champ.type_champ %>
             <% when TypeDeChamp.type_champs.fetch(:carte) %>
               <%= render partial: "shared/champs/carte/show", locals: { champ: champ } %>
