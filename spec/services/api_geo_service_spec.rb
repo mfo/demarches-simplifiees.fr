@@ -37,6 +37,72 @@ describe APIGeoService do
     end
   end
 
+  describe 'resolve_region' do
+    it 'resolves a code to its name' do
+      expect(APIGeoService.resolve_region('53')).to have_attributes(code: '53', name: 'Bretagne', resolved?: true)
+    end
+
+    it 'resolves a name to its code' do
+      expect(APIGeoService.resolve_region('Bretagne')).to have_attributes(code: '53', name: 'Bretagne', resolved?: true)
+    end
+
+    it 'keeps an unknown code or name partially resolved' do
+      expect(APIGeoService.resolve_region('00')).to have_attributes(code: '00', name: nil, resolved?: false)
+      expect(APIGeoService.resolve_region('value')).to have_attributes(code: nil, name: 'value', resolved?: false)
+    end
+
+    it 'returns nil for a blank input' do
+      expect(APIGeoService.resolve_region(nil)).to be_nil
+      expect(APIGeoService.resolve_region('')).to be_nil
+    end
+  end
+
+  describe 'resolve_departement' do
+    it 'resolves a 2 or 3 characters code to its name' do
+      expect(APIGeoService.resolve_departement('01')).to have_attributes(code: '01', name: 'Ain', resolved?: true)
+      expect(APIGeoService.resolve_departement('971')).to have_attributes(code: '971', name: 'Guadeloupe', resolved?: true)
+    end
+
+    it 'resolves a name to its code' do
+      expect(APIGeoService.resolve_departement('Aisne')).to have_attributes(code: '02', name: 'Aisne', resolved?: true)
+    end
+
+    it 'keeps an unknown code or name partially resolved' do
+      expect(APIGeoService.resolve_departement('00')).to have_attributes(code: '00', name: nil, resolved?: false)
+      expect(APIGeoService.resolve_departement('value')).to have_attributes(code: nil, name: 'value', resolved?: false)
+    end
+
+    it 'returns nil for a blank input' do
+      expect(APIGeoService.resolve_departement(nil)).to be_nil
+      expect(APIGeoService.resolve_departement('')).to be_nil
+    end
+  end
+
+  describe 'resolve_country' do
+    it 'resolves a code to its FR name' do
+      expect(APIGeoService.resolve_country('DE')).to have_attributes(code: 'DE', name: 'Allemagne', resolved?: true)
+    end
+
+    it 'resolves a name to its code and FR name' do
+      expect(APIGeoService.resolve_country('Allemagne')).to have_attributes(code: 'DE', name: 'Allemagne', resolved?: true)
+      expect(APIGeoService.resolve_country('germany')).to have_attributes(code: 'DE', name: 'Allemagne', resolved?: true)
+    end
+
+    it 'does not resolve excluded French overseas departements' do
+      expect(APIGeoService.resolve_country('Guadeloupe')).to have_attributes(code: nil, name: 'Guadeloupe', resolved?: false)
+    end
+
+    it 'keeps an unknown code or name partially resolved' do
+      expect(APIGeoService.resolve_country('ZZ')).to have_attributes(code: 'ZZ', name: nil, resolved?: false)
+      expect(APIGeoService.resolve_country('value')).to have_attributes(code: nil, name: 'value', resolved?: false)
+    end
+
+    it 'returns nil for a blank input' do
+      expect(APIGeoService.resolve_country(nil)).to be_nil
+      expect(APIGeoService.resolve_country('')).to be_nil
+    end
+  end
+
   describe 'communes' do
     it 'return sorted results' do
       expect(APIGeoService.communes('01').size).to eq(397)

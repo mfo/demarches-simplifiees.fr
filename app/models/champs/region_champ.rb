@@ -20,16 +20,9 @@ class Champs::RegionChamp < Champs::TextChamp
   end
 
   def value=(code)
-    if code&.size == 2
-      self.external_id = code
-      super(APIGeoService.region_name(code))
-    elsif code.blank?
-      self.external_id = nil
-      super(nil)
-    else
-      self.external_id = APIGeoService.region_code(code)
-      super(code)
-    end
+    resolution = APIGeoService.resolve_region(code)
+    self.external_id = resolution&.code
+    super(resolution&.name)
   end
 
   private

@@ -4,6 +4,13 @@ class APIGeoService
   # Excluded from country list (French overseas departments that are not sovereign countries)
   EXCLUDED_COUNTRY_CODES = %w[GP MQ GF RE YT].freeze
 
+  # Result of resolving a user-supplied departement/region/country input,
+  # which may be a code or a name. A partially resolved pair (unknown code or
+  # name) is returned as-is so champ validations can reject it.
+  Resolution = Data.define(:code, :name) do
+    def resolved? = code.present? && name.present?
+  end
+
   class << self
     def degraded_mode?
       ENV.enabled?('API_GEO_DEGRADED_MODE')
@@ -36,6 +43,21 @@ class APIGeoService
       end
     end
 
+    # A 2-character input is treated as a country code, anything else as a
+    # country name (leniently matched, canonicalized to the FR locale like
+    # Champs::PaysChamp stores it).
+    def resolve_country(input)
+      if input&.size == 2
+        Resolution.new(code: input, name: country_name(input, locale: 'FR'))
+      elsif input.present?
+        code = country_code(input)
+        name = code && country_name(code, locale: 'FR')
+        # A code outside the countries referential (e.g. excluded overseas
+        # departements) is not a match.
+        name.present? ? Resolution.new(code:, name:) : Resolution.new(code: nil, name: input)
+      end
+    end
+
     def regions
       memoize(:regions) do
         (get_from_api_geo(:regions).sort_by { I18n.transliterate(_1[:name]) } + [{ code: '99', name: 'Etranger' }]).freeze
@@ -51,6 +73,16 @@ class APIGeoService
     def region_code(name)
       return if name.nil?
       regions.find { _1[:name] == name }&.dig(:code)
+    end
+
+    # A 2-character input is treated as a region code, anything else as a
+    # region name.
+    def resolve_region(input)
+      if input&.size == 2
+        Resolution.new(code: input, name: region_name(input))
+      elsif input.present?
+        Resolution.new(code: region_code(input), name: input)
+      end
     end
 
     def region_code_by_departement(code)
@@ -80,6 +112,16 @@ class APIGeoService
     def departement_code(name)
       return if name.nil?
       departements.find { _1[:name] == name }&.dig(:code)
+    end
+
+    # A 2 or 3 characters input is treated as a departement code, anything
+    # else as a departement name.
+    def resolve_departement(input)
+      if [2, 3].include?(input&.size)
+        Resolution.new(code: input, name: departement_name(input))
+      elsif input.present?
+        Resolution.new(code: departement_code(input), name: input)
+      end
     end
 
     def epcis(departement_code)

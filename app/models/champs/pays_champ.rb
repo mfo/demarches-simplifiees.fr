@@ -11,21 +11,9 @@ class Champs::PaysChamp < Champs::TextChamp
   end
 
   def value=(code)
-    if code&.size == 2
-      self.external_id = code
-      super(APIGeoService.country_name(code, locale: 'FR'))
-    elsif code.blank?
-      self.external_id = nil
-      super(nil)
-    elsif code != value
-      self.external_id = APIGeoService.country_code(code) # lookup by code which is a country name
-
-      if self.external_id # if we match a country code, lookup for country name with code
-        super(APIGeoService.country_name(self.external_id, locale: 'FR'))
-      else # if we did not match any country code, external_id is nil as well as value
-        super(nil)
-      end
-    end
+    resolution = APIGeoService.resolve_country(code)
+    self.external_id = resolution&.code
+    super(resolution&.name)
   end
 
   def code

@@ -24,13 +24,13 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
     context 'when type de champ is pays' do
       let(:type_de_champ) { build(:type_de_champ_pays, procedure: procedure) }
 
-      it { expect(built).to be_kind_of(TypesDeChamp::PrefillPaysTypeDeChamp) }
+      it { expect(built).to be_kind_of(TypesDeChamp::PrefillGeoTypeDeChamp) }
     end
 
     context 'when type de champ is regions' do
       let(:type_de_champ) { build(:type_de_champ_regions, procedure: procedure) }
 
-      it { expect(built).to be_kind_of(TypesDeChamp::PrefillRegionTypeDeChamp) }
+      it { expect(built).to be_kind_of(TypesDeChamp::PrefillGeoTypeDeChamp) }
     end
 
     context 'when type de champ is repetition' do
@@ -42,7 +42,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
     context 'when type de champ is departements' do
       let(:type_de_champ) { build(:type_de_champ_departements, procedure: procedure) }
 
-      it { expect(built).to be_kind_of(TypesDeChamp::PrefillDepartementTypeDeChamp) }
+      it { expect(built).to be_kind_of(TypesDeChamp::PrefillGeoTypeDeChamp) }
     end
 
     context 'when type de champ is communes' do
