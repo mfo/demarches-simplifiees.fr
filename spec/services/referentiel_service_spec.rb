@@ -90,9 +90,20 @@ RSpec.describe ReferentielService, type: :service do
     context "when referentiel teapots" do
       let(:status) { 418 }
       let(:body) { nil }
-      it "returns a retryable Failure" do
+      it "returns a non retryable Failure detailing the type and code" do
         expect(subject).to be_failure
-        expect(subject.failure).to include(retryable: false, error: StandardError.new('Unknown error'), code: 418)
+        expect(subject.failure).to include(retryable: false, error: StandardError.new('Unknown error: http (code: 418)'), code: 418)
+      end
+    end
+
+    context "when referentiel returns 200 with a non-JSON body" do
+      let(:status) { 200 }
+      let(:body) { nil }
+      before { stub_request(:get, resolved_url).to_return(status: 200, body: "<html>oops</html>") }
+
+      it "returns a non retryable Failure detailing the type and code" do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: false, error: StandardError.new('Unknown error: json (code: 200)'), code: 200)
       end
     end
 

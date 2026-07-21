@@ -67,8 +67,8 @@ class ReferentielService
       Failure(retryable: true, error: StandardError.new("Retryable: #{code}"), code:)
     in Failure(code:) if code.in?(NON_RETRYABLE_STATUS_CODES) # search may not have been found
       Failure(retryable: false, error: StandardError.new("Not retryable: #{code}"), code:)
-    in Failure
-      Failure(retryable: false, error: StandardError.new('Unknown error'), code:)
+    in Failure(type:, code:)
+      Failure(retryable: false, error: StandardError.new("Unknown error: #{type} (code: #{code})"), code:)
     end
   end
 
