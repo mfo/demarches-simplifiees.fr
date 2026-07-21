@@ -2967,6 +2967,35 @@ describe Users::DossiersController, type: :controller do
         end
       end
 
+      context 'with a procedure without personnalisable champ' do
+        let(:eligible_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
+        let(:non_eligible_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :textarea, libelle: 'Description' }]) }
+
+        before do
+          create_list(:dossier, 3, user:, procedure: eligible_procedure)
+          create_list(:dossier, 3, user:, procedure: non_eligible_procedure)
+        end
+
+        it 'only exposes procedures with personnalisable champs' do
+          get :personnalisation
+          expect(assigns(:personnalisable_procedures)).to eq([eligible_procedure])
+        end
+      end
+
+      context 'when no procedure has personnalisable champs' do
+        render_views
+
+        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :textarea, libelle: 'Description' }]) }
+
+        before { create_list(:dossier, 6, user:, procedure:) }
+
+        it 'renders an empty state instead of the form' do
+          get :personnalisation
+          expect(response.body).to include(I18n.t('views.users.dossiers.personnalisation.empty_state'))
+          expect(response.body).not_to include('personnalisation-form')
+        end
+      end
+
       context 'query count does not grow with number of procedures' do
         render_views
 

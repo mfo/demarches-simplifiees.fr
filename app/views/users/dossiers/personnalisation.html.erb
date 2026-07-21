@@ -45,10 +45,14 @@
     <%= t('views.users.dossiers.personnalisation.fields_title') %>
   </h2>
 
-  <%= form_with url: personnalisation_path, method: :patch, id: 'personnalisation-form' do %>
-    <% @personnalisable_procedures.each do |procedure| %>
-      <%= render Users::PersonnalisationComponent.new(procedure:, personnalisation: @personnalisations_by_procedure_id[procedure.id]) %>
+  <% if @personnalisable_procedures.any? %>
+    <%= form_with url: personnalisation_path, method: :patch, id: 'personnalisation-form' do %>
+      <% @personnalisable_procedures.each do |procedure| %>
+        <%= render Users::PersonnalisationComponent.new(procedure:, personnalisation: @personnalisations_by_procedure_id[procedure.id]) %>
+      <% end %>
     <% end %>
+  <% else %>
+    <p><%= t('views.users.dossiers.personnalisation.empty_state') %></p>
   <% end %>
 </div>
 
@@ -62,13 +66,15 @@
     >
       <%= link_to t('views.users.dossiers.personnalisation.cancel'), dossiers_path, class: 'fr-btn fr-btn--secondary fr-my-1w' %>
 
-      <button
-        class="fr-btn fr-my-1w"
-        type="submit"
-        form="personnalisation-form"
-      >
-        <%= t('views.users.dossiers.personnalisation.save_button') %>
-      </button>
+      <% if @personnalisable_procedures.any? %>
+        <button
+          class="fr-btn fr-my-1w"
+          type="submit"
+          form="personnalisation-form"
+        >
+          <%= t('views.users.dossiers.personnalisation.save_button') %>
+        </button>
+      <% end %>
     </div>
   </div>
 </div>

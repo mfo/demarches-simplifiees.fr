@@ -702,6 +702,7 @@ en:
           save_button: Save
           saved: "The dossier list has been customized."
           error: "The customization could not be saved."
+          empty_state: "None of your procedures has a field that can be displayed in the dossier list."
       sessions:
         new:
           sign_in: Sign in on %{application_name}

@@ -726,6 +726,7 @@ module Users
         .distinct
         .order(:libelle)
         .includes(published_revision: { revision_types_de_champ: :type_de_champ })
+        .filter { _1.personnalisable_columns_by_section.any? }
     end
 
     def redirect_if_hidden_or_deleted_dossier
