@@ -139,6 +139,7 @@ class Procedure < ApplicationRecord
   end
 
   has_many :administrateurs_procedures, dependent: :delete_all
+  has_many :dossiers_list_personnalisations, dependent: :delete_all
   has_many :administrateurs, through: :administrateurs_procedures, before_remove: :check_administrateur_minimal_presence
   has_many :groupe_instructeurs, -> { order(:label) }, inverse_of: :procedure, dependent: :destroy
   has_many :instructeurs, through: :groupe_instructeurs

@@ -1595,6 +1595,13 @@ describe Procedure do
       expect(procedure.revisions.count).to eq(2)
       expect(procedure.destroy).to be_truthy
     end
+
+    it "destroys associated dossiers_list_personnalisations" do
+      personnalisation = create(:dossiers_list_personnalisation, procedure:)
+
+      expect(procedure.destroy).to be_truthy
+      expect { personnalisation.reload }.to raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 
   describe '#average_dossier_weight' do
