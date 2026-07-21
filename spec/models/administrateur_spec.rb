@@ -242,7 +242,7 @@ describe Administrateur, type: :model do
   end
 
   describe 'zones' do
-    let(:admin) { administrateurs.default }
+    let(:admin) { administrateurs.blank }
     let(:zone1) { create(:zone) }
     let(:zone2) { create(:zone) }
     let!(:procedure) { create(:procedure, administrateurs: [admin], zones: [zone1, zone2]) }
