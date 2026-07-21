@@ -599,6 +599,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_081609) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "email_templates", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.jsonb "json_body"
+    t.jsonb "json_subject"
+    t.bigint "procedure_id", null: false
+    t.string "subject"
+    t.string "type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["procedure_id", "type"], name: "index_email_templates_on_procedure_id_and_type", unique: true
+  end
+
   create_table "etablissements", id: :serial, force: :cascade do |t|
     t.string "adresse"
     t.date "association_date_creation"
@@ -1544,6 +1556,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_081609) do
   add_foreign_key "dossiers", "users"
   add_foreign_key "dossiers_list_personnalisations", "procedures"
   add_foreign_key "dossiers_list_personnalisations", "users"
+  add_foreign_key "email_templates", "procedures", on_delete: :cascade
   add_foreign_key "experts", "users"
   add_foreign_key "experts_procedures", "experts"
   add_foreign_key "experts_procedures", "procedures"
