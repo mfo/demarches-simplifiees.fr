@@ -3,8 +3,10 @@
 class ReferentielService
   include Dry::Monads[:result]
 
-  RETRYABLE_STATUS_CODES = [429, 500, 503, 408, 502].freeze
+  RETRYABLE_STATUS_CODES = [429, 500, 503, 504, 408, 502].freeze
   NON_RETRYABLE_STATUS_CODES = [404, 400, 403, 401].freeze
+  # types returned by API::Client when no HTTP response was received: transient, worth retrying
+  RETRYABLE_ERROR_TYPES = [:timeout, :network].freeze
 
   API_TIMEOUT = 4 # in seconds
   MAX_FILE_SIZE = 1.megabyte
@@ -63,12 +65,14 @@ class ReferentielService
     case result
     in Success(body:)
       Success(body)
+    in Failure(type:, code:) if type.in?(RETRYABLE_ERROR_TYPES) # network issue or timeout, api may recover
+      Failure(retryable: true, error: StandardError.new("Retryable: #{type}"), code:)
     in Failure(code:) if code.in?(RETRYABLE_STATUS_CODES) # api may be rate limited, or down etc..
       Failure(retryable: true, error: StandardError.new("Retryable: #{code}"), code:)
     in Failure(code:) if code.in?(NON_RETRYABLE_STATUS_CODES) # search may not have been found
       Failure(retryable: false, error: StandardError.new("Not retryable: #{code}"), code:)
-    in Failure
-      Failure(retryable: false, error: StandardError.new('Unknown error'), code:)
+    in Failure(type:, code:)
+      Failure(retryable: false, error: StandardError.new("Unknown error: #{type} (code: #{code})"), code:)
     end
   end
 

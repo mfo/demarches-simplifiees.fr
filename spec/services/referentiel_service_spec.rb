@@ -87,12 +87,46 @@ RSpec.describe ReferentielService, type: :service do
       end
     end
 
-    context "when referentiel teapots" do
-      let(:status) { 418 }
+    context "when referentiel 504 (gateway timeout)" do
+      let(:status) { 504 }
       let(:body) { nil }
       it "returns a retryable Failure" do
         expect(subject).to be_failure
-        expect(subject.failure).to include(retryable: false, error: StandardError.new('Unknown error'), code: 418)
+        expect(subject.failure).to include(retryable: true, error: StandardError.new('Retryable: 504'), code: 504)
+      end
+    end
+
+    context "when the request times out or the network fails (no HTTP response)" do
+      let(:status) { 200 }
+      let(:body) { nil }
+      before do
+        allow_any_instance_of(API::Client).to receive(:call)
+          .and_return(Dry::Monads::Failure(API::Client::Error[:timeout, 0, true, StandardError.new("Timeout")]))
+      end
+
+      it "returns a retryable Failure" do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: true, error: StandardError.new('Retryable: timeout'), code: 0)
+      end
+    end
+
+    context "when referentiel teapots" do
+      let(:status) { 418 }
+      let(:body) { nil }
+      it "returns a non retryable Failure detailing the type and code" do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: false, error: StandardError.new('Unknown error: http (code: 418)'), code: 418)
+      end
+    end
+
+    context "when referentiel returns 200 with a non-JSON body" do
+      let(:status) { 200 }
+      let(:body) { nil }
+      before { stub_request(:get, resolved_url).to_return(status: 200, body: "<html>oops</html>") }
+
+      it "returns a non retryable Failure detailing the type and code" do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: false, error: StandardError.new('Unknown error: json (code: 200)'), code: 200)
       end
     end
 
