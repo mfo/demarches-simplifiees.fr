@@ -106,9 +106,9 @@ describe Administrateurs::ProceduresController, type: :controller do
   end
 
   describe 'GET #all' do
-    let!(:draft_procedure)     { create(:procedure) }
-    let!(:published_procedure) { create(:procedure_with_dossiers, :published, dossiers_count: 2) }
-    let!(:closed_procedure)    { create(:procedure, :closed) }
+    let!(:draft_procedure)     { procedures.brouillon }
+    let!(:published_procedure) { procedures.individual }
+    let!(:closed_procedure)    { procedures.close }
 
     subject { get :all }
 
@@ -174,8 +174,8 @@ describe Administrateurs::ProceduresController, type: :controller do
     end
 
     context 'for specific status' do
-      let!(:procedure1) { create(:procedure, :published) }
-      let!(:procedure2) { create(:procedure, :closed) }
+      let!(:procedure1) { procedures.individual }
+      let!(:procedure2) { procedures.close }
 
       it 'display only published procedures' do
         get :all, params: { statuses: ['publiee'] }
@@ -1141,9 +1141,11 @@ describe Administrateurs::ProceduresController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
-    let(:procedure_draft)     { create(:procedure, administrateurs: [admin]) }
+    let(:procedure_draft)     { procedures.brouillon }
+    # must own only the dossiers created by the test: destroy is refused as
+    # long as any dossier is en_instruction
     let(:procedure_published) { create(:procedure, :published, administrateurs: [admin]) }
-    let(:procedure_closed)    { create(:procedure, :closed, administrateurs: [admin]) }
+    let(:procedure_closed)    { procedures.close }
     let(:procedure) { dossier.procedure }
 
     subject { delete :destroy, params: { id: procedure } }
@@ -1411,7 +1413,7 @@ describe Administrateurs::ProceduresController, type: :controller do
     subject(:perform_request) { get :publication, params: { procedure_id: procedure.id } }
 
     context 'when procedure is closed' do
-      let(:procedure) { create(:procedure, :closed, administrateur: admin) }
+      let(:procedure) { procedures.close }
 
       it 'assigns procedure' do
         perform_request

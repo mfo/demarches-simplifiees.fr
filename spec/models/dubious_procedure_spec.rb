@@ -30,7 +30,7 @@ describe DubiousProcedure, type: :model do
       end
 
       context 'and a closed procedure' do
-        let(:procedure) { create(:procedure, :closed) }
+        let(:procedure) { procedures.close }
 
         it { expect(subject).to eq([]) }
       end

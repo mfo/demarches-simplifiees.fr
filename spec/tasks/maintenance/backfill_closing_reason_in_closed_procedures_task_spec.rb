@@ -8,8 +8,7 @@ module Maintenance
       subject(:process) { described_class.process(procedure) }
 
       context 'with a closed and replaced procedure' do
-        let(:published_procedure) { create(:procedure, :published) }
-        let(:procedure) { create(:procedure, :closed, replaced_by_procedure_id: published_procedure.id) }
+        let(:procedure) { procedures.close.tap { it.update_column(:replaced_by_procedure_id, procedures.individual.id) } }
 
         it 'fills closing_reason with internal_procedure' do
           subject
@@ -18,7 +17,7 @@ module Maintenance
       end
 
       context 'with a closed and not replaced procedure' do
-        let(:procedure) { create(:procedure, :closed) }
+        let(:procedure) { procedures.close }
 
         it 'fills closing_reason with other' do
           subject

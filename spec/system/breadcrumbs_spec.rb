@@ -25,7 +25,7 @@ describe 'Breadcrumbs by role', js: false do
   end
 
   describe 'as ADMINISTRATEUR' do
-    let(:administrateur) { create(:administrateur) }
+    let(:administrateur) { administrateurs.default }
 
     before { login_as administrateur.user, scope: :user }
 
@@ -37,24 +37,21 @@ describe 'Breadcrumbs by role', js: false do
     end
 
     scenario 'shows "Démarches publiées" tab label for a published procedure' do
-      procedure = create(:procedure, :published, administrateur: administrateur)
-      visit champs_admin_procedure_path(procedure)
+      visit champs_admin_procedure_path(procedures.individual)
       within('.fr-breadcrumb__list') do
         expect(page).to have_link('Démarches publiées', href: admin_procedures_path(statut: 'publiees'))
       end
     end
 
     scenario 'shows "Démarches en test" tab label for a draft procedure' do
-      procedure = create(:procedure, administrateur: administrateur)
-      visit champs_admin_procedure_path(procedure)
+      visit champs_admin_procedure_path(procedures.brouillon)
       within('.fr-breadcrumb__list') do
         expect(page).to have_link('Démarches en test', href: admin_procedures_path(statut: 'brouillons'))
       end
     end
 
     scenario 'shows "Démarches terminées" tab label for a closed procedure' do
-      procedure = create(:procedure, :closed, administrateur: administrateur)
-      visit champs_admin_procedure_path(procedure)
+      visit champs_admin_procedure_path(procedures.close)
       within('.fr-breadcrumb__list') do
         expect(page).to have_link('Démarches terminées', href: admin_procedures_path(statut: 'archivees'))
       end

@@ -947,7 +947,7 @@ describe Procedure do
     end
 
     context 'when procedure is published and closed' do
-      let(:procedure) { create(:procedure, :closed) }
+      let(:procedure) { procedures.close }
       it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
     end
   end
@@ -1253,8 +1253,8 @@ describe Procedure do
   describe "#brouillon?" do
     let(:procedure_brouillon) { procedures.brouillon }
     let(:procedure_publiee) { procedures.individual }
-    let(:procedure_close) { build(:procedure, :closed) }
-    let(:procedure_depubliee) { build(:procedure, :unpublished) }
+    let(:procedure_close) { procedures.close }
+    let(:procedure_depubliee) { procedures.depubliee }
 
     it do
       expect(procedure_brouillon.brouillon?).to be_truthy
@@ -1267,8 +1267,8 @@ describe Procedure do
   describe "#publiee?" do
     let(:procedure_brouillon) { procedures.brouillon }
     let(:procedure_publiee) { procedures.individual }
-    let(:procedure_close) { build(:procedure, :closed) }
-    let(:procedure_depubliee) { build(:procedure, :unpublished) }
+    let(:procedure_close) { procedures.close }
+    let(:procedure_depubliee) { procedures.depubliee }
 
     it do
       expect(procedure_brouillon.publiee?).to be_falsey
@@ -1281,8 +1281,8 @@ describe Procedure do
   describe "#close?" do
     let(:procedure_brouillon) { procedures.brouillon }
     let(:procedure_publiee) { procedures.individual }
-    let(:procedure_close) { build(:procedure, :closed) }
-    let(:procedure_depubliee) { build(:procedure, :unpublished) }
+    let(:procedure_close) { procedures.close }
+    let(:procedure_depubliee) { procedures.depubliee }
 
     it do
       expect(procedure_brouillon.close?).to be_falsey
@@ -1295,8 +1295,8 @@ describe Procedure do
   describe "#depubliee?" do
     let(:procedure_brouillon) { procedures.brouillon }
     let(:procedure_publiee) { procedures.individual }
-    let(:procedure_close) { build(:procedure, :closed) }
-    let(:procedure_depubliee) { build(:procedure, :unpublished) }
+    let(:procedure_close) { procedures.close }
+    let(:procedure_depubliee) { procedures.depubliee }
 
     it do
       expect(procedure_brouillon.depubliee?).to be_falsey
@@ -1309,8 +1309,8 @@ describe Procedure do
   describe "#locked?" do
     let(:procedure_brouillon) { procedures.brouillon }
     let(:procedure_publiee) { procedures.individual }
-    let(:procedure_close) { build(:procedure, :closed) }
-    let(:procedure_depubliee) { build(:procedure, :unpublished) }
+    let(:procedure_close) { procedures.close }
+    let(:procedure_depubliee) { procedures.depubliee }
 
     it do
       expect(procedure_brouillon.locked?).to be_falsey
@@ -1575,9 +1575,10 @@ describe Procedure do
   end
 
   describe "#destroy" do
-    let(:procedure) { create(:procedure, :closed, :with_type_de_champ, :with_bulk_message) }
+    let(:procedure) { procedures.close }
 
     before do
+      create(:bulk_message, procedure:)
       procedure.discard!
     end
 
@@ -1872,7 +1873,7 @@ describe Procedure do
   describe "#parsed_latest_zone_labels" do
     let!(:draft_procedure) { procedures.brouillon }
     let!(:published_procedure) { procedures.individual }
-    let!(:closed_procedure) { create(:procedure, :closed) }
+    let!(:closed_procedure) { procedures.close }
     let!(:procedure_detail_draft) { ProcedureDetail.new(id: draft_procedure.id, latest_zone_labels: '{ "zone1", "zone2" }') }
     let!(:procedure_detail_published) { ProcedureDetail.new(id: published_procedure.id, latest_zone_labels: '{ "zone3", "zone4" }') }
     let!(:procedure_detail_closed) { ProcedureDetail.new(id: closed_procedure.id, latest_zone_labels: '{ "zone5", "zone6" }') }

@@ -15,7 +15,7 @@ describe InstructeursProceduresCountersService do
 
       context "with not draft state on multiple procedures" do
         let(:procedure2) { create(:procedure, :published) }
-        let(:procedure3) { create(:procedure, :closed) }
+        let(:procedure3) { procedures.close }
         let(:procedure4) { create(:procedure, :closed) }
 
         before do

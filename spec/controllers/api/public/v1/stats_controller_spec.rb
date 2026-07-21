@@ -65,7 +65,7 @@ RSpec.describe API::Public::V1::StatsController, type: :controller do
 
       context 'when the procedure is not publiee and not brouillon' do
         it_behaves_like 'the procedure is found' do
-          let(:procedure) { create(:procedure, :closed) }
+          let(:procedure) { procedures.close }
         end
       end
     end

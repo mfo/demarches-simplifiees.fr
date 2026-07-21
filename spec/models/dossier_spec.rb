@@ -161,8 +161,8 @@ describe Dossier, type: :model do
       empty_seeds Dossier
 
       let(:published_procedure) { procedures.individual }
-      let_it_be(:closed_procedure) { create(:procedure, :closed) }
-      let(:draft_procedure) { procedures.brouillon }
+      let(:closed_procedure) { procedures.close }
+      let(:draft_procedure)  { procedures.brouillon }
 
       # targets: expired + structurally never notified
       let!(:expired_on_closed) { create(:dossier, procedure: closed_procedure).tap { |d| d.update_column(:expired_at, 1.day.ago) } }
@@ -2568,8 +2568,8 @@ describe Dossier, type: :model do
   describe "with_notifiable_procedure" do
     empty_seeds Dossier
 
-    let_it_be(:closed_procedure) { create(:procedure, :closed) }
-    let_it_be(:unpublished_procedure) { create(:procedure, :unpublished) }
+    let_it_be(:closed_procedure) { procedures.close }
+    let_it_be(:unpublished_procedure) { procedures.depubliee }
 
     let_it_be(:dossier_on_test_procedure) { create(:dossier, procedure: procedures.brouillon) }
     let_it_be(:dossier_on_published_procedure) { create(:dossier, procedure: procedures.individual) }

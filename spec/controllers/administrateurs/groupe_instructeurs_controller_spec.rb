@@ -725,7 +725,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
       end
 
       context 'when procedure is closed' do
-        let(:procedure) { create(:procedure, :closed, administrateurs: [admin]) }
+        let(:procedure) { procedures.close }
         let(:csv_file) { fixture_file_upload('spec/fixtures/files/groupe-instructeur.csv', 'text/csv') }
 
         before { subject }
@@ -737,7 +737,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
       end
 
       context 'when emails are invalid' do
-        let(:procedure) { create(:procedure, :closed, administrateurs: [admin]) }
+        let(:procedure) { procedures.close }
         let(:csv_file) { fixture_file_upload('spec/fixtures/files/groupe-instructeur-emails-invalides.csv', 'text/csv') }
 
         before do
