@@ -15,7 +15,8 @@ ActiveRecord::Base.transaction do
     duree_conservation_dossiers_dans_ds: 3,
     max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
     for_individual: true,
-    administrateurs: [administrateurs.default]
+    administrateurs: [administrateurs.default],
+    service: services.default
   )
   procedure.draft_revision = procedure.revisions.build
   procedure.save!

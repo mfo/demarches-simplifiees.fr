@@ -13,6 +13,8 @@
     max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
     for_individual: true,
     administrateurs: [administrateurs.default],
+    zones: [zones.default],
+    service: services.default,
     sva_svr: SVASVRConfiguration.new(decision:).attributes
   )
   procedure.draft_revision = procedure.revisions.build

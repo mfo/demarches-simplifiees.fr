@@ -13,7 +13,9 @@ procedure = Procedure.new(
   duree_conservation_dossiers_dans_ds: 3,
   max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
   for_individual: false,
-  administrateurs: [administrateurs.default]
+  administrateurs: [administrateurs.default],
+  zones: [zones.default],
+  service: services.default
 )
 procedure.draft_revision = procedure.revisions.build
 procedure.save!
@@ -29,9 +31,6 @@ end
 
 procedure.publish_or_reopen!(administrateurs.default, "demarche-demo-entreprise")
 instructeurs.default.assign_to_procedure(procedure)
-
-# A published procedure without a service is nagged about on every admin page.
-procedure.update!(service: procedures.individual.service)
 
 procedures.label entreprise: procedure
 
