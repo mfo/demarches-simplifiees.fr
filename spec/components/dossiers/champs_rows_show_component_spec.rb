@@ -33,4 +33,31 @@ RSpec.describe Dossiers::ChampsRowsShowComponent, type: :component do
       end
     end
   end
+
+  describe "prefilled badge flex wrapper" do
+    let(:dossier) { dossiers.en_construction }
+    let(:prefill_attrs) { {} }
+    let(:champs) do
+      dossier.root_champs_public.tap do |cs|
+        cs.first.update!(value: "ACME", **prefill_attrs)
+      end
+    end
+    let(:component) { described_class.new(champs:, profile: "instructeur", seen_at: nil) }
+
+    context "when the champ is not prefilled" do
+      it "does not wrap the value in a flex row so block content keeps full width" do
+        expect(page).to have_css(".champ-content")
+        expect(page).not_to have_css(".champ-content > div.flex")
+      end
+    end
+
+    context "when the champ is prefilled from a referentiel" do
+      let(:prefill_attrs) { { prefilled: true, prefilled_original_value: { "value" => "ACME" } } }
+
+      it "wraps the value and the badge in a flex row" do
+        expect(page).to have_css(".champ-content > div.flex.wrap")
+        expect(page).to have_css(".fr-icon-checkbox-circle-line")
+      end
+    end
+  end
 end
