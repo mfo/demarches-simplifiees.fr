@@ -1,4 +1,12 @@
 #mail-template-edit {
+  // A <fieldset> defaults to `min-inline-size: min-content` (UA stylesheet). The
+  // single-line subject editor sets `white-space: nowrap`, so a long subject inflates
+  // that min-content and stretches the fieldset past its column, overflowing the page.
+  // Let the fieldset shrink to its column; the editor then clips the subject as intended.
+  .fr-fieldset {
+    min-width: 0;
+  }
+
   // Blue "backdrop" that hugs the preview (title + email card + hint) and follows
   // the scroll. Generous padding gives the white card room to breathe.
   .mail-preview-panel {
