@@ -87,6 +87,29 @@ RSpec.describe ReferentielService, type: :service do
       end
     end
 
+    context "when referentiel 504 (gateway timeout)" do
+      let(:status) { 504 }
+      let(:body) { nil }
+      it "returns a retryable Failure" do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: true, error: StandardError.new('Retryable: 504'), code: 504)
+      end
+    end
+
+    context "when the request times out or the network fails (no HTTP response)" do
+      let(:status) { 200 }
+      let(:body) { nil }
+      before do
+        allow_any_instance_of(API::Client).to receive(:call)
+          .and_return(Dry::Monads::Failure(API::Client::Error[:timeout, 0, true, StandardError.new("Timeout")]))
+      end
+
+      it "returns a retryable Failure" do
+        expect(subject).to be_failure
+        expect(subject.failure).to include(retryable: true, error: StandardError.new('Retryable: timeout'), code: 0)
+      end
+    end
+
     context "when referentiel teapots" do
       let(:status) { 418 }
       let(:body) { nil }
