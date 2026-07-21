@@ -1,0 +1,27 @@
+---
+en:
+  descriptions:
+    initiated_mail:
+      default: |-
+        This email is sent to the user **after they submit their file**.
+
+        A deposit receipt is attached to this email.
+
+        The user can still make changes to their file.
+    received_mail:
+      default: |-
+        This email is sent to the user **when the instructor starts processing** their file.
+
+        The user can no longer make changes to their file.
+    closed_mail:
+      default: |-
+        This email is sent to the user **when the instructor accepts** their file.
+    refused_mail:
+      default: |-
+        This email is sent to the user **when the instructor refuses** their file.
+    without_continuation:
+      default: |-
+        This email is sent to the user **when the instructor closes their file without follow-up**.
+    re_instructed_mail:
+      default: |-
+        This email is sent to the user **when the instructor re-examines** their file, **after a decision has already been made**.
