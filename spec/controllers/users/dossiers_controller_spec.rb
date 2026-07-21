@@ -3218,6 +3218,43 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe 'GET #index with personnalisation values – query cost per personnalised procedure' do
+    render_views
+
+    let(:user) { create(:user) }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      sign_in(user)
+    end
+
+    def add_personnalised_procedure(libelle)
+      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: }])
+      create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [procedure.personnalisable_columns.first])
+      create_list(:dossier, 3, :en_construction, user:, procedure:, populate_champs: true)
+    end
+
+    def query_count
+      Current.reset
+      count = 0
+      callback = -> (*) { count += 1 }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get :index }
+      count
+    end
+
+    it 'adds a bounded number of queries per additional personnalised procedure' do
+      add_personnalised_procedure('Titre A')
+      add_personnalised_procedure('Titre B')
+      query_count
+      baseline = query_count
+
+      add_personnalised_procedure('Titre C')
+
+      # 11 mesurées (4 pour le listing de la démarche, 7 pour résoudre les colonnes persistées) + marge
+      expect(query_count - baseline).to be <= 13
+    end
+  end
+
   describe 'stale personnalisation columns' do
     render_views
 
