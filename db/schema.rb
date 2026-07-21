@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_20_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_24_150328) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -1509,7 +1509,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_120000) do
   add_foreign_key "bulk_messages", "procedures"
   add_foreign_key "champs", "dossiers"
   add_foreign_key "champs", "etablissements"
-  add_foreign_key "closed_mails", "procedures"
+  add_foreign_key "closed_mails", "procedures", on_delete: :cascade
   add_foreign_key "commentaires", "dossiers"
   add_foreign_key "commentaires", "experts"
   add_foreign_key "commentaires", "instructeurs"
@@ -1548,7 +1548,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_120000) do
   add_foreign_key "france_connect_informations", "users"
   add_foreign_key "geo_areas", "champs"
   add_foreign_key "groupe_instructeurs", "procedures"
-  add_foreign_key "initiated_mails", "procedures"
+  add_foreign_key "initiated_mails", "procedures", on_delete: :cascade
   add_foreign_key "instructeurs", "users"
   add_foreign_key "instructeurs_procedures", "instructeurs"
   add_foreign_key "instructeurs_procedures", "procedures"
@@ -1572,9 +1572,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_120000) do
   add_foreign_key "rdv_connections", "instructeurs"
   add_foreign_key "rdvs", "dossiers"
   add_foreign_key "rdvs", "instructeurs"
-  add_foreign_key "received_mails", "procedures"
+  add_foreign_key "received_mails", "procedures", on_delete: :cascade
   add_foreign_key "referentiel_items", "referentiels"
-  add_foreign_key "refused_mails", "procedures"
+  add_foreign_key "refused_mails", "procedures", on_delete: :cascade
   add_foreign_key "services", "administrateurs"
   add_foreign_key "targeted_user_links", "users"
   add_foreign_key "traitements", "dossiers"
@@ -1582,6 +1582,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_120000) do
   add_foreign_key "trusted_device_tokens", "instructeurs"
   add_foreign_key "types_de_champ", "referentiels"
   add_foreign_key "users", "users", column: "requested_merge_into_id"
-  add_foreign_key "without_continuation_mails", "procedures"
+  add_foreign_key "without_continuation_mails", "procedures", on_delete: :cascade
   add_foreign_key "zone_labels", "zones"
 end

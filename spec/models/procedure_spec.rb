@@ -1602,6 +1602,20 @@ describe Procedure do
       expect(procedure.destroy).to be_truthy
       expect { personnalisation.reload }.to raise_error(ActiveRecord::RecordNotFound)
     end
+
+    # No model maps those tables since the STI switch: only their cascade
+    # protects the destroy, until they are dropped.
+    it "destroys the rows left in the legacy mail tables" do
+      connection = ActiveRecord::Base.connection
+      %w[initiated_mails received_mails closed_mails refused_mails without_continuation_mails].each do |table|
+        connection.execute(<<~SQL.squish)
+          INSERT INTO #{table} (subject, body, procedure_id, created_at, updated_at)
+          VALUES ('legacy subject', 'legacy body', #{procedure.id}, NOW(), NOW())
+        SQL
+      end
+
+      expect(procedure.destroy).to be_truthy
+    end
   end
 
   describe '#average_dossier_weight' do

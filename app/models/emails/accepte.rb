@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 module Emails
-  class Accepte < ApplicationRecord
-    include EmailTemplateConcern
-    self.table_name = "closed_mails" # legacy table, gone at the STI switch
-
-    belongs_to :procedure, optional: false
-
+  class Accepte < EmailTemplate
     SLUG = "accepte"
     DISPLAYED_NAME = I18n.t('activerecord.models.email.accepte.acceptance_acknowledgment')
     DEFAULT_SUBJECT = I18n.t('activerecord.models.email.accepte.default_subject', dossier_number: '--numéro du dossier--', procedure_libelle: '--libellé démarche--')

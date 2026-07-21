@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
-module EmailTemplateConcern
-  extend ActiveSupport::Concern
-
+class EmailTemplate < ApplicationRecord
   include TagsSubstitutionConcern
+
+  belongs_to :procedure, optional: false
 
   module Actions
     SHOW         = :show
     ASK_QUESTION = :ask_question
     REPLY        = :reply
   end
+
+  validates :json_body, tags: true, if: -> { json_body.present? }
+  validates :json_subject, tags: true, if: -> { json_subject.present? }
+  validates :body, tags: true, if: -> { json_body.blank? }
+  validates :subject, tags: true, if: -> { json_subject.blank? }
 
   def subject_for_dossier(dossier)
     if json_subject.present?
@@ -28,7 +33,7 @@ module EmailTemplateConcern
   end
 
   def actions_for_dossier(dossier)
-    [EmailTemplateConcern::Actions::SHOW, EmailTemplateConcern::Actions::ASK_QUESTION]
+    [EmailTemplate::Actions::SHOW, EmailTemplate::Actions::ASK_QUESTION]
   end
 
   def attachment_for_dossier(dossier)
@@ -72,29 +77,15 @@ module EmailTemplateConcern
     tiptap_subject_doc.to_json
   end
 
-  included do
-    validates :json_body, tags: true, if: -> { json_body.present? }
-    validates :json_subject, tags: true, if: -> { json_subject.present? }
-    validates :body, tags: true, if: -> { json_body.blank? }
-    validates :subject, tags: true, if: -> { json_subject.blank? }
-
-    # In the transaction of the write itself: email_templates can never drift
-    # from the legacy tables, even for a few minutes.
-    after_save { EmailTemplateReplica.replicate(self) }
-    after_destroy { EmailTemplateReplica.delete_replica(self) }
+  def self.default_for_procedure(procedure)
+    template_name = default_template_name_for_procedure(procedure)
+    body = ActionController::Base.render(template: template_name).gsub(/<!--.*?-->/m, '')
+    body = body.gsub(/(?<!^|[.-])(?<!<\/strong>)\n/, ' ')
+    new(subject: const_get(:DEFAULT_SUBJECT), body:, procedure:)
   end
 
-  class_methods do
-    def default_for_procedure(procedure)
-      template_name = default_template_name_for_procedure(procedure)
-      body = ActionController::Base.render(template: template_name).gsub(/<!--.*?-->/m, '')
-      body = body.gsub(/(?<!^|[.-])(?<!<\/strong>)\n/, ' ')
-      new(subject: const_get(:DEFAULT_SUBJECT), body:, procedure:)
-    end
-
-    def default_template_name_for_procedure(procedure)
-      const_get(:DEFAULT_TEMPLATE_NAME)
-    end
+  def self.default_template_name_for_procedure(procedure)
+    const_get(:DEFAULT_TEMPLATE_NAME)
   end
 
   def tiptap_inline_nodes_for(text)

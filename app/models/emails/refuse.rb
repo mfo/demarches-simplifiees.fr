@@ -1,19 +1,14 @@
 # frozen_string_literal: true
 
 module Emails
-  class Refuse < ApplicationRecord
-    include EmailTemplateConcern
-    self.table_name = "refused_mails" # legacy table, gone at the STI switch
-
-    belongs_to :procedure, optional: false
-
+  class Refuse < EmailTemplate
     SLUG = "refuse"
     DISPLAYED_NAME = I18n.t('activerecord.models.email.refuse.refusal_acknowledgment')
     DEFAULT_SUBJECT = I18n.t('activerecord.models.email.refuse.default_subject', dossier_number: '--numéro du dossier--', procedure_libelle: '--libellé démarche--')
     DOSSIER_STATE = Dossier.states.fetch(:refuse)
 
     def actions_for_dossier(dossier)
-      [EmailTemplateConcern::Actions::REPLY, EmailTemplateConcern::Actions::SHOW]
+      [EmailTemplate::Actions::REPLY, EmailTemplate::Actions::SHOW]
     end
 
     def self.default_template_name_for_procedure(procedure)
