@@ -54,14 +54,14 @@ describe 'BatchOperation a dossier:', js: true do
         .to change { dossier_1.reload.archived }
         .from(false).to(true)
 
-      resume_turbo_poll
-      scroll_to(find_button("Personnaliser le tableau"))
-
-      # ensure alert updates when jobs are run
+      # ensure alert updates when jobs are run: reloading renders the finished
+      # alert and marks the batch as seen
+      visit instructeur_procedure_path(procedure, statut: 'traites')
       expect(page).to have_content("L’action de masse est terminée")
       expect(page).to have_content("1 dossier a été placé dans « à archiver »")
 
-      # ensure data-controller="turbo-poll" is no longer present
+      # ensure the next poll removes the seen alert, and turbo-poll with it
+      resume_turbo_poll
       expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
 
       # clean alert after reload
@@ -243,14 +243,14 @@ describe 'BatchOperation a dossier:', js: true do
         perform_enqueued_jobs(only: [BatchOperationProcessOneJob])
       }.to change { dossier_1.reload.avis.count }.by(1)
 
-      resume_turbo_poll
-      scroll_to(find_button("Personnaliser le tableau"))
-
-      # ensure alert updates when jobs are run
+      # ensure alert updates when jobs are run: reloading renders the finished
+      # alert and marks the batch as seen
+      visit instructeur_procedure_path(procedure, statut: 'suivis')
       expect(page).to have_content("L’action de masse est terminée")
       expect(page).to have_content("Des demandes d’avis ont été envoyées pour 2/2 dossiers")
 
-      # ensure data-controller="turbo-poll" is no longer present
+      # ensure the next poll removes the seen alert, and turbo-poll with it
+      resume_turbo_poll
       expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
 
       # clean alert after reload
@@ -329,14 +329,14 @@ describe 'BatchOperation a dossier:', js: true do
         .to change { dossier_1.reload.commentaires }
         .from([]).to(anything)
 
-      resume_turbo_poll
-      scroll_to(find(".batch-alert-component"))
-
-      # ensure alert updates when jobs are run
+      # ensure alert updates when jobs are run: reloading renders the finished
+      # alert and marks the batch as seen
+      visit instructeur_procedure_path(procedure, statut: 'suivis')
       expect(page).to have_content("L’action de masse est terminée")
       expect(page).to have_content("Un message a été envoyé pour 2/2 dossiers")
 
-      # ensure data-controller="turbo-poll" is no longer present
+      # ensure the next poll removes the seen alert, and turbo-poll with it
+      resume_turbo_poll
       expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
 
       # clean alert after reload
@@ -559,8 +559,10 @@ describe 'BatchOperation a dossier:', js: true do
     expect(page).to have_field("motivation_refuse")
 
     # le confirm se déclenche avant la validation (statu quo produit),
-    # puis la validation cliente bloque la soumission vide
-    expect(page).to have_selector('button[data-confirm="Êtes-vous sûr de vouloir appliquer cette décision aux dossiers sélectionnés ?"]')
+    # puis la validation cliente bloque la soumission vide.
+    # On stub window.confirm : deux confirms successifs sur le même bouton
+    # (validation bloquante puis soumission avec pièce jointe) ne sont pas
+    # gérés de façon fiable par les vraies boîtes de dialogue.
     page.execute_script('window.confirm = () => true')
     click_on "Valider la décision"
 
@@ -577,9 +579,6 @@ describe 'BatchOperation a dossier:', js: true do
       )
     end
 
-    # Selenium ne capture pas bien l'alerte
-    # On vérifie donc que l’attribut est présent, puis on stub window.confirm
-    expect(page).to have_selector('button[data-confirm="Êtes-vous sûr de vouloir appliquer cette décision aux dossiers sélectionnés ?"]')
     page.execute_script('window.confirm = () => true')
     click_on "Valider la décision"
 
@@ -598,25 +597,39 @@ describe 'BatchOperation a dossier:', js: true do
     expect(dossier_1.justificatif_motivation).to be_attached
   end
 
-  # The "finished" batch alert auto-removes itself 5s after the poll that
-  # renders it, so a poll landing while jobs are performed can make the alert
-  # come and go before the spec looks at it. Detaching the turbo-poll
-  # controller while jobs run, then re-attaching it (whose first poll is
-  # immediate), makes the refresh deterministic.
+  # The first page render after a batch finishes marks it as seen and is the
+  # only one showing the "finished" alert — and turbo-poll refreshes the whole
+  # page (turbo_stream.refresh), so a poll landing anytime around the jobs can
+  # consume that render before the spec looks at it. Pausing freezes polling
+  # on the current page and (via an init script) on every page loaded next,
+  # after waiting out requests already in flight; resuming re-attaches the
+  # controller, whose first poll is immediate.
+  POLLING_PAUSE_SCRIPT = <<~JS
+    const originalFetch = window.fetch;
+    window.__pausePolling = true;
+    window.fetch = (resource, options) => {
+      if (window.__pausePolling && resource.toString().includes('polling')) {
+        return new Promise(() => {});
+      }
+      return originalFetch(resource, options);
+    };
+  JS
+
   def pause_turbo_poll
-    page.execute_script(<<~JS)
-      document.querySelectorAll('[data-controller~="turbo-poll"]').forEach((el) => {
-        el.dataset.pausedController = el.getAttribute('data-controller');
-        el.removeAttribute('data-controller');
-      });
-    JS
+    page.driver.with_playwright_page do |pw_page|
+      pw_page.add_init_script(script: POLLING_PAUSE_SCRIPT)
+      pw_page.evaluate("() => { #{POLLING_PAUSE_SCRIPT} }")
+      pw_page.wait_for_load_state(state: 'networkidle')
+    end
   end
 
   def resume_turbo_poll
     page.execute_script(<<~JS)
-      document.querySelectorAll('[data-paused-controller]').forEach((el) => {
-        el.setAttribute('data-controller', el.dataset.pausedController);
-        delete el.dataset.pausedController;
+      window.__pausePolling = false;
+      document.querySelectorAll('[data-controller~="turbo-poll"]').forEach((el) => {
+        const value = el.getAttribute('data-controller');
+        el.removeAttribute('data-controller');
+        requestAnimationFrame(() => el.setAttribute('data-controller', value));
       });
     JS
   end
