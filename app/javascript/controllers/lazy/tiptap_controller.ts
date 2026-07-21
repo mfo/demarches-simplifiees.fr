@@ -108,6 +108,7 @@ export class TiptapController extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.#editor?.destroy();
     if (this.#previewTimeout) {
       clearTimeout(this.#previewTimeout);

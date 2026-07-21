@@ -35,6 +35,7 @@ export class MailPreviewController extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.#resizeObserver?.disconnect();
   }
 

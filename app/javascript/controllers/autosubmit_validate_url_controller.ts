@@ -14,6 +14,7 @@ export class AutosubmitValidateUrlController extends ApplicationController {
   }
 
   disconnect() {
+    super.disconnect();
     if (this.#timeout) clearTimeout(this.#timeout);
   }
 

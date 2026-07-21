@@ -10,6 +10,21 @@ const ACTIVE_EVENTS = ['wheel'];
 
 export class ApplicationController extends Controller {
   #debounced = new Map<() => void, ReturnType<typeof debounce>>();
+  #listeners: {
+    target: EventTarget;
+    eventName: string;
+    callback: EventListener;
+    options: AddEventListenerOptions;
+  }[] = [];
+
+  // Subclasses overriding disconnect() must call super.disconnect().
+  disconnect(): void {
+    for (const { target, eventName, callback, options } of this.#listeners) {
+      target.removeEventListener(eventName, callback, options);
+    }
+    this.#listeners = [];
+    this.#cancelAllDebounced();
+  }
 
   protected debounce(fn: () => void, interval: number): void {
     this.globalDispatch('debounced:added');
@@ -18,13 +33,10 @@ export class ApplicationController extends Controller {
     if (!debounced) {
       const wrapper = () => {
         fn.bind(this)();
-        this.#debounced.delete(fn);
-        if (this.#debounced.size == 0) {
-          this.globalDispatch('debounced:empty');
-        }
+        this.#deleteDebounced(fn);
       };
 
-      debounced = debounce(wrapper.bind(this), interval);
+      debounced = debounce(wrapper, interval);
 
       this.#debounced.set(fn, debounced);
     }
@@ -32,7 +44,29 @@ export class ApplicationController extends Controller {
   }
 
   protected cancelDebounce(fn: () => void) {
-    this.#debounced.get(fn)?.clear();
+    const debounced = this.#debounced.get(fn);
+    if (debounced) {
+      debounced.clear();
+      this.#deleteDebounced(fn);
+    }
+  }
+
+  #deleteDebounced(fn: () => void) {
+    this.#debounced.delete(fn);
+    if (this.#debounced.size == 0) {
+      this.globalDispatch('debounced:empty');
+    }
+  }
+
+  #cancelAllDebounced() {
+    if (this.#debounced.size == 0) {
+      return;
+    }
+    for (const debounced of this.#debounced.values()) {
+      debounced.clear();
+    }
+    this.#debounced.clear();
+    this.globalDispatch('debounced:empty');
   }
 
   protected globalDispatch<T = Detail>(type: string, detail?: T): void {
@@ -82,7 +116,6 @@ export class ApplicationController extends Controller {
     eventName: string,
     handler: (event: HandlerEvent) => void
   ): void {
-    const disconnect = this.disconnect;
     const callback = (event: Event): void => {
       handler(event as HandlerEvent);
     };
@@ -91,9 +124,6 @@ export class ApplicationController extends Controller {
       passive: ACTIVE_EVENTS.includes(eventName) ? false : undefined
     };
     target.addEventListener(eventName, callback, options);
-    this.disconnect = () => {
-      target.removeEventListener(eventName, callback, options);
-      disconnect.call(this);
-    };
+    this.#listeners.push({ target, eventName, callback, options });
   }
 }

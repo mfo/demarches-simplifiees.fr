@@ -36,6 +36,7 @@ export class AutosaveStatusController extends ApplicationController {
   declare contactPathValue: string;
 
   private hasNotifiedError = false;
+  #hideSucceededTimeout?: ReturnType<typeof setTimeout>;
 
   connect(): void {
     this.onGlobal('autosave:end', () => this.didSucceed());
@@ -45,6 +46,10 @@ export class AutosaveStatusController extends ApplicationController {
 
     this.onGlobal('debounced:added', () => this.debouncedAdded());
     this.onGlobal('debounced:empty', () => this.debouncedEmpty());
+
+    // The footer is re-rendered by every autosave response, wiping the classes
+    // below; a freshly connected status area has no pending debounced save.
+    this.debouncedEmpty();
   }
 
   private debouncedAdded() {
@@ -59,10 +64,19 @@ export class AutosaveStatusController extends ApplicationController {
     removeClass(autosave, 'debounced-added');
   }
 
+  disconnect(): void {
+    super.disconnect();
+    clearTimeout(this.#hideSucceededTimeout);
+  }
+
   private didSucceed() {
     this.hasNotifiedError = false;
     this.setState('succeeded');
-    this.debounce(this.hideSucceededStatus, AUTOSAVE_STATUS_VISIBLE_DURATION);
+    clearTimeout(this.#hideSucceededTimeout);
+    this.#hideSucceededTimeout = setTimeout(
+      () => this.hideSucceededStatus(),
+      AUTOSAVE_STATUS_VISIBLE_DURATION
+    );
   }
 
   private didFail(event: CustomEvent<{ error: ResponseError }>) {

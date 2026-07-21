@@ -32,6 +32,7 @@ export class TurboPollController extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.#stop?.();
   }
 

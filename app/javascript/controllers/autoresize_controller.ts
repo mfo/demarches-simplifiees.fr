@@ -26,6 +26,7 @@ export class AutoresizeController extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.#detach?.();
     this.observer.unobserve(this.element);
     this.element.classList.remove('resize-none');

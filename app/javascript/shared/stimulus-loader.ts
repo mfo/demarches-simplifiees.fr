@@ -6,12 +6,16 @@ type Module = { [key: string]: any };
 type Loader = () => Promise<Module>;
 
 const controllerAttribute = 'data-controller';
-const controllers = import.meta.glob<Module>('../controllers/*.{ts,tsx}', {
-  eager: true
-});
-const lazyControllers = import.meta.glob<Module>(
-  '../controllers/lazy/*.{ts,tsx}'
+const controllers = import.meta.glob<Module>(
+  ['../controllers/*.{ts,tsx}', '!**/*.test.*'],
+  {
+    eager: true
+  }
 );
+const lazyControllers = import.meta.glob<Module>([
+  '../controllers/lazy/*.{ts,tsx}',
+  '!**/*.test.*'
+]);
 const controllerLoaders = new Map<string, Loader>();
 
 export function registerControllers(application: Application) {

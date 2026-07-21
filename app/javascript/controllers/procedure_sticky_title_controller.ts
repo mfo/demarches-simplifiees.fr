@@ -20,6 +20,7 @@ export class ProcedureStickyTitleController extends ApplicationController {
   }
 
   disconnect(): void {
+    super.disconnect();
     this.observer?.disconnect();
     this.observer = undefined;
   }
