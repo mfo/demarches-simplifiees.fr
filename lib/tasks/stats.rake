@@ -214,21 +214,10 @@ namespace :stats do
     ]
 
     email_stats.each do |label, association|
-      table_name = case association
-      when :email_depose then 'initiated_mails'
-      when :email_passe_en_instruction then 'received_mails'
-      when :email_accepte then 'closed_mails'
-      when :email_refuse then 'refused_mails'
-      when :email_classe_sans_suite then 'without_continuation_mails'
-      when :email_repasse_en_instruction then 're_instructed_mails'
-      end
-
       ApplicationRecord.transaction do
         ApplicationRecord.connection.execute("SET LOCAL statement_timeout = '2min'")
 
-        customized_email_procedures = base_scope.joins(association)
-          .where.not(table_name => { updated_at: nil })
-          .distinct
+        customized_email_procedures = base_scope.joins(association).distinct
         add_procedure_stat(stats, label, customized_email_procedures, total_procedures, total_dossiers_all_procedures)
       end
     end

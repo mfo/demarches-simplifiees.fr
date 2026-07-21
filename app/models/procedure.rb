@@ -166,6 +166,7 @@ class Procedure < ApplicationRecord
 
   has_many :rdvs, through: :dossiers
 
+  has_many :custom_email_templates, class_name: "EmailTemplate", dependent: :destroy
   has_one :email_depose, class_name: "Emails::Depose", dependent: :destroy
   has_one :email_passe_en_instruction, class_name: "Emails::PasseEnInstruction", dependent: :destroy
   has_one :email_accepte, class_name: "Emails::Accepte", dependent: :destroy
