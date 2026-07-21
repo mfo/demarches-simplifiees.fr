@@ -523,7 +523,7 @@ module Users
     def update_personnalisation
       return redirect_to dossiers_path if !personnalisation_available?
 
-      allowed_ids = Procedure.where(id: current_user.dossiers.visible_by_user.joins(:procedure).select('procedures.id')).pluck(:id).map(&:to_s)
+      allowed_ids = user_procedures.pluck(:id).map(&:to_s)
       results = personnalisation_params.map do |procedure_id, attrs|
         next true if !procedure_id.to_s.in?(allowed_ids)
 
@@ -713,7 +713,15 @@ module Users
 
     def personnalisation_available?
       feature_enabled?(:dossiers_list_personnalisation) &&
-        current_user.dossiers.visible_by_user.count > SIMPLE_LIST_THRESHOLD
+        dossier_filter.user_dossiers.count > SIMPLE_LIST_THRESHOLD
+    end
+
+    def dossier_filter
+      @filter ||= Users::DossierFilterService.new(user: current_user, params:)
+    end
+
+    def user_procedures
+      Procedure.where(id: dossier_filter.user_dossiers.joins(:procedure).select('procedures.id'))
     end
 
     def personnalisation_params
@@ -721,8 +729,7 @@ module Users
     end
 
     def personnalisable_procedures
-      Procedure
-        .where(id: current_user.dossiers.visible_by_user.joins(:procedure).select('procedures.id'))
+      user_procedures
         .distinct
         .order(:libelle)
         .includes(published_revision: { revision_types_de_champ: :type_de_champ })

@@ -1929,6 +1929,18 @@ describe Users::DossiersController, type: :controller do
       end
     end
 
+    context 'personnalisation link' do
+      before { Flipper.enable(:dossiers_list_personnalisation, user) }
+
+      it 'shows the link for a user above the threshold through invitations only' do
+        create_list(:dossier, 6, :en_construction).each do |dossier|
+          create(:invite, dossier:, user:)
+        end
+        get :index
+        expect(assigns(:show_personnalisation_link)).to be(true)
+      end
+    end
+
     it 'passes filter params to the service' do
       get :index, params: { state: ['en_construction'], alert: ['a_corriger'], procedure_id: '42' }
       expect(assigns(:filter)).to be_a(Users::DossierFilterService)
@@ -2967,6 +2979,22 @@ describe Users::DossiersController, type: :controller do
         end
       end
 
+      context 'with dossiers received by invitation only' do
+        let(:invited_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
+
+        before do
+          create_list(:dossier, 6, :en_construction, procedure: invited_procedure).each do |dossier|
+            create(:invite, dossier:, user:)
+          end
+        end
+
+        it 'renders the screen and exposes procedures seen through invitation' do
+          get :personnalisation
+          expect(response).to have_http_status(:ok)
+          expect(assigns(:personnalisable_procedures)).to eq([invited_procedure])
+        end
+      end
+
       context 'with a procedure without personnalisable champ' do
         let(:eligible_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
         let(:non_eligible_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :textarea, libelle: 'Description' }]) }
@@ -3047,6 +3075,20 @@ describe Users::DossiersController, type: :controller do
       expect(response).to redirect_to(dossiers_path)
       perso = DossiersListPersonnalisation.find_by(user:, procedure:)
       expect(perso.displayed_columns.map(&:id)).to eq([column.id])
+    end
+
+    it 'persists the personnalisation for a procedure seen through invitation' do
+      invited_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Région' }])
+      invited_dossier = create(:dossier, :en_construction, procedure: invited_procedure)
+      create(:invite, dossier: invited_dossier, user:)
+      invited_column = invited_procedure.personnalisable_columns.first
+
+      patch :update_personnalisation, params: {
+        personnalisations: { invited_procedure.id.to_s => { displayed_columns: [invited_column.id] } },
+      }
+
+      perso = DossiersListPersonnalisation.find_by(user:, procedure: invited_procedure)
+      expect(perso.displayed_columns.map(&:id)).to eq([invited_column.id])
     end
 
     it 'ignores empty selections sent by the React combobox' do
