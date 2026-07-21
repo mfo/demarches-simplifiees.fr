@@ -25,7 +25,7 @@ module Maintenance
         .pluck(:id)
 
       attachments = ActiveStorage::Attachment
-        .where(record_id: commentaire_ids)
+        .where(record_type: 'Commentaire', record_id: commentaire_ids)
 
       attachments.each do |attachment|
         next if !(attachment.previewable? && attachment.representation_required?)
