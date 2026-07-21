@@ -3218,6 +3218,68 @@ describe Users::DossiersController, type: :controller do
     end
   end
 
+  describe 'stale personnalisation columns' do
+    render_views
+
+    let(:user) { create(:user) }
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }, { type: :text, libelle: 'Pays' }]) }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      sign_in(user)
+    end
+
+    context 'when a persisted column can no longer be resolved' do
+      before do
+        pays_column = procedure.personnalisable_columns.find { _1.label == 'Pays' }
+        draft_only_tdc = procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'Futur champ')
+        draft_only_column = draft_only_tdc.canonical_column(procedure_id: procedure.id)
+        create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [draft_only_column, pays_column])
+        dossiers = create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+        dossiers.first.champs.find { _1.stable_id == pays_column.stable_id }.update(value: 'France')
+        Current.reset
+      end
+
+      it 'renders the dossiers list with the remaining columns' do
+        get :index
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('France')
+      end
+
+      it 'renders the personnalisation screen' do
+        get :personnalisation
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when the personnalised champ is removed in a later published revision' do
+      before do
+        ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+        create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [ville_column])
+        dossiers = create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+        dossiers.first.champs.find { _1.stable_id == ville_column.stable_id }.update(value: 'Nantes')
+        procedure.draft_revision.remove_type_de_champ(ville_column.stable_id)
+        procedure.publish_revision!(procedure.administrateurs.first)
+        Current.reset
+      end
+
+      it 'still renders the dossiers list with the removed champ value' do
+        get :index
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('Nantes')
+      end
+
+      it 'renders the personnalisation screen' do
+        get :personnalisation
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
   private
 
   def find_champ_by_stable_id(dossier, stable_id)
