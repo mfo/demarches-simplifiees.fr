@@ -11,13 +11,13 @@
   width: auto;
   color: var(--text-color);
 
-  .lucide-search {
+  .fr-icon-search-line {
     grid-area: icon;
     z-index: 2;
     margin-inline-start: 0.5rem;
   }
 
-  &[data-disabled] .lucide-search {
+  &[data-disabled] .fr-icon-search-line {
     color: var(--text-color-disabled);
   }
 

@@ -5,7 +5,6 @@ import {
   SearchField as AriaSearchField,
   type SearchFieldProps as AriaSearchFieldProps
 } from 'react-aria-components';
-import { Search, X } from 'lucide-react';
 import './SearchField.css';
 
 export interface SearchFieldProps extends AriaSearchFieldProps {
@@ -15,10 +14,10 @@ export interface SearchFieldProps extends AriaSearchFieldProps {
 export function SearchField({ placeholder, ...props }: SearchFieldProps) {
   return (
     <AriaSearchField {...props}>
-      <Search size={18} />
+      <span className="fr-icon-search-line fr-icon--sm" aria-hidden="true" />
       <Input placeholder={placeholder} className="react-aria-Input fr-input" />
       <Button className="clear-button">
-        <X size={14} />
+        <span className="fr-icon-close-line fr-icon--xs" aria-hidden="true" />
       </Button>
     </AriaSearchField>
   );
