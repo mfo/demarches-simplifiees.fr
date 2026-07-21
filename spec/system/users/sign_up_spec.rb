@@ -3,7 +3,7 @@
 describe 'Signing up:', js: true do
   let(:user_email) { generate :user_email }
   let(:user_password) { SECURE_PASSWORD }
-  let(:procedure) { create :simple_procedure, :with_service }
+  let(:procedure) { procedures.individual }
 
   scenario 'a new user can sign-up from scratch' do
     visit new_user_registration_path
@@ -19,7 +19,7 @@ describe 'Signing up:', js: true do
   end
 
   context 'when the user makes a typo in their email address' do
-    let(:procedure) { create :simple_procedure, :with_service }
+    let(:procedure) { procedures.individual }
 
     before do
       visit commencer_path(path: procedure.path)
@@ -67,7 +67,7 @@ describe 'Signing up:', js: true do
   end
 
   context 'when visiting a procedure' do
-    let(:procedure) { create :simple_procedure, :with_service }
+    let(:procedure) { procedures.individual }
 
     scenario 'a new user can sign-up and fill the procedure' do
       visit commencer_path(path: procedure.path)

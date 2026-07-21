@@ -10,7 +10,7 @@ describe 'service tasks' do
   describe 'service:remove_orphans' do
     let(:task) { 'service:remove_orphans' }
     let(:service) { create(:service) }
-    let(:procedure) { create(:procedure, :with_service) }
+    let(:procedure) { procedures.brouillon }
     let(:service_with_procedure) { procedure.service }
     it 'remove orphans' do
       service

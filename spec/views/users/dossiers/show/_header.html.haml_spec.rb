@@ -76,7 +76,7 @@ describe 'users/dossiers/show/header', type: :view do
   end
 
   context "when the procedure is discarded with a dossier en construction and a replacement procedure" do
-    let(:new_procedure) { create(:procedure, :with_service, aasm_state: :publiee) }
+    let(:new_procedure) { procedures.individual }
     let!(:procedure) { create(:procedure, :with_service, :discarded, replaced_by_procedure_id: new_procedure.id) }
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
 
@@ -104,6 +104,7 @@ describe 'users/dossiers/show/header', type: :view do
   end
 
   context "when the procedure is discarded with a dossier en construction and a replacement procedure is destroyed" do
+    # the replacement gets destroyed: it must be a fresh procedure without dossiers
     let(:new_procedure) { create(:procedure, :with_service, aasm_state: :publiee) }
     let!(:procedure) { create(:procedure, :with_service, :discarded, replaced_by_procedure_id: new_procedure.id) }
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }

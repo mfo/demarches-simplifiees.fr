@@ -48,7 +48,7 @@ RSpec.describe DossierHelper, type: :helper do
     let(:dossier) { create(:dossier, procedure: procedure, individual: individual, etablissement: etablissement) }
 
     context "when the dossier is for an individual" do
-      let(:procedure) { create(:simple_procedure, :for_individual) }
+      let(:procedure) { procedures.individual }
 
       context "when the individual is not provided" do
         let(:individual) { build(:individual, :empty) }

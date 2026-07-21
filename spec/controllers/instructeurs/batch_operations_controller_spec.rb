@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Instructeurs::BatchOperationsController, type: :controller do
-  let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:simple_procedure, instructeurs: [instructeur]) }
+  let(:instructeur) { instructeurs.default }
+  let(:procedure) { procedures.individual }
   let(:dossier) { create(:dossier, :accepte, :with_individual, procedure: procedure) }
 
   describe '#POST create' do
@@ -43,7 +43,7 @@ describe Instructeurs::BatchOperationsController, type: :controller do
         batch_operation = BatchOperation.first
         expect(batch_operation.dossiers).to include(dossier)
         expect(batch_operation.instructeur).to eq(instructeur)
-        expect(batch_operation.groupe_instructeurs.to_a).to eq(instructeur.groupe_instructeurs.to_a)
+        expect(batch_operation.groupe_instructeurs.to_a).to eq(instructeur.groupe_instructeurs.where(procedure:).to_a)
       end
       it 'enqueues a BatchOperationJob' do
         expect { subject }.to have_enqueued_job(BatchOperationEnqueueAllJob).with(BatchOperation.last)
@@ -89,7 +89,7 @@ describe Instructeurs::BatchOperationsController, type: :controller do
         batch_operation = BatchOperation.first
         expect(batch_operation.dossiers).to include(dossier)
         expect(batch_operation.instructeur).to eq(instructeur)
-        expect(batch_operation.groupe_instructeurs.to_a).to eq(instructeur.groupe_instructeurs.to_a)
+        expect(batch_operation.groupe_instructeurs.to_a).to eq(instructeur.groupe_instructeurs.where(procedure:).to_a)
       end
 
       it 'enqueues a BatchOperationJob' do

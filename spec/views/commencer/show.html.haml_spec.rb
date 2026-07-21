@@ -4,7 +4,7 @@ RSpec.describe 'commencer/show', type: :view do
   include Rails.application.routes.url_helpers
 
   let(:stored_query_params) { false }
-  let(:procedure) { create(:procedure, :published, :for_individual, :with_service) }
+  let(:procedure) { procedures.individual }
   let(:dossiers) { drafts + not_drafts }
   let(:drafts) { [] }
   let(:not_drafts) { [] }

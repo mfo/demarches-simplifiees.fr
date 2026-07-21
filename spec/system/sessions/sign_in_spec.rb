@@ -44,7 +44,7 @@ describe 'Signin in:' do
   end
 
   context 'when visiting a procedure', js: true do
-    let(:procedure) { create :simple_procedure, :with_service }
+    let(:procedure) { procedures.individual }
 
     before do
       visit commencer_path(path: procedure.path)

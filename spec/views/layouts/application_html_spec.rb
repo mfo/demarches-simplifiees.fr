@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'layouts/application', type: :view do
-  let(:procedure) { create(:simple_procedure) }
+  let(:procedure) { procedures.individual }
 
   before do
     allow(view).to receive(:administrateur_signed_in?).and_return(false)

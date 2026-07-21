@@ -11,7 +11,7 @@ describe 'users/dossiers/identite', type: :view do
   subject! { render }
 
   context 'when procedure has for_tiers_enabled' do
-    let_it_be(:procedure) { create(:simple_procedure, :for_individual) }
+    let_it_be(:procedure) { procedures.individual }
 
     it 'has choice for you or a tiers' do
       expect(rendered).to have_content "Pour vous"
@@ -32,7 +32,7 @@ describe 'users/dossiers/identite', type: :view do
   end
 
   context 'when procedure has for_tiers_enabled and identity already set' do
-    let(:procedure) { create(:simple_procedure, :for_individual) }
+    let(:procedure) { procedures.individual }
     let(:dossier) { create(:dossier, :with_service, :with_individual, state: Dossier.states.fetch(:brouillon), procedure: procedure, identity_updated_at: Time.current) }
 
     it 'hides the continue button group' do
@@ -53,7 +53,7 @@ describe 'users/dossiers/identite', type: :view do
   end
 
   context 'when procedure has for_tiers_enabled and identity already set for tiers' do
-    let(:procedure) { create(:simple_procedure, :for_individual) }
+    let(:procedure) { procedures.individual }
     let(:dossier) do
       create(:dossier, :with_service, :with_individual,
              for_tiers: true,

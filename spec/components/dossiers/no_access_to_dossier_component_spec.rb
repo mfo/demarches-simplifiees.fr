@@ -35,7 +35,7 @@ RSpec.describe Dossiers::NoAccessToDossierComponent, type: :component do
 
   context "when no administrateur shares the instructeur email domain" do
     let(:instructeur_email) { "agent@other-domain.gouv.fr" }
-    let(:procedure) { create(:procedure, :with_service) }
+    let(:procedure) { procedures.brouillon }
     let(:dossier) { create(:dossier, procedure:) }
 
     it "exposes no administrateur email" do

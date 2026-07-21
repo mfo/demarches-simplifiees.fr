@@ -3,10 +3,10 @@
 RSpec.describe NotificationMailer, type: :mailer do
   let(:administrateur) { administrateurs.default }
   let(:user) { create(:user) }
-  let(:procedure) { create(:simple_procedure, :with_service) }
+  let(:procedure) { procedures.individual }
 
   describe 'send_notification_for_tiers' do
-    let(:dossier_for_tiers) { create(:dossier, :en_construction, :for_tiers_with_notification, procedure: create(:simple_procedure)) }
+    let(:dossier_for_tiers) { create(:dossier, :en_construction, :for_tiers_with_notification, procedure: procedures.individual) }
 
     subject { described_class.send_notification_for_tiers(dossier_for_tiers) }
 
@@ -19,7 +19,7 @@ RSpec.describe NotificationMailer, type: :mailer do
   end
 
   describe 'send_notification_for_tiers for repasser_en_instruction' do
-    let(:dossier_for_tiers) { create(:dossier, :accepte, :for_tiers_with_notification, procedure: create(:simple_procedure)) }
+    let(:dossier_for_tiers) { create(:dossier, :accepte, :for_tiers_with_notification, procedure: procedures.individual) }
 
     subject { described_class.send_notification_for_tiers(dossier_for_tiers, repasser_en_instruction: true) }
 
@@ -74,7 +74,7 @@ RSpec.describe NotificationMailer, type: :mailer do
         expect(body).to include(procedure.service.contact_link)
         expect(body).to include(messagerie_dossier_url(dossier))
         expect(body).to include(procedure.service.telephone)
-        expect(body).to include(procedure.service.horaires)
+        expect(body).to include(procedure.service.horaires.sub(/\S/, &:downcase))
         expect(body).to include(procedure.service.other_contact_info)
         expect(mail.attachments.first.filename).to eq("attestation-depot_dossier-#{dossier.id}.pdf")
       end

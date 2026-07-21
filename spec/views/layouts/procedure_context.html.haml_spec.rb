@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe 'layouts/procedure_context', type: :view do
-  let(:procedure) { create(:simple_procedure, :with_service) }
+  let(:procedure) { procedures.individual }
   let(:dossier) { create(:dossier, procedure: procedure) }
 
   before do
