@@ -4,6 +4,8 @@ require "rails_helper"
 
 module Maintenance
   RSpec.describe UpdateZonesTask do
+    empty_seeds ZoneLabel, Zone
+
     describe "#process" do
       subject(:process) { described_class.process(ministere) }
       let(:ministere) {

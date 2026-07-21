@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 describe Zone do
+  empty_seeds ZoneLabel, Zone
+
   let(:now) { Time.zone.parse("2022-08-11") }
   before do
     travel_to(now)

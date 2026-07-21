@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe 'administrateurs/procedures/zones', type: :view do
+  empty_seeds ZoneLabel, Zone
+
   let(:administrateur) { administrateurs.default }
   let(:procedure) { create(:procedure, published_at: Time.zone.parse('2022-07-20')) } # Définir une date de publication de la procédure plus tardive
   let!(:zone1) { create(:zone, acronym: 'MTEI', labels: [{ designated_on: '2022-05-18', name: "Ministère du Travail" }]) }

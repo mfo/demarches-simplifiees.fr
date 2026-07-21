@@ -13,7 +13,9 @@ procedure = Procedure.new(
   duree_conservation_dossiers_dans_ds: 3,
   max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
   for_individual: false,
-  administrateurs: [administrateurs.default]
+  administrateurs: [administrateurs.default],
+  zones: [zones.default],
+  service: services.default
 )
 procedure.draft_revision = procedure.revisions.build
 procedure.save!
@@ -29,9 +31,6 @@ end
 
 procedure.publish_or_reopen!(administrateurs.default, "demarche-demo-entreprise")
 instructeurs.default.assign_to_procedure(procedure)
-
-# A published procedure without a service is nagged about on every admin page.
-procedure.update!(service: procedures.individual.service)
 
 procedures.label entreprise: procedure
 
@@ -67,7 +66,8 @@ build_etablissement = lambda do
   )
 end
 
-dossier = Dossier.create!(
+dossier = dossiers.create(
+  :avec_siret,
   user: users.usager,
   revision: procedure.active_revision,
   groupe_instructeur: procedure.defaut_groupe_instructeur,
@@ -81,14 +81,13 @@ dossier.traitements.passer_en_construction(processed_at:)
 dossier.submitted_revision_id = dossier.revision_id
 dossier.save!
 
-dossiers.label avec_siret: dossier
-
 champ_values = {
   "Nom du projet" => "Rénovation du réseau de transport",
   "Description du projet" => "Un projet de rénovation du réseau de transport par conduites.",
 }
 
-dossier_en_instruction = Dossier.create!(
+dossier_en_instruction = dossiers.create(
+  :entreprise_en_instruction,
   user: users.usager,
   revision: procedure.active_revision,
   groupe_instructeur: procedure.defaut_groupe_instructeur,
@@ -102,5 +101,3 @@ processed_at = DossierWithReferenceDate.assign(dossier_en_instruction, reference
 dossier_en_instruction.traitements.passer_en_instruction(processed_at:)
 dossier_en_instruction.submitted_revision_id = dossier_en_instruction.revision_id
 dossier_en_instruction.save!
-
-dossiers.label entreprise_en_instruction: dossier_en_instruction

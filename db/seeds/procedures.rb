@@ -8,7 +8,9 @@ procedure = Procedure.new(
   duree_conservation_dossiers_dans_ds: 3,
   max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
   for_individual: true,
-  administrateurs: [administrateurs.default]
+  administrateurs: [administrateurs.default],
+  zones: [zones.default],
+  service: services.default
 )
 procedure.draft_revision = procedure.revisions.build
 procedure.save!
@@ -29,19 +31,6 @@ end
 procedure.publish_or_reopen!(administrateurs.default, "demarche-demo")
 instructeurs.default.assign_to_procedure(procedure)
 
-# A published procedure without a service is nagged about on every admin page.
-procedure.update!(service: Service.create!(
-  nom: "Service de démonstration",
-  administrateur: administrateurs.default,
-  organisme: "Organisme de démonstration",
-  type_organisme: Service.type_organismes.fetch(:administration_centrale),
-  email: "contact@exemple.fr",
-  telephone: "0102030405",
-  horaires: "Du lundi au vendredi, de 9 h à 18 h",
-  adresse: "20 avenue de Ségur, 75007 Paris",
-  siret: "13002526500013"
-))
-
 procedures.label individual: procedure
 
 brouillon_procedure = Procedure.new(
@@ -50,7 +39,8 @@ brouillon_procedure = Procedure.new(
   cadre_juridique: "https://www.legifrance.gouv.fr/",
   duree_conservation_dossiers_dans_ds: 3,
   max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
-  administrateurs: [administrateurs.default]
+  administrateurs: [administrateurs.default],
+  service: services.default
 )
 brouillon_procedure.draft_revision = brouillon_procedure.revisions.build
 brouillon_procedure.save!

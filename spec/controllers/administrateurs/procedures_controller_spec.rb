@@ -487,6 +487,8 @@ describe Administrateurs::ProceduresController, type: :controller do
   end
 
   describe 'GET #zones' do
+    empty_seeds ZoneLabel, Zone
+
     let(:procedure) { create(:procedure, administrateur: admin) }
     let(:procedure_id) { procedure.id }
 

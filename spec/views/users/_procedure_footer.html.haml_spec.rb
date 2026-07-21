@@ -52,8 +52,7 @@ describe 'users/procedure_footer', type: :view do
 
     context "when procedure does not belong to Ministère de l’Intérieur" do
       before do
-        mi_zone = create(:zone, acronym: 'MI', labels: [{ designated_on: Time.zone.today, name: "Ministère de l’Intérieur" }])
-        dossier.procedure.zones << mi_zone
+        dossier.procedure.zones << Zone.find_by!(acronym: 'MI')
       end
 
       it { is_expected.not_to have_link(france_service_link_text) }
