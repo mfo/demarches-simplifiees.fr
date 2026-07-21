@@ -99,7 +99,7 @@ RSpec.describe DossierCloneConcern do
     end
 
     context 'procedure with etablissement' do
-      let(:dossier) { create(:dossier, :with_entreprise) }
+      let(:dossier) { dossiers.avec_siret }
       it do
         expect(new_dossier.etablissement.slice(:siret)).to eq(dossier.etablissement.slice(:siret))
         expect(new_dossier.etablissement.id).not_to eq(dossier.etablissement.id)

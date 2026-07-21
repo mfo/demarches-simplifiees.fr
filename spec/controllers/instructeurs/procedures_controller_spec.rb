@@ -956,7 +956,7 @@ describe Instructeurs::ProceduresController, type: :controller do
                 procedure_id: procedure.id,
                 bulk_message: { body: body },
               }
-          end.to change { Commentaire.count }.from(0).to(4)
+          end.to change { Commentaire.count }.by(4)
         [dossier, dossier_2, dossier_3, dossier_4].each do |any_dossier|
           expect(any_dossier.commentaires.first.body).to eq("avant\napres")
         end
@@ -985,7 +985,7 @@ describe Instructeurs::ProceduresController, type: :controller do
                 }
         end
         it "creates a Bulk Message for given group_instructeur_ids" do
-          expect { subject }.to change { Commentaire.count }.from(0).to(2)
+          expect { subject }.to change { Commentaire.count }.by(2)
           expect(dossier.commentaires.first.body).to eq(body)
           expect(dossier_2.commentaires.first.body).to eq(body)
           expect(dossier_3.commentaires.count).to eq(0)
@@ -1027,7 +1027,7 @@ describe Instructeurs::ProceduresController, type: :controller do
           }
         end
         it "creates a Bulk Message for dossier without group_instructeur_ids" do
-          expect { subject }.to change { Commentaire.count }.from(0).to(1)
+          expect { subject }.to change { Commentaire.count }.by(1)
           expect(dossier.commentaires.count).to eq(0)
           expect(dossier_2.commentaires.count).to eq(0)
           expect(dossier_3.commentaires.count).to eq(0)

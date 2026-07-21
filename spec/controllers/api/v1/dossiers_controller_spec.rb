@@ -157,7 +157,7 @@ describe API::V1::DossiersController do
 
       context 'when dossier exists but does not belong to procedure' do
         let(:procedure_id) { procedure.id }
-        let(:dossier) { create(:dossier, :with_entreprise, procedure: wrong_procedure) }
+        let(:dossier) { dossiers.avec_siret }
         let(:dossier_id) { dossier.id }
         it { expect(subject.code).to eq('404') }
       end

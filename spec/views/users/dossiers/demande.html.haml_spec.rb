@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe 'users/dossiers/demande', type: :view do
-  let(:procedure) { create(:procedure, :published, :with_type_de_champ, :with_type_de_champ_private) }
-  let(:dossier) { create(:dossier, :en_construction, :with_entreprise, procedure: procedure) }
+  let(:procedure) { procedures.entreprise }
+  let(:dossier) { dossiers.avec_siret }
 
   before do
     sign_in dossier.user
@@ -26,7 +26,7 @@ describe 'users/dossiers/demande', type: :view do
   end
 
   context 'when the dossier is read-only' do
-    let(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure: procedure) }
+    let(:dossier) { dossiers.entreprise_en_instruction }
     it { is_expected.not_to have_link('Modifier le dossier') }
   end
 

@@ -275,6 +275,8 @@ RSpec.describe DossierNotification, type: :model do
     end
 
     context "when notification_type is message" do
+      empty_seeds Dossier
+
       let(:notification_type) { :message }
       let!(:dossier_to_notify) { create(:dossier) }
       let!(:commentaire_to_notify) { create(:commentaire, dossier: dossier_to_notify, instructeur_id: nil, email: "test@exemple.fr") }
@@ -297,6 +299,8 @@ RSpec.describe DossierNotification, type: :model do
     end
 
     context "when notification_type is avis_externe" do
+      empty_seeds Dossier
+
       let(:notification_type) { :avis_externe }
       let!(:dossier_to_notify) { create(:dossier) }
       let!(:avis_with_answer) { create(:avis, :with_answer, dossier: dossier_to_notify) }
@@ -321,6 +325,8 @@ RSpec.describe DossierNotification, type: :model do
     end
 
     context "when notification_type is attente_avis" do
+      empty_seeds Dossier
+
       let(:notification_type) { :attente_avis }
       let!(:dossier_to_notify) { create(:dossier) }
       let!(:avis_without_answer) { create(:avis, dossier: dossier_to_notify) }

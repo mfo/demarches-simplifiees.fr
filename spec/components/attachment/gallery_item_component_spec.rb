@@ -153,10 +153,7 @@ RSpec.describe Attachment::GalleryItemComponent, type: :component do
 
   context "when attachment is from an avis" do
     context 'from an instructeur' do
-      let(:avis) { create(:avis, :with_introduction, dossier: dossier) }
-      let(:attachment) { avis.introduction_file.attachment }
-
-      before { attachment.blob.update!(virus_scan_result: ActiveStorage::VirusScanner::SAFE) }
+      let(:attachment) { avis.with_file.introduction_file.attachment }
 
       it "displays a generic libelle, link, tag and renders title" do
         expect(subject).to have_text('Pièce jointe à l’avis')

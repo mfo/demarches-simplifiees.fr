@@ -188,13 +188,6 @@ describe 'wcag rules for usager', chrome: true do
       expect(page).to be_axe_clean
     end
 
-    scenario 'messagerie avec des messages' do
-      create(:commentaire, dossier: dossier, instructeur: procedure.instructeurs.first, body: 'hello')
-      create(:commentaire, dossier: dossier, email: dossier.user.email, body: 'hello')
-      visit messagerie_dossier_path(dossier)
-      expect(page).to be_axe_clean
-    end
-
     scenario 'modifier' do
       visit modifier_dossier_path(dossier)
       expect(page).to be_axe_clean
@@ -202,6 +195,17 @@ describe 'wcag rules for usager', chrome: true do
 
     scenario 'brouillon' do
       visit brouillon_dossier_path(dossier)
+      expect(page).to be_axe_clean
+    end
+  end
+
+  context "logged in, messagerie avec des messages" do
+    before do
+      login_as users.usager, scope: :user
+    end
+
+    scenario 'messagerie avec des messages' do
+      visit messagerie_dossier_path(dossiers.en_construction)
       expect(page).to be_axe_clean
     end
   end

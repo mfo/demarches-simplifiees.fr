@@ -189,7 +189,7 @@ describe 'instructeurs/dossiers/show', type: :view do
 
   describe 'entreprise degraded mode' do
     context 'etablissement complete' do
-      let(:dossier) { create(:dossier, :en_construction, :with_entreprise, as_degraded_mode: false) }
+      let(:dossier) { dossiers.avec_siret }
 
       it 'contains no warning' do
         expect(subject).not_to have_text("Les services de l’INSEE sont indisponibles")

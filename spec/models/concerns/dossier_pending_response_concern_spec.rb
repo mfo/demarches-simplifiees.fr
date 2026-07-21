@@ -2,7 +2,7 @@
 
 describe DossierPendingResponseConcern do
   describe '#pending_response?' do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
 
     context 'when dossier has no pending response' do
       it { expect(dossier.pending_response?).to be_falsey }
@@ -22,13 +22,12 @@ describe DossierPendingResponseConcern do
   end
 
   describe '#flag_as_pending_response!' do
-    let(:procedure) { create(:procedure) }
-    let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
-    let(:instructeur) { create(:instructeur) }
-    let(:commentaire) { create(:commentaire, dossier: dossier, instructeur: instructeur) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.en_construction }
+    let(:instructeur) { instructeurs.default }
+    let(:commentaire) { commentaires.from_instructeur }
 
     before do
-      instructeur.groupe_instructeurs << dossier.groupe_instructeur
       create(:instructeurs_procedure, instructeur: instructeur, procedure: procedure, display_attente_reponse_notifications: 'all')
     end
 
@@ -65,8 +64,8 @@ describe DossierPendingResponseConcern do
   end
 
   describe '#resolve_pending_response!' do
-    let(:dossier) { create(:dossier, :en_construction) }
-    let(:instructeur) { create(:instructeur) }
+    let(:dossier) { dossiers.en_construction }
+    let(:instructeur) { instructeurs.default }
 
     subject(:resolve) { dossier.resolve_pending_response! }
 

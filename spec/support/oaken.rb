@@ -5,7 +5,7 @@
 # and includes the labeled-record accessors (users.usager, procedures.individual,
 # dossiers.en_construction, …) in every example; per-example mutations roll
 # back via transactional fixtures. Scenario seeds (db/seeds/cases/) still load
-# per group with `before_all { seed "cases/avis" }`.
+# per group with `before_all { seed "cases/sva" }`.
 require 'oaken/rspec_setup'
 
 # Specs asserting on global aggregates or unparameterized scopes (raw SQL over

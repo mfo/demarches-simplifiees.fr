@@ -3,7 +3,7 @@
 describe Dossier, type: :model do
   include ActionView::Helpers::SanitizeHelper
 
-  before_all { seed "cases/entreprise", "cases/sva" }
+  before_all { seed "cases/sva" }
 
   let(:user) { create(:user) }
 
@@ -648,15 +648,13 @@ describe Dossier, type: :model do
   end
 
   describe '#avis_for' do
-    before_all { seed "cases/avis" }
-
     let(:instructeur) { instructeurs.default }
     let(:expert_1) { experts.default }
     let(:procedure) { procedures.individual }
     let(:dossier) { dossiers.en_construction }
     let(:experts_procedure) { experts_procedures.default }
-    let_it_be(:expert_2) { create(:expert) }
-    let_it_be(:experts_procedure_2) { create(:experts_procedure, expert: expert_2, procedure: procedures.individual) }
+    let(:expert_2) { experts.second }
+    let(:experts_procedure_2) { experts_procedures.second }
 
     context 'when there is a public advice asked from the dossiers instructeur' do
       let!(:avis) { create(:avis, dossier: dossier, claimant: instructeur, experts_procedure: experts_procedure, confidentiel: false) }

@@ -2,9 +2,9 @@
 
 describe Instructeurs::CommentairesController, type: :controller do
   let(:expert) { create(:expert) }
-  let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: [instructeur]) }
-  let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
+  let(:instructeur) { instructeurs.default }
+  let(:procedure) { procedures.individual }
+  let(:dossier) { dossiers.en_construction }
 
   render_views
 
@@ -13,7 +13,7 @@ describe Instructeurs::CommentairesController, type: :controller do
 
     describe 'destroy' do
       context 'when it works' do
-        let(:commentaire) { create(:commentaire, instructeur: instructeur, dossier: dossier) }
+        let(:commentaire) { commentaires.from_instructeur }
         subject { delete :destroy, params: { dossier_id: dossier.id, procedure_id: procedure.id, id: commentaire.id, statut: 'a-suivre' }, format: :turbo_stream }
 
         it 'respond with OK and flash' do
@@ -47,6 +47,7 @@ describe Instructeurs::CommentairesController, type: :controller do
         end
 
         context 'when a pending correction is attached' do
+          let(:commentaire) { create(:commentaire, instructeur: instructeur, dossier: dossier) }
           let!(:correction) { create(:dossier_correction, commentaire:, dossier:) }
 
           it 'does not allow deleting the message' do
@@ -58,6 +59,7 @@ describe Instructeurs::CommentairesController, type: :controller do
         end
 
         context 'when a cancelled correction is attached' do
+          let(:commentaire) { create(:commentaire, instructeur: instructeur, dossier: dossier) }
           let!(:correction) { create(:dossier_correction, commentaire:, dossier:, cancelled_at: Time.current, resolved_at: Time.current) }
 
           it 'allows deleting the message' do

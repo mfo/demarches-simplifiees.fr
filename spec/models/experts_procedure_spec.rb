@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe ExpertsProcedure, type: :model do
-  before_all { seed "cases/avis" }
-
   describe '#invited_expert_emails' do
     let(:procedure) { procedures.individual }
     let(:claimant) { instructeurs.default }
@@ -21,9 +19,9 @@ RSpec.describe ExpertsProcedure, type: :model do
         let!(:avis) { create(:avis, dossier: dossier, claimant: claimant, experts_procedure: experts_procedure) }
 
         it do
-          is_expected.to eq([experts_procedure])
-          expect(procedure.experts.count).to eq(1)
-          expect(procedure.experts.first.email).to eq(expert.email)
+          is_expected.to match_array([experts_procedure, experts_procedures.second])
+          expect(procedure.experts.count).to eq(2)
+          expect(procedure.experts).to match_array([expert, experts.second])
         end
       end
 
@@ -32,9 +30,9 @@ RSpec.describe ExpertsProcedure, type: :model do
         let!(:avis2) { create(:avis, dossier: dossier, experts_procedure: experts_procedure) }
 
         it do
-          is_expected.to eq([experts_procedure])
-          expect(procedure.experts.count).to eq(1)
-          expect(procedure.experts.first).to eq(expert)
+          is_expected.to match_array([experts_procedure, experts_procedures.second])
+          expect(procedure.experts.count).to eq(2)
+          expect(procedure.experts).to match_array([expert, experts.second])
         end
       end
     end
@@ -49,9 +47,9 @@ RSpec.describe ExpertsProcedure, type: :model do
         let!(:avis3) { create(:avis, dossier: dossier2, experts_procedure: experts_procedure3) }
 
         it do
-          is_expected.to match_array([experts_procedure, experts_procedure2, experts_procedure3])
-          expect(procedure.experts.count).to eq(3)
-          expect(procedure.experts).to match_array([expert, expert2, expert3])
+          is_expected.to match_array([experts_procedure, experts_procedures.second, experts_procedure2, experts_procedure3])
+          expect(procedure.experts.count).to eq(4)
+          expect(procedure.experts).to match_array([expert, experts.second, expert2, expert3])
         end
       end
     end

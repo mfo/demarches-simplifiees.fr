@@ -8,6 +8,8 @@ module Maintenance
     let(:procedure) { create(:procedure) }
 
     describe "#collection" do
+      empty_seeds Etablissement
+
       let!(:etablissement_without_naf_2025) do
         create(:etablissement, dossier: create(:dossier, :en_construction, procedure:), siret: "44011762001530", naf_2025: nil)
       end

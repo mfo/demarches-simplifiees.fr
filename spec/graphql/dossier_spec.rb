@@ -432,11 +432,9 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with message with no attachments' do
-    let(:dossier) { create(:dossier, :en_construction) }
+    let(:dossier) { dossiers.en_construction }
     let(:query) { DOSSIER_WITH_MESSAGE_QUERY }
     let(:variables) { { number: dossier.id } }
-
-    before { create(:commentaire, dossier: dossier) }
 
     it {
       expect(data[:dossier][:messages]).not_to be_nil

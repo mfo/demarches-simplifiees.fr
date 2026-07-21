@@ -5,6 +5,8 @@ require "rails_helper"
 module Maintenance
   RSpec.describe T20250424backfillDossierNotificationForAttenteAvisTask do
     describe "#collection" do
+      empty_seeds Avis
+
       subject(:collection) { described_class.collection }
 
       let!(:follow_instructeur) { create(:instructeur) }

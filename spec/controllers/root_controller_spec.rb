@@ -12,10 +12,8 @@ describe RootController, type: :controller do
   end
 
   context 'when Expert is connected' do
-    let(:expert) { create(:expert) }
-
     before do
-      sign_in(expert.user)
+      sign_in(users.expert)
     end
 
     it { expect(subject).to redirect_to(expert_all_avis_path) }

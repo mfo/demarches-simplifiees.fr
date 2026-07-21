@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# A published procedure for entreprises (for_individual: false) with an
-# en_construction dossier carrying a fully populated etablissement.
-# Load in a spec with `seed "cases/entreprise"`.
+# A published procedure for entreprises (for_individual: false) with two
+# dossiers carrying a fully populated etablissement: one en_construction
+# (avec_siret) and one en_instruction with populated champs
+# (entreprise_en_instruction).
 
 procedure = Procedure.new(
   libelle: "Démarche de démonstration (entreprises)",
@@ -29,14 +30,13 @@ end
 procedure.publish_or_reopen!(administrateurs.default, "demarche-demo-entreprise")
 instructeurs.default.assign_to_procedure(procedure)
 
+# A published procedure without a service is nagged about on every admin page.
+procedure.update!(service: procedures.individual.service)
+
 procedures.label entreprise: procedure
 
-dossier = Dossier.create!(
-  user: users.usager,
-  revision: procedure.active_revision,
-  groupe_instructeur: procedure.defaut_groupe_instructeur,
-  autorisation_donnees: true,
-  etablissement: Etablissement.new(
+build_etablissement = lambda do
+  Etablissement.new(
     siret: "44011762001530",
     siege_social: true,
     naf: "4950Z",
@@ -65,6 +65,14 @@ dossier = Dossier.create!(
     entreprise_effectif_annee: "2020",
     diffusable_commercialement: true
   )
+end
+
+dossier = Dossier.create!(
+  user: users.usager,
+  revision: procedure.active_revision,
+  groupe_instructeur: procedure.defaut_groupe_instructeur,
+  autorisation_donnees: true,
+  etablissement: build_etablissement.call
 )
 dossier.build_default_values
 dossier.state = Dossier.states.fetch(:en_construction)
@@ -74,3 +82,25 @@ dossier.submitted_revision_id = dossier.revision_id
 dossier.save!
 
 dossiers.label avec_siret: dossier
+
+champ_values = {
+  "Nom du projet" => "Rénovation du réseau de transport",
+  "Description du projet" => "Un projet de rénovation du réseau de transport par conduites.",
+}
+
+dossier_en_instruction = Dossier.create!(
+  user: users.usager,
+  revision: procedure.active_revision,
+  groupe_instructeur: procedure.defaut_groupe_instructeur,
+  autorisation_donnees: true,
+  etablissement: build_etablissement.call
+)
+dossier_en_instruction.build_default_values
+dossier_en_instruction.champ_data.each { it.value = champ_values.fetch(it.libelle, it.value) }
+dossier_en_instruction.state = Dossier.states.fetch(:en_instruction)
+processed_at = DossierWithReferenceDate.assign(dossier_en_instruction, reference_date: 1.day.ago)
+dossier_en_instruction.traitements.passer_en_instruction(processed_at:)
+dossier_en_instruction.submitted_revision_id = dossier_en_instruction.revision_id
+dossier_en_instruction.save!
+
+dossiers.label entreprise_en_instruction: dossier_en_instruction

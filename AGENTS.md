@@ -243,8 +243,8 @@ Controllers are organized by user role:
 
 - Use TDD as much as possible.
 - Prefer system specs for user-facing features
-- **Prefer Oaken seeds over factories.** The whole world in `db/seeds/` (users, procedures, dossiers) is seeded once per suite via `oaken/rspec_setup`; labeled accessors (`users.usager`, `administrateurs.default`, `procedures.individual`, `dossiers.en_construction`, …) are available in every example, and per-example mutations roll back. Reach for a seeded record first; only fall back to a factory when the spec needs attributes the seeds don't provide.
-- Scenario seeds in `db/seeds/cases/` (avis, champs, entreprise, messagerie, sva, …) load per group with `before_all { seed "cases/avis" }` — add a new case file when several specs need the same non-trivial setup.
+- **Prefer Oaken seeds over factories.** The whole world in `db/seeds/` (users, procedures, dossiers, avis, entreprise, messagerie) is seeded once per suite via `oaken/rspec_setup`; labeled accessors (`users.usager`, `administrateurs.default`, `procedures.individual`, `dossiers.en_construction`, `avis.pending`, …) are available in every example, and per-example mutations roll back. Reach for a seeded record first; only fall back to a factory when the spec needs attributes the seeds don't provide.
+- Scenario seeds in `db/seeds/cases/` (champs, sva, …) load per group with `before_all { seed "cases/sva" }` — add a new case file when several specs need the same non-trivial setup.
 - **When touching a spec that builds generic records with factories, migrate it to seeds if a seeded record (or a new case seed) fits** — it makes the suite faster and the setup shared. Keep FactoryBot (`spec/factories/`) for records whose attributes are the point of the test.
 - Seed-safety: never assert global counts or unparameterized scopes (`Procedure.all`, raw SQL over a table) — scope queries to the spec's records, or declare `empty_seeds Model` at the top of the group (see `spec/support/oaken.rb`). Specs about an admin's own aggregate state should use the seeded `administrateurs.blank`.
 - Use `let_it_be` (test-prof) for shared setup where possible
