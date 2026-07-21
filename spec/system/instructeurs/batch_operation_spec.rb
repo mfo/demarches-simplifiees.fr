@@ -9,7 +9,7 @@ describe 'BatchOperation a dossier:', js: true do
   let(:procedure) { create(:simple_procedure, :published, instructeurs: [instructeur], administrateurs: [administrateurs.default]) }
 
   context 'with an instructeur' do
-    scenario 'create a BatchOperation', chrome: true do
+    scenario 'create a BatchOperation' do
       dossier_1 = create(:dossier, :accepte, procedure: procedure)
       dossier_2 = create(:dossier, :accepte, procedure: procedure)
       dossier_3 = create(:dossier, :accepte, procedure: procedure)
@@ -48,11 +48,13 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_selector('[data-controller~="turbo-poll"]')
 
       # ensure jobs are queued
+      pause_turbo_poll
       perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
       expect { perform_enqueued_jobs(only: [BatchOperationProcessOneJob]) }
         .to change { dossier_1.reload.archived }
         .from(false).to(true)
 
+      resume_turbo_poll
       scroll_to(find_button("Personnaliser le tableau"))
 
       # ensure alert updates when jobs are run
@@ -60,7 +62,7 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_content("1 dossier a été placé dans « à archiver »")
 
       # ensure data-controller="turbo-poll" is no longer present
-      expect(page).not_to have_selector('[data-controller~="turbo-poll"]')
+      expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
 
       # clean alert after reload
       visit instructeur_procedure_path(procedure, statut: 'traites')
@@ -164,7 +166,7 @@ describe 'BatchOperation a dossier:', js: true do
       expect(BatchOperation.last.dossiers).to match_array([dossier_2, dossier_3, dossier_4])
     end
 
-    scenario 'create a BatchOperation for create_avis with modal', chrome: true do
+    scenario 'create a BatchOperation for create_avis with modal' do
       dossier_1 = create(:dossier, :en_construction, procedure: procedure)
       dossier_2 = create(:dossier, :en_instruction, procedure: procedure)
       instructeur.follow(dossier_1)
@@ -234,12 +236,14 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_selector('[data-controller~="turbo-poll"]')
 
       # ensure jobs are queued
+      pause_turbo_poll
       perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
 
       expect {
         perform_enqueued_jobs(only: [BatchOperationProcessOneJob])
       }.to change { dossier_1.reload.avis.count }.by(1)
 
+      resume_turbo_poll
       scroll_to(find_button("Personnaliser le tableau"))
 
       # ensure alert updates when jobs are run
@@ -247,7 +251,7 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_content("Des demandes d’avis ont été envoyées pour 2/2 dossiers")
 
       # ensure data-controller="turbo-poll" is no longer present
-      expect(page).not_to have_selector('[data-controller~="turbo-poll"]')
+      expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
 
       # clean alert after reload
       visit instructeur_procedure_path(procedure, statut: 'suivis')
@@ -265,7 +269,7 @@ describe 'BatchOperation a dossier:', js: true do
       )
     end
 
-    scenario 'create a BatchOperation for create_commentaire with modal in Suivis tab', chrome: true do
+    scenario 'create a BatchOperation for create_commentaire with modal in Suivis tab' do
       dossier_1 = create(:dossier, :en_construction, procedure: procedure)
       dossier_2 = create(:dossier, :en_instruction, procedure: procedure)
       instructeur.follow(dossier_1)
@@ -319,11 +323,13 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_selector('[data-controller~="turbo-poll"]')
 
       # ensure jobs are queued
+      pause_turbo_poll
       perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
       expect { perform_enqueued_jobs(only: [BatchOperationProcessOneJob]) }
         .to change { dossier_1.reload.commentaires }
         .from([]).to(anything)
 
+      resume_turbo_poll
       scroll_to(find(".batch-alert-component"))
 
       # ensure alert updates when jobs are run
@@ -331,14 +337,14 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_content("Un message a été envoyé pour 2/2 dossiers")
 
       # ensure data-controller="turbo-poll" is no longer present
-      expect(page).not_to have_selector('[data-controller~="turbo-poll"]')
+      expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
 
       # clean alert after reload
       visit instructeur_procedure_path(procedure, statut: 'suivis')
       expect(page).not_to have_content("L'action de masse est terminée")
     end
 
-    scenario 'create a BatchOperation for create_commentaire with piece jointe', chrome: true do
+    scenario 'create a BatchOperation for create_commentaire with piece jointe' do
       dossier_1 = create(:dossier, :en_construction, procedure: procedure)
       instructeur.follow(dossier_1)
       log_in(instructeur.email, password)
@@ -370,7 +376,7 @@ describe 'BatchOperation a dossier:', js: true do
       expect(dossier_1.commentaires.last.piece_jointe).to be_attached
     end
 
-    scenario 'create a BatchOperation for create_commentaire without modal in À suivre tab', chrome: true do
+    scenario 'create a BatchOperation for create_commentaire without modal in À suivre tab' do
       dossier_1 = create(:dossier, :en_construction, procedure: procedure)
       dossier_2 = create(:dossier, :en_construction, procedure: procedure)
       log_in(instructeur.email, password)
@@ -399,7 +405,7 @@ describe 'BatchOperation a dossier:', js: true do
       expect(BatchOperation.last.operation).to eq('create_commentaire')
     end
 
-    scenario 'create a BatchOperation for create_commentaire without modal in Traités tab', chrome: true do
+    scenario 'create a BatchOperation for create_commentaire without modal in Traités tab' do
       dossier_1 = create(:dossier, :accepte, procedure: procedure)
       dossier_2 = create(:dossier, :accepte, procedure: procedure)
       log_in(instructeur.email, password)
@@ -429,7 +435,7 @@ describe 'BatchOperation a dossier:', js: true do
       expect(BatchOperation.last.operation).to eq('create_commentaire')
     end
 
-    scenario 'create a BatchOperation for create_commentaire without modal in Tous tab', chrome: true do
+    scenario 'create a BatchOperation for create_commentaire without modal in Tous tab' do
       dossier_1 = create(:dossier, :en_construction, procedure: procedure)
       dossier_2 = create(:dossier, :accepte, procedure: procedure)
       log_in(instructeur.email, password)
@@ -462,7 +468,7 @@ describe 'BatchOperation a dossier:', js: true do
     end
   end
 
-  scenario 'create a BatchOperation for instruction with modal', chrome: true do
+  scenario 'create a BatchOperation for instruction with modal' do
     dossier_1 = create(:dossier, :en_instruction, procedure: procedure)
     dossier_2 = create(:dossier, :en_instruction, procedure: procedure)
     instructeur.follow(dossier_1)
@@ -529,7 +535,7 @@ describe 'BatchOperation a dossier:', js: true do
     expect(page).to have_selector('[data-controller~="turbo-poll"]')
   end
 
-  scenario 'create a BatchOperation for refusal with modal and justificatif', chrome: true do
+  scenario 'create a BatchOperation for refusal with modal and justificatif' do
     dossier_1 = create(:dossier, :en_instruction, :with_individual, procedure: procedure)
     dossier_2 = create(:dossier, :en_instruction, :with_individual, procedure: procedure)
     instructeur.follow(dossier_1)
@@ -590,6 +596,29 @@ describe 'BatchOperation a dossier:', js: true do
     expect(dossier_1.reload).to be_refuse
     expect(dossier_2.reload).to be_refuse
     expect(dossier_1.justificatif_motivation).to be_attached
+  end
+
+  # The "finished" batch alert auto-removes itself 5s after the poll that
+  # renders it, so a poll landing while jobs are performed can make the alert
+  # come and go before the spec looks at it. Detaching the turbo-poll
+  # controller while jobs run, then re-attaching it (whose first poll is
+  # immediate), makes the refresh deterministic.
+  def pause_turbo_poll
+    page.execute_script(<<~JS)
+      document.querySelectorAll('[data-controller~="turbo-poll"]').forEach((el) => {
+        el.dataset.pausedController = el.getAttribute('data-controller');
+        el.removeAttribute('data-controller');
+      });
+    JS
+  end
+
+  def resume_turbo_poll
+    page.execute_script(<<~JS)
+      document.querySelectorAll('[data-paused-controller]').forEach((el) => {
+        el.setAttribute('data-controller', el.dataset.pausedController);
+        delete el.dataset.pausedController;
+      });
+    JS
   end
 
   def log_in(email, password)
