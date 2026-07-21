@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Feature, FeatureCollection } from 'geojson';
-import { CursorClickIcon } from '@heroicons/react/outline';
 
 import { useMapLibre, ReactControl } from '../../shared/maplibre/MapLibre';
 import {
@@ -146,7 +145,7 @@ function ParcelleSwitch({
       title="Sélectionner les parcelles"
       className={enabled ? 'on' : 'off'}
     >
-      <CursorClickIcon className="icon-size" />
+      <span className="fr-icon-cursor-line fr-icon--sm" aria-hidden="true" />
     </button>
   );
 }

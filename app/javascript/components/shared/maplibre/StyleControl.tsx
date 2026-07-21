@@ -1,9 +1,7 @@
 import { useId, useRef, useEffect } from 'react';
 import { Button, Dialog, DialogTrigger, Popover } from 'react-aria-components';
-import { MapIcon } from '@heroicons/react/outline';
-import { Slider } from '@reach/slider';
-import '@reach/slider/styles.css';
 
+import { Slider } from '../../react-aria/components/Slider';
 import { type LayersMap, type MapStyle, NBS } from './styles';
 
 const STYLES = {
@@ -40,7 +38,10 @@ export function StyleSwitch({
   return (
     <DialogTrigger>
       <Button ref={buttonRef}>
-        <MapIcon className="icon-size" />
+        <span
+          className="fr-icon-road-map-line fr-icon--sm"
+          aria-hidden="true"
+        />
       </Button>
       <Popover className="react-aria-popover">
         <Dialog className="fr-modal__body">
@@ -92,21 +93,15 @@ export function StyleSwitch({
                         </label>
                       </div>
                       <Slider
-                        min={10}
-                        max={100}
+                        minValue={10}
+                        maxValue={100}
                         step={5}
                         value={opacity}
                         onChange={(value) => {
                           setLayerOpacity(layer, value);
                         }}
-                        className="fr-range fr-range--sm fr-mt-2v"
-                        title={`Réglage de l’opacité de la couche «${NBS}${name}${NBS}»`}
-                        getAriaLabel={() =>
-                          `Réglage de l’opacité de la couche «${NBS}${name}${NBS}»`
-                        }
-                        getAriaValueText={(value) =>
-                          `L’opacité de la couche «${NBS}${name}${NBS}» est à ${value}${NBS}%`
-                        }
+                        className="react-aria-Slider fr-mt-2v"
+                        aria-label={`Réglage de l’opacité de la couche «${NBS}${name}${NBS}»`}
                       />
                     </div>
                   )

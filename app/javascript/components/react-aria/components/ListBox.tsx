@@ -7,7 +7,6 @@ import {
   type ListBoxItemProps,
   type ListBoxProps
 } from 'react-aria-components';
-import { Check } from 'lucide-react';
 import './ListBox.css';
 
 export function ListBoxItem(props: ListBoxItemProps) {
@@ -39,7 +38,12 @@ export function DropdownItem(props: ListBoxItemProps) {
     <ListBoxItem {...props} textValue={textValue} className="dropdown-item">
       {composeRenderProps(props.children, (children, { isSelected }) => (
         <>
-          {isSelected && <Check />}
+          {isSelected && (
+            <span
+              className="fr-icon-check-line fr-icon--sm"
+              aria-hidden="true"
+            />
+          )}
           {typeof children === 'string' ? (
             <Text slot="label">{children}</Text>
           ) : (
