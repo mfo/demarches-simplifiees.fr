@@ -2301,6 +2301,20 @@ describe Procedure do
       expect(columns.size).to eq(1)
       expect(columns.first.tdc_type).to eq('address')
     end
+
+    it 'offers the commune name column for a commune champ' do
+      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :communes, libelle: 'Ville de naissance' }])
+      dossier = create(:dossier, :with_populated_champs, procedure:)
+
+      column = procedure.personnalisable_columns.sole
+      expect(column.label).to eq('Ville de naissance – Commune')
+      expect(column.value(dossier.champs.first)).to eq('Coye-la-Forêt')
+    end
+
+    it 'offers the canonical column for a single-column champ' do
+      ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+      expect(ville_column.h_id[:column_id]).to eq("type_de_champ/#{ville_column.stable_id}")
+    end
   end
 
   private

@@ -117,6 +117,10 @@ class TypesDeChamp::TypeDeChampBase
     [canonical_column(procedure_id:, displayable:, prefix:)].compact
   end
 
+  def personnalisation_column(procedure_id:)
+    columns(procedure_id:).find(&:displayable)
+  end
+
   def info_columns(procedure:)
     # Extract labels from columns, removing the libelle prefix automatically
     # Example: "Commune - code postal" => "code postal"
