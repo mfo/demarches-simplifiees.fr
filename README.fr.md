@@ -34,24 +34,7 @@ Pour faire tourner sidekiq, vous aurez besoin de :
 
 #### Tests
 
-- Chrome
-- chromedriver :
-  - Mac : `brew install chromedriver`
-  - Linux : voir https://developer.chrome.com/blog/chrome-for-testing
-
-Si l’emplacement d’installation de Chrome n’est pas standard, ou que vous utilisez Brave ou Chromium à la place,
-il peut être nécessaire d’overrider pour votre machine le path vers le binaire Chrome, par exemple :
-
-```ruby
-# create file spec/support/spec_config.local.rb
-
-Selenium::WebDriver::Chrome.path = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
-
-# Must exactly match the browser version
-Webdrivers::Chromedriver.required_version = "103.0.5060.53"
-```
-
-Il est également possible de faire une installation et mise à jour automatique lors de l’exécution de `bin/update` en définissant la variable d’environnement `UPDATE_WEBDRIVER`. Les binaires seront installés dans le repertoire `~/.local/bin/` qui doit être rajouté manuellement dans le path.
+Les tests systèmes s’exécutent avec Playwright (Chromium par défaut). Le navigateur est installé par `bin/setup` (ou `bun playwright install chromium`). Définissez `PLAYWRIGHT_BROWSER=firefox` ou `PLAYWRIGHT_BROWSER=webkit` pour les exécuter dans un autre navigateur.
 
 ### Création des rôles de la base de données
 
@@ -101,7 +84,7 @@ Pour mettre à jour votre environnement de développement, installer les nouvell
 
 ### Exécution des tests (RSpec)
 
-Les tests ont besoin de leur propre base de données et certains d’entre eux utilisent Selenium pour s’exécuter dans un navigateur. N’oubliez pas de créer la base de test et d’installer chrome et chromedriver pour exécuter tous les tests.
+Les tests ont besoin de leur propre base de données et certains d’entre eux s’exécutent dans un navigateur via Playwright. N’oubliez pas de créer la base de test et d’installer le navigateur Playwright (`bun playwright install chromium`) pour exécuter tous les tests.
 
 Pour exécuter les tests de l’application, plusieurs possibilités :
 
@@ -128,11 +111,11 @@ Pour exécuter les tests de l’application, plusieurs possibilités :
 
         NO_HEADLESS=1 bin/rspec spec/system
 
-- Afficher les logs js en error issus de la console du navigateur `console.error('coucou')`
+- Afficher les logs js issus de la console du navigateur `console.error('coucou')`
 
-        JS_LOG=debug,log,error bin/rspec spec/system
+        LOG_WEB_CONSOLE=1 bin/rspec spec/system
 
-- Augmenter la latence lors de tests end2end pour déceler des bugs récalcitrants
+- Augmenter la latence réseau lors de tests end2end pour déceler des bugs récalcitrants (Chromium uniquement)
 
         MAKE_IT_SLOW=1 bin/rspec spec/system
 

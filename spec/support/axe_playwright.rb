@@ -2,14 +2,9 @@
 
 # `be_axe_clean` for Playwright-driven system specs.
 #
-# axe-core-rspec's own matcher drives Selenium-specific APIs (window handles,
-# timeouts) and cannot run against capybara-playwright-driver. This matcher
-# does what @axe-core/playwright does in Node: inject the axe-core source into
+# Does what @axe-core/playwright does in Node: inject the axe-core source into
 # every frame with `evaluate`, call `axe.run`, and read the results back as
 # JSON in a single protocol round trip.
-#
-# It shadows the gem's matcher (included globally by axe-rspec) for `js: true`
-# examples only; `chrome: true` examples keep the gem's Selenium integration.
 module AxePlaywright
   AXE_SOURCE_PATH = Rails.root.join('node_modules/axe-core/axe.min.js')
 

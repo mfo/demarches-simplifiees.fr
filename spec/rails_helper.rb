@@ -20,7 +20,6 @@ TestProf::BeforeAll.configure do |config|
   config.setup_fixtures = true
 end
 
-require 'axe-rspec'
 require 'devise'
 require 'shoulda-matchers'
 require 'view_component/test_helpers'

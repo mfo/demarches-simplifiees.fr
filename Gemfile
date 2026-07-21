@@ -125,7 +125,6 @@ gem 'zipline'
 gem 'zxcvbn'
 
 group :test do
-  gem 'axe-core-rspec' # accessibility rspec matchers
   gem 'capybara' # Integration testing
   gem 'capybara-email' # Access emails during integration tests
   gem 'capybara-playwright-driver'
@@ -136,8 +135,6 @@ group :test do
   gem 'rails-controller-testing'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
-  gem 'selenium-devtools'
-  gem 'selenium-webdriver'
   gem 'shoulda-matchers', require: false
   gem 'simplecov', require: false
   gem 'simplecov-cobertura', require: false
