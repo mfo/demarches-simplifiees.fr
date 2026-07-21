@@ -6,7 +6,7 @@ ministeres = Psych.safe_load(Rails.root.join("config/zones.yml").read).fetch("mi
 
 ministeres.each do |ministere|
   acronym = ministere.keys.first
-  zone = Zone.create!(acronym:, tchap_hs: ministere["tchap_hs"] || [])
+  zone = zones.create(acronym:, tchap_hs: ministere["tchap_hs"] || [])
   ministere["labels"].each do |label|
     designated_on = label.keys.first
     zone.labels.create!(designated_on:, name: label.fetch(designated_on))

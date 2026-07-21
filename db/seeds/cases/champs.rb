@@ -92,7 +92,8 @@ ActiveRecord::Base.transaction do
 
   procedures.label tous_champs: procedure
 
-  dossier = Dossier.create!(
+  dossier = dossiers.create(
+    :tous_champs,
     user: users.usager,
     revision: procedure.active_revision,
     groupe_instructeur: procedure.defaut_groupe_instructeur,
@@ -100,5 +101,4 @@ ActiveRecord::Base.transaction do
     autorisation_donnees: true
   )
   dossier.build_default_values
-  dossiers.label tous_champs: dossier
 end

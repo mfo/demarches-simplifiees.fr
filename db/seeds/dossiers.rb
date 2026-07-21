@@ -2,8 +2,9 @@
 
 procedure = procedures.individual
 
-labels = %w[brouillon en_construction en_instruction accepte refuse].to_h do |state|
-  dossier = Dossier.create!(
+%w[brouillon en_construction en_instruction accepte refuse].each do |state|
+  dossier = dossiers.create(
+    state.to_sym,
     user: users.usager,
     revision: procedure.active_revision,
     groupe_instructeur: procedure.defaut_groupe_instructeur,
@@ -32,8 +33,4 @@ labels = %w[brouillon en_construction en_instruction accepte refuse].to_h do |st
     dossier.submitted_revision_id = dossier.revision_id
     dossier.save!
   end
-
-  [state.to_sym, dossier]
 end
-
-dossiers.label(**labels)
