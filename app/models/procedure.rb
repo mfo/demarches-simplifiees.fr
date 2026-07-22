@@ -25,7 +25,7 @@ class Procedure < ApplicationRecord
 
   MIN_WEIGHT = 350000
 
-  DOSSIERS_COUNT_EXPIRING = 1.hour
+  DOSSIERS_COUNT_EXPIRING = 12.hours
 
   encrypts :api_particulier_token
 
@@ -699,7 +699,7 @@ class Procedure < ApplicationRecord
   def compute_dossiers_count
     now = Time.zone.now
     if now > (self.dossiers_count_computed_at || self.created_at) + DOSSIERS_COUNT_EXPIRING
-      self.update(estimated_dossiers_count: self.dossiers.visible_by_administration.count,
+      self.update(estimated_dossiers_count: self.dossiers_submitted_to_administration_count,
                 dossiers_count_computed_at: now)
     end
   end
