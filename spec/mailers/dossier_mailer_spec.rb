@@ -67,7 +67,7 @@ RSpec.describe DossierMailer, type: :mailer do
   end
 
   describe '.notify_new_answer with dossier en construction' do
-    let(:dossier) { create(:dossier, :en_construction, procedure: create(:simple_procedure)) }
+    let(:dossier) { create(:dossier, :en_construction, procedure: procedures.individual) }
     let(:commentaire) { create(:commentaire, dossier: dossier) }
 
     subject { described_class.with(commentaire: commentaire).notify_new_answer }
@@ -82,7 +82,7 @@ RSpec.describe DossierMailer, type: :mailer do
   end
 
   describe '.notify_new_answer with commentaire discarded' do
-    let(:dossier) { create(:dossier, procedure: create(:simple_procedure)) }
+    let(:dossier) { create(:dossier, procedure: procedures.individual) }
     let(:commentaire) { create(:commentaire, dossier: dossier, discarded_at: 2.minutes.ago) }
 
     subject { described_class.with(commentaire: commentaire).notify_new_answer }

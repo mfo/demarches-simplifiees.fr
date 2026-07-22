@@ -323,8 +323,8 @@ describe BatchOperationProcessOneJob, type: :job do
     end
 
     context 'when the dossier is out of sync (ie: someone applied a transition somewhere we do not know)' do
-      let(:instructeur) { create(:instructeur) }
-      let(:procedure) { create(:simple_procedure, instructeurs: [instructeur]) }
+      let(:instructeur) { instructeurs.default }
+      let(:procedure) { procedures.individual }
       let(:dossier) { create(:dossier, :accepte, :with_individual, archived: true, procedure: procedure) }
       let(:batch_operation) { create(:batch_operation, operation: :archiver, instructeur: instructeur, dossiers: [dossier]) }
 

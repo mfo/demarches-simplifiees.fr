@@ -33,7 +33,7 @@ describe 'layouts/_header', type: :view do
     end
 
     context 'when on a procedure page' do
-      let(:procedure) { create(:procedure, :with_service) }
+      let(:procedure) { procedures.brouillon }
 
       before do
         allow(controller).to receive(:procedure_for_help).and_return(procedure)

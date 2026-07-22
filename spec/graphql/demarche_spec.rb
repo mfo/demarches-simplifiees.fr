@@ -177,7 +177,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'republier une demarche depubliee' do
-    let(:procedure) { create(:procedure, :unpublished, administrateurs: [admin]) }
+    let(:procedure) { procedures.depubliee }
     let(:query) { PUBLIER_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, path: procedure.path, lienSiteWeb: 'https://test.gouv.fr' } }
 

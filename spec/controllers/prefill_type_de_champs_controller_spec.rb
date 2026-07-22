@@ -49,7 +49,7 @@ RSpec.describe PrefillTypeDeChampsController, type: :controller do
       end
 
       context 'when the procedure is not publiee and not brouillon' do
-        let(:procedure) { create(:procedure, :closed) }
+        let(:procedure) { procedures.close }
 
         it { expect { show_request }.to raise_error(ActiveRecord::RecordNotFound) }
       end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe CreateAvisService do
-  let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:simple_procedure, instructeurs: [instructeur]) }
+  let(:instructeur) { instructeurs.default }
+  let(:procedure) { procedures.individual }
   let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
   let(:expert_email) { 'expert@exemple.fr' }
 

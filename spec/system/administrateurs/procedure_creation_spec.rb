@@ -30,7 +30,7 @@ describe 'Creating a new procedure', js: true do
   end
 
   context 'with an empty procedure' do
-    let(:procedure) { create(:procedure, :with_service, administrateur: administrateur) }
+    let(:procedure) { procedures.brouillon }
 
     scenario 'an admin can add types de champs' do
       visit champs_admin_procedure_path(procedure)

@@ -73,9 +73,9 @@ describe Instructeurs::ProceduresController, type: :controller do
       it { expect(response).to have_http_status(:ok) }
 
       context "with procedures assigned" do
-        let(:procedure_draft) { create(:procedure) }
-        let(:procedure_published) { create(:procedure, :published) }
-        let(:procedure_closed) { create(:procedure, :closed) }
+        let(:procedure_draft) { procedures.brouillon }
+        let(:procedure_published) { procedures.individual }
+        let(:procedure_closed) { procedures.close }
         let(:procedure_draft_discarded) { create(:procedure, :discarded) }
         let(:procedure_closed_discarded) { create(:procedure, :discarded) }
         let(:procedure_not_assigned) { create(:procedure) }

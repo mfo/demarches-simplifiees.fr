@@ -9,7 +9,7 @@ describe 'Getting help:' do
   end
 
   context 'on pages related to a procedure' do
-    let(:procedure) { create(:procedure, :published, :with_service) }
+    let(:procedure) { procedures.individual }
 
     scenario 'a Help menu provides administration contacts and a link to the FAQ' do
       visit commencer_path(path: procedure.path)
@@ -28,7 +28,7 @@ describe 'Getting help:' do
 
   context 'as a signed-in user' do
     let(:user) { create(:user) }
-    let(:procedure) { create(:procedure, :with_service) }
+    let(:procedure) { procedures.brouillon }
 
     before do
       login_as user, scope: :user

@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { described_class.process(procedure) }
 
-      let(:procedure) { create(:procedure, :closed) }
+      let(:procedure) { procedures.close }
 
       before do
         procedure.update_column(:closing_reason, Procedure.closing_reasons.fetch(:internal_procedure))

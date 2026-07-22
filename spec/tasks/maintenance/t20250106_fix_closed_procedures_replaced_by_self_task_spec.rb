@@ -4,10 +4,10 @@ require "rails_helper"
 
 module Maintenance
   RSpec.describe T20250106FixClosedProceduresReplacedBySelfTask do
-    let!(:replacement_procedure) { create(:procedure, :published) }
+    let!(:replacement_procedure) { procedures.individual }
 
     # Procedures that should be fixed
-    let!(:closed_procedure_to_fix) { create(:procedure, :closed) }
+    let!(:closed_procedure_to_fix) { procedures.close }
     let!(:discarded_closed_procedure_to_fix) { create(:procedure, :closed, :discarded) }
 
     # Procedures that should NOT be fixed

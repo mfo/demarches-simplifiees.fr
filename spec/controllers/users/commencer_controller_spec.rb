@@ -469,7 +469,7 @@ describe Users::CommencerController, type: :controller do
   end
 
   describe '#dossier_vide_pdf' do
-    let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+    let(:procedure) { procedures.individual }
     before { get :dossier_vide_pdf, params: { path: procedure.path } }
 
     context 'published procedure' do
