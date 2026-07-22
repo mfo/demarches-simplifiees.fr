@@ -34,16 +34,9 @@ class Champs::DepartementChamp < Champs::TextChamp
   end
 
   def value=(code)
-    if [2, 3].include?(code&.size)
-      self.external_id = code
-      super(APIGeoService.departement_name(code))
-    elsif code.blank?
-      self.external_id = nil
-      super(nil)
-    else
-      self.external_id = APIGeoService.departement_code(code)
-      super(code)
-    end
+    resolution = APIGeoService.resolve_departement(code)
+    self.external_id = resolution&.code
+    super(resolution&.name)
   end
 
   private
