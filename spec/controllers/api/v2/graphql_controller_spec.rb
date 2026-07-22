@@ -987,7 +987,8 @@ describe API::V2::GraphqlController do
           end
 
           it {
-            expect(gql_errors).not_to be_nil
+            expect(gql_errors).to be_nil
+            expect(gql_data).to eq(dossier: { champs: [{ files: [{ byteSize: GraphQL::Types::Int::MAX }] }] })
           }
         end
 
