@@ -19,6 +19,13 @@ module Types
       end
     end
 
+    # Deprecated Int field: clamp files over 2^31 - 1 bytes instead of crashing
+    # the whole query with an IntegerEncodingError; byteSizeBigInt has the real value.
+    def byte_size
+      value = object.is_a?(Hash) ? object[:byte_size] : object.byte_size
+      [value.to_i, GraphQL::Types::Int::MAX].min
+    end
+
     def virus_scan_result
       if object.is_a?(Hash)
         object[:virus_scan_result] || ActiveStorage::VirusScanner::PENDING
