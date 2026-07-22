@@ -311,7 +311,9 @@ class ChampData < ApplicationRecord
     self.value = champ.value
     self.external_id = champ.external_id
     self.value_json = champ.value_json
-    self.data = champ.data
+    # Copy the stored attribute verbatim: Champs::ReferentielChamp#data= expects
+    # an encrypted payload from the browser and would try to decrypt this hash.
+    write_attribute(:data, champ.read_attribute(:data))
     self.external_state = champ.external_state
     self.prefilled = champ.prefilled
     self.prefilled_original_value = champ.prefilled_original_value
