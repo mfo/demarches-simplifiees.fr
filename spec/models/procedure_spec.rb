@@ -1009,6 +1009,15 @@ describe Procedure do
     let(:procedure) { create(:procedure, administrateurs: [administrateur], zones: [zones.default]) }
     let(:now) { Time.zone.now.beginning_of_minute }
 
+    context 'when the procedure is already published (replayed publish)' do
+      let(:procedure) { create(:procedure, :published, administrateurs: [administrateur], zones: [zones.default]) }
+
+      it 'is a no-op instead of failing (RAILS-K6N)' do
+        expect { procedure.publish_or_reopen!(administrateur, procedure.path) }.not_to raise_error
+        expect(procedure.reload).to be_publiee
+      end
+    end
+
     context 'when publishing over a previous canonical procedure' do
       before do
         travel_to(now) do
