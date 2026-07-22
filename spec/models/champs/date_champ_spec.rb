@@ -22,6 +22,17 @@ describe Champs::DateChamp do
     end
   end
 
+  describe 'iso_8601 validation' do
+    it 'reports an error whose message can be generated (RAILS-MAQ)' do
+      allow(date_champ).to receive(:value).and_return("2023-30-01")
+
+      expect(date_champ.validate(:champ_value)).to be(false)
+      expect(date_champ.errors.first.attribute).to eq(:value)
+      expect { date_champ.errors.map(&:message) }.not_to raise_error
+      expect(date_champ.errors.first.message).to eq('doit être une date correctement formatée')
+    end
+  end
+
   describe "#to_s" do
     it "format the date" do
       champ_with_value("2020-06-20")
