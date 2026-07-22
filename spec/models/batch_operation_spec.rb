@@ -128,6 +128,25 @@ describe BatchOperation, type: :model do
           .to([dossier.id])
       end
     end
+
+    context 'when a duplicate job already processed the dossier' do
+      subject(:dossier_operation) { batch_operation.dossier_operations.find_by!(dossier:) }
+
+      before { batch_operation.track_processed_dossier(true, dossier, nil) }
+
+      it 'keeps the success state on a duplicate success' do
+        expect { batch_operation.track_processed_dossier(true, dossier, nil) }
+          .not_to change { dossier_operation.reload.state }
+          .from('success')
+      end
+
+      it 'keeps the success state on a duplicate failure' do
+        expect { batch_operation.track_processed_dossier(false, dossier, 'boom') }
+          .not_to change { dossier_operation.reload.state }
+          .from('success')
+        expect(dossier_operation.error_message).to be_nil
+      end
+    end
   end
 
   describe '#dossiers_safe_scope (with archiver)' do
