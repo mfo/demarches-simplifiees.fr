@@ -620,6 +620,10 @@ class Procedure < ApplicationRecord
     dossiers.count
   end
 
+  def dossiers_submitted_to_administration_count
+    dossiers.submitted_to_administration.count + deleted_dossiers.submitted_to_administration.count
+  end
+
   def can_be_deleted_by_administrateur?
     brouillon? || dossiers.state_en_instruction.empty?
   end
