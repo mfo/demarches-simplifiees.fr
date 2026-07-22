@@ -170,6 +170,20 @@ describe Instructeurs::ProcedurePresentationController, type: :controller do
         expect(procedure_presentation.reload.tous_filters).to eq([FilteredColumn.new(column:, filter: { operator: 'in', value: [] })])
       end
     end
+
+    context 'when the filter value is invalid' do
+      let(:dossier_id_column) { procedure.dossier_id_column }
+      let(:existing_filter) { FilteredColumn.new(column: dossier_id_column, filter: { operator: 'match', value: ['123'] }) }
+      let(:params) { { id: procedure_presentation.id, statut: 'tous', filter_key: existing_filter.id, filter: { id: dossier_id_column.id, filter: { operator: 'match', value: ['13002526500013'] } } } }
+
+      it 'shows the validation message instead of failing (RAILS-K75)' do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        expect(flash.alert.join).to include('n’est pas un numéro de dossier possible')
+        expect(procedure_presentation.reload.tous_filters).to eq([existing_filter])
+      end
+    end
   end
 
   describe '#persist_filters' do
