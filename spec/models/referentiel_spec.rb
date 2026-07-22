@@ -114,6 +114,26 @@ describe Referentiel do
       it '#options_for_path' do
         expect(referentiel.options_for_path('calorie_kcal')).to eq([["100", "100"], ["145", "145"], ["170", "170"]])
       end
+
+      describe '#resolve_item_id' do
+        it 'resolves an item id verbatim' do
+          expect(referentiel.resolve_item_id(item_ids.first)).to eq(item_ids.first)
+        end
+
+        it 'resolves a first-column label to its item id' do
+          expect(referentiel.resolve_item_id("fromage")).to eq(item_ids.first)
+          expect(referentiel.resolve_item_id("fruit")).to eq(item_ids.third)
+        end
+
+        it 'returns nil for an unknown value' do
+          expect(referentiel.resolve_item_id("unknown")).to be_nil
+        end
+
+        it 'returns nil for a blank value' do
+          expect(referentiel.resolve_item_id("")).to be_nil
+          expect(referentiel.resolve_item_id(nil)).to be_nil
+        end
+      end
     end
 
     context 'with missing option' do
