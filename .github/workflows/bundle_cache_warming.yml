@@ -7,6 +7,8 @@ on:
     paths:
       - Gemfile.lock
       - .ruby-version
+      - db/schema.rb
+      - db/migrate/**
       - package.json
       - vite.config.ts
       - app/javascript/**
@@ -27,10 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Ruby and bundle cache
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
+      - name: Setup Ruby, bundle cache and test database schema cache
+        uses: ./.github/actions/ci-setup-rails
 
       - name: Setup assets cache
         uses: ./.github/actions/ci-setup-assets
