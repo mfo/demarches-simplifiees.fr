@@ -1053,6 +1053,15 @@ describe Instructeurs::ProceduresController, type: :controller do
       get :download_export, params: { export_format: :csv, procedure_id: procedure.id }
     end
 
+    context 'when no export format is given' do
+      subject { get :download_export, params: { procedure_id: procedure.id } }
+
+      it 'redirects with an alert instead of failing (RAILS-JZW)' do
+        is_expected.to redirect_to(exports_instructeur_procedure_url(procedure))
+        expect(flash.alert).to be_present
+      end
+    end
+
     context 'when the export does not exist' do
       it 'displays an notice' do
         is_expected.to redirect_to(exports_instructeur_procedure_url(procedure))

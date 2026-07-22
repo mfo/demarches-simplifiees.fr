@@ -225,6 +225,12 @@ module Instructeurs
     end
 
     def download_export
+      # stale page or hand built url: without a format the export can not be created
+      if export_format.blank?
+        flash.alert = "Le format de l’export n’est pas renseigné."
+        return redirect_to exports_instructeur_procedure_path(procedure)
+      end
+
       groupe_instructeurs = current_instructeur
         .groupe_instructeurs
         .where(procedure: procedure)
