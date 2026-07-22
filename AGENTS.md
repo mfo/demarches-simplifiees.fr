@@ -17,9 +17,9 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 - `bundle exec rspec file_path/file_name_spec.rb:line_number` - Run specific test
 - `bundle exec rspec --only-failures` - Re-run only failed tests
 - `NO_HEADLESS=1 bundle exec rspec spec/system` - Run system tests with visible browser
-- `JS_LOG=debug,log,error bundle exec rspec spec/system` - Display JavaScript console errors in tests
-- `MAKE_IT_SLOW=1 bundle exec rspec spec/system` - Add latency to detect timing bugs
-- Tests use Playwright and Selenium WebDriver with Chrome/Chromium
+- `LOG_WEB_CONSOLE=1 bundle exec rspec spec/system` - Display JavaScript console messages in tests
+- `MAKE_IT_SLOW=1 bundle exec rspec spec/system` - Add network latency to detect timing bugs (Chromium only)
+- Tests use Playwright (Chromium by default; `PLAYWRIGHT_BROWSER=firefox|webkit` to switch)
 
 ### Linting & Code Quality
 - `bin/rake lint` - Run all linters (Rubocop, haml-lint, herb linter/formatter, i18n-tasks, Brakeman, ESLint, TypeScript, CSS)

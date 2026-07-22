@@ -34,24 +34,7 @@ Would you like to make changes or improvements? Read our [contribution guide](CO
 
 #### Tests
 
-- Chrome
-- chromedriver:
-  - Mac: `brew install chromedriver`
-  - Linux: see https://developer.chrome.com/blog/chrome-for-testing
-
-If Chrome's installation location is non-standard, or if you're using Brave or Chromium instead,
-you may need to override the path to the Chrome binary for your machine, for example:
-
-```ruby
-# create file spec/support/spec_config.local.rb
-
-Selenium::WebDriver::Chrome.path = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
-
-# Must exactly match the browser version
-Webdrivers::Chromedriver.required_version = "103.0.5060.53"
-```
-
-It's also possible to automatically install and update when running `bin/update` by defining the `UPDATE_WEBDRIVER` environment variable. The binaries will be installed in the `~/.local/bin/` directory, which must be manually added to your path.
+System tests run with Playwright (Chromium by default). The browser is installed by `bin/setup` (or `bun playwright install chromium`). Set `PLAYWRIGHT_BROWSER=firefox` or `PLAYWRIGHT_BROWSER=webkit` to run them in another browser.
 
 ### Creating database roles
 
@@ -101,7 +84,7 @@ To update your development environment, install new dependencies, and run migrat
 
 ### Running tests (RSpec)
 
-Tests need their own database, and some of them use Selenium to run in a browser. Don't forget to create the test database and install Chrome and chromedriver to run all tests.
+Tests need their own database, and some of them run in a browser through Playwright. Don't forget to create the test database and install the Playwright browser (`bun playwright install chromium`) to run all tests.
 
 To run the application tests, several options are available:
 
@@ -128,11 +111,11 @@ To run the application tests, several options are available:
 
         NO_HEADLESS=1 bin/rspec spec/system
 
-- Display JavaScript error logs from the browser console (`console.error('hello')`)
+- Display JavaScript logs from the browser console (`console.error('hello')`)
 
-        JS_LOG=debug,log,error bin/rspec spec/system
+        LOG_WEB_CONSOLE=1 bin/rspec spec/system
 
-- Increase latency during end-to-end tests to detect stubborn bugs
+- Increase network latency during end-to-end tests to detect stubborn timing bugs (Chromium only)
 
         MAKE_IT_SLOW=1 bin/rspec spec/system
 

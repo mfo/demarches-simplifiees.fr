@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe "procedure exports zip" do
+describe "procedure exports zip", js: true do
   let(:instructeur) { create(:instructeur) }
   let(:procedure) { create(:procedure, :published, types_de_champ_public:, instructeurs: [instructeur]) }
   let(:types_de_champ_public) { [{ type: :text }] }
@@ -9,7 +9,7 @@ describe "procedure exports zip" do
     login_as(instructeur.user, scope: :user)
   end
 
-  scenario "create an export_template zip", chrome: true do
+  scenario "create an export_template zip" do
     visit instructeur_procedure_path(procedure)
 
     find("button", text: "Téléchargements").click
