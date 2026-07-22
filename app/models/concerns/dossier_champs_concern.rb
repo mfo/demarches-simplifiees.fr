@@ -416,7 +416,9 @@ module DossierChampsConcern
     # Needed when a revision change the champ type in this case, we reset the champ data
     if data.class != type_de_champ.champ_class
       data = data.becomes!(type_de_champ.champ_class)
-      data.assign_attributes(value: nil, value_json: nil, external_id: nil, data: nil)
+      # external_state must be reset too: a champ left "fetched" with nil data
+      # crashes the components rendering the fetched external data
+      data.assign_attributes(value: nil, value_json: nil, external_id: nil, data: nil, external_state: nil, fetch_external_data_exceptions: [])
     elsif !main_stream? && data.previously_new_record?
       main_stream_data = champ_data.find_by(stable_id: type_de_champ.stable_id, row_id:, stream: Dossier::MAIN_STREAM)
       data.clone_value_from(main_stream_data) if main_stream_data.present?

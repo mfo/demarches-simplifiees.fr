@@ -365,6 +365,18 @@ RSpec.describe DossierChampsConcern do
           expect(subject.value).to be_nil
           expect(project_champ.is_a?(Champs::CheckboxChamp)).to be_truthy
         }
+
+        context "when the previous champ had fetched external data" do
+          before do
+            dossier.champ_data.first.update_columns(external_state: 'fetched', data: { 'title' => 'stale' })
+          end
+
+          it "resets the external state along with the data (RAILS-MAN)" do
+            expect(subject.idle?).to be(true)
+            expect(subject.data).to be_nil
+            expect(subject.fetched?).to be(false)
+          end
+        end
       end
 
       context "champ carte" do
