@@ -3,9 +3,18 @@
 class API::V2::Schema < GraphQL::Schema
   default_max_page_size 100
   default_page_size 100
-  # Disable max_complexity for now because of what looks like a bug in graphql gem.
-  # After some internal changes complexity for our avarage query went from < 300 to 25 000.
-  max_complexity nil
+  # Connection fields multiply their child complexity by the requested page size, so a
+  # full page (first: 100) of our richest query is expensive by design:
+  #   - getDossier (single dossier, all includes): ~430
+  #   - getDemarche dossiers(first: 100), all includes on: ~37 600  <- legitimate ceiling
+  # The budget is set to ~1.6x that ceiling: enough headroom for schema growth and the
+  # heaviest legitimate query, while rejecting the real abuse vector (aliasing several
+  # full-page connections into one request, e.g. 2x the canonical query ~= 75 000).
+  # GRAPHQL_MAX_COMPLEXITY overrides it without a release if a legitimate integration
+  # ever trips it: raise it, or set it to 0 to lift the limit entirely.
+  DEFAULT_MAX_COMPLEXITY = 60_000
+  MAX_COMPLEXITY = ENV['GRAPHQL_MAX_COMPLEXITY'].presence&.to_i || DEFAULT_MAX_COMPLEXITY
+  max_complexity MAX_COMPLEXITY.nonzero?
   max_depth 15
 
   query Types::QueryType
