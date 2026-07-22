@@ -146,14 +146,17 @@ class BatchOperation < ApplicationRecord
     end
   end
 
+  # Jobs are delivered at least once: a concurrent duplicate may have already
+  # transitioned the operation, so only fire events that are still allowed.
   def track_processed_dossier(success, dossier, error_message)
     dossiers.delete(dossier)
+    operation = dossier_operation(dossier)
 
     if success
-      dossier_operation(dossier).done!
-    else
-      dossier_operation(dossier).update!(error_message:)
-      dossier_operation(dossier).fail!
+      operation.done! if operation.may_done?
+    elsif operation.may_fail?
+      operation.update!(error_message:)
+      operation.fail!
     end
   end
 
