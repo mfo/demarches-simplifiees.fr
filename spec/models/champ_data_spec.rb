@@ -641,5 +641,19 @@ describe ChampData do
       target_champ.clone_value_from(source_champ)
       expect(target_champ.external_state).to eq('fetched')
     end
+
+    context 'with an autocomplete referentiel champ' do
+      let(:referentiel) { create(:api_referentiel, :autocomplete) }
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel:, mandatory: true }]) }
+      let(:data) { { 'id' => '123', 'label' => 'foo' } }
+
+      before { source_champ.update_columns(data:) }
+
+      it 'copies stored data verbatim instead of decrypting it (RAILS-KQB)' do
+        expect { target_champ.clone_value_from(source_champ) }.not_to raise_error
+        expect(target_champ.read_attribute(:data)).to eq(data)
+        expect(target_champ.value_json).to eq(source_champ.value_json)
+      end
+    end
   end
 end
