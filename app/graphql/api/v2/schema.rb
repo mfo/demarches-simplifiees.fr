@@ -149,6 +149,12 @@ class API::V2::Schema < GraphQL::Schema
   end
 
   def self.type_error(error, ctx)
+    # An out-of-bounds Int in the request (e.g. a SIRET sent as demarche number) is a
+    # client input error: surface it as a validation error instead of a 500.
+    if error.is_a?(GraphQL::IntegerDecodingError)
+      raise GraphQL::ExecutionError.new(error.message, extensions: { code: :bad_request })
+    end
+
     # Capture type errors in Sentry. Thouse errors are our responsability and usually linked to
     # instances of "bad data".
     Sentry.capture_exception(error, extra: ctx.query_info)

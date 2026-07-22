@@ -227,6 +227,28 @@ describe API::V2::GraphqlController do
       end
     end
 
+    describe "demarche with an out of bounds number" do
+      let(:query) { "query GetDemarche($number: Int!) { demarche(number: $number) { id } }" }
+      let(:variables) { { number: 10_000_000_000_000_000 } }
+
+      it "returns a validation error instead of an internal error" do
+        expect(Sentry).not_to receive(:capture_exception)
+        expect(subject).to have_http_status(:ok)
+        expect(gql_errors.first[:message]).to match(/invalid value|out of bounds/)
+      end
+
+      context "when the number is an inline literal" do
+        let(:query) { "{ demarche(number: 10000000000000000) { id } }" }
+        let(:variables) { {} }
+
+        it "returns a validation error instead of an internal error" do
+          expect(Sentry).not_to receive(:capture_exception)
+          expect(subject).to have_http_status(:ok)
+          expect(gql_errors.first[:message]).to match(/invalid value|out of bounds/)
+        end
+      end
+    end
+
     describe "demarche" do
       describe "query a demarche" do
         let(:label) { build(:label) }
