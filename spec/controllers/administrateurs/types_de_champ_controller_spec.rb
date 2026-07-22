@@ -402,6 +402,20 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       expect(morpheds).to eq([['l3', ['l1']]])
     end
 
+    context 'when the champ was already removed (replayed double click)' do
+      let(:params) { { procedure_id: procedure.id, stable_id: @removed_stable_id } }
+
+      before do
+        @removed_stable_id = second_coordinate.stable_id
+        procedure.draft_revision.remove_type_de_champ(@removed_stable_id)
+      end
+
+      it 'is a no-op instead of failing (RAILS-JYT)' do
+        is_expected.to have_http_status(:ok)
+        expect(assigns(:destroyed)).to be_nil
+      end
+    end
+
     context 'rejected if type changed and routing involved' do
       let(:params) do
         { procedure_id: procedure.id, stable_id: third_coordinate.stable_id }
