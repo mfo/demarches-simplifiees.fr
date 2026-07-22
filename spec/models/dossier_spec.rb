@@ -192,6 +192,28 @@ describe Dossier, type: :model do
       is_expected.to validate_presence_of(:user)
     end
 
+    describe 'mandataire identity' do
+      let(:procedure) { create(:procedure, :for_individual) }
+
+      context 'for_tiers brouillon without mandataire names (transient persona choice)' do
+        let(:dossier) { create(:dossier, :with_individual, procedure:) }
+        before { dossier.update_columns(for_tiers: true) }
+
+        it { expect(dossier.reload).to be_valid }
+      end
+
+      context 'for_tiers en_construction without mandataire names (RAILS-M9G)' do
+        let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+        before { dossier.update_columns(for_tiers: true) }
+
+        it 'is invalid: deposit and later states require the mandataire identity' do
+          dossier.reload
+          expect(dossier).not_to be_valid
+          expect(dossier.errors.map(&:attribute)).to include(:mandataire_first_name, :mandataire_last_name)
+        end
+      end
+    end
+
     context 'when dossier has deleted_user_email_never_send' do
       subject(:dossier) { create(:dossier, procedure: procedure, deleted_user_email_never_send: "seb@totoro.org") }
 
