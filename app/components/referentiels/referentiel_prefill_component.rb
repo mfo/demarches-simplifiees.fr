@@ -17,8 +17,13 @@ class Referentiels::ReferentielPrefillComponent < Referentiels::MappingFormBase
     Referentiels::MappingFormComponent::TYPES[:array] => %w[multiple_drop_down_list],
   }.freeze
 
-  PUBLIC_FIELDS_GROUP = "Champs"
-  PRIVATE_ANNOTATIONS_GROUP = "Annotations privées"
+  def public_fields_group
+    t(".public_fields_group")
+  end
+
+  def private_annotations_group
+    t(".private_annotations_group")
+  end
 
   def source_tdcs
     @source_tdcs ||= begin
@@ -81,14 +86,14 @@ class Referentiels::ReferentielPrefillComponent < Referentiels::MappingFormBase
   end
 
   def empty_groups
-    { PUBLIC_FIELDS_GROUP => [], PRIVATE_ANNOTATIONS_GROUP => [] }
+    { public_fields_group => [], private_annotations_group => [] }
   end
 
   def visibility_group_for(tdc)
     if tdc.public?
-      PUBLIC_FIELDS_GROUP
+      public_fields_group
     else
-      PRIVATE_ANNOTATIONS_GROUP
+      private_annotations_group
     end
   end
 
@@ -100,7 +105,7 @@ class Referentiels::ReferentielPrefillComponent < Referentiels::MappingFormBase
     if type_de_champ.public?
       grouped_tdcs.compact_blank
     else
-      grouped_tdcs[PRIVATE_ANNOTATIONS_GROUP]
+      grouped_tdcs[private_annotations_group]
     end
   end
 

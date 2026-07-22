@@ -42,6 +42,6 @@ class Dossiers::RNAComponent < ApplicationComponent
   end
 
   def source
-    tag.acronym("RNA", title: "Répertoire National des Associations")
+    tag.acronym("RNA", title: t(".rna_title"))
   end
 end

@@ -11,7 +11,7 @@ class Dossiers::IdentiteEntrepriseForUsagerComponent < ApplicationComponent
     if etablissement.diffusable_commercialement
       render Dossiers::ExternalChampComponent.new(data:, details:, source:, details_footer:)
     else
-      c = Dossiers::ExternalChampComponent.new(source: 'Annuaire des Entreprises')
+      c = Dossiers::ExternalChampComponent.new(source: t(".source"))
       c.with_header do
         safe_join([
           tag.p(warning_for_private_info),
@@ -51,7 +51,7 @@ class Dossiers::IdentiteEntrepriseForUsagerComponent < ApplicationComponent
 
   def details_footer = Dossiers::AnnuaireEntrepriseLinkComponent.new(siret: etablissement.siret)
 
-  def source = "INSEE, Infogreffe, URSSAF"
+  def source = t(".sources")
 
   def chiffre_affaires
     if etablissement.exercices.present?

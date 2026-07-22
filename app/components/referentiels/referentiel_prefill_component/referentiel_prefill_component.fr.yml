@@ -6,3 +6,5 @@ fr:
   prefill_field: "Champ du formulaire usager à préremplir"
   confirm_reset_prefill: "Êtes-vous sûr de vouloir réinitialiser le préremplissage ?"
   reset_prefill: "Réinitialiser le préremplissage"
+  public_fields_group: "Champs"
+  private_annotations_group: "Annotations privées"
