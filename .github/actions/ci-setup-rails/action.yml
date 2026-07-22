@@ -13,9 +13,25 @@ runs:
       run: cp config/env.example .env
       shell: bash
 
+    - name: Restore cached test database schema
+      uses: actions/cache@v4
+      with:
+        path: tmp/schema_cache.sql
+        key: db-schema-v1-${{ hashFiles('db/schema.rb', 'db/migrate/**') }}
+
     - name: Setup test database
       env:
         RAILS_ENV: test
         DATABASE_URL: 'postgres://tps_test@localhost:5432/tps_test'
-      run: bin/rails db:schema:load db:migrate
+      # Restoring the cached schema dump with psql is ~10x faster than
+      # bin/rails db:schema:load. pg_dump runs inside the postgres service
+      # container because its client version must match the server.
+      run: |
+        if [ -f tmp/schema_cache.sql ]; then
+          psql "$DATABASE_URL" --quiet -v ON_ERROR_STOP=1 -f tmp/schema_cache.sql > /dev/null
+        else
+          bin/rails db:schema:load db:migrate
+          mkdir -p tmp
+          docker exec "$(docker ps --quiet --filter publish=5432)" pg_dump --username tps_test tps_test > tmp/schema_cache.sql
+        fi
       shell: bash
