@@ -5,18 +5,16 @@ describe API::V2::GraphqlController do
   let(:generated_token) { APIToken.generate(admin) }
   let(:api_token) { generated_token.first }
   let(:token) { generated_token.second }
-  let(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_public:) }
-  let(:types_de_champ_public) { [] }
-  let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
-  let(:dossiers) { [dossier] }
-  let(:instructeur) { create(:instructeur, followed_dossiers: dossiers) }
+  let(:procedure) { procedures.individual }
+  let(:dossier) { dossiers.en_construction }
+  let(:instructeur) { instructeurs.default }
   let(:authorization_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 
   before do
     instructeur.assign_to_procedure(procedure)
   end
 
-  let(:query_id) { nil }
+  let(:query_id) { 'ds-mutation-v2' }
   let(:variables) { {} }
   let(:operation_name) { nil }
   let(:body) { JSON.parse(subject.body, symbolize_names: true) }
@@ -57,7 +55,6 @@ describe API::V2::GraphqlController do
   end
 
   describe 'ds-mutation-v2' do
-    let(:query_id) { 'ds-mutation-v2' }
     let(:disableNotification) { nil }
 
     context 'not found operation name' do
@@ -69,7 +66,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierArchiver' do
-      let(:dossier) { create(:dossier, :refuse, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.refuse }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id } } }
       let(:operation_name) { 'dossierArchiver' }
 
@@ -89,7 +86,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'when not processed' do
-        let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
+        let(:dossier) { dossiers.en_instruction }
 
         it {
           expect(gql_data[:dossierArchiver][:errors].first[:message]).to eq('Un dossier ne peut être déplacé dans « à archiver » qu’une fois le traitement terminé')
@@ -98,7 +95,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierDesarchiver' do
-      let(:dossier) { create(:dossier, :refuse, :with_individual, :archived, procedure:) }
+      let(:dossier) { dossiers.refuse.tap { it.update(archived: true) } }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id } } }
       let(:operation_name) { 'dossierDesarchiver' }
 
@@ -117,8 +114,8 @@ describe API::V2::GraphqlController do
         }
       end
 
-      context 'when not processed' do
-        let(:dossier) { create(:dossier, :refuse, :with_individual, procedure:) }
+      context 'when not archived' do
+        let(:dossier) { dossiers.refuse }
 
         it {
           expect(gql_data[:dossierDesarchiver][:errors].first[:message]).to eq('Un dossier non archivé ne peut pas être désarchivé')
@@ -127,7 +124,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierPasserEnInstruction' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, disableNotification: } } }
       let(:operation_name) { 'dossierPasserEnInstruction' }
 
@@ -163,7 +159,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierRepasserEnConstruction' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, disableNotification: } } }
       let(:operation_name) { 'dossierRepasserEnConstruction' }
 
@@ -176,7 +172,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierRepasserEnInstruction' do
-      let(:dossier) { create(:dossier, :refuse, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.refuse }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, disableNotification: } } }
       let(:operation_name) { 'dossierRepasserEnInstruction' }
 
@@ -201,7 +197,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierAccepter' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, disableNotification: } } }
       let(:operation_name) { 'dossierAccepter' }
 
@@ -249,7 +245,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'when already rejected' do
-        let(:dossier) { create(:dossier, :refuse, :with_individual, procedure:) }
+        let(:dossier) { dossiers.refuse }
 
         it {
           expect(gql_data[:dossierAccepter][:errors].first[:message]).to eq('Le dossier est déjà refusé')
@@ -258,8 +254,7 @@ describe API::V2::GraphqlController do
 
       context 'with entreprise' do
         let(:procedure) { procedures.entreprise }
-        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
-        let(:dossier) { Oaken::Seeds.dossiers.entreprise_en_instruction }
+        let(:dossier) { dossiers.entreprise_en_instruction }
 
         it {
           expect(gql_errors).to be_nil
@@ -279,7 +274,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierBasculeSuivi' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:follow) { true }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, follow: follow } } }
 
@@ -317,7 +312,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierRefuser' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, motivation: 'yolo', disableNotification: } } }
       let(:operation_name) { 'dossierRefuser' }
 
@@ -377,7 +372,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'when already accepted' do
-        let(:dossier) { create(:dossier, :accepte, :with_individual, procedure:) }
+        let(:dossier) { dossiers.accepte }
 
         it {
           expect(gql_data[:dossierRefuser][:errors].first[:message]).to eq('Le dossier est déjà accepté')
@@ -386,8 +381,7 @@ describe API::V2::GraphqlController do
 
       context 'with entreprise' do
         let(:procedure) { procedures.entreprise }
-        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
-        let(:dossier) { Oaken::Seeds.dossiers.entreprise_en_instruction }
+        let(:dossier) { dossiers.entreprise_en_instruction }
 
         it '', :slow do
           expect(gql_errors).to be_nil
@@ -407,7 +401,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierClasserSansSuite' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, motivation: 'yolo', disableNotification: } } }
       let(:operation_name) { 'dossierClasserSansSuite' }
 
@@ -439,7 +433,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'when already accepted' do
-        let(:dossier) { create(:dossier, :accepte, :with_individual, procedure:) }
+        let(:dossier) { dossiers.accepte }
 
         it {
           expect(gql_data[:dossierClasserSansSuite][:errors].first[:message]).to eq('Le dossier est déjà accepté')
@@ -448,8 +442,7 @@ describe API::V2::GraphqlController do
 
       context 'with entreprise' do
         let(:procedure) { procedures.entreprise }
-        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
-        let(:dossier) { Oaken::Seeds.dossiers.entreprise_en_instruction }
+        let(:dossier) { dossiers.entreprise_en_instruction }
 
         it {
           expect(gql_errors).to be_nil
@@ -469,7 +462,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'groupeInstructeurModifier' do
-      let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:variables) { { input: { groupeInstructeurId: dossier.groupe_instructeur.to_typed_id, label: 'nouveau groupe instructeur' } } }
       let(:operation_name) { 'groupeInstructeurModifier' }
 
@@ -498,7 +491,10 @@ describe API::V2::GraphqlController do
 
         context 'with api hack' do
           include Logic
-          let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+          let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{ type: :drop_down_list }]) }
+          # created eagerly so the dossier belongs to the original defaut groupe,
+          # not to defaut_groupe_instructeur which becomes the defaut below
+          let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
           let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
           let(:routing_champ) { procedure.active_revision.types_de_champ.first }
           let!(:defaut_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure) }
@@ -554,7 +550,7 @@ describe API::V2::GraphqlController do
 
       context 'with api hack' do
         include Logic
-        let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{ type: :drop_down_list }]) }
         let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
         let(:routing_champ) { procedure.active_revision.types_de_champ.first }
 
@@ -684,7 +680,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierChangerGroupeInstructeur' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, groupeInstructeurId: groupe_instructeur.to_typed_id } } }
       let(:operation_name) { 'dossierChangerGroupeInstructeur' }
 
@@ -712,7 +707,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierAjouterLabel' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:label) { create(:label, procedure:) }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, labelId: label.to_typed_id } } }
       let(:operation_name) { 'dossierAjouterLabel' }
@@ -748,7 +742,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierSupprimerLabel' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:label) { create(:label, procedure:) }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, labelId: label.to_typed_id } } }
       let(:operation_name) { 'dossierSupprimerLabel' }
@@ -776,14 +769,13 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierEnvoyerMessage' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: 'Hello World!' } } }
       let(:operation_name) { 'dossierEnvoyerMessage' }
 
       it {
         expect(gql_errors).to be_nil
         expect(gql_data[:dossierEnvoyerMessage][:errors]).to be_nil
-        expect(gql_data[:dossierEnvoyerMessage][:message][:id]).to eq(dossier.commentaires.first.to_typed_id)
+        expect(gql_data[:dossierEnvoyerMessage][:message][:id]).to eq(dossier.commentaires.last.to_typed_id)
         perform_enqueued_jobs
         expect(ActionMailer::Base.deliveries.size).to eq(1)
       }
@@ -794,8 +786,8 @@ describe API::V2::GraphqlController do
         it {
           expect(gql_errors).to be_nil
           expect(gql_data[:dossierEnvoyerMessage][:errors]).to be_nil
-          expect(gql_data[:dossierEnvoyerMessage][:message][:id]).to eq(dossier.commentaires.first.to_typed_id)
-          expect(dossier.commentaires.first.piece_jointe).to be_attached
+          expect(gql_data[:dossierEnvoyerMessage][:message][:id]).to eq(dossier.commentaires.last.to_typed_id)
+          expect(dossier.commentaires.last.piece_jointe).to be_attached
         }
       end
 
@@ -855,7 +847,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'createDirectUpload' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:variables) do
         {
           input: {
@@ -904,7 +895,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierModifierAnnotations' do
-      let(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_private:) }
+      let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_private:) }
       let(:types_de_champ_private) { [{ type: :text }, { type: :checkbox }, { type: :integer_number }, { type: :decimal_number }, { type: :date }] }
       let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:annotations) { dossier.root_champs_private }
@@ -953,7 +944,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierSupprimerMessage' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:message) { create(:commentaire, dossier:, instructeur:) }
       let(:variables) { { input: { messageId: message.to_typed_id, instructeurId: instructeur.to_typed_id } } }
       let(:operation_name) { 'dossierSupprimerMessage' }
@@ -1020,7 +1010,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'when from not the same instructeur' do
-        let(:other_instructeur) { create(:instructeur, followed_dossiers: dossiers) }
+        let(:other_instructeur) { create(:instructeur, followed_dossiers: [dossier]) }
         let(:variables) { { input: { messageId: message.to_typed_id, instructeurId: other_instructeur.to_typed_id } } }
 
         it {
@@ -1042,7 +1032,6 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierAnnulerDemandeCorrection' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:message) { create(:commentaire, dossier:, instructeur:) }
       let(:dossier_correction) { create(:dossier_correction, dossier:, commentaire: message) }
       let(:variables) { { input: { messageId: message.to_typed_id, instructeurId: instructeur.to_typed_id } } }
@@ -1087,7 +1076,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'when from another instructeur with access to the dossier' do
-        let(:other_instructeur) { create(:instructeur, followed_dossiers: dossiers) }
+        let(:other_instructeur) { create(:instructeur, followed_dossiers: [dossier]) }
         let(:variables) { { input: { messageId: message.to_typed_id, instructeurId: other_instructeur.to_typed_id } } }
 
         before { other_instructeur.assign_to_procedure(procedure) }

@@ -5,22 +5,10 @@ describe API::V2::GraphqlController do
   let(:generated_token) { APIToken.generate(admin) }
   let(:api_token) { generated_token.first }
   let(:token) { generated_token.second }
-  let(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_public:) }
-  let(:types_de_champ_public) { [] }
-  let(:dossier)  { create(:dossier, :en_construction, :with_individual, procedure:, depose_at: 4.days.ago) }
-  let(:dossier1) { create(:dossier, :en_construction, :with_individual, procedure:, en_construction_at: 1.day.ago, depose_at: 3.days.ago) }
-  let(:dossier2) { create(:dossier, :en_construction, :with_individual, :archived, procedure:, en_construction_at: 3.days.ago, depose_at: 2.days.ago) }
-  let(:dossier3) { create(:dossier, :accepte, :with_individual, procedure:, depose_at: 1.day.ago) }
-  let(:dossier_accepte) { create(:dossier, :accepte, :with_individual, procedure:) }
-  let(:dossier_accepte1) { create(:dossier, :accepte, :with_individual, procedure:) }
-  let(:dossier_accepte2) { create(:dossier, :accepte, :with_individual, procedure:) }
-  let(:dossiers) { [dossier] }
-  let(:instructeur) { create(:instructeur, followed_dossiers: dossiers) }
+  let(:procedure) { procedures.individual }
+  let(:dossier) { dossiers.en_construction }
+  let(:instructeur) { instructeurs.default }
   let(:authorization_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-
-  before do
-    instructeur.assign_to_procedure(procedure)
-  end
 
   let(:query_id) { nil }
   let(:variables) { {} }
@@ -117,8 +105,7 @@ describe API::V2::GraphqlController do
     end
 
     context 'when procedure is not selected' do
-      let(:other_procedure) { create(:procedure, administrateurs: [admin]) }
-      before { api_token.update(allowed_procedure_ids: [other_procedure.id]) }
+      before { api_token.update(allowed_procedure_ids: [procedures.brouillon.id]) }
 
       it {
         expect(gql_errors.first[:message]).to eq("An object of type Demarche was hidden due to permissions")
@@ -162,7 +149,6 @@ describe API::V2::GraphqlController do
   end
 
   describe 'ds-query-v2' do
-    let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:, depose_at: 4.days.ago) }
     let(:query_id) { 'ds-query-v2' }
 
     context 'not found operation id' do
@@ -232,8 +218,7 @@ describe API::V2::GraphqlController do
 
       context 'with entreprise' do
         let(:procedure) { procedures.entreprise }
-        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
-        let(:dossier) { Oaken::Seeds.dossiers.avec_siret }
+        let(:dossier) { dossiers.avec_siret }
 
         it {
           expect(gql_errors).to be_nil
@@ -275,6 +260,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'columns' do
+        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public:) }
         let(:types_de_champ_public) do
           [
             { libelle: 'label text' },
@@ -314,8 +300,6 @@ describe API::V2::GraphqlController do
     context 'getDemarche' do
       let(:variables) { { demarcheNumber: procedure.id } }
       let(:operation_name) { 'getDemarche' }
-
-      before { dossier }
 
       it {
         expect(gql_errors).to be_nil
@@ -371,19 +355,38 @@ describe API::V2::GraphqlController do
           API::V2::Schema.cursor_encoder.encode(cursor, nonce: true)
         end
 
+        # The dossiers connection lists every dossier of the demarche, so these
+        # examples run on their own procedure to keep the seeded dossiers out.
+        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin]) }
+        let(:dossier)  { create(:dossier, :en_construction, :with_individual, procedure:, depose_at: 4.days.ago) }
+        let(:dossier1) { create(:dossier, :en_construction, :with_individual, procedure:, en_construction_at: 1.day.ago, depose_at: 3.days.ago) }
+        let(:dossier2) { create(:dossier, :en_construction, :with_individual, :archived, procedure:, en_construction_at: 3.days.ago, depose_at: 2.days.ago) }
+        let(:dossier3) { create(:dossier, :accepte, :with_individual, procedure:, depose_at: 1.day.ago) }
+
+        let(:nodes) { gql_data[:demarche][:dossiers][:nodes] }
+        let(:page_info) { gql_data[:demarche][:dossiers][:pageInfo] }
         let(:order_column) { :depose_at }
         let(:variables) { { demarcheNumber: procedure.id, includeDossiers: true } }
         let(:start_cursor) { cursor_for(dossier, order_column) }
         let(:end_cursor) { cursor_for(dossier3, order_column) }
 
-        before { dossier1; dossier2; dossier3 }
+        before { dossier; dossier1; dossier2; dossier3 }
+
+        context 'state' do
+          let(:variables) { { demarcheNumber: procedure.id, includeDossiers: true, state: 'accepte' } }
+
+          it {
+            expect(gql_errors).to be_nil
+            expect(nodes.map { _1[:id] }).to eq([dossier3.to_typed_id])
+          }
+        end
 
         context 'createdSince' do
           let(:variables) { { demarcheNumber: procedure.id, includeDossiers: true, createdSince: 2.5.days.ago.iso8601 } }
 
           it {
             expect(gql_errors).to be_nil
-            expect(gql_data[:demarche][:dossiers][:nodes].map { _1[:id] }).to eq([dossier2, dossier3].map(&:to_typed_id))
+            expect(nodes.map { _1[:id] }).to eq([dossier2, dossier3].map(&:to_typed_id))
           }
         end
 
@@ -392,7 +395,7 @@ describe API::V2::GraphqlController do
 
           it {
             expect(gql_errors).to be_nil
-            expect(gql_data[:demarche][:dossiers][:nodes].map { _1[:id] }).to eq([dossier2.to_typed_id])
+            expect(nodes.map { _1[:id] }).to eq([dossier2.to_typed_id])
           }
 
           context 'false' do
@@ -400,7 +403,7 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:dossiers][:nodes].map { _1[:id] }).to eq([dossier, dossier1, dossier3].map(&:to_typed_id))
+              expect(nodes.map { _1[:id] }).to eq([dossier, dossier1, dossier3].map(&:to_typed_id))
             }
           end
         end
@@ -409,11 +412,8 @@ describe API::V2::GraphqlController do
           it {
             expect(gql_errors).to be_nil
             expect(gql_data[:demarche][:id]).to eq(procedure.to_typed_id)
-            expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(4)
-            expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-            expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-            expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-            expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+            expect(nodes.size).to eq(4)
+            expect(page_info).to eq(hasNextPage: false, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
           }
 
           context 'first' do
@@ -422,11 +422,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
             }
 
             context 'with deprecated order' do
@@ -439,11 +436,8 @@ describe API::V2::GraphqlController do
                 expect(Rails.logger).to receive(:info).with("{\"message\":\"CursorConnection: using deprecated order [#{admin.email}]\",\"user_id\":#{admin.user.id}}")
 
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
               }
 
               context 'after' do
@@ -457,11 +451,8 @@ describe API::V2::GraphqlController do
                   expect(Rails.logger).to receive(:info).with("{\"message\":\"CursorConnection: using deprecated order [#{admin.email}]\",\"user_id\":#{admin.user.id}}")
 
                   expect(gql_errors).to be_nil
-                  expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                  expect(nodes.size).to eq(2)
+                  expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
                 }
               end
 
@@ -476,11 +467,8 @@ describe API::V2::GraphqlController do
                   expect(Rails.logger).to receive(:info).with("{\"message\":\"CursorConnection: using deprecated order [#{admin.email}]\",\"user_id\":#{admin.user.id}}")
 
                   expect(gql_errors).to be_nil
-                  expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                  expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                  expect(nodes.size).to eq(2)
+                  expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
                 }
               end
             end
@@ -493,11 +481,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
               }
 
               context 'with deleted' do
@@ -507,7 +492,7 @@ describe API::V2::GraphqlController do
 
                 it {
                   expect(gql_errors).to be_nil
-                  expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(3)
+                  expect(nodes.size).to eq(3)
                 }
 
                 context 'second page not changed' do
@@ -515,11 +500,8 @@ describe API::V2::GraphqlController do
 
                   it {
                     expect(gql_errors).to be_nil
-                    expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                    expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-                    expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-                    expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                    expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                    expect(nodes.size).to eq(2)
+                    expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
                   }
                 end
               end
@@ -533,11 +515,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
           end
@@ -549,11 +528,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
             }
 
             context 'before' do
@@ -564,11 +540,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
 
@@ -580,11 +553,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
           end
@@ -599,11 +569,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
             }
 
             context 'after' do
@@ -614,11 +581,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
 
@@ -630,11 +594,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
           end
@@ -646,11 +607,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
             }
 
             context 'before' do
@@ -661,11 +619,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
 
@@ -677,11 +632,8 @@ describe API::V2::GraphqlController do
 
               it {
                 expect(gql_errors).to be_nil
-                expect(gql_data[:demarche][:dossiers][:nodes].size).to eq(2)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasNextPage]).to be_falsey
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-                expect(gql_data[:demarche][:dossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+                expect(nodes.size).to eq(2)
+                expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
               }
             end
           end
@@ -694,12 +646,19 @@ describe API::V2::GraphqlController do
           API::V2::Schema.cursor_encoder.encode(cursor, nonce: true)
         end
 
-        let(:variables) { { demarcheNumber: procedure.id, includeDeletedDossiers: true, deletedSince: 2.weeks.ago.iso8601 } }
-        let(:deleted_dossier) { DeletedDossier.create_from_dossier(dossier_accepte, DeletedDossier.reasons.fetch(:user_request)).tap { _1.update(deleted_at: 4.days.ago) } }
-        let(:deleted_dossier1) { DeletedDossier.create_from_dossier(dossier_accepte1, DeletedDossier.reasons.fetch(:user_request)).tap { _1.update(deleted_at: 3.days.ago) } }
-        let(:deleted_dossier2) { DeletedDossier.create_from_dossier(dossier_accepte2, DeletedDossier.reasons.fetch(:user_request)).tap { _1.update(deleted_at: 2.days.ago) } }
-        let(:deleted_dossier3) { DeletedDossier.create_from_dossier(dossier3, DeletedDossier.reasons.fetch(:user_request)).tap { _1.update(deleted_at: 1.day.ago) } }
+        def create_deleted_dossier(deleted_at:)
+          dossier = create(:dossier, :accepte, :with_individual, procedure:)
+          DeletedDossier.create_from_dossier(dossier, DeletedDossier.reasons.fetch(:user_request)).tap { it.update(deleted_at:) }
+        end
 
+        let(:variables) { { demarcheNumber: procedure.id, includeDeletedDossiers: true, deletedSince: 2.weeks.ago.iso8601 } }
+        let(:deleted_dossier)  { create_deleted_dossier(deleted_at: 4.days.ago) }
+        let(:deleted_dossier1) { create_deleted_dossier(deleted_at: 3.days.ago) }
+        let(:deleted_dossier2) { create_deleted_dossier(deleted_at: 2.days.ago) }
+        let(:deleted_dossier3) { create_deleted_dossier(deleted_at: 1.day.ago) }
+
+        let(:nodes) { gql_data[:demarche][:deletedDossiers][:nodes] }
+        let(:page_info) { gql_data[:demarche][:deletedDossiers][:pageInfo] }
         let(:start_cursor) { cursor_for(deleted_dossier) }
         let(:end_cursor) { cursor_for(deleted_dossier3) }
 
@@ -708,12 +667,14 @@ describe API::V2::GraphqlController do
         it {
           expect(gql_errors).to be_nil
           expect(gql_data[:demarche][:id]).to eq(procedure.to_typed_id)
-          expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(4)
-          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:id]).to eq(deleted_dossier.to_typed_id)
-          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:number]).to eq(deleted_dossier.dossier_id)
-          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:state]).to eq(deleted_dossier.state)
-          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:reason]).to eq(deleted_dossier.reason)
-          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:dateSupression]).to eq(deleted_dossier.deleted_at.iso8601)
+          expect(nodes.size).to eq(4)
+          expect(nodes.first).to eq(
+            id: deleted_dossier.to_typed_id,
+            number: deleted_dossier.dossier_id,
+            state: deleted_dossier.state,
+            reason: deleted_dossier.reason,
+            dateSupression: deleted_dossier.deleted_at.iso8601
+          )
         }
 
         context 'first' do
@@ -722,11 +683,8 @@ describe API::V2::GraphqlController do
 
           it {
             expect(gql_errors).to be_nil
-            expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(2)
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasNextPage]).to be_truthy
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+            expect(nodes.size).to eq(2)
+            expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
           }
 
           context 'after' do
@@ -737,11 +695,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasNextPage]).to be_falsey
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
 
@@ -753,11 +708,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasNextPage]).to be_truthy
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
         end
@@ -769,11 +721,8 @@ describe API::V2::GraphqlController do
 
           it {
             expect(gql_errors).to be_nil
-            expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(2)
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasNextPage]).to be_falsey
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-            expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+            expect(nodes.size).to eq(2)
+            expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
           }
 
           context 'before' do
@@ -784,11 +733,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasNextPage]).to be_truthy
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
 
@@ -800,11 +746,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasNextPage]).to be_falsey
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:deletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
         end
@@ -818,23 +761,29 @@ describe API::V2::GraphqlController do
 
         let(:variables) { { demarcheNumber: procedure.id, includePendingDeletedDossiers: true, pendingDeletedSince: 2.weeks.ago.iso8601 } }
 
+        let(:dossier_accepte) { dossiers.accepte }
+        let(:dossier1) { create(:dossier, :en_construction, :with_individual, procedure:) }
+        let(:dossier_accepte1) { create(:dossier, :accepte, :with_individual, procedure:) }
+
         let(:pending_deleted_dossier) do
           dossier.hide_and_keep_track!(dossier.user, DeletedDossier.reasons.fetch(:user_request))
-          dossier.tap { _1.update(hidden_by_user_at: 4.days.ago) }
+          dossier.tap { it.update(hidden_by_user_at: 4.days.ago) }
         end
         let(:pending_deleted_dossier1) do
           dossier_accepte.hide_and_keep_track!(instructeur, DeletedDossier.reasons.fetch(:instructeur_request))
-          dossier_accepte.tap { _1.update(hidden_by_administration_at: 3.days.ago) }
+          dossier_accepte.tap { it.update(hidden_by_administration_at: 3.days.ago) }
         end
         let(:pending_deleted_dossier2) do
           dossier1.hide_and_keep_track!(dossier.user, DeletedDossier.reasons.fetch(:user_request))
-          dossier1.tap { _1.update(hidden_by_user_at: 2.days.ago) }
+          dossier1.tap { it.update(hidden_by_user_at: 2.days.ago) }
         end
         let(:pending_deleted_dossier3) do
           dossier_accepte1.hide_and_keep_track!(instructeur, DeletedDossier.reasons.fetch(:instructeur_request))
-          dossier_accepte1.tap { _1.update(hidden_by_administration_at: 1.day.ago) }
+          dossier_accepte1.tap { it.update(hidden_by_administration_at: 1.day.ago) }
         end
 
+        let(:nodes) { gql_data[:demarche][:pendingDeletedDossiers][:nodes] }
+        let(:page_info) { gql_data[:demarche][:pendingDeletedDossiers][:pageInfo] }
         let(:start_cursor) { cursor_for(pending_deleted_dossier) }
         let(:end_cursor) { cursor_for(pending_deleted_dossier3) }
 
@@ -843,12 +792,12 @@ describe API::V2::GraphqlController do
         it {
           expect(gql_errors).to be_nil
           expect(gql_data[:demarche][:id]).to eq(procedure.to_typed_id)
-          expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(4)
-          expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].first[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier.id))
-          expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].second[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier_accepte.id))
-          expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].first[:dateSupression]).to eq(pending_deleted_dossier.hidden_by_user_at.iso8601)
-          expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].second[:dateSupression]).to eq(pending_deleted_dossier1.hidden_by_administration_at.iso8601)
-          expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].first[:dateSupression] < gql_data[:demarche][:pendingDeletedDossiers][:nodes].second[:dateSupression]).to be_truthy
+          expect(nodes.size).to eq(4)
+          expect(nodes.first[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier.id))
+          expect(nodes.second[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier_accepte.id))
+          expect(nodes.first[:dateSupression]).to eq(pending_deleted_dossier.hidden_by_user_at.iso8601)
+          expect(nodes.second[:dateSupression]).to eq(pending_deleted_dossier1.hidden_by_administration_at.iso8601)
+          expect(nodes.first[:dateSupression] < nodes.second[:dateSupression]).to be_truthy
         }
 
         context 'first' do
@@ -857,11 +806,8 @@ describe API::V2::GraphqlController do
 
           it {
             expect(gql_errors).to be_nil
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(2)
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasNextPage]).to be_truthy
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+            expect(nodes.size).to eq(2)
+            expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
           }
 
           context 'after' do
@@ -872,11 +818,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasNextPage]).to be_falsey
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
 
@@ -888,11 +831,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasNextPage]).to be_truthy
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
         end
@@ -904,11 +844,8 @@ describe API::V2::GraphqlController do
 
           it {
             expect(gql_errors).to be_nil
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(2)
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasNextPage]).to be_falsey
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-            expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+            expect(nodes.size).to eq(2)
+            expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
           }
 
           context 'before' do
@@ -919,11 +856,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasNextPage]).to be_truthy
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasPreviousPage]).to be_falsey
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: true, hasPreviousPage: false, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
 
@@ -935,11 +869,8 @@ describe API::V2::GraphqlController do
 
             it {
               expect(gql_errors).to be_nil
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:nodes].size).to eq(2)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasNextPage]).to be_falsey
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:hasPreviousPage]).to be_truthy
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:startCursor]).to eq(start_cursor)
-              expect(gql_data[:demarche][:pendingDeletedDossiers][:pageInfo][:endCursor]).to eq(end_cursor)
+              expect(nodes.size).to eq(2)
+              expect(page_info).to eq(hasNextPage: false, hasPreviousPage: true, startCursor: start_cursor, endCursor: end_cursor)
             }
           end
         end
@@ -950,8 +881,6 @@ describe API::V2::GraphqlController do
       let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
       let(:variables) { { groupeInstructeurNumber: groupe_instructeur.id } }
       let(:operation_name) { 'getGroupeInstructeur' }
-
-      before { dossier }
 
       it {
         expect(gql_errors).to be_nil
@@ -971,18 +900,20 @@ describe API::V2::GraphqlController do
       end
 
       context 'include Dossiers' do
+        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin]) }
+        let!(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
         let(:variables) { { groupeInstructeurNumber: groupe_instructeur.id, includeDossiers: true } }
 
         it {
           expect(gql_errors).to be_nil
           expect(gql_data[:groupeInstructeur][:id]).to eq(groupe_instructeur.to_typed_id)
-          expect(gql_data[:groupeInstructeur][:dossiers][:nodes].size).to eq(1)
+          expect(gql_data[:groupeInstructeur][:dossiers][:nodes].map { _1[:id] }).to eq([dossier.to_typed_id])
         }
       end
 
       context 'include deleted Dossiers' do
         let(:variables) { { groupeInstructeurNumber: groupe_instructeur.id, includeDeletedDossiers: true, deletedSince: 2.weeks.ago.iso8601 } }
-        let(:deleted_dossier) { DeletedDossier.create_from_dossier(dossier_accepte, DeletedDossier.reasons.fetch(:user_request)) }
+        let(:deleted_dossier) { DeletedDossier.create_from_dossier(dossiers.accepte, DeletedDossier.reasons.fetch(:user_request)) }
 
         before { deleted_dossier }
 
@@ -997,6 +928,8 @@ describe API::V2::GraphqlController do
 
       context 'include pending deleted Dossiers' do
         let(:variables) { { groupeInstructeurNumber: groupe_instructeur.id, includePendingDeletedDossiers: true, pendingDeletedSince: 2.weeks.ago.iso8601 } }
+        let(:dossier_accepte) { dossiers.accepte }
+        let(:nodes) { gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes] }
 
         before {
           dossier.hide_and_keep_track!(dossier.user, DeletedDossier.reasons.fetch(:user_request))
@@ -1008,19 +941,18 @@ describe API::V2::GraphqlController do
         it {
           expect(gql_errors).to be_nil
           expect(gql_data[:groupeInstructeur][:id]).to eq(groupe_instructeur.to_typed_id)
-          expect(gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].size).to eq(2)
-          expect(gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].first[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier_accepte.id))
-          expect(gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].second[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier.id))
-          expect(gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].first[:dateSupression]).to eq(dossier_accepte.hidden_by_administration_at.iso8601)
-          expect(gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].second[:dateSupression]).to eq(dossier.hidden_by_user_at.iso8601)
-          expect(gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].first[:dateSupression] < gql_data[:groupeInstructeur][:pendingDeletedDossiers][:nodes].second[:dateSupression])
+          expect(nodes.size).to eq(2)
+          expect(nodes.first[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier_accepte.id))
+          expect(nodes.second[:id]).to eq(GraphQL::Schema::UniqueWithinType.encode('DeletedDossier', dossier.id))
+          expect(nodes.first[:dateSupression]).to eq(dossier_accepte.hidden_by_administration_at.iso8601)
+          expect(nodes.second[:dateSupression]).to eq(dossier.hidden_by_user_at.iso8601)
+          expect(nodes.first[:dateSupression] < nodes.second[:dateSupression]).to be_truthy
         }
       end
     end
 
     context 'getDemarcheDescriptor' do
       let(:operation_name) { 'getDemarcheDescriptor' }
-      let(:types_de_champ_public) { [{ type: :text }, { type: :piece_justificative }, { type: :regions }] }
 
       context 'find by number' do
         let(:variables) { { demarche: { number: procedure.id }, includeRevision: true } }
