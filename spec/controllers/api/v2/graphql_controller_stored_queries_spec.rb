@@ -69,7 +69,9 @@ describe API::V2::GraphqlController do
       let(:query_id) { 'ds-query-v0' }
 
       it {
+        expect(subject).to have_http_status(:bad_request)
         expect(gql_errors.first[:message]).to eq('No query with id "ds-query-v0"')
+        expect(gql_errors.first[:extensions]).to eq(code: 'bad_request')
       }
     end
 
