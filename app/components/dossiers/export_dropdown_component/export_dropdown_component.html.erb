@@ -186,9 +186,11 @@
                     </button>
                   </li>
 
-                  <li>
-                    <%= f.submit t('.submit_export'), "data-action": "click->menu-button#close", class: 'fr-btn' %>
-                  </li>
+                  <% if export_templates.present? %>
+                    <li>
+                      <%= f.submit t('.submit_export'), "data-action": "click->menu-button#close", class: 'fr-btn' %>
+                    </li>
+                  <% end %>
                 </ul>
               </div>
             <% end %>

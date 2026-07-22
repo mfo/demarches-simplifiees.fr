@@ -7,6 +7,30 @@ RSpec.describe Dossiers::ExportDropdownComponent, type: :component do
   let(:export_url) { double() }
   before(:each) { allow(export_url).to receive(:call).and_return('http://example.com/export') }
 
+  describe 'export template tab' do
+    subject do
+      component = described_class.new(procedure:, statut: 'tous', export_url:, export_templates:)
+      allow(component).to receive(:params).and_return({ procedure_id: procedure.id })
+      render_inline(component)
+    end
+
+    context 'when the instructeur has no export template' do
+      let(:export_templates) { [] }
+
+      it 'does not render a submit button posting without a format (RAILS-JZW)' do
+        expect(subject.css('#tabpanel-template-panel input[type=submit]')).to be_empty
+      end
+    end
+
+    context 'when the instructeur has export templates' do
+      let(:export_templates) { [create(:export_template)] }
+
+      it 'renders the submit button' do
+        expect(subject.css('#tabpanel-template-panel input[type=submit]')).to be_present
+      end
+    end
+  end
+
   describe '#include_archived_title' do
     context 'when archived_count is greater than 1' do
       it 'returns the pluralized archived title' do
