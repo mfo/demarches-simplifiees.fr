@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_22_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -573,15 +573,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_000000) do
     t.index "to_tsvector('french_unaccent'::regconfig, (search_terms)::text)", name: "index_dossiers_on_search_terms", using: :gin
     t.index ["archived"], name: "index_dossiers_on_archived"
     t.index ["batch_operation_id"], name: "index_dossiers_on_batch_operation_id"
+    t.index ["depose_at", "id"], name: "index_dossiers_on_depose_at_and_id", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
     t.index ["dossier_transfer_id"], name: "index_dossiers_on_dossier_transfer_id"
     t.index ["editing_fork_origin_id"], name: "index_dossiers_on_editing_fork_origin_id"
+    t.index ["groupe_instructeur_id", "depose_at", "id"], name: "index_dossiers_on_groupe_instructeur_id_and_depose_at_and_id", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
     t.index ["groupe_instructeur_id", "state", "archived"], name: "index_dossiers_on_groupe_instructeur_id_and_state_and_archived", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
+    t.index ["groupe_instructeur_id", "updated_at", "id"], name: "index_dossiers_on_groupe_instructeur_id_and_updated_at_and_id", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
     t.index ["groupe_instructeur_id"], name: "index_dossiers_on_groupe_instructeur_id"
     t.index ["parent_dossier_id"], name: "index_dossiers_on_parent_dossier_id"
     t.index ["prefill_token"], name: "index_dossiers_on_prefill_token", unique: true
     t.index ["revision_id"], name: "index_dossiers_on_revision_id"
     t.index ["revision_id"], name: "index_dossiers_stalled_declarative", where: "(((state)::text = 'en_construction'::text) AND (declarative_triggered_at IS NULL))"
     t.index ["state"], name: "index_dossiers_on_state"
+    t.index ["updated_at", "id"], name: "index_dossiers_on_updated_at_and_id", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
     t.index ["user_id"], name: "index_dossiers_on_user_id"
   end
 
