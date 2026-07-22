@@ -52,15 +52,21 @@ class API::V2::StoredQuery
     $includeMessages: Boolean = false
     $includeCorrections: Boolean = false
     $includeGeometry: Boolean = false
+    $includeLabels: Boolean = false
   ) {
     demarche(number: $demarcheNumber) {
       id
       number
       title
+      description
       state
       declarative
       dateCreation
+      dateDerniereModification
       dateFermeture
+      labels @include(if: $includeLabels) {
+        ...LabelFragment
+      }
       chorusConfiguration {
         centreDeCout
         domaineFonctionnel
@@ -163,6 +169,7 @@ class API::V2::StoredQuery
     $includeMessages: Boolean = false
     $includeCorrections: Boolean = false
     $includeGeometry: Boolean = false
+    $includeLabels: Boolean = false
   ) {
     groupeInstructeur(number: $groupeInstructeurNumber) {
       id
@@ -236,6 +243,7 @@ class API::V2::StoredQuery
     $includeMessages: Boolean = false
     $includeCorrections: Boolean = false
     $includeGeometry: Boolean = false
+    $includeLabels: Boolean = false
   ) {
     dossier(number: $dossierNumber) {
       ...DossierFragment
@@ -349,6 +357,9 @@ class API::V2::StoredQuery
     messages @include(if: $includeMessages) {
       ...MessageFragment
     }
+    labels @include(if: $includeLabels) {
+      ...LabelFragment
+    }
   }
 
   fragment DemarcheDescriptorFragment on DemarcheDescriptor {
@@ -381,6 +392,12 @@ class API::V2::StoredQuery
     dateSupression
     state
     reason
+  }
+
+  fragment LabelFragment on Label {
+    id
+    name
+    color
   }
 
   fragment RevisionFragment on Revision {
@@ -1169,6 +1186,62 @@ class API::V2::StoredQuery
         message
       }
     }
+  }
+
+  mutation dossierChangerGroupeInstructeur(
+    $input: DossierChangerGroupeInstructeurInput!
+  ) {
+    dossierChangerGroupeInstructeur(input: $input) {
+      dossier {
+        id
+        groupeInstructeur {
+          id
+        }
+      }
+      errors {
+        message
+      }
+    }
+  }
+
+  mutation dossierAjouterLabel($input: DossierAjouterLabelInput!) {
+    dossierAjouterLabel(input: $input) {
+      dossier {
+        id
+        labels {
+          ...LabelFragment
+        }
+      }
+      label {
+        ...LabelFragment
+      }
+      errors {
+        message
+      }
+    }
+  }
+
+  mutation dossierSupprimerLabel($input: DossierSupprimerLabelInput!) {
+    dossierSupprimerLabel(input: $input) {
+      dossier {
+        id
+        labels {
+          ...LabelFragment
+        }
+      }
+      label {
+        ...LabelFragment
+      }
+      errors {
+        message
+      }
+    }
+  }
+
+  fragment LabelFragment on Label {
+    id
+    name
+    color
   }
   GRAPHQL
 end

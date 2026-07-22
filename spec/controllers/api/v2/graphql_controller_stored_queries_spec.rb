@@ -36,6 +36,33 @@ describe API::V2::GraphqlController do
     request.env['HTTP_AUTHORIZATION'] = authorization_header
   end
 
+  def compute_checksum_in_chunks(io)
+    Digest::MD5.new.tap do |checksum|
+      while (chunk = io.read(5.megabytes))
+        checksum << chunk
+      end
+
+      io.rewind
+    end.base64digest
+  end
+
+  let(:file) { fixture_file_upload('spec/fixtures/files/logo_test_procedure.png', 'image/png') }
+  let(:blob_info) do
+    {
+      filename: file.original_filename,
+      byte_size: file.size,
+      checksum: compute_checksum_in_chunks(file),
+      content_type: file.content_type,
+      # we don't want to run virus scanner on this file
+      metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE },
+    }
+  end
+  let(:blob) do
+    blob = ActiveStorage::Blob.create_before_direct_upload!(**blob_info)
+    blob.upload(file)
+    blob
+  end
+
   describe 'introspection' do
     let(:query_id) { 'introspection' }
     let(:operation_name) { 'IntrospectionQuery' }
@@ -58,6 +85,107 @@ describe API::V2::GraphqlController do
       let(:query) { 'query getDossier($dossierNumber: Int!) { dossier(number: $dossierNumber) { id } }' }
 
       it { expect(gql_errors.first[:message]).to eq('Without a token, only the public getDemarcheDescriptor query and introspection are allowed') }
+    end
+  end
+
+  describe 'token authentication' do
+    let(:query_id) { 'ds-query-v2' }
+    let(:operation_name) { 'getDemarche' }
+    let(:variables) { { demarcheNumber: procedure.id } }
+
+    describe 'logging' do
+      it "generates correct LogRage payload" do
+        @rs = nil
+        expect(controller).to receive(:request_logs).and_wrap_original do |m, *args|
+          @rs = m.call(*args)
+        end
+        gql_data
+        expect(@rs[:user_id]).to eq(admin.user.id)
+        expect(@rs[:user_roles]).to eq("User, Instructeur, Administrateur")
+      end
+    end
+
+    it {
+      expect(gql_errors).to be_nil
+      expect(gql_data).not_to be_nil
+    }
+
+    context "when the token is invalid" do
+      before do
+        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials('invalid')
+      end
+
+      it {
+        expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor query and introspection are allowed")
+      }
+    end
+
+    context "when the token does not belong to an admin of the procedure" do
+      let(:another_administrateur) { create(:administrateur) }
+      let(:token_v3) { APIToken.generate(another_administrateur)[1] }
+
+      context 'v3' do
+        let(:token) { token_v3 }
+
+        it {
+          expect(gql_errors.first[:message]).to eq("An object of type Demarche was hidden due to permissions")
+        }
+      end
+    end
+
+    context "when the token is revoked" do
+      before do
+        admin.api_tokens.destroy_all
+      end
+
+      it {
+        expect(token).not_to be_nil
+        expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor query and introspection are allowed")
+      }
+    end
+
+    context 'when procedure is not selected' do
+      let(:other_procedure) { create(:procedure, administrateurs: [admin]) }
+      before { api_token.update(allowed_procedure_ids: [other_procedure.id]) }
+
+      it {
+        expect(gql_errors.first[:message]).to eq("An object of type Demarche was hidden due to permissions")
+      }
+    end
+
+    context 'when requires_ip_filtering is true and no networks defined (auto-assign)' do
+      before do
+        api_token.update!(requires_ip_filtering: true, authorized_networks: [])
+        request.remote_ip = '10.20.30.40'
+      end
+
+      it 'auto-assigns the IP on first call and succeeds' do
+        expect(gql_errors).to be_nil
+        expect(api_token.reload.authorized_networks).to eq([IPAddr.new('10.20.30.40')])
+      end
+    end
+
+    context 'when requires_ip_filtering is false and no networks defined (legacy)' do
+      before do
+        api_token.update!(requires_ip_filtering: false, authorized_networks: [])
+        request.remote_ip = '10.20.30.40'
+      end
+
+      it 'does not auto-assign' do
+        expect(gql_errors).to be_nil
+        expect(api_token.reload.authorized_networks).to be_empty
+      end
+    end
+
+    context 'when auto-assigned IP blocks subsequent call from different IP' do
+      before do
+        api_token.update!(requires_ip_filtering: true, authorized_networks: [IPAddr.new('10.20.30.40')])
+        request.remote_ip = '192.168.1.1'
+      end
+
+      it 'returns forbidden' do
+        expect(subject).to have_http_status(:forbidden)
+      end
     end
   end
 
@@ -106,7 +234,20 @@ describe API::V2::GraphqlController do
         expect(gql_data[:dossier][:demandeur][:__typename]).to eq('PersonnePhysique')
         expect(gql_data[:dossier][:demandeur][:nom]).to eq(dossier.individual.nom)
         expect(gql_data[:dossier][:demandeur][:prenom]).to eq(dossier.individual.prenom)
+        expect(gql_data[:dossier][:labels]).to be_nil
       }
+
+      context 'include Labels' do
+        let(:variables) { { dossierNumber: dossier.id, includeLabels: true } }
+        let(:label) { create(:label, procedure:) }
+
+        before { dossier.labels << label }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossier][:labels]).to eq([{ id: label.to_typed_id, name: label.name, color: label.color }])
+        }
+      end
 
       context 'not found' do
         let(:variables) { { dossierNumber: 0 } }
@@ -139,6 +280,24 @@ describe API::V2::GraphqlController do
             expect(gql_data[:dossier][:demandeur][:__typename]).to eq('PersonneMoraleIncomplete')
             expect(gql_data[:dossier][:demandeur][:siret]).to eq(dossier.etablissement.siret)
             expect(gql_data[:dossier][:demandeur][:libelleNaf]).to be_nil
+          }
+        end
+
+        context 'when there are missing data' do
+          before do
+            dossier.etablissement.update!(entreprise_code_effectif_entreprise: nil, entreprise_capital_social: nil, entreprise_numero_tva_intracommunautaire: nil)
+          end
+
+          it {
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossier][:demandeur][:__typename]).to eq('PersonneMorale')
+            expect(gql_data[:dossier][:demandeur][:entreprise]).to include(
+              siren: dossier.etablissement.entreprise_siren,
+              dateCreation: dossier.etablissement.entreprise_date_creation.iso8601,
+              capitalSocial: '-1',
+              codeEffectifEntreprise: nil,
+              numeroTvaIntracommunautaire: nil
+            )
           }
         end
       end
@@ -189,8 +348,21 @@ describe API::V2::GraphqlController do
       it {
         expect(gql_errors).to be_nil
         expect(gql_data[:demarche][:id]).to eq(procedure.to_typed_id)
+        expect(gql_data[:demarche][:description]).to eq(procedure.description)
+        expect(gql_data[:demarche][:dateDerniereModification]).to eq(procedure.updated_at.iso8601)
         expect(gql_data[:demarche][:dossiers]).to be_nil
+        expect(gql_data[:demarche][:labels]).to be_nil
       }
+
+      context 'include Labels' do
+        let(:variables) { { demarcheNumber: procedure.id, includeLabels: true } }
+        let!(:label) { create(:label, procedure:) }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:demarche][:labels]).to eq([{ id: label.to_typed_id, name: label.name, color: label.color }])
+        }
+      end
 
       context 'not found' do
         let(:variables) { { demarcheNumber: 0 } }
@@ -199,6 +371,16 @@ describe API::V2::GraphqlController do
           expect(gql_errors.first[:message]).to eq('Demarche not found')
           expect(gql_errors.first[:extensions]).to eq({ code: 'not_found' })
         }
+      end
+
+      context 'with an out of bounds number' do
+        let(:variables) { { demarcheNumber: 10_000_000_000_000_000 } }
+
+        it "returns a validation error instead of an internal error" do
+          expect(Sentry).not_to receive(:capture_exception)
+          expect(subject).to have_http_status(:ok)
+          expect(gql_errors.first[:message]).to match(/invalid value|out of bounds/)
+        end
       end
 
       context 'include Revision' do
@@ -223,6 +405,33 @@ describe API::V2::GraphqlController do
         let(:end_cursor) { cursor_for(dossier3, order_column) }
 
         before { dossier1; dossier2; dossier3 }
+
+        context 'createdSince' do
+          let(:variables) { { demarcheNumber: procedure.id, includeDossiers: true, createdSince: 2.5.days.ago.iso8601 } }
+
+          it {
+            expect(gql_errors).to be_nil
+            expect(gql_data[:demarche][:dossiers][:nodes].map { _1[:id] }).to eq([dossier2, dossier3].map(&:to_typed_id))
+          }
+        end
+
+        context 'archived' do
+          let(:variables) { { demarcheNumber: procedure.id, includeDossiers: true, archived: true } }
+
+          it {
+            expect(gql_errors).to be_nil
+            expect(gql_data[:demarche][:dossiers][:nodes].map { _1[:id] }).to eq([dossier2.to_typed_id])
+          }
+
+          context 'false' do
+            let(:variables) { { demarcheNumber: procedure.id, includeDossiers: true, archived: false } }
+
+            it {
+              expect(gql_errors).to be_nil
+              expect(gql_data[:demarche][:dossiers][:nodes].map { _1[:id] }).to eq([dossier, dossier1, dossier3].map(&:to_typed_id))
+            }
+          end
+        end
 
         context 'depose_at' do
           it {
@@ -529,6 +738,9 @@ describe API::V2::GraphqlController do
           expect(gql_data[:demarche][:id]).to eq(procedure.to_typed_id)
           expect(gql_data[:demarche][:deletedDossiers][:nodes].size).to eq(4)
           expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:id]).to eq(deleted_dossier.to_typed_id)
+          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:number]).to eq(deleted_dossier.dossier_id)
+          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:state]).to eq(deleted_dossier.state)
+          expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:reason]).to eq(deleted_dossier.reason)
           expect(gql_data[:demarche][:deletedDossiers][:nodes].first[:dateSupression]).to eq(deleted_dossier.deleted_at.iso8601)
         }
 
@@ -772,6 +984,8 @@ describe API::V2::GraphqlController do
       it {
         expect(gql_errors).to be_nil
         expect(gql_data[:groupeInstructeur][:id]).to eq(groupe_instructeur.to_typed_id)
+        expect(gql_data[:groupeInstructeur][:number]).to eq(groupe_instructeur.id)
+        expect(gql_data[:groupeInstructeur][:label]).to eq(groupe_instructeur.label)
         expect(gql_data[:groupeInstructeur][:dossiers]).to be_nil
       }
 
@@ -1062,6 +1276,19 @@ describe API::V2::GraphqlController do
         expect(dossier.traitements.last.browser_version).to eq(2)
       }
 
+      context 'with motivation and justificatif' do
+        let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, motivation: 'Parce que', justificatif: blob.signed_id } } }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierAccepter][:errors]).to be_nil
+          expect(gql_data[:dossierAccepter][:dossier][:id]).to eq(dossier.to_typed_id)
+          expect(gql_data[:dossierAccepter][:dossier][:state]).to eq('accepte')
+          expect(dossier.reload.motivation).to eq('Parce que')
+          expect(dossier.justificatif_motivation).to be_attached
+        }
+      end
+
       context 'without notifications' do
         let(:disableNotification) { true }
 
@@ -1161,6 +1388,34 @@ describe API::V2::GraphqlController do
         perform_enqueued_jobs
         expect(ActionMailer::Base.deliveries.size).to eq(1)
       }
+
+      context 'when attestation refus template is activated' do
+        before do
+          dossier.procedure.attestation_refus_template = build(:attestation_template, :refus, activated: true)
+          dossier.procedure.save!
+        end
+
+        it 'should enqueue attestation job' do
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierRefuser][:errors]).to be_nil
+          expect(gql_data[:dossierRefuser][:dossier][:state]).to eq('refuse')
+          expect(AttestationPdfGenerationJob).to have_been_enqueued.with(dossier)
+        end
+      end
+
+      context 'when attestation refus template is not activated' do
+        before do
+          dossier.procedure.attestation_refus_template = build(:attestation_template, :refus, activated: false)
+          dossier.procedure.save!
+        end
+
+        it 'should not enqueue attestation generation job' do
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierRefuser][:errors]).to be_nil
+          expect(gql_data[:dossierRefuser][:dossier][:state]).to eq('refuse')
+          expect(AttestationPdfGenerationJob).not_to have_been_enqueued.with(dossier)
+        end
+      end
 
       context 'without notifications' do
         let(:disableNotification) { true }
@@ -1487,6 +1742,98 @@ describe API::V2::GraphqlController do
       end
     end
 
+    context 'dossierChangerGroupeInstructeur' do
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+      let(:variables) { { input: { dossierId: dossier.to_typed_id, groupeInstructeurId: groupe_instructeur.to_typed_id } } }
+      let(:operation_name) { 'dossierChangerGroupeInstructeur' }
+
+      context 'with a new groupe instructeur' do
+        let(:groupe_instructeur) { create(:groupe_instructeur, label: 'new groupe instructeur', procedure:) }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierChangerGroupeInstructeur][:errors]).to be_nil
+          expect(gql_data[:dossierChangerGroupeInstructeur][:dossier][:id]).to eq(dossier.to_typed_id)
+          expect(gql_data[:dossierChangerGroupeInstructeur][:dossier][:groupeInstructeur][:id]).to eq(groupe_instructeur.to_typed_id)
+          expect(dossier.reload.groupe_instructeur).to eq(groupe_instructeur)
+        }
+      end
+
+      context 'when the dossier is already in the groupe instructeur' do
+        let(:groupe_instructeur) { dossier.groupe_instructeur }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierChangerGroupeInstructeur][:dossier]).to be_nil
+          expect(gql_data[:dossierChangerGroupeInstructeur][:errors]).to eq([{ message: "Le dossier est déjà avec le groupe instructeur: 'défaut'" }])
+        }
+      end
+    end
+
+    context 'dossierAjouterLabel' do
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+      let(:label) { create(:label, procedure:) }
+      let(:variables) { { input: { dossierId: dossier.to_typed_id, labelId: label.to_typed_id } } }
+      let(:operation_name) { 'dossierAjouterLabel' }
+
+      it {
+        expect(gql_errors).to be_nil
+        expect(gql_data[:dossierAjouterLabel][:errors]).to be_nil
+        expect(gql_data[:dossierAjouterLabel][:dossier][:id]).to eq(dossier.to_typed_id)
+        expect(gql_data[:dossierAjouterLabel][:dossier][:labels]).to eq([{ id: label.to_typed_id, name: label.name, color: label.color }])
+        expect(gql_data[:dossierAjouterLabel][:label]).to eq(id: label.to_typed_id, name: label.name, color: label.color)
+        expect(dossier.labels).to match_array([label])
+      }
+
+      context 'when label belongs to another procedure' do
+        let(:label) { create(:label) }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierAjouterLabel][:dossier]).to be_nil
+          expect(gql_data[:dossierAjouterLabel][:errors]).to eq([{ message: "Ce label n’appartient pas à la même démarche que le dossier" }])
+        }
+      end
+
+      context 'when label is already associated' do
+        before { dossier.labels << label }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierAjouterLabel][:dossier]).to be_nil
+          expect(gql_data[:dossierAjouterLabel][:errors]).to eq([{ message: "Ce label est déjà associé au dossier" }])
+        }
+      end
+    end
+
+    context 'dossierSupprimerLabel' do
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+      let(:label) { create(:label, procedure:) }
+      let(:variables) { { input: { dossierId: dossier.to_typed_id, labelId: label.to_typed_id } } }
+      let(:operation_name) { 'dossierSupprimerLabel' }
+
+      context 'success' do
+        before { dossier.labels << label }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierSupprimerLabel][:errors]).to be_nil
+          expect(gql_data[:dossierSupprimerLabel][:dossier][:id]).to eq(dossier.to_typed_id)
+          expect(gql_data[:dossierSupprimerLabel][:dossier][:labels]).to eq([])
+          expect(gql_data[:dossierSupprimerLabel][:label]).to eq(id: label.to_typed_id, name: label.name, color: label.color)
+          expect(dossier.reload.labels).to be_empty
+        }
+      end
+
+      context 'when label is not associated' do
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierSupprimerLabel][:dossier]).to be_nil
+          expect(gql_data[:dossierSupprimerLabel][:errors]).to eq([{ message: "Ce label n’est pas associé au dossier" }])
+        }
+      end
+    end
+
     context 'dossierEnvoyerMessage' do
       let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: 'Hello World!' } } }
@@ -1499,6 +1846,169 @@ describe API::V2::GraphqlController do
         perform_enqueued_jobs
         expect(ActionMailer::Base.deliveries.size).to eq(1)
       }
+
+      context 'with attachment' do
+        let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: 'Hello World!', attachment: blob.signed_id } } }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:errors]).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:message][:id]).to eq(dossier.commentaires.first.to_typed_id)
+          expect(dossier.commentaires.first.piece_jointe).to be_attached
+        }
+      end
+
+      context 'with correction' do
+        let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: 'Hello World!', correction: 'incorrect' } } }
+
+        it 'creates a correction and notifies the user' do
+          expect { subject }.to have_enqueued_mail(DossierMailer, :notify_pending_correction)
+
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:errors]).to be_nil
+          expect(dossier).to be_pending_correction
+          expect(dossier.pending_correction).to be_dossier_incorrect
+          expect(dossier.pending_correction.commentaire.body).to eq('Hello World!')
+        end
+      end
+
+      context 'schema error' do
+        let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id } } }
+
+        it {
+          expect(gql_data).to be_nil
+          expect(gql_errors.first[:message]).to eq("Variable $input of type DossierEnvoyerMessageInput! was provided invalid value for body (Expected value to not be null)")
+          expect(gql_errors.first.key?(:backtrace)).to be_falsey
+        }
+      end
+
+      context 'variables error' do
+        let(:variables) { "{" }
+
+        it {
+          expect(gql_data).to be_nil
+          expect(gql_errors.first[:message]).to eq("expected object key, got EOF at line 1 column 2")
+          expect(gql_errors.first.key?(:backtrace)).to be_falsey
+        }
+      end
+
+      context 'validation error' do
+        let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: '' } } }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:message]).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:errors]).to eq([{ message: "Le champ « Votre message » ne peut être vide" }])
+        }
+      end
+
+      context 'upload error' do
+        let(:variables) { { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: 'Hello World!', attachment: 'fake' } } }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:message]).to be_nil
+          expect(gql_data[:dossierEnvoyerMessage][:errors]).to eq([{ message: "L’identifiant du fichier téléversé est invalide" }])
+        }
+      end
+    end
+
+    context 'createDirectUpload' do
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+      let(:variables) do
+        {
+          input: {
+            dossierId: dossier.to_typed_id,
+            filename: blob_info[:filename],
+            byteSize: blob_info[:byte_size],
+            checksum: blob_info[:checksum],
+            contentType: blob_info[:content_type],
+          },
+        }
+      end
+      let(:operation_name) { 'createDirectUpload' }
+      let(:direct_upload_data) { gql_data[:createDirectUpload][:directUpload] }
+      let(:direct_upload_blob) { ActiveStorage::Blob.find_signed(direct_upload_data[:signedBlobId]) }
+
+      it "should initiate a direct upload" do
+        expect(gql_errors).to be_nil
+        expect(direct_upload_data[:url]).not_to be_nil
+        expect(direct_upload_data[:headers]).not_to be_nil
+        expect(direct_upload_data[:signedBlobId]).not_to be_nil
+      end
+
+      context "when the s3_storage feature is enabled on the procedure" do
+        before { Flipper.enable(:s3_storage, procedure) }
+
+        it "creates the blob on the amazon service" do
+          expect(direct_upload_blob.service_name).to eq("amazon")
+        end
+      end
+
+      context "when the uploaded content does not match the checksum" do
+        let(:attach_exec) do
+          post :execute, params: {
+            queryId: query_id,
+            operationName: 'dossierEnvoyerMessage',
+            variables: { input: { dossierId: dossier.to_typed_id, instructeurId: instructeur.to_typed_id, body: 'Hello World!', attachment: direct_upload_data[:signedBlobId] } },
+          }, as: :json
+        end
+        let(:attach_body) { JSON.parse(attach_exec.body, symbolize_names: true) }
+
+        it "wrong hash error" do
+          direct_upload_blob.service.upload(direct_upload_blob.key, StringIO.new('toto'))
+          expect(attach_body[:data][:dossierEnvoyerMessage]).to eq(message: nil, errors: [{ message: "Le hash du fichier téléversé est invalide" }])
+        end
+      end
+    end
+
+    context 'dossierModifierAnnotations' do
+      let(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_private:) }
+      let(:types_de_champ_private) { [{ type: :text }, { type: :checkbox }, { type: :integer_number }, { type: :decimal_number }, { type: :date }] }
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+      let(:annotations) { dossier.root_champs_private }
+      let(:date) { 1.day.from_now.to_date.iso8601 }
+      let(:operation_name) { 'dossierModifierAnnotations' }
+      let(:variables) do
+        {
+          input: {
+            dossierId: dossier.to_typed_id,
+            instructeurId: instructeur.to_typed_id,
+            annotations: [
+              { id: annotations.first.to_typed_id, value: { text: 'hello' } },
+              { id: annotations.second.to_typed_id, value: { checkbox: true } },
+              { id: annotations.third.to_typed_id, value: { integerNumber: 42 } },
+              { id: annotations.fourth.to_typed_id, value: { decimalNumber: 42.1 } },
+              { id: annotations.fifth.to_typed_id, value: { date: } },
+            ],
+          },
+        }
+      end
+
+      it {
+        expect(gql_errors).to be_nil
+        expect(gql_data[:dossierModifierAnnotations][:errors]).to be_nil
+        expect(gql_data[:dossierModifierAnnotations][:annotations].map { _1[:id] }).to match_array(annotations.map(&:to_typed_id))
+        expect(dossier.reload.root_champs_private.map(&:value)).to eq(['hello', 'true', '42', '42.1', date])
+      }
+
+      context 'with a value of the wrong type' do
+        let(:variables) do
+          {
+            input: {
+              dossierId: dossier.to_typed_id,
+              instructeurId: instructeur.to_typed_id,
+              annotations: [{ id: annotations.first.to_typed_id, value: { checkbox: true } }],
+            },
+          }
+        end
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierModifierAnnotations][:annotations]).to eq([])
+          expect(gql_data[:dossierModifierAnnotations][:errors]).to eq([{ message: "L‘annotation \"#{annotations.first.to_typed_id}\" n’est pas de type attendu" }])
+        }
+      end
     end
 
     context 'dossierSupprimerMessage' do
