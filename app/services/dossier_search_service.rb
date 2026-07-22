@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 class DossierSearchService
+  # ts_rank cannot use the GIN index: it recomputes the tsvector for every
+  # matching row, so ranking an unbounded match set times out (RAILS-K81).
+  # Matches beyond this cap are dropped before ranking.
+  MAX_RESULTS = 1000
+
   def self.matching_dossiers(dossiers, search_terms, with_annotations = false)
     if dossiers.nil?
       []
@@ -42,8 +47,13 @@ class DossierSearchService
     ts_vector = "to_tsvector('french_unaccent', #{columns})"
     ts_query = "to_tsquery('french_unaccent', #{Dossier.connection.quote(to_tsquery(search_terms))})"
 
-    dossiers
+    matching_ids = dossiers
       .where("#{ts_vector} @@ #{ts_query}")
+      .limit(MAX_RESULTS)
+      .ids
+
+    dossiers
+      .where(id: matching_ids)
       .order(Arel.sql("COALESCE(ts_rank(#{ts_vector}, #{ts_query}), 0) DESC"))
   end
 

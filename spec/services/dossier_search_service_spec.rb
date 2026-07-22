@@ -85,6 +85,17 @@ describe DossierSearchService do
 
       it { expect(searching(dossier.id.to_s)).to eq([dossier.id]) }
     end
+
+    describe 'caps full-text results to MAX_RESULTS' do
+      let(:user) { create(:user, email: 'martin@email.com') }
+      let(:dossier) { create(:dossier, state: :en_construction, user:) }
+      let(:dossier_2) { create(:dossier, state: :en_construction, user:) }
+      let!(:dossiers) { Dossier.where(id: [dossier.id, dossier_2.id]) }
+
+      before { stub_const('DossierSearchService::MAX_RESULTS', 1) }
+
+      it { expect(searching('martin').size).to eq(1) }
+    end
   end
 
   describe '#matching_dossiers_for_user' do
