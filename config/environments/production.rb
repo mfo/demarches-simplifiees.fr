@@ -82,9 +82,11 @@ Rails.application.configure do
     redis_options = {
       url: ENV['REDIS_CACHE_URL'],
       connect_timeout: 0.2,
+      # The cache Redis is allowed to blip: the store's failsafe degrades to a
+      # cache miss, so don't report to Sentry — this Redis is watched by infra
+      # monitoring. Errors from the Kredis key/value store still reach Sentry.
       error_handler: -> (method:, returning:, exception:) {
-        Sentry.capture_exception exception, level: 'warning',
-          tags: { method: method, returning: returning }
+        Rails.logger.warn("Redis cache #{method} failed (returning #{returning.inspect}): #{exception.class}: #{exception.message}")
       },
     }
 
