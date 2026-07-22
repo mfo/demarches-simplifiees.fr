@@ -8,6 +8,15 @@ describe Champs::AddressChamp do
   let(:value) { nil }
   let(:value_json) { nil }
 
+  describe 'clearing the address' do
+    before { champ.update_columns(value_json: { 'city_code' => '75107' }) }
+
+    it 'accepts a nil value_json without failing (RAILS-MA8)' do
+      expect { champ.update!(value_json: nil) }.not_to raise_error
+      expect(champ.reload.value_json).to be_nil
+    end
+  end
+
   context "with value but no data" do
     let(:value) { 'Paris' }
 
