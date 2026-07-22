@@ -162,6 +162,25 @@ RSpec.describe DossierPrefillableConcern do
       end
     end
 
+    context 'when dossier contains an advanced (referentiel-backed) drop_down_list' do
+      # Regression: prefilling such a champ with a human label used to be wiped
+      # to nil by the store_referentiel before_save (which only matched item ids).
+      let(:referentiel) { create(:csv_referentiel, :with_items) }
+      let(:types_de_champ_public) { [{ type: :drop_down_list, drop_down_mode: 'advanced', referentiel: }] }
+      let(:type_de_champ_1) { procedure.published_revision.root_types_de_champ_public.first }
+      let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
+      let(:params) { { "champ_#{type_de_champ_1.to_typed_id_for_query}" => "fromage" } }
+      let(:values) { PrefillChamps.new(dossier, params).to_a }
+
+      it 'resolves the label to its item id and keeps the value after save' do
+        fill
+        champ = find_champ_by_stable_id(dossier, type_de_champ_1.stable_id)
+        expect(champ.value).to eq(referentiel.items.first.id.to_s)
+        expect(champ.prefilled).to eq(true)
+        expect(champ.referentiel_item_column_values).to eq([["option", "fromage"], ["calorie (kcal)", "145"], ["poids (g)", "60"]])
+      end
+    end
+
     context 'when dossier contains champs with external_id' do
       let(:types_de_champ_public) { [{ type: :siret }] }
       let(:values) { [[champ_1, { external_id: value_1 }]] }

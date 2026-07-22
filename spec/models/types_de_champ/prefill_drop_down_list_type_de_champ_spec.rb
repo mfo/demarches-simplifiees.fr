@@ -82,10 +82,29 @@ RSpec.describe TypesDeChamp::PrefillDropDownListTypeDeChamp do
     end
 
     context 'when the drop down list is advanced (referentiel-backed)' do
-      let(:type_de_champ) { build(:type_de_champ_drop_down_list, drop_down_mode: 'advanced', procedure:) }
-      let(:value) { "value" }
+      let(:referentiel) { create(:csv_referentiel, :with_items) }
+      let(:type_de_champ) { build(:type_de_champ_drop_down_list, drop_down_mode: 'advanced', referentiel:, procedure:) }
+      let(:item) { referentiel.items.first }
 
-      it { is_expected.to eq({ value: "value" }) }
+      context 'when the value is a first-column label' do
+        let(:value) { "fromage" }
+
+        it 'resolves the label to its item id' do
+          is_expected.to eq({ value: item.id.to_s })
+        end
+      end
+
+      context 'when the value is already an item id' do
+        let(:value) { referentiel.items.second.id.to_s }
+
+        it { is_expected.to eq({ value: referentiel.items.second.id.to_s }) }
+      end
+
+      context 'when the value matches no item' do
+        let(:value) { "unknown" }
+
+        it { is_expected.to be_nil }
+      end
     end
   end
 end
