@@ -65,6 +65,25 @@ RSpec.describe ReferentielAutocompleteRenderService do
       ).to include('Tango (Charlie)')
     end
 
+    context 'with an empty paragraph in the template' do
+      it 'skips it instead of failing (RAILS-KDV)' do
+        obj = { 'finess' => 'Tango' }
+        referentiel.json_template = {
+          "type" => "doc",
+          "content" => [
+            { "type" => "paragraph" },
+            {
+              "type" => "paragraph",
+              "content" => [{ "type" => "mention", "attrs" => { "id" => "$.finess", "label" => "$.finess" } }],
+            },
+          ],
+        }
+        expect(
+          subject.send(:render_template, referentiel.json_template, obj).join('')
+        ).to include('Tango')
+      end
+    end
+
     context 'with incompatible keys with passwed to JsonPath' do
       it 'works' do
         obj = {
