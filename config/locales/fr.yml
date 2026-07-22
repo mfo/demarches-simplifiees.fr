@@ -703,6 +703,9 @@ fr:
           connection: Se connecter
           find_procedure: Trouvez votre démarche
           subtitle: "Se connecter avec son adresse électronique"
+        new_invite:
+          flash_alert: "Vous devez vous connecter ou créer un compte pour continuer."
+          no_account: "Vous n’avez pas de compte"
         link_sent:
           consult_help_page_html: Si vous voyez cette page trop souvent, <a target="_blank" rel="noopener noreferrer" href="%{href}">consultez notre aide</a>.
           email_cta_html: "Nous avons besoin de vérifier votre adresse électronique <strong>%{email}</strong>."

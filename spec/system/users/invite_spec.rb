@@ -27,7 +27,12 @@ describe 'Invitations' do
     context 'when inviting someone without an existing account' do
       let(:invite) { create(:invite, dossier: dossier, user: nil) }
 
-      scenario 'an invited user receiving the targeted_user_link is asked to authenticate first', js: true do
+      before do
+        allow(FranceConnectService).to receive(:enabled?).and_return(true)
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+      end
+
+      scenario 'an invited user receiving the targeted_user_link sees all sign-in options', js: true do
         log_in(owner)
         navigate_to_brouillon(dossier)
 
@@ -45,7 +50,10 @@ describe 'Invitations' do
 
         page.reset_session!
         visit URI.parse(targeted_user_link_url(targeted_user_link)).request_uri
-        expect(page).to have_current_path("/users/sign_in")
+        expect(page).to have_current_path("/users/sign_in?context=invite")
+        expect(page).to have_content('FranceConnect')
+        expect(page).to have_content('ProConnect')
+        expect(page).to have_link(I18n.t('views.shared.account.create', application_name: Current.application_name))
       end
     end
 
@@ -70,7 +78,7 @@ describe 'Invitations' do
 
         page.reset_session!
         visit URI.parse(targeted_user_link_url(targeted_user_link)).request_uri
-        expect(page).to have_current_path("/users/sign_in")
+        expect(page).to have_current_path("/users/sign_in?context=invite")
       end
     end
 
