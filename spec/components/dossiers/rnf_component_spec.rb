@@ -37,6 +37,15 @@ RSpec.describe Dossiers::RNFComponent, type: :component do
     end
   end
 
+  context 'when the champ is fetched but the data is missing' do
+    let(:external_state) { 'fetched' }
+    let(:rnf_data) { nil }
+
+    it 'renders the identifier without crashing (RAILS-MAN)' do
+      expect(subject).to have_text('075-FDD-00003-01')
+    end
+  end
+
   context 'when the champ is waiting for a job' do
     let(:external_state) { 'waiting_for_job' }
     let(:rnf_data) { nil }
