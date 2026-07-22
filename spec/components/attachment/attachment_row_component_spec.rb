@@ -27,6 +27,16 @@ RSpec.describe Attachment::AttachmentRowComponent, type: :component do
     expect(subject).to have_selector('[title^="Supprimer le fichier"]')
   end
 
+  context 'when the blob has an empty filename' do
+    before { attachment.blob.update_column(:filename, "") }
+
+    it 'renders a placeholder without a blob link instead of raising (RAILS-M31)' do
+      expect(subject).not_to have_selector('.attachment-filename a')
+      expect(subject).to have_selector('.attachment-filename', text: 'Pièce jointe')
+      expect(subject).to have_selector('[title="Supprimer le fichier Pièce jointe"]')
+    end
+  end
+
   context 'when the user cannot destroy the attachment' do
     let(:context_kwargs) { { user_can_destroy: false } }
 
