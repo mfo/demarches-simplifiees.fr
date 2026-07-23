@@ -7,8 +7,9 @@ en:
     preview_simulation:
       quotient_familial: "Data simulation for 2 parents and 2 children:"
       etudiant_boursier: "Data simulation for a scholarship student:"
-      aah: "Data simulation for an AAH recipient:"
-      aeeh: "Data simulation for an AEEH recipient:"
+      aah: "Data simulation for a recipient of adult disability allowance:"
+      aeeh: "Data simulation for a recipient of education allowance for disabled children status:"
+      ars: "Data simulation for a recipient of back to school allowance status:"
   external_champ:
     confirmation:
       question: Is this information correct?
@@ -22,5 +23,6 @@ en:
   justificatif_labels:
     quotient_familial: "proof of family quotient"
     etudiant_boursier: "proof of student grant status"
-    aah: "proof of AAH beneficiary status"
-    aeeh: "proof of AEEH beneficiary status"
+    aah: "proof of adult disability allowance status"
+    aeeh: "proof of education allowance for disabled children status"
+    ars: "proof of back to school allowance status"

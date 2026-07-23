@@ -186,5 +186,8 @@ FactoryBot.define do
 
     factory :champ_do_not_use_aeeh, class: 'Champs::AEEHChamp' do
     end
+
+    factory :champ_do_not_use_ars, class: 'Champs::ARSChamp' do
+    end
   end
 end
