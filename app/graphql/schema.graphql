@@ -311,6 +311,12 @@ input AnnotationValueInput @oneOf {
   phone: String
 
   """
+  Ajouter des pièces justificatives à un champ pièce justificative (identifiants
+  signés de blobs, créés via la mutation createDirectUpload)
+  """
+  pieceJustificative: [ID!]
+
+  """
   Modifier la valeur d’un champ région (code INSEE ou nom)
   """
   regions: String

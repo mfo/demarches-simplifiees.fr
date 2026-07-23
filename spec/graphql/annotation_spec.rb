@@ -408,6 +408,43 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
         end
       end
     end
+
+    context 'with piece justificative annotation' do
+      let(:types_de_champ_private) { [{ type: :piece_justificative }] }
+      let(:piece_justificative_annotation) { champs_private.find(&:piece_justificative?) }
+
+      let(:blobs) do
+        Array.new(2) do
+          ActiveStorage::Blob.create_and_upload!(
+            io: Rails.root.join('spec/fixtures/files/logo_test_procedure.png').open,
+            filename: 'logo_test_procedure.png',
+            content_type: 'image/png',
+            metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE }
+          )
+        end
+      end
+      let(:annotations) { [{ id: piece_justificative_annotation.to_typed_id, value: { pieceJustificative: blobs.map(&:signed_id) } }] }
+
+      it 'attach files' do
+        expect { subject }.to change { piece_justificative_annotation.reload.piece_justificative_file.count }.by(2)
+        expect(data).to eq(dossierModifierAnnotations: {
+          annotations: [{ id: piece_justificative_annotation.to_typed_id }],
+          errors: nil,
+        })
+        expect(piece_justificative_annotation.piece_justificative_file.blobs).to include(*blobs)
+      end
+
+      context 'with invalid signed blob id' do
+        let(:annotations) { [{ id: piece_justificative_annotation.to_typed_id, value: { pieceJustificative: ['fake'] } }] }
+
+        it 'returns error' do
+          expect(data).to eq(dossierModifierAnnotations: {
+            annotations: nil,
+            errors: [{ message: 'L’identifiant du fichier téléversé est invalide' }],
+          })
+        end
+      end
+    end
   end
 
   DOSSIER_MODIFIER_ANNOTATION_AJOUTER_LIGNE_MUTATION = <<-GRAPHQL
