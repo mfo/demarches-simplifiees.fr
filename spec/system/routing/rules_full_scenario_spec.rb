@@ -300,7 +300,9 @@ describe 'The routing with rules', js: true do
     choose(groupe, allow_label_click: true)
     wait_for_autosave
 
-    expect(dossier.reload.groupe_instructeur_id).not_to be_nil
+    # wait_for_autosave only waits for the save request to be dispatched, not
+    # for its response: poll the DB for the routing computed by the server.
+    wait_until { dossier.reload.groupe_instructeur_id.present? }
     expect(page).to have_text(dossier.service_or_contact_information.nom)
     expect(page).not_to have_text(procedure.service.nom)
 
