@@ -9,6 +9,16 @@
     margin-bottom: 0;
   }
 
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__personnalisation {
+    --underline-img: none;
+  }
+
   &__corbeille {
     white-space: nowrap;
 

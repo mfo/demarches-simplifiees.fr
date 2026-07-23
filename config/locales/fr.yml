@@ -576,6 +576,9 @@ fr:
             label:
               one: "Corbeille (%{count})"
               other: "Corbeille (%{count})"
+          personnalisation_link:
+            label: Personnaliser la liste des dossiers
+            tooltip: Personnaliser la liste des dossiers
           search:
             back_to_list: "Mes dossiers"
             result_title: "Résultat de la recherche pour « %{search_terms} »"
@@ -695,6 +698,21 @@ fr:
           sender_body: "Vous avez envoyé une demande de transfert de ce dossier à %{email}."
           sender_body_from_support: "L’équipe support a initié une demande de transfert de ce dossier vers %{email}."
           revoke: "Révoquer cette demande"
+        personnalisation:
+          title: Personnaliser la liste des dossiers
+          back: Mes dossiers
+          why_title: Pourquoi personnaliser la liste ?
+          why_intro: "Pour chaque dossier, les informations suivantes sont systématiquement affichées :"
+          why_field_number_html: "<strong>N° de dossier</strong>"
+          why_field_applicant_html: "<strong>Identité du demandeur</strong>"
+          why_field_date_html: "<strong>Date de dépôt</strong> (ou de création / modification)"
+          why_explanation_html: "Afin de faciliter la distinction des dossiers entre eux dans la liste (notamment si vous déposez plusieurs dossiers sur une même démarche), vous pouvez définir <strong>une ou plusieurs informations complémentaires</strong> à afficher, issues des données renseignées dans les champs du formulaire."
+          fields_title: "Informations supplémentaires à afficher dans la vue des dossiers de la liste :"
+          cancel: Annuler
+          save_button: Enregistrer
+          saved: "La liste des dossiers a bien été personnalisée."
+          error: "La personnalisation n’a pas pu être enregistrée."
+          empty_state: "Aucune de vos démarches ne comporte de champ pouvant être affiché dans la liste des dossiers."
       sessions:
         new:
           sign_in: Connexion à %{application_name}

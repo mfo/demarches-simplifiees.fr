@@ -19,6 +19,7 @@ class User < ApplicationRecord
   # before deleting a user (which dissociate dossiers from the user).
   # Destroying a user with dossier is always a mistake.
   has_many :dossiers, dependent: :restrict_with_exception
+  has_many :dossiers_list_personnalisations, dependent: :destroy
   has_many :targeted_user_links, dependent: :destroy
   has_many :invites, dependent: :destroy
   has_many :dossiers_invites, through: :invites, source: :dossier

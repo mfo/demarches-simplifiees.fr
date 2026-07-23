@@ -50,6 +50,7 @@ type SelectProps<M extends SelectionMode = 'single'> = AriaSelectProps<
   labelId?: string;
   ariaLabelledbyPrefix?: string;
   alwaysShowKey?: string;
+  emptyHint?: string;
 };
 type AutocompleteFilter = NonNullable<AutocompleteProps<Item>['filter']>;
 
@@ -62,6 +63,7 @@ function Select<M extends SelectionMode = 'single'>({
   labelId,
   ariaLabelledbyPrefix,
   alwaysShowKey,
+  emptyHint,
   ...props
 }: SelectProps<M>) {
   const { contains } = useFilter({ sensitivity: 'base', numeric: true });
@@ -100,7 +102,7 @@ function Select<M extends SelectionMode = 'single'>({
           <SelectValue />
         </Button>
       ) : (
-        <MultipleSelectValue triggerId={triggerId} />
+        <MultipleSelectValue triggerId={triggerId} emptyHint={emptyHint} />
       )}
       <Popover
         className="react-aria-Popover select-popover"
@@ -119,14 +121,20 @@ function Select<M extends SelectionMode = 'single'>({
                       </Header>
                       <Collection items={section.items}>
                         {(item) => (
-                          <SelectItem id={item.value}>{item.label}</SelectItem>
+                          <SelectItem id={item.value}>
+                            {item.mandatory ? `${item.label} *` : item.label}
+                          </SelectItem>
                         )}
                       </Collection>
                     </ListBoxSection>
                   )}
                 </Collection>
               ) : (
-                (item) => <SelectItem id={item.value}>{item.label}</SelectItem>
+                (item) => (
+                  <SelectItem id={item.value}>
+                    {item.mandatory ? `${item.label} *` : item.label}
+                  </SelectItem>
+                )
               )}
             </SelectListBox>
           </Virtualizer>
@@ -136,7 +144,13 @@ function Select<M extends SelectionMode = 'single'>({
   );
 }
 
-function MultipleSelectValue({ triggerId }: { triggerId?: string }) {
+function MultipleSelectValue({
+  triggerId,
+  emptyHint
+}: {
+  triggerId?: string;
+  emptyHint?: string;
+}) {
   const selectButtonRef = useRef<HTMLButtonElement>(null);
   return (
     <SelectValue<Item>>
@@ -152,16 +166,22 @@ function MultipleSelectValue({ triggerId }: { triggerId?: string }) {
               />
             </span>
           </Button>
-          <TagGroup
-            items={selectedItems.filter((item) => item != null)}
-            onRemove={(value) => {
-              if (Array.isArray(state.value)) {
-                state.setValue(state.value.filter((k) => k !== value));
-              }
-            }}
-            fallbackFocusRef={selectButtonRef}
-            aria-label="Sélection"
-          />
+          {selectedItems.length === 0 && emptyHint ? (
+            <p className="select-empty-hint fr-hint-text fr-mt-1w">
+              {emptyHint}
+            </p>
+          ) : (
+            <TagGroup
+              items={selectedItems.filter((item) => item != null)}
+              onRemove={(value) => {
+                if (Array.isArray(state.value)) {
+                  state.setValue(state.value.filter((k) => k !== value));
+                }
+              }}
+              fallbackFocusRef={selectButtonRef}
+              aria-label="Sélection"
+            />
+          )}
         </>
       )}
     </SelectValue>

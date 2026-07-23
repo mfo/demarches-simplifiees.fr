@@ -7,7 +7,8 @@ export const Item = s.object({
   id: s.optional(s.string()),
   label: s.string(),
   value: s.string(),
-  data: s.any()
+  data: s.any(),
+  mandatory: s.optional(s.boolean())
 });
 export type Item = s.Infer<typeof Item>;
 
@@ -122,7 +123,8 @@ const SelectProps = s.partial(
     data: s.record(s.string(), s.string()),
     labelId: s.string(), // if label is not in the component, we need to pass the label id
     ariaLabelledbyPrefix: s.string(),
-    alwaysShowKey: s.string()
+    alwaysShowKey: s.string(),
+    emptyHint: s.optional(s.string())
   })
 );
 

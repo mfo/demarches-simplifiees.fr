@@ -138,6 +138,41 @@ module ColumnsConcern
       .uniq(&:stable_id)
   end
 
+  def personnalisable_columns_by_section
+    current_revision = published_revision || active_revision
+    tdcs_public = current_revision.root_types_de_champ_public
+
+    personnalisable_by_stable_id = tdcs_public
+      .filter(&:dynamic_type)
+      .flat_map { _1.columns(procedure_id: id) }
+      .filter { _1.tdc_type.in?(TypeDeChamp::PERSONNALISABLE_TYPE_CHAMPS) && _1.displayable }
+      .uniq(&:stable_id)
+      .index_by(&:stable_id)
+
+    current_section = nil
+    counters = []
+    grouped = Hash.new { |h, k| h[k] = [] }
+    order = []
+
+    tdcs_public.each do |type_de_champ|
+      if type_de_champ.header_section?
+        level = type_de_champ.level_for_revision(current_revision)
+        counters = counters.first(level)
+        counters[level - 1] = (counters[level - 1] || 0) + 1
+        counters.map! { it || 1 }
+        current_section = "#{counters.join('.')}. #{type_de_champ.libelle}"
+        next
+      end
+      column = personnalisable_by_stable_id[type_de_champ.stable_id]
+      next if column.nil?
+
+      order << current_section if !grouped.key?(current_section)
+      grouped[current_section] << column
+    end
+
+    order.map { |section_label| [section_label, grouped[section_label]] }
+  end
+
   private
 
   def groupe_instructeurs_id_column = dossier_col(table: 'groupe_instructeur', column: 'id', type: :enum)
