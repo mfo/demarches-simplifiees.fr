@@ -1,6 +1,26 @@
 # frozen_string_literal: true
 
 describe ProcedureStatsConcern do
+  describe '#stats_usual_traitement_time' do
+    let(:procedure) { create(:procedure) }
+
+    context 'when the stats query hits the statement timeout (RAILS-M39)' do
+      before do
+        allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+        allow(procedure).to receive(:usual_traitement_time_for_recent_dossiers)
+          .and_raise(ActiveRecord::QueryCanceled)
+      end
+
+      it 'returns nil and negative-caches instead of raising' do
+        expect(procedure.stats_usual_traitement_time).to be_nil
+
+        # served from the negative cache: the query does not run again
+        expect(procedure.stats_usual_traitement_time).to be_nil
+        expect(procedure).to have_received(:usual_traitement_time_for_recent_dossiers).once
+      end
+    end
+  end
+
   describe '#stats_dossiers_funnel' do
     let(:procedure) { create(:procedure) }
 
