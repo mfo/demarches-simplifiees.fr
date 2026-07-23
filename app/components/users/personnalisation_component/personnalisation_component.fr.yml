@@ -1,6 +1,8 @@
 ---
 fr:
-  default_section: Informations
+  default_section: Formulaire de demande
   empty_hint: Affichage non personnalisé pour les dossiers de cette démarche.
-  placeholder: Sélectionnez un ou plusieurs champs
+  hint: Sélectionnez un ou plusieurs champs
+  selected_one: 1 champ sélectionné
+  selected_other: "# champs sélectionnés"
   aria_label: "Champs à afficher pour la démarche %{libelle}"

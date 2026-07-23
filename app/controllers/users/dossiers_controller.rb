@@ -55,6 +55,7 @@ module Users
       Skylight.instrument(title: list_title) do
         @dossiers.load
       end
+      load_personnalisation_data(@dossiers)
       @corbeille_count = current_user.dossiers.hidden_by_user.or(current_user.dossiers.hidden_by_expired).count
       @pending_transfers_count = current_user.dossier_transfers_received_pending.count
       @show_simple_list = params[:search].blank? && !@filter.active? && @total_count <= SIMPLE_LIST_THRESHOLD
@@ -523,11 +524,20 @@ module Users
     def update_personnalisation
       return redirect_to dossiers_path if !personnalisation_available?
 
-      allowed_ids = user_procedures.pluck(:id).map(&:to_s)
-      results = personnalisation_params.map do |procedure_id, attrs|
-        next true if !procedure_id.to_s.in?(allowed_ids)
+      personnalisations = personnalisation_params
+      procedures_by_id = user_procedures.where(id: personnalisations.keys).index_by { _1.id.to_s }
+      results = personnalisations.map do |procedure_id, attrs|
+        procedure = procedures_by_id[procedure_id.to_s]
+        next true if procedure.nil?
 
-        columns = Array(attrs[:displayed_columns]).compact_blank.map { ColumnType.new.cast(_1) }.compact
+        submitted_ids = Array(attrs[:displayed_columns]).compact_blank
+        columns =
+          if submitted_ids.empty?
+            []
+          else
+            columns_by_id = procedure.personnalisable_columns.index_by(&:id)
+            submitted_ids.filter_map { columns_by_id[_1] }
+          end
         perso = current_user.dossiers_list_personnalisations.find_or_initialize_by(procedure_id:)
         perso.update(displayed_columns: columns)
       end
@@ -709,6 +719,29 @@ module Users
 
     def commentaire_params
       params.require(:commentaire).permit(:body, piece_jointe: [])
+    end
+
+    def load_personnalisation_data(dossiers)
+      @personnalisations_by_procedure_id = {}
+      @champs_by_dossier_id = {}
+      return if !feature_enabled?(:dossiers_list_personnalisation)
+
+      @personnalisations_by_procedure_id = current_user.dossiers_list_personnalisations
+        .where(procedure_id: dossiers.map { _1.procedure.id }.uniq)
+        .index_by(&:procedure_id)
+      return if @personnalisations_by_procedure_id.empty?
+
+      stable_ids = @personnalisations_by_procedure_id.values
+        .flat_map(&:displayed_columns)
+        .filter(&:champ_column?)
+        .map(&:stable_id)
+        .uniq
+      return if stable_ids.empty?
+
+      ChampData.where(dossier_id: dossiers.map(&:id), stable_id: stable_ids, stream: Dossier::MAIN_STREAM)
+        .find_each do |champ|
+          (@champs_by_dossier_id[champ.dossier_id] ||= {})[champ.stable_id] = champ
+        end
     end
 
     def personnalisation_available?

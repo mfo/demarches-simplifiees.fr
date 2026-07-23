@@ -2261,6 +2261,8 @@ describe Procedure do
   end
 
   describe '#personnalisable_columns' do
+    include Logic
+
     let(:procedure) do
       create(:procedure, :published,
              types_de_champ_public: [
@@ -2330,9 +2332,46 @@ describe Procedure do
       expect(procedure.personnalisable_columns.map(&:label)).not_to include('Champ legacy')
       expect(procedure.personnalisable_columns.map(&:label)).to include('Champ valide')
     end
+
+    it 'excludes champs that carry a condition' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Toujours visible' },
+        { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+      ])
+
+      expect(procedure.personnalisable_columns.map(&:label)).to eq(['Toujours visible'])
+    end
+
+    it 'excludes a champ conditioned in the published revision even if unconditioned in an older revision' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Cible', stable_id: 2 },
+      ])
+      tdc = procedure.draft_revision.find_and_ensure_exclusive_use(2)
+      tdc.update!(condition: ds_eq(champ_value(1), constant(true)))
+      procedure.publish_revision!(procedure.administrateurs.first)
+      procedure.reload
+
+      expect(procedure.personnalisable_columns.map(&:label)).not_to include('Cible')
+    end
+
+    it 'excludes a champ removed from the published revision even if present in an older revision' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :text, libelle: 'Conservé', stable_id: 1 },
+        { type: :text, libelle: 'Supprimé', stable_id: 2 },
+      ])
+      procedure.draft_revision.remove_type_de_champ(2)
+      procedure.publish_revision!(procedure.administrateurs.first)
+      procedure.reload
+
+      expect(procedure.personnalisable_columns.map(&:label)).to eq(['Conservé'])
+    end
   end
 
   describe '#personnalisable_columns_by_section' do
+    include Logic
+
     let(:procedure) do
       create(:procedure, :published,
              types_de_champ_public: [
@@ -2347,7 +2386,7 @@ describe Procedure do
 
     it 'groups personnalisable columns under their preceding section, in form order' do
       result = procedure.personnalisable_columns_by_section
-      labels = result.map { |section_label, columns| [section_label, columns.map(&:label)] }
+      labels = result.map { |_stable_id, section_label, columns| [section_label, columns.map(&:label)] }
 
       expect(labels).to eq([
         [nil, ['Avant section']],
@@ -2364,7 +2403,7 @@ describe Procedure do
         { type: :text, libelle: 'Court' },
       ])
 
-      sections = procedure.personnalisable_columns_by_section.map(&:first)
+      sections = procedure.personnalisable_columns_by_section.map { |_stable_id, label, _columns| label }
       expect(sections).to eq(['2. Pleine'])
     end
 
@@ -2376,8 +2415,27 @@ describe Procedure do
         { type: :text, libelle: 'Champ enfant' },
       ])
 
-      sections = procedure.personnalisable_columns_by_section.map(&:first)
+      sections = procedure.personnalisable_columns_by_section.map { |_stable_id, label, _columns| label }
       expect(sections).to eq(['1. Parent', '1.1. Enfant'])
+    end
+
+    it 'does not auto-number when the admin already numbered at least one section' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :header_section, libelle: '1. Identité' },
+        { type: :text, libelle: 'Nom' },
+        { type: :header_section, libelle: 'Représentant légal' },
+        { type: :text, libelle: 'Fonction' },
+      ])
+
+      sections = procedure.personnalisable_columns_by_section.map { |_stable_id, label, _columns| label }
+      expect(sections).to eq(['1. Identité', 'Représentant légal'])
+    end
+
+    it 'returns the section header stable_id as a stable key' do
+      stable_ids = procedure.personnalisable_columns_by_section.map(&:first)
+      header_stable_ids = procedure.published_revision.root_types_de_champ_public.filter(&:header_section?).map(&:stable_id)
+
+      expect(stable_ids).to eq([nil, *header_stable_ids])
     end
 
     it 'does not query procedure_revisions or type_de_champs on each call (no N+1)' do
@@ -2409,9 +2467,40 @@ describe Procedure do
       procedure.reload
 
       expect { procedure.personnalisable_columns_by_section }.not_to raise_error
-      all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_section, cols| cols.map(&:label) }
+      all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, cols| cols.map(&:label) }
       expect(all_column_labels).not_to include('Champ legacy')
       expect(all_column_labels).to include('Champ valide')
+    end
+
+    it 'excludes champs that carry a condition' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Toujours visible' },
+        { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+      ])
+
+      labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, columns| columns.map(&:label) }
+      expect(labels).to eq(['Toujours visible'])
+    end
+  end
+
+  describe '#columns' do
+    it 'does not raise and skips champs with unknown type_champ (legacy value)' do
+      procedure = create(:procedure, :published, types_de_champ_public: [
+        { type: :text, libelle: 'Champ valide' },
+        { type: :text, libelle: 'Champ legacy' },
+      ])
+      valid_tdc = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ valide' }
+      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
+      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
+      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      procedure.reload
+      Current.procedure_columns = nil
+
+      expect { procedure.columns }.not_to raise_error
+      expect(procedure.columns.map(&:label)).not_to include('Champ legacy')
+      h_id = { procedure_id: procedure.id, column_id: "type_de_champ/#{valid_tdc.stable_id}" }
+      expect { procedure.find_column(h_id:) }.not_to raise_error
     end
   end
 

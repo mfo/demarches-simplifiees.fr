@@ -1,7 +1,12 @@
 <% if dossiers.present? %>
   <% dossiers.each do |dossier| %>
     <div class="card" id="dossier_<%= dossier.id %>">
-      <%= render partial: 'dossier_card_content', locals: { dossier: dossier, linkable: @statut != "dossiers-supprimes" } %>
+      <%= render partial: 'dossier_card_content', locals: {
+        dossier: dossier,
+        linkable: @statut != "dossiers-supprimes",
+        personnalisation: @personnalisations_by_procedure_id&.[](dossier.procedure.id),
+        champs_by_stable_id: @champs_by_dossier_id&.[](dossier.id) || {}
+      } %>
 
       <% if dossier.procedure.close? %>
         <%= render Dsfr::AlertComponent.new(state: :info, size: :sm, extra_class_names: "fr-mb-2w") do |c| %>
@@ -68,7 +73,7 @@
       <% end %>
 
       <% if @statut != "dossiers-supprimes" %>
-        <div class="flex justify-end no-flex-xs">
+        <div class="flex justify-end no-flex-xs fr-mt-1w">
           <%= render partial: 'dossier_actions', locals: { dossier: dossier } %>
         </div>
       <% end %>
@@ -84,7 +89,7 @@
       <% end %>
 
       <% if @statut == "dossiers-supprimes" %>
-        <div class="flex justify-end no-flex-xs">
+        <div class="flex justify-end no-flex-xs fr-mt-1w">
           <% if dossier.hidden_by_reason != 'expired' %>
             <%= link_to restore_dossier_path(dossier.id), method: :patch, class: "fr-btn fr-btn--sm" do %>
               <%= t("views.users.dossiers.dossier_action.restore") %>

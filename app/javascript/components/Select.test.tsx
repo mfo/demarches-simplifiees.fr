@@ -86,4 +86,26 @@ suite('MultipleSelect with sections', () => {
       )
       .toBeInTheDocument();
   });
+
+  test('uses selectedLabels when provided', async () => {
+    root.render(
+      <MultipleSelect
+        name="champs[]"
+        sections={sections}
+        aria-label="Champs"
+        value={['nom']}
+        selectedLabels={{
+          one: '1 champ sélectionné',
+          other: '# champs sélectionnés'
+        }}
+      />
+    );
+
+    await expect
+      .element(page.getByText('1 champ sélectionné'))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByText(/choix sélectionné/))
+      .not.toBeInTheDocument();
+  });
 });

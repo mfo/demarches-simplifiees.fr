@@ -26,10 +26,11 @@ const ArrayOfStrings = s.coerce(s.array(Item), s.array(s.string()), (items) =>
 const ItemsSchema = s.union([s.array(Item), ArrayOfStrings, ArrayOfTuples]);
 
 export const Section = s.object({
+  id: s.optional(s.string()),
   label: s.string(),
   items: ItemsSchema
 });
-export type Section = { label: string; items: Item[] };
+export type Section = { id?: string; label: string; items: Item[] };
 
 const ComboBoxPropsSchema = s.partial(
   s.object({
@@ -124,7 +125,8 @@ const SelectProps = s.partial(
     labelId: s.string(), // if label is not in the component, we need to pass the label id
     ariaLabelledbyPrefix: s.string(),
     alwaysShowKey: s.string(),
-    emptyHint: s.optional(s.string())
+    emptyHint: s.optional(s.string()),
+    selectedLabels: s.object({ one: s.string(), other: s.string() })
   })
 );
 

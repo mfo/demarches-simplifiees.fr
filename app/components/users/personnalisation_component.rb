@@ -10,13 +10,25 @@ class Users::PersonnalisationComponent < ApplicationComponent
 
   attr_reader :procedure, :personnalisation
 
-  def sections
-    procedure.personnalisable_columns_by_section.map do |section_label, columns|
-      {
-        label: section_label || t('.default_section'),
-        items: columns.map { { label: _1.label, value: _1.id, mandatory: _1.mandatory } },
-      }
+  def select_options
+    groups = procedure.personnalisable_columns_by_section
+
+    if groups.size == 1 && groups.first.first.nil?
+      { items: items_for(groups.first.last) }
+    else
+      sections = groups.map do |stable_id, section_label, columns|
+        {
+          id: stable_id&.to_s || 'default',
+          label: section_label || t('.default_section'),
+          items: items_for(columns),
+        }
+      end
+      { sections: }
     end
+  end
+
+  def items_for(columns)
+    columns.map { { label: _1.label, value: _1.id, mandatory: _1.mandatory } }
   end
 
   def selected_value
