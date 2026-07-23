@@ -241,6 +241,11 @@ input AnnotationValueInput @oneOf {
   checkbox: Boolean
 
   """
+  Modifier la valeur d’un champ civilité
+  """
+  civilite: Civilite
+
+  """
   Modifier la valeur d’un champ date
   """
   date: ISO8601Date
@@ -254,6 +259,11 @@ input AnnotationValueInput @oneOf {
   Modifier la valeur d’un champ nombre décimal
   """
   decimalNumber: Float
+
+  """
+  Modifier la valeur d’un champ département (code INSEE ou nom)
+  """
+  departements: String
 
   """
   Modifier la valeur d'un champ lien vers un dossier
@@ -271,6 +281,16 @@ input AnnotationValueInput @oneOf {
   email: String
 
   """
+  Modifier la valeur d’un champ à format prédéfini
+  """
+  formatted: String
+
+  """
+  Modifier la valeur d’un champ IBAN
+  """
+  iban: String
+
+  """
   Modifier la valeur d’un champ nombre entier
   """
   integerNumber: Int
@@ -279,6 +299,21 @@ input AnnotationValueInput @oneOf {
   Modifier la sélection d’un champ choix multiple
   """
   multipleDropDownList: [String!]
+
+  """
+  Modifier la valeur d’un champ pays (code ISO 3166-1 alpha-2 ou nom)
+  """
+  pays: String
+
+  """
+  Modifier la valeur d’un champ téléphone
+  """
+  phone: String
+
+  """
+  Modifier la valeur d’un champ région (code INSEE ou nom)
+  """
+  regions: String
 
   """
   Ajouter des repetitions à un champ répétable

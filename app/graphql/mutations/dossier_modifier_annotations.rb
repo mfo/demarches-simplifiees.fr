@@ -18,6 +18,13 @@ module Mutations
       argument :drop_down_list, String, "Modifier la sélection d’un champ choix simple", required: false
       argument :multiple_drop_down_list, [String], "Modifier la sélection d’un champ choix multiple", required: false
       argument :dossier_link, String, "Modifier la valeur d'un champ lien vers un dossier", required: false
+      argument :phone, String, "Modifier la valeur d’un champ téléphone", required: false
+      argument :iban, String, "Modifier la valeur d’un champ IBAN", required: false
+      argument :formatted, String, "Modifier la valeur d’un champ à format prédéfini", required: false
+      argument :civilite, Types::Civilite, "Modifier la valeur d’un champ civilité", required: false
+      argument :pays, String, "Modifier la valeur d’un champ pays (code ISO 3166-1 alpha-2 ou nom)", required: false
+      argument :regions, String, "Modifier la valeur d’un champ région (code INSEE ou nom)", required: false
+      argument :departements, String, "Modifier la valeur d’un champ département (code INSEE ou nom)", required: false
       argument :repetition, Int, "Ajouter des repetitions à un champ répétable", required: false
     end
 
@@ -107,6 +114,13 @@ module Mutations
         TypeDeChamp.type_champs.fetch(:drop_down_list),
         TypeDeChamp.type_champs.fetch(:multiple_drop_down_list),
         TypeDeChamp.type_champs.fetch(:dossier_link),
+        TypeDeChamp.type_champs.fetch(:phone),
+        TypeDeChamp.type_champs.fetch(:iban),
+        TypeDeChamp.type_champs.fetch(:formatted),
+        TypeDeChamp.type_champs.fetch(:civilite),
+        TypeDeChamp.type_champs.fetch(:pays),
+        TypeDeChamp.type_champs.fetch(:regions),
+        TypeDeChamp.type_champs.fetch(:departements),
         TypeDeChamp.type_champs.fetch(:repetition),
       ]
     end
