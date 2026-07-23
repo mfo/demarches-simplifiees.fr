@@ -616,10 +616,6 @@ class Procedure < ApplicationRecord
       champ_value_in_routing_rule?
   end
 
-  def dossiers_count
-    dossiers.count
-  end
-
   def dossiers_submitted_to_administration_count
     dossiers.submitted_to_administration.count + deleted_dossiers.submitted_to_administration.count
   end
