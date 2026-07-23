@@ -925,6 +925,14 @@ describe Dossier, type: :model do
     it 'excludes dossiers pending a response (the « en attente de réponse » badge takes precedence)' do
       expect(subject).not_to include(dossier_with_pending_response)
     end
+
+    it 'includes a dossier with an unresolved correction that is no longer en_construction (the « à corriger » badge only applies en_construction)' do
+      dossier = create(:dossier, :en_instruction, procedure: procedures.individual)
+      create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: nil)
+      create(:dossier_correction, dossier:)
+
+      expect(subject).to include(dossier)
+    end
   end
 
   describe '.ordered_for_export' do
