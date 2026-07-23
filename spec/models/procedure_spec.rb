@@ -1595,6 +1595,13 @@ describe Procedure do
       expect(procedure.revisions.count).to eq(2)
       expect(procedure.destroy).to be_truthy
     end
+
+    it "destroys associated dossiers_list_personnalisations" do
+      personnalisation = create(:dossiers_list_personnalisation, procedure:)
+
+      expect(procedure.destroy).to be_truthy
+      expect { personnalisation.reload }.to raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 
   describe '#average_dossier_weight' do
@@ -2250,6 +2257,63 @@ describe Procedure do
       it 'returns false (query tag does not protect any field)' do
         expect(procedure.used_by_referentiel_urls?(text_tdc)).to be false
       end
+    end
+  end
+
+  describe '#personnalisable_columns' do
+    let(:procedure) do
+      create(:procedure, :published,
+             types_de_champ_public: [
+               { type: :text, libelle: 'Ville', mandatory: true },
+               { type: :date, libelle: 'Date arrivée' },
+               { type: :textarea, libelle: 'Description' },
+               { type: :piece_justificative, libelle: 'Justificatif' },
+               { type: :yes_no, libelle: 'Accord' },
+               { type: :header_section, libelle: 'Section A' },
+             ],
+             types_de_champ_private: [
+               { type: :text, libelle: 'Note interne' },
+             ])
+    end
+
+    it 'includes proposable public champ types' do
+      expect(procedure.personnalisable_columns.map(&:label)).to include('Ville', 'Date arrivée')
+    end
+
+    it 'excludes non-proposable types (textarea, piece_justificative, yes_no, header_section)' do
+      labels = procedure.personnalisable_columns.map(&:label)
+      expect(labels).not_to include('Description', 'Justificatif', 'Accord', 'Section A')
+    end
+
+    it 'excludes private annotations' do
+      expect(procedure.personnalisable_columns.map(&:label)).not_to include('Note interne')
+    end
+
+    it 'returns Columns::ChampColumn instances carrying mandatory flag' do
+      expect(procedure.personnalisable_columns).to all(be_a(Columns::ChampColumn))
+      ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+      expect(ville_column.mandatory).to eq(true)
+    end
+
+    it 'returns a single entry for a multi-column champ like address' do
+      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :address, libelle: 'Domicile' }])
+      columns = procedure.personnalisable_columns.filter { _1.label.include?('Domicile') }
+      expect(columns.size).to eq(1)
+      expect(columns.first.tdc_type).to eq('address')
+    end
+
+    it 'offers the commune name column for a commune champ' do
+      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :communes, libelle: 'Ville de naissance' }])
+      dossier = create(:dossier, :with_populated_champs, procedure:)
+
+      column = procedure.personnalisable_columns.sole
+      expect(column.label).to eq('Ville de naissance – Commune')
+      expect(column.value(dossier.champs.first)).to eq('Coye-la-Forêt')
+    end
+
+    it 'offers the canonical column for a single-column champ' do
+      ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+      expect(ville_column.h_id[:column_id]).to eq("type_de_champ/#{ville_column.stable_id}")
     end
   end
 

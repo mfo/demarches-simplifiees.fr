@@ -34,6 +34,10 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
       .concat(legacy_columns(procedure_id:, prefix:))
   end
 
+  def personnalisation_column(procedure_id:)
+    addressable_columns(procedure_id:, only: [:city_name]).first
+  end
+
   def info_columns(procedure:)
     Dossiers::CommuneComponent.data_labels
   end
