@@ -131,8 +131,9 @@ module Administrateurs
         flash.alert = errors
       else
         @coordinate = draft.remove_type_de_champ(params[:stable_id])
-        ProcedureRevisionPreloader.load_one(@coordinate.revision)
+        # nil in case of replay (double click, champ already removed)
         if @coordinate.present?
+          ProcedureRevisionPreloader.load_one(@coordinate.revision)
           @destroyed = @coordinate
           @morphed = champ_components_starting_at(@coordinate)
         end
