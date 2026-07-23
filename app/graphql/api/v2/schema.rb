@@ -157,13 +157,17 @@ class API::V2::Schema < GraphQL::Schema
 
     # Capture type errors in Sentry. Thouse errors are our responsability and usually linked to
     # instances of "bad data".
-    Sentry.capture_exception(error, extra: ctx.query_info)
-
     if error.is_a?(GraphQL::InvalidNullError)
+      # Relay mutation payload classes are anonymous, so the error class name
+      # (#<Class:0x...>::InvalidNullError) varies per process and Sentry splits one
+      # defect into many issues; group by message instead.
+      Sentry.capture_exception(error, extra: ctx.query_info, fingerprint: ['GraphQL::InvalidNullError', error.message])
+
       execution_error = GraphQL::ExecutionError.new(error.message, ast_node: error.ast_node, extensions: { code: :invalid_null })
       execution_error.path = ctx[:current_path]
       ctx.errors << execution_error
     else
+      Sentry.capture_exception(error, extra: ctx.query_info)
       super
     end
   end

@@ -869,6 +869,16 @@ describe API::V2::GraphqlController do
         expect(direct_upload_data[:signedBlobId]).not_to be_nil
       end
 
+      context "with a read-only token" do
+        before { api_token.update(write_access: false) }
+
+        it "returns an unauthorized error instead of a null violation (RAILS-MAY)" do
+          expect(gql_data[:createDirectUpload]).to be_nil
+          expect(gql_errors.first[:message]).to eq('Le jeton utilisé est configuré seulement en lecture')
+          expect(gql_errors.first[:extensions][:code]).to eq('unauthorized')
+        end
+      end
+
       context "when the s3_storage feature is enabled on the procedure" do
         before { Flipper.enable(:s3_storage, procedure) }
 
