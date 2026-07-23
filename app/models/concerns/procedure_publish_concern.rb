@@ -18,8 +18,9 @@ module ProcedurePublishConcern
       if other_procedure.present?
         other_procedure.unpublish! if other_procedure.may_unpublish?
 
-        publish!(administrateur, other_procedure.canonical_procedure || other_procedure)
-      else
+        # may_publish? is false on replay: the procedure is already publiee
+        publish!(administrateur, other_procedure.canonical_procedure || other_procedure) if may_publish?
+      elsif may_publish?
         publish!(administrateur, nil)
       end
     end
