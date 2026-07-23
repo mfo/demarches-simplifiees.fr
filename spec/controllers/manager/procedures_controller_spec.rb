@@ -104,13 +104,17 @@ describe Manager::ProceduresController, type: :controller do
     render_views
 
     context 'sort by dossiers' do
-      let!(:dossier) { create(:dossier) }
+      let!(:procedure_1) { create(:procedure, libelle: 'Procédure 1', estimated_dossiers_count: 111) }
+      let!(:procedure_2) { create(:procedure, libelle: 'Procédure 2', estimated_dossiers_count: 222) }
 
       before do
-        get :index, params: { procedure: { direction: :asc, order: :dossiers } }
+        get :index, params: { procedure: { direction: :asc, order: :estimated_dossiers_count } }
       end
 
-      it { expect(response.body).to include('1 Dossier') }
+      it "orders procedures by estimated_dossiers_count" do
+        expect(response.body.index("Procédure 1"))
+          .to be < response.body.index("Procédure 2")
+      end
     end
   end
 
