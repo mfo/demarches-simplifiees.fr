@@ -107,7 +107,13 @@ class GeoArea < ApplicationRecord
 
   def location
     if point?
-      Geo::Coord.new(*geometry['coordinates'][0..1].reverse).to_s
+      coordinates = geometry['coordinates'][0..1]
+      begin
+        Geo::Coord.new(*coordinates.reverse).to_s
+      rescue ArgumentError
+        # out of range coordinates (e.g. projected meters imported from a bad geojson)
+        coordinates.join(', ')
+      end
     end
   end
 

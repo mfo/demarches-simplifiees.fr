@@ -23,6 +23,14 @@ RSpec.describe GeoArea, type: :model do
     let(:geo_area) { build(:geo_area, :point, champ_data: nil) }
 
     it { expect(geo_area.location).to eq("46°32'19\"N 2°25'42\"E") }
+
+    context 'with out of range coordinates (RAILS-M8G)' do
+      let(:geo_area) { build(:geo_area, :point_invalid, champ_data: nil) }
+
+      it 'falls back to the raw coordinates instead of failing' do
+        expect(geo_area.location).to eq('200, 100')
+      end
+    end
   end
 
   describe 'validations' do
