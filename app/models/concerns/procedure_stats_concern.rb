@@ -10,15 +10,26 @@ module ProcedureStatsConcern
   USUAL_TRAITEMENT_TIME_PERCENTILE = 90
 
   def stats_usual_traitement_time
-    Rails.cache.fetch("#{cache_key_with_version}/stats_usual_traitement_time", expires_in: 12.hours) do
+    stats_cache_fetch("#{cache_key_with_version}/stats_usual_traitement_time") do
       usual_traitement_time_for_recent_dossiers(NB_DAYS_RECENT_DOSSIERS)
     end
   end
 
   def stats_usual_traitement_time_by_month_in_days
-    Rails.cache.fetch("#{cache_key_with_version}/stats_usual_traitement_time_by_month_in_days", expires_in: 12.hours) do
+    stats_cache_fetch("#{cache_key_with_version}/stats_usual_traitement_time_by_month_in_days") do
       usual_traitement_time_by_month_in_days
     end
+  end
+
+  # On very large procedures the stats query can hit the statement timeout; these
+  # stats decorate public pages (commencer, dossier status), which must render
+  # anyway. Serve nil and negative-cache it briefly so we don't hammer the
+  # database until the next attempt.
+  def stats_cache_fetch(key, &)
+    Rails.cache.fetch(key, expires_in: 12.hours, &)
+  rescue ActiveRecord::QueryCanceled
+    Rails.cache.write(key, nil, expires_in: 1.hour)
+    nil
   end
 
   def stats_dossiers_funnel
