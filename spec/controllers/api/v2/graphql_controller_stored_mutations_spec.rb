@@ -548,6 +548,22 @@ describe API::V2::GraphqlController do
         }
       end
 
+      context 'when the token is not scoped to the target procedure' do
+        let(:other_procedure) { create(:procedure, :published, administrateurs: [admin]) }
+        let(:variables) { { input: { demarche: { id: other_procedure.to_typed_id }, groupeInstructeur: { label: 'groupe hors périmètre', instructeurs: [{ email: 'attacker@evil.com' }] } }, includeInstructeurs: true } }
+
+        # Token targeted to `procedure` only; `other_procedure` is owned by the same
+        # admin but out of the token's scope.
+        before { api_token.update(allowed_procedure_ids: [procedure.id]) }
+
+        it 'refuses to create the groupe instructeur and does not add the instructeur' do
+          expect(gql_data[:groupeInstructeurCreer][:groupeInstructeur]).to be_nil
+          expect(gql_data[:groupeInstructeurCreer][:errors]).to be_present
+          expect(other_procedure.groupe_instructeurs.count).to eq(1)
+          expect(Instructeur.joins(:user).where(users: { email: 'attacker@evil.com' })).to be_empty
+        end
+      end
+
       context 'with api hack' do
         include Logic
         let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{ type: :drop_down_list }]) }

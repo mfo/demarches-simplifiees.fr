@@ -20,7 +20,12 @@ module Mutations
 
     def resolve(demarche:, groupe_instructeur:)
       demarche_number = demarche.number.presence || ApplicationRecord.id_from_typed_id(demarche.id)
-      procedure = current_administrateur.procedures.find(demarche_number)
+      procedure = Procedure.find_by(id: demarche_number)
+
+      if procedure.blank? || !context.authorized_demarche?(procedure)
+        return { errors: ["La démarche \"#{demarche_number}\" n'existe pas ou vous n'avez pas le droit de la modifier."] }
+      end
+
       ids, emails = partition_instructeurs_by(groupe_instructeur.instructeurs)
 
       groupe_instructeur = procedure
