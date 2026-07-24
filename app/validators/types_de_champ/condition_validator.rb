@@ -7,13 +7,12 @@ class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
   def validate_each(procedure, collection, tdcs)
     return if tdcs.empty?
 
-    tdcs = tdcs_with_children(procedure, tdcs)
     tdcs.each_with_index do |tdc, tdc_index|
       next unless tdc.condition?
 
       upper_tdcs = []
       if collection == :draft_types_de_champ_private # in case of private tdc validation, we must include public tdcs
-        upper_tdcs += tdcs_with_children(procedure, procedure.draft_types_de_champ_public)
+        upper_tdcs += procedure.draft_types_de_champ_public
       end
       upper_tdcs += tdcs.take(tdc_index) # we take all upper_tdcs of current tdcs
 
@@ -26,12 +25,5 @@ class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
         type_de_champ: tdc
       )
     end
-  end
-
-  # find children in repetitions, keeping the repetition itself so its own
-  # condition is validated too
-  def tdcs_with_children(procedure, tdcs)
-    tdcs.to_a
-      .flat_map { _1.repetition? ? [_1, *procedure.draft_revision.children_of(_1)] : _1 }
   end
 end
