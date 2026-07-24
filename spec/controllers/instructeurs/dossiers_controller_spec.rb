@@ -3,12 +3,11 @@
 describe Instructeurs::DossiersController, type: :controller do
   render_views
 
-  # the local `let(:instructeurs)` shadows the seed accessor, so go through Oaken::Seeds
-  let(:instructeur) { Oaken::Seeds.instructeurs.default }
+  let(:instructeur) { instructeurs.default }
   let(:administration) { create(:administration) }
-  let(:instructeurs) { [instructeur] }
+  let(:procedure_instructeurs) { [instructeur] }
   let(:procedure) { procedures.individual }
-  let(:procedure_accuse_lecture) { create(:procedure, :published, :for_individual, :accuse_lecture, :new_administrateur, instructeurs: instructeurs) }
+  let(:procedure_accuse_lecture) { create(:procedure, :published, :for_individual, :accuse_lecture, :new_administrateur, instructeurs: procedure_instructeurs) }
   let(:dossier) { dossiers.en_construction }
   let(:dossier_accepte) { dossiers.accepte }
   let(:dossier_accuse_lecture) { create(:dossier, :en_construction, :with_individual, procedure: procedure_accuse_lecture) }
@@ -685,7 +684,7 @@ describe Instructeurs::DossiersController, type: :controller do
     end
 
     context 'when related etablissement is still in degraded_mode' do
-      let(:procedure) { create(:procedure, :published, for_individual: false, instructeurs: instructeurs) }
+      let(:procedure) { create(:procedure, :published, for_individual: false, instructeurs: procedure_instructeurs) }
       let(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure: procedure, as_degraded_mode: true) }
 
       subject { post :terminer, params: { process_action: "accepter", procedure_id: procedure.id, dossier_id: dossier.id, statut: 'a-suivre' }, format: :turbo_stream }
@@ -1135,7 +1134,7 @@ describe Instructeurs::DossiersController, type: :controller do
       context 'with linked dossiers' do
         let(:asked_confidentiel) { false }
         let(:previous_avis_confidentiel) { false }
-        let(:procedure) { create(:procedure, :published, :for_individual, instructeurs:, types_de_champ_public: [{ type: :dossier_link }]) }
+        let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: procedure_instructeurs, types_de_champ_public: [{ type: :dossier_link }]) }
         let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
         before { subject }
         context 'when the expert doesn’t share linked dossiers' do
@@ -1235,7 +1234,7 @@ describe Instructeurs::DossiersController, type: :controller do
       end
 
       context 'empty champs commune' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :communes }], instructeurs:) }
+        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :communes }], instructeurs: procedure_instructeurs) }
         let(:dossier) { create(:dossier, :accepte, procedure:) }
 
         it { expect(response).to render_template 'dossiers/show' }
@@ -1344,7 +1343,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
   describe "#update_annotations" do
     let(:procedure) do
-      create(:procedure, :published, types_de_champ_public:, types_de_champ_private:, instructeurs: instructeurs)
+      create(:procedure, :published, types_de_champ_public:, types_de_champ_private:, instructeurs: procedure_instructeurs)
     end
     let(:types_de_champ_private) do
       [
@@ -1593,7 +1592,7 @@ describe Instructeurs::DossiersController, type: :controller do
     end
 
     context "when there are others instructeurs" do
-      let(:instructeurs) { [instructeur, another_instructeur] }
+      let(:procedure_instructeurs) { [instructeur, another_instructeur] }
       let!(:other_instructeur_procedure) { create(:instructeurs_procedure, instructeur: another_instructeur, procedure:, display_annotation_instructeur_notifications: 'all') }
       let(:params) do
         {
@@ -1666,7 +1665,7 @@ describe Instructeurs::DossiersController, type: :controller do
         { type: :explication, stable_id: explication_stable_id, condition: },
       ]
     end
-    let(:procedure) { create(:procedure, :published, types_de_champ_private:, instructeurs:) }
+    let(:procedure) { create(:procedure, :published, types_de_champ_private:, instructeurs: procedure_instructeurs) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_annotations, procedure:) }
 
     subject do
@@ -2049,7 +2048,7 @@ describe Instructeurs::DossiersController, type: :controller do
   end
 
   describe '#pieces_jointes' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs:) }
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs: procedure_instructeurs) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let(:logo_path) { 'spec/fixtures/files/logo_test_procedure.png' }
     let(:rib_path) { 'spec/fixtures/files/RIB.pdf' }
