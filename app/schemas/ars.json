@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://demarche.numerique.gouv.fr/ars.schema.json",
+  "title": "ars",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "anyOf": [
+        { "required": ["status"] },
+        { "required": ["date_debut_droit"] }
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["allocataire", "ouvrant_droit", "non_beneficiaire"]
+        },
+        "date_debut_droit": {
+          "type": ["string", "null"],
+          "format": "date"
+        }
+      }
+    }
+  }
+}
