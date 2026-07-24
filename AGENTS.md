@@ -14,6 +14,7 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 
 ### Testing
 - `bundle exec rspec` - Run all tests
+- `bin/parallel-rspec` - Run the suite across 8 processes (~4× faster; run `bin/parallel-rspec --setup` once to create the per-process databases)
 - `bundle exec rspec file_path/file_name_spec.rb:line_number` - Run specific test
 - `bundle exec rspec --only-failures` - Re-run only failed tests
 - `NO_HEADLESS=1 bundle exec rspec spec/system` - Run system tests with visible browser
