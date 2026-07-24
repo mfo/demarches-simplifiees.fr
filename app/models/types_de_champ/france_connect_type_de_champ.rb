@@ -30,6 +30,13 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
       rows_builder: FranceConnectChamp::AEEHRowsBuilder,
       columns: Columns::FranceConnectChampColumn::AEEH_COLUMNS,
     },
+    ars: {
+      resource: '',
+      schema: "",
+      preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_ars_data.json",
+      rows_builder:,
+      columns:,
+    },
   }.freeze
 
   def self.config_for(type_champ)
