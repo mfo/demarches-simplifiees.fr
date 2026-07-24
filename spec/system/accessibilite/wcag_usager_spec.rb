@@ -6,7 +6,9 @@ describe 'wcag rules for usager', js: true do
   let(:litteraire_user) { create(:user, password: password) }
 
   def test_aria_label_do_not_mix_with_title_attribute
-    elements = page.all("[aria-label][title]")
+    # minimum: 0 — a page with no such element is the expected outcome; without
+    # it Capybara retries for default_max_wait_time before returning empty.
+    elements = page.all("[aria-label][title]", minimum: 0)
     elements.each do |element|
       expect(element[:title]).to be_blank, "path=#{path}, element title=\"#{element[:title]}\" mixes aria-label and title attributes"
     end
