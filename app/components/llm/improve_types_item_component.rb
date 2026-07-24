@@ -2,7 +2,7 @@
 
 class LLM::ImproveTypesItemComponent < LLM::SuggestionItemComponent
   def self.step_title
-    "Bonne utilisation des types de champs"
+    t(".step_title")
   end
 
   def render?
@@ -52,28 +52,28 @@ class LLM::ImproveTypesItemComponent < LLM::SuggestionItemComponent
 
   def format_formatted_options(opts)
     parts = []
-    parts << 'lettres' if opts['letters_accepted']
-    parts << 'chiffres' if opts['numbers_accepted']
-    parts << 'caractères spéciaux' if opts['special_characters_accepted']
+    parts << t(".letters") if opts['letters_accepted']
+    parts << t(".numbers") if opts['numbers_accepted']
+    parts << t(".special_characters") if opts['special_characters_accepted']
     if opts['min_character_length'] || opts['max_character_length']
       range = [opts['min_character_length'], opts['max_character_length']].compact.join('-')
-      parts << "#{range} caractères"
+      parts << t(".character_count", range:)
     end
     parts.join(', ').presence
   end
 
   def format_number_options(opts)
     parts = []
-    parts << 'positif' if opts['positive_number']
+    parts << t(".positive") if opts['positive_number']
 
     min_val = opts['min_number']
     max_val = opts['max_number']
     if min_val && max_val
-      parts << "entre #{min_val} et #{max_val}"
+      parts << t(".between", min: min_val, max: max_val)
     elsif min_val
-      parts << "≥ #{min_val}"
+      parts << t(".min_only", min: min_val)
     elsif max_val
-      parts << "≤ #{max_val}"
+      parts << t(".max_only", max: max_val)
     end
 
     parts.join(', ').presence
@@ -81,16 +81,16 @@ class LLM::ImproveTypesItemComponent < LLM::SuggestionItemComponent
 
   def format_date_options(opts)
     parts = []
-    parts << 'dans le passé' if opts['date_in_past']
+    parts << t(".past") if opts['date_in_past']
 
     start_date = format_date(opts['start_date'])
     end_date = format_date(opts['end_date'])
     if start_date && end_date
-      parts << "entre le #{start_date} et le #{end_date}"
+      parts << t(".between_dates", start_date:, end_date:)
     elsif start_date
-      parts << "après le #{start_date}"
+      parts << t(".after_date", start_date:)
     elsif end_date
-      parts << "avant le #{end_date}"
+      parts << t(".before_date", end_date:)
     end
 
     parts.join(', ').presence
