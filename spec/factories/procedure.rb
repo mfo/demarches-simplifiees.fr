@@ -167,8 +167,10 @@ FactoryBot.define do
       published_at { Time.zone.now }
       unpublished_at { nil }
       closed_at { nil }
-      zones { [association(:zone, strategy: :build)] }
-      service { association :service, administrateur: administrateurs.first }
+      # reuse the seeded zone and service instead of rebuilding them for
+      # every published procedure (they only need to be present)
+      zones { [Oaken::Seeds.zones.default] }
+      service { Oaken::Seeds.services.default }
     end
 
     trait :closed do
