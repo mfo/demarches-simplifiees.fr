@@ -3,7 +3,6 @@
 class TypesDeChamp::NumberValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ
-      .flat_map { it.repetition? ? procedure.draft_revision.children_of(it) : [it] }
       .filter { |tdc| tdc.decimal_number? || tdc.integer_number? }.each do |tdc|
       validate_range(procedure, attribute, tdc) if tdc.range_number?
     end

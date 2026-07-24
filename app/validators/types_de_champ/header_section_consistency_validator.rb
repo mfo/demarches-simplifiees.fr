@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::HeaderSectionConsistencyValidator < ActiveModel::EachValidator
+  # header levels are checked per scope: root types de champ together, each
+  # repetition's children together
   def validate_each(procedure, attribute, types_de_champ)
-    public_tdcs = types_de_champ.to_a
-
-    root_tdcs_errors = errors_for_header_sections_order(procedure, attribute, public_tdcs)
-    repetition_tdcs_errors = public_tdcs
-      .filter_map { _1.repetition? ? procedure.draft_revision.children_of(_1) : nil }
-      .map { errors_for_header_sections_order(procedure, attribute, _1) }
-
-    repetition_tdcs_errors + root_tdcs_errors
+    types_de_champ.to_a
+      .group_by { procedure.draft_revision.parent_of(it) }
+      .each_value { errors_for_header_sections_order(procedure, attribute, it) }
   end
 
   private

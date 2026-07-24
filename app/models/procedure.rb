@@ -35,10 +35,10 @@ class Procedure < ApplicationRecord
   has_many :deleted_dossiers, dependent: :destroy
   has_many :llm_rule_suggestions, through: :revisions
 
-  def draft_types_de_champ_public = draft_revision&.root_types_de_champ_public || []
-  def draft_types_de_champ_private = draft_revision&.root_types_de_champ_private || []
-  def published_types_de_champ_public = published_revision&.root_types_de_champ_public || []
-  def published_types_de_champ_private = published_revision&.root_types_de_champ_private || []
+  def draft_types_de_champ_public = draft_revision&.flat_types_de_champ_public || []
+  def draft_types_de_champ_private = draft_revision&.flat_types_de_champ_private || []
+  def published_types_de_champ_public = published_revision&.flat_types_de_champ_public || []
+  def published_types_de_champ_private = published_revision&.flat_types_de_champ_private || []
 
   has_one :published_dossier_submitted_message, dependent: :destroy, through: :published_revision, source: :dossier_submitted_message
   has_one :draft_dossier_submitted_message, dependent: :destroy, through: :draft_revision, source: :dossier_submitted_message

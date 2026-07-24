@@ -3,18 +3,11 @@
 class TypesDeChamp::NoEmptyDropDownValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ
-      .flat_map { with_children(procedure, it) }
       .filter(&:any_drop_down_list?)
       .each { validate_drop_down_not_empty(procedure, attribute, it) }
   end
 
   private
-
-  def with_children(procedure, type_de_champ)
-    return [type_de_champ] unless type_de_champ.repetition?
-
-    [type_de_champ, *procedure.draft_revision.children_of(type_de_champ)]
-  end
 
   def validate_drop_down_not_empty(procedure, attribute, drop_down)
     if (drop_down.drop_down_list? || drop_down.multiple_drop_down_list?) && drop_down.drop_down_advanced? && drop_down.referentiel.blank?
