@@ -20,7 +20,7 @@ def render_in_2_columns(pdf, label, text)
   pdf.text "\n"
 end
 
-def format_in_2_lines(pdf, champ, nb_lines = 1)
+def empty_format_in_2_lines(pdf, champ, nb_lines = 1)
   add_single_line(pdf, champ.libelle, 9, :bold)
   add_optionnal_description(pdf, champ)
   height = 10 * (nb_lines + 1)
@@ -30,7 +30,7 @@ def format_in_2_lines(pdf, champ, nb_lines = 1)
   pdf.text "\n"
 end
 
-def format_in_2_columns(pdf, label)
+def empty_format_in_2_columns(pdf, label)
   pdf.text_box label, width: 200, height: 100, overflow: :expand, at: [0, pdf.cursor]
   pdf.bounding_box([110, pdf.cursor + 5], :width => 350, :height => 20) do
     pdf.stroke_bounds
@@ -87,22 +87,22 @@ def format_date(date)
   I18n.l(date, format: :message_date_with_year)
 end
 
-def add_identite_individual(pdf)
-  format_in_2_columns(pdf, "Civilité")
-  format_in_2_columns(pdf, "Nom")
-  format_in_2_columns(pdf, "Prénom")
+def empty_add_identite_individual(pdf)
+  empty_format_in_2_columns(pdf, "Civilité")
+  empty_format_in_2_columns(pdf, "Nom")
+  empty_format_in_2_columns(pdf, "Prénom")
 
   if @procedure.ask_birthday?
-    format_in_2_columns(pdf, "Date de naissance")
+    empty_format_in_2_columns(pdf, "Date de naissance")
   end
 end
 
-def add_identite_etablissement(pdf, libelle)
+def empty_add_identite_etablissement(pdf, libelle)
   add_single_line(pdf, libelle, 9, :bold)
 
-  format_in_2_columns(pdf, "SIRET")
-  format_in_2_columns(pdf, "Dénomination")
-  format_in_2_columns(pdf, "Forme juridique")
+  empty_format_in_2_columns(pdf, "SIRET")
+  empty_format_in_2_columns(pdf, "Dénomination")
+  empty_format_in_2_columns(pdf, "Forme juridique")
 end
 
 def add_single_line(pdf, libelle, size, style)
@@ -111,7 +111,7 @@ def add_single_line(pdf, libelle, size, style)
   end
 end
 
-def add_title(pdf, title)
+def empty_add_title(pdf, title)
   add_single_line(pdf, title, 20, :bold)
   pdf.text "\n"
 end
@@ -166,10 +166,10 @@ def render_single_champ(pdf, revision, type_de_champ)
     pdf.text type_de_champ.description
     pdf.text "\n"
   when TypeDeChamp.type_champs.fetch(:address), TypeDeChamp.type_champs.fetch(:carte), TypeDeChamp.type_champs.fetch(:textarea)
-    format_in_2_lines(pdf, type_de_champ, 5)
+    empty_format_in_2_lines(pdf, type_de_champ, 5)
   when TypeDeChamp.type_champs.fetch(:drop_down_list)
     if type_de_champ.drop_down_advanced?
-      format_in_2_lines(pdf, type_de_champ)
+      empty_format_in_2_lines(pdf, type_de_champ)
     else
       add_libelle(pdf, type_de_champ)
       add_optionnal_description(pdf, type_de_champ)
@@ -197,13 +197,13 @@ def render_single_champ(pdf, revision, type_de_champ)
     end
     pdf.text "\n"
   when TypeDeChamp.type_champs.fetch(:siret)
-    add_identite_etablissement(pdf, type_de_champ.libelle)
+    empty_add_identite_etablissement(pdf, type_de_champ.libelle)
   else
-    format_in_2_lines(pdf, type_de_champ)
+    empty_format_in_2_lines(pdf, type_de_champ)
   end
 end
 
-def add_champs(pdf, revision, types_de_champ)
+def empty_add_champs(pdf, revision, types_de_champ)
   types_de_champ.each do |type_de_champ|
     render_single_champ(pdf, revision, type_de_champ)
   end
@@ -224,20 +224,20 @@ prawn_document(page_size: "A4") do |pdf|
   render_in_2_columns(pdf, 'Organisme', @procedure.organisation_name || "En attente de saisi")
   pdf.text "\n"
 
-  add_title(pdf, "Identité du demandeur")
+  empty_add_title(pdf, "Identité du demandeur")
 
-  format_in_2_columns(pdf, "Email")
+  empty_format_in_2_columns(pdf, "Email")
 
   if @procedure.for_individual?
-    add_identite_individual(pdf)
+    empty_add_identite_individual(pdf)
   else
-    add_identite_etablissement(pdf, 'Etablissement')
+    empty_add_identite_etablissement(pdf, 'Etablissement')
   end
   pdf.text "\n"
 
-  add_title(pdf, 'Formulaire')
+  empty_add_title(pdf, 'Formulaire')
   add_single_line(pdf, @procedure.description + "\n", 9, :italic) if @procedure.description.present?
-  add_champs(pdf, @revision, @revision.root_types_de_champ_public)
+  empty_add_champs(pdf, @revision, @revision.root_types_de_champ_public)
   add_page_numbering(pdf)
   add_procedure(pdf, @procedure)
 end
