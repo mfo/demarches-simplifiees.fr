@@ -32,6 +32,11 @@ class Columns::FranceConnectChampColumn < Columns::JSONPathColumn
     ['Date de début de droit', '$.api_part.date_debut_droit', :date],
   ]
 
+  ARS_COLUMNS = [
+    ['Statut', '$.api_part.status', :text],
+    ['Date de début de droit', '$.api_part.date_debut_droit', :date],
+  ]
+
   def targeted_dossiers(dossiers, condition)
     super(dossiers, condition).where(champs: { value: 'true' })
   end
