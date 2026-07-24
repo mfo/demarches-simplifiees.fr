@@ -8,10 +8,6 @@ namespace :admin do
   patch 'activate' => '/users/activate#create'
   get 'procedures/archived', to: redirect('/admin/procedures?statut=archivees')
   get 'procedures/draft', to: redirect('/admin/procedures?statut=brouillons')
-
-  namespace :assigns do
-    get 'show' # delete after fixed tests admin/instructeurs/show_spec without this line
-  end
 end
 
 scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar_profile: :administrateur } do
@@ -75,7 +71,7 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
       end
     end
 
-    resources :routing_rules, only: [:update, :destroy], param: :groupe_instructeur_id do
+    resources :routing_rules, only: [:update], param: :groupe_instructeur_id do
       member do
         patch :add_row
         patch :change_targeted_champ
@@ -83,10 +79,9 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
       end
     end
 
-    resource :ineligibilite_rules, only: [:edit, :update, :destroy], param: :revision_id do
+    resource :ineligibilite_rules, only: [:edit, :update], param: :revision_id do
       member do
         patch :change_targeted_champ
-        patch :update_all_rows
         patch :add_row
         delete :delete_row
       end
@@ -194,7 +189,7 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
       end
     end
 
-    resources :labels, controller: 'labels' do
+    resources :labels, controller: 'labels', except: [:show] do
       collection do
         get 'order_positions'
         patch 'update_order_positions'

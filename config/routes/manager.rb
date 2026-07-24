@@ -6,7 +6,6 @@ namespace :manager do
       post :whitelist
       post :hide_as_template
       post :unhide_as_template
-      post :draft
       post :discard
       post :restore
       put :delete_administrateur
@@ -30,9 +29,6 @@ namespace :manager do
 
   resources :dossiers, only: [:index, :show] do
     member do
-      post :discard
-      post :restore
-      post :repasser_en_instruction
       get :transfer_edit
       post :transfer
       delete :transfer_destroy

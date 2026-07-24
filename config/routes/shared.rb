@@ -8,11 +8,6 @@ namespace :champs do
   post ':dossier_id/:stable_id/repetition', to: 'repetition#add', as: :repetition
   delete ':dossier_id/:stable_id/repetition', to: 'repetition#remove'
 
-  post ':dossier_id/:stable_id/siret', to: 'siret#show', as: :siret
-  delete ':dossier_id/:stable_id/options', to: 'options#remove', as: :options
-  # TODO remove in next release
-  get ':dossier_id/:stable_id/siret', to: 'siret#show'
-
   get ':dossier_id/:stable_id/carte/features', to: 'carte#index', as: :carte_features
   post ':dossier_id/:stable_id/carte/features', to: 'carte#create'
   patch ':dossier_id/:stable_id/carte/features/:id', to: 'carte#update', as: :carte_feature

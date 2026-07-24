@@ -125,7 +125,7 @@ scope module: 'instructeurs', as: 'instructeur', defaults: { nav_bar_profile: :i
       end
 
       resources :groupes, only: [:index, :show], controller: 'groupe_instructeurs' do
-        resource :contact_information
+        resource :contact_information, except: [:show]
         member do
           post 'add_instructeurs'
           delete 'remove_instructeur'

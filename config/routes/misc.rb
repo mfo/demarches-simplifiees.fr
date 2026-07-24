@@ -17,7 +17,6 @@ end
 root 'root#index'
 get '/administration' => 'root#administration'
 
-get 'users' => 'users#index'
 get 'admin' => 'admin#index'
 
 get '/stats' => 'stats#index'

@@ -5,7 +5,7 @@ get 'graphql', to: "graphql#playground"
 
 namespace :api do
   namespace :v1 do
-    resources :procedures, only: [:index, :show] do
+    resources :procedures, only: [:show] do
       resources :dossiers, only: [:index, :show]
     end
   end
@@ -15,8 +15,6 @@ namespace :api do
     get 'dossiers/pdf/:id', format: :pdf, to: "dossiers#pdf", as: :dossier_pdf
     get 'dossiers/geojson/:id', to: "dossiers#geojson", as: :dossier_geojson
   end
-
-  resources :pays, only: :index
 
   namespace :public do
     namespace :v1 do

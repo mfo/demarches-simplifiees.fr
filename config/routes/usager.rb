@@ -6,9 +6,6 @@
 
 namespace :users, defaults: { nav_bar_profile: :user } do
   resources :dossiers, only: [] do
-    post '/carte/zones' => 'carte#zones'
-    get '/carte' => 'carte#show'
-    post '/carte' => 'carte#save'
     post '/repousser-expiration' => 'dossiers#extend_conservation'
     post '/repousser-expiration-and-restore' => 'dossiers#extend_conservation_and_restore'
   end
@@ -93,7 +90,6 @@ scope module: 'users', defaults: { nav_bar_profile: :user } do
     end
   end
 
-  resource :feedback, only: [:create]
   get 'demarches' => 'demarches#index'
   get 'deleted_dossiers' => 'dossiers#deleted_dossiers'
   get 'corbeille', to: 'dossiers#trash', as: :trash
