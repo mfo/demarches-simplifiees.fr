@@ -9,5 +9,6 @@ en:
     source:
       quotient_familial: "CAF & MSA Family Quota API"
       etudiant_boursier: "Scholarship Student Status API"
-      aah: "Adult Disability Allowance (AAH) Status API"
-      aeeh: "Disabled Child Education Allowance (AEEH) Status API"
+      aah: "Adult Disability Allowance Status API"
+      aeeh: "Disabled Child Education Allowance Status API"
+      ars: "Back to School Allowance Status API"

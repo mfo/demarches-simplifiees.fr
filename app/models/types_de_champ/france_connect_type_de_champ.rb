@@ -34,8 +34,8 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
       resource: '',
       schema: "",
       preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_ars_data.json",
-      rows_builder:,
-      columns:,
+      rows_builder: FranceConnectChamp::ARSRowsBuilder,
+      columns: '',
     },
   }.freeze
 

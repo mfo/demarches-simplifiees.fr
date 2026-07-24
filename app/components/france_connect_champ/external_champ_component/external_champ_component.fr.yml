@@ -11,3 +11,4 @@ fr:
       etudiant_boursier: "API Statut étudiant boursier"
       aah: "API Statut allocation adulte handicapé (AAH)"
       aeeh: "API Statut allocation d’éducation de l’enfant handicapé (AEEH)"
+      ars: "API Statut allocation de rentrée scolaire (ARS)"
