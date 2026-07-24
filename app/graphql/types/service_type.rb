@@ -14,5 +14,6 @@ module Types
     field :type_organisme, TypeOrganisme, "type d’organisme qui met en oeuvre la démarche", null: false
     field :organisme, String, "nom de l’organisme qui met en oeuvre la démarche", null: false
     field :siret, String, "n° siret du service qui met en oeuvre la démarche", null: true
+    field :departement, String, "département où se situe le service qui met en oeuvre la démarche", null: true
   end
 end
