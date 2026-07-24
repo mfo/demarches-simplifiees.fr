@@ -3,14 +3,14 @@
 describe Instructeurs::DossiersController, type: :controller do
   render_views
 
-  let(:instructeur) { create(:instructeur) }
+  # the local `let(:instructeurs)` shadows the seed accessor, so go through Oaken::Seeds
+  let(:instructeur) { Oaken::Seeds.instructeurs.default }
   let(:administration) { create(:administration) }
   let(:instructeurs) { [instructeur] }
-  let(:types_de_champ_public) { [] }
-  let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: instructeurs, types_de_champ_public:) }
+  let(:procedure) { procedures.individual }
   let(:procedure_accuse_lecture) { create(:procedure, :published, :for_individual, :accuse_lecture, :new_administrateur, instructeurs: instructeurs) }
-  let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
-  let(:dossier_accepte) { create(:dossier, :accepte, :with_individual, procedure: procedure) }
+  let(:dossier) { dossiers.en_construction }
+  let(:dossier_accepte) { dossiers.accepte }
   let(:dossier_accuse_lecture) { create(:dossier, :en_construction, :with_individual, procedure: procedure_accuse_lecture) }
   let(:dossier_for_tiers) { create(:dossier, :en_construction, :for_tiers_with_notification, procedure: procedure) }
   let(:dossier_for_tiers_without_notif) { create(:dossier, :en_construction, :for_tiers_without_notification, procedure: procedure) }
@@ -435,6 +435,7 @@ describe Instructeurs::DossiersController, type: :controller do
         let(:emailable) { false }
         let(:template) { create(:attestation_template, kind: :refus) }
         let(:procedure) { create(:procedure, :published, :for_individual, attestation_refus_template: template, instructeurs: [instructeur]) }
+        let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
 
         subject do
           post :terminer, params: {
@@ -648,6 +649,7 @@ describe Instructeurs::DossiersController, type: :controller do
         let(:emailable) { false }
         let(:template) { create(:attestation_template) }
         let(:procedure) { create(:procedure, :published, :for_individual, attestation_acceptation_template: template, instructeurs: [instructeur]) }
+        let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
 
         subject do
           post :terminer, params: {
@@ -1133,7 +1135,7 @@ describe Instructeurs::DossiersController, type: :controller do
       context 'with linked dossiers' do
         let(:asked_confidentiel) { false }
         let(:previous_avis_confidentiel) { false }
-        let(:types_de_champ_public) { [{ type: :dossier_link }] }
+        let(:procedure) { create(:procedure, :published, :for_individual, instructeurs:, types_de_champ_public: [{ type: :dossier_link }]) }
         let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
         before { subject }
         context 'when the expert doesn’t share linked dossiers' do
@@ -1192,20 +1194,19 @@ describe Instructeurs::DossiersController, type: :controller do
       end
 
       it "create attente_avis notification only for instructeur follower" do
-        expect { subject }.to change(DossierNotification, :count).by(1)
+        # scoped to the type: following the seeded dossier also (re)creates its
+        # message notification for the new follower
+        expect { subject }.to change { DossierNotification.attente_avis.count }.by(1)
 
-        notification = DossierNotification.last
+        notification = DossierNotification.attente_avis.last
         expect(notification.dossier_id).to eq(dossier.id)
         expect(notification.instructeur_id).to eq(instructeur.id)
-        expect(notification.notification_type).to eq("attente_avis")
       end
     end
   end
 
   describe "#show" do
     context "when the dossier is exported as PDF" do
-      # the local `let(:instructeurs)` shadows the seed accessor, so go through Oaken::Seeds
-      let(:instructeur) { Oaken::Seeds.instructeurs.default }
       let(:expert) { create(:expert) }
       let(:procedure) { procedures.entreprise }
       let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
