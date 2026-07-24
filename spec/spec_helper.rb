@@ -31,7 +31,7 @@ RSpec.configure do |config|
   config.color = true
   config.tty = true
 
-  config.example_status_persistence_file_path = 'failing_specs.txt'
+  config.example_status_persistence_file_path = "failing_specs#{ENV['TEST_ENV_NUMBER']}.txt"
   config.run_all_when_everything_filtered = true
   config.filter_run :focus => true
 
