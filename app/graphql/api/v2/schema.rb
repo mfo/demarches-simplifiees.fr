@@ -141,6 +141,7 @@ class API::V2::Schema < GraphQL::Schema
     Types::Champs::Descriptor::EtudiantBoursierChampDescriptorType,
     Types::Champs::Descriptor::AAHChampDescriptorType,
     Types::Champs::Descriptor::AEEHChampDescriptorType,
+    Types::Champs::Descriptor::ARSChampDescriptorType,
     Types::Columns::AttachmentsColumnType,
     Types::Columns::BooleanColumnType,
     Types::Columns::DateColumnType,

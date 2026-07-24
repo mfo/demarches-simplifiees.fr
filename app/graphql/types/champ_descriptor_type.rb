@@ -107,6 +107,8 @@ module Types
           Types::Champs::Descriptor::AAHChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:aeeh)
           Types::Champs::Descriptor::AEEHChampDescriptorType
+        when TypeDeChamp.type_champs.fetch(:ars)
+          Types::Champs::Descriptor::ARSChampDescriptorType
         end
       end
     end
