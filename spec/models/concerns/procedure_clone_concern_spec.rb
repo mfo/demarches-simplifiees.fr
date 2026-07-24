@@ -2,9 +2,10 @@
 
 describe ProcedureCloneConcern, type: :model do
   describe 'clone' do
-    let(:service) { create(:service) }
+    let(:service) { services.default }
     let(:procedure) do
       create(:procedure,
+        administrateurs: [administrateurs.default],
         received_mail: received_mail,
         service: service,
         opendata: opendata,
@@ -30,7 +31,13 @@ describe ProcedureCloneConcern, type: :model do
     let(:logo) { Rack::Test::UploadedFile.new('spec/fixtures/files/white.png', 'image/png') }
     let(:signature) { Rack::Test::UploadedFile.new('spec/fixtures/files/black.png', 'image/png') }
 
-    let(:groupe_instructeur_1) { create(:groupe_instructeur, procedure: procedure, label: "groupe_1", contact_information: create(:contact_information)) }
+    let(:groupe_instructeur_1) do
+      # the contact_information factory association would build its own groupe
+      # (and procedure): create it against this groupe instead
+      create(:groupe_instructeur, procedure: procedure, label: "groupe_1").tap do |groupe|
+        create(:contact_information, groupe_instructeur: groupe)
+      end
+    end
     let(:instructeur_1) { create(:instructeur) }
     let(:instructeur_2) { create(:instructeur) }
     let!(:assign_to_1) { create(:assign_to, procedure: procedure, groupe_instructeur: groupe_instructeur_1, instructeur: instructeur_1) }
