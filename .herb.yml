@@ -10,6 +10,14 @@ version: 0.8.9
 linter:
   enabled: true
 
+  # The map of France is a single inline SVG holding ~100 `svg_path` calls, each
+  # with a multi-kilobyte `d` attribute. Herb 0.10 gives the parser a 1000 ms
+  # per-file budget (not configurable), and that template alone eats it on the
+  # CI runners. The formatter parses it fine, so it stays formatted; only the
+  # linter skips it.
+  exclude:
+    - 'app/views/carte/show.html.erb'
+
   rules:
     # The "connected as <profile>" entry of the account dropdown is a label
     # rendered as a link. Turning it into a span needs a visual check on the
