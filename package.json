@@ -110,6 +110,7 @@
   },
   "scripts": {
     "clean": "del tmp public/graphql && bin/vite clobber",
+    "lint": "bun run --parallel --no-exit-on-error lint:herb check-format:herb lint:js lint:types lint:css",
     "lint:js": "eslint ./app/javascript *.ts",
     "lint:types": "tsc",
     "lint:herb": "herb-lint 'app/**/*.html.erb'",
