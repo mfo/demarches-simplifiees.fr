@@ -1,0 +1,24 @@
+# Configuration for the Herb ERB toolchain (linter + formatter).
+# See https://herb-tools.dev/configuration
+#
+# `version` pins which linter rules are enabled: rules introduced in a later
+# Herb release stay off until this version is bumped. Raising it to the current
+# release enables ~20 more rules (235 offenses to triage as of 0.10.2), so it is
+# meant to be bumped deliberately, not as a side effect of a package upgrade.
+version: 0.8.9
+
+linter:
+  enabled: true
+
+  rules:
+    # The "connected as <profile>" entry of the account dropdown is a label
+    # rendered as a link. Turning it into a span needs a visual check on the
+    # DSFR nav styles, see the TODO in the template.
+    html-anchor-require-href:
+      exclude:
+        - 'app/components/account_dropdown_component/**'
+
+formatter:
+  enabled: true
+  indentWidth: 2
+  maxLineLength: 80

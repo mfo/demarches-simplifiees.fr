@@ -70,8 +70,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@herb-tools/formatter": "^0.8.9",
-    "@herb-tools/linter": "^0.8.9",
+    "@herb-tools/formatter": "^0.10.2",
+    "@herb-tools/linter": "^0.10.2",
     "@lingui/cli": "^6.2.0",
     "@lingui/vite-plugin": "^6.2.0",
     "@magidoc/cli": "^6.2.0",
