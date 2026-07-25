@@ -104,8 +104,8 @@
   <% else %>
     <p>
       Historique indisponible. Cette adresse électronique n’existe pas chez nos
-      prestataires d’envoi, ou nous n’avons pas réussi à en charger des
-      données. Vous pouvez éventuellement fouiller les
+      prestataires d’envoi, ou nous n’avons pas réussi à en charger des données.
+      Vous pouvez éventuellement fouiller les
       <a href="https://app.brevo.com/transactional/email/logs">logs de Brevo</a>.
     </p>
   <% end %>
@@ -116,8 +116,7 @@
 
   <% if @user.confirmed? %>
     <p>
-      <strong>Compte activé, n’arrive pas à se connecter</strong>
-      ?
+      <strong>Compte activé, n’arrive pas à se connecter</strong>?
       <button
         class="btn btn-secondary btn-small"
         onclick="reveal_email('#activated-cant-connect')"
@@ -138,10 +137,9 @@ https://demarche.numerique.gouv.fr/users/password/new
 Bien cordialement</pre>
   <% else %>
     <p>
-      <strong>Ce compte n’est pas activé</strong>
-      . Vous pouvez lui
-      <%= button_to('renvoyer l’email de confirmation', [:resend_confirmation_instructions, namespace, :user], method: :post, class: 'button') %>
-      , puis un email.
+      <strong>Ce compte n’est pas activé</strong>. Vous pouvez lui
+      <%= button_to('renvoyer l’email de confirmation', [:resend_confirmation_instructions, namespace, :user], method: :post, class: 'button') %>,
+      puis un email.
       <button
         class="btn btn-secondary btn-small"
         onclick="reveal_email('#not-activated')"
@@ -165,16 +163,12 @@ Cordialement</pre>
   <p>
     <strong>Mot de passe perdu ?</strong> Vous pouvez
     <%= button_to('renvoyer l’email de réinitialisation', [:resend_reset_password_instructions, namespace, :user], method: :post, class: 'button') %>
-    
+
     <small>Attention au téléscopage: cet email invalide les liens des emails similaires précédents.</small>
   </p>
 
   <p>
-    <strong>
-      Compte
-      <a href="https://app.brevo.com/transactional/email/settings/blocked-contacts">bloqué</a>
-      chez Brevo?
-    </strong>
+    <strong>Compte <a href="https://app.brevo.com/transactional/email/settings/blocked-contacts">bloqué</a> chez Brevo?</strong>
     Vous pouvez le
     <%= button_to('débloquer', manager_user_unblock_email_path(@user), method: :put, class: 'button') %>
     puis lui envoyer
@@ -200,10 +194,8 @@ Bien cordialement
   </pre>
 
   <p>
-    <strong>Problème chez Brevo ?</strong>
-    Regardez leur
-    <a href="https://status.brevo.com/">page de status</a>
-    .
+    <strong>Problème chez Brevo ?</strong> Regardez leur
+    <a href="https://status.brevo.com/">page de status</a>.
     <button
       class="btn btn-secondary btn-small"
       onclick="reveal_email('#pb-brevo')"
