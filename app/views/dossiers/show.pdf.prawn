@@ -16,6 +16,23 @@ def maybe_start_new_page(pdf, size)
   end
 end
 
+def carte_static_map_size
+  300
+end
+
+# The map is rendered asynchronously (RenderCarteChampJob), so it can be
+# missing, on an older dossier or right after a submission. The list of
+# geometries that follows then stays the only representation, as before.
+def add_carte_static_map(pdf, champ)
+  return if !champ.static_map.attached?
+
+  pdf.image StringIO.new(champ.static_map.download), width: carte_static_map_size, position: :center
+  pdf.move_down default_margin
+rescue ActiveStorage::Error, Prawn::Errors::UnsupportedImageType => e
+  Sentry.capture_exception(e, extra: { dossier: champ.dossier_id, champ: champ.id })
+  nil
+end
+
 def text_box(pdf, text, x, width)
   box = ::Prawn::Text::Box.new(text.to_s,
     document: pdf,
@@ -243,10 +260,20 @@ def add_single_champ(pdf, champ)
   when 'Champs::ExplicationChamp'
     format_in_2_lines(pdf, tdc.libelle, strip_tags(tdc.description))
   when 'Champs::CarteChamp'
+    # Check the room for the libelle and the map together before printing
+    # anything: a page break between the two would strand the libelle alone at
+    # the bottom of the page (cf. format_in_2_lines).
+    if champ.static_map.attached?
+      libelle_height = pdf.height_of_formatted([{ text: tdc.libelle, style: :bold, size: 12 }])
+      maybe_start_new_page(pdf, libelle_height + carte_static_map_size)
+    end
+
     pdf.pad_bottom(4) do
       pdf.font 'marianne', style: :bold, size: 12 do
         pdf.text tdc.libelle
       end
+
+      add_carte_static_map(pdf, champ)
 
       pdf.indent(default_margin) do
         champ.geo_areas.each do |area|
