@@ -36,7 +36,8 @@ class ReferentielAutocompleteRenderService
     when "text"
       interpolations << template["text"]
     when "doc", 'paragraph'
-      template['content'].each { |t| interpolations.concat(render_template(t, obj)) }
+      # an empty paragraph in the template editor has no content key
+      template['content']&.each { |t| interpolations.concat(render_template(t, obj)) }
     else
       raise "Unknown template type: #{template['type']}. Expected one of: mention, text, doc, paragraph."
     end
