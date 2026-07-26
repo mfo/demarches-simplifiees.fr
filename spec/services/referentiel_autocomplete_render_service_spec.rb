@@ -35,6 +35,16 @@ RSpec.describe ReferentielAutocompleteRenderService do
       expect(result.map { |item| item[:id] }.uniq.count).to eq(2)
     end
 
+    context 'when the template renders an empty label' do
+      before do
+        referentiel.json_template = { "type" => "doc", "content" => [{ "type" => "paragraph" }] }
+      end
+
+      it 'returns no result rather than blank rows' do
+        expect(subject.format_response).to be_empty
+      end
+    end
+
     context 'with duplicate data' do
       let(:api_response) do
         {
@@ -65,22 +75,44 @@ RSpec.describe ReferentielAutocompleteRenderService do
       ).to include('Tango (Charlie)')
     end
 
-    context 'with an empty paragraph in the template' do
-      it 'skips it instead of failing (RAILS-KDV)' do
-        obj = { 'finess' => 'Tango' }
-        referentiel.json_template = {
+    context 'with nodes the renderer does not interpolate' do
+      let(:obj) { { 'finess' => 'Tango' } }
+      let(:mention) { { "type" => "mention", "attrs" => { "id" => "$.finess", "label" => "$.finess" } } }
+
+      def render(template) = subject.send(:render_template, template, obj).join('')
+
+      it 'skips an empty paragraph, which tiptap serializes without a content key' do
+        template = {
           "type" => "doc",
-          "content" => [
-            { "type" => "paragraph" },
-            {
-              "type" => "paragraph",
-              "content" => [{ "type" => "mention", "attrs" => { "id" => "$.finess", "label" => "$.finess" } }],
-            },
-          ],
+          "content" => [{ "type" => "paragraph" }, { "type" => "paragraph", "content" => [mention] }],
         }
-        expect(
-          subject.send(:render_template, referentiel.json_template, obj).join('')
-        ).to include('Tango')
+        expect(render(template)).to eq('Tango')
+      end
+
+      it 'skips a line break' do
+        template = {
+          "type" => "doc",
+          "content" => [{ "type" => "paragraph", "content" => [mention, { "type" => "hardBreak" }] }],
+        }
+        expect(render(template)).to eq('Tango')
+      end
+
+      it 'renders the children of an unknown node type instead of failing' do
+        template = {
+          "type" => "doc",
+          "content" => [{ "type" => "heading", "attrs" => { "level" => 2 }, "content" => [mention] }],
+        }
+        expect(render(template)).to eq('Tango')
+      end
+
+      it 'skips a mention without a jsonpath' do
+        template = { "type" => "doc", "content" => [{ "type" => "mention" }, mention] }
+        expect(render(template)).to eq('Tango')
+      end
+
+      it 'renders nothing for an empty template' do
+        expect(render({})).to eq('')
+        expect(render(nil)).to eq('')
       end
     end
 
