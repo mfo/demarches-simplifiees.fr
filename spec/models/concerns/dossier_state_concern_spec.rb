@@ -449,4 +449,71 @@ RSpec.describe DossierStateConcern do
       end
     end
   end
+
+  describe 'carte static map rendering' do
+    let(:carte_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :carte }, { type: :text }]) }
+    let(:carte_dossier) { create(:dossier, dossier_state, procedure: carte_procedure) }
+    let(:carte_champ) { carte_dossier.champ_data.find(&:carte?) }
+
+    before { carte_champ.update(geo_areas: [build(:geo_area, :selection_utilisateur, :polygon)]) }
+
+    context 'on dépôt' do
+      let(:dossier_state) { :brouillon }
+
+      it 'renders the map once the dossier is submitted' do
+        expect { carte_dossier.after_commit_passer_en_construction }
+          .to have_enqueued_job(RenderCarteChampJob).with(carte_champ).exactly(:once)
+      end
+    end
+
+    context 'on submitting changes' do
+      let(:dossier_state) { :en_construction }
+
+      it 'renders the map again' do
+        expect { carte_dossier.usager_submit_en_construction! }
+          .to have_enqueued_job(RenderCarteChampJob).with(carte_champ)
+      end
+
+      it 'renders the map when an instructeur submits changes' do
+        instructeur = create(:instructeur)
+        carte_procedure.defaut_groupe_instructeur.add_instructeurs(ids: [instructeur.id])
+
+        expect { carte_dossier.instructeur_submit_en_construction!(instructeur:) }
+          .to have_enqueued_job(RenderCarteChampJob).with(carte_champ)
+      end
+
+      # A carte champ left empty has nothing to render: no point calling IGN to
+      # find out the geometry is missing.
+      it 'skips champs without geometry' do
+        carte_champ.geo_areas.destroy_all
+
+        expect { carte_dossier.reload.usager_submit_en_construction! }
+          .not_to have_enqueued_job(RenderCarteChampJob)
+      end
+
+      # ... but an image rendered before the geometry was removed must not
+      # survive the submission that removed it.
+      context 'when the geometry is removed after a first render' do
+        before { carte_champ.attach_static_map(StringIO.new('map-bytes'), digest: 'abc') }
+
+        it 'purges the stale map when the usager submits' do
+          carte_champ.geo_areas.destroy_all
+
+          expect do
+            perform_enqueued_jobs(only: RenderCarteChampJob) { carte_dossier.reload.usager_submit_en_construction! }
+          end.to change { carte_champ.reload.static_map.attached? }.from(true).to(false)
+        end
+
+        it 'purges the stale map when an instructeur submits' do
+          instructeur = create(:instructeur)
+          carte_procedure.defaut_groupe_instructeur.add_instructeurs(ids: [instructeur.id])
+          carte_champ.geo_areas.destroy_all
+
+          expect do
+            perform_enqueued_jobs(only: RenderCarteChampJob) { carte_dossier.reload.instructeur_submit_en_construction!(instructeur:) }
+          end.to change { carte_champ.reload.static_map.attached? }.from(true).to(false)
+        end
+      end
+    end
+  end
 end
