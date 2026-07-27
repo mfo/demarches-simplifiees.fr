@@ -26,8 +26,13 @@ module Connections
     end
 
     # We check if the query selects champs form dossier. If it's the case we preload the dossier.
+    # The connection exposes both Relay shapes, so we look at `nodes { … }` and `edges { node { … } }`.
     def preload?
-      @lookahead.selection(:nodes).selects?(:champs) || @lookahead.selection(:nodes).selects?(:annotations)
+      node_lookaheads.any? { it.selects?(:champs) || it.selects?(:annotations) }
+    end
+
+    def node_lookaheads
+      [@lookahead.selection(:nodes), @lookahead.selection(:edges).selection(:node)]
     end
   end
 end
