@@ -264,7 +264,7 @@ module DossierHelper
     case type
     when DossierNotification.notification_types.fetch(:dossier_modifie),
       DossierNotification.notification_types.fetch(:message),
-      DossierNotification.notification_types.fetch(:annotation_instructeur)
+      DossierNotification.notification_types.fetch(:annotation_instructeur),
       DossierNotification.notification_types.fetch(:avis_externe)
       if summary
         t("activerecord.attributes.notification.a11y.news.for_summary")
