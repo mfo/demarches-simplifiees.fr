@@ -292,7 +292,7 @@ RSpec.describe DossierChampsConcern do
     }
 
     context "missing champ" do
-      before { dossier; Champs::TextChamp.destroy_all }
+      before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all }
 
       it {
         expect(subject.size).to eq(2)
@@ -327,7 +327,7 @@ RSpec.describe DossierChampsConcern do
       end
 
       context "missing champ" do
-        before { dossier; Champs::TextChamp.destroy_all }
+        before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all }
 
         it {
           expect(subject.persisted?).to be_truthy
@@ -463,7 +463,7 @@ RSpec.describe DossierChampsConcern do
     }
 
     context "missing champs" do
-      before { dossier; Champs::TextChamp.destroy_all; }
+      before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all }
 
       it {
         subject
@@ -606,7 +606,7 @@ RSpec.describe DossierChampsConcern do
     }
 
     context "missing champs" do
-      before { dossier; Champs::TextChamp.destroy_all; }
+      before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all }
 
       it {
         subject
@@ -733,7 +733,7 @@ RSpec.describe DossierChampsConcern do
       }
 
       context "missing champs" do
-        before { dossier; Champs::TextChamp.destroy_all; dossier.champ_data.reload }
+        before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.champ_data.reload }
 
         it {
           subject
