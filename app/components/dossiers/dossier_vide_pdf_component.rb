@@ -83,7 +83,64 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
     end
   end
 
-  def libelle(type_de_champ) = tag.p(type_de_champ.libelle, class: 'label')
+  # Maps the section level to a heading below the "Formulaire" <h2>, mirroring the
+  # web form (level 1 → h3), so the PDF/UA tag tree preserves the document outline.
+  def header_section_heading(type_de_champ)
+    level = [type_de_champ.level_for_revision(revision) + 2, 6].min
+    tag.public_send("h#{level}", type_de_champ.libelle)
+  end
+
+  # Label followed, for a conditional champ, by the "À remplir si …" instruction.
+  def libelle(type_de_champ)
+    safe_join([tag.p(type_de_champ.libelle, class: 'label'), condition_instruction(type_de_champ)].compact)
+  end
+
+  # 'champ champ--conditional' shades a conditional field so the applicant sees
+  # the instruction and the box belong together.
+  def champ_css_class(type_de_champ)
+    displayable_condition?(type_de_champ) ? 'champ champ--conditional' : 'champ'
+  end
+
+  def condition_instruction(type_de_champ)
+    return unless displayable_condition?(type_de_champ)
+
+    tag.p("À remplir si #{humanize_condition(type_de_champ.condition)}", class: 'condition')
+  end
+
+  # An admin editing a procedure can persist an unfinished condition row
+  # (Logic::EmptyOperator with Logic::Empty members); such a condition carries no
+  # meaning and has no operator label, so we never surface it in the PDF.
+  def displayable_condition?(type_de_champ)
+    condition = type_de_champ.condition
+    condition.present? && condition.terms.none? { it.is_a?(Logic::EmptyOperator) || it.is_a?(Logic::Empty) }
+  end
+
+  # Reuses the operator labels from the admin condition editor (logic.operators),
+  # falling back to the technical form (Logic#to_s) for anything we do not phrase.
+  def humanize_condition(term)
+    case term
+    when Logic::NAryOperator
+      term.operands.map { humanize_condition(it) }.join(" #{operator_label(term)} ")
+    when Logic::BinaryOperator
+      "« #{term.left.to_s(condition_type_de_champs)} » #{operator_label(term)} « #{condition_value(term)} »"
+    else
+      term.to_s(condition_type_de_champs)
+    end
+  end
+
+  def operator_label(term) = I18n.t(term.class.name, scope: 'logic.operators').sub(/\A./, &:downcase)
+
+  # Human label of the compared value (e.g. a region code → its name), taken from
+  # the referenced champ's options; falls back to the raw value.
+  def condition_value(term)
+    raw = term.right.is_a?(Logic::Constant) ? term.right.value : nil
+    options = term.left.is_a?(Logic::ChampValue) ? term.left.options(condition_type_de_champs, term.class.name) : nil
+    options&.find { |(_label, value)| value == raw }&.first || term.right.to_s(condition_type_de_champs)
+  rescue StandardError
+    term.right.to_s(condition_type_de_champs)
+  end
+
+  def condition_type_de_champs = revision.flat_types_de_champ_public
 
   def description(type_de_champ)
     return if type_de_champ.description.blank?
@@ -136,7 +193,7 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
   def repetition(type_de_champ)
     children = revision.children_of(type_de_champ)
     occurrences = Array.new(REPETITION_OCCURRENCES) do
-      safe_join(children.map { |child| tag.section(render_champ(child), class: 'champ') })
+      safe_join(children.map { |child| tag.section(render_champ(child), class: champ_css_class(child)) })
     end
     safe_join([libelle(type_de_champ), *occurrences])
   end

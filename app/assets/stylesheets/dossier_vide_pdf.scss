@@ -88,23 +88,44 @@ dl.identity {
 // field below it, so a page break never leaves the label stranded from its box.
 .label,
 .description,
-.explanation {
+.explanation,
+.condition {
   break-after: avoid;
 }
 // Champ descriptions stay italic to read as helper text; the procedure
 // presentation (.presentation) keeps the admin's own formatting instead.
 .description,
 .explanation,
+.condition,
 .mailing {
   font-style: italic;
 }
-.explanation {
+// Admin rich text is rendered as markdown (SimpleFormat), so each authored line
+// becomes a <p>: drop the browser default paragraph margins and keep tight,
+// even spacing between them.
+.presentation p,
+.description p,
+.explication p {
+  margin: 0;
+}
+.presentation p + p,
+.description p + p,
+.explication p + p {
+  margin-top: 1.5mm;
+}
+.explanation,
+.condition {
   margin-top: 1mm;
   margin-bottom: 1.5mm;
 }
 
 .champ {
   margin-bottom: 7mm;
+}
+// Light shading grouping a conditional field (label + instruction + box).
+.champ--conditional {
+  padding: 3mm;
+  background-color: #f6f6f6;
 }
 
 .annexes {
