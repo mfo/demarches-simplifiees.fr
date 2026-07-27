@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_22_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_27_220100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -286,7 +286,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_22_000000) do
     t.index ["dossier_id"], name: "index_champs_on_dossier_id"
     t.index ["etablissement_id"], name: "index_champs_on_etablissement_id"
     t.index ["row_id"], name: "index_champs_on_row_id"
-    t.index ["stable_id"], name: "index_champs_on_stable_id"
+    t.index ["stable_id", "dossier_id"], name: "index_champs_on_stable_id_and_dossier_id"
     t.index ["type"], name: "index_champs_on_type"
   end
 
