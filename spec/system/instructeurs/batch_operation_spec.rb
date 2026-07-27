@@ -8,6 +8,11 @@ describe 'BatchOperation a dossier:', js: true do
   let(:instructeur) { create(:instructeur, password: password) }
   let(:procedure) { create(:simple_procedure, :published, instructeurs: [instructeur], administrateurs: [administrateurs.default]) }
 
+  # A poll refreshing the page would consume the single render that shows the
+  # finished alert and marks the batch as seen, so polls are answered with 204
+  # unless a with_turbo_poll block asks for the real thing.
+  before { suppress_turbo_poll }
+
   context 'with an instructeur' do
     scenario 'create a BatchOperation' do
       dossier_1 = create(:dossier, :accepte, procedure: procedure)
@@ -48,7 +53,6 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_selector('[data-controller~="turbo-poll"]')
 
       # ensure jobs are queued
-      pause_turbo_poll
       perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
       expect { perform_enqueued_jobs(only: [BatchOperationProcessOneJob]) }
         .to change { dossier_1.reload.archived }
@@ -61,8 +65,9 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_content("1 dossier a été placé dans « à archiver »")
 
       # ensure the next poll removes the seen alert, and turbo-poll with it
-      resume_turbo_poll
-      expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
+      with_turbo_poll do
+        expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
+      end
 
       # clean alert after reload
       visit instructeur_procedure_path(procedure, statut: 'traites')
@@ -187,13 +192,14 @@ describe 'BatchOperation a dossier:', js: true do
       check(checkbox_id2)
       expect(page).to have_button("Autres actions multiples")
 
-      click_on "Autres actions multiples"
-      click_on "Demander un avis externe"
+      open_dsfr_modal("#modal-avis-batch") do
+        click_on "Autres actions multiples"
+        click_on "Demander un avis externe"
+      end
 
       scroll_to(find("#modal-avis-batch"))
 
       # can close the modal
-      expect(page).to have_selector("#modal-avis-batch", visible: true)
       click_on "Annuler", visible: true
       expect(page).to have_selector("#modal-avis-batch", visible: false)
 
@@ -236,7 +242,6 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_selector('[data-controller~="turbo-poll"]')
 
       # ensure jobs are queued
-      pause_turbo_poll
       perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
 
       expect {
@@ -250,8 +255,9 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_content("Des demandes d’avis ont été envoyées pour 2/2 dossiers")
 
       # ensure the next poll removes the seen alert, and turbo-poll with it
-      resume_turbo_poll
-      expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
+      with_turbo_poll do
+        expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
+      end
 
       # clean alert after reload
       visit instructeur_procedure_path(procedure, statut: 'suivis')
@@ -286,20 +292,22 @@ describe 'BatchOperation a dossier:', js: true do
       check(checkbox_id_2)
       expect(page).to have_button("Autres actions multiples")
 
-      click_on "Autres actions multiples"
-      click_on "Envoyer un message aux usagers"
+      open_dsfr_modal("#modal-commentaire-batch") do
+        click_on "Autres actions multiples"
+        click_on "Envoyer un message aux usagers"
+      end
 
       scroll_to(find("#modal-commentaire-batch"))
 
       # can close the modal
-      expect(page).to have_selector("#modal-commentaire-batch", visible: true)
       click_on "Annuler", visible: true
       expect(page).to have_selector("#modal-commentaire-batch", visible: false)
 
       # reopen the modal
-      click_on "Autres actions multiples"
-      click_on "Envoyer un message aux usagers"
-      expect(page).to have_selector("#modal-commentaire-batch", visible: true)
+      open_dsfr_modal("#modal-commentaire-batch") do
+        click_on "Autres actions multiples"
+        click_on "Envoyer un message aux usagers"
+      end
 
       click_on "Envoyer le message"
 
@@ -323,7 +331,6 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_selector('[data-controller~="turbo-poll"]')
 
       # ensure jobs are queued
-      pause_turbo_poll
       perform_enqueued_jobs(only: [BatchOperationEnqueueAllJob])
       expect { perform_enqueued_jobs(only: [BatchOperationProcessOneJob]) }
         .to change { dossier_1.reload.commentaires }
@@ -336,8 +343,9 @@ describe 'BatchOperation a dossier:', js: true do
       expect(page).to have_content("Un message a été envoyé pour 2/2 dossiers")
 
       # ensure the next poll removes the seen alert, and turbo-poll with it
-      resume_turbo_poll
-      expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
+      with_turbo_poll do
+        expect(page).not_to have_selector('[data-controller~="turbo-poll"]', wait: 10)
+      end
 
       # clean alert after reload
       visit instructeur_procedure_path(procedure, statut: 'suivis')
@@ -354,10 +362,11 @@ describe 'BatchOperation a dossier:', js: true do
       checkbox_id_1 = dom_id(BatchOperation.new, "checkbox_#{dossier_1.id}")
       check(checkbox_id_1)
 
-      click_on "Autres actions multiples"
-      click_on "Envoyer un message aux usagers"
+      open_dsfr_modal("#modal-commentaire-batch") do
+        click_on "Autres actions multiples"
+        click_on "Envoyer un message aux usagers"
+      end
 
-      expect(page).to have_selector("#modal-commentaire-batch", visible: true)
       fill_in('Votre message', with: 'Veuillez trouver ci-joint le document')
 
       within('#modal-commentaire-batch') do
@@ -390,9 +399,8 @@ describe 'BatchOperation a dossier:', js: true do
       check(checkbox_id_1)
       check(checkbox_id_2)
 
-      click_on "Envoyer un message aux usagers"
+      open_dsfr_modal("#modal-commentaire-batch") { click_on "Envoyer un message aux usagers" }
 
-      expect(page).to have_selector("#modal-commentaire-batch", visible: true)
       expect(page).to have_content("Envoyer un message à 2 usagers")
       fill_in('Votre message', with: "Bonjour,\r\nÊtes-vous disponible pour un rendez-vous en visio la semaine prochaine ?\r\nCordialement")
       click_on "Envoyer le message"
@@ -420,9 +428,8 @@ describe 'BatchOperation a dossier:', js: true do
       check(checkbox_id_2)
       expect(page).to have_button("Envoyer un message aux usagers")
 
-      click_on "Envoyer un message aux usagers"
+      open_dsfr_modal("#modal-commentaire-batch") { click_on "Envoyer un message aux usagers" }
 
-      expect(page).to have_selector("#modal-commentaire-batch", visible: true)
       expect(page).to have_content("Envoyer un message à 2 usagers")
       fill_in('Votre message', with: "Bonjour,\r\nÊtes-vous disponible pour un rendez-vous en visio la semaine prochaine ?\r\nCordialement")
       click_on "Envoyer le message"
@@ -450,11 +457,10 @@ describe 'BatchOperation a dossier:', js: true do
       check(checkbox_id_2)
       expect(page).to have_button("Envoyer un message aux usagers")
 
-      click_on "Envoyer un message aux usagers"
+      open_dsfr_modal("#modal-commentaire-batch") { click_on "Envoyer un message aux usagers" }
 
       scroll_to(find("#modal-commentaire-batch"))
 
-      expect(page).to have_selector("#modal-commentaire-batch", visible: true)
       expect(page).to have_content("Envoyer un message à 2 usagers")
       fill_in('Votre message', with: "Message de test pour l’onglet tous")
       click_on "Envoyer le message"
@@ -487,11 +493,10 @@ describe 'BatchOperation a dossier:', js: true do
 
     expect(page).to have_button("Rendre une décision")
 
-    click_on "Rendre une décision"
+    open_dsfr_modal("#modal-instruction-button") { click_on "Rendre une décision" }
 
     scroll_to(find("#modal-instruction-button"))
 
-    expect(page).to have_selector("#modal-instruction-button", visible: true)
     expect(page).to have_content("Rendre une décision sur les dossiers")
     expect(page).to have_content("Accepter les dossiers")
     expect(page).to have_content("Refuser les dossiers")
@@ -502,8 +507,7 @@ describe 'BatchOperation a dossier:', js: true do
     expect(page).to have_selector("#modal-instruction-button", visible: false)
 
     # on la rouvre
-    click_on "Rendre une décision"
-    expect(page).to have_selector("#modal-instruction-button", visible: true)
+    open_dsfr_modal("#modal-instruction-button") { click_on "Rendre une décision" }
 
     # on sélectionne une tuile puis on fait retour
     click_on "Accepter les dossiers"
@@ -550,9 +554,7 @@ describe 'BatchOperation a dossier:', js: true do
     check(checkbox_id_1)
     check(checkbox_id_2)
 
-    click_on "Rendre une décision"
-
-    expect(page).to have_selector("#modal-instruction-button", visible: true)
+    open_dsfr_modal("#modal-instruction-button") { click_on "Rendre une décision" }
 
     click_on "Refuser les dossiers"
 
@@ -595,43 +597,6 @@ describe 'BatchOperation a dossier:', js: true do
     expect(dossier_1.reload).to be_refuse
     expect(dossier_2.reload).to be_refuse
     expect(dossier_1.justificatif_motivation).to be_attached
-  end
-
-  # The first page render after a batch finishes marks it as seen and is the
-  # only one showing the "finished" alert — and turbo-poll refreshes the whole
-  # page (turbo_stream.refresh), so a poll landing anytime around the jobs can
-  # consume that render before the spec looks at it. Pausing freezes polling
-  # on the current page and (via an init script) on every page loaded next,
-  # after waiting out requests already in flight; resuming re-attaches the
-  # controller, whose first poll is immediate.
-  POLLING_PAUSE_SCRIPT = <<~JS
-    const originalFetch = window.fetch;
-    window.__pausePolling = true;
-    window.fetch = (resource, options) => {
-      if (window.__pausePolling && resource.toString().includes('polling')) {
-        return new Promise(() => {});
-      }
-      return originalFetch(resource, options);
-    };
-  JS
-
-  def pause_turbo_poll
-    page.driver.with_playwright_page do |pw_page|
-      pw_page.add_init_script(script: POLLING_PAUSE_SCRIPT)
-      pw_page.evaluate("() => { #{POLLING_PAUSE_SCRIPT} }")
-      pw_page.wait_for_load_state(state: 'networkidle')
-    end
-  end
-
-  def resume_turbo_poll
-    page.execute_script(<<~JS)
-      window.__pausePolling = false;
-      document.querySelectorAll('[data-controller~="turbo-poll"]').forEach((el) => {
-        const value = el.getAttribute('data-controller');
-        el.removeAttribute('data-controller');
-        requestAnimationFrame(() => el.setAttribute('data-controller', value));
-      });
-    JS
   end
 
   def log_in(email, password)
