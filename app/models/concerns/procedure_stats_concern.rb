@@ -148,7 +148,12 @@ module ProcedureStatsConcern
     (seconds / 60.0 / 60.0 / 24.0).ceil
   end
 
+  # A procedure with no dossier terminé would divide 0 by 0 and yield NaN, which
+  # the JSON encoder turns into null: the public stats API then serves null shares
+  # and the pie chart renders empty.
   def percentage(value, total)
+    return 0.0 if total.zero?
+
     (100 * value / total.to_f).round(1)
   end
 

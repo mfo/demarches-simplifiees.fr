@@ -75,5 +75,22 @@ RSpec.describe API::Public::V1::StatsController, type: :controller do
         let(:procedure) { double(Procedure, id: -1) }
       end
     end
+
+    context 'when the procedure has no dossier terminé' do
+      # The state shares divide by the number of terminés; with none, every share
+      # used to be NaN, which JSON refuses to serialize and 500s this public
+      # endpoint.
+      let(:procedure) { create(:procedure, :published, opendata: true) }
+
+      before do
+        create(:dossier, :en_instruction, procedure: procedure)
+        index_request
+      end
+
+      it 'serves zeroed shares instead of failing to serialize' do
+        expect(response).to be_successful
+        expect(response.parsed_body[:processed]).to eq([['Acceptés', 0.0], ['Refusés', 0.0], ['Classés sans suite', 0.0]])
+      end
+    end
   end
 end
