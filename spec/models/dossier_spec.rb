@@ -946,6 +946,18 @@ describe Dossier, type: :model do
     it { is_expected.to match([dossier3, dossier4, dossier2]) }
   end
 
+  describe '.for_api_v2' do
+    let(:dossier) { dossiers.en_construction }
+
+    subject { Dossier.for_api_v2.find(dossier.id) }
+
+    # Types::DossierType#attestation reads both templates, so neither must be lazy loaded
+    it 'preloads both attestation templates' do
+      expect(subject.association(:attestation_acceptation_template)).to be_loaded
+      expect(subject.association(:attestation_refus_template)).to be_loaded
+    end
+  end
+
   describe "#assign_to_groupe_instructeur" do
     let(:procedure) { procedures.brouillon }
     let(:new_groupe_instructeur_new_procedure) { create(:groupe_instructeur) }
