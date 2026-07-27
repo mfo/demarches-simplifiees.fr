@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe 'dossiers/show.pdf', type: :view do
+describe 'dossiers/show.pdf', :external_deps, type: :view do
   PDFTOTEXT_AVAILABLE = system('which pdftotext > /dev/null 2>&1') unless defined?(PDFTOTEXT_AVAILABLE)
 
   def render_and_extract(dossier, procedure, scenario_label)
@@ -165,7 +165,7 @@ describe 'dossiers/show.pdf', type: :view do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :aah, libelle: 'AAH' }]) }
     let(:dossier) do
       d = create(:dossier, :en_construction, procedure:)
-      d.project_champs_public.first.update(external_state: 'fetched', value: 'true', value_json: { api_part: { est_beneficiaire: true } })
+      d.root_champs_public.first.update(external_state: 'fetched', value: 'true', value_json: { api_part: { est_beneficiaire: true } })
       d
     end
 
