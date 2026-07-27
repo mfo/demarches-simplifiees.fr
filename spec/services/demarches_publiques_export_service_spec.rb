@@ -19,6 +19,7 @@ describe DemarchesPubliquesExportService do
           nom: procedure.service.nom,
           organisme: "organisme",
           typeOrganisme: "association",
+          departement: nil,
         },
         cadreJuridiqueUrl: "un cadre juridique important",
         demarcheUrl: Rails.application.routes.url_helpers.commencer_url(path: procedure.path),

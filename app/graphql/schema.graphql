@@ -5284,6 +5284,10 @@ type SelectionUtilisateur implements GeoArea {
 }
 
 type Service {
+  """
+  département où se situe le service qui met en oeuvre la démarche
+  """
+  departement: String
   id: ID!
 
   """

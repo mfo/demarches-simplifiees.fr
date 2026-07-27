@@ -367,7 +367,7 @@ class SerializerService
       tags
       zones
       datePublication
-      service { nom organisme typeOrganisme }
+      service { nom organisme typeOrganisme departement }
       demarcheUrl
       dpoUrl
       noticeUrl
