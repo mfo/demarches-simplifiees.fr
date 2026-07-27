@@ -4,7 +4,10 @@ module GalleryHelper
   def record_libelle(record)
     case record
     in ChampData
-      record.libelle
+      # a champ and its attachments can outlive its type_de_champ in the dossier
+      # revision; the gallery must render anyway
+      in_revision = record.dossier.revision.types_de_champ.any? { it.stable_id == record.stable_id }
+      in_revision ? record.libelle : 'Pièce jointe'
     in Commentaire
       'Pièce jointe au message'
     in Avis

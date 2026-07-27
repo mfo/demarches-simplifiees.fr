@@ -16,6 +16,21 @@ RSpec.describe GalleryHelper, type: :helper do
     champ_pj.piece_justificative_file.attachments.first
   end
 
+  describe ".record_libelle" do
+    it "returns the champ libelle" do
+      expect(helper.record_libelle(champ_pj)).to eq('Justificatif de domicile')
+    end
+
+    context "when the type_de_champ is no longer in the dossier revision" do
+      it "falls back to a generic libelle instead of raising (RAILS-M73)" do
+        fresh_champ = dossier.champ_data.find(champ_pj.id)
+        allow(fresh_champ).to receive(:stable_id).and_return(-1)
+
+        expect(helper.record_libelle(fresh_champ)).to eq('Pièce jointe')
+      end
+    end
+  end
+
   describe ".image_variant_url_for" do
     subject { image_variant_url_for(attachment) }
 

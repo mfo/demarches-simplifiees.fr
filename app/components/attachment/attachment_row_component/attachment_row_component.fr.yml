@@ -3,6 +3,7 @@ fr:
   delete_file: Supprimer
   file_name: "le fichier %{filename}"
   open_file: Ouvrir le fichier %{filename}
+  unnamed_file: "Pièce jointe"
   delete_file_title: "Supprimer le fichier %{filename}"
   errors:
     virus_infected: "Virus détecté, merci d’envoyer un autre fichier."

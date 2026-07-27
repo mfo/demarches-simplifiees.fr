@@ -43,8 +43,16 @@ class Attachment::AttachmentRowComponent < ApplicationComponent
   def viewable?
     return false if attachment.virus_scanner_error?
     return false if attachment.watermark_pending?
+    # a blob with an empty filename can not be routed to (UrlGenerationError)
+    return false if attachment.filename.to_s.blank?
 
     true
+  end
+
+  # a blob can have an empty filename; without a placeholder the row (and the
+  # labels of its delete button) would be empty
+  def filename
+    attachment.filename.to_s.presence || t(".unnamed_file")
   end
 
   def error_message
