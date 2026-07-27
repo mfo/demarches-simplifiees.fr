@@ -9,6 +9,9 @@ env:
   DISABLE_SPRING: '1'
 
 jobs:
+  # The linters are split in three jobs so they run in parallel: Brakeman alone
+  # is slower than every other linter combined, and the JS side needs neither
+  # Ruby nor a database.
   linters:
     name: Linters
     runs-on: ubuntu-22.04
@@ -27,13 +30,38 @@ jobs:
       - name: Setup the app code and dependancies
         uses: ./.github/actions/ci-setup-rails
 
+      - name: Run linters
+        run: |
+          bundle exec rake lint:ruby
+          RAILS_ENV=test bundle exec rake zeitwerk:check
+
+  js_linters:
+    name: JavaScript linters
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Setup bun and node modules
         uses: ./.github/actions/ci-setup-bun-node
 
       - name: Run linters
-        run: |
-          bundle exec rake lint
-          RAILS_ENV=test bundle exec rake zeitwerk:check
+        run: bun lint
+
+  brakeman:
+    name: Brakeman
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the app code and dependancies
+        uses: ./.github/actions/ci-setup-rails
+        with:
+          database: 'false'
+
+      - name: Run Brakeman
+        run: bundle exec rake lint:security
 
   js_tests:
     name: JavaScript tests

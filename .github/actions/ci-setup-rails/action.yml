@@ -1,6 +1,12 @@
 name: 'Setup Rails app'
 description: 'Setup the environment for running the Rails app'
 
+inputs:
+  database:
+    description: 'Setup the test database. Disable it for jobs that only read the source code (linters, static analysis).'
+    required: false
+    default: 'true'
+
 runs:
   using: composite
   steps:
@@ -14,12 +20,14 @@ runs:
       shell: bash
 
     - name: Restore cached test database schema
+      if: inputs.database == 'true'
       uses: actions/cache@v4
       with:
         path: tmp/schema_cache.sql
         key: db-schema-v1-${{ hashFiles('db/schema.rb', 'db/migrate/**') }}
 
     - name: Setup test database
+      if: inputs.database == 'true'
       env:
         RAILS_ENV: test
         DATABASE_URL: 'postgres://tps_test:tps_test@localhost:5432/tps_test'

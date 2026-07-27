@@ -23,6 +23,7 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 
 ### Linting & Code Quality
 - `bin/rake lint` - Run all linters (Rubocop, haml-lint, herb linter/formatter, i18n-tasks, Brakeman, ESLint, TypeScript, CSS)
+- `bin/rake lint:ruby` / `lint:js` / `lint:security` - Run one group only (CI runs the three in parallel jobs; `lint:security` is Brakeman, by far the slowest)
 - `bundle exec rubocop --parallel` - Ruby linting
 - `bun lint:js` - JavaScript linting
 - `bun lint:types` - TypeScript type checking
