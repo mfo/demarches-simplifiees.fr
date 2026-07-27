@@ -48,9 +48,65 @@ RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
 
   describe '#example_value' do
     subject(:example_value) { described_class.new(type_de_champ, procedure.active_revision).example_value }
-    let(:expected_value) { [{ "champ_#{text_repetition.to_typed_id_for_query}" => "Texte court", "champ_#{integer_repetition.to_typed_id_for_query}" => "42", "champ_#{region_repetition.to_typed_id_for_query}" => "53" }, { "champ_#{text_repetition.to_typed_id_for_query}" => "Texte court", "champ_#{integer_repetition.to_typed_id_for_query}" => "42", "champ_#{region_repetition.to_typed_id_for_query}" => "53" }] }
+    let(:expected_value) { [{ "champ_#{text_repetition.to_typed_id_for_query}" => "Texte court", "champ_#{integer_repetition.to_typed_id_for_query}" => 42, "champ_#{region_repetition.to_typed_id_for_query}" => "53" }, { "champ_#{text_repetition.to_typed_id_for_query}" => "Texte court", "champ_#{integer_repetition.to_typed_id_for_query}" => 42, "champ_#{region_repetition.to_typed_id_for_query}" => "53" }] }
 
     it { expect(example_value).to eq(expected_value) }
+  end
+
+  # Every type de champ that is both prefillable and allowed inside a repetition.
+  # `communes` and `epci` were the ones silently dropped before #10610 was fixed;
+  # `multiple_drop_down_list` also has an array example value but escaped the bug
+  # because its screening parses a JSON string back into an array. The whole set is
+  # covered so that a new type cannot regress unnoticed.
+  PREFILLABLE_IN_REPETITION = [
+    :address, :checkbox, :civilite, :communes, :date, :datetime, :decimal_number,
+    :departements, :drop_down_list, :email, :epci, :formatted, :iban,
+    :integer_number, :multiple_drop_down_list, :pays, :phone, :regions, :text,
+    :textarea, :yes_no,
+  ].freeze
+
+  describe 'prefilling each prefillable type inside a repetition' do
+    PREFILLABLE_IN_REPETITION.each do |type_champ|
+      context "with a #{type_champ} sub-champ" do
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, children: [{ type: type_champ }] }]) }
+        let(:dossier) { create(:dossier, procedure: procedure) }
+        let(:repetition_type_de_champ) { procedure.public_draft_type_de_champs.find(&:repetition?) }
+        let(:prefill) { described_class.build(repetition_type_de_champ, procedure.active_revision) }
+        let(:key) { "champ_#{repetition_type_de_champ.to_typed_id_for_query}" }
+
+        # Both entry points reach the same code with differently shaped values:
+        # the link goes through a query string, the API through a JSON body.
+        def prefill_with(params)
+          dossier.prefill!(PrefillChamps.new(dossier, params).to_a, {})
+          dossier.reload.root_champs_public.find(&:repetition?)
+        end
+
+        # A champ fetching its data asynchronously (address) is prefilled with an
+        # external_id and stays blank until its job runs, so only assert on the
+        # value for the synchronous ones.
+        def expect_both_rows_prefilled(repetition)
+          expect(repetition.row_ids.size).to eq(2)
+          subchamps = repetition.rows.flatten
+          expect(subchamps.size).to eq(2)
+          expect(subchamps).to all(be_prefilled)
+
+          settled, pending = subchamps.partition { !_1.has_async_external_data? }
+          expect(settled.map(&:blank?)).to all(be(false))
+          expect(pending.map(&:external_id)).to all(be_present)
+        end
+
+        it 'prefills every row from the generated prefill link' do
+          # exactly what the server receives back for the link we hand out
+          params = Rack::Utils.parse_nested_query({ key => prefill.example_value_for_query }.to_query)
+
+          expect_both_rows_prefilled(prefill_with(params))
+        end
+
+        it 'prefills every row from the API body' do
+          expect_both_rows_prefilled(prefill_with({ key => prefill.example_value }))
+        end
+      end
+    end
   end
 
   describe '#to_assignable_attributes' do
@@ -85,6 +141,44 @@ RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
 
     context 'when a subchamp value fails its type screening' do
       let(:value) { [{ "champ_#{integer_repetition.to_typed_id_for_query}" => "not a number" }] }
+
+      it { is_expected.to match([]) }
+    end
+
+    # A prefill link indexes its rows, so they come back as a hash keyed by
+    # position rather than as an array. Links generated before that change used
+    # bare brackets and still arrive as an array, hence both shapes are accepted.
+    context 'when the rows are indexed, as a prefill link sends them' do
+      let(:value) do
+        {
+          "0" => { "champ_#{text_repetition.to_typed_id_for_query}" => "first" },
+          "1" => { "champ_#{text_repetition.to_typed_id_for_query}" => "second" },
+        }
+      end
+
+      it 'keeps the rows in index order' do
+        expect(to_assignable_attributes).to match([
+          [text_repetition_champs.first, { value: "first" }],
+          [text_repetition_champs.second, { value: "second" }],
+        ])
+      end
+    end
+
+    context 'when the indexed rows arrive out of order' do
+      let(:value) do
+        {
+          "1" => { "champ_#{text_repetition.to_typed_id_for_query}" => "second" },
+          "0" => { "champ_#{text_repetition.to_typed_id_for_query}" => "first" },
+        }
+      end
+
+      it 'sorts them by index' do
+        expect(to_assignable_attributes.map(&:last)).to eq([{ value: "first" }, { value: "second" }])
+      end
+    end
+
+    context 'when a hash is not keyed by index' do
+      let(:value) { { "champ_#{text_repetition.to_typed_id_for_query}" => "not a row" } }
 
       it { is_expected.to match([]) }
     end

@@ -75,6 +75,13 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
     I18n.t("views.prefill_descriptions.edit.examples.#{type_champ}")
   end
 
+  # Example value as it must appear in a prefill *link*. Identical to the JSON
+  # body representation for every type but repetitions, whose rows have to be
+  # indexed to survive query-string parsing — see PrefillRepetitionTypeDeChamp.
+  def example_value_for_query
+    example_value
+  end
+
   # Screens a raw prefill input and returns the assignable attributes, or nil
   # when the input must be rejected (the champ is then not prefilled at all).
   # Subclasses screening a single value override screened_value to return the
