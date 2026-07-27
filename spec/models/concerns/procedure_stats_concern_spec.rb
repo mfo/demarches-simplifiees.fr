@@ -45,6 +45,35 @@ describe ProcedureStatsConcern do
     end
   end
 
+  describe '#stats_termines_states' do
+    let(:procedure) { create(:procedure) }
+
+    subject(:stats_termines_states) { procedure.stats_termines_states }
+
+    before do
+      create(:dossier, :accepte, procedure: procedure)
+      create(:dossier, :refuse, procedure: procedure)
+    end
+
+    context 'when no dossier has been deleted' do
+      it 'splits the terminés between the three states' do
+        expect(stats_termines_states).to match([['Acceptés', 50.0], ['Refusés', 50.0], ['Classés sans suite', 0.0]])
+      end
+    end
+
+    context 'when a terminé dossier has been deleted' do
+      # `nb_dossiers_termines` counts deleted dossiers, so the numerators must too:
+      # otherwise the deleted dossier inflates the denominator only and the shares
+      # add up to less than 100%.
+      before { create(:deleted_dossier, procedure: procedure, state: :accepte) }
+
+      it 'counts it in its own state and still adds up to 100%' do
+        expect(stats_termines_states).to match([['Acceptés', 66.7], ['Refusés', 33.3], ['Classés sans suite', 0.0]])
+        expect(stats_termines_states.sum { |_state, share| share }).to be_within(0.1).of(100)
+      end
+    end
+  end
+
   describe '#usual_traitement_time_for_recent_dossiers' do
     let(:procedure) { create(:procedure) }
 
