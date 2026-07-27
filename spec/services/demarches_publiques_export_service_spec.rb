@@ -2,7 +2,6 @@
 
 describe DemarchesPubliquesExportService do
   let(:procedure) { create(:procedure, :published, :with_service, :with_type_de_champ, estimated_dossiers_count: 4) }
-  let!(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
   let(:gzip_filename) { "demarches.json.gz" }
 
   after { FileUtils.rm(gzip_filename) }
@@ -32,7 +31,7 @@ describe DemarchesPubliquesExportService do
         datePublication: procedure.published_at.iso8601,
         zones: ["Ministère de l’Education Populaire"],
         tags: [],
-        dossiersCount: 1,
+        dossiersCount: 4,
         revision: {
           champDescriptors: [
             {

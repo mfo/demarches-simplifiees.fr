@@ -262,6 +262,12 @@ class Dossier < ApplicationRecord
   scope :hidden_by_expired,         -> { where.not(hidden_by_expired_at: nil) }
   scope :hidden_by_not_modified_for_a_long_time, -> { hidden_by_expired.where(hidden_by_reason: :not_modified_for_a_long_time) }
   scope :hidden_by_procedure_removed, -> { hidden_by_administration.where(hidden_by_reason: :procedure_removed) }
+  scope :submitted_to_administration, -> {
+    state_not_brouillon
+      .where("state != :state OR hidden_by_reason IS NULL OR hidden_by_reason != :reason",
+        state: "en_construction",
+        reason: "user_request")
+  }
   scope :visible_by_user,           -> { where(for_procedure_preview: false, hidden_by_user_at: nil, hidden_by_expired_at: nil) }
   scope :visible_by_administration, -> {
     state_not_brouillon

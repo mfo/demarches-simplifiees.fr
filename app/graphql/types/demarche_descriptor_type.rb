@@ -75,7 +75,7 @@ Cela évite l’accès récursif aux dossiers."
     end
 
     def dossiers_count
-      procedure.dossiers.visible_by_administration.count
+      procedure.estimated_dossiers_count
     end
 
     def state
