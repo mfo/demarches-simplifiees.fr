@@ -45,6 +45,44 @@ describe ProcedureStatsConcern do
     end
   end
 
+  describe '#stats_termines_states' do
+    let(:procedure) { create(:procedure) }
+
+    subject(:stats_termines_states) { procedure.stats_termines_states }
+
+    context 'when the procedure has no dossier terminé' do
+      # Dividing 0 by 0 yielded NaN, which the JSON encoder turns into null.
+      it 'returns zeroed shares rather than NaN' do
+        expect(stats_termines_states).to eq([['Acceptés', 0.0], ['Refusés', 0.0], ['Classés sans suite', 0.0]])
+      end
+    end
+
+    context 'with dossiers terminés' do
+      before do
+        create(:dossier, :accepte, procedure: procedure)
+        create(:dossier, :refuse, procedure: procedure)
+      end
+
+      context 'when none has been deleted' do
+        it 'splits the terminés between the three states' do
+          expect(stats_termines_states).to match([['Acceptés', 50.0], ['Refusés', 50.0], ['Classés sans suite', 0.0]])
+        end
+      end
+
+      context 'when one has been deleted' do
+        # `nb_dossiers_termines` counts deleted dossiers, so the numerators must too:
+        # otherwise the deleted dossier inflates the denominator only and the shares
+        # add up to less than 100%.
+        before { create(:deleted_dossier, procedure: procedure, state: :accepte) }
+
+        it 'counts it in its own state and still adds up to 100%' do
+          expect(stats_termines_states).to match([['Acceptés', 66.7], ['Refusés', 33.3], ['Classés sans suite', 0.0]])
+          expect(stats_termines_states.sum { |_state, share| share }).to be_within(0.1).of(100)
+        end
+      end
+    end
+  end
+
   describe '#usual_traitement_time_for_recent_dossiers' do
     let(:procedure) { create(:procedure) }
 

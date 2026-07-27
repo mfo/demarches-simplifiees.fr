@@ -46,9 +46,9 @@ module ProcedureStatsConcern
   def stats_termines_states
     Rails.cache.fetch("#{cache_key_with_version}/stats_termines_states", expires_in: 12.hours) do
       [
-        ['Acceptés', percentage(dossiers.visible_by_administration.state_accepte.count, nb_dossiers_termines)],
-        ['Refusés', percentage(dossiers.visible_by_administration.state_refuse.count, nb_dossiers_termines)],
-        ['Classés sans suite', percentage(dossiers.visible_by_administration.state_sans_suite.count, nb_dossiers_termines)],
+        ['Acceptés', percentage(nb_dossiers_termines_in_state(:accepte), nb_dossiers_termines)],
+        ['Refusés', percentage(nb_dossiers_termines_in_state(:refuse), nb_dossiers_termines)],
+        ['Classés sans suite', percentage(nb_dossiers_termines_in_state(:sans_suite), nb_dossiers_termines)],
       ]
     end
   end
@@ -130,6 +130,12 @@ module ProcedureStatsConcern
     @nb_dossiers_termines_supprimes ||= deleted_dossiers.state_termine.count
   end
 
+  # `nb_dossiers_termines` counts deleted dossiers as well, so the per-state
+  # numerators have to count them too, otherwise the shares don't add up to 100%.
+  def nb_dossiers_termines_in_state(state)
+    dossiers.visible_by_administration.where(state:).count + deleted_dossiers.where(state:).count
+  end
+
   def first_processed_at
     Traitement.for_traitement_time_stats(self).pick(:processed_at)
   end
@@ -142,7 +148,12 @@ module ProcedureStatsConcern
     (seconds / 60.0 / 60.0 / 24.0).ceil
   end
 
+  # A procedure with no dossier terminé would divide 0 by 0 and yield NaN, which
+  # the JSON encoder turns into null: the public stats API then serves null shares
+  # and the pie chart renders empty.
   def percentage(value, total)
+    return 0.0 if total.zero?
+
     (100 * value / total.to_f).round(1)
   end
 
