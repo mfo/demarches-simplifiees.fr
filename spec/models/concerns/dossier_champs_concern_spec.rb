@@ -43,53 +43,54 @@ RSpec.describe DossierChampsConcern do
   end
   let(:dossier) { procedure == default_procedure ? default_dossier : create(:dossier, procedure:) }
 
-  describe "#find_type_de_champ_by_stable_id(public)" do
-    subject { dossier.find_type_de_champ_by_stable_id(992, :public) }
+  # Mirrors how the champs controller assigns a form payload: one
+  # champ_for_update per public_id, then assign_attributes on the result.
+  def assign_champs_attributes(attributes, scope: :public)
+    attributes.each do |public_id, champ_attributes|
+      champ = if scope == :private
+        dossier.private_champ_for_update(public_id, updated_by: dossier.user.email)
+      else
+        dossier.public_champ_for_update(public_id, updated_by: dossier.user.email)
+      end
 
-    it { is_expected.to be_truthy }
-  end
-
-  describe "#can_update_as_instructeur?" do
-    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], instructeurs_can_edit_dossiers:, types_de_champ_public:, types_de_champ_private:) }
-    let(:instructeur) { create(:instructeur) }
-    let(:dossier) { create(:dossier, :en_construction, procedure:) }
-    let(:instructeurs_can_edit_dossiers) { true }
-
-    subject { dossier.can_update_as_instructeur?(instructeur.user) }
-
-    context "when the procedure allows it and the user is an instructeur of the groupe" do
-      it { is_expected.to be_truthy }
-    end
-
-    context "when the procedure does not allow instructeur edition" do
-      let(:instructeurs_can_edit_dossiers) { false }
-
-      it { is_expected.to be_falsey }
-    end
-
-    context "when the dossier is not en_construction" do
-      let(:dossier) { create(:dossier, :en_instruction, procedure:) }
-
-      it { is_expected.to be_falsey }
-    end
-
-    context "when the user is not an instructeur of the groupe" do
-      subject { dossier.can_update_as_instructeur?(create(:instructeur).user) }
-
-      it { is_expected.to be_falsey }
-    end
-
-    context "when the instructeur owns the dossier" do
-      let(:dossier) { create(:dossier, :en_construction, procedure:, user: instructeur.user) }
-
-      it { is_expected.to be_falsey }
+      champ.assign_attributes(champ_attributes)
     end
   end
 
-  describe "#find_type_de_champ_by_stable_id(private)" do
-    subject { dossier.find_type_de_champ_by_stable_id(995, :private) }
+  describe "#find_type_de_champ_by_stable_id" do
+    it "finds a public type de champ" do
+      expect(dossier.find_type_de_champ_by_stable_id(992, :public).libelle).to eq("Un champ yes no")
+    end
 
-    it { is_expected.to be_truthy }
+    it "finds a private type de champ" do
+      expect(dossier.find_type_de_champ_by_stable_id(995, :private).libelle).to eq("Une annotation")
+    end
+
+    it "searches the whole revision when no scope is given" do
+      expect(dossier.find_type_de_champ_by_stable_id(992).libelle).to eq("Un champ yes no")
+      expect(dossier.find_type_de_champ_by_stable_id(995).libelle).to eq("Une annotation")
+    end
+
+    it "does not find a champ outside the requested scope" do
+      expect(dossier.find_type_de_champ_by_stable_id(995, :public)).to be_nil
+      expect(dossier.find_type_de_champ_by_stable_id(992, :private)).to be_nil
+    end
+
+    it "accepts a stable id given as a string, as public_id parsing produces" do
+      expect(dossier.find_type_de_champ_by_stable_id("992", :public).libelle).to eq("Un champ yes no")
+    end
+
+    it "returns nil for an unknown stable id" do
+      expect(dossier.find_type_de_champ_by_stable_id(1234567)).to be_nil
+    end
+  end
+
+  describe "#stable_id_in_revision?" do
+    it "accepts an integer or a string, and rejects an unknown stable id" do
+      expect(dossier.stable_id_in_revision?(99)).to be(true)
+      expect(dossier.stable_id_in_revision?("99")).to be(true)
+      expect(dossier.stable_id_in_revision?(1234567)).to be(false)
+    end
   end
 
   describe "#project_champ" do
@@ -101,50 +102,53 @@ RSpec.describe DossierChampsConcern do
       let(:row_id) { nil }
       subject { dossier.project_champ(type_de_champ_public, row_id:) }
 
-      it { expect(subject.persisted?).to be_truthy }
+      it { is_expected.to be_persisted }
 
       context "in repetition" do
         let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(994) }
         let(:row_id) { dossier.project_champ(type_de_champ_repetition).row_ids.first }
 
-        it {
-          expect(subject.new_record?).to be_truthy
+        it "projects a new record carrying the row_id" do
+          expect(subject).to be_new_record
           expect(subject.row_id).to eq(row_id)
-        }
+        end
+      end
 
-        context "invalid row_id" do
-          let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(99) }
-          it {
-            expect { subject }.to raise_error("type_de_champ #{type_de_champ_public.stable_id} in revision #{dossier.revision_id} can not have a row_id because it is not part of a repetition")
-          }
+      context "with a row_id on a champ outside any repetition" do
+        let(:row_id) { ULID.generate }
+
+        it "raises" do
+          expect { subject }.to raise_error("type_de_champ #{type_de_champ_public.stable_id} in revision #{dossier.revision_id} can not have a row_id because it is not part of a repetition")
+        end
+      end
+
+      context "without a row_id on a champ inside a repetition" do
+        let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(994) }
+        let(:row_id) { nil }
+
+        it "raises" do
+          expect { subject }.to raise_error("type_de_champ 994 in revision #{dossier.revision_id} must have a row_id because it is part of a repetition")
         end
       end
 
       context "missing champ" do
         before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
 
-        it {
-          expect(subject.new_record?).to be_truthy
-          expect(subject.is_a?(Champs::TextChamp)).to be_truthy
+        it "builds a new champ of the right type with a fallback updated_at" do
+          expect(subject).to be_new_record
+          expect(subject).to be_a(Champs::TextChamp)
           expect(subject.updated_at).not_to be_nil
-        }
+        end
 
         context "in repetition" do
           let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(994) }
           let(:row_id) { ULID.generate }
 
-          it {
-            expect(subject.new_record?).to be_truthy
-            expect(subject.is_a?(Champs::TextChamp)).to be_truthy
+          it "builds a new champ carrying the row_id" do
+            expect(subject).to be_new_record
+            expect(subject).to be_a(Champs::TextChamp)
             expect(subject.row_id).to eq(row_id)
             expect(subject.updated_at).not_to be_nil
-          }
-
-          context "invalid row_id" do
-            let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(99) }
-            it {
-              expect { subject }.to raise_error("type_de_champ #{type_de_champ_public.stable_id} in revision #{dossier.revision_id} can not have a row_id because it is not part of a repetition")
-            }
           end
         end
       end
@@ -153,16 +157,16 @@ RSpec.describe DossierChampsConcern do
     context "private champ" do
       subject { dossier.project_champ(type_de_champ_private) }
 
-      it { expect(subject.persisted?).to be_truthy }
+      it { is_expected.to be_persisted }
 
       context "missing champ" do
         before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
 
-        it {
-          expect(subject.new_record?).to be_truthy
-          expect(subject.is_a?(Champs::TextChamp)).to be_truthy
+        it "builds a new champ of the right type with a fallback updated_at" do
+          expect(subject).to be_new_record
+          expect(subject).to be_a(Champs::TextChamp)
           expect(subject.updated_at).not_to be_nil
-        }
+        end
       end
     end
 
@@ -170,35 +174,35 @@ RSpec.describe DossierChampsConcern do
       let(:row_id) { nil }
       subject { dossier.with_update_stream(dossier.user).project_champ(type_de_champ_public, row_id:) }
 
-      it { expect(subject.persisted?).to be_truthy }
+      it { is_expected.to be_persisted }
 
       context "in repetition" do
         let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(994) }
         let(:row_id) { dossier.project_champ(type_de_champ_repetition).row_ids.first }
 
-        it {
-          expect(subject.new_record?).to be_truthy
+        it "projects a new record carrying the row_id" do
+          expect(subject).to be_new_record
           expect(subject.row_id).to eq(row_id)
-        }
+        end
       end
 
       context "missing champ" do
         before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.reload }
 
-        it {
-          expect(subject.new_record?).to be_truthy
-          expect(subject.is_a?(Champs::TextChamp)).to be_truthy
-        }
+        it "builds a new champ of the right type" do
+          expect(subject).to be_new_record
+          expect(subject).to be_a(Champs::TextChamp)
+        end
 
         context "in repetition" do
           let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(994) }
           let(:row_id) { ULID.generate }
 
-          it {
-            expect(subject.new_record?).to be_truthy
-            expect(subject.is_a?(Champs::TextChamp)).to be_truthy
+          it "builds a new champ carrying the row_id" do
+            expect(subject).to be_new_record
+            expect(subject).to be_a(Champs::TextChamp)
             expect(subject.row_id).to eq(row_id)
-          }
+          end
         end
       end
     end
@@ -207,16 +211,38 @@ RSpec.describe DossierChampsConcern do
   describe '#root_champs_public' do
     subject { dossier.root_champs_public }
 
-    it do
-      expect(subject.size).to eq(4)
-      expect(subject.find { _1.libelle == 'Nom' }).to be_falsey
+    it "returns the root champs only, without repetition children" do
+      expect(subject.map(&:libelle)).to eq(["Un champ text", "Un autre champ text", "Un champ yes no", "Un champ répétable"])
+      expect(subject.map(&:libelle)).not_to include('Nom')
     end
   end
 
   describe '#root_champs_private' do
     subject { dossier.root_champs_private }
 
-    it { expect(subject.size).to eq(1) }
+    it { expect(subject.map(&:libelle)).to eq(["Une annotation"]) }
+  end
+
+  describe '#champs' do
+    subject { dossier.champs }
+
+    it "concatenates public and private root champs" do
+      expect(subject).to eq(dossier.root_champs_public + dossier.root_champs_private)
+    end
+  end
+
+  describe '#flat_champs_public' do
+    subject { dossier.flat_champs_public }
+
+    it "inlines the repetition children after their repetition" do
+      expect(subject.map(&:libelle)).to eq(["Un champ text", "Un autre champ text", "Un champ yes no", "Un champ répétable", "Nom"])
+    end
+  end
+
+  describe '#flat_champs_private' do
+    subject { dossier.flat_champs_private }
+
+    it { expect(subject.map(&:libelle)).to eq(["Une annotation"]) }
   end
 
   describe '#filled_champs_public' do
@@ -258,6 +284,10 @@ RSpec.describe DossierChampsConcern do
 
     it { expect(subject.size).to eq(1) }
 
+    it "returns [] for a type de champ that is not a repetition" do
+      expect(dossier.repetition_row_ids(dossier.find_type_de_champ_by_stable_id(99))).to eq([])
+    end
+
     context 'given a type de champ repetition in another revision' do
       before do
         procedure.draft_revision.remove_type_de_champ(type_de_champ_repetition.stable_id)
@@ -272,9 +302,25 @@ RSpec.describe DossierChampsConcern do
     let(:type_de_champ_repetition) { dossier.find_type_de_champ_by_stable_id(993) }
     subject { dossier.project_rows_for(type_de_champ_repetition) }
 
-    it do
+    it "returns one row of one child champ" do
       expect(subject.size).to eq(1)
-      expect(subject.first.size).to eq(1)
+      expect(subject.first.map(&:libelle)).to eq(['Nom'])
+    end
+
+    it "returns [] for a type de champ that is not a repetition" do
+      expect(dossier.project_rows_for(dossier.find_type_de_champ_by_stable_id(99))).to eq([])
+    end
+  end
+
+  describe '#repetition_rows_for_export' do
+    let(:type_de_champ_repetition) { dossier.find_type_de_champ_by_stable_id(993) }
+    subject { dossier.repetition_rows_for_export(type_de_champ_repetition) }
+
+    it "wraps each row id in a Row numbered from 1" do
+      expect(subject.size).to eq(1)
+      expect(subject.map(&:index)).to eq([1])
+      expect(subject.map(&:row_id)).to eq(dossier.repetition_row_ids(type_de_champ_repetition))
+      expect(subject.map(&:dossier)).to eq([dossier])
     end
   end
 
@@ -287,6 +333,11 @@ RSpec.describe DossierChampsConcern do
       expect { subject }.to change { dossier.repetition_row_ids(type_de_champ_repetition).size }.by(1)
       expect(subject).to be_in(row_ids)
     end
+
+    it "raises when the type de champ is not a repetition" do
+      expect { dossier.repetition_add_row(dossier.find_type_de_champ_by_stable_id(99), updated_by: 'test') }
+        .to raise_error("Can't add row to non-repetition type de champ")
+    end
   end
 
   describe '#repetition_remove_row' do
@@ -297,34 +348,95 @@ RSpec.describe DossierChampsConcern do
 
     it { expect { subject }.to change { dossier.repetition_row_ids(type_de_champ_repetition).size }.by(-1) }
     it { row_id; subject; expect(row_id).not_to be_in(row_ids) }
+
+    it "raises when the type de champ is not a repetition" do
+      expect { dossier.repetition_remove_row(dossier.find_type_de_champ_by_stable_id(99), row_id, updated_by: 'test') }
+        .to raise_error("Can't remove row from non-repetition type de champ")
+    end
   end
 
   describe "#champ_values_for_export" do
     subject { dossier.champ_values_for_export(dossier.revision.root_types_de_champ_public, format: :xlsx) }
 
-    it do
-      expect(subject.size).to eq(4)
-      expect(subject.first).to eq(["Un champ text", nil])
+    # An empty yes_no exports as "" where the other types export nil.
+    it "returns one [libelle, value] pair per root champ" do
+      expect(subject).to eq([
+        ["Un champ text", nil],
+        ["Un autre champ text", nil],
+        ["Un champ yes no", ""],
+        ["Un champ répétable", nil],
+      ])
     end
   end
 
   describe "#champs_for_prefill" do
     subject { dossier.champs_for_prefill([991, 995]) }
 
+    # Order follows the revision's coordinates, where public and private
+    # positions both start at zero: assert on the set, not the sequence.
     it {
-      expect(subject.size).to eq(2)
-      expect(subject.map(&:libelle)).to eq(["Une annotation", "Un autre champ text"])
+      expect(subject.map(&:libelle)).to contain_exactly("Une annotation", "Un autre champ text")
       expect(subject.all?(&:persisted?)).to be_truthy
     }
+
+    it "returns the repetition itself, not its children, and skips children asked for directly" do
+      champs = dossier.champs_for_prefill([993, 994])
+
+      expect(champs.map(&:libelle)).to eq(["Un champ répétable"])
+    end
 
     context "missing champ" do
       before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all }
 
       it {
-        expect(subject.size).to eq(2)
-        expect(subject.map(&:libelle)).to eq(["Une annotation", "Un autre champ text"])
+        expect(subject.map(&:libelle)).to contain_exactly("Une annotation", "Un autre champ text")
         expect(subject.all?(&:persisted?)).to be_truthy
       }
+    end
+  end
+
+  describe "write guards" do
+    let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(99) }
+    let(:type_de_champ_private) { dossier.find_type_de_champ_by_stable_id(995) }
+    let(:type_de_champ_repetition) { dossier.find_type_de_champ_by_stable_id(993) }
+    let(:type_de_champ_repetition_child) { dossier.find_type_de_champ_by_stable_id(994) }
+
+    context "when the dossier is en_construction" do
+      let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+      it "refuses to write a public champ to the main stream" do
+        expect { dossier.champ_for_update(type_de_champ_public, updated_by: 'test') }
+          .to raise_error('Can not write to "main" stream on a dossier "en construction"')
+      end
+
+      it "allows writing a public champ on a buffer stream" do
+        expect { dossier.with_update_stream(dossier.user) { dossier.champ_for_update(type_de_champ_public, updated_by: 'test') } }
+          .not_to raise_error
+      end
+
+      it "refuses to write a private champ to a buffer stream" do
+        expect { dossier.with_instructeur_buffer_stream { dossier.champ_for_update(type_de_champ_private, updated_by: 'test') } }
+          .to raise_error('Can not write a private champ to "instructeur:buffer" stream')
+      end
+
+      it "allows writing a private champ to the main stream" do
+        expect { dossier.champ_for_update(type_de_champ_private, updated_by: 'test') }.not_to raise_error
+      end
+    end
+
+    it "refuses to write a repetition without a row_id" do
+      expect { dossier.champ_for_update(type_de_champ_repetition, updated_by: 'test') }
+        .to raise_error("type_de_champ 993 in revision #{dossier.revision_id} must have a row_id because it represents a row in a repetition")
+    end
+
+    it "refuses to write a repetition child without a row_id" do
+      expect { dossier.champ_for_update(type_de_champ_repetition_child, updated_by: 'test') }
+        .to raise_error("type_de_champ 994 in revision #{dossier.revision_id} must have a row_id because it is part of a repetition")
+    end
+
+    it "refuses to write a row_id on a champ outside any repetition" do
+      expect { dossier.champ_for_update(type_de_champ_public, row_id: ULID.generate, updated_by: 'test') }
+        .to raise_error("type_de_champ 99 in revision #{dossier.revision_id} can not have a row_id because it is not part of a repetition")
     end
   end
 
@@ -467,13 +579,6 @@ RSpec.describe DossierChampsConcern do
     let(:champ_991) { dossier.project_champ(dossier.find_type_de_champ_by_stable_id(991)) }
     let(:champ_994) { dossier.project_champ(dossier.find_type_de_champ_by_stable_id(994), row_id:) }
 
-    def assign_champs_attributes(attributes)
-      attributes.each do |public_id, attributes|
-        champ = dossier.public_champ_for_update(public_id, updated_by: dossier.user.email)
-        champ.assign_attributes(attributes)
-      end
-    end
-
     subject { assign_champs_attributes(attributes) }
 
     it {
@@ -503,105 +608,41 @@ RSpec.describe DossierChampsConcern do
       }
     end
 
-    context "champ with type change" do
-      context 'text -> linked_drop_down_list' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: "Un champ text", stable_id: 99 }]) }
+    # A published revision changing a champ's type must rewrite the existing
+    # champ data in place: same stable_id, new class, new last_write_type_champ.
+    # Each row is (from type, to type, assigned attributes, resulting value).
+    [
+      { from: :text,     to: :linked_drop_down_list, assign: { primary_value: "primary" }, value: '["primary",""]', to_params: { drop_down_options: ["--primary--", "secondary"] } },
+      { from: :textarea, to: :text,                  assign: { value: "test text" },       value: 'test text' },
+      { from: :yes_no,   to: :checkbox,              assign: { value: "true" },            value: 'true' },
+      { from: :regions,  to: :text,                  assign: { value: "test text" },       value: 'test text' },
+    ].each do |row|
+      from, to, assign, value = row.values_at(:from, :to, :assign, :value)
+      to_params = row.fetch(:to_params, {})
+
+      context "champ with type change #{from} -> #{to}" do
+        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: from, libelle: "Un champ #{from}", stable_id: 99 }]) }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-        let(:attributes) { { "99" => { primary_value: "primary" } } }
+        let(:attributes) { { "99" => assign } }
 
         before do
           tdc = dossier.procedure.draft_revision.find_and_ensure_exclusive_use(99)
-          tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(:linked_drop_down_list), drop_down_options: ["--primary--", "secondary"])
+          tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(to), **to_params)
           dossier.procedure.publish_revision!(procedure.administrateurs.first)
           perform_enqueued_jobs
           dossier.reload
         end
 
-        it {
+        it "rewrites the champ data as a #{to} champ" do
           expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
-            .from(TypeDeChamp.type_champs.fetch(:text))
-            .to(TypeDeChamp.type_champs.fetch(:linked_drop_down_list))
-          expect(champ_99.persisted?).to be_truthy
-          expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:linked_drop_down_list))
+            .from(TypeDeChamp.type_champs.fetch(from))
+            .to(TypeDeChamp.type_champs.fetch(to))
+          expect(champ_99).to be_persisted
+          expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(to))
           expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
-          expect(champ_99.changed?).to be_truthy
-          expect(champ_99.value).to eq('["primary",""]')
-        }
-      end
-
-      context 'textarea -> text' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :textarea, libelle: "Un champ textarea", stable_id: 99 }]) }
-        let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-        let(:attributes) { { "99" => { value: "test text" } } }
-
-        before do
-          tdc = dossier.procedure.draft_revision.find_and_ensure_exclusive_use(99)
-          tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(:text))
-          dossier.procedure.publish_revision!(procedure.administrateurs.first)
-          perform_enqueued_jobs
-          dossier.reload
+          expect(champ_99).to be_changed
+          expect(champ_99.value).to eq(value)
         end
-
-        it {
-          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
-            .from(TypeDeChamp.type_champs.fetch(:textarea))
-            .to(TypeDeChamp.type_champs.fetch(:text))
-          expect(champ_99.persisted?).to be_truthy
-          expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:text))
-          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
-          expect(champ_99.changed?).to be_truthy
-          expect(champ_99.value).to eq('test text')
-        }
-      end
-
-      context 'yes_no -> checkbox' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :yes_no, libelle: "Un champ yes/no", stable_id: 99 }]) }
-        let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-        let(:attributes) { { "99" => { value: "true" } } }
-
-        before do
-          tdc = dossier.procedure.draft_revision.find_and_ensure_exclusive_use(99)
-          tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(:checkbox))
-          dossier.procedure.publish_revision!(procedure.administrateurs.first)
-          perform_enqueued_jobs
-          dossier.reload
-        end
-
-        it {
-          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
-            .from(TypeDeChamp.type_champs.fetch(:yes_no))
-            .to(TypeDeChamp.type_champs.fetch(:checkbox))
-          expect(champ_99.persisted?).to be_truthy
-          expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:checkbox))
-          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
-          expect(champ_99.changed?).to be_truthy
-          expect(champ_99.value).to eq('true')
-        }
-      end
-
-      context 'regions -> text' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :regions, libelle: "Un champ regions", stable_id: 99 }]) }
-        let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-        let(:attributes) { { "99" => { value: "test text" } } }
-
-        before do
-          tdc = dossier.procedure.draft_revision.find_and_ensure_exclusive_use(99)
-          tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(:text))
-          dossier.procedure.publish_revision!(procedure.administrateurs.first)
-          perform_enqueued_jobs
-          dossier.reload
-        end
-
-        it {
-          expect { subject }.to change { dossier.champ_data.find_by(stable_id: 99).last_write_type_champ }
-            .from(TypeDeChamp.type_champs.fetch(:regions))
-            .to(TypeDeChamp.type_champs.fetch(:text))
-          expect(champ_99.persisted?).to be_truthy
-          expect(champ_99.last_write_type_champ).to eq(TypeDeChamp.type_champs.fetch(:text))
-          expect(dossier.champ_data.any?(&:changed_for_autosave?)).to be_truthy
-          expect(champ_99.changed?).to be_truthy
-          expect(champ_99.value).to eq('test text')
-        }
       end
     end
   end
@@ -615,14 +656,7 @@ RSpec.describe DossierChampsConcern do
 
     let(:annotation_995) { dossier.project_champ(dossier.find_type_de_champ_by_stable_id(995)) }
 
-    def assign_champs_attributes(attributes)
-      attributes.each do |public_id, attributes|
-        champ = dossier.private_champ_for_update(public_id, updated_by: dossier.user.email)
-        champ.assign_attributes(attributes)
-      end
-    end
-
-    subject { assign_champs_attributes(attributes) }
+    subject { assign_champs_attributes(attributes, scope: :private) }
 
     it {
       subject
@@ -692,47 +726,48 @@ RSpec.describe DossierChampsConcern do
       def draft_champ_991 = draft_champ(991)
       def draft_champ_994 = draft_champ(994, row_id)
 
-      def assign_champs_attributes(attributes)
-        attributes.each do |public_id, attributes|
-          champ = dossier.public_champ_for_update(public_id, updated_by: dossier.user.email)
-          champ.assign_attributes(attributes)
-        end
-      end
-
       subject do
         dossier.with_update_stream(dossier.user) { assign_champs_attributes(attributes) }
       end
 
-      it {
+      # Each phase happens at a distinct virtual time on purpose: champ data is
+      # deduplicated by taking the most recent updated_at per public_id, and
+      # `sort_by` is not stable, so rows sharing an updated_at would resolve
+      # arbitrarily. Do not collapse the travel_to blocks.
+      it "buffers user edits, merges them into main, and can be reset to the last merge" do
         subject
         dossier.save!
 
-        expect(dossier.user_buffer_changes?).to be_truthy
+        aggregate_failures "user edits stay on the buffer stream" do
+          expect(dossier.user_buffer_changes?).to be_truthy
 
-        expect(main_champ_99.stream).to eq(Dossier::MAIN_STREAM)
-        expect(main_champ_991.stream).to eq(Dossier::MAIN_STREAM)
-        expect(main_champ_994.stream).to eq(Dossier::MAIN_STREAM)
-        expect(main_champ_99.source_stream).to be_nil
+          expect(main_champ_99.stream).to eq(Dossier::MAIN_STREAM)
+          expect(main_champ_991.stream).to eq(Dossier::MAIN_STREAM)
+          expect(main_champ_994.stream).to eq(Dossier::MAIN_STREAM)
+          expect(main_champ_99.source_stream).to be_nil
 
-        expect(main_champ_99.value).to be_nil
-        expect(main_champ_991.value).to be_nil
-        expect(main_champ_994.value).to be_nil
+          expect(main_champ_99.value).to be_nil
+          expect(main_champ_991.value).to be_nil
+          expect(main_champ_994.value).to be_nil
 
-        expect(draft_champ_99.stream).to eq(Dossier::USER_BUFFER_STREAM)
-        expect(draft_champ_991.stream).to eq(Dossier::USER_BUFFER_STREAM)
-        expect(draft_champ_994.stream).to eq(Dossier::USER_BUFFER_STREAM)
+          expect(draft_champ_99.stream).to eq(Dossier::USER_BUFFER_STREAM)
+          expect(draft_champ_991.stream).to eq(Dossier::USER_BUFFER_STREAM)
+          expect(draft_champ_994.stream).to eq(Dossier::USER_BUFFER_STREAM)
 
-        expect(draft_champ_99.value).to eq("Hello")
-        expect(draft_champ_991.value).to eq("World")
-        expect(draft_champ_994.value).to eq("Greer")
-        expect(dossier.history.size).to eq(0)
+          expect(draft_champ_99.value).to eq("Hello")
+          expect(draft_champ_991.value).to eq("World")
+          expect(draft_champ_994.value).to eq("Greer")
+          expect(dossier.history.size).to eq(0)
+        end
 
         dossier.merge_user_buffer_stream!
 
-        expect(main_champ_99.value).to eq("Hello")
-        expect(main_champ_991.value).to eq("World")
-        expect(main_champ_994.value).to eq("Greer")
-        expect(dossier.history.size).to eq(2)
+        aggregate_failures "the first merge promotes the buffer to main" do
+          expect(main_champ_99.value).to eq("Hello")
+          expect(main_champ_991.value).to eq("World")
+          expect(main_champ_994.value).to eq("Greer")
+          expect(dossier.history.size).to eq(2)
+        end
 
         travel_to(1.hour.from_now) do
           dossier.with_update_stream(dossier.user) { assign_champs_attributes(new_attributes) }
@@ -740,23 +775,29 @@ RSpec.describe DossierChampsConcern do
           dossier.merge_user_buffer_stream!
         end
 
-        expect(main_champ_99.value).to eq("Hello!!!")
-        expect(main_champ_994.value).to eq("Greer is the best, for sure !")
-        expect(dossier.history.size).to eq(4)
+        aggregate_failures "a second merge archives the previous main values" do
+          expect(main_champ_99.value).to eq("Hello!!!")
+          expect(main_champ_994.value).to eq("Greer is the best, for sure !")
+          expect(dossier.history.size).to eq(4)
+        end
 
         travel_to(2.hours.from_now) do
           dossier.with_update_stream(dossier.user) { assign_champs_attributes(bad_attributes) }
           dossier.save!
         end
 
-        expect(draft_champ_99.value).to eq("bad")
-        expect(draft_champ_991.value).to eq("World")
-        expect(draft_champ_994.value).to eq("bad")
-        dossier.reset_user_buffer_stream!
-        expect(draft_champ_99.value).to eq("Hello!!!")
-        expect(draft_champ_991.value).to eq("World")
-        expect(draft_champ_994.value).to eq("Greer is the best, for sure !")
-      }
+        aggregate_failures "resetting the buffer restores the last merged values" do
+          expect(draft_champ_99.value).to eq("bad")
+          expect(draft_champ_991.value).to eq("World")
+          expect(draft_champ_994.value).to eq("bad")
+
+          dossier.reset_user_buffer_stream!
+
+          expect(draft_champ_99.value).to eq("Hello!!!")
+          expect(draft_champ_991.value).to eq("World")
+          expect(draft_champ_994.value).to eq("Greer is the best, for sure !")
+        end
+      end
 
       context "missing champs" do
         before { dossier.champ_data.where(type: 'Champs::TextChamp').destroy_all; dossier.champ_data.reload }
@@ -944,13 +985,6 @@ RSpec.describe DossierChampsConcern do
       def user_history_champ_991 = user_history_champ(991)
       def user_history_champ_994 = user_history_champ(994, row_id)
 
-      def assign_champs_attributes(attributes)
-        attributes.each do |public_id, attributes|
-          champ = dossier.public_champ_for_update(public_id, updated_by: dossier.user.email)
-          champ.assign_attributes(attributes)
-        end
-      end
-
       subject do
         assign_champs_attributes(user_attributes_0)
         dossier.save!
@@ -958,115 +992,164 @@ RSpec.describe DossierChampsConcern do
         dossier.with_instructeur_buffer_stream { assign_champs_attributes(attributes_0) }
       end
 
-      it {
+      # Each phase happens at a distinct virtual time on purpose: champ data is
+      # deduplicated by taking the most recent updated_at per public_id, and
+      # `sort_by` is not stable, so rows sharing an updated_at would resolve
+      # arbitrarily. Do not collapse the travel_to blocks or reuse an offset.
+      it "keeps the user and instructeur buffers independent and lets a user merge win" do
         subject
         dossier.save!
 
-        expect(dossier.instructeur_buffer_changes?).to be_truthy
+        aggregate_failures "instructeur edits stay on their own buffer stream" do
+          expect(dossier.instructeur_buffer_changes?).to be_truthy
 
-        expect(main_champ_99.stream).to eq(Dossier::MAIN_STREAM)
-        expect(main_champ_991.stream).to eq(Dossier::MAIN_STREAM)
-        expect(main_champ_994.stream).to eq(Dossier::MAIN_STREAM)
+          expect(main_champ_99.stream).to eq(Dossier::MAIN_STREAM)
+          expect(main_champ_991.stream).to eq(Dossier::MAIN_STREAM)
+          expect(main_champ_994.stream).to eq(Dossier::MAIN_STREAM)
 
-        expect(main_champ_99.value).to eq('Bonjour')
-        expect(main_champ_991.value).to eq('Au revoir')
-        expect(main_champ_994.value).to be_nil
+          expect(main_champ_99.value).to eq('Bonjour')
+          expect(main_champ_991.value).to eq('Au revoir')
+          expect(main_champ_994.value).to be_nil
 
-        expect(draft_champ_99.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
-        expect(draft_champ_991.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
-        expect(draft_champ_994.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+          expect(draft_champ_99.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+          expect(draft_champ_991.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+          expect(draft_champ_994.stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
 
-        expect(draft_champ_99.value).to eq("Hello")
-        expect(draft_champ_991.value).to eq("World")
-        expect(draft_champ_994.value).to eq("Greer")
-        expect(dossier.history.size).to eq(0)
+          expect(draft_champ_99.value).to eq("Hello")
+          expect(draft_champ_991.value).to eq("World")
+          expect(draft_champ_994.value).to eq("Greer")
+          expect(dossier.history.size).to eq(0)
+        end
 
         dossier.merge_instructeur_buffer_stream!
         dossier.champ_data.reload
 
-        expect(main_champ_99.value).to eq("Hello")
-        expect(main_champ_991.value).to eq("World")
-        expect(main_champ_994.value).to eq("Greer")
-        expect(dossier.history.size).to eq(2)
+        aggregate_failures "merging the instructeur buffer promotes it to main" do
+          expect(main_champ_99.value).to eq("Hello")
+          expect(main_champ_991.value).to eq("World")
+          expect(main_champ_994.value).to eq("Greer")
+          expect(dossier.history.size).to eq(2)
+        end
 
         travel_to(10.minutes.from_now) do
           dossier.with_instructeur_buffer_stream { assign_champs_attributes(attributes_1) }
           dossier.save!
         end
 
-        expect(draft_champ_99.value).to eq("Hello!!!")
-        expect(draft_champ_994.value).to eq("Greer is the best, for sure !")
+        aggregate_failures "new instructeur edits buffer again" do
+          expect(draft_champ_99.value).to eq("Hello!!!")
+          expect(draft_champ_994.value).to eq("Greer is the best, for sure !")
+        end
 
         travel_to(20.minutes.from_now) do
           dossier.with_update_stream(dossier.user) { assign_champs_attributes(user_attributes_1) }
           dossier.save!
 
-          # main stream value
-          expect(main_champ_99.value).to eq("Hello")
-          # instructeur stream value
-          expect(draft_champ_99.value).to eq("Hello!!!")
-          # user stream value
-          expect(user_draft_champ_99.value).to eq("Hello???")
+          aggregate_failures "the three streams hold three different values" do
+            expect(main_champ_99.value).to eq("Hello")
+            expect(draft_champ_99.value).to eq("Hello!!!")
+            expect(user_draft_champ_99.value).to eq("Hello???")
+          end
 
           dossier.merge_user_buffer_stream!
           dossier.touch(:en_construction_at)
           dossier.champ_data.reload
         end
 
-        expect(draft_champ_99.value).to eq("Hello???")
-        expect(main_champ_99.value).to eq("Hello???")
-        expect(main_champ_994.value).to eq("Greer")
-        expect(dossier.history.size).to eq(3)
+        aggregate_failures "a user merge discards the conflicting instructeur edit" do
+          expect(draft_champ_99.value).to eq("Hello???")
+          expect(main_champ_99.value).to eq("Hello???")
+          expect(main_champ_994.value).to eq("Greer")
+          expect(dossier.history.size).to eq(3)
+        end
 
         travel_to(30.minutes.from_now) do
           dossier.merge_instructeur_buffer_stream!
           dossier.champ_data.reload
         end
 
-        expect(main_champ_99.value).to eq("Hello???")
-        expect(main_champ_994.value).to eq("Greer is the best, for sure !")
-        expect(dossier.history.size).to eq(4)
+        aggregate_failures "the surviving instructeur edit still merges" do
+          expect(main_champ_99.value).to eq("Hello???")
+          expect(main_champ_994.value).to eq("Greer is the best, for sure !")
+          expect(dossier.history.size).to eq(4)
+        end
 
         travel_to(40.minutes.from_now) do
           dossier.with_instructeur_buffer_stream { assign_champs_attributes(bad_attributes) }
           dossier.save!
         end
 
-        expect(draft_champ_99.value).to eq("bad")
-        expect(draft_champ_991.value).to eq("World")
-        expect(draft_champ_994.value).to eq("bad")
-        dossier.reset_instructeur_buffer_stream!
-        expect(draft_champ_99.value).to eq("Hello???")
-        expect(draft_champ_991.value).to eq("World")
-        expect(draft_champ_994.value).to eq("Greer is the best, for sure !")
+        aggregate_failures "resetting the instructeur buffer restores the merged values" do
+          expect(draft_champ_99.value).to eq("bad")
+          expect(draft_champ_991.value).to eq("World")
+          expect(draft_champ_994.value).to eq("bad")
 
-        travel_to(40.minutes.from_now) do
+          dossier.reset_instructeur_buffer_stream!
+
+          expect(draft_champ_99.value).to eq("Hello???")
+          expect(draft_champ_991.value).to eq("World")
+          expect(draft_champ_994.value).to eq("Greer is the best, for sure !")
+        end
+
+        travel_to(50.minutes.from_now) do
           dossier.with_instructeur_buffer_stream { assign_champs_attributes(attributes_2) }
           dossier.save!
           dossier.merge_instructeur_buffer_stream!
           dossier.champ_data.reload
         end
 
-        expect(main_champ_99.value).to eq("Hello...")
-        expect(main_champ_991.value).to eq("World")
-        expect(main_champ_994.value).to eq("Greer is the best, for sure !")
+        aggregate_failures "main holds the latest values" do
+          expect(main_champ_99.value).to eq("Hello...")
+          expect(main_champ_991.value).to eq("World")
+          expect(main_champ_994.value).to eq("Greer is the best, for sure !")
+        end
 
-        expect(user_history_champ_99.value).to eq("Hello???")
-        expect(user_history_champ_991.value).to eq("World")
-        expect(user_history_champ_994.value).to eq("Greer")
+        aggregate_failures "the user history stream holds the state at last submission" do
+          expect(user_history_champ_99.value).to eq("Hello???")
+          expect(user_history_champ_991.value).to eq("World")
+          expect(user_history_champ_994.value).to eq("Greer")
 
-        expect(user_history_champ_99.source_stream).to eq(Dossier::USER_BUFFER_STREAM)
-        expect(user_history_champ_991.source_stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
-        expect(user_history_champ_994.source_stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
-      }
+          expect(user_history_champ_99.source_stream).to eq(Dossier::USER_BUFFER_STREAM)
+          expect(user_history_champ_991.source_stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+          expect(user_history_champ_994.source_stream).to eq(Dossier::INSTRUCTEUR_BUFFER_STREAM)
+        end
+      end
     end
   end
 
   describe '#set_default_value_for_france_connect_champs' do
     let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, types_de_champ_public:, for_individual: true) }
     let(:types_de_champ_public) { [{ type: :quotient_familial }] }
-    let(:champ_qf) { dossier.champ_data.first }
+    # Memoized before any context publishes a second quotient_familial tdc.
+    let(:qf_stable_id) { procedure.published_revision.types_de_champ.sole.stable_id }
+    # Enumerable#find over the loaded association, not find_by: the examples
+    # stub this instance, so it has to be the same object the concern reuses.
+    let(:champ_qf) { dossier.champ_data.find { it.stable_id == qf_stable_id } }
     let!(:fci) { create(:france_connect_information, user: dossier.user) }
+
+    # The champs are instantiated inside the method under test, so there is no
+    # instance to stub up front; collect them as they ask to be fetched.
+    let(:fetched_instances) { [] }
+    let(:old_qf) { dossier.root_champs_public.find { it.stable_id == qf_stable_id } }
+    let(:new_qf) { dossier.root_champs_public.find { it.stable_id != qf_stable_id } }
+
+    def stub_fetch_later(collector)
+      allow_any_instance_of(Champs::QuotientFamilialChamp)
+        .to receive(:fetch_later!) do |instance|
+          collector << instance
+          nil
+        end
+    end
+
+    def add_second_quotient_familial_tdc
+      procedure.draft_revision.add_type_de_champ({
+        type_champ: TypeDeChamp.type_champs.fetch(:quotient_familial),
+        libelle: "QF 2",
+      })
+      procedure.publish_revision!(procedure.administrateurs.first)
+      dossier.reload
+      dossier.rebase!
+    end
 
     context 'when dossier is in a brouillon' do
       let(:dossier) { create(:dossier, :brouillon, procedure:, for_procedure_preview: false, for_tiers: false) }
@@ -1098,31 +1181,14 @@ RSpec.describe DossierChampsConcern do
       context 'when the admin add a new quotient_familial tdc' do
         before do
           champ_qf.update(external_state: 'fetched')
-          procedure.draft_revision.add_type_de_champ({
-            type_champ: TypeDeChamp.type_champs.fetch(:quotient_familial),
-            libelle: "QF 2",
-          })
-          procedure.publish_revision!(procedure.administrateurs.first)
-          dossier.reload
-          dossier.rebase!
-
-          @old_qf = dossier.root_champs_public.sort_by(&:stable_id).first
-          @new_qf = dossier.root_champs_public.sort_by(&:stable_id).last
-
-          @fetched_instances = []
-
-          allow_any_instance_of(Champs::QuotientFamilialChamp)
-            .to receive(:fetch_later!) do |instance|
-              @fetched_instances << instance
-              nil
-            end
+          add_second_quotient_familial_tdc
+          stub_fetch_later(fetched_instances)
         end
 
         it 'does not attempt to fetch the old champ again, but does attempt to set the new champ' do
           subject
-          fetched_ids = @fetched_instances.map(&:stable_id)
-          expect(fetched_ids).to include(@new_qf.stable_id)
-          expect(fetched_ids).not_to include(@old_qf.stable_id)
+
+          expect(fetched_instances.map(&:stable_id)).to contain_exactly(new_qf.stable_id)
         end
       end
     end
@@ -1147,33 +1213,17 @@ RSpec.describe DossierChampsConcern do
       context 'when the admin add a new quotient_familial tdc' do
         before do
           champ_qf.update(external_state: 'idle')
-          procedure.draft_revision.add_type_de_champ({
-            type_champ: TypeDeChamp.type_champs.fetch(:quotient_familial),
-            libelle: "QF 2",
-          })
-          procedure.publish_revision!(procedure.administrateurs.first)
-          dossier.reload
-          dossier.rebase!
-
-          @old_qf = dossier.root_champs_public.sort_by(&:stable_id).first
-          @new_qf = dossier.root_champs_public.sort_by(&:stable_id).last
-
-          @fetched_instances = []
-
-          allow_any_instance_of(Champs::QuotientFamilialChamp)
-            .to receive(:fetch_later!) do |instance|
-              @fetched_instances << instance
-              nil
-            end
+          add_second_quotient_familial_tdc
+          stub_fetch_later(fetched_instances)
         end
 
         it 'does not attempt to fetch the old champ again, but does attempt to set the new champ on user_buffer_stream' do
           subject
-          fetched_ids = @fetched_instances.map(&:stable_id)
-          expect(fetched_ids).to include(@new_qf.stable_id)
-          expect(fetched_ids).not_to include(@old_qf.stable_id)
-          expect(dossier.send(:champ_data_on_user_buffer_stream).count).to eq(1)
-          expect(dossier.send(:champ_data_on_user_buffer_stream).first.stable_id).to eq(dossier.revision.types_de_champ.sort_by(&:created_at).last.stable_id)
+
+          expect(fetched_instances.map(&:stable_id)).to contain_exactly(new_qf.stable_id)
+
+          buffered = dossier.send(:champ_data_on_user_buffer_stream)
+          expect(buffered.map(&:stable_id)).to contain_exactly(new_qf.stable_id)
         end
       end
     end
@@ -1331,6 +1381,64 @@ RSpec.describe DossierChampsConcern do
         expect(column.type).to eq(:attachments)
         expect(column.value.map { _1.filename.to_s }).to eq(['Contrat.pdf'])
       end
+    end
+
+    context "when the instructeur buffer stream changes a champ inside a repetition" do
+      let(:row_id) do
+        type_de_champ = dossier.find_type_de_champ_by_stable_id(993)
+        dossier.project_champ(type_de_champ).row_ids.first
+      end
+
+      before do
+        dossier.with_instructeur_buffer_stream do
+          dossier.public_champ_for_update("994-#{row_id}", updated_by: 'instructeur@exemple.fr')
+            .assign_attributes(value: "Correction dans la répétition")
+        end
+        dossier.save!
+      end
+
+      it "returns the changed column for the repetition child" do
+        column = dossier.instructeur_changed_columns.find { _1.stable_id == 994 }
+
+        expect(column).not_to be_nil
+        expect(column.value).to eq("Correction dans la répétition")
+      end
+    end
+  end
+
+  describe "#reload" do
+    it "drops the memoized champs so a concurrent write is picked up" do
+      expect(dossier.root_champs_public.size).to eq(4)
+
+      dossier.champ_data.where(stable_id: 99).destroy_all
+      # still memoized
+      expect(dossier.root_champs_public.find { _1.stable_id == 99 }).to be_persisted
+
+      dossier.reload
+
+      expect(dossier.root_champs_public.find { _1.stable_id == 99 }).to be_new_record
+    end
+  end
+
+  describe "#merge_user_buffer_stream!" do
+    let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
+
+    it "returns nil and archives nothing when the buffer is empty" do
+      expect { expect(dossier.merge_user_buffer_stream!).to be_nil }
+        .not_to change { dossier.history.size }
+    end
+
+    it "returns the history stream the previous main values were moved to" do
+      dossier.with_update_stream(dossier.user) do
+        dossier.public_champ_for_update('99', updated_by: dossier.user.email).assign_attributes(value: "Nouvelle valeur")
+      end
+      dossier.save!
+
+      history_stream = dossier.merge_user_buffer_stream!
+
+      expect(history_stream).to start_with(Dossier::HISTORY_STREAM)
+      expect(dossier.history.map(&:stream)).to all(eq(history_stream))
+      expect(dossier.champ_data.find { _1.stable_id == 99 && _1.main_stream? }.checkpoint).to eq(history_stream)
     end
   end
 end
