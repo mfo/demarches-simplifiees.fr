@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe DossierChampsConcern do
-  let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_public) do
+  # Defined as methods (not `let`) so `let_it_be` can call them from its
+  # before_all context, while nested contexts can still shadow them with `let`.
+  def default_types_de_champ_public
     [
       { type: :text, libelle: "Un champ text", stable_id: 99 },
       { type: :text, libelle: "Un autre champ text", stable_id: 991 },
@@ -10,12 +11,37 @@ RSpec.describe DossierChampsConcern do
       { type: :repetition, libelle: "Un champ répétable", stable_id: 993, mandatory: true, children: [{ type: :text, libelle: 'Nom', stable_id: 994 }] },
     ]
   end
-  let(:types_de_champ_private) do
+
+  def default_types_de_champ_private
     [
       { type: :text, libelle: "Une annotation", stable_id: 995 },
     ]
   end
-  let(:dossier) { create(:dossier, procedure:) }
+
+  # Building this procedure and its dossier costs ~130ms, and most examples
+  # want the exact same shape, so they are built once for the whole file.
+  # `refind` (rather than `reload`) is required: these examples leave state on
+  # the instance that a reload would not clear — `with_update_stream(user)`
+  # without a block pins @stream, and champ_data association targets are
+  # reassigned in place.
+  let_it_be(:default_procedure, refind: true) do
+    create(:procedure, types_de_champ_public: default_types_de_champ_public, types_de_champ_private: default_types_de_champ_private)
+  end
+  let_it_be(:default_dossier, refind: true) { create(:dossier, procedure: default_procedure) }
+
+  let(:types_de_champ_public) { default_types_de_champ_public }
+  let(:types_de_champ_private) { default_types_de_champ_private }
+
+  # Contexts that override the champ lists (or `procedure`/`dossier`
+  # themselves) build their own records; everyone else shares the default.
+  let(:procedure) do
+    if [types_de_champ_public, types_de_champ_private] == [default_types_de_champ_public, default_types_de_champ_private]
+      default_procedure
+    else
+      create(:procedure, types_de_champ_public:, types_de_champ_private:)
+    end
+  end
+  let(:dossier) { procedure == default_procedure ? default_dossier : create(:dossier, procedure:) }
 
   describe "#find_type_de_champ_by_stable_id(public)" do
     subject { dossier.find_type_de_champ_by_stable_id(992, :public) }
