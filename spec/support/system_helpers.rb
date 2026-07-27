@@ -80,6 +80,51 @@ module SystemHelpers
     execute_script("document.querySelector('#autosave-notice').classList.add('hidden');")
   end
 
+  # DSFR wires its dialogs asynchronously: a `<dialog class="fr-modal">` only
+  # becomes operable once DSFR has stamped it with `data-fr-js-modal`. A trigger
+  # clicked before that either does nothing at all, or (for triggers routed
+  # through a Stimulus controller) waits for DSFR before disclosing the modal —
+  # so on a slow bundle the modal opens after Capybara has given up. Waiting for
+  # the stamp puts the wait where the latency actually is.
+  def open_dsfr_modal(selector)
+    # generous wait: what we are really waiting for here is the JS bundle
+    expect(page).to have_selector("#{selector}[data-fr-js-modal='true']", visible: :all, wait: 10)
+    yield
+    expect(page).to have_selector(selector, visible: true)
+  end
+
+  # A turbo-poll response can refresh the whole page (turbo_stream.refresh),
+  # which is a problem for anything the server renders exactly once: a poll
+  # landing at the wrong moment consumes that render before the spec ever looks
+  # at it. Answer polls with 204 in the browser — turbo-poll treats that as
+  # "nothing to render" — so they never reach the server. Call this before the
+  # first poll can fire (i.e. in a before hook, not around the assertions), and
+  # open a with_turbo_poll block where the spec does want polling.
+  def suppress_turbo_poll
+    page.driver.with_playwright_page do |pw_page|
+      pw_page.route(POLLING_URL_PATTERN, -> (route, _request) { route.fulfill(status: 204, body: '') })
+    end
+  end
+
+  # Let polls reach the server for the duration of the block. Re-attaching the
+  # controllers makes the next poll immediate instead of one interval away.
+  def with_turbo_poll
+    page.driver.with_playwright_page { |pw_page| pw_page.unroute(POLLING_URL_PATTERN) }
+    page.execute_script(<<~JS)
+      document.querySelectorAll('[data-controller~="turbo-poll"]').forEach((el) => {
+        const value = el.getAttribute('data-controller');
+        el.removeAttribute('data-controller');
+        requestAnimationFrame(() => el.setAttribute('data-controller', value));
+      });
+    JS
+
+    yield
+  ensure
+    suppress_turbo_poll
+  end
+
+  POLLING_URL_PATTERN = %r{/polling}
+
   def blur
     if page.has_css?('body', wait: 0)
       page.find('body').click
