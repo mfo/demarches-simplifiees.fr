@@ -164,6 +164,12 @@ class API::V2::Schema < GraphQL::Schema
       raise GraphQL::ExecutionError.new(error.message, extensions: { code: :bad_request })
     end
 
+    # An unparsable Date argument (e.g. free text sent to an annotation date) is a client
+    # input error too, and the default handler already turns it into a proper validation
+    # error for the client. Only the Sentry report is wrong: the message embeds the
+    # offending value, so one defect was split into a new issue per distinct bad date.
+    return super if error.is_a?(GraphQL::DateEncodingError)
+
     # Capture type errors in Sentry. Thouse errors are our responsability and usually linked to
     # instances of "bad data".
     if error.is_a?(GraphQL::InvalidNullError)
