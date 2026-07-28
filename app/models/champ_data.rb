@@ -30,6 +30,24 @@ class ChampData < ApplicationRecord
     end
   end
 
+  # Champ types removed from the codebase (legacy France Connect data sources). Rows
+  # written before their removal are still in the table, and Rails raises
+  # ActiveRecord::SubclassNotFound as soon as one is loaded — which aborts the expired
+  # brouillon purge, rolling the dossier back and failing again on every cron run.
+  # Nothing renders these any more, so read them as plain ChampData: enough to inspect
+  # and destroy them. Any other unresolvable type still raises.
+  REMOVED_TYPES = [
+    'Champs::CnafChamp',
+    'Champs::CNAFChamp',
+    'Champs::DGFIPChamp',
+    'Champs::MESRIChamp',
+    'Champs::PoleEmploiChamp',
+  ].freeze
+
+  def self.find_sti_class(type_name)
+    REMOVED_TYPES.include?(type_name) ? ChampData : super
+  end
+
   attr_readonly :stable_id
 
   belongs_to :dossier, inverse_of: false, touch: true, optional: false
