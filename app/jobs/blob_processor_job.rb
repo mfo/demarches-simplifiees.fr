@@ -2,6 +2,7 @@
 
 class BlobProcessorJob < ApplicationJob
   include Skylight::Helpers
+  include UnreadableVipsSourceConcern
 
   queue_as do
     blob = self.arguments.first
@@ -105,6 +106,11 @@ class BlobProcessorJob < ApplicationJob
 
     blob.watermarked_at = Time.current if watermark_needed
     blob.save!
+  rescue Vips::Error => error
+    # Same policy as autorotate_needed?/interlaced? below: a source vips cannot decode
+    # is not a transient failure, so skip the mutations and let the rest of the job run
+    # (the blob still gets marked processed) instead of burning three retries.
+    raise if !unreadable_vips_source?(error)
   end
 
   def needs_mutations?

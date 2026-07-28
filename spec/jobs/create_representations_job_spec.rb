@@ -60,4 +60,20 @@ describe CreateRepresentationsJob, :external_deps, type: :job do
       }.to have_enqueued_job(described_class).with(blob)
     end
   end
+
+  # A file whose bytes are not the image its content type claims. It will never become
+  # readable, so it must not be retried or reported.
+  context 'when the source is not an image vips can decode' do
+    let(:file) { fixture_file_upload('spec/fixtures/files/not-an-image.jpg', 'image/jpeg') }
+
+    it 'gives up quietly without retrying' do
+      expect {
+        expect { described_class.perform_now(blob) }.not_to raise_error
+      }.not_to have_enqueued_job(described_class)
+    end
+
+    it 'creates no representation' do
+      expect { described_class.perform_now(blob) }.not_to change { ActiveStorage::VariantRecord.count }
+    end
+  end
 end
