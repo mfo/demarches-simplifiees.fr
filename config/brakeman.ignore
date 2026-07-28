@@ -21,26 +21,7 @@
       "cwe_id": [
         502
       ],
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 122,
-      "fingerprint": "21ab0fe00fdd5899ffc405cff75aadb91b805ee996a614f7e27b08a287e9062d",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 7.2.3.1 ends on 2026-08-09",
-      "file": "Gemfile.lock",
-      "line": 640,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Weak",
-      "cwe_id": [
-        1104
-      ],
-      "note": ""
+      "note": "Disaster-recovery tooling run by hand from a console. The dump is produced by Recovery::RevisionExporter and read from a developer-supplied path, never from user input."
     },
     {
       "warning_type": "SQL Injection",
@@ -63,7 +44,7 @@
       "cwe_id": [
         89
       ],
-      "note": ""
+      "note": "Interpolates only literals: order_column is :updated_at, and order_table is overridden per connection with a hardcoded table name (:dossiers, :deleted_dossiers) or raises. The cursor values decoded from the request are passed as bind parameters."
     },
     {
       "warning_type": "SQL Injection",
@@ -86,7 +67,7 @@
       "cwe_id": [
         89
       ],
-      "note": ""
+      "note": "timeout is a literal written in the maintenance task itself (\"5min\", \"15min\", \"0\"), never user input. SET LOCAL does not accept a bind parameter."
     },
     {
       "warning_type": "Remote Code Execution",
@@ -109,7 +90,7 @@
       "cwe_id": [
         502
       ],
-      "note": ""
+      "note": "Disaster-recovery tooling run by hand from a console. The dump is produced by Recovery::Exporter and read from a developer-supplied path (FILE_PATH by default), never from user input."
     },
     {
       "warning_type": "Cross-Site Scripting",
@@ -143,7 +124,7 @@
       "cwe_id": [
         79
       ],
-      "note": "Theses params are not rendered"
+      "note": "The params only pick a key out of the path allowlist FAQsLoaderService builds from the repo; an unknown key raises KeyError, which the controller turns into a 404. The rendered markdown comes from files in the repo, not from the request."
     },
     {
       "warning_type": "SQL Injection",
@@ -166,7 +147,7 @@
       "cwe_id": [
         89
       ],
-      "note": ""
+      "note": "Interpolates only literals: order_column is :updated_at, and order_table is overridden per connection with a hardcoded table name (:dossiers, :deleted_dossiers) or raises. The cursor values decoded from the request are passed as bind parameters."
     },
     {
       "warning_type": "SQL Injection",

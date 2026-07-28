@@ -24,6 +24,7 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 ### Linting & Code Quality
 - `bin/rake lint` - Run all linters (Rubocop, haml-lint, herb linter/formatter, i18n-tasks, Brakeman, ESLint, TypeScript, CSS)
 - `bin/rake lint:ruby` / `lint:js` / `lint:security` - Run one group only (CI runs the three in parallel jobs; `lint:security` is Brakeman, by far the slowest)
+- Brakeman options live in `config/brakeman.yml` (auto-loaded, so a bare `brakeman` matches CI). Every entry in `config/brakeman.ignore` must carry a note saying why the warning is not exploitable, and entries that no longer match any code must be deleted — `lint:security` fails on either.
 - `bundle exec rubocop --parallel` - Ruby linting
 - `bun lint:js` - JavaScript linting
 - `bun lint:types` - TypeScript type checking
