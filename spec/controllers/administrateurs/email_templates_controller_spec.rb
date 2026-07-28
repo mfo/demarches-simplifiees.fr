@@ -2,12 +2,12 @@
 
 describe Administrateurs::EmailTemplatesController, type: :controller do
   render_views
-  let(:procedure) { create :procedure }
+  let(:procedure) { procedures.individual }
 
   let(:admin) { administrateurs.default }
 
   before do
-    sign_in(procedure.administrateurs.first.user)
+    sign_in(admin.user)
   end
 
   describe 'GET index' do
@@ -23,10 +23,9 @@ describe Administrateurs::EmailTemplatesController, type: :controller do
   end
 
   describe '#preview' do
-    let(:procedure) { create(:procedure, :with_logo, :with_service, administrateur: admin) }
+    let_it_be(:procedure) { create(:procedure, :with_logo, :with_service, administrateur: administrateurs.default) }
 
     before do
-      sign_in(admin.user)
       get :preview, params: { id: "depose", procedure_id: procedure.id }
     end
 
@@ -47,12 +46,8 @@ describe Administrateurs::EmailTemplatesController, type: :controller do
   end
 
   describe 'PUT #update (tiptap)' do
-    let(:admin) { create(:administrateur) }
-    let(:procedure) { create(:procedure, administrateur: admin) }
     let(:json_body) { { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "Salut" }] }] }.to_json }
     let(:json_subject) { { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "Objet" }] }] }.to_json }
-
-    before { sign_in(admin.user) }
 
     it 'enregistre json_body et json_subject' do
       put :update, params: {
@@ -100,11 +95,6 @@ describe Administrateurs::EmailTemplatesController, type: :controller do
   end
 
   describe 'GET edit' do
-    let(:admin) { create(:administrateur) }
-    let(:procedure) { create(:procedure, administrateur: admin) }
-
-    before { sign_in(admin.user) }
-
     subject { get :edit, params: { procedure_id: procedure.id, id: 'passe_en_instruction' } }
 
     it { expect(subject).to have_http_status(:ok) }
@@ -120,11 +110,7 @@ describe Administrateurs::EmailTemplatesController, type: :controller do
   end
 
   describe 'POST #preview (turbo_stream)' do
-    let(:admin) { create(:administrateur) }
-    let(:procedure) { create(:procedure, :published, administrateur: admin) }
     let(:json_body) { { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "Salut" }] }] }.to_json }
-
-    before { sign_in(admin.user) }
 
     it 'renvoie un turbo_stream mettant à jour l’aperçu du corps' do
       post :preview, params: {

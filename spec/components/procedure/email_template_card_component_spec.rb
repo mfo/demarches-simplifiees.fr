@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
-  let(:procedure) { create(:procedure) }
+  let(:procedure) { procedures.individual }
 
   subject(:rendered) { render_inline(described_class.new(email_template:)) }
 
