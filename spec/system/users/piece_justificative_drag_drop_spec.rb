@@ -171,6 +171,26 @@ describe 'Piece justificative drag and drop', js: true do
       end
     end
 
+    scenario 'rejects an empty file' do
+      empty_file_path = Rails.root.join('tmp', 'empty_document.pdf')
+      File.write(empty_file_path, '')
+
+      begin
+        within find('.editable-champ', text: 'Documents') do
+          attach_file('Documents', empty_file_path)
+
+          within('[data-attachment-error]') do
+            expect(page).to have_selector('.fr-message--error', text: /est\s+vide/i)
+          end
+
+          # Le fichier ne doit pas être envoyé
+          expect(page).not_to have_selector('.direct-upload')
+        end
+      ensure
+        File.delete(empty_file_path) if File.exist?(empty_file_path)
+      end
+    end
+
     scenario 'validates file size using titre_identite nature (20 Mo limit)' do
       # Créer un fichier légèrement au-dessus de 20 Mo
       large_content = 'x' * (21 * 1024 * 1024) # 21 Mo

@@ -44,6 +44,10 @@ export default class Uploader {
     */
   async start() {
     this.progressBar.start();
+    if (this.file.size == 0) {
+      throw `Le fichier « ${this.file.name} » est vide
+             (in english: the file is empty).`;
+    }
     if (this.maxFileSize > 0 && this.file.size > this.maxFileSize) {
       throw `La taille du fichier ne peut dépasser
              ${this.maxFileSize / BYTES_TO_MB_RATIO} Mo

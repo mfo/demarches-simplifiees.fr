@@ -298,6 +298,11 @@ export class AutosaveController extends ApplicationController {
         errors.push(sizeError);
       }
 
+      const emptyError = this.checkFileEmpty(file);
+      if (emptyError) {
+        errors.push(emptyError);
+      }
+
       if (errors.length > 0) {
         invalidFiles.push({ file, errors });
       } else {
@@ -363,6 +368,14 @@ export class AutosaveController extends ApplicationController {
     }
 
     return null;
+  }
+
+  // Le nom du fichier n'est pas interpolé dans le message : il est inséré via
+  // innerHTML par showAttachmentError.
+  private checkFileEmpty(file: File): string | null {
+    if (file.size > 0) return null;
+
+    return `Le fichier envoyé est&nbsp;<strong>vide</strong>.`;
   }
 
   private countCurrentFiles(container: Element): number {

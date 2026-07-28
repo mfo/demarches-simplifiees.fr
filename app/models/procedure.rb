@@ -310,7 +310,7 @@ class Procedure < ApplicationRecord
     "image/jpeg",
     "image/png",
     "text/plain",
-  ], size: { less_than: FILE_MAX_SIZE }, if: -> { new_record? || created_at > Date.new(2020, 2, 28) }
+  ], size: { less_than: FILE_MAX_SIZE }, empty_file: true, if: -> { new_record? || created_at > Date.new(2020, 2, 28) }
 
   validates :deliberation, content_type: [
     "application/msword",
@@ -320,11 +320,12 @@ class Procedure < ApplicationRecord
     "image/jpeg",
     "image/png",
     "text/plain",
-  ], size: { less_than: FILE_MAX_SIZE }, if: -> { new_record? || created_at > Date.new(2020, 4, 29) }
+  ], size: { less_than: FILE_MAX_SIZE }, empty_file: true, if: -> { new_record? || created_at > Date.new(2020, 4, 29) }
 
   LOGO_MAX_SIZE = 5.megabytes
   validates :logo, content_type: ['image/png', 'image/jpeg'],
     size: { less_than: LOGO_MAX_SIZE },
+    empty_file: true,
     if: -> { new_record? || created_at > Date.new(2020, 11, 13) }
 
   validates :api_particulier_token, format: { with: /\A[A-Za-z0-9\-_=.]{15,}\z/ }, allow_blank: true
