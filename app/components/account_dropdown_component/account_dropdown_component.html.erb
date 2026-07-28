@@ -27,6 +27,7 @@
       <ul class="fr-menu__list max-content">
         <%- if multiple_devise_profile_connect? -%>
           <li>
+            <%# TODO: this is a label, not a link. Rendering it as a span needs a visual check on the DSFR nav styles. %>
             <%= link_to "#", class: "fr-nav__link", "aria-current" => "true" do %>
               <%= t('.connected_as', profile: t(nav_bar_profile, scope: :layouts)) %>
             <% end %>

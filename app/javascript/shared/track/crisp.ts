@@ -11,8 +11,7 @@ declare const window: Window &
       locale: string;
     };
     $crisp: (
-      | [cmd: string, key: string, value: unknown]
-      | [key: string, value: unknown]
+      [cmd: string, key: string, value: unknown] | [key: string, value: unknown]
     )[];
   };
 
