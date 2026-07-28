@@ -450,8 +450,8 @@ describe Administrateurs::TypesDeChampController, type: :controller do
   describe '#notice_explicative' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
     let(:coordinate) { procedure.draft_revision.types_de_champ.first }
-    let(:file) { Tempfile.new }
-    let(:blob) { ActiveStorage::Blob.create_before_direct_upload!(filename: File.basename(file.path), byte_size: file.size, checksum: Digest::SHA256.file(file.path), content_type: 'text/plain') }
+    let(:content) { 'notice' }
+    let(:blob) { ActiveStorage::Blob.create_and_upload!(io: StringIO.new(content), filename: 'notice.txt', content_type: 'text/plain') }
 
     context 'when sending a valid blob' do
       it 'attaches the blob and responds with 200' do
@@ -459,6 +459,17 @@ describe Administrateurs::TypesDeChampController, type: :controller do
           .to change { coordinate.reload.notice_explicative.attached? }
           .from(false).to(true)
         expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'when sending an empty blob' do
+      let(:content) { '' }
+
+      it 'rejects it and responds with 422' do
+        expect { put :notice_explicative, format: :turbo_stream, params: { stable_id: coordinate.stable_id, procedure_id: procedure.id, blob_signed_id: blob.signed_id } }
+          .not_to change { coordinate.reload.notice_explicative.attached? }
+        expect(response).to have_http_status(422)
+        expect(response.parsed_body['errors'].join).to include('vide')
       end
     end
   end

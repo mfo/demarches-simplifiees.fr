@@ -21,7 +21,8 @@ class Commentaire < ApplicationRecord
 
   validates :piece_jointe,
     content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
-    size: { less_than: FILE_MAX_SIZE }
+    size: { less_than: FILE_MAX_SIZE },
+    empty_file: true
 
   scope :chronological, -> { order(created_at: :asc) }
   scope :updated_since?, -> (date) { where('commentaires.updated_at > ?', date) }

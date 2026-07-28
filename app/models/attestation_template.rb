@@ -26,8 +26,8 @@ class AttestationTemplate < ApplicationRecord
   validates :kind, presence: true
 
   FILE_MAX_SIZE = 1.megabyte
-  validates :logo, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }
-  validates :signature, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }
+  validates :logo, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }, empty_file: true
+  validates :signature, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }, empty_file: true
 
   DOSSIER_STATE = Dossier.states.fetch(:accepte)
 

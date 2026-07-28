@@ -109,6 +109,7 @@ ignore_unused:
   - 'errors.messages.blank'
   - 'errors.messages.content_type_invalid.*'
   - 'errors.messages.file_size_out_of_range'
+  - 'errors.messages.file_empty'
   - 'pluralize.*'
   - 'views.pagination.*'
   - 'time.formats.*'

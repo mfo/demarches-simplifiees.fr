@@ -5,3 +5,4 @@ fr:
         one: n’est pas d’un type accepté (%{content_type}).
         other: n’est pas d’un type accepté (%{content_type}).
       file_size_out_of_range: est trop lourd(e). Le fichier doit faire au plus %{max_size}.
+      file_empty: est vide (%{filename}). Le fichier envoyé ne contient aucune donnée.

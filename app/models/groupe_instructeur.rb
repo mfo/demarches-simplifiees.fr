@@ -20,7 +20,7 @@ class GroupeInstructeur < ApplicationRecord
   has_one_attached :signature
 
   SIGNATURE_MAX_SIZE = 1.megabyte
-  validates :signature, content_type: ['image/png', 'image/jpeg'], size: { less_than: SIGNATURE_MAX_SIZE }
+  validates :signature, content_type: ['image/png', 'image/jpeg'], size: { less_than: SIGNATURE_MAX_SIZE }, empty_file: true
 
   validates :label, presence: true, allow_nil: false
   validates :label, uniqueness: { scope: :procedure }
