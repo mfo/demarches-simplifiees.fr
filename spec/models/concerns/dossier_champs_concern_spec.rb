@@ -196,12 +196,12 @@ RSpec.describe DossierChampsConcern do
   describe '#filled_champs_public' do
     let(:types_de_champ_public) do
       [
-        { type: :header_section },
-        { type: :text, libelle: "Un champ text" },
-        { type: :text, libelle: "Un autre champ text" },
-        { type: :yes_no, libelle: "Un champ yes no" },
-        { type: :repetition, libelle: "Un champ répétable", mandatory: true, children: [{ type: :text, libelle: 'Nom' }] },
-        { type: :explication },
+        { type: :header_section, stable_id: 9001 },
+        { type: :text, libelle: "Un champ text", stable_id: 9002 },
+        { type: :text, libelle: "Un autre champ text", stable_id: 9003 },
+        { type: :yes_no, libelle: "Un champ yes no", stable_id: 9004 },
+        { type: :repetition, libelle: "Un champ répétable", stable_id: 9005, mandatory: true, children: [{ type: :text, libelle: 'Nom', stable_id: 9006 }] },
+        { type: :explication, stable_id: 9007 },
       ]
     end
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
@@ -216,9 +216,9 @@ RSpec.describe DossierChampsConcern do
   describe '#filled_champs_private' do
     let(:types_de_champ_private) do
       [
-        { type: :header_section },
-        { type: :text, libelle: "Une annotation" },
-        { type: :explication },
+        { type: :header_section, stable_id: 9011 },
+        { type: :text, libelle: "Une annotation", stable_id: 9012 },
+        { type: :explication, stable_id: 9013 },
       ]
     end
     subject { dossier.filled_champs_private }
