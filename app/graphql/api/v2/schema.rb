@@ -186,6 +186,17 @@ class API::V2::Schema < GraphQL::Schema
   end
 
   class Timeout < GraphQL::Schema::Timeout
+    # The ceiling below bounds an interactive HTTP request. SerializerService runs this
+    # same schema from cron jobs — notably the datagouv export, which paginates over every
+    # public procedure — where interrupting a page only yields a truncated export. Give
+    # those a batch-sized budget instead, while keeping the interactive ceiling for the
+    # public API.
+    INTERNAL_MAX_SECONDS = 5.minutes.to_i
+
+    def max_seconds(query)
+      query.context[:internal_use] ? INTERNAL_MAX_SECONDS : super
+    end
+
     def handle_timeout(error, query)
       error.extensions = { code: :timeout }
 

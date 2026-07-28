@@ -55,6 +55,22 @@ RSpec.describe API::V2::Schema do
 end
 
 RSpec.describe API::V2::Schema::Timeout do
+  describe '#max_seconds' do
+    let(:timeout_instance) { described_class.new(max_seconds: 30) }
+
+    def query_with(context) = instance_double(GraphQL::Query, context:)
+
+    it 'keeps the interactive ceiling for public API queries' do
+      expect(timeout_instance.max_seconds(query_with(internal_use: false))).to eq(30)
+    end
+
+    # The datagouv export paginates over every public procedure from a cron job; the
+    # interactive ceiling only truncated it.
+    it 'gives internal serializer queries a batch-sized budget' do
+      expect(timeout_instance.max_seconds(query_with(internal_use: true))).to be > 30
+    end
+  end
+
   describe '#filter_sensitive_query_string' do
     let(:timeout_instance) { described_class.new(max_seconds: 30) }
 
