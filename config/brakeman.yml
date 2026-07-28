@@ -1,0 +1,12 @@
+---
+# Brakeman picks this file up automatically, so a bare `brakeman` run behaves
+# the same as CI (`rake lint:security`) and as a local `bin/rake lint`.
+#
+# Every entry in config/brakeman.ignore must carry a note explaining why the
+# warning is not exploitable, and entries that no longer match any code must be
+# removed. Both are enforced rather than advisory: an ignore file nobody prunes
+# ends up silencing checks that have since become relevant, and an ignore
+# without a rationale cannot be reviewed — the reader has to redo the analysis
+# to find out whether it was ever justified.
+:ensure_ignore_notes: true
+:ensure_no_obsolete_ignore_entries: true
