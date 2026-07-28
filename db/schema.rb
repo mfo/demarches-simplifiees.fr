@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_27_220100) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_28_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -515,6 +515,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_27_220100) do
 
   create_table "dossiers", id: :serial, force: :cascade do |t|
     t.date "accuse_lecture_agreement_at"
+    t.tsvector "all_search_terms_tsvector"
     t.string "api_entreprise_job_exceptions", array: true
     t.boolean "archived", default: false
     t.datetime "archived_at", precision: nil
@@ -560,6 +561,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_27_220100) do
     t.datetime "processed_at", precision: nil
     t.bigint "revision_id"
     t.string "search_terms"
+    t.tsvector "search_terms_tsvector"
     t.string "state"
     t.bigint "submitted_revision_id"
     t.boolean "submitted_with_france_connect", default: false, null: false
@@ -571,6 +573,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_27_220100) do
     t.integer "user_id"
     t.index "to_tsvector('french_unaccent'::regconfig, (((search_terms)::text || ' '::text) || (private_search_terms)::text))", name: "index_dossiers_on_search_terms_private_search_terms", using: :gin
     t.index "to_tsvector('french_unaccent'::regconfig, (search_terms)::text)", name: "index_dossiers_on_search_terms", using: :gin
+    t.index ["all_search_terms_tsvector"], name: "index_dossiers_on_all_search_terms_tsvector", using: :gin
     t.index ["archived"], name: "index_dossiers_on_archived"
     t.index ["batch_operation_id"], name: "index_dossiers_on_batch_operation_id"
     t.index ["depose_at", "id"], name: "index_dossiers_on_depose_at_and_id", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
@@ -584,6 +587,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_27_220100) do
     t.index ["prefill_token"], name: "index_dossiers_on_prefill_token", unique: true
     t.index ["revision_id"], name: "index_dossiers_on_revision_id"
     t.index ["revision_id"], name: "index_dossiers_stalled_declarative", where: "(((state)::text = 'en_construction'::text) AND (declarative_triggered_at IS NULL))"
+    t.index ["search_terms_tsvector"], name: "index_dossiers_on_search_terms_tsvector", using: :gin
     t.index ["state"], name: "index_dossiers_on_state"
     t.index ["updated_at", "id"], name: "index_dossiers_on_updated_at_and_id", where: "((hidden_by_administration_at IS NULL) AND (hidden_by_expired_at IS NULL))"
     t.index ["user_id"], name: "index_dossiers_on_user_id"

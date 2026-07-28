@@ -37,6 +37,9 @@ describe DossierSearchService do
         expect(searching('annotations')).to eq([])
         # but can be searched with the with_annotations option
         expect(searching('annotations', with_annotations: true)).to eq([dossier.id])
+        # terms are ANDed across the public and private parts, which only works
+        # if both are indexed as a single document
+        expect(searching('pommes annotations', with_annotations: true)).to eq([dossier.id])
 
         # by email
         expect(searching('nicolas@email.com')).to eq([dossier.id])
@@ -95,6 +98,42 @@ describe DossierSearchService do
       before { stub_const('DossierSearchService::MAX_RESULTS', 1) }
 
       it { expect(searching('martin').size).to eq(1) }
+    end
+
+    # The stored columns replace the to_tsvector(...) expression indexes; the two
+    # paths coexist behind the flag until the backfill is done, so they have to
+    # return the same thing.
+    describe 'with the stored tsvector columns' do
+      let(:user) { create(:user, email: 'nicolas@email.com') }
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }], types_de_champ_private: [{ type: :text }]) }
+      let(:dossier) do
+        create(:dossier, procedure:, state: :en_construction, user:).tap do |dossier|
+          dossier.root_champs_public.first.update!(value: 'Hélène mange des pommes')
+          dossier.root_champs_private.first.update!(value: 'annotations')
+        end
+      end
+
+      before { Flipper.enable(:search_terms_tsvector) }
+      after { Flipper.disable(:search_terms_tsvector) }
+
+      it do
+        expect(searching('')).to eq([])
+
+        expect(searching('nicolas')).to eq([dossier.id])
+        expect(searching('helene')).to eq([dossier.id])
+        expect(searching('la pomme')).to eq([dossier.id])
+
+        expect(searching('annotations')).to eq([])
+        expect(searching('annotations', with_annotations: true)).to eq([dossier.id])
+        expect(searching('pommes annotations', with_annotations: true)).to eq([dossier.id])
+      end
+
+      it 'ignores dossiers whose tsvector has not been backfilled yet' do
+        dossier
+        Dossier.where(id: dossier.id).update_all(search_terms_tsvector: nil, all_search_terms_tsvector: nil)
+
+        expect(searching('nicolas')).to eq([])
+      end
     end
   end
 
