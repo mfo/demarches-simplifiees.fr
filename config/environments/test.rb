@@ -41,8 +41,10 @@ Rails.application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
-  # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
+  # Highlight code that triggered database queries in logs. Cleaning the
+  # caller backtrace on every query is expensive (~40% of factory-heavy
+  # examples), so it is opt-in: VERBOSE_QUERY_LOGS=1 bin/rspec …
+  config.active_record.verbose_query_logs = ENV["VERBOSE_QUERY_LOGS"].present?
 
   # https://evilmartians.com/chronicles/the-whop-chop-how-we-cut-a-rails-test-suite-and-ci-time-in-half
   if ENV["CI"].present?

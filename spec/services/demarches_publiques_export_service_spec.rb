@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe DemarchesPubliquesExportService do
-  let(:procedure) { create(:procedure, :published, :with_service, :with_type_de_champ, estimated_dossiers_count: 4) }
+  let(:procedure) { create(:procedure, :published, :with_zone, :with_service, :with_type_de_champ, estimated_dossiers_count: 4) }
   let(:gzip_filename) { "demarches.json.gz" }
 
   after { FileUtils.rm(gzip_filename) }
@@ -29,7 +29,7 @@ describe DemarchesPubliquesExportService do
         notice: nil,
         deliberation: nil,
         datePublication: procedure.published_at.iso8601,
-        zones: ["Ministère de l’Education Populaire"],
+        zones: ["Ministère 1"],
         tags: [],
         dossiersCount: 4,
         revision: {
