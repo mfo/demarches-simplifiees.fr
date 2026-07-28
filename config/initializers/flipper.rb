@@ -40,6 +40,8 @@ features = [
   :api_entreprise_tva_job,
   :usager_dossiers_alert_filters,
   :s3_storage,
+  # Enable only once T20260728BackfillSearchTermsTsvectorTask has completed.
+  :search_terms_tsvector,
 ]
 
 def database_exists?
