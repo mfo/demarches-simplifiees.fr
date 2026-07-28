@@ -177,6 +177,16 @@ describe DataSources::ReferentielController, type: :controller do
         end
       end
 
+      context 'when the referentiel has no rendering template' do
+        before { referentiel.update_column(:autocomplete_configuration, { 'datasource' => '$.data' }) }
+
+        it 'returns an empty array without calling the API' do
+          expect_any_instance_of(ReferentielService).not_to receive(:call)
+          expect(subject).to have_http_status(:ok)
+          expect(response.parsed_body).to eq([])
+        end
+      end
+
       context 'when failure' do
         let(:referentiel_service) { double(call: service_respone) }
 

@@ -12,6 +12,40 @@ describe Referentiels::APIReferentiel, type: :model do
     expect(Referentiel.where(id: referentiel.id).pluck(:authentication_data)).not_to include("Authorization")
   end
 
+  describe '#tiptap_template=' do
+    let(:referentiel) { build(:api_referentiel, :autocomplete) }
+
+    it 'parses the serialized template' do
+      referentiel.tiptap_template = { "type" => "doc" }.to_json
+      expect(referentiel.json_template).to eq({ "type" => "doc" })
+    end
+
+    it 'empties the template instead of raising on a malformed payload' do
+      expect { referentiel.tiptap_template = "not json" }.not_to raise_error
+      expect(referentiel.json_template).to eq({})
+    end
+  end
+
+  describe '#autocomplete_ready?' do
+    let(:referentiel) { build(:api_referentiel, :autocomplete, datasource: '$.items') }
+
+    it { expect(referentiel).to be_autocomplete_ready }
+
+    it 'is false without a datasource' do
+      referentiel.datasource = nil
+      expect(referentiel).not_to be_autocomplete_ready
+    end
+
+    it 'is false without a rendering template' do
+      referentiel.json_template = {}
+      expect(referentiel).not_to be_autocomplete_ready
+    end
+
+    it 'is false for a csv referentiel' do
+      expect(build(:csv_referentiel)).not_to be_autocomplete_ready
+    end
+  end
+
   describe '#tiptap_mention_stable_ids' do
     let(:referentiel) { build(:api_referentiel, :exact_match, url_tiptap:) }
 

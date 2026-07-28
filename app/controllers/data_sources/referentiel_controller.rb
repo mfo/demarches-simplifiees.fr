@@ -7,7 +7,7 @@ class DataSources::ReferentielController < DataSources::BaseController
 
   def search
     if query && params[:referentiel_id].present?
-      return render json: [] if referentiel&.autocomplete_configuration.blank?
+      return render json: [] if !referentiel&.autocomplete_ready?
 
       begin
         result = referentiel_service.call(query, dossier: @dossier)
