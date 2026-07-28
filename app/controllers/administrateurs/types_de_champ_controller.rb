@@ -60,7 +60,7 @@ module Administrateurs
 
         render :create
       else
-        render json: { errors: @champ.errors.full_messages }, status: 422
+        render json: { errors: type_de_champ.errors.full_messages }, status: 422
       end
     end
 
@@ -74,7 +74,7 @@ module Administrateurs
 
         render :create
       else
-        render json: { errors: @champ.errors.full_messages }, status: 422
+        render json: { errors: type_de_champ.errors.full_messages }, status: 422
       end
     end
 
