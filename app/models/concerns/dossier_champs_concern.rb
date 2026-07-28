@@ -402,7 +402,9 @@ module DossierChampsConcern
     check_valid_stream_on_write?(type_de_champ)
     check_valid_row_id_on_write?(type_de_champ, row_id)
 
-    # FIXME: Try to find the champ data in memory before querying the database
+    # Memory-first lookup: champ_data is (almost) always loaded here, and going
+    # through create_or_find_by for an existing champ costs a savepoint plus an
+    # insert/conflict roundtrip per call.
     data = champ_data.find { _1.stream == stream && _1.public_id == type_de_champ.public_id(row_id) }
 
     if data.nil?
