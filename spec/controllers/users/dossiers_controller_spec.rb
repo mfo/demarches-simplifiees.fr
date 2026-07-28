@@ -152,7 +152,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe 'identite with FranceConnect' do
-    let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
+    let(:procedure) { procedures.individual }
     let(:dossier) { create(:dossier, user:, procedure:) }
 
     before { sign_in(user) }
@@ -191,8 +191,8 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe 'identite turbo_stream persists the persona choice' do
-    let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
-    let(:dossier) { create(:dossier, user:, procedure:) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.brouillon }
     let(:now) { Time.zone.parse('01/01/2100') }
 
     before { sign_in(user) }
@@ -226,8 +226,8 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe 'update_identite' do
-    let(:procedure) { create(:procedure, :for_individual) }
-    let(:dossier) { create(:dossier, user: user, procedure: procedure) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.brouillon }
 
     subject { post :update_identite, params: { id: dossier.id, dossier: dossier_params } }
 
@@ -279,7 +279,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the identite cannot be updated by the user' do
-      let(:dossier) { create(:dossier, :with_individual, :en_instruction, user: user, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:dossier_params) { { individual_attributes: { gender: 'M', nom: 'Mouse', prenom: 'Mickey' } } }
       before { subject }
 
@@ -455,7 +455,7 @@ describe Users::DossiersController, type: :controller do
 
   describe '#siret' do
     before { sign_in(user) }
-    let!(:dossier) { create(:dossier, user: user) }
+    let!(:dossier) { create(:dossier, user: user, procedure: procedures.entreprise) }
 
     subject { get :siret, params: { id: dossier.id } }
 
@@ -463,7 +463,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#update_siret' do
-    let(:dossier) { create(:dossier, user: user) }
+    let(:dossier) { create(:dossier, user: user, procedure: procedures.entreprise) }
     let(:siret) { params_siret.delete(' ') }
     let(:siren) { siret[0..8] }
     let(:api_etablissement_status) { 200 }
@@ -473,6 +473,8 @@ describe Users::DossiersController, type: :controller do
 
     before do
       sign_in(user)
+      # the procedure factory sets a dummy token; the seeded procedure has none
+      procedures.entreprise.update!(api_entreprise_token: JWT.encode({ exp: 2.months.from_now.to_i }, nil, 'none'))
       stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
         .to_return(status: api_etablissement_status, body: api_etablissement_body)
       allow_any_instance_of(APIEntrepriseToken).to receive(:roles)
@@ -579,7 +581,7 @@ describe Users::DossiersController, type: :controller do
 
   describe '#brouillon' do
     before { sign_in(user) }
-    let!(:dossier) { create(:dossier, user: user, autorisation_donnees: true) }
+    let!(:dossier) { create(:dossier, user: user, autorisation_donnees: true, procedure: procedures.entreprise) }
 
     subject { get :brouillon, params: { id: dossier.id } }
 
@@ -602,14 +604,14 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier is en_construction' do
-      let!(:dossier) { create(:dossier, :en_construction, user: user, autorisation_donnees: true) }
+      let!(:dossier) { dossiers.en_construction }
       it { is_expected.to redirect_to(modifier_dossier_path(dossier)) }
     end
   end
 
   describe '#edit' do
     before { sign_in(user) }
-    let!(:dossier) { create(:dossier, user: user) }
+    let!(:dossier) { create(:dossier, user: user, procedure: procedures.entreprise) }
 
     it 'returns the edit page' do
       get :brouillon, params: { id: dossier.id }
@@ -2009,12 +2011,12 @@ describe Users::DossiersController, type: :controller do
       subject! { get(:show, params: { id: dossier.id }) }
 
       context 'when the dossier is a brouillon' do
-        let(:dossier) { create(:dossier, user: user) }
+        let(:dossier) { dossiers.brouillon }
         it { is_expected.to redirect_to(brouillon_dossier_path(dossier)) }
       end
 
       context 'when the dossier has been submitted' do
-        let(:dossier) { create(:dossier, :en_construction, user: user) }
+        let(:dossier) { dossiers.en_construction }
         it do
           expect(assigns(:dossier)).to eq(dossier)
           is_expected.to render_template(:show)
@@ -2037,7 +2039,7 @@ describe Users::DossiersController, type: :controller do
       subject! { get(:show, params: { id: dossier.id, format: :pdf }) }
 
       context 'when the dossier is a brouillon' do
-        let(:dossier) { create(:dossier, user: user) }
+        let(:dossier) { dossiers.brouillon }
         it { is_expected.to redirect_to(brouillon_dossier_path(dossier)) }
       end
 
@@ -2051,7 +2053,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#formulaire' do
-    let(:dossier) { create(:dossier, :en_construction, user: user) }
+    let(:dossier) { dossiers.en_construction }
 
     before do
       sign_in(user)
@@ -2068,7 +2070,8 @@ describe Users::DossiersController, type: :controller do
   describe "#create_commentaire" do
     let(:instructeur_with_instant_message) { create(:instructeur) }
     let(:instructeur_without_instant_message) { create(:instructeur) }
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.individual }
+    # fresh dossier (not the seeded one): saved_commentaire below picks the first commentaire
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure, user: user) }
     let(:saved_commentaire) { dossier.commentaires.first }
     let(:body) { "avant\napres" }
@@ -2241,7 +2244,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier has been submitted' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, user: user) }
+      let(:dossier) { dossiers.en_construction }
 
       before do
         allow(WeasyprintService).to receive(:generate_pdf).and_return("%PDF-1.4 fake")
@@ -2266,7 +2269,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier is still a draft' do
-      let(:dossier) { create(:dossier, :brouillon, user: user) }
+      let(:dossier) { dossiers.brouillon }
 
       it 'raises an error' do
         expect { subject }.to raise_error(ActionController::BadRequest)
@@ -2325,7 +2328,7 @@ describe Users::DossiersController, type: :controller do
       it { is_expected.to redirect_to(dossiers_path) }
 
       context "and the instruction has started" do
-        let(:dossier) { create(:dossier, :en_instruction, user: user, autorisation_donnees: true) }
+        let(:dossier) { dossiers.en_instruction }
 
         it_behaves_like "the dossier can not be deleted"
         it { is_expected.to redirect_to(dossiers_path) }
@@ -2334,7 +2337,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when dossier is not owned by signed in user' do
       let(:user2) { create(:user) }
-      let(:dossier) { create(:dossier, user: user2, autorisation_donnees: true) }
+      let(:dossier) { create(:dossier, user: user2, autorisation_donnees: true, procedure: procedures.individual) }
 
       it_behaves_like "the dossier can not be deleted"
       it { is_expected.to redirect_to(root_path) }
@@ -2358,7 +2361,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#set_accuse_lecture_agreement_at' do
-    let(:dossier) { create(:dossier, :en_instruction, :with_individual, user: user) }
+    let(:dossier) { dossiers.en_instruction }
 
     before { sign_in(user) }
 
@@ -2387,7 +2390,7 @@ describe Users::DossiersController, type: :controller do
     subject { patch :restore, params: { id: dossier.id } }
 
     context 'when the user want to restore his dossier' do
-      let!(:dossier) { create(:dossier, :accepte, :with_individual, en_construction_at: Time.zone.yesterday.beginning_of_day.utc, hidden_by_user_at: Time.zone.yesterday.beginning_of_day.utc, user: user, autorisation_donnees: true) }
+      let!(:dossier) { create(:dossier, :accepte, :with_individual, en_construction_at: Time.zone.yesterday.beginning_of_day.utc, hidden_by_user_at: Time.zone.yesterday.beginning_of_day.utc, user: user, autorisation_donnees: true, procedure: procedures.individual) }
 
       before { subject }
 
@@ -2398,7 +2401,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#new' do
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.entreprise }
     let(:procedure_id) { procedure.id }
     let(:params) { { procedure_id: procedure_id } }
 
@@ -2424,7 +2427,7 @@ describe Users::DossiersController, type: :controller do
           end
 
           context 'when procedure is for particulier' do
-            let(:procedure) { create(:procedure, :published, :for_individual) }
+            let(:procedure) { procedures.individual }
             it { is_expected.to redirect_to identite_dossier_path(id: Dossier.last) }
           end
 
@@ -2488,7 +2491,7 @@ describe Users::DossiersController, type: :controller do
     subject { controller.dossier_for_help }
 
     context 'when the id matches a dossier owned by the current user' do
-      let(:dossier) { create(:dossier, user:) }
+      let(:dossier) { dossiers.brouillon }
       let(:dossier_id) { dossier.id }
 
       it { is_expected.to eq dossier }
@@ -2522,7 +2525,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#extend_conservation' do
-    let(:procedure) { create(:procedure, duree_conservation_dossiers_dans_ds: 3) }
+    let(:procedure) { procedures.individual }
     let(:dossier) { create(:dossier, procedure:, user:) }
     subject { post :extend_conservation, params: { dossier_id: dossier.id } }
     context 'when user logged in' do

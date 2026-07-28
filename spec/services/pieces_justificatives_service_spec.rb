@@ -4,7 +4,7 @@ describe PiecesJustificativesService do
   describe 'pjs_for_champs' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, mandatory: false }, { type: :repetition, mandatory: false, children: [{ type: :piece_justificative, mandatory: false }] }]) }
     let(:dossier) { create(:dossier, procedure: procedure) }
-    let(:dossiers) { Dossier.where(id: dossier.id) }
+    let(:dossiers_scope) { Dossier.where(id: dossier.id) }
     let(:witness) { create(:dossier, procedure: procedure) }
     let(:export_template) { double('ExportTemplate') }
     let(:pj_service) { PiecesJustificativesService.new(user_profile:, export_template:) }
@@ -16,7 +16,7 @@ describe PiecesJustificativesService do
 
     before { attach_file_to_champ(pj_champ(witness)) }
 
-    subject { pj_service.send(:pjs_for_champs, dossiers) }
+    subject { pj_service.send(:pjs_for_champs, dossiers_scope) }
 
     context 'without any attachment' do
       it { expect(subject).to be_empty }
@@ -89,7 +89,7 @@ describe PiecesJustificativesService do
         expect(export_template).to receive(:attachment_path)
           .with(dossier, second_child_attachments.first, index: 0, row_index: 1, champ: second_champ)
 
-        DossierPreloader.new(dossiers).all
+        DossierPreloader.new(dossiers_scope).all
         count = 0
 
         callback = lambda { |*_args| count += 1 }
@@ -104,11 +104,11 @@ describe PiecesJustificativesService do
 
   describe '.liste_documents' do
     let(:dossier) { create(:dossier, procedure: procedure) }
-    let(:dossiers) { Dossier.where(id: dossier.id) }
+    let(:dossiers_scope) { Dossier.where(id: dossier.id) }
     let(:default_export_template) { build(:export_template, groupe_instructeur: procedure.defaut_groupe_instructeur) }
     let(:export_template) { nil }
     subject do
-      PiecesJustificativesService.new(user_profile:, export_template:).liste_documents(dossiers).map(&:first)
+      PiecesJustificativesService.new(user_profile:, export_template:).liste_documents(dossiers_scope).map(&:first)
     end
 
     context 'no acl' do
@@ -231,7 +231,7 @@ describe PiecesJustificativesService do
 
         it { expect(subject).to match_array(dossier.attestation.pdf.attachment) }
         it 'uses default name for dossier directory' do
-          expect(PiecesJustificativesService.new(user_profile:, export_template: nil).liste_documents(dossiers).map(&:second)[0].starts_with?("dossier-#{dossier.id}/pieces_justificatives")).to be true
+          expect(PiecesJustificativesService.new(user_profile:, export_template: nil).liste_documents(dossiers_scope).map(&:second)[0].starts_with?("dossier-#{dossier.id}/pieces_justificatives")).to be true
         end
 
         context 'with export_template' do
@@ -242,8 +242,7 @@ describe PiecesJustificativesService do
       end
 
       context 'with an etablissement' do
-        # the local `let(:dossiers)` shadows the seed accessor, so go through Oaken::Seeds
-        let(:dossier) { Oaken::Seeds.dossiers.avec_siret }
+        let(:dossier) { dossiers.avec_siret }
         let(:attestation_sociale) { dossier.etablissement.entreprise_attestation_sociale }
         let(:attestation_fiscale) { dossier.etablissement.entreprise_attestation_fiscale }
 
@@ -259,7 +258,7 @@ describe PiecesJustificativesService do
         it { expect(subject).to match_array([attestation_sociale.attachment, attestation_fiscale.attachment]) }
 
         it 'uses default name for dossier directory' do
-          expect(PiecesJustificativesService.new(user_profile:, export_template: nil).liste_documents(dossiers).map(&:second)[0].starts_with?("dossier-#{dossier.id}/pieces_justificatives")).to be true
+          expect(PiecesJustificativesService.new(user_profile:, export_template: nil).liste_documents(dossiers_scope).map(&:second)[0].starts_with?("dossier-#{dossier.id}/pieces_justificatives")).to be true
         end
 
         context 'with export_template' do
@@ -470,9 +469,9 @@ describe PiecesJustificativesService do
     let(:user_profile) { build(:administrateur) }
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :piece_justificative }] }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure: procedure) }
-    let(:dossiers) { Dossier.where(id: dossier.id) }
+    let(:dossiers_scope) { Dossier.where(id: dossier.id) }
     let(:export_template) { nil }
-    subject { PiecesJustificativesService.new(user_profile:, export_template:).generate_dossiers_export(dossiers) }
+    subject { PiecesJustificativesService.new(user_profile:, export_template:).generate_dossiers_export(dossiers_scope) }
 
     it "doesn't update dossier" do
       expect { subject }.not_to change { dossier.updated_at }
@@ -484,7 +483,7 @@ describe PiecesJustificativesService do
       let!(:not_confidentiel_avis) { create(:avis, :not_confidentiel, dossier: dossier) }
       let!(:expert_avis) { create(:avis, :confidentiel, dossier: dossier, expert: user_profile) }
 
-      subject { PiecesJustificativesService.new(user_profile:, export_template:).generate_dossiers_export(dossiers) }
+      subject { PiecesJustificativesService.new(user_profile:, export_template:).generate_dossiers_export(dossiers_scope) }
       it "includes avis not confidentiel as well as expert's avis" do
         expect_any_instance_of(Dossier).to receive(:avis_for_expert).with(user_profile).and_return([])
         subject
@@ -498,7 +497,7 @@ describe PiecesJustificativesService do
     context 'with export template' do
       let(:groupe_instructeur) { procedure.defaut_groupe_instructeur }
       let(:export_template) { create(:export_template, groupe_instructeur:, dossier_folder: ExportItem.default(prefix: 'DOSSIER')) }
-      subject { PiecesJustificativesService.new(user_profile:, export_template:).generate_dossiers_export(dossiers) }
+      subject { PiecesJustificativesService.new(user_profile:, export_template:).generate_dossiers_export(dossiers_scope) }
 
       it 'gives custom name to export pdf file' do
         expect(subject.first.second).to eq "DOSSIER-#{dossier.id}/export-#{dossier.id}.pdf"

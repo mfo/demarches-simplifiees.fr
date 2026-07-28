@@ -4,8 +4,10 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   render_views
   include Logic
 
+  before_all { seed "cases/routage" }
+
   let(:admin) { administrateurs.default }
-  let(:procedure) { create(:procedure, :routee, :published, :for_individual, administrateurs: [admin]) }
+  let(:procedure) { procedures.routee }
 
   let!(:gi_1_1) { procedure.defaut_groupe_instructeur }
   let!(:gi_1_2) { procedure.defaut_groupe_instructeur.other_groupe_instructeurs.first }

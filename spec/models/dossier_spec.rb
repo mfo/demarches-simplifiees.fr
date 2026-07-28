@@ -22,7 +22,7 @@ describe Dossier, type: :model do
     describe '.default_scope' do
       empty_seeds Dossier
 
-      let!(:dossier) { create(:dossier) }
+      let!(:dossier) { create(:dossier, procedure: procedures.individual) }
 
       subject { Dossier.all }
 
@@ -41,8 +41,8 @@ describe Dossier, type: :model do
     describe 'brouillons_recently_updated' do
       empty_seeds Dossier
 
-      let!(:dossier_en_brouillon) { create(:dossier) }
-      let!(:dossier_en_brouillon_2) { create(:dossier) }
+      let!(:dossier_en_brouillon) { create(:dossier, procedure: procedures.individual) }
+      let!(:dossier_en_brouillon_2) { create(:dossier, procedure: procedures.individual) }
 
       it { expect(Dossier.brouillons_recently_updated).to eq([dossier_en_brouillon_2, dossier_en_brouillon]) }
     end
