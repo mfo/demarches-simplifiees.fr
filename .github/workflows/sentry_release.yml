@@ -1,0 +1,150 @@
+# Associates the deployed commits with their Sentry release, so that a
+# `Fixes RAILS-XXX` line in a commit message resolves that Sentry issue on
+# deploy, and so that releases carry a commit range and a deploy marker.
+#
+# Sentry releases already exist when this runs — the deploy pipeline creates
+# them when it uploads the JS sourcemaps — but nothing ever attached commits to
+# them, which is why no issue was ever resolved automatically.
+#
+# Opt-in, so that instances running their own fork are never bothered by it:
+# the job only runs when the `SENTRY_ORG` repository *variable* is set
+# (Settings > Secrets and variables > Actions > Variables). Set `SENTRY_URL`
+# too when running a self-hosted Sentry; it defaults to https://sentry.io.
+#
+# Once opted in, a `SENTRY_AUTH_TOKEN` repository secret is required and the
+# GitHub repository must be linked in Sentry under Settings > Integrations >
+# GitHub.
+#
+# Use an Organization Token (Sentry > Settings > Developer Settings >
+# Organization Tokens). Its scope is fixed at `org:ci`, which is exactly what
+# every call below needs and nothing more — a leaked CI token then cannot read
+# issues or touch projects.
+name: Sentry release
+
+on:
+  release:
+    types: [published]
+  # Lets a failed run be retried, and past releases be backfilled, by hand.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to associate in Sentry
+        required: true
+
+concurrency:
+  group: sentry-release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  associate-commits:
+    name: Associate commits
+    runs-on: ubuntu-22.04
+    # Forks and instances that do not use Sentry, or use another organization,
+    # simply never run this job.
+    if: vars.SENTRY_ORG != ''
+
+    env:
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      # sentry-cli reads SENTRY_URL itself; the curl calls below build on it too.
+      SENTRY_URL: ${{ vars.SENTRY_URL || 'https://sentry.io' }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+    steps:
+      # Failing loudly beats skipping quietly: commits went unassociated for
+      # months precisely because nothing ever complained. Reaching this step at
+      # all means the instance opted in by setting SENTRY_ORG, so a missing
+      # token is a misconfiguration, not a fork that does not use Sentry.
+      - name: Check the Sentry token is configured
+        run: |
+          if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
+            echo "::error::SENTRY_AUTH_TOKEN secret is not set, but the" \
+                 "SENTRY_ORG variable is. Create an Organization Token under" \
+                 "Sentry > Settings > Developer Settings > Organization" \
+                 "Tokens, and add it to the repository secrets — or unset the" \
+                 "SENTRY_ORG variable to disable this workflow."
+            exit 1
+          fi
+
+      - name: Resolve the deployed commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # TAG reaches this step as an environment variable rather than a
+          # template expression, so it cannot break out of the script. It still
+          # lands in an API path below, hence the shape check.
+          case "$TAG" in
+            *..*|*/*|"") echo "::error::Refusing suspicious tag name: $TAG"; exit 1 ;;
+          esac
+          if ! printf '%s' "$TAG" | grep -qE '^[A-Za-z0-9._-]+$'; then
+            echo "::error::Refusing suspicious tag name: $TAG"
+            exit 1
+          fi
+
+          # Resolves annotated and lightweight tags alike, and needs no checkout.
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TAG" --jq '.sha')
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+          echo "SHORT_SHA=${sha:0:10}" >> "$GITHUB_ENV"
+          echo "Tag $TAG is $sha"
+
+      - name: Find the matching Sentry release
+        run: |
+          set -euo pipefail
+          # The deploy names releases "<date>-<time>+<10-char sha>". The time
+          # part is minted inside the deploy pipeline and cannot be derived
+          # here, so match on the suffix, which is this tag's commit.
+          version=$(curl -sSfL \
+            -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+            --get --data-urlencode "query=$SHORT_SHA" --data "per_page=100" \
+            "${SENTRY_URL%/}/api/0/organizations/$SENTRY_ORG/releases/" \
+            | jq -r --arg suffix "+$SHORT_SHA" \
+              '[.[] | select(.version | endswith($suffix))]
+               | sort_by(.dateCreated) | last | .version // empty')
+
+          if [ -z "$version" ]; then
+            echo "::error::No Sentry release ending in +$SHORT_SHA (tag $TAG, commit $SHA)." \
+                 "The deploy pipeline normally creates it when uploading sourcemaps."
+            exit 1
+          fi
+
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "Sentry release: $version"
+
+      - name: Check whether commits are already associated
+        run: |
+          set -euo pipefail
+          encoded=$(printf '%s' "$VERSION" | jq -sRr @uri)
+          count=$(curl -sSfL \
+            -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+            "${SENTRY_URL%/}/api/0/organizations/$SENTRY_ORG/releases/$encoded/commits/" \
+            | jq 'length')
+          echo "ASSOCIATED_COMMITS=$count" >> "$GITHUB_ENV"
+          echo "$count commit(s) already associated with $VERSION"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install sentry-cli
+        run: bun add --global '@sentry/cli@^2'
+
+      - name: Associate commits
+        # Redeploying a tag reuses its release, and re-running set-commits then
+        # would recompute the range against whatever shipped in between. The
+        # commit range only ever needs writing once.
+        if: env.ASSOCIATED_COMMITS == '0'
+        run: |
+          set -euo pipefail
+          # --commit pins the head commit explicitly and lets Sentry derive the
+          # range server-side, so this does not depend on the runner's git
+          # history the way --auto does.
+          sentry-cli releases set-commits "$VERSION" --commit "$GITHUB_REPOSITORY@$SHA"
+          sentry-cli releases finalize "$VERSION"
+
+      - name: Record the deploy
+        # Always: a release can have several deploys, and a redeploy or a
+        # rollback onto an already-associated release is exactly that.
+        run: sentry-cli releases deploys "$VERSION" new --env production
