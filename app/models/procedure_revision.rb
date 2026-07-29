@@ -63,7 +63,7 @@ class ProcedureRevision < ApplicationRecord
 
       transaction do
         # moving all the impacted tdc down
-        ProcedureRevisionTypeDeChamp.where(id: siblings, position: position..).update_all("position = position + 1")
+        ProcedureRevisionTypeDeChamp.where(id: siblings, position: position..).unscope(:eager_load).update_all("position = position + 1")
 
         # insertion of the new tdc
         revision_type_de_champs.create!(type_de_champ:, parent_id:, position:)
@@ -97,9 +97,9 @@ class ProcedureRevision < ApplicationRecord
 
     transaction do
       if position > coordinate.position
-        ProcedureRevisionTypeDeChamp.where(id: siblings, position: coordinate.position..position).update_all("position = position - 1")
+        ProcedureRevisionTypeDeChamp.where(id: siblings, position: coordinate.position..position).unscope(:eager_load).update_all("position = position - 1")
       else
-        ProcedureRevisionTypeDeChamp.where(id: siblings, position: position..coordinate.position).update_all("position = position + 1")
+        ProcedureRevisionTypeDeChamp.where(id: siblings, position: position..coordinate.position).unscope(:eager_load).update_all("position = position + 1")
       end
       coordinate.update_column(:position, position)
     end
@@ -115,10 +115,10 @@ class ProcedureRevision < ApplicationRecord
 
     transaction do
       if position > coordinate.position
-        ProcedureRevisionTypeDeChamp.where(id: siblings, position: coordinate.position..position).update_all("position = position - 1")
+        ProcedureRevisionTypeDeChamp.where(id: siblings, position: coordinate.position..position).unscope(:eager_load).update_all("position = position - 1")
         coordinate.update_column(:position, position)
       else
-        ProcedureRevisionTypeDeChamp.where(id: siblings, position: (position + 1)...coordinate.position).update_all("position = position + 1")
+        ProcedureRevisionTypeDeChamp.where(id: siblings, position: (position + 1)...coordinate.position).unscope(:eager_load).update_all("position = position + 1")
         coordinate.update_column(:position, position + 1)
       end
     end
@@ -142,7 +142,7 @@ class ProcedureRevision < ApplicationRecord
       children.each(&:destroy_if_orphan)
       tdc.destroy_if_orphan
 
-      ProcedureRevisionTypeDeChamp.where(id: coordinate.siblings, position: coordinate.position..).update_all("position = position - 1")
+      ProcedureRevisionTypeDeChamp.where(id: coordinate.siblings, position: coordinate.position..).unscope(:eager_load).update_all("position = position - 1")
     end
 
     revision_type_de_champs.reset
