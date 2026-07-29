@@ -10,7 +10,7 @@ fr:
         L’usager peut encore modifier son dossier.
     passe_en_instruction:
       default: |-
-        Cet email est envoyé à l’usager **lorsque l’instructeur passe en instruction** son dossier.
+        Cet email est envoyé à l’usager lorsque **l’instructeur passe en instruction son dossier**, ou à la clôture automatique de la démarche (si vous avez paramétré une date limite de dépôt des dossiers).
 
         L’usager ne peut plus modifier son dossier.
     accepte:
