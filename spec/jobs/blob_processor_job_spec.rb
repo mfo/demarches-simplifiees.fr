@@ -360,4 +360,28 @@ describe BlobProcessorJob, :external_deps, type: :job do
       end
     end
   end
+
+  # A file whose bytes are not the image its content type claims. vips can never decode
+  # it, so the mutations are skipped rather than retried, and the job still completes.
+  describe 'when the source is not an image vips can decode' do
+    let(:file) { fixture_file_upload('spec/fixtures/files/not-an-image.jpg', 'image/jpeg') }
+
+    before do
+      allow(ClamavService).to receive(:safe_file?).and_return(true)
+      allow(blob).to receive(:watermark_pending?).and_return(true)
+    end
+
+    it 'skips the mutations without retrying' do
+      expect {
+        expect { described_class.perform_now(blob) }.not_to raise_error
+      }.not_to have_enqueued_job(described_class)
+    end
+
+    it 'still records the virus scan and marks the blob processed' do
+      described_class.perform_now(blob)
+
+      expect(blob.virus_scanner.safe?).to be_truthy
+      expect(blob.reload.metadata["processed"]).to be true
+    end
+  end
 end

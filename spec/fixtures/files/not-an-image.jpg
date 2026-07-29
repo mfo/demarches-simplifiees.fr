@@ -1,0 +1,5 @@
+Ce fichier porte l'extension .jpg mais ne contient pas d'image.
+
+Les navigateurs déduisent le type MIME d'un fichier de son nom, donc un
+fichier comme celui-ci est envoyé en image/jpeg et n'échoue qu'au moment du
+traitement d'image, quand vips ne sait pas le décoder.

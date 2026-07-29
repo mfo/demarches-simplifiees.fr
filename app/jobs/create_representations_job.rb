@@ -2,6 +2,7 @@
 
 class CreateRepresentationsJob < ApplicationJob
   include Skylight::Helpers
+  include UnreadableVipsSourceConcern
 
   queue_as :ultra_low
 
@@ -35,5 +36,10 @@ class CreateRepresentationsJob < ApplicationJob
         att.variant(resize_to_limit: [1024, 768]).processed
       end
     end
+  rescue Vips::Error => error
+    # The blob is the same file for every attachment, so a source vips cannot decode
+    # yields no representation for any of them — and never will. Give up quietly rather
+    # than retrying three times and reporting.
+    raise if !unreadable_vips_source?(error)
   end
 end
