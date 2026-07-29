@@ -72,6 +72,7 @@ class TypeDeChamp < ApplicationRecord
     etudiant_boursier: FRANCE_CONNECT,
     aah: FRANCE_CONNECT,
     aeeh: FRANCE_CONNECT,
+    ars: FRANCE_CONNECT,
   }
 
   enum :type_champ, {
@@ -116,6 +117,7 @@ class TypeDeChamp < ApplicationRecord
     etudiant_boursier: 'etudiant_boursier',
     aah: 'aah',
     aeeh: 'aeeh',
+    ars: 'ars',
   }
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
@@ -139,6 +141,7 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:etudiant_boursier),
     type_champs.fetch(:aah),
     type_champs.fetch(:aeeh),
+    type_champs.fetch(:ars),
   ]
 
   PUBLIC_ONLY_TYPES = API_PART_FC_TDC

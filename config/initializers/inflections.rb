@@ -12,6 +12,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   #  inflect.uncountable %w( fish sheep )
   inflect.acronym 'AAH'
   inflect.acronym 'AEEH'
+  inflect.acronym 'ARS'
   inflect.acronym 'COJO'
   inflect.acronym 'API'
   inflect.acronym 'ASN1'
@@ -35,7 +36,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'revision_type_de_champ_public', 'revision_types_de_champ_public'
   inflect.irregular 'revision_type_de_champ_private', 'revision_types_de_champ_private'
   inflect.irregular 'assign_to', 'assign_tos'
-  inflect.uncountable(['avis', 'pays'])
+  inflect.uncountable(['avis', 'pays', 'ars'])
 end
 
 # From https://github.com/davidcelis/inflections
