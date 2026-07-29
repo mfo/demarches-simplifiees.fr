@@ -77,6 +77,11 @@ module EmailTemplateConcern
     validates :json_subject, tags: true, if: -> { json_subject.present? }
     validates :body, tags: true, if: -> { json_body.blank? }
     validates :subject, tags: true, if: -> { json_subject.blank? }
+
+    # In the transaction of the write itself: email_templates can never drift
+    # from the legacy tables, even for a few minutes.
+    after_save { EmailTemplateReplica.replicate(self) }
+    after_destroy { EmailTemplateReplica.delete_replica(self) }
   end
 
   class_methods do
