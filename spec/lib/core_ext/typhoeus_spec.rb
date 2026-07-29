@@ -2,7 +2,7 @@
 
 RSpec.describe Typhoeus::EasyFactory do
   describe 'proxy tracing headers' do
-    before { ActiveSupport::CurrentAttributes.reset_all }
+    before { Current.reset }
 
     let(:request) { Typhoeus::Request.new('http://example.com') }
 
