@@ -21,5 +21,6 @@ en:
   justificatif_labels:
     quotient_familial: "proof of family quotient"
     etudiant_boursier: "proof of student grant status"
-    aah: "proof of AAH beneficiary status"
-    aeeh: "proof of AEEH beneficiary status"
+    aah: "proof of adult disability allowance status"
+    aeeh: "proof of education allowance for disabled children status"
+    ars: "proof of back to school allowance status"

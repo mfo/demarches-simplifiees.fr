@@ -216,6 +216,9 @@ FactoryBot.define do
     factory :type_de_champ_aeeh do
       type_champ { TypeDeChamp.type_champs.fetch(:aeeh) }
     end
+    factory :type_de_champ_ars do
+      type_champ { TypeDeChamp.type_champs.fetch(:ars) }
+    end
     factory :type_de_champ_repetition do
       type_champ { TypeDeChamp.type_champs.fetch(:repetition) }
 

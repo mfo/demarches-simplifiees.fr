@@ -78,3 +78,4 @@ fr:
     etudiant_boursier: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut et de l’échelon boursier d’un étudiant connecté via FranceConnect"
     aah: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation adulte handicapé (AAH) de l’usager connecté via FranceConnect"
     aeeh: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation d’éducation de l’enfant handicapé (AEEH) de l’usager connecté via FranceConnect"
+    ars: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation de rentrée scolaire (ARS) de l’usager connecté via FranceConnect"
