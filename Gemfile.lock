@@ -983,7 +983,6 @@ DEPENDENCIES
   devise-two-factor
   discard
   dotenv-rails
-  drb
   dry-monads
   factory_bot
   faraday-jwt
