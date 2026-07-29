@@ -64,6 +64,11 @@ module TPS
     # Allow the error messages format to be customized
     config.active_model.i18n_customize_full_message = true
 
+    # Dump only the public schema: extra schemas in the local search_path
+    # (postgis_tiger_geocoder adds tiger, tiger_data and topology) would
+    # otherwise leak into db/schema.rb and prefix every table name.
+    config.active_record.dump_schemas = "public"
+
     # Set the queue name for the analysis jobs to 'active_storage_analysis'
     config.active_storage.queues.analysis = :default
     config.active_storage.queues.purge = :low
