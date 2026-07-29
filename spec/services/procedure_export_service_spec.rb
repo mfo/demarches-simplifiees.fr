@@ -131,6 +131,7 @@ describe ProcedureExportService do
             "etudiant_boursier",
             "aah",
             "aeeh",
+            "ars",
             "pre_rempli",
           ]
         end
