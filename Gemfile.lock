@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/CodeursenLiberte/siret_validator.git
-  revision: ba421bbf419205acbd8f3ae3c9750598ae251331
-  ref: ba421bb
-  specs:
-    siret_validator (0.1.0)
-      activemodel (>= 7.0, < 8.1)
-
-GIT
   remote: https://github.com/betagouv/rdv-service-public.git
   revision: f9de028ccd731c59bf6ca34cd3a13ff0f83e4d42
   branch: production
@@ -832,6 +824,8 @@ GEM
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
     simpleidn (0.2.3)
+    siret_validator (1.0.0)
+      activemodel (>= 7.0, < 9.0)
     skylight (7.1.1)
       activesupport (>= 7.2.0)
     smarter_csv (1.17.1)
@@ -1083,7 +1077,7 @@ DEPENDENCIES
   simple_xlsx_reader
   simplecov
   simplecov-cobertura
-  siret_validator!
+  siret_validator
   skylight
   smarter_csv
   spreadsheet_architect
