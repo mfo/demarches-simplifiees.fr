@@ -68,12 +68,12 @@ fr:
         declarative_with_state/accepte: Accepté
         api_entreprise_token: Jeton API Entreprise
         api_particulier_token: Jeton API Particulier
-        initiated_mail: Le modèle d’email « Accusé de réception »
-        received_mail: Le modèle d’email « Accusé de passage en instruction »
-        closed_mail: Le modèle d’email « Accusé d’acceptation »
-        refused_mail: Le modèle d’email « Accusé de refus »
-        without_continuation_mail: Le modèle d’email « Accusé de classement sans suite »
-        re_instructed_mail: Le modèle d’email « Réexamen du dossier »
+        email_depose: Le modèle d’email « Accusé de réception »
+        email_passe_en_instruction: Le modèle d’email « Accusé de passage en instruction »
+        email_accepte: Le modèle d’email « Accusé d’acceptation »
+        email_refuse: Le modèle d’email « Accusé de refus »
+        email_classe_sans_suite: Le modèle d’email « Accusé de classement sans suite »
+        email_repasse_en_instruction: Le modèle d’email « Réexamen du dossier »
         attestation_acceptation_template: Le modèle d’attestation d’acceptation
         attestation_refus_template: Le modèle d’attestation de refus
         draft_revision: Le formulaire
@@ -118,17 +118,17 @@ fr:
               referentiel_not_ready: "n’est pas configuré"
             attestation_template:
               format: "%{attribute} %{message}"
-            initiated_mail:
+            email_depose:
               format: "%{attribute} %{message}"
-            received_mail:
+            email_passe_en_instruction:
               format: "%{attribute} %{message}"
-            closed_mail:
+            email_accepte:
               format: "%{attribute} %{message}"
-            refused_mail:
+            email_refuse:
               format: "%{attribute} %{message}"
-            without_continuation_mail:
+            email_classe_sans_suite:
               format: "%{attribute} %{message}"
-            re_instructed_mail:
+            email_repasse_en_instruction:
               format: "%{attribute} %{message}"
             lien_dpo:
               invalid_uri_or_email: "Veuillez saisir une adresse électronique ou un lien"

@@ -16,7 +16,7 @@ RSpec.describe Procedure::Card::EmailsComponent, type: :component do
   end
 
   context 'when at least one email template is customized' do
-    let(:procedure) { create(:procedure).tap { create(:initiated_mail, procedure: it) } }
+    let(:procedure) { create(:procedure).tap { create(:email_depose, procedure: it) } }
 
     it 'shows the configured badge' do
       expect(page).to have_css('p.fr-badge.fr-badge--info', text: 'Configurés')

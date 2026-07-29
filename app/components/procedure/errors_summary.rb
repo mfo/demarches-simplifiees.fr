@@ -3,7 +3,7 @@
 class Procedure::ErrorsSummary < ApplicationComponent
   ErrorDescriptor = Data.define(:anchor, :label, :error_message)
 
-  MAIL_TEMPLATE_ATTRIBUTES = [:initiated_mail, :received_mail, :closed_mail, :refused_mail, :without_continuation_mail, :re_instructed_mail].freeze
+  EMAIL_TEMPLATE_ATTRIBUTES = [:email_depose, :email_passe_en_instruction, :email_accepte, :email_refuse, :email_classe_sans_suite, :email_repasse_en_instruction].freeze
 
   def initialize(procedure:, validation_context:)
     @procedure = procedure
@@ -50,14 +50,14 @@ class Procedure::ErrorsSummary < ApplicationComponent
       else
         edit_admin_procedure_attestation_template_v2_path(@procedure, attestation_kind: error.detail[:value].kind)
       end
-    when :initiated_mail, :received_mail, :closed_mail, :refused_mail, :without_continuation_mail, :re_instructed_mail
-      klass = "Mails::#{error.attribute.to_s.classify}".constantize
-      edit_admin_procedure_mail_template_path(@procedure, klass.const_get(:SLUG))
+    when *EMAIL_TEMPLATE_ATTRIBUTES
+      klass = "Emails::#{error.attribute.to_s.delete_prefix('email_').camelize}".constantize
+      edit_admin_procedure_email_template_path(@procedure, klass.const_get(:SLUG))
     end
   end
 
   def to_error_descriptors(error)
-    template_errors = error.attribute.in?(MAIL_TEMPLATE_ATTRIBUTES) ? error.detail[:value]&.errors : nil
+    template_errors = error.attribute.in?(EMAIL_TEMPLATE_ATTRIBUTES) ? error.detail[:value]&.errors : nil
     return [to_error_descriptor(error)] if template_errors.blank?
 
     anchor = error_correction_page(error)

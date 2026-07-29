@@ -43,7 +43,7 @@ class NotificationMailerPreview < ActionMailer::Preview
   end
 
   def dossier_with_image
-    Dossier.joins(procedure: [:initiated_mail]).where("initiated_mails.body like ?", "%<img%").order('RANDOM()').first
+    Dossier.joins(procedure: [:email_depose]).where("initiated_mails.body like ?", "%<img%").order('RANDOM()').first
   end
 
   def dossier_with_motivation

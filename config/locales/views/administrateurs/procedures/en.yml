@@ -137,8 +137,8 @@ en:
         accuse_lecture_hint: Enabled
         api_entreprise_token: API company token
         api_entreprise_token_hint: Configured token
-        mail_templates: Email configuration
-        mail_templates_hint: Content of the automatic emails
+        email_templates: Email configuration
+        email_templates_hint: Content of the automatic emails
         sva_svr: Silence is Worth Agreement or Rejection
         sva_svr_hint:
           sva: SVA enabled

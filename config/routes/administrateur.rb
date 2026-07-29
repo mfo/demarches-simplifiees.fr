@@ -108,7 +108,7 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
     post 'notify_after_closing' => 'procedures#notify_after_closing', as: :notify_after_closing
     get 'confirmation' => 'procedures#confirmation', as: :confirmation
     post 'transfer' => 'procedures#transfer', as: :transfer
-    resources :mail_templates, only: [:edit, :update, :show]
+    resources :email_templates, only: [:edit, :update, :show]
 
     resources :groupe_instructeurs, only: [:index, :show, :create, :update, :destroy] do
       patch 'update_state' => 'groupe_instructeurs#update_state'
@@ -182,12 +182,18 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
       end
     end
 
-    resources :mail_templates, only: [:index] do
+    resources :email_templates, only: [:index] do
       member do
         get 'preview'
         post 'preview'
       end
     end
+
+    # Kept for a while so the links admins have bookmarked, and those still on a
+    # page rendered before the deploy, keep working. Drop once the traffic dries up.
+    get 'mail_templates' => redirect('/admin/procedures/%{procedure_id}/email_templates')
+    get 'mail_templates/:id' => redirect { |params, _| "/admin/procedures/#{params[:procedure_id]}/email_templates/#{Emails::LEGACY_SLUGS.fetch(params[:id], params[:id])}/edit" }
+    get 'mail_templates/:id/edit' => redirect { |params, _| "/admin/procedures/#{params[:procedure_id]}/email_templates/#{Emails::LEGACY_SLUGS.fetch(params[:id], params[:id])}/edit" }
 
     resources :labels, controller: 'labels', except: [:show] do
       collection do

@@ -61,12 +61,12 @@ en:
         declarative_with_state/accepte: Accepted
         api_entreprise_token: Token API Entreprise
         api_particulier_token: Token API Particulier
-        initiated_mail: The “Acknowledgement of receipt” email template
-        received_mail: The “Acknowledgement of processing” email template
-        closed_mail: The “Acceptance” email template
-        refused_mail: The “Refusal” email template
-        without_continuation_mail: The “Closed with no further action” email template
-        re_instructed_mail: The “File re-examination” email template
+        email_depose: The “Acknowledgement of receipt” email template
+        email_passe_en_instruction: The “Acknowledgement of processing” email template
+        email_accepte: The “Acceptance” email template
+        email_refuse: The “Refusal” email template
+        email_classe_sans_suite: The “Closed with no further action” email template
+        email_repasse_en_instruction: The “File re-examination” email template
         attestation_acceptation_template: Attestation template acceptation
         attestation_refus_template: Attestation template refused
         draft_revision: The form
@@ -111,17 +111,17 @@ en:
               referentiel_not_ready: "is not configured"
             attestation_template:
               format: "%{attribute} %{message}"
-            initiated_mail:
+            email_depose:
               format: "%{attribute} %{message}"
-            received_mail:
+            email_passe_en_instruction:
               format: "%{attribute} %{message}"
-            closed_mail:
+            email_accepte:
               format: "%{attribute} %{message}"
-            refused_mail:
+            email_refuse:
               format: "%{attribute} %{message}"
-            without_continuation_mail:
+            email_classe_sans_suite:
               format: "%{attribute} %{message}"
-            re_instructed_mail:
+            email_repasse_en_instruction:
               format: "%{attribute} %{message}"
             lien_dpo:
               invalid_uri_or_email: "Fill in with an email or a link"

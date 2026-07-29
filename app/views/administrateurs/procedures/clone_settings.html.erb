@@ -173,16 +173,16 @@
           </div>
         <%- end -%>
 
-        <%- if @updated_mail_templates -%>
+        <%- if @updated_email_templates -%>
           <div class="fr-fieldset__element">
             <div class="fr-checkbox-group">
-              <%= fco.check_box 'mail_templates', checked: true %>
+              <%= fco.check_box "email_templates", checked: true %>
 
-              <%= fco.label 'mail_templates', class: "fr-label" do %>
-                <%= t('administrateurs.procedures.clone.mail_templates') %>
+              <%= fco.label "email_templates", class: "fr-label" do %>
+                <%= t('administrateurs.procedures.clone.email_templates') %>
 
                 <div class="fr-hint-text">
-                  <%= t('administrateurs.procedures.clone.mail_templates_hint') %>
+                  <%= t('administrateurs.procedures.clone.email_templates_hint') %>
                 </div>
               <% end %>
             </div>

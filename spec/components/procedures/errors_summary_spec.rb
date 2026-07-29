@@ -87,12 +87,12 @@ describe Procedure::ErrorsSummary, type: :component do
     include Logic
 
     let(:validation_context) { :publication }
-    let(:procedure) { create(:procedure, attestation_acceptation_template:, initiated_mail:) }
+    let(:procedure) { create(:procedure, attestation_acceptation_template:, email_depose:) }
     let(:attestation_acceptation_template) { build(:attestation_template, :v2) }
-    let(:initiated_mail) { build(:initiated_mail) }
+    let(:email_depose) { build(:email_depose) }
 
     before do
-      procedure.initiated_mail.update_column(:body, '--invalidtag--')
+      procedure.email_depose.update_column(:body, '--invalidtag--')
       procedure.draft_revision.update(ineligibilite_enabled: true, ineligibilite_rules: ds_eq(constant(true), constant(1)), ineligibilite_message: 'ko')
 
       procedure.attestation_acceptation_template.update_column(:json_body, { type: :doc, content: [{ type: :mention, attrs: { id: "tdc123", label: "oops" } }] })
@@ -102,7 +102,7 @@ describe Procedure::ErrorsSummary, type: :component do
     it 'render error nicely' do
       expect(page).to have_selector("a", text: "Les règles d’inéligibilité")
       expect(page).to have_selector("a[href*='v2']", text: "Le modèle d’attestation")
-      expect(page).to have_selector("a[href*='mail_templates']", text: "Le modèle d’email « Accusé de réception »")
+      expect(page).to have_selector("a[href*='email_templates']", text: "Le modèle d’email « Accusé de réception »")
       expect(page).to have_text('contient la balise "invalidtag" qui n’existe pas')
       expect(page).to have_text("n’est pas valide", count: 1)
     end
@@ -110,15 +110,15 @@ describe Procedure::ErrorsSummary, type: :component do
 
   describe 'render detailed error for mail template with tiptap body' do
     let(:validation_context) { :publication }
-    let(:procedure) { create(:procedure, initiated_mail: build(:initiated_mail)) }
+    let(:procedure) { create(:procedure, email_depose: build(:email_depose)) }
 
     before do
-      procedure.initiated_mail.update_column(:json_body, { type: :doc, content: [{ type: :paragraph, content: [{ type: :mention, attrs: { id: "tdc999999", label: "Nom du projet" } }] }] })
+      procedure.email_depose.update_column(:json_body, { type: :doc, content: [{ type: :paragraph, content: [{ type: :mention, attrs: { id: "tdc999999", label: "Nom du projet" } }] }] })
       subject
     end
 
     it 'renders the underlying tag error with a link to the template editor' do
-      expect(page).to have_selector("a[href*='mail_templates/initiated_mail']", text: "Le modèle d’email « Accusé de réception »")
+      expect(page).to have_selector("a[href*='email_templates/depose']", text: "Le modèle d’email « Accusé de réception »")
       expect(page).to have_text('contient la balise "Nom du projet" qui a été supprimée dans les modifications en cours du formulaire')
       expect(page).to have_no_text(/translation missing/i)
       expect(page).to have_no_text("n’est pas valide")

@@ -42,7 +42,7 @@ describe Manager::ProceduresController, type: :controller do
   describe '#show' do
     render_views
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }] }]) }
+    let(:procedure) { create(:procedure, :published, email_depose: build(:email_depose), types_de_champ_public: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }] }]) }
 
     before do
       get :show, params: { id: procedure.id }
@@ -50,6 +50,7 @@ describe Manager::ProceduresController, type: :controller do
 
     it do
       expect(response.body).to include('sub type de champ')
+      expect(response.body).to include('bonne réception de votre dossier')
       expect(response.body).to include('Hidden At As Template')
       expect(response.body).to include('Pro Connect Restriction')
       expect(response.body).to include('Pro Connect For Moral Procedure')

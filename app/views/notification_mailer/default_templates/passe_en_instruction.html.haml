@@ -1,0 +1,11 @@
+%p
+  = t('notification_mailer.default_templates.greeting')
+
+%p
+  = t('notification_mailer.default_templates.your_file_number', id: '--numéro du dossier--')
+  = t('notification_mailer.default_templates.passe_en_instruction.received')
+  = succeed '.' do
+    %strong= t('notification_mailer.default_templates.passe_en_instruction.processed')
+  = t('notification_mailer.default_templates.passe_en_instruction.examination')
+
+= render partial: "notification_mailer/default_templates/signature"

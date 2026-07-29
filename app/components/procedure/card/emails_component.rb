@@ -19,22 +19,22 @@ class Procedure::Card::EmailsComponent < ApplicationComponent
 
   def error_messages
     [
-      @procedure.errors.messages_for(:initiated_mail),
-      @procedure.errors.messages_for(:received_mail),
-      @procedure.errors.messages_for(:closed_mail),
-      @procedure.errors.messages_for(:refused_mail),
-      @procedure.errors.messages_for(:without_continuation_mail),
+      @procedure.errors.messages_for(:email_depose),
+      @procedure.errors.messages_for(:email_passe_en_instruction),
+      @procedure.errors.messages_for(:email_accepte),
+      @procedure.errors.messages_for(:email_refuse),
+      @procedure.errors.messages_for(:email_classe_sans_suite),
     ].flatten.to_sentence
   end
 
   def customized_count
     [
-      @procedure.initiated_mail,
-      @procedure.received_mail,
-      @procedure.closed_mail,
-      @procedure.refused_mail,
-      @procedure.without_continuation_mail,
-      @procedure.re_instructed_mail,
+      @procedure.email_depose,
+      @procedure.email_passe_en_instruction,
+      @procedure.email_accepte,
+      @procedure.email_refuse,
+      @procedure.email_classe_sans_suite,
+      @procedure.email_repasse_en_instruction,
     ].map { |mail| mail&.updated_at }.compact.size
   end
 end

@@ -1,27 +1,27 @@
 ---
 fr:
   descriptions:
-    initiated_mail:
+    depose:
       default: |-
         Cet email est envoyé à l’usager **après qu’il a déposé son dossier**.
 
         Une attestation de dépôt est jointe à cet email.
 
         L’usager peut encore modifier son dossier.
-    received_mail:
+    passe_en_instruction:
       default: |-
         Cet email est envoyé à l’usager **lorsque l’instructeur passe en instruction** son dossier.
 
         L’usager ne peut plus modifier son dossier.
-    closed_mail:
+    accepte:
       default: |-
         Cet email est envoyé à l’usager **lorsque l’instructeur accepte** son dossier.
-    refused_mail:
+    refuse:
       default: |-
         Cet email est envoyé à l’usager **lorsque l’instructeur refuse** son dossier.
-    without_continuation:
+    classe_sans_suite:
       default: |-
         Cet email est envoyé à l’usager **lorsque l’instructeur classe sans suite** son dossier.
-    re_instructed_mail:
+    repasse_en_instruction:
       default: |-
         Cet email est envoyé à l’usager **lorsque l’instructeur repasse en instruction** son dossier, **après qu’une décision a déjà été rendue**.
