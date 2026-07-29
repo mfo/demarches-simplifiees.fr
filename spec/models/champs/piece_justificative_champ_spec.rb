@@ -9,6 +9,11 @@ describe Champs::PieceJustificativeChamp do
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { dossier.root_champs_public.first }
 
+  # 1×1 24-bit bitmap
+  let(:bmp_bytes) do
+    ["BM", 58, 0, 54, 40, 1, 1, 1, 24, 0, 4, 0, 0, 0, 0, 0].pack("a2 V V V V V V v v V V V V V V V")
+  end
+
   describe "validations" do
     subject { champ }
 
@@ -27,6 +32,12 @@ describe Champs::PieceJustificativeChamp do
 
         expect(champ.valid?(:champ_value)).to be false
         expect(champ.errors[:piece_justificative_file]).to be_present
+      end
+
+      it "rejects a bitmap image" do
+        champ.piece_justificative_file = [{ io: StringIO.new(bmp_bytes), filename: 'image.bmp', content_type: 'image/bmp' }]
+
+        expect(dossier.champs_public_valid?).to be false
       end
 
       it "accepts a markdown file declared as the legacy text/x-markdown content type" do
