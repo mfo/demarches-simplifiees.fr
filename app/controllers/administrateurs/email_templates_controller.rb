@@ -28,7 +28,7 @@ module Administrateurs
 
       if email_template.update(email_template_params(email_template))
         flash.notice = "Email mis à jour"
-        redirect_to edit_admin_procedure_email_template_path(email_template.procedure_id, params[:id])
+        redirect_to edit_admin_procedure_email_template_path(email_template.procedure_id, email_template.class.const_get(:SLUG))
       else
         flash.now.alert = "L’email contient des erreurs et n’a pas pu être enregistré. Veuillez les corriger"
         @email_template = email_template
@@ -85,7 +85,12 @@ module Administrateurs
     end
 
     def find_email_template_by_slug(slug)
-      @procedure.email_templates.find { |template| template.class.const_get(:SLUG) == slug }
+      # An editor rendered before the rename posts the legacy slug, and its route
+      # is served here rather than redirected (see config/routes/administrateur.rb).
+      slug = Emails::LEGACY_SLUGS.fetch(slug, slug)
+
+      @procedure.email_templates.find { |template| template.class.const_get(:SLUG) == slug } ||
+        raise(ActiveRecord::RecordNotFound, "unknown email template slug: #{slug.inspect}")
     end
 
     def rendered_email_body(email_template, dossier)
@@ -93,12 +98,18 @@ module Administrateurs
     end
 
     def email_template_params(email_template)
-      params.require(email_template.model_name.param_key).permit(:tiptap_body, :tiptap_subject)
+      params.require(submitted_param_key(email_template)).permit(:tiptap_body, :tiptap_subject)
     end
 
     def preview_params(email_template)
+      params.fetch(submitted_param_key(email_template), {}).permit(:tiptap_body, :tiptap_subject)
+    end
+
+    def submitted_param_key(email_template)
       key = email_template.model_name.param_key
-      params.fetch(key, {}).permit(:tiptap_body, :tiptap_subject)
+      return key if params.key?(key)
+
+      Emails::LEGACY_PARAM_KEYS.fetch(email_template.class.const_get(:SLUG), key)
     end
   end
 end

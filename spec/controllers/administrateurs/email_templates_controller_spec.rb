@@ -64,6 +64,14 @@ describe Administrateurs::EmailTemplatesController, type: :controller do
       expect(mail.json_subject).to eq(JSON.parse(json_subject))
     end
 
+    it 'accepte le param_key d’un formulaire rendu avant le renommage' do
+      put :update, params: {
+        procedure_id: procedure.id, id: 'passe_en_instruction',
+        mails_received_mail: { tiptap_body: json_body, tiptap_subject: json_subject },
+      }
+      expect(procedure.reload.email_passe_en_instruction.json_body).to eq(JSON.parse(json_body))
+    end
+
     context 'quand le contenu référence un tag invalide' do
       let(:invalid_subject) do
         {

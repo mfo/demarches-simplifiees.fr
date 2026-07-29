@@ -895,6 +895,22 @@ describe Administrateurs::ProceduresController, type: :controller do
         end
       end
 
+      context 'when the form was rendered before the rename' do
+        let(:params) do
+          {
+            procedure_id: procedure.id,
+            procedure: {
+              libelle: procedure.libelle,
+              clone_options: { mail_templates: '1' },
+            },
+          }
+        end
+
+        it 'still clones the email templates' do
+          expect(Procedure.last.email_depose).not_to be_nil
+        end
+      end
+
       context 'when the admin unchecks all options' do
         let(:params) do
           {

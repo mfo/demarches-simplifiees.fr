@@ -699,6 +699,7 @@ module Administrateurs
         :accuse_lecture,
         :api_entreprise_token,
         :email_templates,
+        :mail_templates,
         :sva_svr,
         :avis,
         :labels
@@ -717,7 +718,8 @@ module Administrateurs
         clone_dossier_submitted_message: options[:dossier_submitted_message] == '1',
         clone_accuse_lecture: options[:accuse_lecture] == '1',
         clone_api_entreprise_token: options[:api_entreprise_token] == '1',
-        clone_email_templates: options[:email_templates] == '1',
+        # mail_templates: the checkbox name of a form rendered before the rename
+        clone_email_templates: [options[:email_templates], options[:mail_templates]].include?('1'),
         clone_sva_svr: options[:sva_svr] == '1',
         clone_avis: options[:avis] == '1',
         clone_labels: options[:labels] == '1',

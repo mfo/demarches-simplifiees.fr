@@ -33,7 +33,7 @@
         <%= link_to(t(".enable_attestation"), edit_admin_procedure_attestation_template_v2_path(procedure, attestation_kind: :refus)) %>
       <% end -%>
       <%= t(".or_word") %>
-      <%= link_to(t(".remove_tag"), edit_admin_procedure_email_template_path(procedure, local_assigns[:mail_type])) %>
+      <%= link_to(t(".remove_tag"), edit_admin_procedure_email_template_path(procedure, email_slug)) %>
       <code style="white-space: pre-wrap;"><%= t(".attestation_tag") %></code>
       <%= t(".from_word") %>
       <%= t("views.administrateurs.mail_#{mail_type}") %>

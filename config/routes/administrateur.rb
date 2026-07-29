@@ -189,11 +189,28 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
       end
     end
 
-    # Kept for a while so the links admins have bookmarked, and those still on a
-    # page rendered before the deploy, keep working. Drop once the traffic dries up.
+    # Kept for a while so an admin who had the editor open when the deploy landed
+    # can still work, and bookmarked links keep working. Drop the block with
+    # Emails::LEGACY_SLUGS.
+    legacy_email_template = -> (suffix) do
+      -> (params, _) { "/admin/procedures/#{params[:procedure_id]}/email_templates/#{Emails::LEGACY_SLUGS.fetch(params[:id])}#{suffix}" }
+    end
+    # The block form of redirect interpolates raw, unlike the string form: without
+    # these constraints a procedure_id holding a space or a CRLF would reach
+    # URI.parse and raise.
+    legacy_ids = { procedure_id: /\d+/, id: Regexp.union(Emails::LEGACY_SLUGS.keys) }
+
     get 'mail_templates' => redirect('/admin/procedures/%{procedure_id}/email_templates')
-    get 'mail_templates/:id' => redirect { |params, _| "/admin/procedures/#{params[:procedure_id]}/email_templates/#{Emails::LEGACY_SLUGS.fetch(params[:id], params[:id])}/edit" }
-    get 'mail_templates/:id/edit' => redirect { |params, _| "/admin/procedures/#{params[:procedure_id]}/email_templates/#{Emails::LEGACY_SLUGS.fetch(params[:id], params[:id])}/edit" }
+    get 'mail_templates/:id' => redirect(legacy_email_template.call('/edit')), constraints: legacy_ids
+    get 'mail_templates/:id/edit' => redirect(legacy_email_template.call('/edit')), constraints: legacy_ids
+    get 'mail_templates/:id/preview' => redirect(legacy_email_template.call('/preview')), constraints: legacy_ids
+
+    # What that editor posts is served in place rather than redirected: the CSRF
+    # token of a form is an HMAC of the path it was rendered for, so a redirect —
+    # even a 308, which does replay the method and the body — would arrive on the
+    # new path and be rejected with a 403, losing what the admin had typed.
+    match 'mail_templates/:id' => 'email_templates#update', via: [:put, :patch], constraints: legacy_ids
+    post 'mail_templates/:id/preview' => 'email_templates#preview', constraints: legacy_ids
 
     resources :labels, controller: 'labels', except: [:show] do
       collection do

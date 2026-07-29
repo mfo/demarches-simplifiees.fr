@@ -24,6 +24,7 @@ class Procedure::Card::EmailsComponent < ApplicationComponent
       @procedure.errors.messages_for(:email_accepte),
       @procedure.errors.messages_for(:email_refuse),
       @procedure.errors.messages_for(:email_classe_sans_suite),
+      @procedure.errors.messages_for(:email_repasse_en_instruction),
     ].flatten.to_sentence
   end
 
