@@ -658,30 +658,30 @@ en:
             one: "1 file"
             other: "%{count} files"
         transfer_requests:
-          title: "Transfer requests"
+          title: "Transfer offers"
           count:
             one: "1 file pending transfer"
             other: "%{count} files pending transfer"
-          received_from: "Transfer request sent by %{email}"
+          received_from: "Transfer offer sent by %{email}"
           accept: "Accept"
           refuse: "Refuse"
-          refuse_confirm: "Are you sure you want to refuse this transfer request?"
+          refuse_confirm: "Are you sure you want to refuse this transfer offer?"
           close: "Close"
         transfers:
           sender_from_support: Technical support
-          sender_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">A transfer request from technical support is pending on file Nº %{id} to %{email}</h4>'
-          revoke_html: 'Revoke this <span class="fr-sr-only">transfer</span> request'
-          sender_title: "Transfer request in progress"
-          sender_body: "You sent a transfer request for this file to %{email}."
-          sender_body_from_support: "The support team initiated a transfer request for this file to %{email}."
-          revoke: "Revoke this request"
+          sender_pending_from_support_html: '<h4 class="card-title fr-mb-1v">A transfer offer from technical support is pending on file Nº %{id} to %{email}</h4>'
+          cancel_html: 'Cancel this <span class="fr-sr-only">transfer</span> offer'
+          sender_title: "Transfer offer in progress"
+          sender_body: "You sent a transfer offer for this file to %{email}."
+          sender_body_from_support: "The support team initiated a transfer offer for this file to %{email}."
+          revoke: "Cancel this offer"
         dossier_action:
           edit_dossier: "Edit the file"
           start_other_dossier: "Start another empty file"
           clone: "Duplicate the file"
           delete_dossier: "Move file to trash"
           delete_dossier_confirm: "Do you really want to move this file to the trash?"
-          delete_dossier_with_transfer_confirm: "If you continue, you will delete this file, the information it contains and its transfer request to %{email}. Any deletion will result in the cancellation of the current procedure.\n\nConfirm deletion?"
+          delete_dossier_with_transfer_confirm: "If you continue, you will delete this file, the information it contains and its transfer offer to %{email}. Any deletion will result in the cancellation of the current procedure.\n\nConfirm deletion?"
           transfer_dossier: "Transfer the file"
           edit_draft: "Keep filling"
           restore: "Restore"
@@ -990,8 +990,8 @@ en:
       one: '<span class="fr-sr-only">in the </span>trash'
       other: '<span class="fr-sr-only">in the </span>trash'
     dossiers_transferes:
-      one: transfer request
-      other: transfer requests
+      one: transfer offer
+      other: transfer offers
     dossiers_close_to_expiration:
       one: expiring
       other: expiring

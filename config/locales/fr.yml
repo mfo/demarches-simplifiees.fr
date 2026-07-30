@@ -666,7 +666,7 @@ fr:
           clone: "Dupliquer le dossier"
           delete_dossier: "Mettre à la corbeille"
           delete_dossier_confirm: "Voulez-vous vraiment mettre à la corbeille ce dossier ?"
-          delete_dossier_with_transfer_confirm: "En continuant, vous allez supprimer ce dossier, les informations qu’il contient ainsi que sa demande de transfert à %{email}. Toute suppression entraîne l’annulation de la démarche en cours.\n\nConfirmer la suppression ?"
+          delete_dossier_with_transfer_confirm: "En continuant, vous allez supprimer ce dossier, les informations qu’il contient ainsi que sa proposition de transfert à %{email}. Toute suppression entraîne l’annulation de la démarche en cours.\n\nConfirmer la suppression ?"
           transfer_dossier: "Transférer le dossier"
           edit_draft: "Continuer à remplir"
           restore: "Restaurer"
@@ -681,23 +681,23 @@ fr:
             one: "1 dossier"
             other: "%{count} dossiers"
         transfer_requests:
-          title: "Demandes de transfert"
+          title: "Propositions de transfert"
           count:
             one: "1 dossier en attente de transfert"
             other: "%{count} dossiers en attente de transfert"
-          received_from: "Demande de transfert envoyée par %{email}"
+          received_from: "Proposition de transfert envoyée par %{email}"
           accept: "Accepter"
           refuse: "Refuser"
-          refuse_confirm: "Êtes-vous sûr de vouloir refuser cette demande de transfert ?"
+          refuse_confirm: "Êtes-vous sûr de vouloir refuser cette proposition de transfert ?"
           close: "Fermer"
         transfers:
           sender_from_support: Le support technique
-          sender_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">Une demande de transfert par le support technique est en cours sur le dossier n° %{id} pour %{email}</h4>'
-          revoke_html: 'Révoquer cette demande <span class="fr-sr-only">de transfert</span>'
-          sender_title: "Demande de transfert en cours"
-          sender_body: "Vous avez envoyé une demande de transfert de ce dossier à %{email}."
-          sender_body_from_support: "L’équipe support a initié une demande de transfert de ce dossier vers %{email}."
-          revoke: "Révoquer cette demande"
+          sender_pending_from_support_html: '<h4 class="card-title fr-mb-1v">Une proposition de transfert par le support technique est en cours sur le dossier n° %{id} pour %{email}</h4>'
+          cancel_html: 'Annuler cette proposition <span class="fr-sr-only">de transfert</span>'
+          sender_title: "Proposition de transfert en cours"
+          sender_body: "Vous avez envoyé une proposition de transfert de ce dossier à %{email}."
+          sender_body_from_support: "L’équipe support a initié une proposition de transfert de ce dossier vers %{email}."
+          revoke: "Annuler cette proposition"
         personnalisation:
           title: Personnaliser la liste des dossiers
           back: Mes dossiers
@@ -1004,8 +1004,8 @@ fr:
       one:  supprimé définitivement
       other: supprimés définitivement
     dossiers_transferes:
-      one: demande de transfert
-      other: demandes de transfert
+      one: proposition de transfert
+      other: propositions de transfert
     dossiers_close_to_expiration:
       one: expirant
       other: expirants

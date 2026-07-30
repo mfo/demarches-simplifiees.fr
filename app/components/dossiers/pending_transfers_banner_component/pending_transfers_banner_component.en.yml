@@ -1,6 +1,6 @@
 ---
 en:
-  title: "Transfer requests"
+  title: "Transfer offers"
   link:
-    one: "See the pending request (%{count})"
-    other: "See pending requests (%{count})"
+    one: "See the pending offer (%{count})"
+    other: "See pending offers (%{count})"

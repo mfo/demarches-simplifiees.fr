@@ -1,6 +1,6 @@
 ---
 fr:
-  title: "Demandes de transfert de dossier"
+  title: "Propositions de transfert de dossier"
   link:
-    one: "Voir la demande en attente (%{count})"
-    other: "Voir les demandes en attente (%{count})"
+    one: "Voir la proposition en attente (%{count})"
+    other: "Voir les propositions en attente (%{count})"
