@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe "libvips untrusted loaders" do
+describe "libvips untrusted loaders", :external_deps do
   let(:path) { Rails.root.join("tmp/#{SecureRandom.hex}") }
   let(:unfuzzed_loader_bytes) { "MATLAB 5.0 MAT-file#{' ' * 512}" }
   let(:accepted_image_bytes) { Rails.root.join("spec/fixtures/files/logo_test_procedure.png").binread }
@@ -31,7 +31,9 @@ describe "libvips untrusted loaders" do
 
   # From 8.13 on, libvips enforces this itself, which also covers any call site we
   # forgot to route through TrustedVipsLoader.
-  describe "libvips-level blocking", if: Vips.respond_to?(:block_untrusted) do
+  # Evaluated while this file loads, which also happens in the CI job that has no
+  # libvips at all — hence the defined? guard alongside the version check.
+  describe "libvips-level blocking", if: defined?(Vips) && Vips.respond_to?(:block_untrusted) do
     it "refuses a file whose leading bytes select an unfuzzed loader" do
       path.binwrite(unfuzzed_loader_bytes)
 

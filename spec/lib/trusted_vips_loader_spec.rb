@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe TrustedVipsLoader do
+describe TrustedVipsLoader, :external_deps do
   let(:path) { Rails.root.join("tmp/#{SecureRandom.hex}") }
 
   after { FileUtils.rm_f(path) }
