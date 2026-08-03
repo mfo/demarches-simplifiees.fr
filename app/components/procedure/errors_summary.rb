@@ -3,6 +3,8 @@
 class Procedure::ErrorsSummary < ApplicationComponent
   ErrorDescriptor = Data.define(:anchor, :label, :error_message)
 
+  MAIL_TEMPLATE_ATTRIBUTES = [:initiated_mail, :received_mail, :closed_mail, :refused_mail, :without_continuation_mail, :re_instructed_mail].freeze
+
   def initialize(procedure:, validation_context:)
     @procedure = procedure
     @validation_context = validation_context
@@ -29,7 +31,7 @@ class Procedure::ErrorsSummary < ApplicationComponent
   end
 
   def errors
-    @procedure.errors.map { to_error_descriptor(_1) }
+    @procedure.errors.flat_map { to_error_descriptors(_1) }
   end
 
   def error_correction_page(error)
@@ -52,6 +54,15 @@ class Procedure::ErrorsSummary < ApplicationComponent
       klass = "Mails::#{error.attribute.to_s.classify}".constantize
       edit_admin_procedure_mail_template_path(@procedure, klass.const_get(:SLUG))
     end
+  end
+
+  def to_error_descriptors(error)
+    template_errors = error.attribute.in?(MAIL_TEMPLATE_ATTRIBUTES) ? error.detail[:value]&.errors : nil
+    return [to_error_descriptor(error)] if template_errors.blank?
+
+    anchor = error_correction_page(error)
+    label = error.base.class.human_attribute_name(error.attribute)
+    template_errors.map { ErrorDescriptor.new(anchor, label, _1.full_message) }
   end
 
   def to_error_descriptor(error)
