@@ -5,7 +5,6 @@
 
       %h1.fr-h2= t(".title")
       %p= t(".detail", number: @dossier.id,
-        state: dossier_display_state(@dossier.state, lower: true),
         demandeur: demandeur_dossier(@dossier),
         created_at: try_format_date(@dossier.created_at))
 

@@ -26,6 +26,20 @@ describe 'Transfer dossier flow', js: true do
     end
   end
 
+  describe 'transfer screen' do
+    let(:procedure) { create(:procedure, :published, :accuse_lecture) }
+    let!(:dossier) { create(:dossier, :accepte, procedure:, user: expediteur) }
+
+    before { login_as expediteur, scope: :user }
+
+    it 'does not reveal the decision while the reading acknowledgment is pending' do
+      visit transferer_dossier_path(dossier)
+
+      expect(page).to have_content("transférer le dossier n° #{dossier.id}")
+      expect(page).not_to have_content('le dossier accepté')
+    end
+  end
+
   describe 'recipient flow' do
     before do
       DossierTransfer.initiate('destinataire@example.com', [dossier])
