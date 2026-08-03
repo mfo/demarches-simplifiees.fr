@@ -299,6 +299,21 @@ describe MailTemplateConcern do
       }
       expect(mail).not_to be_valid
       expect(mail.errors[:json_body]).to be_present
+      expect(mail.errors.full_messages_for(:json_body).first).to include("Le champ « Corps de l’email »")
+      expect(mail.errors.full_messages_for(:json_body).first).not_to match(/translation missing/i)
+    end
+
+    [Mails::InitiatedMail, Mails::ReceivedMail, Mails::ClosedMail, Mails::RefusedMail, Mails::WithoutContinuationMail, Mails::ReInstructedMail].each do |klass|
+      it "produit des messages d’erreur traduits pour #{klass.name}" do
+        template = klass.default_for_procedure(procedure)
+        template.json_subject = { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "mention", "attrs" => { "id" => "tdc999999", "label" => "champ fantôme" } }] }] }
+        template.json_body = template.json_subject
+        expect(template).not_to be_valid
+        expect(template.errors.full_messages).to be_present
+        template.errors.full_messages.each do |message|
+          expect(message).not_to match(/translation missing/i)
+        end
+      end
     end
 
     it 'json_body vide reste valide' do

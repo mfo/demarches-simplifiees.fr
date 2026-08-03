@@ -30,3 +30,9 @@ fr:
             body:
               format: Le champ « Corps de l’email » %{message}
               <<: *tags_errors
+            json_subject:
+              format: Le champ « Objet de l’email » %{message}
+              <<: *tags_errors
+            json_body:
+              format: Le champ « Corps de l’email » %{message}
+              <<: *tags_errors
