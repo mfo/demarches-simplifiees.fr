@@ -33,6 +33,36 @@ describe Champs::DateChamp do
     end
   end
 
+  # Rows written before the current parsing rules are never re-normalized on
+  # load; saving must drop them instead of failing the iso_8601 validation
+  # before the caller assigns anything (RAILS-MC5).
+  describe 'legacy value self-heal' do
+    before do
+      # Raw SQL fragment: a hash through update_all would run the normalizer.
+      dossier.champ_data.where(id: date_champ.id).update_all(["value = ?", "2021-06-31T00:00:00"])
+      date_champ.reload
+    end
+
+    it 'drops an unparsable stored value on save instead of failing validation' do
+      expect(Sentry).to receive(:capture_message)
+      expect(date_champ.save).to be(true)
+      expect(date_champ.reload.value).to be_nil
+    end
+
+    it 'lets a freshly assigned value win over the heal' do
+      date_champ.value = "31/12/2017"
+      expect(date_champ.save).to be(true)
+      expect(date_champ.reload.value).to eq("2017-12-31")
+    end
+
+    it 'leaves a parsable stored value alone' do
+      date_champ.update!(value: "2020-06-20")
+      expect(Sentry).not_to receive(:capture_message)
+      expect(date_champ.save).to be(true)
+      expect(date_champ.reload.value).to eq("2020-06-20")
+    end
+  end
+
   describe "#to_s" do
     it "format the date" do
       champ_with_value("2020-06-20")
