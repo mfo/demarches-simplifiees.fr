@@ -1,7 +1,7 @@
 fr:
   activerecord:
     attributes:
-      mails/received_mail:
+      mails/without_continuation_mail:
         subject: Objet de l’email
         rich_body: Corps de l’email
     errors:
