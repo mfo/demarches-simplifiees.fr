@@ -1,4 +1,4 @@
-fr:
+en:
   activerecord:
     errors:
       models:
@@ -11,7 +11,7 @@ fr:
       referentiel: 'Field type'
     attributes:
       referentiels/api_referentiel:
-        url: "URL of the API"
+        url_tiptap: "URL of the API"
         hint: "Expected format shown to the user"
         test_data: "Valid example used to test the API"
         hints:
