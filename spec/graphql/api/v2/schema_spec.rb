@@ -25,7 +25,7 @@ RSpec.describe API::V2::Schema do
     it 'admits the heaviest legitimate query with headroom' do
       complexity = complexity_of('getDemarche', {
         demarcheNumber: 1, includeDossiers: true, first: 100,
-        includeChamps: true, includeAnotations: true, includeTraitements: true,
+        includeChamps: true, includeAnnotations: true, includeTraitements: true,
         includeInstructeurs: true, includeAvis: true, includeMessages: true,
         includeCorrections: true, includeGeometry: true, includeGroupeInstructeurs: true,
         includeService: true, includeRevision: true, includeRevisions: true,

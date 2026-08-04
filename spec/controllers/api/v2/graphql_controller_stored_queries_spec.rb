@@ -225,6 +225,15 @@ describe API::V2::GraphqlController do
           expect(gql_data[:dossier][:annotations].map { it[:label] }).to eq(['un commentaire'])
         end
 
+        context 'with includeAnnotations: false' do
+          let(:variables) { { dossierNumber: dossier.id, includeAnnotations: false } }
+
+          it 'are not included' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossier][:annotations]).to be_nil
+          end
+        end
+
         context 'with the legacy misspelled includeAnotations: false' do
           let(:variables) { { dossierNumber: dossier.id, includeAnotations: false } }
 
