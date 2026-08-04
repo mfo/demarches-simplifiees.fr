@@ -109,6 +109,17 @@ class Procedure < ApplicationRecord
     all_revisions_types_de_champ.not_repetition
   end
 
+  # The template tag parser's vocabulary (mail templates, attestations,
+  # dossier submitted messages) — not the tag picker, which offers the active
+  # revision only. Two properties are load-bearing:
+  # - on a published procedure the draft revision is included, so tags for
+  #   not-yet-published champs parse on dossiers following the draft revision
+  #   (procedure preview);
+  # - every version of a type de champ is returned — no deduplication by
+  #   stable_id: legacy tags reference champs by libellé, so libellés from
+  #   older revisions must keep matching.
+  # Both are pinned in tags_substitution_concern_spec ('replace_tags' with
+  # revisions and with a draft-only champ).
   def types_de_champ_for_tags
     TypeDeChamp
       .fillable

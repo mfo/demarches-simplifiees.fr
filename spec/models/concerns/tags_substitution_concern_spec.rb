@@ -547,6 +547,19 @@ describe TagsSubstitutionConcern, type: :model do
       end
     end
 
+    context 'when a champ only exists on the draft of a published procedure' do
+      let(:dossier) { create(:dossier, procedure:, revision: procedure.draft_revision) }
+
+      before do
+        procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'champ à venir')
+        dossier.root_champs_public.find { it.libelle == 'champ à venir' }.update(value: 'valeur')
+      end
+
+      it 'parses and substitutes the tag on a dossier following the draft revision (preview)' do
+        expect(template_concern.send(:replace_tags, '--champ à venir--', dossier)).to eq('valeur')
+      end
+    end
+
     context 'when data contains malicious code' do
       let(:template) { '--libelleA-- --nom--' }
       context 'in individual data' do
