@@ -1,13 +1,1 @@
 <%= @form.text_field :external_id, input_opts(id: @champ.focusable_input_id, required: @champ.required?, class: "width-33-desktop fr-input", aria: { **labelledby_id_attr, describedby: "#{@champ.describedby_id} #{@champ.error_id(:value)}" }) %>
-
-<div class="rnf-info" id="<%= dom_id(@champ, :rnf_info) %>" role="status">
-  <% if @champ.external_error? %>
-    <p class="fr-error-text"><%= t('.rnf_info_error') %></p>
-  <% elsif @champ.pending? %>
-    <p class="fr-info-text"><%= t('.rnf_info_pending') %></p>
-  <% elsif @champ.data? %>
-    <p class="fr-info-text">
-      <%= t('.rnf_info_success', title: @champ.title, address: @champ.full_address) %>
-    </p>
-  <% end %>
-</div>

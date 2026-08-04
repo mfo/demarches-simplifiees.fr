@@ -159,7 +159,7 @@ class ChampData < ApplicationRecord
   # Dsfr::InputStatusMessageComponent) and therefore need a persistent
   # live region to announce it to screen readers.
   def status_announceable?
-    siret? || rna? || referentiel? || dossier_link? || piece_justificative?
+    siret? || rna? || rnf? || referentiel? || dossier_link? || piece_justificative?
   end
 
   def prefilled_from_france_connect_information?

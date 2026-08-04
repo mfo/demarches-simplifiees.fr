@@ -8,6 +8,14 @@ describe Champs::RNFChamp, type: :model do
   let(:body) { Rails.root.join('spec', 'fixtures', 'files', 'api_rnf', "#{response_type}.json").read }
   let(:response_type) { 'valid' }
 
+  describe '#status_announceable?' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:champ) { dossier.root_champs_public.find(&:rnf?) }
+
+    it { expect(champ.status_announceable?).to be(true) }
+  end
+
   describe '#valid?' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
