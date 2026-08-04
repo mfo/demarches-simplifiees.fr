@@ -13,7 +13,7 @@ fr:
       referentiel: 'Type de champ'
     attributes:
       referentiels/api_referentiel:
-        url: "URL du référentiel"
+        url_tiptap: "URL du référentiel"
         hint: "Indications à fournir à l’usager concernant le format de saisie attendu"
         test_data: "Exemple de saisie valide (affiché à l’usager et utilisé pour tester la requête)"
         hints:

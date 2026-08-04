@@ -136,6 +136,11 @@ describe Referentiels::APIReferentiel, type: :model do
           referentiel.valid?
           expect(referentiel.errors.where(:url_tiptap, :not_allowed)).to be_present
         end
+
+        it 'labels the attribute « URL du référentiel » in the full message' do
+          referentiel.valid?
+          expect(referentiel.errors.where(:url_tiptap, :not_allowed).first.full_message).to include("URL du référentiel")
+        end
       end
 
       context 'with only mentions and no text URL' do
