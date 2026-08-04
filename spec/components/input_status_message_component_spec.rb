@@ -43,6 +43,43 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
       end
     end
 
+    context 'with rnf champs' do
+      let(:types_de_champ_public) { [{ type: :rnf }] }
+      let(:state) { :idle }
+
+      before do
+        allow(champ).to receive(:pending?).and_return(state == :pending)
+        allow(champ).to receive(:external_error?).and_return(state == :external_error)
+        allow(champ).to receive(:external_id).and_return('075-FDD-00003-01')
+      end
+
+      context 'when the lookup is pending' do
+        let(:state) { :pending }
+
+        it 'renders the pending message' do
+          expect(subject).to have_css('.fr-message--info', text: 'Vérification du RNF en cours')
+        end
+      end
+
+      context 'when the lookup failed' do
+        let(:state) { :external_error }
+
+        it 'renders a warning message' do
+          expect(subject).to have_css('.fr-message--warning', text: 'Aucune fondation trouvée')
+        end
+      end
+
+      context 'when the foundation was found' do
+        before do
+          allow(champ).to receive(:data).and_return({ 'title' => 'Fondation de France', 'address' => { 'label' => '40 Avenue Hoche, 75008 Paris' } })
+        end
+
+        it 'renders the success message' do
+          expect(subject).to have_css('.fr-message--info', text: 'Ce RNF correspond à : Fondation de France, 40 Avenue Hoche, 75008 Paris')
+        end
+      end
+    end
+
     context 'with dossier_link champs' do
       let(:types_de_champ_public) { [{ type: :dossier_link }] }
       let(:linked_dossier) { create(:dossier, :en_construction) }
