@@ -304,7 +304,7 @@ module DossierChampsConcern
       # move champ_data with changes from "main" to "history" stream
       champ_data.where(id: changed_ids, stream: Dossier::MAIN_STREAM).update_all(stream: history_stream)
       # move champ_data from "buffer" to "main"
-      champ_data.where(id: buffer_ids, stream:).update_all(stream: Dossier::MAIN_STREAM, updated_at: now, checkpoint: history_stream)
+      champ_data.where(id: buffer_ids, stream:).update_all(stream: Dossier::MAIN_STREAM, updated_at: now, value_updated_at: now, checkpoint: history_stream)
       update_champs_timestamps(buffer_champ_data, stream)
     end
 

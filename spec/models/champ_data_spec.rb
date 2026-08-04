@@ -627,6 +627,49 @@ describe ChampData do
     end
   end
 
+  describe '#update_timestamps' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+    let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
+    let(:champ) { dossier.champ_data.first }
+
+    it 'stamps value_updated_at along with updated_at' do
+      champ.update_columns(updated_at: 1.day.ago, value_updated_at: nil)
+
+      champ.update_timestamps
+
+      champ.reload
+      expect(champ.read_attribute(:value_updated_at)).to eq(champ.updated_at)
+      expect(dossier.reload.last_champ_updated_at).to eq(champ.updated_at)
+    end
+
+    it 'does not stamp public champs of a dossier en construction (deferred to buffer merge)' do
+      dossier.update_columns(state: Dossier.states.fetch(:en_construction), depose_at: Time.zone.now)
+      champ = dossier.reload.champ_data.first
+      champ.update_columns(updated_at: 1.day.ago, value_updated_at: nil)
+
+      champ.update_timestamps
+
+      expect(champ.reload.read_attribute(:value_updated_at)).to be_nil
+    end
+  end
+
+  describe '#value_updated_at' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+    let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
+    let(:champ) { dossier.champ_data.first }
+
+    it 'falls back to updated_at when the column is blank' do
+      champ.update_columns(value_updated_at: nil)
+      expect(champ.reload.value_updated_at).to eq(champ.updated_at)
+    end
+
+    it 'returns the column when present' do
+      time = 3.days.ago.change(usec: 0)
+      champ.update_columns(value_updated_at: time)
+      expect(champ.reload.value_updated_at).to eq(time)
+    end
+  end
+
   describe '#clone_value_from' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }

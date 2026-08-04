@@ -348,12 +348,20 @@ class ChampData < ApplicationRecord
     save!
   end
 
+  # `value_updated_at` dates user-made changes only. Machinery also bumps
+  # `updated_at` (attachment purge touches, external data fetches, autosave),
+  # so displays like the "Modifié" badge must not trust it. Rows last modified
+  # before the column existed fall back to `updated_at`.
+  def value_updated_at
+    super || updated_at
+  end
+
   def update_timestamps
     return if public? && dossier.en_construction?
 
     updated_at = Time.zone.now
     attributes = { updated_at: }
-    update_columns(attributes) if persisted?
+    update_columns(attributes.merge(value_updated_at: updated_at)) if persisted?
 
     if private?
       attributes[:last_champ_private_updated_at] = updated_at
