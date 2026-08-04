@@ -52,6 +52,35 @@ RSpec.describe API::V2::Schema do
       expect(result['errors'].map { _1['message'] }.join).to match(/complexity/i)
     end
   end
+
+  # A client sending free text to a Date argument gets a proper validation error from
+  # graphql-ruby on its own. Reporting it to Sentry on top of that was pure noise, and
+  # since GraphQL::DateEncodingError embeds the offending value in its message, Sentry
+  # split one defect into a new issue per distinct bad date.
+  describe 'unparsable Date argument' do
+    # Argument coercion runs before `authorized?` and `resolve`, so nothing referenced
+    # here has to exist.
+    let(:mutation) do
+      <<~GRAPHQL
+        mutation($value: ISO8601Date!) {
+          dossierModifierAnnotationDate(input: {
+            dossierId: "RG9zc2llci0x", instructeurId: "SW5zdHJ1Y3RldXItMQ==",
+            annotationId: "Q2hhbXAtMQ==", value: $value
+          }) { clientMutationId }
+        }
+      GRAPHQL
+    end
+
+    subject do
+      described_class.execute(query: mutation, variables: { 'value' => '31 août 2000' }, context: { internal_use: false })
+    end
+
+    it 'reports nothing to Sentry and still returns a validation error to the client' do
+      expect(Sentry).not_to receive(:capture_exception)
+      expect(subject['data']).to be_nil
+      expect(subject['errors'].map { _1['message'] }.join).to match(/provided invalid value/)
+    end
+  end
 end
 
 RSpec.describe API::V2::Schema::Timeout do
