@@ -31,7 +31,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
         expect(subject).to have_selector('th', text: 'Propriété')
         expect(subject).to have_selector('th', text: 'Exemple de donnée')
         expect(subject).to have_selector('th', text: 'Type de Donnée')
-        expect(subject).to have_selector('th', text: 'Champ du formulaire usager à préremplir')
+        expect(subject).to have_selector('th', text: 'Champ ou annotation à préremplir')
       end
     end
   end
