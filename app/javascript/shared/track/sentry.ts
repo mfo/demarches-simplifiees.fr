@@ -5,6 +5,20 @@ const {
   sentry: { key, enabled, user, environment, browser, release }
 } = getConfig();
 
+// Google's iOS browsers (Chrome Mobile iOS, Google app) inject scripts into
+// every page that regularly overflow the call stack. These events carry no
+// attributable frame (filename is `undefined` or `<anonymous>`), unlike a
+// genuine stack overflow in our bundles, which always resolves to an http(s)
+// filename.
+const isInjectedScriptStackOverflow = (event: Sentry.Event): boolean => {
+  const exception = event.exception?.values?.at(-1);
+  if (!exception?.value?.includes('Maximum call stack size exceeded')) {
+    return false;
+  }
+  const frames = exception.stacktrace?.frames ?? [];
+  return !frames.some((frame) => frame.filename?.startsWith('http'));
+};
+
 // We need to check for key presence here as we do not have a dsn for browser yet
 if (enabled && key) {
   Sentry.init({
@@ -26,7 +40,13 @@ if (enabled && key) {
 
       // La gaufre script often triggers an error while loading other dependencies
       'NetworkError when attempting to fetch resource. (integration.lasuite.numerique.gouv.fr)'
-    ]
+    ],
+    beforeSend(event) {
+      if (isInjectedScriptStackOverflow(event)) {
+        return null;
+      }
+      return event;
+    }
   });
 
   const scope = Sentry.getCurrentScope();
