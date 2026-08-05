@@ -517,6 +517,36 @@ RSpec.describe DossierChampsConcern do
         end
       end
 
+      # Rows persisted before value normalization moved from before_validation
+      # to assignment time (74f2ba6da4) can hold values the current parser
+      # rejects; they are never re-normalized on load. The upsert save must
+      # self-heal them instead of tripping the iso_8601 validation before the
+      # caller has assigned anything (RAILS-MC5).
+      [
+        { type: :date, legacy_value: '2021-06-31T00:00:00' },
+        { type: :datetime, legacy_value: '12/06/2026 à 14h' },
+      ].each do |row|
+        type, legacy_value = row.values_at(:type, :legacy_value)
+
+        context "#{type} champ with a legacy non-ISO value" do
+          let(:types_de_champ_public) { [{ type:, libelle: "Un champ #{type}", stable_id: 99 }] }
+
+          before do
+            dossier.champ_for_update(type_de_champ_public, updated_by: dossier.user.email)
+            # Raw SQL fragment: a hash through update_all/update_column would
+            # run the value normalizer and defeat the simulation.
+            dossier.champ_data.where(stable_id: 99).update_all(["value = ?", legacy_value])
+            dossier.reload
+          end
+
+          it "drops the legacy value and returns the champ" do
+            champ = subject
+            expect(champ.value).to be_nil
+            expect(champ.reload.value).to be_nil
+          end
+        end
+      end
+
       context "champ carte" do
         let(:types_de_champ_public) { [{ type: :carte, libelle: "Un champ carte", stable_id: 996 }] }
         let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(996) }
@@ -614,6 +644,7 @@ RSpec.describe DossierChampsConcern do
     [
       { from: :text,     to: :linked_drop_down_list, assign: { primary_value: "primary" }, value: '["primary",""]', to_params: { drop_down_options: ["--primary--", "secondary"] } },
       { from: :textarea, to: :text,                  assign: { value: "test text" },       value: 'test text' },
+      { from: :text,     to: :date,                  assign: { value: "2026-08-03" },      value: '2026-08-03' },
       { from: :yes_no,   to: :checkbox,              assign: { value: "true" },            value: 'true' },
       { from: :regions,  to: :text,                  assign: { value: "test text" },       value: 'test text' },
     ].each do |row|
