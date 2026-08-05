@@ -216,6 +216,34 @@ describe API::V2::GraphqlController do
         }
       end
 
+      context 'annotations' do
+        let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_private: [{ libelle: 'un commentaire' }], administrateurs: [admin]) }
+        let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+
+        it 'are included by default' do
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossier][:annotations].map { it[:label] }).to eq(['un commentaire'])
+        end
+
+        context 'with includeAnnotations: false' do
+          let(:variables) { { dossierNumber: dossier.id, includeAnnotations: false } }
+
+          it 'are not included' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossier][:annotations]).to be_nil
+          end
+        end
+
+        context 'with the legacy misspelled includeAnotations: false' do
+          let(:variables) { { dossierNumber: dossier.id, includeAnotations: false } }
+
+          it 'are not included' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossier][:annotations]).to be_nil
+          end
+        end
+      end
+
       context 'with entreprise' do
         let(:procedure) { procedures.entreprise }
         let(:dossier) { dossiers.avec_siret }

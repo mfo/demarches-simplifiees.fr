@@ -62,7 +62,15 @@ class API::V2::GraphqlController < API::V2::BaseController
   end
 
   def variables
-    ensure_hash(params[:variables])
+    variables = ensure_hash(params[:variables])
+
+    # The stored queries shipped with a misspelled includeAnotations variable
+    # for years; keep accepting it since clients rely on it.
+    if params[:queryId].present? && variables.key?('includeAnotations') && !variables.key?('includeAnnotations')
+      variables['includeAnnotations'] = variables['includeAnotations']
+    end
+
+    variables
   end
 
   def operation_name

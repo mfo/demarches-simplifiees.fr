@@ -45,7 +45,7 @@ class API::V2::StoredQuery
     $includeRevisions: Boolean = false
     $includeService: Boolean = false
     $includeChamps: Boolean = true
-    $includeAnotations: Boolean = true
+    $includeAnnotations: Boolean = true
     $includeTraitements: Boolean = true
     $includeInstructeurs: Boolean = true
     $includeAvis: Boolean = false
@@ -162,7 +162,7 @@ class API::V2::StoredQuery
     $includePendingDeletedDossiers: Boolean = false
     $includeDeletedDossiers: Boolean = false
     $includeChamps: Boolean = true
-    $includeAnotations: Boolean = true
+    $includeAnnotations: Boolean = true
     $includeTraitements: Boolean = true
     $includeInstructeurs: Boolean = true
     $includeAvis: Boolean = false
@@ -236,7 +236,7 @@ class API::V2::StoredQuery
     $includeRevision: Boolean = false
     $includeService: Boolean = false
     $includeChamps: Boolean = true
-    $includeAnotations: Boolean = true
+    $includeAnnotations: Boolean = true
     $includeTraitements: Boolean = true
     $includeInstructeurs: Boolean = true
     $includeAvis: Boolean = false
@@ -347,7 +347,7 @@ class API::V2::StoredQuery
       ...ChampFragment
       ...RootChampFragment
     }
-    annotations @include(if: $includeAnotations) {
+    annotations @include(if: $includeAnnotations) {
       ...ChampFragment
       ...RootChampFragment
     }
