@@ -37,8 +37,8 @@ class Dossiers::ChampsRowsShowComponent < ApplicationComponent
     return if champ.dossier.depose_at.blank?
     return if champ.new_record?
 
-    if champ.updated_at > champ.dossier.depose_at
-      champ.updated_at
+    if champ.value_updated_at > champ.dossier.depose_at
+      champ.value_updated_at
     end
   end
 

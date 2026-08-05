@@ -23,7 +23,7 @@ class EditableChamp::ChampLabelContentComponent < ApplicationComponent
   end
 
   def highlight?
-    @champ.updated_at.present? && @seen_at&.<(@champ.updated_at)
+    @champ.value_updated_at.present? && @seen_at&.<(@champ.value_updated_at)
   end
 
   def rebased?

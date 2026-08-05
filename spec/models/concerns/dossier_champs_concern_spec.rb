@@ -1471,5 +1471,18 @@ RSpec.describe DossierChampsConcern do
       expect(dossier.history.map(&:stream)).to all(eq(history_stream))
       expect(dossier.champ_data.find { _1.stable_id == 99 && _1.main_stream? }.checkpoint).to eq(history_stream)
     end
+
+    it "stamps value_updated_at on merged champs" do
+      dossier.with_update_stream(dossier.user) do
+        dossier.public_champ_for_update('99', updated_by: dossier.user.email).assign_attributes(value: "Nouvelle valeur")
+      end
+      dossier.save!
+
+      dossier.merge_user_buffer_stream!
+
+      merged = dossier.champ_data.find { _1.stable_id == 99 && _1.main_stream? }.reload
+      expect(merged.read_attribute(:value_updated_at)).to eq(merged.updated_at)
+      expect(merged.read_attribute(:value_updated_at)).to be_present
+    end
   end
 end
