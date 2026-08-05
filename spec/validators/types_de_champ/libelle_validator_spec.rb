@@ -81,4 +81,14 @@ RSpec.describe TypesDeChamp::LibelleValidator do
       end
     end
   end
+
+  context 'with an explication type de champ' do
+    let(:types) { [type: :explication] }
+
+    before { type_de_champ.update(libelle: '') }
+
+    it 'does not add errors to the procedure' do
+      expect { subject }.not_to change { procedure.errors.count }
+    end
+  end
 end
