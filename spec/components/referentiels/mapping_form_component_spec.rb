@@ -24,8 +24,8 @@ RSpec.describe Referentiels::MappingFormComponent, type: :component do
         expect(page).to have_selector("th", text: "Propriété")
         expect(page).to have_selector("th", text: "Exemple de donnée")
         expect(page).to have_selector("th", text: "Type de donnée")
-        expect(page).to have_selector("th", text: "Utiliser la donnéepour préremplirun champ duformulaire")
-        expect(page).to have_selector("th", text: "Libellé de la donnée récupérée(pour afficher à l’usager et/ou l’instructeur)")
+        expect(page).to have_selector("th", text: "Utiliser la donnéepour préremplirun champ ouune annotation")
+        expect(page).to have_selector("th", text: "Libellé de la donnée récupérée(pour l’affichage)")
 
         # tbody
         ["$.point.type", "$.point.coordinates", "$.shape.type"].each do |sample|
