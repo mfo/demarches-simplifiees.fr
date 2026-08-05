@@ -59,11 +59,12 @@ module Maintenance
       end
 
       context "when procedure has a group with invalid routing rule" do
+        let(:unknown_stable_id) { procedure.published_revision.types_de_champ.map(&:stable_id).max + 1 }
         let!(:gi1) do
           create(:groupe_instructeur,
                  procedure: procedure,
                  label: 'Groupe Invalid',
-                 routing_rule: ds_eq(champ_value(999), constant('Invalid')))
+                 routing_rule: ds_eq(champ_value(unknown_stable_id), constant('Invalid')))
         end
 
         it "maintains valid_routing_rule as false" do

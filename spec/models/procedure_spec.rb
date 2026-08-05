@@ -2061,10 +2061,11 @@ describe Procedure do
                procedure: procedure,
                routing_rule: ds_eq(champ_value(stable_id), constant('Paris')))
       end
+      let(:unknown_stable_id) { procedure.published_revision.types_de_champ.map(&:stable_id).max + 1 }
       let!(:gi_invalid) do
         create(:groupe_instructeur,
                procedure: procedure,
-               routing_rule: ds_eq(champ_value(999), constant('Invalid')),
+               routing_rule: ds_eq(champ_value(unknown_stable_id), constant('Invalid')),
                valid_routing_rule: true)
       end
 
