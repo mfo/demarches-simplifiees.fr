@@ -25,6 +25,7 @@ module Dsfr
     def statutable?
       siret_support_status? ||
       rna_support_statut? ||
+      rnf_support_statut? ||
       referentiel_support_statut? ||
       address_support_statut? ||
       dossier_link_support_statut? ||
@@ -38,6 +39,10 @@ module Dsfr
 
     def rna_support_statut?
       type_de_champ.rna? && @champ.external_id.present?
+    end
+
+    def rnf_support_statut?
+      type_de_champ.rnf? && @champ.external_id.present?
     end
 
     def referentiel_support_statut?
@@ -86,6 +91,14 @@ module Dsfr
           { state: :warning, text: t(".rna.error") }
         elsif @champ.value.present?
           { state: :info, text: t(".rna.success", title: @champ.title, address: @champ.full_address) }
+        end
+      when TypeDeChamp.type_champs[:rnf]
+        if @champ.pending?
+          { state: :info, text: t(".rnf.pending") }
+        elsif @champ.external_error?
+          { state: :warning, text: t(".rnf.error") }
+        elsif @champ.data.present?
+          { state: :info, text: t(".rnf.success", title: @champ.title, address: @champ.full_address) }
         end
       when TypeDeChamp.type_champs[:dossier_link]
         dossier = Dossier.find_by(id: @champ.value)

@@ -4,6 +4,10 @@ fr:
     error: "Une erreur est survenue lors de la récupération des informations RNA."
     pending: "Recherche en cours pour le RNA %{value}…"
     success: "Ce RNA correspond à : %{title}, %{address}"
+  rnf:
+    error: "Aucune fondation trouvée"
+    pending: "Vérification du RNF en cours"
+    success: "Ce RNF correspond à : %{title}, %{address}"
   siret:
     pending: "Recherche en cours pour le SIRET %{value}…"
     fetched_with_capital: "%{raison_sociale_or_name} %{forme_juridique} au capital social de %{capital_sociale}"
