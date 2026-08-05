@@ -10,10 +10,6 @@ class Referentiels::NewFormComponent < Referentiels::MappingFormBase
     :new_referentiel
   end
 
-  def back_url
-    champs_admin_procedure_path(@procedure)
-  end
-
   def form_url
     if @referentiel.persisted?
       admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel)

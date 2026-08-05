@@ -37,6 +37,14 @@ class Referentiels::MappingFormBase < ApplicationComponent
     "border-background-contrast-grey fr-p-4w"
   end
 
+  def cancel_url
+    if type_de_champ.public?
+      champs_admin_procedure_path(procedure)
+    else
+      annotations_admin_procedure_path(procedure)
+    end
+  end
+
   private
 
   def lookup_existing_value(jsonpath, attribute)
