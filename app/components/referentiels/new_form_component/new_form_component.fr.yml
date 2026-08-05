@@ -9,9 +9,9 @@ fr:
   csv_file_hint: "Utilisez le modèle du fichier CSV fourni ci-dessous pour construire votre référentiel (le nombre de colonne n’est pas limité)."
   exact_match_label: Correspondance exacte
   exact_match_hint: "Vérification de l’existence de la donnée saisie dans la base du référentiel (exemple : plaque d’immatriculation, SIREN...)"
-  autocomplete_label: "Autosuggestion au fur et à mesure de la saisie de l’usager"
-  autocomplete_hint: "Affichage de données issues de la base du référentiel correspondant en partie ou en totalité à la donnée saisie par l’usager (exemple : base de médicaments, modèles de véhicules...)"
-  mode_legend: "Mode de remplissage du champ par l’usager"
+  autocomplete_label: "Autosuggestion au fur et à mesure de la saisie"
+  autocomplete_hint: "Affichage de données issues de la base du référentiel correspondant en partie ou en totalité à la donnée saisie (exemple : base de médicaments, modèles de véhicules...)"
+  mode_legend: "Mode de remplissage du champ"
   add_authentication: "Ajouter une méthode d’authentification"
   token_info: Le token est stocké de manière chiffrée et ne sera plus affiché après saisie
   change_header_value: "Changer la valeur de l’en-tête"
