@@ -15,11 +15,11 @@ RSpec.describe Dossiers::PendingTransfersBannerComponent, type: :component do
     subject { render_inline(described_class.new(count: 1)) }
 
     it 'renders the title' do
-      expect(subject.to_html).to include('Demandes de transfert de dossier')
+      expect(subject.to_html).to include('Propositions de transfert de dossier')
     end
 
     it 'renders the singular link label' do
-      expect(subject.to_html).to include('Voir la demande en attente (1)')
+      expect(subject.to_html).to include('Voir la proposition en attente (1)')
     end
   end
 
@@ -27,7 +27,7 @@ RSpec.describe Dossiers::PendingTransfersBannerComponent, type: :component do
     subject { render_inline(described_class.new(count: 3)) }
 
     it 'renders the plural link label' do
-      expect(subject.to_html).to include('Voir les demandes en attente (3)')
+      expect(subject.to_html).to include('Voir les propositions en attente (3)')
     end
   end
 end

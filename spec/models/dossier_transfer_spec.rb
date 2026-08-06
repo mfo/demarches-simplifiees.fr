@@ -10,7 +10,7 @@ RSpec.describe DossierTransfer, type: :model do
   describe 'initiate' do
     subject { DossierTransfer.initiate(other_user.email, [dossier]) }
 
-    it 'should send transfer request' do
+    it 'should send transfer offer' do
       expect(subject.email).to eq(other_user.email)
       expect(subject.dossiers).to eq([dossier])
       expect(dossier.transfer).to eq(subject)
