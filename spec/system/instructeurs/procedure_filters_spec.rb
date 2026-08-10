@@ -2,8 +2,8 @@
 
 describe "procedure filters" do
   let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:procedure, :published, :with_labels, types_de_champ_public:, instructeurs: [instructeur]) }
-  let(:types_de_champ_public) { [{ type: :text }] }
+  let(:procedure) { create(:procedure, :published, :with_labels, public_type_de_champs:, instructeurs: [instructeur]) }
+  let(:public_type_de_champs) { [{ type: :text }] }
   let!(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
   let!(:new_unfollow_dossier) { create(:dossier, procedure: procedure, state: Dossier.states.fetch(:en_instruction)) }
   let!(:champ) { ChampData.find_by(stable_id: type_de_champ.stable_id, dossier_id: new_unfollow_dossier.id) }
@@ -108,7 +108,7 @@ describe "procedure filters" do
   end
 
   describe 'with dropdown' do
-    let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+    let(:public_type_de_champs) { [{ type: :drop_down_list }] }
 
     scenario "should be able to user custom filters", js: true do
       # use date filter
@@ -126,7 +126,7 @@ describe "procedure filters" do
   end
 
   describe 'with repetition' do
-    let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Enfants', children: [{ libelle: 'Nom' }] }] }
+    let(:public_type_de_champs) { [{ type: :repetition, libelle: 'Enfants', children: [{ libelle: 'Nom' }] }] }
 
     scenario "should be able to user custom fiters", js: true do
       add_filter("formulaire-usager", 'Enfants – Nom')
@@ -136,7 +136,7 @@ describe "procedure filters" do
 
   describe 'with a vcr cached cassette' do
     describe 'departements' do
-      let(:types_de_champ_public) { [{ type: :departements }] }
+      let(:public_type_de_champs) { [{ type: :departements }] }
       scenario "should be able to find by departements with custom enum lookup", js: true do
         departement_champ = new_unfollow_dossier.champ_data.find(&:departements?)
         departement_champ.update!(value: 'Oise', external_id: '60')
@@ -151,7 +151,7 @@ describe "procedure filters" do
     end
 
     describe 'rna' do
-      let(:types_de_champ_public) { [{ type: :rna }] }
+      let(:public_type_de_champs) { [{ type: :rna }] }
       scenario "should be able to find by rna addresse with custom enum lookup", js: true do
         rna_champ = new_unfollow_dossier.champ_data.find(&:rna?)
         rna_champ.update!(
@@ -180,7 +180,7 @@ describe "procedure filters" do
     end
 
     describe 'region' do
-      let(:types_de_champ_public) { [{ type: :regions }] }
+      let(:public_type_de_champs) { [{ type: :regions }] }
       scenario "should be able to find by region with custom enum lookup", js: true do
         region_champ = new_unfollow_dossier.champ_data.find(&:regions?)
         region_champ.update!(value: 'Bretagne', external_id: '53')

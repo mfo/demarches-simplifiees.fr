@@ -594,8 +594,8 @@ describe TypeDeChamp do
     end
 
     context 'Champ referentiel' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
       let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
@@ -624,7 +624,7 @@ describe TypeDeChamp do
   end
 
   describe 'champ_value with cast' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: type_champ }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: type_champ }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:type_champ) { :text }
     let(:last_write_type_champ) { :text }

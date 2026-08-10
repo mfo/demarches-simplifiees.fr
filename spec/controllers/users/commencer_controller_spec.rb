@@ -2,8 +2,8 @@
 
 describe Users::CommencerController, type: :controller do
   let(:user) { create(:user) }
-  let(:published_procedure) { create(:procedure, :for_individual, :published, types_de_champ_public:, robots_indexable:) }
-  let(:types_de_champ_public) { [] }
+  let(:published_procedure) { create(:procedure, :for_individual, :published, public_type_de_champs:, robots_indexable:) }
+  let(:public_type_de_champs) { [] }
   let(:draft_procedure) { create(:procedure, :with_path) }
   let(:robots_indexable) { true }
 
@@ -224,7 +224,7 @@ describe Users::CommencerController, type: :controller do
     end
 
     context 'when a dossier is being prefilled by GET' do
-      let(:types_de_champ_public) { [{}] }
+      let(:public_type_de_champs) { [{}] }
       let(:type_de_champ_text) { published_procedure.published_revision.type_de_champs.first }
       let(:path) { published_procedure.path }
       let(:user) { create(:user) }
@@ -271,7 +271,7 @@ describe Users::CommencerController, type: :controller do
         subject { get :commencer, params: { path: path, prefill_token: "token", "champ_#{type_de_champ_text.to_typed_id}" => "blabla" } }
 
         context "when the associated dossier exists" do
-          let(:procedure) { create(:procedure, types_de_champ_public: [{}]) }
+          let(:procedure) { create(:procedure, public_type_de_champs: [{}]) }
           let!(:dossier) { create(:dossier, :prefilled, procedure:, prefill_token: "token") }
 
           it "does not create a new dossier" do

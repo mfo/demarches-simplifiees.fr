@@ -9,7 +9,7 @@ describe Champs::RNFChamp, type: :model do
   let(:response_type) { 'valid' }
 
   describe '#status_announceable?' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.root_champs_public.find(&:rnf?) }
 
@@ -17,7 +17,7 @@ describe Champs::RNFChamp, type: :model do
   end
 
   describe '#valid?' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.root_champs_public.find(&:rnf?) }
 
@@ -92,7 +92,7 @@ describe Champs::RNFChamp, type: :model do
   end
 
   describe 'format validation' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.root_champs_public.find(&:rnf?) }
 

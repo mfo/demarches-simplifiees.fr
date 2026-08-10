@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Attachment::PieceJustificativeService do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.root_champs_public.first }
 
@@ -36,7 +36,7 @@ RSpec.describe Attachment::PieceJustificativeService do
     end
 
     context 'with an OCR-compatible PJ (justificatif de domicile)' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'justificatif_domicile' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'justificatif_domicile' }]) }
 
       it 'transitions the champ to waiting_for_job in the same transaction' do
         described_class.attach_champ_pj(champ, blob_1.signed_id)
@@ -57,7 +57,7 @@ RSpec.describe Attachment::PieceJustificativeService do
       include Logic
 
       let(:procedure) do
-        create(:procedure, :published, types_de_champ_public: [
+        create(:procedure, :published, public_type_de_champs: [
           { type: :yes_no, stable_id: 99 },
           { type: :piece_justificative, stable_id: 999, condition: ds_eq(champ_value(99), constant(true)) },
         ])

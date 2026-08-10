@@ -3,7 +3,7 @@
 describe Champs::RepetitionChamp do
   let(:procedure) {
     create(:procedure,
-      types_de_champ_public: [
+      public_type_de_champs: [
         {
           type: :repetition,
           children: [{ type: :text, libelle: "Ext" }], libelle: "Languages",
@@ -23,7 +23,7 @@ describe Champs::RepetitionChamp do
     context "with multiple children (multichamp)" do
       let(:procedure) {
         create(:procedure,
-          types_de_champ_public: [
+          public_type_de_champs: [
             {
               type: :repetition,
               children: [
@@ -44,7 +44,7 @@ describe Champs::RepetitionChamp do
   describe "#max_reached?" do
     let(:procedure) do
       create(:procedure,
-        types_de_champ_public: [
+        public_type_de_champs: [
           {
             type: :repetition,
             children: [{ type: :text }],
@@ -82,7 +82,7 @@ describe Champs::RepetitionChamp do
   describe "#validate_repetition_limits" do
     let(:procedure) do
       create(:procedure,
-        types_de_champ_public: [
+        public_type_de_champs: [
           {
             type: :repetition,
             children: [{ type: :text }],

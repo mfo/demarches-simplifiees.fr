@@ -51,13 +51,13 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
   end
 
   describe 'conditional champ' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :drop_down_list, libelle: 'Choix simple', options: ['Fromage', 'Dessert'] },
         { type: :text, libelle: 'Précisez' },
       ]
     end
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
     let(:source) { procedure.active_revision.type_de_champs.find { it.libelle == 'Choix simple' } }
     let(:target) { procedure.active_revision.type_de_champs.find { it.libelle == 'Précisez' } }
 
@@ -114,10 +114,10 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
   describe 'admin rich text (parity with the web SimpleFormat rendering)' do
     subject { render_inline(described_class.new(revision: procedure.active_revision)) }
 
-    let(:procedure) { create(:procedure, :published, description: 'Présentation en <b>valorisée</b>', types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, description: 'Présentation en <b>valorisée</b>', public_type_de_champs:) }
 
     context 'formatting tags' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :text, libelle: 'Nom', description: 'Consigne en <b>appuyée</b>' },
           { type: :explication, libelle: 'Infos', description: 'Détail en <b>souligné</b>' },
@@ -138,7 +138,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'authored line breaks' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :text, libelle: 'Nom', description: "Ligne 1\nLigne 2" }]
       end
 
@@ -149,10 +149,10 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
   end
 
   describe 'dispatch per champ type' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
 
     context 'header_section' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :header_section, libelle: 'Niveau 1', level: 1 },
           { type: :header_section, libelle: 'Niveau 2', level: 2 },
@@ -168,7 +168,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'yes_no' do
-      let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'D’accord ?' }] }
+      let(:public_type_de_champs) { [{ type: :yes_no, libelle: 'D’accord ?' }] }
 
       it 'renders two Oui/Non checkboxes with real labels' do
         expect(subject).to have_content('D’accord ?')
@@ -183,13 +183,13 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'civilite' do
-      let(:types_de_champ_public) { [{ type: :civilite, libelle: 'Civilité' }] }
+      let(:public_type_de_champs) { [{ type: :civilite, libelle: 'Civilité' }] }
 
       it { is_expected.to have_selector('.checkbox', count: 2) }
     end
 
     context 'simple drop_down_list' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :drop_down_list, libelle: 'Choix', options: ['A', 'B', 'C'] }]
       end
 
@@ -205,7 +205,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
 
     context 'simple drop_down_list with too many options' do
       let(:options) { (1..Champs::DropDownListChamp::THRESHOLD_NB_OPTIONS_AS_AUTOCOMPLETE).map { |i| "Option #{i}" } }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :drop_down_list, libelle: 'Choix', options: }]
       end
 
@@ -228,7 +228,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'multiple_drop_down_list' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :multiple_drop_down_list, libelle: 'Choix', options: ['A', 'B'] }]
       end
 
@@ -241,7 +241,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
 
     context 'multiple_drop_down_list with too many options' do
       let(:options) { (1..Champs::DropDownListChamp::THRESHOLD_NB_OPTIONS_AS_AUTOCOMPLETE).map { |i| "Option #{i}" } }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :multiple_drop_down_list, libelle: 'Choix', options: }]
       end
 
@@ -268,7 +268,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
       before { stub_const("#{described_class}::MAX_PRINTABLE_OPTIONS", 3) }
 
       context 'drop_down_list' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [{ type: :drop_down_list, libelle: 'Commune', options: ['Lyon', 'Paris', 'Rennes', 'Toulouse'] }]
         end
 
@@ -285,7 +285,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
       end
 
       context 'linked_drop_down_list' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [{ type: :linked_drop_down_list, libelle: 'Lieu', options: ['--Rhône--', 'Lyon', 'Villeurbanne', '--Ille-et-Vilaine--', 'Rennes'] }]
         end
 
@@ -299,7 +299,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'linked_drop_down_list small enough to print' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :linked_drop_down_list, libelle: 'Lieu', options: ['--Rhône--', 'Lyon', 'Villeurbanne'] }]
       end
 
@@ -312,7 +312,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
 
     context 'several champs with too many options' do
       let(:options) { (1..Champs::DropDownListChamp::THRESHOLD_NB_OPTIONS_AS_AUTOCOMPLETE).map { |i| "Option #{i}" } }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :drop_down_list, libelle: 'Premier', options: },
           { type: :multiple_drop_down_list, libelle: 'Second', options: },
@@ -326,7 +326,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'no champ needs an annex' do
-      let(:types_de_champ_public) { [{ type: :text, libelle: 'Votre nom' }] }
+      let(:public_type_de_champs) { [{ type: :text, libelle: 'Votre nom' }] }
 
       it 'does not render an Annexes section' do
         expect(subject).not_to have_selector('section.annexes')
@@ -334,13 +334,13 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'piece_justificative' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'RIB' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'RIB' }] }
 
       it { is_expected.to have_content('RIB') }
     end
 
     context 'repetition' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :repetition, libelle: 'Personnes', children: [{ type: :text, libelle: 'Nom' }] }]
       end
 
@@ -350,7 +350,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
     end
 
     context 'default text champ' do
-      let(:types_de_champ_public) { [{ type: :text, libelle: 'Votre nom' }] }
+      let(:public_type_de_champs) { [{ type: :text, libelle: 'Votre nom' }] }
 
       it 'renders a label and a fillable box' do
         expect(subject).to have_content('Votre nom')

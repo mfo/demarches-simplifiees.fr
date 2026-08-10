@@ -6,7 +6,7 @@ describe 'As an administrateur I can edit types de champ condition', js: true do
   let(:administrateur) { procedure.administrateurs.first }
   let(:procedure) do
     create(:procedure,
-           types_de_champ_public: [
+           public_type_de_champs: [
              { type: :integer_number, libelle: 'age' },
              { type: :text, libelle: 'nom du parent' },
            ])

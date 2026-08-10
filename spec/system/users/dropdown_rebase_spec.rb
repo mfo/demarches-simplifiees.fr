@@ -7,7 +7,7 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
   # >5 options so it renders as React MultipleSelect, not checkboxes
   let(:options) { ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"] }
   let(:procedure) do
-    create(:procedure, :published, :for_individual, types_de_champ_public: [
+    create(:procedure, :published, :for_individual, public_type_de_champs: [
       { type: :multiple_drop_down_list, libelle: 'Zonage(s)', drop_down_options: options, mandatory: true },
     ])
   end

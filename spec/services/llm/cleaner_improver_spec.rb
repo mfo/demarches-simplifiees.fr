@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe LLM::CleanerImprover do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public:, service: create(:service)) }
+  let(:procedure) { create(:procedure, public_type_de_champs:, service: create(:service)) }
   let(:revision) { procedure.active_revision }
   let(:suggestion) { double('suggestion', procedure_revision: revision, rule: 'cleaner') }
   let(:usage) do
@@ -17,7 +17,7 @@ RSpec.describe LLM::CleanerImprover do
   end
 
   describe '#generate_for' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :address, libelle: 'Adresse postale' },
         { type: :text, libelle: 'Commune' },
@@ -52,7 +52,7 @@ RSpec.describe LLM::CleanerImprover do
     context 'when field is used as a condition source' do
       let(:source_stable_id) { 9999 }
       let(:condition) { ds_eq(champ_value(source_stable_id), constant(true)) }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :yes_no, libelle: 'Êtes-vous majeur ?', stable_id: source_stable_id },
           { type: :text, libelle: 'Détails', condition: },

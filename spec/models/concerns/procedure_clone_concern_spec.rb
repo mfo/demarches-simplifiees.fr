@@ -14,14 +14,14 @@ describe ProcedureCloneConcern, type: :model do
         max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
         attestation_acceptation_template: build(:attestation_template, logo: logo, signature: signature),
         attestation_refus_template: build(:attestation_template, kind: 'refus'),
-        types_de_champ_public:,
-        types_de_champ_private:,
+        public_type_de_champs:,
+        private_type_de_champs:,
         api_particulier_token: '123456789012345',
         estimated_dossiers_count: 4,
         template: true)
     end
-    let(:types_de_champ_public) { [{}, {}, { type: :drop_down_list }, { type: :piece_justificative }, { type: :repetition, children: [{}] }] }
-    let(:types_de_champ_private) { [{}, {}, { type: :drop_down_list }, { type: :repetition, children: [{}] }] }
+    let(:public_type_de_champs) { [{}, {}, { type: :drop_down_list }, { type: :piece_justificative }, { type: :repetition, children: [{}] }] }
+    let(:private_type_de_champs) { [{}, {}, { type: :drop_down_list }, { type: :repetition, children: [{}] }] }
     let(:type_de_champ_repetition) { procedure.draft_revision.public_root_type_de_champs.last }
     let(:type_de_champ_private_repetition) { procedure.draft_revision.private_root_type_de_champs.last }
     let(:email_passe_en_instruction) { build(:email_passe_en_instruction) }
@@ -141,10 +141,10 @@ describe ProcedureCloneConcern, type: :model do
       ])
     end
 
-    context 'when types_de_champ_public contains a referentiel' do
+    context 'when public_type_de_champs contains a referentiel' do
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, :with_authentication_data) }
       let(:stable_id) { 1337 }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: referentiel, stable_id: }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: referentiel, stable_id: }] }
 
       context 'when cloned by the same administrateur' do
         let(:administrateur) { procedure.administrateurs.first }
@@ -402,8 +402,8 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     context 'with a drop_down_list referentiel' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, service:) }
-      let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:, service:) }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
       let(:referentiel) { create(:csv_referentiel, :with_items) }
       let(:drop_down_list) { procedure.draft_revision.public_root_type_de_champs.first }
       let(:cloned_drop_down_list) { subject.draft_revision.public_root_type_de_champs.first }

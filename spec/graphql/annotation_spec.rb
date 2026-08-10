@@ -2,8 +2,8 @@
 
 RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
   let(:admin) { administrateurs.default }
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_private:, administrateurs: [admin]) }
-  let(:types_de_champ_private) do
+  let(:procedure) { create(:procedure, :published, :for_individual, private_type_de_champs:, administrateurs: [admin]) }
+  let(:private_type_de_champs) do
     [
       {
         type: :repetition,
@@ -274,7 +274,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with dossier_link annotation and invalid dossier id' do
-      let(:types_de_champ_private) { [{ type: :dossier_link }] }
+      let(:private_type_de_champs) { [{ type: :dossier_link }] }
       let(:dossier_link_annotation) { champs_private.find(&:dossier_link?) }
       let(:annotations) { [{ id: dossier_link_annotation.to_typed_id, value: { dossierLink: '999999' } }] }
 
@@ -287,7 +287,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with dossier_link annotation and valid dossier id' do
-      let(:types_de_champ_private) { [{ type: :dossier_link }] }
+      let(:private_type_de_champs) { [{ type: :dossier_link }] }
       let(:linked_dossier) { create(:dossier, :en_construction, procedure: procedure) }
       let(:dossier_link_annotation) { champs_private.find(&:dossier_link?) }
       let(:annotations) { [{ id: dossier_link_annotation.to_typed_id, value: { dossierLink: linked_dossier.id.to_s } }] }
@@ -302,7 +302,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with multiple annotations' do
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           {},
           { type: :integer_number },
@@ -350,7 +350,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with etat civil and localisation annotations' do
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           { type: :phone },
           { type: :iban },
@@ -410,7 +410,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with piece justificative annotation' do
-      let(:types_de_champ_private) { [{ type: :piece_justificative }] }
+      let(:private_type_de_champs) { [{ type: :piece_justificative }] }
       let(:piece_justificative_annotation) { champs_private.find(&:piece_justificative?) }
 
       let(:blobs) do

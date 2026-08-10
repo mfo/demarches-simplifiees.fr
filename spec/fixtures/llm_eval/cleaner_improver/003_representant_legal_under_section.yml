@@ -1,7 +1,7 @@
 description: "Dans une section cadrée, il ne faut pas supprimer les champs pertinents comme l'adresse électronique du représentant légal."
 
 procedure_params:
-  types_de_champ_public:
+  public_type_de_champs:
     - type: header_section
       libelle: "Représentant légal de la structure"
       stable_id: 100

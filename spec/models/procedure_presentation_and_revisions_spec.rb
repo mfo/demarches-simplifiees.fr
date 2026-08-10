@@ -5,7 +5,7 @@ describe ProcedurePresentation do
     subject { procedure.type_de_champs_for_procedure_export.pluck(:libelle) }
 
     context 'for a draft procedure' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :number, libelle: 'libelle 1' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :number, libelle: 'libelle 1' }]) }
 
       context 'when there are one tdc on a draft revision' do
         it { is_expected.to match(['libelle 1']) }
@@ -13,7 +13,7 @@ describe ProcedurePresentation do
     end
 
     context 'for a published procedure' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: []) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: []) }
       let!(:tdc) { procedure.draft_revision.add_type_de_champ({ type_champ: :number, libelle: 'libelle 1' }) }
 
       before do

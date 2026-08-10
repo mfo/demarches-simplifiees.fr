@@ -1061,7 +1061,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a simple routable type de champ' do
       let!(:procedure) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                ],
                administrateurs: [admin])
@@ -1078,7 +1078,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a conditionable but not simple routable type de champ' do
       let!(:procedure) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :integer_number },
                ],
                administrateurs: [admin])
@@ -1172,7 +1172,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a drop_down_list type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :drop_down_list, libelle: 'Votre ville', drop_down_options: ['Paris', 'Lyon', 'Marseille'], drop_down_other: true },
                  { type: :text, libelle: 'Un champ texte' },
                ],
@@ -1208,7 +1208,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a departements type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :departements }],
+               public_type_de_champs: [{ type: :departements }],
                administrateurs: [admin])
       end
 
@@ -1244,7 +1244,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a regions type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :regions }],
+               public_type_de_champs: [{ type: :regions }],
                administrateurs: [admin])
       end
 
@@ -1264,7 +1264,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a pays type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :pays }],
+               public_type_de_champs: [{ type: :pays }],
                administrateurs: [admin])
       end
 
@@ -1299,7 +1299,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a communes type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :communes }],
+               public_type_de_champs: [{ type: :communes }],
                administrateurs: [admin])
       end
 
@@ -1334,7 +1334,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with an epci type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :epci }],
+               public_type_de_champs: [{ type: :epci }],
                administrateurs: [admin])
       end
 
@@ -1354,7 +1354,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with an address type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :address }],
+               public_type_de_champs: [{ type: :address }],
                administrateurs: [admin])
       end
 
@@ -1375,7 +1375,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   describe '#wizard' do
     let!(:procedure4) do
       create(:procedure,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                { type: :text, libelle: 'Un champ texte' },
              ],
@@ -1495,7 +1495,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   describe '#bulk_route' do
     let!(:procedure) do
       create(:procedure,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                { type: :text, libelle: 'Un champ texte' },
              ],

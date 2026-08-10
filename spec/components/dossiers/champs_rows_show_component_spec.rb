@@ -2,7 +2,7 @@
 
 RSpec.describe Dossiers::ChampsRowsShowComponent, type: :component do
   let(:procedure) do
-    create(:procedure, :published, types_de_champ_public: [
+    create(:procedure, :published, public_type_de_champs: [
       { type: :repetition, libelle: "Titre bloc répétable", children: [{ type: :text, libelle: "Texte court" }] },
     ])
   end
@@ -36,7 +36,7 @@ RSpec.describe Dossiers::ChampsRowsShowComponent, type: :component do
 
   describe "modified badge" do
     let(:procedure) do
-      create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: "Texte" }])
+      create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: "Texte" }])
     end
     let(:dossier) do
       create(:dossier, :en_instruction, :with_populated_champs, procedure:).tap do |dossier|

@@ -4,7 +4,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
   describe '#columns' do
     let(:referentiel) { create(:csv_referentiel, :with_items) }
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
+      create(:procedure, public_type_de_champs: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
     end
     let(:multiple_dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
 
@@ -24,7 +24,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
   describe '#libelles_for_export' do
     let(:referentiel) { create(:csv_referentiel, :with_items) }
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
+      create(:procedure, public_type_de_champs: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
     end
     let(:multiple_dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
 
@@ -38,7 +38,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
   describe '#champ_value_for_export' do
     let(:referentiel) { create(:csv_referentiel, :with_items) }
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
+      create(:procedure, public_type_de_champs: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
     end
     let(:multiple_dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
     let(:selected_items) { referentiel.items.first(2) }
@@ -56,7 +56,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
 
     context 'when the champ is not in advanced mode' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, drop_down_mode: 'simple' }])
+        create(:procedure, public_type_de_champs: [{ type: :multiple_drop_down_list, drop_down_mode: 'simple' }])
       end
       let(:champ) { multiple_dropdown_list_tdc.build_champ(value: ['val1', 'val2'].to_json) }
 

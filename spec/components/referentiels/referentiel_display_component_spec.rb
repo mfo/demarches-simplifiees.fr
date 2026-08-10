@@ -7,12 +7,12 @@ RSpec.describe Referentiels::ReferentielDisplayComponent, type: :component do
   let(:procedure) do
     create(
       :procedure,
-      types_de_champ_public: types_de_champ_public,
-      types_de_champ_private: types_de_champ_private
+      public_type_de_champs: public_type_de_champs,
+      private_type_de_champs: private_type_de_champs
     )
   end
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel: referentiel, referentiel_mapping: }] }
-  let(:types_de_champ_private) { [] }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel: referentiel, referentiel_mapping: }] }
+  let(:private_type_de_champs) { [] }
   let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
   let(:referentiel) { create(:api_referentiel, :exact_match) }
 
@@ -58,8 +58,8 @@ RSpec.describe Referentiels::ReferentielDisplayComponent, type: :component do
       end
 
       context 'when the field is private' do
-        let(:types_de_champ_public) { [] }
-        let(:types_de_champ_private) { [{ type: :referentiel, referentiel: referentiel, referentiel_mapping: }] }
+        let(:public_type_de_champs) { [] }
+        let(:private_type_de_champs) { [{ type: :referentiel, referentiel: referentiel, referentiel_mapping: }] }
         let(:type_de_champ) { procedure.draft_revision.private_root_type_de_champs.first }
 
         it 'hides the usager column' do

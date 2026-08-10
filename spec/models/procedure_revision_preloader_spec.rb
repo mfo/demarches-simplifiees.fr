@@ -3,12 +3,12 @@
 describe ProcedureRevisionPreloader do
   let(:procedure) do
     create(:procedure, :published,
-           types_de_champ_public: [
+           public_type_de_champs: [
              { type: :piece_justificative },
              { type: :integer_number },
              { type: :decimal_number },
            ],
-           types_de_champ_private: [
+           private_type_de_champs: [
              { type: :text },
              { type: :textarea },
            ])

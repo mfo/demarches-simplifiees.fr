@@ -3,7 +3,7 @@
 describe TypesDeChampEditor::ChampComponent, type: :component do
   describe 'render by type' do
     context 'explication' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :explication }]) }
       let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
       let(:coordinate) { procedure.draft_revision.coordinate_for(tdc) }
       let(:component) { described_class.new(coordinate: coordinate, upper_coordinates: []) }

@@ -5,8 +5,8 @@ require 'rails_helper'
 describe Champs::ReferentielChamp, type: :model do
   let(:referentiel) { create(:api_referentiel, :exact_match) }
   let(:base_stable_id) { ActiveRecord::Base.connection.select_value("SELECT last_value FROM types_de_champ_id_seq").to_i }
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:referentiel_champ) { dossier.champ_data.find(&:referentiel?) }
   let(:champ) { dossier.root_champs_public.find(&:referentiel?) }
@@ -58,7 +58,7 @@ describe Champs::ReferentielChamp, type: :model do
 
     context 'when referentiel had not prefill' do
       let(:data) { {} }
-      let(:types_de_champ_public) { [type: :referentiel, referentiel: referentiel, referentiel_mapping: nil] }
+      let(:public_type_de_champs) { [type: :referentiel, referentiel: referentiel, referentiel_mapping: nil] }
       it 'does not raise error' do
         expect { subject }.not_to raise_error
       end
@@ -67,7 +67,7 @@ describe Champs::ReferentielChamp, type: :model do
     context 'when prefill/mapping is configured' do
       let(:prefillable_stable_id) { base_stable_id + 102 }
       let(:prefilled_type_de_champ_options) { {} }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -128,7 +128,7 @@ describe Champs::ReferentielChamp, type: :model do
     context 'when autocomplete' do
       let(:types) { Referentiels::MappingFormComponent::TYPES }
       let(:referentiel) { create(:api_referentiel, :autocomplete, datasource: datasource) }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,

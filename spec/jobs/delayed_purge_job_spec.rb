@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe DelayedPurgeJob, type: :job do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
   let!(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:blob) { dossier.champ_data.first.piece_justificative_file.first.blob }
   let(:job) { described_class.new(blob) }

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe ChampValidateConcern do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:type_de_champ) { dossier.revision.public_root_type_de_champs.first }
   let(:public_id) { type_de_champ.public_id(nil) }
-  let(:types_de_champ_public) { [{ type: :email }] }
+  let(:public_type_de_champs) { [{ type: :email }] }
 
   def update_champ(value)
     dossier.public_champ_for_update(public_id, updated_by: 'test').update(value:)
@@ -51,7 +51,7 @@ RSpec.describe ChampValidateConcern do
     end
 
     context 'attachments' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }] }
 
       before {
         dossier.revision.revision_type_de_champs.delete_all
@@ -66,7 +66,7 @@ RSpec.describe ChampValidateConcern do
     end
 
     context 'drop_down_list' do
-      let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list }] }
 
       before {
         dossier.revision.revision_type_de_champs.delete_all
@@ -81,7 +81,7 @@ RSpec.describe ChampValidateConcern do
     end
 
     context 'external_data which needs validation but is not in revision' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'rib' }] }
 
       before do
         allow_any_instance_of(Champs::PieceJustificativeChamp).to receive(:external_data_needed_for_validation?).and_return(true)
@@ -117,7 +117,7 @@ RSpec.describe ChampValidateConcern do
     end
 
     context 'validate the carried over value with the new champ type' do
-      let(:types_de_champ_public) { [{ type: :text }] }
+      let(:public_type_de_champs) { [{ type: :text }] }
 
       before {
         update_champ('test')
@@ -135,7 +135,7 @@ RSpec.describe ChampValidateConcern do
   end
 
   context 'when in a row' do
-    let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :email }], mandatory: true }] }
+    let(:public_type_de_champs) { [{ type: :repetition, children: [{ type: :email }], mandatory: true }] }
     let(:type_de_champ_in_repetition) { dossier.revision.children_of(type_de_champ).first }
     let(:row_id) { dossier.repetition_row_ids(type_de_champ).first }
     let(:public_id) { type_de_champ_in_repetition.public_id(row_id) }

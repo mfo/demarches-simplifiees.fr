@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe EditableChamp::CommunesComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :communes }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:tdc) { procedure.active_revision.type_de_champs.first }
   let(:champ) { dossier.champ_data.first }

@@ -1277,7 +1277,7 @@ describe Instructeurs::ProceduresController, type: :controller do
     render_views
 
     let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, types_de_champ_public: [type: :text, libelle: "Premier champ"]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [type: :text, libelle: "Premier champ"]) }
 
     before do
       sign_in(instructeur.user)

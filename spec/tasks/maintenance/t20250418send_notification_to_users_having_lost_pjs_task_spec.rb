@@ -10,7 +10,7 @@ module Maintenance
 
       context 'when a dossier with missing pj is in brouillon' do
         let(:procedure) do
-          create(:procedure_with_dossiers, types_de_champ_public: [
+          create(:procedure_with_dossiers, public_type_de_champs: [
             { type: :piece_justificative, libelle: 'pj_1' },
             { type: :piece_justificative, libelle: 'pj_2' },
           ])

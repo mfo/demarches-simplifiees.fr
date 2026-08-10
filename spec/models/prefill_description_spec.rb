@@ -16,8 +16,8 @@ RSpec.describe PrefillDescription, type: :model do
   end
 
   describe '#type_de_champs' do
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{}] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{}] }
     let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:prefill_description) { described_class.new(procedure) }
 
@@ -30,7 +30,7 @@ RSpec.describe PrefillDescription, type: :model do
 
     shared_examples "filters out non fillable types de champ" do |type_de_champ_name|
       context "when the procedure has a #{type_de_champ_name} champ" do
-        let(:types_de_champ_public) { [{}, { type: type_de_champ_name }] }
+        let(:public_type_de_champs) { [{}, { type: type_de_champ_name }] }
 
         it { expect(prefill_description.type_de_champs.map(&:type_champ)).not_to include(type_de_champ_name) }
       end
@@ -40,7 +40,7 @@ RSpec.describe PrefillDescription, type: :model do
     it_behaves_like "filters out non fillable types de champ", :explication
 
     context 'when the procedure contains prefillable and non prefillable types de champ' do
-      let(:types_de_champ_public) { [{}, { type: :carte }, { type: :decimal_number }] }
+      let(:public_type_de_champs) { [{}, { type: :carte }, { type: :decimal_number }] }
 
       it "sort types de champ by putting prefillable ones first" do
         expect(prefill_description.type_de_champs.map(&:type_champ)).to eq([
@@ -86,8 +86,8 @@ RSpec.describe PrefillDescription, type: :model do
   end
 
   describe '#link_too_long?' do
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{}, {}] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{}, {}] }
     let(:prefill_description) { described_class.new(procedure) }
     let(:selected_type_de_champ_ids) { procedure.active_revision.type_de_champs.map(&:id).join(' ') }
 
@@ -96,7 +96,7 @@ RSpec.describe PrefillDescription, type: :model do
     before { prefill_description.update(selected_type_de_champ_ids:) }
 
     context 'when the prefill link is too long' do
-      let(:types_de_champ_public) { Array.new(65) { {} } }
+      let(:public_type_de_champs) { Array.new(65) { {} } }
 
       it { expect(too_long).to eq(true) }
     end
@@ -108,7 +108,7 @@ RSpec.describe PrefillDescription, type: :model do
 
   describe '#prefill_link' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :text },
         { type: :epci },
         {
@@ -149,7 +149,7 @@ RSpec.describe PrefillDescription, type: :model do
 
   describe '#prefill_query' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :text },
         { type: :epci },
         {

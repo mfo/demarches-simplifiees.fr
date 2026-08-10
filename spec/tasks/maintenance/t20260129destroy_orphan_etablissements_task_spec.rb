@@ -10,7 +10,7 @@ module Maintenance
       let!(:orphan_etablissement) { create(:etablissement, dossier: nil) }
       let!(:etablissement_with_dossier) { create(:etablissement, dossier: create(:dossier)) }
       let!(:etablissement_with_champ) do
-        procedure = create(:procedure, types_de_champ_public: [{ type: :siret }])
+        procedure = create(:procedure, public_type_de_champs: [{ type: :siret }])
         dossier = create(:dossier, procedure:)
         etablissement = create(:etablissement, dossier: nil)
         dossier.champ_data.first.update!(etablissement:)

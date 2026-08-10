@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 describe EditableChamp::EditableChampComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_public) { [] }
-  let(:types_de_champ_private) { [] }
+  let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+  let(:public_type_de_champs) { [] }
+  let(:private_type_de_champs) { [] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { (dossier.root_champs_public + dossier.root_champs_private).first }
 
@@ -17,25 +17,25 @@ describe EditableChamp::EditableChampComponent, type: :component do
 
     context 'when an editable public champ' do
       let(:controllers) { ['autosave'] }
-      let(:types_de_champ_public) { [{ type: :text }] }
+      let(:public_type_de_champs) { [{ type: :text }] }
 
       it { expect(subject).to eq(data) }
     end
 
     context 'when a repetition champ' do
-      let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :text }] }] }
+      let(:public_type_de_champs) { [{ type: :repetition, children: [{ type: :text }] }] }
 
       it { expect(subject).to eq(nil) }
     end
 
     context 'when a carte champ' do
-      let(:types_de_champ_public) { [{ type: :carte }] }
+      let(:public_type_de_champs) { [{ type: :carte }] }
 
       it { expect(subject).to eq(nil) }
     end
 
     context 'when a private champ' do
-      let(:types_de_champ_private) { [{ type: :text }] }
+      let(:private_type_de_champs) { [{ type: :text }] }
 
       it { expect(subject).to eq('autosave') }
     end
@@ -46,14 +46,14 @@ describe EditableChamp::EditableChampComponent, type: :component do
 
       context 'when a public dropdown champ' do
         let(:controllers) { ['autosave'] }
-        let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+        let(:public_type_de_champs) { [{ type: :drop_down_list }] }
 
         it { expect(subject).to eq(data) }
       end
 
       context 'when a private dropdown champ' do
         let(:controllers) { ['autosave'] }
-        let(:types_de_champ_private) { [{ type: :drop_down_list }] }
+        let(:private_type_de_champs) { [{ type: :drop_down_list }] }
 
         it { expect(subject).to eq(data) }
       end
@@ -64,7 +64,7 @@ describe EditableChamp::EditableChampComponent, type: :component do
     subject { component.row_number_if_in_repetition }
 
     context "when champ is not a child" do
-      let(:types_de_champ_public) { [{ type: :text }] }
+      let(:public_type_de_champs) { [{ type: :text }] }
 
       it "returns nil" do
         expect(subject).to be_nil
@@ -72,7 +72,7 @@ describe EditableChamp::EditableChampComponent, type: :component do
     end
 
     context "when champ is a child but has more than 1 siblings" do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :repetition, children: [{ type: :text }, { type: :text }] }]
       end
 
@@ -84,7 +84,7 @@ describe EditableChamp::EditableChampComponent, type: :component do
     end
 
     context "when champ is a child and alone in the repetition" do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [{ type: :repetition, children: [{ type: :text }] }]
       end
 

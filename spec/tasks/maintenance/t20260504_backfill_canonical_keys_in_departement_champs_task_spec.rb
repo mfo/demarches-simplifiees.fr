@@ -4,7 +4,7 @@ require "rails_helper"
 
 module Maintenance
   RSpec.describe T20260504BackfillCanonicalKeysInDepartementChampsTask do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :departements }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :departements }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.champ_data.first }
 

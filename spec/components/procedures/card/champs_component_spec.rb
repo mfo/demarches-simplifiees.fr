@@ -2,9 +2,9 @@
 
 describe Procedure::Card::ChampsComponent, type: :component do
   describe 'render' do
-    let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
-    let(:types_de_champ_private) { [] }
-    let(:types_de_champ_public) { [] }
+    let(:procedure) { create(:procedure, private_type_de_champs:, public_type_de_champs:) }
+    let(:private_type_de_champs) { [] }
+    let(:public_type_de_champs) { [] }
     before { procedure.validate(:publication) }
     subject { render_inline(described_class.new(procedure: procedure)) }
 
@@ -14,15 +14,15 @@ describe Procedure::Card::ChampsComponent, type: :component do
       end
     end
 
-    context 'when errors on types_de_champs_public' do
-      let(:types_de_champ_public) { [{ type: :repetition, children: [] }] }
+    context 'when errors on public_type_de_champs' do
+      let(:public_type_de_champs) { [{ type: :repetition, children: [] }] }
       it 'does not render' do
         expect(subject).to have_selector('.fr-badge--error', text: 'À modifier')
       end
     end
 
-    context 'when errors on types_de_champs_private' do
-      let(:types_de_champ_private) { [{ type: :repetition, children: [] }] }
+    context 'when errors on private_type_de_champs' do
+      let(:private_type_de_champs) { [{ type: :repetition, children: [] }] }
 
       it 'render the template' do
         expect(subject).to have_selector('.fr-badge--warning', text: 'À faire')

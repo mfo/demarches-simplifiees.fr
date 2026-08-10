@@ -31,7 +31,7 @@ describe ChampData do
       end
 
       context 'when repetition blank' do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, mandatory: false, children: [{ type: :text }] }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, mandatory: false, children: [{ type: :text }] }]) }
         let(:dossier) { create(:dossier, procedure:) }
         let(:champ) { dossier.root_champs_public.find(&:repetition?) }
 
@@ -56,7 +56,7 @@ describe ChampData do
     end
 
     context 'when repetition not blank' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :text }] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, children: [{ type: :text }] }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ) { dossier.root_champs_public.find(&:repetition?) }
 
@@ -111,7 +111,7 @@ describe ChampData do
 
   describe '#sections' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [{}, { type: :header_section }, { type: :repetition, mandatory: true, children: [{ type: :header_section }] }], types_de_champ_private: [{}, { type: :header_section }])
+      create(:procedure, public_type_de_champs: [{}, { type: :header_section }, { type: :repetition, mandatory: true, children: [{ type: :header_section }] }], private_type_de_champs: [{}, { type: :header_section }])
     end
     let(:dossier) { create(:dossier, procedure: procedure) }
     let(:public_champ) { dossier.root_champs_public.first }
@@ -495,7 +495,7 @@ describe ChampData do
 
   describe '#enqueue_virus_scan' do
     context 'when type_champ is type_de_champ_piece_justificative' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
 
@@ -525,7 +525,7 @@ describe ChampData do
 
   describe '#enqueue_watermark_job' do
     context 'when type_champ is piece_justificative with titre_identite nature' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
 
@@ -582,16 +582,16 @@ describe ChampData do
   end
 
   describe 'clone' do
-    let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
-    let(:types_de_champ_private) { [] }
-    let(:types_de_champ_public) { [] }
+    let(:procedure) { create(:procedure, private_type_de_champs:, public_type_de_champs:) }
+    let(:private_type_de_champs) { [] }
+    let(:public_type_de_champs) { [] }
     let(:champ) { dossier.champ_data.first }
 
     subject { champ.clone }
 
     context 'when champ referentiel' do
       let(:referentiel) { create(:api_referentiel, :autocomplete) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel:, mandatory: true }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel:, mandatory: true }] }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
       context 'when referentiel' do
@@ -602,7 +602,7 @@ describe ChampData do
     end
 
     context 'when champ public' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative }] }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
       it { expect(subject.piece_justificative_file).to be_attached }
@@ -610,14 +610,14 @@ describe ChampData do
 
     context 'champ private' do
       let(:dossier) { create(:dossier, :with_populated_annotations, procedure:) }
-      let(:types_de_champ_private) { [{ type: :piece_justificative }] }
+      let(:private_type_de_champs) { [{ type: :piece_justificative }] }
 
       it { expect(subject.piece_justificative_file).not_to be_attached }
     end
   end
 
   describe "#parent" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, mandatory: false, children: [{ type: :text }] }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, mandatory: false, children: [{ type: :text }] }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
     let(:champ) { dossier.champ_data.where(type: "Champs::TextChamp").first }
@@ -628,7 +628,7 @@ describe ChampData do
   end
 
   describe '#update_timestamps' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -654,7 +654,7 @@ describe ChampData do
   end
 
   describe '#value_updated_at' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -671,7 +671,7 @@ describe ChampData do
   end
 
   describe '#clone_value_from' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:source_champ) { dossier.champ_data.first }
     let(:target_champ) { source_champ.dup.tap { it.stream = Dossier::USER_BUFFER_STREAM } }
@@ -687,7 +687,7 @@ describe ChampData do
 
     context 'with an autocomplete referentiel champ' do
       let(:referentiel) { create(:api_referentiel, :autocomplete) }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel:, mandatory: true }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :referentiel, referentiel:, mandatory: true }]) }
       let(:data) { { 'id' => '123', 'label' => 'foo' } }
 
       before { source_champ.update_columns(data:) }

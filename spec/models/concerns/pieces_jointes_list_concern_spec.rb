@@ -5,8 +5,8 @@ describe PiecesJointesListConcern do
     include Logic
 
     describe 'public_wrapped_partionned_pjs and exportables_pieces_jointes' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-      let(:types_de_champ_public) do
+      let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+      let(:public_type_de_champs) do
         [
           { type: :integer_number, stable_id: 900 },
           { type: :piece_justificative, libelle: "pj1", stable_id: 910 },
@@ -16,7 +16,7 @@ describe PiecesJointesListConcern do
         ]
       end
 
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           { type: :integer_number, stable_id: 950 },
           { type: :piece_justificative, libelle: "pj5", stable_id: 960 },
@@ -58,14 +58,14 @@ describe PiecesJointesListConcern do
   end
 
   describe '#outdated_exportables_pieces_jointes' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :piece_justificative, libelle: "outdated", stable_id: 1 },
         { type: :piece_justificative, libelle: "kept", stable_id: 2 },
       ]
     end
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
 
     before do
       procedure.draft_revision.remove_type_de_champ(1)

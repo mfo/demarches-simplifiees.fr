@@ -6,8 +6,8 @@ module Maintenance
   RSpec.describe T20250527dropInvalideGeoAreasTask do
     describe "#process" do
       subject(:process) { described_class.process(element) }
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :carte }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :carte }] }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ) { dossier.champ_data.first }
 

@@ -4,9 +4,9 @@ describe Procedure::ErrorsSummary, type: :component do
   subject { render_inline(described_class.new(procedure:, validation_context:)) }
 
   describe 'validations context' do
-    let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
-    let(:types_de_champ_private) { [{ type: :repetition, children: [], libelle: 'private' }] }
-    let(:types_de_champ_public) { [{ type: :repetition, children: [], libelle: 'public' }] }
+    let(:procedure) { create(:procedure, private_type_de_champs:, public_type_de_champs:) }
+    let(:private_type_de_champs) { [{ type: :repetition, children: [], libelle: 'private' }] }
+    let(:public_type_de_champs) { [{ type: :repetition, children: [], libelle: 'public' }] }
 
     before { subject }
 
@@ -48,7 +48,7 @@ describe Procedure::ErrorsSummary, type: :component do
     include Logic
 
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { libelle: 'repetition requires children', type: :repetition, children: [] },
         { libelle: 'drop down list requires options', type: :drop_down_list, options: [] },
         { libelle: 'invalid condition', type: :text, condition: ds_eq(constant(true), constant(1)) },

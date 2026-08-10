@@ -4,8 +4,8 @@ require "rails_helper"
 
 module Maintenance
   RSpec.describe DeleteDraftRevisionTypeDeChampsTask do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) {
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) {
       [
         { type: :text, libelle: "Text", stable_id: 11, mandatory: true },
         { type: :number, libelle: "Number", description: "Old desc", stable_id: 12 },

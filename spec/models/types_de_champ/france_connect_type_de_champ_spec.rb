@@ -3,7 +3,7 @@
 describe TypesDeChamp::FranceConnectTypeDeChamp do
   context "when type de champ is quotient_famiilial" do
     describe '#champ_blank?' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :quotient_familial }]) }
       let(:tdc_quotient_familial) { procedure.active_revision.type_de_champs.first }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
@@ -46,7 +46,7 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
     end
 
     describe '#columns' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial, libelle: 'qf' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :quotient_familial, libelle: 'qf' }]) }
       let(:tdc_quotient_familial) { procedure.active_revision.type_de_champs.first }
       let(:columns) { tdc_quotient_familial.columns(procedure_id: procedure.id) }
 
@@ -67,7 +67,7 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
 
   context "when type de champ is etudiant_boursier" do
     describe '#columns' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :etudiant_boursier, libelle: 'eb' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :etudiant_boursier, libelle: 'eb' }]) }
       let(:tdc_etudiant_boursier) { procedure.active_revision.type_de_champs.first }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }

@@ -2,7 +2,7 @@
 
 describe Procedure::RevisionChangesComponent, type: :component do
   describe 'dossier_link changes' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :dossier_link, libelle: 'Dossier lié' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :dossier_link, libelle: 'Dossier lié' }]) }
     let(:new_revision) { procedure.create_new_revision }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
@@ -79,7 +79,7 @@ describe Procedure::RevisionChangesComponent, type: :component do
   end
 
   describe "carte layers changes" do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :carte, libelle: 'La carte' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :carte, libelle: 'La carte' }]) }
     let(:new_revision) { procedure.create_new_revision }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
@@ -114,7 +114,7 @@ describe Procedure::RevisionChangesComponent, type: :component do
   end
 
   describe "repetition limits changes" do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :repetition, libelle: "Bloc" }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :repetition, libelle: "Bloc" }]) }
     let(:new_revision) { procedure.create_new_revision }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 

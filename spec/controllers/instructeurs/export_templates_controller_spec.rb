@@ -7,7 +7,7 @@ describe Instructeurs::ExportTemplatesController, type: :controller do
   let(:procedure) do
     create(
       :procedure, instructeurs: [instructeur],
-      types_de_champ_public: [{ type: :piece_justificative, libelle: "pj1", stable_id: 3 }]
+      public_type_de_champs: [{ type: :piece_justificative, libelle: "pj1", stable_id: 3 }]
     )
   end
   let(:groupe_instructeur) { procedure.defaut_groupe_instructeur }
@@ -107,7 +107,7 @@ describe Instructeurs::ExportTemplatesController, type: :controller do
       let(:procedure) do
         create(
           :procedure, instructeurs: [instructeur],
-          types_de_champ_public: [{ type: :text, libelle: 'un texte', stable_id: 1 }]
+          public_type_de_champs: [{ type: :text, libelle: 'un texte', stable_id: 1 }]
         )
       end
 

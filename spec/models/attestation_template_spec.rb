@@ -56,13 +56,13 @@ describe AttestationTemplate, type: :model do
   describe 'generate_attestation_for' do
     let(:procedure) do
       create(:procedure,
-        types_de_champ_public: type_de_champs,
-        types_de_champ_private: types_de_champ_private,
+        public_type_de_champs: type_de_champs,
+        private_type_de_champs: private_type_de_champs,
         attestation_acceptation_template: attestation_template)
     end
     let(:etablissement) { create(:etablissement) }
     let(:type_de_champs) { [] }
-    let(:types_de_champ_private) { [] }
+    let(:private_type_de_champs) { [] }
     let(:dossier) { create(:dossier, :accepte, procedure:) }
 
     let(:type_de_champs) do

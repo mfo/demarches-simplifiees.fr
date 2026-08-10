@@ -4,7 +4,7 @@ describe 'Instructeur viewing a linked dossier they cannot access:', js: true do
   let(:instructeur) { create(:instructeur) }
   let(:other_procedure) { create(:procedure, :published) }
   let(:linked_dossier) { create(:dossier, :en_construction, procedure: other_procedure) }
-  let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], types_de_champ_public: [{ type: :dossier_link }]) }
+  let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], public_type_de_champs: [{ type: :dossier_link }]) }
   let(:dossier) { create(:dossier, :en_instruction, procedure:) }
 
   before do

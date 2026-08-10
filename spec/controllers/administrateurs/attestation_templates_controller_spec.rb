@@ -186,7 +186,7 @@ describe Administrateurs::AttestationTemplatesController, type: :controller do
     end
 
     context 'when procedure is published' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }, { type: :text }, { type: :text }], administrateur: admin, attestation_acceptation_template: attestation_template) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }, { type: :text }, { type: :text }], administrateur: admin, attestation_acceptation_template: attestation_template) }
       let(:dossier) {}
       let(:attestation_template) { build(:attestation_template, title: 'a') }
       let(:attestation_params) do

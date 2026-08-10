@@ -5,7 +5,7 @@ require 'active_storage_validations/matchers'
 describe Champs::PieceJustificativeChamp do
   include ActiveStorageValidations::Matchers
 
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { dossier.root_champs_public.first }
 
@@ -95,7 +95,7 @@ describe Champs::PieceJustificativeChamp do
 
   describe 'dynamic validations' do
     context 'titre_identite nature' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ) { dossier.root_champs_public.first }
 
@@ -128,7 +128,7 @@ describe Champs::PieceJustificativeChamp do
 
     ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
       context "#{ocr_nature} nature" do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: ocr_nature }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: ocr_nature }]) }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         let(:champ) { dossier.root_champs_public.first }
 
@@ -148,7 +148,7 @@ describe Champs::PieceJustificativeChamp do
     end
 
     context 'pj_limit_formats with document_texte' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ) { dossier.root_champs_public.first }
 
@@ -173,7 +173,7 @@ describe Champs::PieceJustificativeChamp do
     end
 
     context 'pj_limit_formats enabled with empty families' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: [] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: [] }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ) { dossier.root_champs_public.first }
 
@@ -192,7 +192,7 @@ describe Champs::PieceJustificativeChamp do
   end
 
   describe '#ocr_result' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'justificatif_domicile' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'justificatif_domicile' }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -226,7 +226,7 @@ describe Champs::PieceJustificativeChamp do
     end
 
     context 'when nature is avis_impot' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'avis_impot' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'avis_impot' }]) }
       let(:value_json) { { 'reference_avis' => '2538A22409999' } }
 
       before do

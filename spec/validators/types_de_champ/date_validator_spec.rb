@@ -3,11 +3,11 @@
 RSpec.describe TypesDeChamp::DateValidator do
   shared_examples "date range validation" do |scope:, type:|
     let(:attribute) do
-      scope == :types_de_champ_public ? :public_draft_type_de_champs : :private_draft_type_de_champs
+      scope == :public_type_de_champs ? :public_draft_type_de_champs : :private_draft_type_de_champs
     end
 
     let(:validation_context) do
-      scope == :types_de_champ_public ? :types_de_champ_public_editor : :types_de_champ_private_editor
+      scope == :public_type_de_champs ? :types_de_champ_public_editor : :types_de_champ_private_editor
     end
 
     let(:procedure) do
@@ -80,17 +80,17 @@ RSpec.describe TypesDeChamp::DateValidator do
   end
 
   describe "public type_de_champs" do
-    include_examples "date range validation", scope: :types_de_champ_public, type: :date
-    include_examples "date range validation", scope: :types_de_champ_public, type: :datetime
+    include_examples "date range validation", scope: :public_type_de_champs, type: :date
+    include_examples "date range validation", scope: :public_type_de_champs, type: :datetime
   end
 
   describe "private type_de_champs" do
-    include_examples "date range validation", scope: :types_de_champ_private, type: :date
-    include_examples "date range validation", scope: :types_de_champ_private, type: :datetime
+    include_examples "date range validation", scope: :private_type_de_champs, type: :date
+    include_examples "date range validation", scope: :private_type_de_champs, type: :datetime
   end
 
   describe "prefill_with_france_connect_information uniqueness" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :date }, { type: :date }, { type: :text }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :date }, { type: :date }, { type: :text }]) }
     let(:tdcs) { procedure.active_revision.public_root_type_de_champs }
 
     subject { procedure.validate(:types_de_champ_public_editor) }

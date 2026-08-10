@@ -2,7 +2,7 @@
 
 RSpec.describe Maintenance::BackfillVariantsForPjTask, :external_deps do
   describe '#process' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, depose_at: 1.day.ago) }
 
     subject(:task) do
@@ -35,7 +35,7 @@ RSpec.describe Maintenance::BackfillVariantsForPjTask, :external_deps do
   end
 
   describe '#collection' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
 
     let!(:dossier_in_range) { create(:dossier, :en_construction, procedure:, depose_at: 1.day.ago) }
     let!(:dossier_out_of_range) { create(:dossier, :en_construction, procedure:, depose_at: 10.days.ago) }

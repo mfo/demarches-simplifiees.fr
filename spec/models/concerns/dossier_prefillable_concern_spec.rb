@@ -2,10 +2,10 @@
 
 RSpec.describe DossierPrefillableConcern do
   describe '.prefill!' do
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:, types_de_champ_private:) }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:, private_type_de_champs:) }
     let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure: procedure) }
-    let(:types_de_champ_public) { [] }
-    let(:types_de_champ_private) { [] }
+    let(:public_type_de_champs) { [] }
+    let(:private_type_de_champs) { [] }
     let(:identity_attributes) { {} }
     let(:values) { [] }
 
@@ -21,7 +21,7 @@ RSpec.describe DossierPrefillableConcern do
     end
 
     context "when dossier is for individual" do
-      let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:, types_de_champ_private:) }
+      let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:, private_type_de_champs:) }
       let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure: procedure) }
 
       context "when identity_attributes is present" do
@@ -49,8 +49,8 @@ RSpec.describe DossierPrefillableConcern do
 
       context 'when champs_attributes has values' do
         context 'when the champs are valid' do
-          let(:types_de_champ_public) { [{ type: :text }, { type: :phone }] }
-          let(:types_de_champ_private) { [{ type: :text }] }
+          let(:public_type_de_champs) { [{ type: :text }, { type: :phone }] }
+          let(:private_type_de_champs) { [{ type: :text }] }
 
           let(:type_de_champ_1) { procedure.published_revision.public_root_type_de_champs.first }
           let(:value_1) { "any value" }
@@ -81,7 +81,7 @@ RSpec.describe DossierPrefillableConcern do
         end
 
         context 'when a champ is invalid' do
-          let(:types_de_champ_public) { [{ type: :phone }] }
+          let(:public_type_de_champs) { [{ type: :phone }] }
           let(:type_de_champ_1) { procedure.published_revision.public_root_type_de_champs.first }
           let(:value) { "a non phone value" }
           let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
@@ -102,12 +102,12 @@ RSpec.describe DossierPrefillableConcern do
     end
 
     context "when dossier is for etablissement" do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:, private_type_de_champs:) }
       let(:dossier) { create(:dossier, :brouillon, procedure: procedure) }
 
       context 'when champs_attributes has values' do
         context 'when the champs are valid' do
-          let(:types_de_champ_public) { [{ type: :text }] }
+          let(:public_type_de_champs) { [{ type: :text }] }
           let(:type_de_champ_1) { procedure.published_revision.public_root_type_de_champs.first }
           let(:value_1) { "any value" }
           let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
@@ -125,7 +125,7 @@ RSpec.describe DossierPrefillableConcern do
     end
 
     context 'when dossier contains a pre_rempli champ' do
-      let(:types_de_champ_public) { [{ type: :pre_rempli }] }
+      let(:public_type_de_champs) { [{ type: :pre_rempli }] }
       let(:type_de_champ_1) { procedure.published_revision.public_root_type_de_champs.first }
       let(:value_1) { "valeur pré-remplie" }
       let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
@@ -144,7 +144,7 @@ RSpec.describe DossierPrefillableConcern do
       # Regression: rejected prefill values used to be assigned to the champ while
       # screening with champ.valid?(:prefill), and could leak to the database
       # through the dossier champ_data autosave when a valid champ triggered a save.
-      let(:types_de_champ_public) { [{ type: :text }, { type: :date }] }
+      let(:public_type_de_champs) { [{ type: :text }, { type: :date }] }
       let(:text_type_de_champ) { procedure.published_revision.public_root_type_de_champs.first }
       let(:date_type_de_champ) { procedure.published_revision.public_root_type_de_champs.second }
       let(:params) do
@@ -166,7 +166,7 @@ RSpec.describe DossierPrefillableConcern do
       # Regression: prefilling such a champ with a human label used to be wiped
       # to nil by the store_referentiel before_save (which only matched item ids).
       let(:referentiel) { create(:csv_referentiel, :with_items) }
-      let(:types_de_champ_public) { [{ type: :drop_down_list, drop_down_mode: 'advanced', referentiel: }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, drop_down_mode: 'advanced', referentiel: }] }
       let(:type_de_champ_1) { procedure.published_revision.public_root_type_de_champs.first }
       let(:champ_1) { find_champ_by_stable_id(dossier, type_de_champ_1.stable_id) }
       let(:params) { { "champ_#{type_de_champ_1.to_typed_id_for_query}" => "fromage" } }
@@ -182,7 +182,7 @@ RSpec.describe DossierPrefillableConcern do
     end
 
     context 'when dossier contains champs with external_id' do
-      let(:types_de_champ_public) { [{ type: :siret }] }
+      let(:public_type_de_champs) { [{ type: :siret }] }
       let(:values) { [[champ_1, { external_id: value_1 }]] }
       let(:type_de_champ_1) { procedure.published_revision.public_root_type_de_champs.first }
       let(:value_1) { "130 025 265 00013" }

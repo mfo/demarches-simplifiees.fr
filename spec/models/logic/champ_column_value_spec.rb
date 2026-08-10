@@ -3,7 +3,7 @@
 describe Logic::ChampColumnValue do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no, libelle: 'yes' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no, libelle: 'yes' }]) }
   let(:column) { procedure.find_column(label: 'yes') }
   let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
@@ -42,7 +42,7 @@ describe Logic::ChampColumnValue do
   # surfaced by ChampColumn#value in the dashboard.
   describe '#compute with a drop_down_list with other enabled' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :drop_down_list, libelle: 'menu', drop_down_other: true },
       ])
     end
@@ -85,14 +85,14 @@ describe Logic::ChampColumnValue do
     subject { Logic::ChampColumnValue.new(column.stable_id, column.column_id).type(draft_tdcs) }
 
     context 'integer column' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :integer_number, libelle: 'n' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :integer_number, libelle: 'n' }]) }
       let(:label) { 'n' }
 
       it { is_expected.to eq(:number) }
     end
 
     context 'decimal column' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :decimal_number, libelle: 'd' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :decimal_number, libelle: 'd' }]) }
       let(:label) { 'd' }
 
       it { is_expected.to eq(:number) }
@@ -105,7 +105,7 @@ describe Logic::ChampColumnValue do
     end
 
     context 'drop_down_list column' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :drop_down_list, libelle: 'menu' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :drop_down_list, libelle: 'menu' }]) }
       let(:label) { 'menu' }
 
       it { is_expected.to eq(:enum) }
@@ -126,7 +126,7 @@ describe Logic::ChampColumnValue do
 
   describe '#options' do
     describe 'when there are different revision' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [linked_drop_down]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [linked_drop_down]) }
       let(:draft_tdcs) { procedure.draft_revision.type_de_champs }
       let(:linked_drop_down) do
         { type: :linked_drop_down_list, libelle: 'linked', drop_down_options: }
@@ -168,7 +168,7 @@ describe Logic::ChampColumnValue do
 
   describe '#==' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :yes_no, libelle: 'yes' },
         { type: :integer_number, libelle: 'n' },
       ])

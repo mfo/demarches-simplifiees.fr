@@ -16,7 +16,7 @@ describe 'linked dropdown lists', js: true do
     ]
   end
 
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :linked_drop_down_list, libelle: 'linked dropdown', options: options, mandatory: mandatory }]) }
+  let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :linked_drop_down_list, libelle: 'linked dropdown', options: options, mandatory: mandatory }]) }
 
   let(:user_dossier) { user.dossiers.first }
   context 'not mandatory' do

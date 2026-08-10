@@ -7,8 +7,8 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
     delegate :application, to: Rails
 
     let(:component) { described_class.new(referentiel:, type_de_champ:, procedure:) }
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :referentiel }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :referentiel }] }
     let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
     before do
       render_inline(component)
@@ -53,7 +53,7 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
       end
 
       context 'with api was selected and procedure has yes_no and address champs' do
-        let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'Majeur' }, { type: :address, libelle: 'Adresse' }, { type: :checkbox, libelle: 'Checkbox' }, { type: :referentiel }] }
+        let(:public_type_de_champs) { [{ type: :yes_no, libelle: 'Majeur' }, { type: :address, libelle: 'Adresse' }, { type: :checkbox, libelle: 'Checkbox' }, { type: :referentiel }] }
         let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.last }
         let(:referentiel) { type_de_champ.build_referentiel(type: "Referentiels::APIReferentiel") }
 

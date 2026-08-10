@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { task.process(element) }
 
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.root_champs_public.first }
       let(:element) { { "champ_id" => champ.id.to_s } }

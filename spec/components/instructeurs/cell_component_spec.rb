@@ -5,9 +5,9 @@ describe Instructeurs::CellComponent do
   let(:champ_data) { dossier.champ_data.index_by(&:stable_id) }
 
   describe '#call' do
-    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :for_individual, public_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:types_de_champ_public) { {} }
+    let(:public_type_de_champs) { {} }
 
     subject { component.call }
 
@@ -49,7 +49,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a boolean column' do
-      let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'yes_no' }] }
+      let(:public_type_de_champs) { [{ type: :yes_no, libelle: 'yes_no' }] }
       let(:column) { dossier.procedure.find_column(label: 'yes_no') }
 
       before { dossier.champ_data.first.update(value: 'true') }
@@ -65,7 +65,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a checkbox column' do
-      let(:types_de_champ_public) { [{ type: :checkbox, libelle: 'checkbox' }] }
+      let(:public_type_de_champs) { [{ type: :checkbox, libelle: 'checkbox' }] }
       let(:column) { dossier.procedure.find_column(label: 'checkbox') }
 
       before { dossier.champ_data.first.update(value: 'true') }
@@ -80,7 +80,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a date column' do
-      let(:types_de_champ_public) { [{ type: :date, libelle: 'date' }] }
+      let(:public_type_de_champs) { [{ type: :date, libelle: 'date' }] }
       let(:column) { dossier.procedure.find_column(label: 'date') }
 
       before { dossier.champ_data.first.update(value: Date.parse("12/02/2025")) }
@@ -89,7 +89,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a datetime column' do
-      let(:types_de_champ_public) { [{ type: :datetime, libelle: 'datetime' }] }
+      let(:public_type_de_champs) { [{ type: :datetime, libelle: 'datetime' }] }
       let(:column) { dossier.procedure.find_column(label: 'datetime') }
 
       before { dossier.champ_data.first.update(value: Time.zone.parse("12/02/2025 09:19").iso8601) }
@@ -98,7 +98,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a date column with value as string' do
-      let(:types_de_champ_public) { [{ type: :siret, libelle: 'siret' }] }
+      let(:public_type_de_champs) { [{ type: :siret, libelle: 'siret' }] }
       let(:column) { dossier.procedure.find_column(label: 'siret – Entreprise date de création') }
       let(:etablissement) { build(:etablissement, entreprise_date_creation: Date.new(2015, 8, 10)) }
 
@@ -111,7 +111,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a enum column' do
-      let(:types_de_champ_public) { [{ type: :drop_down_list, libelle: 'drop_down_list', options: ['a', 'b', 'c'] }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, libelle: 'drop_down_list', options: ['a', 'b', 'c'] }] }
       let(:column) { dossier.procedure.find_column(label: 'drop_down_list') }
 
       before { dossier.champ_data.first.update(value: 'b') }
@@ -120,7 +120,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a enums column' do
-      let(:types_de_champ_public) { [{ type: :multiple_drop_down_list, libelle: 'multiple_drop_down_list', options: ['a', 'b', 'c'] }] }
+      let(:public_type_de_champs) { [{ type: :multiple_drop_down_list, libelle: 'multiple_drop_down_list', options: ['a', 'b', 'c'] }] }
       let(:column) { dossier.procedure.find_column(label: 'multiple_drop_down_list') }
 
       before { dossier.champ_data.first.update(value: ['b', 'c']) }
@@ -129,7 +129,7 @@ describe Instructeurs::CellComponent do
     end
 
     context 'for a nil value' do
-      let(:types_de_champ_public) { [{ type: :text, libelle: 'text' }] }
+      let(:public_type_de_champs) { [{ type: :text, libelle: 'text' }] }
       let(:column) { dossier.procedure.find_column(label: 'text') }
 
       it { is_expected.to eq('') }

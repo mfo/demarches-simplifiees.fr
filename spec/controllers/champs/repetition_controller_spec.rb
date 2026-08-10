@@ -3,12 +3,12 @@
 describe Champs::RepetitionController, type: :controller do
   before { sign_in dossier.user }
 
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, mandatory: true, children: [{ libelle: 'Nom' }, { type: :integer_number, libelle: 'Age' }] }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, mandatory: true, children: [{ libelle: 'Nom' }, { type: :integer_number, libelle: 'Age' }] }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:repetition) { dossier.root_champs_public.find(&:repetition?) }
 
   describe 'ensure_legitimate_access' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 
@@ -20,7 +20,7 @@ describe Champs::RepetitionController, type: :controller do
     context 'when instructeur is signed in and try to add a repetition to a dossier en instruction' do
       let(:instructeur) { create(:instructeur) }
       let(:gi) { create(:groupe_instructeur, instructeurs: [instructeur]) }
-      let(:procedure) { create(:procedure, types_de_champ_private: [{ type: :repetition, children: [{ libelle: 'Nom' }] }], groupe_instructeurs: [gi]) }
+      let(:procedure) { create(:procedure, private_type_de_champs: [{ type: :repetition, children: [{ libelle: 'Nom' }] }], groupe_instructeurs: [gi]) }
       let(:dossier) { create(:dossier, :en_instruction, procedure:) }
       let(:repetition) { dossier.root_champs_private.find(&:repetition?) }
       before { sign_in instructeur.user }

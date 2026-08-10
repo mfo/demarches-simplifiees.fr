@@ -169,7 +169,7 @@ describe Etablissement do
     end
 
     it "touches dossier updated_at when etablissement is linked via champ only" do
-      procedure = create(:procedure, types_de_champ_public: [{ type: :siret }])
+      procedure = create(:procedure, public_type_de_champs: [{ type: :siret }])
       dossier = create(:dossier, procedure:)
       champ = dossier.root_champs_public.find { |c| c.is_a?(Champs::SiretChamp) }
       etablissement = create(:etablissement, siret: "44011762001530")
@@ -185,7 +185,7 @@ describe Etablissement do
   end
 
   describe '#update_champ_value_json!' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:etablissement) { create(:etablissement) }
     let(:champ) { dossier.champ_data[0] }

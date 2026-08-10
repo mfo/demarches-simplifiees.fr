@@ -3,7 +3,7 @@
 describe 'Prefilling a dossier (with a POST request):', js: true do
   let(:password) { SECURE_PASSWORD }
 
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text },
       { type: :phone },
@@ -17,7 +17,7 @@ describe 'Prefilling a dossier (with a POST request):', js: true do
       { type: :repetition, children: [{ type: :text }, { type: :decimal_number }] },
     ]
   end
-  let(:procedure) { create(:procedure, :for_individual, :published, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :for_individual, :published, public_type_de_champs:) }
   let(:dossier) { procedure.dossiers.last }
   let(:linked_dossier) { create(:dossier, :en_construction, procedure:) }
   let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }

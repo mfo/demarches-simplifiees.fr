@@ -3,9 +3,9 @@
 describe ExportTemplate do
   let(:groupe_instructeur) { create(:groupe_instructeur, procedure:) }
   let(:export_template) { build(:export_template, groupe_instructeur:) }
-  let(:procedure) { create(:procedure, types_de_champ_public:, for_individual:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:, for_individual:) }
   let(:for_individual) { false }
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :piece_justificative, libelle: "Justificatif de domicile", mandatory: true, stable_id: 3 },
       { type: :piece_justificative, nature: 'titre_identite', libelle: "CNI", mandatory: true, stable_id: 5 },

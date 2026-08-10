@@ -85,8 +85,8 @@ RSpec.describe API::Public::V1::DossiersController, type: :controller do
           end
 
           context 'when prefill given values contains more than one rows for repetitions' do
-            let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-            let(:types_de_champ_public) do
+            let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+            let(:public_type_de_champs) do
               [
                 type: :repetition,
                 children: [

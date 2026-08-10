@@ -621,8 +621,8 @@ describe Users::DossiersController, type: :controller do
 
   describe '#submit_brouillon' do
     before { sign_in(user) }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :text, mandatory: false }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :text, mandatory: false }] }
     let!(:dossier) { create(:dossier, user:, procedure:) }
     let(:first_champ) { dossier.root_champs_public.first }
     let(:value) { 'beautiful value' }
@@ -687,7 +687,7 @@ describe Users::DossiersController, type: :controller do
       render_views
 
       let(:value) { nil }
-      let(:types_de_champ_public) { [{ type: :text, mandatory: true, libelle: 'l' }] }
+      let(:public_type_de_champs) { [{ type: :text, mandatory: true, libelle: 'l' }] }
       before { subject }
 
       it do
@@ -785,8 +785,8 @@ describe Users::DossiersController, type: :controller do
     let(:owner) { create(:user) }
     let(:procedure_traits) { [] }
     let(:dossier_traits) { [] }
-    let(:procedure) { create(:procedure, :for_individual, :published, *procedure_traits, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :text, mandatory: false }] }
+    let(:procedure) { create(:procedure, :for_individual, :published, *procedure_traits, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :text, mandatory: false }] }
     let(:dossier) { create(:dossier, :en_construction, :with_individual, *dossier_traits, procedure:, user: owner).tap { _1.with_update_stream(_1.user) } }
     let(:now) { Time.zone.parse('01/01/2100') }
     let(:params) { { id: dossier.id } }
@@ -853,7 +853,7 @@ describe Users::DossiersController, type: :controller do
 
       context 'when a mandatory champ is missing' do
         render_views
-        let(:types_de_champ_public) { [{}, { type: :text, mandatory: true, libelle: 'l' }] }
+        let(:public_type_de_champs) { [{}, { type: :text, mandatory: true, libelle: 'l' }] }
         let(:empty_champ) { champs.second }
 
         before { subject }
@@ -867,7 +867,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when dossier repetition had been removed in newer version' do
-        let(:types_de_champ_public) { [{}, { type: :repetition, libelle: 'repetition', children: [{ type: :text, libelle: 'child' }] }] }
+        let(:public_type_de_champs) { [{}, { type: :repetition, libelle: 'repetition', children: [{ type: :text, libelle: 'child' }] }] }
         let(:dossier_traits) { [:with_populated_champs] }
         let(:champ_repetition) { champs.find(&:repetition?) }
 
@@ -978,8 +978,8 @@ describe Users::DossiersController, type: :controller do
   describe '#update brouillon' do
     before { sign_in(user) }
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{}, { type: :piece_justificative, mandatory: false }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{}, { type: :piece_justificative, mandatory: false }] }
     let(:dossier) { create(:dossier, user:, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:first_champ) { dossier.root_champs_public.first }
     let(:piece_justificative_champ) { dossier.root_champs_public.last }
@@ -1007,7 +1007,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is a drop_down_list with referentiel' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :drop_down_list }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :drop_down_list }]) }
 
       let(:referentiel) { create(:csv_referentiel, :with_items) }
 
@@ -1038,7 +1038,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is a multiple_drop_down_list with referentiel' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :multiple_drop_down_list }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :multiple_drop_down_list }]) }
 
       let(:referentiel) { create(:csv_referentiel, :with_items) }
 
@@ -1071,7 +1071,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is an address' do
-      let(:types_de_champ_public) { [{ type: :address }] }
+      let(:public_type_de_champs) { [{ type: :address }] }
       let(:address_champ) { dossier.champ_data.first }
       let(:initial_value_json) do
         {
@@ -1188,7 +1188,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when the champ is a siret champ' do
-        let(:types_de_champ_public) { [{ type: :siret }] }
+        let(:public_type_de_champs) { [{ type: :siret }] }
         let(:champs_public_attributes) do
           {
             first_champ.public_id => { external_id: },
@@ -1225,7 +1225,7 @@ describe Users::DossiersController, type: :controller do
         end
       end
       context 'when the champ is an external champ in fetched state' do
-        let(:types_de_champ_public) { [{ type: :rnf }] }
+        let(:public_type_de_champs) { [{ type: :rnf }] }
         let(:champs_public_attributes) do
           {
             first_champ.public_id => { external_id: '075-FDD-00003-01' },
@@ -1259,7 +1259,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'decimal number champ separator' do
-      let (:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :decimal_number }]) }
+      let (:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :decimal_number }]) }
       let (:submit_payload) do
         {
           id: dossier.id,
@@ -1292,7 +1292,7 @@ describe Users::DossiersController, type: :controller do
       include Logic
       render_views
 
-      let(:types_de_champ_public) { [{ type: :text }, { type: :integer_number }] }
+      let(:public_type_de_champs) { [{ type: :text }, { type: :integer_number }] }
       let(:text_champ) { dossier.root_champs_public.first }
       let(:number_champ) { dossier.root_champs_public.last }
       let(:validate) { "true" }
@@ -1358,7 +1358,7 @@ describe Users::DossiersController, type: :controller do
       let(:datasource) { '$.data' }
       let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, datasource:) }
       let(:referentiel_stable_id) { 1 }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -1420,7 +1420,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is quotient familial' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :quotient_familial }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :quotient_familial }]) }
 
       context "when the champ has already been fetched, and user wants to refresh it" do
         let(:submit_payload) do
@@ -1496,8 +1496,8 @@ describe Users::DossiersController, type: :controller do
   describe '#update en_construction (stream)' do
     before { sign_in(user) }
 
-    let(:types_de_champ_public) { [{}, { type: :piece_justificative }] }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{}, { type: :piece_justificative }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
     let!(:dossier) { create(:dossier, :en_construction, user:, procedure:) }
     let(:first_champ) { dossier.root_champs_public.first }
     let(:first_champ_user_buffer) { dossier.with_update_stream(dossier.user) { dossier.root_champs_public.first } }
@@ -1537,7 +1537,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when champ is pre_rempli (read-only guard)' do
-      let(:types_de_champ_public) { [{ type: :pre_rempli }] }
+      let(:public_type_de_champs) { [{ type: :pre_rempli }] }
       let(:pre_rempli_champ) { dossier.root_champs_public.first }
 
       before { pre_rempli_champ.update_column(:value, 'original') }
@@ -1640,7 +1640,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'iban error' do
-        let(:types_de_champ_public) { [{ type: :iban }] }
+        let(:public_type_de_champs) { [{ type: :iban }] }
         let(:value) { 'abc' }
 
         before { subject }
@@ -1668,7 +1668,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is a phone number' do
-      let(:types_de_champ_public) { [{ type: :phone }] }
+      let(:public_type_de_champs) { [{ type: :phone }] }
       let(:now) { Time.zone.parse('01/01/2100') }
 
       let(:submit_payload) do
@@ -1708,7 +1708,7 @@ describe Users::DossiersController, type: :controller do
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
       let(:referentiel_stable_id) { 1 }
       let(:external_id) { "PG46YY6YWCX8" }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -1740,7 +1740,7 @@ describe Users::DossiersController, type: :controller do
       let(:datasource) { '$.data' }
       let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, datasource:) }
       let(:referentiel_stable_id) { 1 }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -1752,7 +1752,7 @@ describe Users::DossiersController, type: :controller do
           },
         ]
       end
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           {
             type: :text,
@@ -1760,7 +1760,7 @@ describe Users::DossiersController, type: :controller do
           },
         ]
       end
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:, private_type_de_champs:) }
       let(:suggestion_value) { 'osf' }
       let(:suggestion_data) { { finess: "123" } }
       let(:message_encryptor_service) { MessageEncryptorService.new }
@@ -1799,7 +1799,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is quotient familial' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :quotient_familial }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :quotient_familial }]) }
 
       context "when the champ has already been fetched, and user wants to refresh it" do
         let(:submit_payload) do
@@ -1901,7 +1901,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'user buffer changes prefilter' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{}]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{}]) }
       let!(:dossier_with_changes) { create(:dossier, :en_construction, user:, procedure:) }
       let!(:dossier_without_changes) { create(:dossier, :en_construction, user:, procedure:) }
       let!(:dossier_brouillon) { create(:dossier, user:, procedure:) }
@@ -2596,8 +2596,8 @@ describe Users::DossiersController, type: :controller do
 
   describe '#champ' do
     let(:stable_id) { generate(:stable_id) }
-    let(:types_de_champ_public) { [{ type: :text, stable_id: }] }
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :text, stable_id: }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, user:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -2628,7 +2628,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'live announcement of a RIB status (polling anti-spam)' do
       render_views
-      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib', stable_id: }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'rib', stable_id: }] }
       let(:champ) { dossier.root_champs_public.first }
       let(:region_id) { "#{champ.focusable_input_id}-aria-live" }
 
@@ -2657,7 +2657,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when champ is pollable' do
       let(:referentiel) { create(:api_referentiel, :exact_match) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel:, stable_id: }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel:, stable_id: }] }
 
       context 'when the requested external_id had not been fetched' do
         before { dossier.champ_data.first.update_columns(external_id: 'kthxbye') }
@@ -2679,7 +2679,7 @@ describe Users::DossiersController, type: :controller do
           render_views
           let(:referentiel) { create(:api_referentiel, :exact_match) }
           let(:referentiel_stable_id) { 1 }
-          let(:types_de_champ_public) do
+          let(:public_type_de_champs) do
             [
               {
                 type: :referentiel,
@@ -2732,7 +2732,7 @@ describe Users::DossiersController, type: :controller do
         let(:checkbox_stable_id) { 20 }
         let(:explication_stable_id) { 30 }
         let(:condition) { ds_eq(champ_value(checkbox_stable_id), constant(true)) }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel:, stable_id: async_stable_id },
             { type: :checkbox, stable_id: checkbox_stable_id },
@@ -2899,7 +2899,7 @@ describe Users::DossiersController, type: :controller do
   describe '#revert_prefill' do
     before { sign_in(user) }
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{}]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{}]) }
     let(:dossier) { create(:dossier, user:, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 
@@ -2989,7 +2989,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'with dossiers received by invitation only' do
-        let(:invited_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
+        let(:invited_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }]) }
 
         before do
           create_list(:dossier, 6, :en_construction, procedure: invited_procedure).each do |dossier|
@@ -3005,8 +3005,8 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'with a procedure without personnalisable champ' do
-        let(:eligible_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
-        let(:non_eligible_procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :textarea, libelle: 'Description' }]) }
+        let(:eligible_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }]) }
+        let(:non_eligible_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :textarea, libelle: 'Description' }]) }
 
         before do
           create_list(:dossier, 3, user:, procedure: eligible_procedure)
@@ -3022,7 +3022,7 @@ describe Users::DossiersController, type: :controller do
       context 'when no procedure has personnalisable champs' do
         render_views
 
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :textarea, libelle: 'Description' }]) }
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :textarea, libelle: 'Description' }]) }
 
         before { create_list(:dossier, 6, user:, procedure:) }
 
@@ -3036,9 +3036,9 @@ describe Users::DossiersController, type: :controller do
       context 'query count does not grow with number of procedures' do
         render_views
 
-        let(:procedure1) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ A' }]) }
-        let(:procedure2) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ B' }]) }
-        let(:procedure3) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ C' }]) }
+        let(:procedure1) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ A' }]) }
+        let(:procedure2) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ B' }]) }
+        let(:procedure3) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ C' }]) }
 
         before do
           create_list(:dossier, 3, user:, procedure: procedure1)
@@ -3067,7 +3067,7 @@ describe Users::DossiersController, type: :controller do
 
   describe 'PATCH #update_personnalisation' do
     let(:user) { create(:user) }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }]) }
     let(:column) { procedure.customizable_columns.first }
 
     before do
@@ -3087,7 +3087,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     it 'persists the personnalisation for a procedure seen through invitation' do
-      invited_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Région' }])
+      invited_procedure = create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Région' }])
       invited_dossier = create(:dossier, :en_construction, procedure: invited_procedure)
       create(:invite, dossier: invited_dossier, user:)
       invited_column = invited_procedure.customizable_columns.first
@@ -3125,8 +3125,8 @@ describe Users::DossiersController, type: :controller do
 
       it 'does not persist a private annotation column' do
         procedure_with_private = create(:procedure, :published,
-          types_de_champ_public: [{ type: :text, libelle: 'Ville' }],
-          types_de_champ_private: [{ type: :text, libelle: 'Note instructeur' }])
+          public_type_de_champs: [{ type: :text, libelle: 'Ville' }],
+          private_type_de_champs: [{ type: :text, libelle: 'Note instructeur' }])
         create(:dossier, user:, procedure: procedure_with_private)
         private_column = procedure_with_private.columns.find { _1.label == 'Note instructeur' }
 
@@ -3139,7 +3139,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       it 'does not persist a conditional champ column' do
-        procedure_with_condition = create(:procedure, :published, types_de_champ_public: [
+        procedure_with_condition = create(:procedure, :published, public_type_de_champs: [
           { type: :yes_no, libelle: 'Gate', stable_id: 1 },
           { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
         ])
@@ -3170,7 +3170,7 @@ describe Users::DossiersController, type: :controller do
     render_views
 
     let(:user) { create(:user) }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Titre' }]) }
     let(:column) { procedure.customizable_columns.first }
 
     before do
@@ -3199,8 +3199,8 @@ describe Users::DossiersController, type: :controller do
     render_views
 
     let(:user) { create(:user) }
-    let(:procedure1) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
-    let(:procedure2) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Intitulé' }]) }
+    let(:procedure1) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Titre' }]) }
+    let(:procedure2) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Intitulé' }]) }
 
     before do
       Flipper.enable(:dossiers_list_personnalisation, user)
@@ -3238,7 +3238,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     def add_personnalised_procedure(libelle)
-      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: }])
+      procedure = create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: }])
       create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [procedure.customizable_columns.first])
       create_list(:dossier, 3, :en_construction, user:, procedure:, populate_champs: true)
     end
@@ -3268,7 +3268,7 @@ describe Users::DossiersController, type: :controller do
     render_views
 
     let(:user) { create(:user) }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }, { type: :text, libelle: 'Pays' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }, { type: :text, libelle: 'Pays' }]) }
 
     before do
       Flipper.enable(:dossiers_list_personnalisation, user)

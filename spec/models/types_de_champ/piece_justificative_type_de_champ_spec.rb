@@ -37,7 +37,7 @@ describe TypesDeChamp::PieceJustificativeTypeDeChamp do
 
   describe '#champ_value_for_export' do
     context 'when nature is titre_identite' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
       let(:type_de_champ) { champ.type_de_champ }
@@ -53,7 +53,7 @@ describe TypesDeChamp::PieceJustificativeTypeDeChamp do
     end
 
     context 'when nature is not titre_identite' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
       let(:type_de_champ) { champ.type_de_champ }
@@ -70,7 +70,7 @@ describe TypesDeChamp::PieceJustificativeTypeDeChamp do
   end
 
   describe '#champ_value_for_api' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
 

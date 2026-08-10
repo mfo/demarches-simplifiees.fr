@@ -15,7 +15,7 @@ module Maintenance
         let(:procedure) do
           create(
             :procedure,
-            types_de_champ_public: [
+            public_type_de_champs: [
               {
                 type: :drop_down_list,
                 drop_down_options: ["  Foo   Bar  ", "Baz"],
@@ -47,7 +47,7 @@ module Maintenance
         let(:procedure) do
           create(
             :procedure,
-            types_de_champ_public: [
+            public_type_de_champs: [
               {
                 type: :drop_down_list,
                 drop_down_options: ["Foo Bar", "Baz"],

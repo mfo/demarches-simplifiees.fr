@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe ColumnValueFormatter do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }, { type: :date, libelle: 'Date' }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }, { type: :date, libelle: 'Date' }]) }
   let(:text_column) { procedure.columns.find { |c| c.respond_to?(:tdc_type) && c.tdc_type == 'text' } }
   let(:date_column) { procedure.columns.find { |c| c.respond_to?(:tdc_type) && c.tdc_type == 'date' } }
 

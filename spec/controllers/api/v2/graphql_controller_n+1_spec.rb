@@ -4,7 +4,7 @@ describe API::V2::GraphqlController do
   let_it_be(:admin) { administrateurs.default }
   let_it_be(:generated_token) { APIToken.generate(admin) }
   let(:token) { generated_token.second }
-  let_it_be(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_public: [{}, { type: :piece_justificative }, { type: :siret }, { type: :repetition, mandatory: true, children: [{}, { type: :piece_justificative }, { type: :siret }] }]) }
+  let_it_be(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], public_type_de_champs: [{}, { type: :piece_justificative }, { type: :siret }, { type: :repetition, mandatory: true, children: [{}, { type: :piece_justificative }, { type: :siret }] }]) }
   let(:authorization_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 
   let(:query_id) { 'ds-query-v2' }
@@ -65,7 +65,7 @@ describe API::V2::GraphqlController do
   end
 
   describe 'demarche.dossiers with entreprise demandeur' do
-    let_it_be(:procedure_entreprise) { create(:procedure, :published, :with_service, administrateurs: [admin], types_de_champ_public: [{}]) }
+    let_it_be(:procedure_entreprise) { create(:procedure, :published, :with_service, administrateurs: [admin], public_type_de_champs: [{}]) }
 
     # A custom query without champs skips the DossierPreloader (which marks the
     # demandeur's champ_data association as loaded), so PersonneMorale.address

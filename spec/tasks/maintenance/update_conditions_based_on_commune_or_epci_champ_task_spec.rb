@@ -8,7 +8,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { described_class.process(revision) }
 
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :communes }, { type: :epci }, { type: :drop_down_list, libelle: 'Votre choix', options: ['Choix 1', 'Choix 2', 'Choix 3'] }, { type: :text }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :communes }, { type: :epci }, { type: :drop_down_list, libelle: 'Votre choix', options: ['Choix 1', 'Choix 2', 'Choix 3'] }, { type: :text }]) }
       let(:revision) { procedure.active_revision }
 
       let(:text_tdc) { revision.public_root_type_de_champs.find(&:text?) }

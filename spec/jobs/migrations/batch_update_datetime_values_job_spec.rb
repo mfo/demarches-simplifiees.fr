@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Migrations::BatchUpdateDatetimeValuesJob, type: :job do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-  let(:types_de_champ_public) { [{ type: :datetime, mandatory: }] }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+  let(:public_type_de_champs) { [{ type: :datetime, mandatory: }] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:datetime_champ) { dossier.champ_data.first }
   let(:mandatory) { true }

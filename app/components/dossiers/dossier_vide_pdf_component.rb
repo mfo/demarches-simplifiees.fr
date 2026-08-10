@@ -11,7 +11,7 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
 
   private
 
-  def types_de_champ_public = revision.public_root_type_de_champs
+  def public_type_de_champs = revision.public_root_type_de_champs
 
   # Populated while rendering champs (see boxed_field_with_annex); read by the
   # template after the form to append the "Annexes" pages.

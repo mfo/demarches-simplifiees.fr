@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe EditableChamp::PreRempliComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pre_rempli }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :pre_rempli }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.root_champs_public.first }
   let(:form) do

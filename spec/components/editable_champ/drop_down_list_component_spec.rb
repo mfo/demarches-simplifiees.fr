@@ -3,8 +3,8 @@
 describe EditableChamp::DropDownListComponent, type: :component do
   include ChampAriaLabelledbyHelper
 
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
-  let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
+  let(:public_type_de_champs) { [{ type: :drop_down_list }] }
   let(:dossier) { create(:dossier, procedure:) }
   let(:tdc) { procedure.active_revision.type_de_champs.first }
   let(:champ) { dossier.champ_data.first }
@@ -48,7 +48,7 @@ describe EditableChamp::DropDownListComponent, type: :component do
       end
 
       context "when the champ is in a repetition" do
-        let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :drop_down_list, drop_down_options: ['Option 1', 'Option 2'] }] }] }
+        let(:public_type_de_champs) { [{ type: :repetition, children: [{ type: :drop_down_list, drop_down_options: ['Option 1', 'Option 2'] }] }] }
 
         # the first fieldset is for the repetition
         let(:fieldset) { page.find('fieldset fieldset') }
@@ -63,7 +63,7 @@ describe EditableChamp::DropDownListComponent, type: :component do
         end
 
         context "with 'other' option enabled" do
-          let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :drop_down_list, drop_down_options: ['Option 1', 'Option 2'], drop_down_other: true }] }] }
+          let(:public_type_de_champs) { [{ type: :repetition, children: [{ type: :drop_down_list, drop_down_options: ['Option 1', 'Option 2'], drop_down_other: true }] }] }
 
           before do
             drop_down_list_champ.update!(value: Champs::DropDownListChamp::OTHER)

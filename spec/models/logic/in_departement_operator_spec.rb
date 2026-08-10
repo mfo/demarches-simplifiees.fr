@@ -3,7 +3,7 @@
 describe Logic::InDepartementOperator do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes }, { type: :epci }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :communes }, { type: :epci }]) }
   let(:dossier) { create(:dossier, procedure:) }
 
   let(:tdc_commune) { procedure.active_revision.type_de_champs.first }

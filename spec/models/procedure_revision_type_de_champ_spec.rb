@@ -5,7 +5,7 @@ describe ProcedureRevisionTypeDeChamp do
     context 'when the coordinate is in a bloc bellow another coordinate' do
       let(:procedure) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { libelle: 'l1' },
                  {
                    type: :repetition, children: [
@@ -29,11 +29,11 @@ describe ProcedureRevisionTypeDeChamp do
     context 'when the coordinate is an annotation' do
       let(:procedure) do
         create(:procedure,
-               types_de_champ_private: [
+               private_type_de_champs: [
                  { libelle: 'a1' },
                  { libelle: 'a2' },
                ],
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { libelle: 'l1' },
                  {
                    type: :repetition, libelle: 'l2', children: [

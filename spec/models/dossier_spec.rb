@@ -439,7 +439,7 @@ describe Dossier, type: :model do
     end
 
     describe '#prefill_champs_from_france_connect' do
-      let_it_be(:procedure) { create(:procedure, :for_individual, types_de_champ_public: [{ type: :date }]) }
+      let_it_be(:procedure) { create(:procedure, :for_individual, public_type_de_champs: [{ type: :date }]) }
       let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
       let(:dossier) { create(:dossier, procedure:, user:) }
       let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
@@ -764,7 +764,7 @@ describe Dossier, type: :model do
         let(:gi_libelle) { 'Paris' }
         let!(:procedure) do
           create(:procedure,
-                 types_de_champ_public: [
+                 public_type_de_champs: [
                    { type: :drop_down_list, libelle: 'Votre ville', options: [gi_libelle, 'Lyon', 'Marseille'] },
                    { type: :text, libelle: 'Un champ texte' },
                  ])
@@ -1134,7 +1134,7 @@ describe Dossier, type: :model do
   end
 
   describe "#unspecified_attestation_champs" do
-    def types_de_champ_public
+    def public_type_de_champs
       [
         { libelle: "specified champ-in-title" },
         { libelle: "unspecified champ-in-title" },
@@ -1143,7 +1143,7 @@ describe Dossier, type: :model do
       ]
     end
 
-    def types_de_champ_private
+    def private_type_de_champs
       [
         { libelle: "specified annotation privée-in-title" },
         { libelle: "unspecified annotation privée-in-title" },
@@ -1152,7 +1152,7 @@ describe Dossier, type: :model do
       ]
     end
 
-    let_it_be(:procedure, reload: true) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
+    let_it_be(:procedure, reload: true) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
     let_it_be(:dossier, reload: true) { create(:dossier, :en_instruction, procedure:) }
 
     before do
@@ -1215,7 +1215,7 @@ describe Dossier, type: :model do
       let(:attestation_acceptation_template) { build(:attestation_template, :v2) }
 
       before do
-        tdc_content = (types_de_champ_public + types_de_champ_private).filter_map do |tdc_config|
+        tdc_content = (public_type_de_champs + private_type_de_champs).filter_map do |tdc_config|
           next if tdc_config[:libelle].include?("in-title")
 
           {
@@ -2051,7 +2051,7 @@ describe Dossier, type: :model do
     end
 
     context "when a SIRET champ has etablissement in degraded mode" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
       let(:dossier_incomplete) { create(:dossier, :en_instruction, :with_populated_champs, procedure:) }
       let(:dossier_ok) { create(:dossier, :en_instruction, :with_populated_champs, procedure:) }
 
@@ -2068,7 +2068,7 @@ describe Dossier, type: :model do
 
   describe "can't transition to terminer when annotations privees are not valid" do
     let(:instructeur) { instructeurs.default }
-    let_it_be(:procedure) { create(:procedure, types_de_champ_private: [{ type: :text, mandatory: true }]) }
+    let_it_be(:procedure) { create(:procedure, private_type_de_champs: [{ type: :text, mandatory: true }]) }
     let(:dossier_incomplete) { create(:dossier, :en_instruction, procedure:) }
     let(:dossier_ok) { create(:dossier, :en_instruction, :with_populated_annotations, procedure:) }
 
@@ -2083,7 +2083,7 @@ describe Dossier, type: :model do
   describe "#champs_public_valid?" do
     include Logic
 
-    let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
+    let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
     let(:type_de_champs) { [type_de_champ].compact }
     let(:type_de_champ) { nil }
@@ -2186,7 +2186,7 @@ describe Dossier, type: :model do
   end
 
   describe "check simple mode options for formatted champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
+    let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
     let(:type_de_champs) { [type_de_champ] }
     let(:type_de_champ) { { type: :formatted, formatted_mode: 'simple', letters_accepted:, numbers_accepted:, special_characters_accepted:, min_character_length:, max_character_length: } }
@@ -2314,7 +2314,7 @@ describe Dossier, type: :model do
   end
 
   describe "check advanced mode options for formatted champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
+    let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
     let(:type_de_champs) { [type_de_champ] }
     let(:type_de_champ) { { type: :formatted, formatted_mode: 'advanced', expression_reguliere:, expression_reguliere_exemple_text:, expression_reguliere_error_message: } }
@@ -2452,29 +2452,29 @@ describe Dossier, type: :model do
   end
 
   describe '#geo_data' do
-    let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
+    let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
     let(:dossier) { create(:dossier, :with_populated_champs, :with_populated_annotations, procedure:) }
-    let(:types_de_champ_public) { [] }
-    let(:types_de_champ_private)  { [] }
+    let(:public_type_de_champs) { [] }
+    let(:private_type_de_champs)  { [] }
 
     context "without data" do
       it { expect(dossier.geo_data?).to be_falsey }
     end
 
     context "with geo data in public champ" do
-      let(:types_de_champ_public) { [{ type: :carte }] }
+      let(:public_type_de_champs) { [{ type: :carte }] }
 
       it { expect(dossier.geo_data?).to be_truthy }
     end
 
     context "with geo data in private champ" do
-      let(:types_de_champ_private) { [{ type: :carte }] }
+      let(:private_type_de_champs) { [{ type: :carte }] }
 
       it { expect(dossier.geo_data?).to be_truthy }
     end
 
     context "should solve N+1 problem" do
-      let(:types_de_champ_public) { [{ type: :carte }, { type: :carte }, { type: :carte }] }
+      let(:public_type_de_champs) { [{ type: :carte }, { type: :carte }, { type: :carte }] }
 
       it do
         dossier.filled_champs
@@ -2549,7 +2549,7 @@ describe Dossier, type: :model do
   end
 
   describe "to_feature_collection" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ_carte) { dossier.champ_data.first }
     let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon) }
@@ -2614,7 +2614,7 @@ describe Dossier, type: :model do
 
   describe "champ_values_for_export" do
     context 'with integer_number' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :integer_number, libelle: 'c1' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :integer_number, libelle: 'c1' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:integer_number_type_de_champ) { procedure.active_revision.public_root_type_de_champs.find(&:integer_number?) }
 
@@ -2627,8 +2627,8 @@ describe Dossier, type: :model do
       end
     end
     context 'with a unconditionnal procedure' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, zones: [create(:zone)]) }
-      let(:types_de_champ_public) do
+      let(:procedure) { create(:procedure, public_type_de_champs:, zones: [create(:zone)]) }
+      let(:public_type_de_champs) do
         [
           { type: :text },
           { type: :datetime },
@@ -2703,7 +2703,7 @@ describe Dossier, type: :model do
       end
 
       context "when procedure brouillon" do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }, { type: :explication }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }, { type: :explication }]) }
 
         it "should not contain non-exportable types de champ" do
           expect(dossier_champ_values_for_export.map { |(libelle)| libelle }).to eq([text_type_de_champ.libelle])
@@ -2714,7 +2714,7 @@ describe Dossier, type: :model do
     context 'with a procedure with a condition' do
       include Logic
       let(:type_de_champs) { [{ type: :yes_no }, { type: :text }] }
-      let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
+      let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:yes_no_tdc) { procedure.active_revision.public_root_type_de_champs.first }
       let(:text_tdc) { procedure.active_revision.public_root_type_de_champs.second }
@@ -3014,7 +3014,7 @@ describe Dossier, type: :model do
   end
 
   describe '#update_champs_timestamps' do
-    let_it_be(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
+    let_it_be(:procedure) { create(:procedure, public_type_de_champs: [{}, { type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:changed_champs) { dossier.champ_data.filter(&:text?) }
 

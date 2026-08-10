@@ -16,7 +16,7 @@ describe RoutingEngine, type: :model do
     context 'with a drop down list type de champ' do
       let(:procedure) do
         create(:procedure,
-          types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]).tap do |p|
+          public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -77,7 +77,7 @@ describe RoutingEngine, type: :model do
 
     context 'with a departements type de champ' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :departements }]).tap do |p|
+        create(:procedure, public_type_de_champs: [{ type: :departements }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -96,7 +96,7 @@ describe RoutingEngine, type: :model do
 
     context 'with a regions type de champ' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :regions }]).tap do |p|
+        create(:procedure, public_type_de_champs: [{ type: :regions }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -115,7 +115,7 @@ describe RoutingEngine, type: :model do
 
     context 'with a communes type de champ' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :communes }]).tap do |p|
+        create(:procedure, public_type_de_champs: [{ type: :communes }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -134,7 +134,7 @@ describe RoutingEngine, type: :model do
 
     context 'with an epci type de champ' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :epci }]).tap do |p|
+        create(:procedure, public_type_de_champs: [{ type: :epci }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -159,7 +159,7 @@ describe RoutingEngine, type: :model do
 
     context 'with an address type de champ' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :address }]).tap do |p|
+        create(:procedure, public_type_de_champs: [{ type: :address }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -183,7 +183,7 @@ describe RoutingEngine, type: :model do
 
     context 'with a pays type de champ' do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :pays }]).tap do |p|
+        create(:procedure, public_type_de_champs: [{ type: :pays }]).tap do |p|
           p.groupe_instructeurs.create(label: 'a third group')
         end
       end
@@ -207,7 +207,7 @@ describe RoutingEngine, type: :model do
     context 'routing rules priorities' do
       let(:procedure) do
         create(:procedure,
-          types_de_champ_public: [{ type: :drop_down_list, libelle: 'Ville', options: ['Paris', 'Lyon', 'Marseille'] }]).tap do |p|
+          public_type_de_champs: [{ type: :drop_down_list, libelle: 'Ville', options: ['Paris', 'Lyon', 'Marseille'] }]).tap do |p|
           p.groupe_instructeurs.create(label: 'c')
         end
       end

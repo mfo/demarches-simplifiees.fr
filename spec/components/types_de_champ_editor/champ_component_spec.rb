@@ -15,8 +15,8 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     describe 'tdc dropdown' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }] }
       let(:tdc) { procedure.draft_revision.type_de_champs.first }
       let(:coordinate) { procedure.draft_revision.coordinate_for(tdc) }
 
@@ -25,7 +25,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
       end
 
       context 'type behind an enabled feature flag' do
-        let(:procedure) { create(:procedure, types_de_champ_public:).tap { Flipper.enable(:cojo_type_de_champ, _1) } }
+        let(:procedure) { create(:procedure, public_type_de_champs:).tap { Flipper.enable(:cojo_type_de_champ, _1) } }
 
         it { expect(page).to have_css('option[value="cojo"]') }
       end
@@ -56,7 +56,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
       end
 
       context 'tdc used for prefill' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             {
               type: :referentiel,
@@ -81,7 +81,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     describe 'tdc ej' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }], types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }], private_type_de_champs: [{ type: :text }]) }
 
       context 'when coordinate public' do
         let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
@@ -101,7 +101,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     describe 'tdc explication' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :explication }]) }
       let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
       it 'includes an uploader for notice_explicative' do
         expect(page).to have_css('label', text: 'Notice explicative')
@@ -110,10 +110,10 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     describe 'tdc quotient familial' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs: [{ type: :text }]) }
 
       context "when coordinate public" do
-        let(:types_de_champ_public) { [{ type: :quotient_familial, libelle: 'Quotient familial' }] }
+        let(:public_type_de_champs) { [{ type: :quotient_familial, libelle: 'Quotient familial' }] }
         let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
 
         it 'does not have mandatory configuration' do
@@ -123,7 +123,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
       end
 
       context "when coordinate private" do
-        let(:types_de_champ_public) { [] }
+        let(:public_type_de_champs) { [] }
         let(:coordinate) { procedure.draft_revision.private_revision_type_de_champs.first }
 
         it 'does not include quotient familial tdc' do
@@ -132,7 +132,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
       end
 
       context "when coordinate is repetition" do
-        let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :text }] }] }
+        let(:public_type_de_champs) { [{ type: :repetition, children: [{ type: :text }] }] }
         let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first.children_revision_type_de_champs.first }
 
         it "does not include quotient familial for child tdc" do
@@ -144,7 +144,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     describe 'select champ position' do
       let(:tdc) { procedure.draft_revision.type_de_champs.first }
       let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'a' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'a' }]) }
       it 'does not have select to move champs' do
         expect(page).to have_css("select##{ActionView::RecordIdentifier.dom_id(coordinate, :move_and_morph)}")
       end
@@ -175,7 +175,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
   end
 
   describe 'piece_justificative field' do
-    let(:procedure) { create(:procedure, piece_justificative_multiple: true, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, piece_justificative_multiple: true, public_type_de_champs: [{ type: :piece_justificative }]) }
     let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
     let(:component) { described_class.new(coordinate:, upper_coordinates: []) }
 
@@ -246,7 +246,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
   end
 
   describe 'hide old titre_identite in creation list' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
     let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
     let(:component) { described_class.new(coordinate:, upper_coordinates: []) }
 

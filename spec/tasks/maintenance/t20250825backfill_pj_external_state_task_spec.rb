@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe T20250825backfillPjExternalStateTask do
     xdescribe "#process" do
       let(:procedure) do
-        create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'rib' }])
+        create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'rib' }])
       end
       let(:dossier) { create(:dossier, procedure:) }
       let(:pj) { dossier.root_champs_public.first }

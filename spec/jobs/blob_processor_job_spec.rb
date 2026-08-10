@@ -214,7 +214,7 @@ describe BlobProcessorJob, :external_deps, type: :job do
   describe 'add ocr data' do
     let(:procedure) do
       create(:procedure,
-             types_de_champ_public: [{ type: :piece_justificative, nature: }])
+             public_type_de_champs: [{ type: :piece_justificative, nature: }])
     end
     let(:nature) { "rib" }
     let(:dossier) { create(:dossier, procedure:) }

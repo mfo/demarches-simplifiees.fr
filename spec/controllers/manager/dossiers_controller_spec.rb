@@ -6,7 +6,7 @@ describe Manager::DossiersController, type: :controller do
   let(:super_admin) { create(:super_admin, :with_otp) }
   before do
     sign_in super_admin
-    procedure = create(:procedure, :published, types_de_champ_public: type_de_champs)
+    procedure = create(:procedure, :published, public_type_de_champs: type_de_champs)
     @dossier = create(:dossier, :en_construction, :with_populated_champs, procedure:)
   end
 

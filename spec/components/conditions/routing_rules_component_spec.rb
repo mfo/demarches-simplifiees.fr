@@ -5,7 +5,7 @@ describe Conditions::RoutingRulesComponent, type: :component do
 
   describe '#sources in column mode' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :integer_number, libelle: 'age' },
         { type: :repetition, libelle: 'family', children: [{ type: :integer_number, libelle: 'child_age' }] },
       ])
@@ -22,7 +22,7 @@ describe Conditions::RoutingRulesComponent, type: :component do
   end
 
   describe 'render' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }, { type: :integer_number, libelle: 'Un champ nombre entier' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }, { type: :integer_number, libelle: 'Un champ nombre entier' }]) }
     let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
     let(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
     let(:integer_number_tdc) { procedure.draft_revision.type_de_champs.last }

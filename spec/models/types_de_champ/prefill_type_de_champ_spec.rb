@@ -97,7 +97,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
       end
 
       describe 'too many possible values or not' do
-        let!(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list }]) }
+        let!(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list }]) }
         let(:type_de_champ) { procedure.public_draft_type_de_champs.first }
         let(:link_to_all_possible_values) {
           link_to(
@@ -152,7 +152,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
   end
 
   describe '#to_assignable_attributes' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :email }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :email }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:champ) { dossier.champ_data.first }

@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe LLM::StructureImprover do
-  let(:procedure) { create(:procedure, types_de_champ_public:, service: create(:service)) }
-  let(:types_de_champ_public) do
+  let(:procedure) { create(:procedure, public_type_de_champs:, service: create(:service)) }
+  let(:public_type_de_champs) do
     [
       { type: :text, stable_id: 1, libelle: 'nom' },
       { type: :text, stable_id: 2, libelle: 'prenom' },

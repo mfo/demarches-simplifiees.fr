@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe EditableChamp::PieceJustificativeComponent, type: :component do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-  let(:types_de_champ_public) { [{ type: :piece_justificative }] }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+  let(:public_type_de_champs) { [{ type: :piece_justificative }] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { dossier.champ_data.first }
 
@@ -36,7 +36,7 @@ describe EditableChamp::PieceJustificativeComponent, type: :component do
   end
 
   context 'RIB nature' do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib' }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'rib' }] }
     before { allow_any_instance_of(ApplicationController).to receive(:administrateur_signed_in?).and_return(false) }
 
     it 'limits to a single file' do

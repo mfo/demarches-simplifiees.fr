@@ -4,7 +4,7 @@ describe 'The routing with rules', js: true do
   let(:password) { SECURE_PASSWORD }
 
   let(:procedure) do
-    create(:procedure, :with_service, :for_individual, :with_zone, types_de_champ_public: [
+    create(:procedure, :with_service, :for_individual, :with_zone, public_type_de_champs: [
       { type: :text, libelle: 'un premier champ text', mandatory: false },
       { type: :drop_down_list, libelle: 'Spécialité', options: ["littéraire", "scientifique", "artistique"], mandatory: false },
     ])

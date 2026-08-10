@@ -1134,7 +1134,7 @@ describe Instructeurs::DossiersController, type: :controller do
       context 'with linked dossiers' do
         let(:asked_confidentiel) { false }
         let(:previous_avis_confidentiel) { false }
-        let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: procedure_instructeurs, types_de_champ_public: [{ type: :dossier_link }]) }
+        let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: procedure_instructeurs, public_type_de_champs: [{ type: :dossier_link }]) }
         let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
         before { subject }
         context 'when the expert doesn’t share linked dossiers' do
@@ -1234,7 +1234,7 @@ describe Instructeurs::DossiersController, type: :controller do
       end
 
       context 'empty champs commune' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :communes }], instructeurs: procedure_instructeurs) }
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :communes }], instructeurs: procedure_instructeurs) }
         let(:dossier) { create(:dossier, :accepte, procedure:) }
 
         it { expect(response).to render_template 'dossiers/show' }
@@ -1343,9 +1343,9 @@ describe Instructeurs::DossiersController, type: :controller do
 
   describe "#update_annotations" do
     let(:procedure) do
-      create(:procedure, :published, types_de_champ_public:, types_de_champ_private:, instructeurs: procedure_instructeurs)
+      create(:procedure, :published, public_type_de_champs:, private_type_de_champs:, instructeurs: procedure_instructeurs)
     end
-    let(:types_de_champ_private) do
+    let(:private_type_de_champs) do
       [
         { type: :multiple_drop_down_list },
         { type: :linked_drop_down_list },
@@ -1354,7 +1354,7 @@ describe Instructeurs::DossiersController, type: :controller do
         { type: :drop_down_list, options: [:a, :b, :other] },
       ]
     end
-    let(:types_de_champ_public) { [] }
+    let(:public_type_de_champs) { [] }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_annotations, procedure: procedure) }
     let(:another_instructeur) { create(:instructeur) }
     let(:now) { Time.zone.parse('01/01/2100') }
@@ -1457,7 +1457,7 @@ describe Instructeurs::DossiersController, type: :controller do
 
           context 'when one child is referentiel' do
             let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
-            let(:types_de_champ_private) do
+            let(:private_type_de_champs) do
               [
                 { type: :multiple_drop_down_list },
                 { type: :linked_drop_down_list },
@@ -1560,7 +1560,7 @@ describe Instructeurs::DossiersController, type: :controller do
     end
 
     context "with invalid champs_public (DecimalNumberChamp)" do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :decimal_number },
         ]
@@ -1624,8 +1624,8 @@ describe Instructeurs::DossiersController, type: :controller do
     end
 
     context 'when annotation is pre_rempli (read-only guard)' do
-      let(:types_de_champ_private) { [{ type: :pre_rempli }] }
-      let(:types_de_champ_public) { [] }
+      let(:private_type_de_champs) { [{ type: :pre_rempli }] }
+      let(:public_type_de_champs) { [] }
       let(:dossier) { create(:dossier, :en_construction, :with_populated_annotations, procedure:) }
       let(:pre_rempli_annotation) { dossier.root_champs_private.first }
 
@@ -1658,14 +1658,14 @@ describe Instructeurs::DossiersController, type: :controller do
     let(:checkbox_stable_id) { 20 }
     let(:explication_stable_id) { 30 }
     let(:condition) { ds_eq(champ_value(checkbox_stable_id), constant(true)) }
-    let(:types_de_champ_private) do
+    let(:private_type_de_champs) do
       [
         { type: :referentiel, referentiel:, stable_id: async_stable_id },
         { type: :checkbox, stable_id: checkbox_stable_id },
         { type: :explication, stable_id: explication_stable_id, condition: },
       ]
     end
-    let(:procedure) { create(:procedure, :published, types_de_champ_private:, instructeurs: procedure_instructeurs) }
+    let(:procedure) { create(:procedure, :published, private_type_de_champs:, instructeurs: procedure_instructeurs) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_annotations, procedure:) }
 
     subject do
@@ -2048,7 +2048,7 @@ describe Instructeurs::DossiersController, type: :controller do
   end
 
   describe '#pieces_jointes' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs: procedure_instructeurs) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }], instructeurs: procedure_instructeurs) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let(:logo_path) { 'spec/fixtures/files/logo_test_procedure.png' }
     let(:rib_path) { 'spec/fixtures/files/RIB.pdf' }
@@ -2101,7 +2101,7 @@ describe Instructeurs::DossiersController, type: :controller do
     # The static map of a carte champ is generated by us for the PDF export
     # only: it is not a pièce jointe and has nothing to do in the gallery.
     context 'with a carte champ whose static map has been rendered' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }, { type: :carte }], instructeurs: procedure_instructeurs) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }, { type: :carte }], instructeurs: procedure_instructeurs) }
 
       before do
         carte_champ = dossier.root_champs_public.find(&:carte?)

@@ -30,8 +30,8 @@ FactoryBot.define do
     transient do
       administrateur { Administrateur.find_by(user: { email: "admin@exemple.fr" }) }
       instructeurs { [] }
-      types_de_champ_public { [] }
-      types_de_champ_private { [] }
+      public_type_de_champs { [] }
+      private_type_de_champs { [] }
       updated_at { nil }
       dossier_submitted_message { nil }
       path { nil }
@@ -43,18 +43,18 @@ FactoryBot.define do
 
       revision_type_de_champs = []
 
-      if evaluator.types_de_champ_public.present?
-        if !evaluator.types_de_champ_public.first.is_a?(Hash)
-          raise "types_de_champ_public must be an array of hashes"
+      if evaluator.public_type_de_champs.present?
+        if !evaluator.public_type_de_champs.first.is_a?(Hash)
+          raise "public_type_de_champs must be an array of hashes"
         end
-        revision_type_de_champs += build_type_de_champs(evaluator.types_de_champ_public, revision: initial_revision, scope: :public)
+        revision_type_de_champs += build_type_de_champs(evaluator.public_type_de_champs, revision: initial_revision, scope: :public)
       end
 
-      if evaluator.types_de_champ_private.present?
-        if !evaluator.types_de_champ_private.first.is_a?(Hash)
-          raise "types_de_champ_private must be an array of hashes"
+      if evaluator.private_type_de_champs.present?
+        if !evaluator.private_type_de_champs.first.is_a?(Hash)
+          raise "private_type_de_champs must be an array of hashes"
         end
-        revision_type_de_champs += build_type_de_champs(evaluator.types_de_champ_private, revision: initial_revision, scope: :private)
+        revision_type_de_champs += build_type_de_champs(evaluator.private_type_de_champs, revision: initial_revision, scope: :private)
       end
 
       initial_revision.association(:revision_type_de_champs).target = revision_type_de_champs
@@ -94,7 +94,7 @@ FactoryBot.define do
       published
 
       for_individual { true }
-      types_de_champ_public { [{ type: :text, libelle: 'Texte obligatoire', mandatory: true }] }
+      public_type_de_champs { [{ type: :text, libelle: 'Texte obligatoire', mandatory: true }] }
     end
 
     trait :with_bulk_message do
@@ -142,19 +142,19 @@ FactoryBot.define do
     end
 
     trait :with_type_de_champ do
-      types_de_champ_public { [{ type: :text }] }
+      public_type_de_champs { [{ type: :text }] }
     end
 
     trait :with_type_de_champ_private do
-      types_de_champ_private { [{ type: :text }] }
+      private_type_de_champs { [{ type: :text }] }
     end
 
     trait :with_decimal_number_public do
-      types_de_champ_public { [{ type: :decimal_number }] }
+      public_type_de_champs { [{ type: :decimal_number }] }
     end
 
     trait :with_decimal_number_private do
-      types_de_champ_private { [{ type: :decimal_number }] }
+      private_type_de_champs { [{ type: :decimal_number }] }
     end
 
     trait :draft do
@@ -262,7 +262,7 @@ FactoryBot.define do
       end
     end
 
-    # TODO: rewrite with types_de_champ_private
+    # TODO: rewrite with private_type_de_champs
     trait :with_all_annotations do
       after(:build) do |procedure, _evaluator|
         TypeDeChamp.type_champs.map.with_index do |(libelle, type_champ), index|

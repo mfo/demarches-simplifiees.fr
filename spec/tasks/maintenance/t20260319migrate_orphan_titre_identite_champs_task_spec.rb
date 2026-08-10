@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { described_class.process }
 
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let!(:titre_identite_champ) do
         dossier.champ_data.first.tap { it.update_column(:type, "Champs::TitreIdentiteChamp") }

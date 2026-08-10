@@ -7,8 +7,8 @@ describe Champs::ReferentielChamp, type: :model do
 
   let(:referentiel) { create(:api_referentiel, :exact_match) }
   let(:types) { Referentiels::MappingFormComponent::TYPES }
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:referentiel_champ) { dossier.champ_data.find(&:referentiel?) }
 
@@ -20,7 +20,7 @@ describe Champs::ReferentielChamp, type: :model do
     subject { referentiel_champ.fetch_external_data.value![:value_json].with_indifferent_access }
 
     context 'when displayable mapping is configured for string' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -39,7 +39,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when displayable mapping is configured for float' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -58,7 +58,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when displayable mapping is configured for integer' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -77,7 +77,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when displayable mapping is configured for boolean' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -107,7 +107,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when displayable mapping is configured for date' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -126,7 +126,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when displayable mapping is configured for datetime' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -145,7 +145,7 @@ describe Champs::ReferentielChamp, type: :model do
     end
 
     context 'when displayable mapping is configured for Liste à choix multiples' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,

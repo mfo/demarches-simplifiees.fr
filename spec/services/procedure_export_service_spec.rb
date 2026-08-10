@@ -188,8 +188,8 @@ describe ProcedureExportService do
       end
 
       context 'with a dossier having multiple pjs' do
-        let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
-        let(:types_de_champ_public) { [{ type: :piece_justificative }] }
+        let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
+        let(:public_type_de_champs) { [{ type: :piece_justificative }] }
         let!(:dossier) { create(:dossier, :en_instruction, :with_populated_champs, :with_individual, procedure:) }
         let!(:dossier_2) { create(:dossier, :en_instruction, :with_populated_champs, :with_individual, procedure:) }
         before do
@@ -214,9 +214,9 @@ describe ProcedureExportService do
       end
 
       context 'with BOM input' do
-        let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
+        let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
         let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
-        let(:types_de_champ_public) { [{ type: :text, libelle: 'text' }] }
+        let(:public_type_de_champs) { [{ type: :text, libelle: 'text' }] }
         before { dossier.champ_data.first.update(value: user_input) }
         let(:user_input) { "franco￾allemand" }
         it 'can be read with BOM content' do
@@ -227,9 +227,9 @@ describe ProcedureExportService do
       end
 
       context 'with simili html input' do
-        let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
+        let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
         let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure: procedure) }
-        let(:types_de_champ_public) { [{ type: :text, libelle: 'text' }] }
+        let(:public_type_de_champs) { [{ type: :text, libelle: 'text' }] }
         before { dossier.champ_data.first.update(value: user_input) }
         let(:user_input) { "Notation <A B C is OK" }
         it 'is not escaped' do
@@ -241,8 +241,8 @@ describe ProcedureExportService do
     end
 
     describe 'Etablissement sheet' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :siret, libelle: 'siret' }] }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :siret, libelle: 'siret' }] }
       let!(:dossier) { create(:dossier, :en_instruction, :with_populated_champs, :with_entreprise, procedure: procedure) }
 
       let(:dossier_etablissement) { etablissements_sheet.data[1] }
@@ -416,8 +416,8 @@ describe ProcedureExportService do
         procedure.reload
       end
 
-      let(:types_de_champ_public) { [{ type: :repetition, children: [{ libelle: 'Nom' }, { libelle: 'Age' }] }] }
-      let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
+      let(:public_type_de_champs) { [{ type: :repetition, children: [{ libelle: 'Nom' }, { libelle: 'Age' }] }] }
+      let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
       let!(:dossiers) do
         [
           create(:dossier, :en_instruction, :with_populated_champs, :with_individual, procedure: procedure),
@@ -477,7 +477,7 @@ describe ProcedureExportService do
       end
 
       context 'with non unique labels' do
-        let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Une repetition', children: [{}] }, { type: :repetition, libelle: 'Une repetition', children: [{}] }] }
+        let(:public_type_de_champs) { [{ type: :repetition, libelle: 'Une repetition', children: [{}] }, { type: :repetition, libelle: 'Une repetition', children: [{}] }] }
         let(:dossier) { create(:dossier, :en_instruction, :with_populated_champs, :with_individual, procedure:) }
         let(:type_de_champ_repetition) { dossier.revision.public_root_type_de_champs.first }
         let(:another_type_de_champ_repetition) { dossier.revision.public_root_type_de_champs.second }
@@ -500,7 +500,7 @@ describe ProcedureExportService do
       end
 
       context 'when repetitions are filled by different dossiers' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :repetition, libelle: 'Repetition A', children: [{ libelle: 'a' }] },
             { type: :repetition, libelle: 'Repetition B', children: [{ libelle: 'b' }] },
@@ -535,8 +535,8 @@ describe ProcedureExportService do
   end
 
   describe 'to_zip' do
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'piece_justificative' }] }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'piece_justificative' }] }
 
     subject { service.to_zip }
     context 'without files' do
@@ -617,8 +617,8 @@ describe ProcedureExportService do
   end
 
   describe 'to_geo_json' do
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :carte }] }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :carte }] }
 
     subject do
       service

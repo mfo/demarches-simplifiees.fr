@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe EditableChamp::ExplicationComponent, type: :component do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.root_champs_public.first }
 
@@ -10,7 +10,7 @@ describe EditableChamp::ExplicationComponent, type: :component do
   }
 
   describe 'no description' do
-    let(:types_de_champ_public) { [{ type: :explication }] }
+    let(:public_type_de_champs) { [{ type: :explication }] }
 
     subject { render_inline(component).to_html }
 
@@ -18,7 +18,7 @@ describe EditableChamp::ExplicationComponent, type: :component do
   end
 
   describe 'collapsed text is collapsed' do
-    let(:types_de_champ_public) { [{ type: :explication, collapsible_explanation_enabled: "1", collapsible_explanation_text: "hide me" }] }
+    let(:public_type_de_champs) { [{ type: :explication, collapsible_explanation_enabled: "1", collapsible_explanation_text: "hide me" }] }
 
     subject { render_inline(component).to_html }
 

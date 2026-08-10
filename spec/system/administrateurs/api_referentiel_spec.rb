@@ -6,17 +6,17 @@ describe 'Referentiel API:' do
   let_it_be(:administrateur) { create(:administrateur, user:) }
   let_it_be(:instructeur) { administrateur.instructeur }
   let_it_be(:service) { create(:service, administrateur:) }
-  let!(:procedure) { create(:procedure, :for_individual, types_de_champ_public:, types_de_champ_private:, zones: [zone], service:, administrateurs: [administrateur], instructeurs: [instructeur]) }
+  let!(:procedure) { create(:procedure, :for_individual, public_type_de_champs:, private_type_de_champs:, zones: [zone], service:, administrateurs: [administrateur], instructeurs: [instructeur]) }
   let(:referentiel_stable_id) { 21 }
   let(:prefill_text_stable_id) { 42 }
-  let(:types_de_champ_public) { [] }
-  let(:types_de_champ_private) { [] }
+  let(:public_type_de_champs) { [] }
+  let(:private_type_de_champs) { [] }
   before do
     login_as instructeur.user, scope: :user
   end
 
   context 'edges cases' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :referentiel, libelle: "qu’importe" },
       ]
@@ -45,11 +45,11 @@ describe 'Referentiel API:' do
     end
   end
 
-  context 'when user fill in types_de_champ_public' do
-    context 'when referentiel is exact match and prefill types_de_champ_public' do
+  context 'when user fill in public_type_de_champs' do
+    context 'when referentiel is exact match and prefill public_type_de_champs' do
       let(:prefill_boolean_stable_id) { 84 }
       let(:prefill_repetition_children_stable_id) { 168 }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :referentiel, libelle: 'Numero de bâtiment', stable_id: referentiel_stable_id },
           { type: :textarea, libelle: 'un autre champ' },
@@ -216,8 +216,8 @@ describe 'Referentiel API:' do
       end
     end
 
-    context 'when referentiel is autocomplete and prefill types_de_champ_public' do
-      let(:types_de_champ_public) do
+    context 'when referentiel is autocomplete and prefill public_type_de_champs' do
+      let(:public_type_de_champs) do
         [
           { type: :referentiel, libelle: 'Numéro FINESS', stable_id: referentiel_stable_id },
           { type: :text, libelle: 'prefill with $.finess', stable_id: prefill_text_stable_id },
@@ -325,7 +325,7 @@ describe 'Referentiel API:' do
     context "when referentiel is exact match and prefill types_de_private" do
       let(:public_referentiel_stable_id) { 2 }
       let(:private_referentiel_stable_id) { 4 }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -335,7 +335,7 @@ describe 'Referentiel API:' do
           },
         ]
       end
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           { type: :text, libelle: 'prefilled by referentiel.public (with $.statut)', stable_id: prefill_by_public_referentiel_stable_id },
         ]
@@ -427,7 +427,7 @@ describe 'Referentiel API:' do
         }
       end
 
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -514,11 +514,11 @@ describe 'Referentiel API:' do
     end
   end
 
-  context 'when instructeur fill in types_de_champ_private' do
+  context 'when instructeur fill in private_type_de_champs' do
     context 'when referentiel is exact match' do
       let(:private_referentiel_stable_id) { 4 }
       let(:prefill_by_private_referentiel_stable_id) { 8 }
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           {
             libelle: 'repetition',
@@ -587,7 +587,7 @@ describe 'Referentiel API:' do
     end
 
     context 'when referentiel is autocomplete' do
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           {
             type: :repetition,

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe TagsSubstitutionConcern, type: :model do
-  let(:types_de_champ_public) { [] }
-  let(:types_de_champ_private) { [] }
+  let(:public_type_de_champs) { [] }
+  let(:private_type_de_champs) { [] }
   let(:for_individual) { false }
   let(:state) { Dossier.states.fetch(:accepte) }
 
@@ -12,8 +12,8 @@ describe TagsSubstitutionConcern, type: :model do
     create(:procedure,
       :published,
       libelle: 'Une magnifique démarche',
-      types_de_champ_public: types_de_champ_public,
-      types_de_champ_private: types_de_champ_private,
+      public_type_de_champs: public_type_de_champs,
+      private_type_de_champs: private_type_de_champs,
       for_individual: for_individual,
       service: service,
       organisation: nil)
@@ -141,7 +141,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the procedure has a type de champ named libelleA et libelleB' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { libelle: 'libelleA' },
           { libelle: "libelle\xc2\xA0B".encode('utf-8') },
@@ -183,7 +183,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the procedure has a type de champ with apostrophes' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { libelle: "Intitulé de l'’«\"évènement\"»’" },
         ]
@@ -205,7 +205,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the procedure has a type de champ with double dash (--)' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { libelle: "bon pote -- c’est top" },
         ]
@@ -228,7 +228,7 @@ describe TagsSubstitutionConcern, type: :model do
 
     context 'when the procedure has a type de champ repetition' do
       let(:template) { '--Répétition--' }
-      let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Répétition', mandatory: true, children: [{ libelle: 'Nom' }, { libelle: 'Prénom' }] }] }
+      let(:public_type_de_champs) { [{ type: :repetition, libelle: 'Répétition', mandatory: true, children: [{ libelle: 'Nom' }, { libelle: 'Prénom' }] }] }
       let(:dossier) { create(:dossier, procedure:) }
 
       before do
@@ -248,7 +248,7 @@ describe TagsSubstitutionConcern, type: :model do
 
     context 'when the procedure has a type de champ carte' do
       let(:template) { '--Carte--' }
-      let(:types_de_champ_public) { [{ type: :carte, libelle: 'Carte' }] }
+      let(:public_type_de_champs) { [{ type: :carte, libelle: 'Carte' }] }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.root_champs_public.find { _1.type_de_champ.type_champ == 'carte' } }
 
@@ -307,7 +307,7 @@ describe TagsSubstitutionConcern, type: :model do
 
     context 'when the procedure has a linked drop down menus type de champ' do
       let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
-      let(:types_de_champ_public) { [{ type: :linked_drop_down_list, libelle: 'libelle', options: ["--primo--", "secundo"] }] }
+      let(:public_type_de_champs) { [{ type: :linked_drop_down_list, libelle: 'libelle', options: ["--primo--", "secundo"] }] }
       let(:template) { 'tout : --libelle--, primaire : --libelle/primaire--, secondaire : --libelle/secondaire--' }
 
       context 'and the champ has no value' do
@@ -331,7 +331,7 @@ describe TagsSubstitutionConcern, type: :model do
           it { is_expected.to eq('tout : primo / secundo, primaire : primo, secondaire : secundo') }
 
           context 'and the same libelle is used by a header' do
-            let(:types_de_champ_public) do
+            let(:public_type_de_champs) do
               [
                 { type: :linked_drop_down_list, libelle: 'libelle', options: ["--primo--", "secundo"] },
                 { type: :header_section, libelle: 'libelle' },
@@ -346,7 +346,7 @@ describe TagsSubstitutionConcern, type: :model do
 
     context 'when the procedure has a dropdown type de champ with referentiel' do
       let(:referentiel) { create(:csv_referentiel, :with_items) }
-      let(:types_de_champ_public) { [{ type: :drop_down_list }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list }] }
       let(:template) { "--tdc#{dropdown_list_tdc.stable_id}/option-- --tdc#{dropdown_list_tdc.stable_id}/poids_g--" }
       let(:dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
 
@@ -384,7 +384,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the procedure has a type de champ prive named libelleA' do
-      let(:types_de_champ_private) { [{ libelle: 'libelleA' }] }
+      let(:private_type_de_champs) { [{ libelle: 'libelleA' }] }
 
       context 'and it is used in the template' do
         let(:template) { '--libelleA--' }
@@ -405,13 +405,13 @@ describe TagsSubstitutionConcern, type: :model do
         # The dossier just transitionned from brouillon to en construction,
         # so champs private are not valid tags yet
 
-        let(:types_de_champ_private) { [{ libelle: 'libelleA' }] }
+        let(:private_type_de_champs) { [{ libelle: 'libelleA' }] }
 
         it { is_expected.to eq('--libelleA--') }
       end
 
       context 'champs publics are valid tags' do
-        let(:types_de_champ_public) { [{ libelle: 'libelleA' }] }
+        let(:public_type_de_champs) { [{ libelle: 'libelleA' }] }
 
         before { dossier.root_champs_public.first.update(value: 'libelle1') }
 
@@ -420,7 +420,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the procedure has 2 types de champ date and datetime' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :date, libelle: TypeDeChamp.type_champs.fetch(:date) },
           { type: :datetime, libelle: TypeDeChamp.type_champs.fetch(:datetime) },
@@ -507,7 +507,7 @@ describe TagsSubstitutionConcern, type: :model do
 
     context "match breaking and non breaking spaces" do
       let(:template) { '--mon tag--' }
-      let(:types_de_champ_public) { [{ libelle: "mon\u00A0tag" }] }
+      let(:public_type_de_champs) { [{ libelle: "mon\u00A0tag" }] }
 
       before { dossier.root_champs_public.first.update(value: 'valeur') }
 
@@ -532,7 +532,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when procedure has revisions' do
-      let(:types_de_champ_public) { [{ libelle: 'mon ancien libellé' }] }
+      let(:public_type_de_champs) { [{ libelle: 'mon ancien libellé' }] }
       let(:draft_type_de_champ) { procedure.draft_revision.find_and_ensure_exclusive_use(procedure.draft_revision.type_de_champs.first.stable_id) }
 
       before do
@@ -570,7 +570,7 @@ describe TagsSubstitutionConcern, type: :model do
       end
 
       context 'in a champ' do
-        let(:types_de_champ_public) { [{ libelle: 'libelleA' }] }
+        let(:public_type_de_champs) { [{ libelle: 'libelleA' }] }
 
         before { dossier.root_champs_public.first.update(value: 'hey <a href="https://oops.com">anchor</a>') }
 
@@ -580,14 +580,14 @@ describe TagsSubstitutionConcern, type: :model do
   end
 
   describe 'tags' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { libelle: 'public' },
         { type: :header_section, libelle: 'entête de section' },
         { type: :explication, libelle: 'explication' },
       ]
     end
-    let(:types_de_champ_private) { [{ libelle: 'privé' }] }
+    let(:private_type_de_champs) { [{ libelle: 'privé' }] }
 
     def tags_for(state)
       klass = Class.new do
@@ -632,7 +632,7 @@ describe TagsSubstitutionConcern, type: :model do
       let(:stable_id) { 1234 }
       let(:condition) { ds_eq(champ_value(stable_id), constant(true)) }
 
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :text, libelle: 'public' },
           { type: :text, libelle: 'conditional', condition: condition, mandatory: true },
@@ -651,7 +651,7 @@ describe TagsSubstitutionConcern, type: :model do
   describe 'used_tags_for and used_type_de_champ_tags' do
     let(:text) { 'hello world --public--, --numéro du dossier--, --yolo--' }
 
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { libelle: 'public' },
         { type: :header_section, libelle: 'entête de section' },
@@ -667,7 +667,7 @@ describe TagsSubstitutionConcern, type: :model do
   end
 
   describe 'tags_categorized' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { libelle: 'public' },
         { type: :email, libelle: 'email' },

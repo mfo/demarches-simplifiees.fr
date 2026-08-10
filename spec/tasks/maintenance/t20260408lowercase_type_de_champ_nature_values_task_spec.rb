@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe T20260408lowercaseTypeDeChampNatureValuesTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
       let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
       before do
@@ -20,7 +20,7 @@ module Maintenance
     end
 
     describe "#collection" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }, { type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }, { type: :piece_justificative }]) }
 
       before do
         tdc = procedure.draft_revision.type_de_champs.find(&:titre_identite?)

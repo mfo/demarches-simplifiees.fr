@@ -2,7 +2,7 @@
 
 RSpec.describe Users::PersonnalisationComponent, type: :component do
   let(:procedure) do
-    create(:procedure, :published, types_de_champ_public: [
+    create(:procedure, :published, public_type_de_champs: [
       { type: :header_section, libelle: 'Identité' },
       { type: :text, libelle: 'Nom', mandatory: true },
     ])
@@ -25,7 +25,7 @@ RSpec.describe Users::PersonnalisationComponent, type: :component do
 
   context 'when the form has no section' do
     let(:procedure) do
-      create(:procedure, :published, types_de_champ_public: [
+      create(:procedure, :published, public_type_de_champs: [
         { type: :text, libelle: 'Nom', mandatory: true },
       ])
     end

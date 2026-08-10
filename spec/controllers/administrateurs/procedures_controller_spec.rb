@@ -1565,7 +1565,7 @@ describe Administrateurs::ProceduresController, type: :controller do
           create(:procedure,
                  administrateur: admin,
                  lien_site_web: lien_site_web,
-                 types_de_champ_public: [{ type: :repetition, children: [] }])
+                 public_type_de_champs: [{ type: :repetition, children: [] }])
         end
 
         it {

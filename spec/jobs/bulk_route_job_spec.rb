@@ -6,7 +6,7 @@ describe BulkRouteJob, type: :job do
     let(:admin) { administrateurs.default }
     let!(:procedure) do
       create(:procedure,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                { type: :text, libelle: 'Un champ texte' },
              ],

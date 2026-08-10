@@ -67,7 +67,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context "with an explication champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :explication }]) }
 
     scenario "adding a notice explicative" do
       expect(page).to have_text('Notice explicative')
@@ -89,7 +89,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context "with a drop_down_list champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: 'Choix de dessert' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'Choix de dessert' }]) }
 
     scenario "importing a CSV referentiel" do
       expect(page).to have_text('Choix de dessert')
@@ -350,7 +350,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context 'move and morph' do
-    let(:procedure) { create(:procedure, types_de_champ_public: tdcs) }
+    let(:procedure) { create(:procedure, public_type_de_champs: tdcs) }
     let!(:initial_first_coordinate) { procedure.draft_revision.public_revision_type_de_champs[0] }
     let!(:initial_second_coordinate) { procedure.draft_revision.public_revision_type_de_champs[1] }
     let!(:initial_third_coordinate) { procedure.draft_revision.public_revision_type_de_champs[2] }
@@ -544,7 +544,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context "SIRET field modal" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret, libelle: "SIRET de test" }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret, libelle: "SIRET de test" }]) }
 
     scenario "loads modal content only when clicked" do
       visit champs_admin_procedure_path(procedure)
@@ -572,7 +572,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
   context "Commune and Address field modals" do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :communes, libelle: "Commune de résidence" },
         { type: :address, libelle: "Adresse du domicile" },
       ])

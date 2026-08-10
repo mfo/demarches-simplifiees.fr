@@ -2,7 +2,7 @@
 
 describe 'administrateurs/procedures/show', type: :view do
   let(:closed_at) { nil }
-  let(:procedure) { create(:procedure, :with_service, closed_at: closed_at, types_de_champ_public: [{ type: :yes_no }]) }
+  let(:procedure) { create(:procedure, :with_service, closed_at: closed_at, public_type_de_champs: [{ type: :yes_no }]) }
 
   before do
     assign(:procedure, procedure)

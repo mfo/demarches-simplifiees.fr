@@ -3,7 +3,7 @@
 describe TypesDeChampEditor::InfoReferentielComponent, type: :component do
   describe 'render' do
     let(:component) { described_class.new(procedure:, type_de_champ:) }
-    let(:types_de_champ_public) { [{ type: :referentiel }] }
+    let(:public_type_de_champs) { [{ type: :referentiel }] }
     let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
 
     before do
@@ -13,7 +13,7 @@ describe TypesDeChampEditor::InfoReferentielComponent, type: :component do
     end
 
     context "draft_procedure" do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
       context 'having referentiel' do
         let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
@@ -31,7 +31,7 @@ describe TypesDeChampEditor::InfoReferentielComponent, type: :component do
     end
 
     context "published_procedure" do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
 
       context "having referentiel" do
         let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }

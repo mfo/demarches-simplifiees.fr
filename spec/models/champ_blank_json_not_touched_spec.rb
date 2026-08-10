@@ -12,7 +12,7 @@
 RSpec.describe 'A blank champ must not be touched when another champ is corrected', type: :model do
   let(:procedure) do
     create(:procedure, :published,
-      types_de_champ_public: [
+      public_type_de_champs: [
         { type: 'text', libelle: 'Texte', stable_id: 99 },
         { type: second_type, libelle: 'Second', stable_id: 100, mandatory: false },
       ])

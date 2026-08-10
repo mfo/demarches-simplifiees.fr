@@ -8,7 +8,7 @@ RSpec.describe DossierAssignment, type: :model do
   context 'Assignment from routing engine' do
     let(:procedure) do
       create(:procedure,
-             types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]).tap do |p|
+             public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]).tap do |p|
         p.groupe_instructeurs.create(label: 'a second group')
         p.groupe_instructeurs.create(label: 'a third group')
       end

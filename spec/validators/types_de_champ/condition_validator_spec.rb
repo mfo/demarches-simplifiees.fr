@@ -3,7 +3,7 @@
 RSpec.describe TypesDeChamp::ConditionValidator do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
 
   subject do
     procedure.validate(:types_de_champ_public_editor)
@@ -15,7 +15,7 @@ RSpec.describe TypesDeChamp::ConditionValidator do
   end
 
   context 'when a child references an upper sibling in the same repetition' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         {
           type: :repetition, libelle: 'Bloc', stable_id: 1, children: [
@@ -32,7 +32,7 @@ RSpec.describe TypesDeChamp::ConditionValidator do
   end
 
   context 'when a repetition itself has an invalid condition' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         {
           type: :repetition, libelle: 'Bloc', stable_id: 1,

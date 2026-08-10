@@ -2,7 +2,7 @@
 
 describe 'As an administrateur I can use Simpliscore to improve my procedure', js: true do
   let(:administrateur) { procedure.administrateurs.first }
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'NOM' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'NOM' }]) }
   let(:rule) { 'improve_label' }
 
   before do

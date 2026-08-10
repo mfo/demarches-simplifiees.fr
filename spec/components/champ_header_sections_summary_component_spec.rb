@@ -14,22 +14,22 @@ RSpec.describe ViewableChamp::HeaderSectionsSummaryComponent, type: :component d
       { type: :text },
     ]
   end
-  let(:procedure) { build(:procedure, types_de_champ_public: type_de_champs, types_de_champ_private: type_de_champs) }
+  let(:procedure) { build(:procedure, public_type_de_champs: type_de_champs, private_type_de_champs: type_de_champs) }
   let(:dossier) { build(:dossier, procedure:) }
   let(:component) { described_class.new(dossier:, is_private:) }
-  let(:types_de_champ_public) { dossier.revision.public_root_type_de_champs.filter(&:header_section?) }
-  let(:types_de_champ_private) { dossier.revision.private_root_type_de_champs.filter(&:header_section?) }
+  let(:public_type_de_champs) { dossier.revision.public_root_type_de_champs.filter(&:header_section?) }
+  let(:private_type_de_champs) { dossier.revision.private_root_type_de_champs.filter(&:header_section?) }
 
   context 'public' do
     it do
-      types_de_champ_public.each { expect(subject).to have_selector("a[href='##{_1.html_id}']") }
+      public_type_de_champs.each { expect(subject).to have_selector("a[href='##{_1.html_id}']") }
     end
   end
 
   context 'private' do
     let(:is_private) { true }
     it do
-      types_de_champ_private.each { expect(subject).to have_selector("a[href='##{_1.html_id}']") }
+      private_type_de_champs.each { expect(subject).to have_selector("a[href='##{_1.html_id}']") }
     end
   end
 end

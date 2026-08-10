@@ -6,7 +6,7 @@ describe 'Dossier Inéligibilité', js: true do
   include Logic
 
   let(:user) { create(:user) }
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:, user:) }
 
   let(:published_revision) { procedure.published_revision }
@@ -21,7 +21,7 @@ describe 'Dossier Inéligibilité', js: true do
   end
 
   describe 'ineligibilite_rules with a single BinaryOperator' do
-    let(:types_de_champ_public) { [{ type: :yes_no, stable_id: 1 }] }
+    let(:public_type_de_champs) { [{ type: :yes_no, stable_id: 1 }] }
     let(:ineligibilite_rules) { ds_eq(champ_value(first_tdc.stable_id), constant(true)) }
 
     scenario 'can submit, can not submit, reload' do
@@ -67,7 +67,7 @@ describe 'Dossier Inéligibilité', js: true do
   end
 
   describe 'ineligibilite_rules with a Or' do
-    let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'l1' }, { type: :drop_down_list, libelle: 'l2', options: ['Paris', 'Marseille'], mandatory: false }] }
+    let(:public_type_de_champs) { [{ type: :yes_no, libelle: 'l1' }, { type: :drop_down_list, libelle: 'l2', options: ['Paris', 'Marseille'], mandatory: false }] }
     let(:ineligibilite_rules) do
       ds_or([
         ds_eq(champ_value(first_tdc.stable_id), constant(true)),
@@ -137,7 +137,7 @@ describe 'Dossier Inéligibilité', js: true do
   end
 
   describe 'ineligibilite_rules with a And and all visible champs' do
-    let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'l1' }, { type: :drop_down_list, libelle: 'l2', options: ['Paris', 'Marseille'], mandatory: false }] }
+    let(:public_type_de_champs) { [{ type: :yes_no, libelle: 'l1' }, { type: :drop_down_list, libelle: 'l2', options: ['Paris', 'Marseille'], mandatory: false }] }
     let(:ineligibilite_rules) do
       ds_and([
         ds_eq(champ_value(first_tdc.stable_id), constant(true)),
@@ -184,7 +184,7 @@ describe 'Dossier Inéligibilité', js: true do
   end
 
   describe 'ineligibilite_rules does not mess with champs.visible' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :yes_no, libelle: 'l1', stable_id: 1 },
         { type: :yes_no, libelle: 'l2', stable_id: 2, condition: ds_eq(champ_value(1), constant(false)) },

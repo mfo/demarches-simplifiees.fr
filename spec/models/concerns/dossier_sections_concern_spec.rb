@@ -4,10 +4,10 @@ describe DossierSectionsConcern do
   describe '#auto_numbering_section_headers_for?' do
     let(:public_libelle) { "Infos" }
     let(:private_libelle) { "Infos Private" }
-    let(:types_de_champ_public) { [{ type: :header_section, libelle: public_libelle }, { type: :header_section, libelle: "Details" }] }
-    let(:types_de_champ_private) { [{ type: :header_section, libelle: private_libelle }, { type: :header_section, libelle: "Details Private" }] }
+    let(:public_type_de_champs) { [{ type: :header_section, libelle: public_libelle }, { type: :header_section, libelle: "Details" }] }
+    let(:private_type_de_champs) { [{ type: :header_section, libelle: private_libelle }, { type: :header_section, libelle: "Details Private" }] }
 
-    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public:, types_de_champ_private:) }
+    let(:procedure) { create(:procedure, :for_individual, public_type_de_champs:, private_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure: procedure) }
 
     let(:public_type_de_champ) { dossier.public_root_type_de_champs[1] }
@@ -37,7 +37,7 @@ describe DossierSectionsConcern do
     end
 
     context "header_section in a repetition are not auto-numbered" do
-      let(:types_de_champ_public) { [{ type: :header_section, libelle: public_libelle }, { type: :repetition, mandatory: true, children: [{ type: :header_section, libelle: "Enfant" }, { type: :text }] }] }
+      let(:public_type_de_champs) { [{ type: :header_section, libelle: public_libelle }, { type: :repetition, mandatory: true, children: [{ type: :header_section, libelle: "Enfant" }, { type: :text }] }] }
 
       let(:public_type_de_champ) { dossier.revision.children_of(dossier.public_root_type_de_champs[1]).first }
 
@@ -65,7 +65,7 @@ describe DossierSectionsConcern do
       ]
     end
 
-    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public: type_de_champs) }
+    let(:procedure) { create(:procedure, :for_individual, public_type_de_champs: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
 
     let(:headers) { dossier.revision.public_root_type_de_champs.filter(&:header_section?) }

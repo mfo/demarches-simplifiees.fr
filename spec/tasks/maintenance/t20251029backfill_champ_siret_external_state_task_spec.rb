@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe T20251029backfillChampSiretExternalStateTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.root_champs_public.first }
 

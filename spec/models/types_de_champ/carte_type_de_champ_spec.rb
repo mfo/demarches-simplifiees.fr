@@ -2,7 +2,7 @@
 
 describe TypesDeChamp::CarteTypeDeChamp do
   describe 'parcelle layers exclusivity' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte, libelle: 'La carte' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte, libelle: 'La carte' }]) }
     let(:tdc) { procedure.active_revision.type_de_champs.first }
 
     it 'keeps rpg when it is enabled on a carte already using cadastres' do

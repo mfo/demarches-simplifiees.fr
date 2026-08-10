@@ -3,9 +3,9 @@
 describe ExportTemplate::ChampsComponent, type: :component do
   let(:groupe_instructeur) { create(:groupe_instructeur, procedure:) }
   let(:export_template) { build(:export_template, kind: 'csv', groupe_instructeur:) }
-  let(:procedure) { create(:procedure_with_dossiers, :published, types_de_champ_public:, for_individual:) }
+  let(:procedure) { create(:procedure_with_dossiers, :published, public_type_de_champs:, for_individual:) }
   let(:for_individual) { true }
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: "Ca va ?", mandatory: true, stable_id: 1 },
       { type: :communes, libelle: "Commune", mandatory: true, stable_id: 17 },

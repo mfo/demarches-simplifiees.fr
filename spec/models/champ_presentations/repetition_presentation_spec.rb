@@ -3,7 +3,7 @@
 describe ChampPresentations::RepetitionPresentation do
   let(:libelle) { "Langages de programmation" }
   let(:procedure) {
-    create(:procedure, types_de_champ_public: [
+    create(:procedure, public_type_de_champs: [
       {
         type: :repetition,
         children: [

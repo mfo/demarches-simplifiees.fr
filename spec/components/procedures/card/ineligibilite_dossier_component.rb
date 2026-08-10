@@ -6,8 +6,8 @@ describe Procedure::Card::IneligibiliteDossierComponent, type: :component do
       render_inline(described_class.new(procedure: procedure))
     end
 
-    context 'when none of types_de_champ_public supports conditional' do
-      let(:procedure) { create(:procedure, types_de_champ_public: []) }
+    context 'when none of public_type_de_champs supports conditional' do
+      let(:procedure) { create(:procedure, public_type_de_champs: []) }
 
       it 'render missing setup' do
         subject
@@ -15,8 +15,8 @@ describe Procedure::Card::IneligibiliteDossierComponent, type: :component do
       end
     end
 
-    context 'when at least one of types_de_champ_public support conditional' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }]) }
+    context 'when at least one of public_type_de_champs support conditional' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }]) }
 
       it 'render the template' do
         subject

@@ -2,15 +2,15 @@
 
 describe Administrateurs::ReferentielsController, type: :controller do
   let(:stable_id) { 123 }
-  let(:types_de_champ_public) { [{ type: :referentiel, stable_id: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_private) { [] }
+  let(:public_type_de_champs) { [{ type: :referentiel, stable_id: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+  let(:private_type_de_champs) { [] }
 
   before { sign_in(procedure.administrateurs.first.user) }
 
   describe 'IDOR on retrieve_referentiel (edit/update)' do
     let(:other_referentiel) { create(:api_referentiel, :exact_match, :with_authentication_data) }
-    let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel: other_referentiel }]) }
+    let(:other_procedure) { create(:procedure, public_type_de_champs: [{ type: :referentiel, referentiel: other_referentiel }]) }
     let(:other_admin) { other_procedure.administrateurs.first }
 
     it 'blocks reading another admin referentiel via edit' do
@@ -31,7 +31,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
   describe 'IDOR on build_or_clone_by_id_params (clone credentials)' do
     let(:other_referentiel) { create(:api_referentiel, :exact_match, :with_authentication_data) }
-    let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel, referentiel: other_referentiel }]) }
+    let(:other_procedure) { create(:procedure, public_type_de_champs: [{ type: :referentiel, referentiel: other_referentiel }]) }
     let(:other_admin) { other_procedure.administrateurs.first }
 
     it 'blocks cloning authentication_data from another admin referentiel' do
@@ -606,7 +606,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         },
       }
     end
-    let(:types_de_champ_public) { [{ type: :referentiel, stable_id:, referentiel_mapping: initial_mapping }] }
+    let(:public_type_de_champs) { [{ type: :referentiel, stable_id:, referentiel_mapping: initial_mapping }] }
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.find { _1.stable_id == stable_id } }
     let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
     subject do
@@ -683,13 +683,13 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe '#update_prefill_and_display_type_de_champ' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :referentiel, stable_id: stable_id, referentiel_mapping: },
         { type: :text, stable_id: prefillable_stable_id },
       ]
     end
-    let(:types_de_champ_private) { [] }
+    let(:private_type_de_champs) { [] }
 
     let(:stable_id) { 1 }
     let(:prefillable_stable_id) { 2 }
@@ -736,13 +736,13 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
 
       context 'when referentiel is private' do
-        let(:types_de_champ_private) do
+        let(:private_type_de_champs) do
           [
             { type: :referentiel, stable_id: stable_id, referentiel_mapping: },
             { type: :text, stable_id: prefillable_stable_id },
           ]
         end
-        let(:types_de_champ_public) { [] }
+        let(:public_type_de_champs) { [] }
         it 'updates prefill_stable_id for each mapping element and redirects to prefill_and_display' do
           patch :update_prefill_and_display_type_de_champ, params: {
             procedure_id: procedure.id,

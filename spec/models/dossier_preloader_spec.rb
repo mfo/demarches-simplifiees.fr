@@ -8,7 +8,7 @@ describe DossierPreloader do
       { type: :repetition, mandatory: false, children: [{ type: :text }] },
     ]
   end
-  let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
+  let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
   let(:dossier) { create(:dossier, procedure: procedure) }
   let(:repetition) { subject.root_champs_public.second }
   let(:repetition_optional) { subject.root_champs_public.third }

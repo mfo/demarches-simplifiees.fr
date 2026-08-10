@@ -10,7 +10,7 @@ describe 'Inviting an expert:', js: true do
   let(:expert3) { create(:expert, password: expert_password) }
   let(:expert4) { create(:expert, password: expert_password) }
   let(:expert_password) { 'mot de passe d’expert' }
-  let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], types_de_champ_public: [{ type: :dossier_link }]) }
+  let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], public_type_de_champs: [{ type: :dossier_link }]) }
   let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
   let(:linked_dossier) { Dossier.find_by(id: dossier.champ_data.first.value) }
 

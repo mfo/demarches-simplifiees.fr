@@ -2,7 +2,7 @@
 
 describe DossierRebaseConcern do
   describe '#can_rebase?' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ mandatory: true }, { type: :yes_no, mandatory: false }], types_de_champ_private: [{}]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ mandatory: true }, { type: :yes_no, mandatory: false }], private_type_de_champs: [{}]) }
     let(:attestation_template) { procedure.draft_revision.attestation_acceptation_template.find_or_revise! }
     let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.find { |tdc| !tdc.mandatory? } }
     let(:private_type_de_champ) { procedure.active_revision.private_root_type_de_champs.first }
@@ -99,8 +99,8 @@ describe DossierRebaseConcern do
   end
 
   describe "#rebase" do
-    let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :text, mandatory: true, stable_id: 1 },
         {
@@ -113,7 +113,7 @@ describe DossierRebaseConcern do
         { type: :integer_number, stable_id: 105 },
       ]
     end
-    let(:types_de_champ_private) { [{ type: :text, stable_id: 11 }] }
+    let(:private_type_de_champs) { [{ type: :text, stable_id: 11 }] }
     let(:dossier) { create(:dossier, :with_entreprise, procedure: procedure) }
     let(:type_de_champs) { procedure.active_revision.type_de_champs }
 
@@ -231,7 +231,7 @@ describe DossierRebaseConcern do
       subject { dossier.rebase! }
 
       context 'procedure not published' do
-        let(:procedure) { create(:procedure, :draft, types_de_champ_public:, types_de_champ_private:) }
+        let(:procedure) { create(:procedure, :draft, public_type_de_champs:, private_type_de_champs:) }
         let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
         it 'is noop' do
@@ -412,7 +412,7 @@ describe DossierRebaseConcern do
 
     context 'with a procedure with 2 tdc' do
       let!(:procedure) do
-        create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'l1' }, { type: :text, libelle: 'l2' }])
+        create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'l1' }, { type: :text, libelle: 'l2' }])
       end
       let!(:dossier) { create(:dossier, procedure: procedure) }
 
@@ -491,7 +491,7 @@ describe DossierRebaseConcern do
 
     context 'with a procedure with a repetition' do
       let!(:procedure) do
-        create(:procedure, :published, types_de_champ_public: [
+        create(:procedure, :published, public_type_de_champs: [
           {
             type: :repetition,
             libelle: 'p1',

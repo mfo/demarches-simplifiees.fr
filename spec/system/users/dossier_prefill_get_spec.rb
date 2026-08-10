@@ -3,7 +3,7 @@
 describe 'Prefilling a dossier (with a GET request):', js: true do
   let(:password) { SECURE_PASSWORD }
 
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text },
       { type: :phone },
@@ -17,7 +17,7 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
       { type: :repetition, children: [{ type: :text }, { type: :decimal_number }] },
     ]
   end
-  let(:procedure) { create(:procedure, :for_individual, :published, opendata: true, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :for_individual, :published, opendata: true, public_type_de_champs:) }
   let(:dossier) { procedure.dossiers.last }
   let(:linked_dossier) { create(:dossier, :en_construction, procedure:) }
   let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }
@@ -103,7 +103,7 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
   context 'when authenticated with existing dossier and session params (ie: reload the page)' do
     let(:user) { create(:user, password: password) }
     let(:dossier) { create(:dossier, :prefilled, procedure:, prefill_token: "token", user: nil) }
-    let(:types_de_champ_public) { [{}] }
+    let(:public_type_de_champs) { [{}] }
 
     before do
       dossier.champ_data.first.update(value: text_value)

@@ -4,7 +4,7 @@ describe ProcedureExportService do
   include ZipHelpers
 
   let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, libelle: 'pj' }, { type: :repetition, children: [{ type: :piece_justificative, libelle: 'repet_pj' }] }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, libelle: 'pj' }, { type: :repetition, children: [{ type: :piece_justificative, libelle: 'repet_pj' }] }]) }
   let(:dossiers) { create_list(:dossier, 10, procedure: procedure) }
   let(:export_template) { create(:export_template, :enabled_pjs, groupe_instructeur: procedure.defaut_groupe_instructeur) }
   let(:service) { ProcedureExportService.new(procedure, procedure.dossiers, instructeur, export_template) }

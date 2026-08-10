@@ -5,7 +5,7 @@ describe Administrateurs::RoutingRulesController, type: :controller do
 
   before { sign_in(procedure.administrateurs.first.user) }
 
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }, { type: :text, libelle: 'Un champ texte' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }, { type: :text, libelle: 'Un champ texte' }]) }
   let(:gi_2) { create(:groupe_instructeur, label: 'groupe 2', procedure: procedure) }
   let(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
   let(:default_params) do

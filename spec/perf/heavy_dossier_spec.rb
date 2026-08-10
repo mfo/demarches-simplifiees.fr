@@ -8,8 +8,8 @@ describe Users::DossiersController, type: :controller do
     include Logic
 
     let(:nb_champ) { 100 }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) { (0...nb_champ).map { |i| { type: :yes_no, libelle: "c_#{i}" } } }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) { (0...nb_champ).map { |i| { type: :yes_no, libelle: "c_#{i}" } } }
     let(:dossier) { create(:dossier, user:, procedure:) }
 
     let(:last_champ) { dossier.root_champs_public.last }

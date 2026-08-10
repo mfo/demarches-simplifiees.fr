@@ -4,8 +4,8 @@ RSpec.describe TypesDeChamp::APIParticulierValidator do
   subject { procedure.validate(:types_de_champ_public_editor) }
 
   context 'when procedure has a API Particulier champ and a API Particulier token' do
-    let(:procedure) { create(:procedure, :with_api_particulier_token, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :quotient_familial }] }
+    let(:procedure) { create(:procedure, :with_api_particulier_token, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :quotient_familial }] }
 
     it 'does not add errors to the procedure' do
       subject
@@ -14,8 +14,8 @@ RSpec.describe TypesDeChamp::APIParticulierValidator do
   end
 
   context 'when procedure has a API Particulier champ but no API Particulier token' do
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :quotient_familial }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :quotient_familial }] }
 
     it 'adds errors to the procedure' do
       subject

@@ -6,7 +6,7 @@ describe 'Pre-rempli champ:', js: true do
   let(:user) { create(:user, password:) }
 
   describe 'usager views a pre_rempli champ' do
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :pre_rempli, libelle: 'Référence interne' }]) }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :pre_rempli, libelle: 'Référence interne' }]) }
     let(:dossier) { create(:dossier, :brouillon, :with_individual, user:, procedure:) }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
@@ -44,7 +44,7 @@ describe 'Pre-rempli champ:', js: true do
   end
 
   describe 'pre_rempli champ via prefill URL' do
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :pre_rempli, libelle: 'Code projet' }]) }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :pre_rempli, libelle: 'Code projet' }]) }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
     before do
@@ -80,7 +80,7 @@ describe 'Pre-rempli champ:', js: true do
   end
 
   describe 'instructeur views a pre_rempli champ' do
-    let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: [instructeur], types_de_champ_public: [{ type: :pre_rempli, libelle: 'Référence interne' }]) }
+    let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: [instructeur], public_type_de_champs: [{ type: :pre_rempli, libelle: 'Référence interne' }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
@@ -99,7 +99,7 @@ describe 'Pre-rempli champ:', js: true do
   end
 
   describe 'expert views a pre_rempli champ' do
-    let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: [instructeur], types_de_champ_public: [{ type: :pre_rempli, libelle: 'Code expert' }]) }
+    let(:procedure) { create(:procedure, :published, :for_individual, instructeurs: [instructeur], public_type_de_champs: [{ type: :pre_rempli, libelle: 'Code expert' }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
     let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
     let(:expert) { create(:expert) }
