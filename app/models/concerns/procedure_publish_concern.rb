@@ -90,7 +90,7 @@ module ProcedurePublishConcern
   def create_new_revision(revision = nil)
     transaction do
       new_revision = (revision || draft_revision)
-        .deep_clone(include: [:revision_types_de_champ])
+        .deep_clone(include: [:revision_type_de_champs])
         .tap { |revision| revision.published_at = nil }
         .tap { |revision| revision.administrateur_id = nil }
         .tap(&:save!)
@@ -114,10 +114,10 @@ module ProcedurePublishConcern
   end
 
   def move_new_children_to_new_parent_coordinate(new_draft)
-    children = new_draft.revision_types_de_champ
+    children = new_draft.revision_type_de_champs
       .includes(parent: :type_de_champ)
       .where.not(parent_id: nil)
-    coordinates_by_stable_id = new_draft.revision_types_de_champ
+    coordinates_by_stable_id = new_draft.revision_type_de_champs
       .includes(:type_de_champ)
       .index_by(&:stable_id)
 
@@ -134,7 +134,7 @@ module ProcedurePublishConcern
   end
 
   def cleanup_types_de_champ_children!
-    draft_revision.revision_types_de_champ
+    draft_revision.revision_type_de_champs
       .filter(&:orphan?)
       .each { draft_revision.remove_type_de_champ(_1.stable_id) }
   end

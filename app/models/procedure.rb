@@ -91,8 +91,8 @@ class Procedure < ApplicationRecord
     if brouillon?
       if parent.nil?
         (with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable)
-          .joins(:revision_types_de_champ)
-          .where(revision_types_de_champ: { revision_id: draft_revision_id, parent_id: nil })
+          .joins(:revision_type_de_champs)
+          .where(revision_type_de_champs: { revision_id: draft_revision_id, parent_id: nil })
           .order(:private, :position)
       else
         draft_revision.children_of(parent)
@@ -125,7 +125,7 @@ class Procedure < ApplicationRecord
       .fillable
       .joins(:revisions)
       .where(procedure_revisions: brouillon? ? { id: draft_revision_id } : { procedure_id: id })
-      .where(revision_types_de_champ: { parent_id: nil })
+      .where(revision_type_de_champs: { parent_id: nil })
       .order(:created_at)
       .distinct(:id)
   end
@@ -145,7 +145,7 @@ class Procedure < ApplicationRecord
         .state_en_construction_ou_instruction
         .distinct(:revision_id)
         .pluck(:revision_id)
-      ProcedureRevision.includes(:revision_types_de_champ).where(id: ids)
+      ProcedureRevision.includes(:revision_type_de_champs).where(id: ids)
     end
   end
 
@@ -211,7 +211,7 @@ class Procedure < ApplicationRecord
 
   scope :for_api, -> { with_active_revision.includes(:administrateurs, :module_api_carto) }
   scope :for_api_v2, -> { with_active_revision.includes(administrateurs: :user) }
-  scope :with_active_revision, -> { includes(draft_revision: :revision_types_de_champ, published_revision: :revision_types_de_champ) }
+  scope :with_active_revision, -> { includes(draft_revision: :revision_type_de_champs, published_revision: :revision_type_de_champs) }
 
   scope :order_by_position_for, -> (instructeur) {
     joins(:instructeurs_procedures)
@@ -620,7 +620,7 @@ class Procedure < ApplicationRecord
   end
 
   def routing_champs
-    active_revision.revision_types_de_champ_public.filter(&:used_by_routing_rules?).map(&:libelle)
+    active_revision.public_revision_type_de_champs.filter(&:used_by_routing_rules?).map(&:libelle)
   end
 
   def champ_value_in_condition?
@@ -890,8 +890,8 @@ class Procedure < ApplicationRecord
     # and for each stable_id take the bigger (more recent) type_de_champ.id
     types_de_champ_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
     recent_ids = types_de_champ_scope
-      .joins(:revision_types_de_champ)
-      .where(revision_types_de_champ: { revision_id: revision_ids, parent_id: parent_ids })
+      .joins(:revision_type_de_champs)
+      .where(revision_type_de_champs: { revision_id: revision_ids, parent_id: parent_ids })
       .group(:stable_id).pluck('MAX(types_de_champ.id)')
 
     # fetch the more recent procedure_revision_types_de_champ
@@ -904,12 +904,12 @@ class Procedure < ApplicationRecord
       .pluck('MAX(id)')
 
     TypeDeChamp
-      .joins(:revision_types_de_champ)
-      .where(revision_types_de_champ: { id: recents_prtdc }).then do |relation|
+      .joins(:revision_type_de_champs)
+      .where(revision_type_de_champs: { id: recents_prtdc }).then do |relation|
         if feature_enabled?(:export_order_by_revision) # Fonds Verts, en attente d’exports personnalisables
-          relation.order(:private, 'revision_types_de_champ.revision_id': :desc, position: :asc)
+          relation.order(:private, 'revision_type_de_champs.revision_id': :desc, position: :asc)
         else
-          relation.order(:private, :position, 'revision_types_de_champ.revision_id': :desc)
+          relation.order(:private, :position, 'revision_type_de_champs.revision_id': :desc)
         end
       end
   end

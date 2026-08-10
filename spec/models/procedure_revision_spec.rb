@@ -27,7 +27,7 @@ describe ProcedureRevision do
             ])
     end
     let(:tdc_params) { text_params }
-    let(:last_coordinate) { draft.revision_types_de_champ.last }
+    let(:last_coordinate) { draft.revision_type_de_champs.last }
 
     subject { draft.add_type_de_champ(tdc_params) }
 
@@ -37,7 +37,7 @@ describe ProcedureRevision do
       it 'public' do
         expect { subject }.to change { draft.root_types_de_champ_public.size }.from(2).to(3)
         expect(draft.root_types_de_champ_public.last).to eq(subject)
-        expect(draft.revision_types_de_champ_public.map(&:position)).to eq([0, 1, 2])
+        expect(draft.public_revision_type_de_champs.map(&:position)).to eq([0, 1, 2])
 
         expect(last_coordinate.position).to eq(2)
         expect(last_coordinate.type_de_champ).to eq(subject)
@@ -51,7 +51,7 @@ describe ProcedureRevision do
       it 'private' do
         expect { subject }.to change { draft.root_types_de_champ_private.count }.from(1).to(2)
         expect(draft.root_types_de_champ_private.last).to eq(subject)
-        expect(draft.revision_types_de_champ_private.map(&:position)).to eq([0, 1])
+        expect(draft.private_revision_type_de_champs.map(&:position)).to eq([0, 1])
         expect(last_coordinate.position).to eq(1)
         expect(draft.root_types_de_champ_private.last.mandatory).to be_falsey
       end
@@ -68,7 +68,7 @@ describe ProcedureRevision do
 
         expect(last_coordinate.position).to eq(1)
 
-        parent_coordinate = draft.revision_types_de_champ.find_by(type_de_champ: type_de_champ_repetition)
+        parent_coordinate = draft.revision_type_de_champs.find_by(type_de_champ: type_de_champ_repetition)
         expect(last_coordinate.parent).to eq(parent_coordinate)
       end
     end
@@ -83,13 +83,13 @@ describe ProcedureRevision do
     context 'after_stable_id' do
       context 'with a valid after_stable_id' do
         let(:text_params) { { type_champ: :text, libelle: 'text', after_stable_id: procedure.draft_revision.root_types_de_champ_private.last.id } }
-        let(:tdc_params) { text_params.merge(after_stable_id: draft.revision_types_de_champ_public.first.stable_id, libelle: 'in the middle') }
+        let(:tdc_params) { text_params.merge(after_stable_id: draft.public_revision_type_de_champs.first.stable_id, libelle: 'in the middle') }
 
         it do
-          expect(draft.revision_types_de_champ_public.map(&:libelle)).to eq(['l1', 'l2'])
+          expect(draft.public_revision_type_de_champs.map(&:libelle)).to eq(['l1', 'l2'])
           subject
-          expect(draft.revision_types_de_champ_public.map(&:libelle)).to eq(['l1', 'in the middle', 'l2'])
-          expect(draft.revision_types_de_champ_public.map(&:position)).to eq([0, 1, 2])
+          expect(draft.public_revision_type_de_champs.map(&:libelle)).to eq(['l1', 'in the middle', 'l2'])
+          expect(draft.public_revision_type_de_champs.map(&:position)).to eq([0, 1, 2])
         end
       end
 
@@ -99,7 +99,7 @@ describe ProcedureRevision do
 
         it do
           subject
-          expect(draft.revision_types_de_champ_public.map(&:libelle)).to eq(['in the middle', 'l1', 'l2'])
+          expect(draft.public_revision_type_de_champs.map(&:libelle)).to eq(['in the middle', 'l1', 'l2'])
         end
       end
     end
@@ -124,10 +124,10 @@ describe ProcedureRevision do
     context 'with 4 types de champ publiques' do
       it 'move down' do
         expect(draft.root_types_de_champ_public.index(type_de_champ_public)).to eq(0)
-        stable_id_before = draft.revision_types_de_champ_public.map(&:stable_id)
+        stable_id_before = draft.public_revision_type_de_champs.map(&:stable_id)
         draft.move_type_de_champ(type_de_champ_public.stable_id, 2)
         draft.reload
-        expect(draft.revision_types_de_champ_public.map(&:position)).to eq([0, 1, 2, 3])
+        expect(draft.public_revision_type_de_champs.map(&:position)).to eq([0, 1, 2, 3])
         expect(draft.root_types_de_champ_public.index(type_de_champ_public)).to eq(2)
         expect(draft.procedure.types_de_champ_for_procedure_export.index(type_de_champ_public)).to eq(2)
       end
@@ -136,7 +136,7 @@ describe ProcedureRevision do
         expect(draft.root_types_de_champ_public.index(last_type_de_champ)).to eq(3)
         draft.move_type_de_champ(last_type_de_champ.stable_id, 0)
         draft.reload
-        expect(draft.revision_types_de_champ_public.map(&:position)).to eq([0, 1, 2, 3])
+        expect(draft.public_revision_type_de_champs.map(&:position)).to eq([0, 1, 2, 3])
         expect(draft.root_types_de_champ_public.index(last_type_de_champ)).to eq(0)
         expect(draft.procedure.types_de_champ_for_procedure_export.index(last_type_de_champ)).to eq(0)
       end
@@ -203,13 +203,13 @@ describe ProcedureRevision do
         let(:procedure) { create(:procedure, types_de_champ_public: Array.new(3) { { type: :text } }) }
 
         it 'reorders' do
-          expect(draft.revision_types_de_champ_public.pluck(:position)).to eq([0, 1, 2])
+          expect(draft.public_revision_type_de_champs.pluck(:position)).to eq([0, 1, 2])
 
           first_stable_id = draft.root_types_de_champ_public[1].stable_id
 
           draft.remove_type_de_champ(first_stable_id)
 
-          expect(draft.revision_types_de_champ_public.pluck(:position)).to eq([0, 1])
+          expect(draft.public_revision_type_de_champs.pluck(:position)).to eq([0, 1])
 
           expect { draft.remove_type_de_champ(first_stable_id) }.not_to raise_error
         end
@@ -234,12 +234,12 @@ describe ProcedureRevision do
         end
 
         it 'reorders' do
-          children = draft.coordinate_for(type_de_champ_repetition).revision_types_de_champ
+          children = draft.coordinate_for(type_de_champ_repetition).revision_type_de_champs
           expect(children.map(&:position)).to eq([0, 1, 2, 3])
 
           draft.remove_type_de_champ(children[1].stable_id)
 
-          children = draft.coordinate_for(type_de_champ_repetition).revision_types_de_champ
+          children = draft.coordinate_for(type_de_champ_repetition).revision_type_de_champs
           expect(children.map(&:position)).to eq([0, 1, 2])
         end
       end
@@ -309,10 +309,10 @@ describe ProcedureRevision do
         expect(new_draft.root_types_de_champ_public).to eq(draft.root_types_de_champ_public)
         expect(new_draft.root_types_de_champ_private).to eq(draft.root_types_de_champ_private)
 
-        expect(new_draft.revision_types_de_champ_public.count).to eq(1)
-        expect(new_draft.revision_types_de_champ_private.count).to eq(1)
-        expect(new_draft.revision_types_de_champ_public).not_to eq(draft.revision_types_de_champ_public)
-        expect(new_draft.revision_types_de_champ_private).not_to eq(draft.revision_types_de_champ_private)
+        expect(new_draft.public_revision_type_de_champs.count).to eq(1)
+        expect(new_draft.private_revision_type_de_champs.count).to eq(1)
+        expect(new_draft.public_revision_type_de_champs).not_to eq(draft.public_revision_type_de_champs)
+        expect(new_draft.private_revision_type_de_champs).not_to eq(draft.private_revision_type_de_champs)
       end
     end
 
@@ -325,8 +325,8 @@ describe ProcedureRevision do
 
         new_repetition, new_child = new_draft.types_de_champ.partition(&:repetition?).map(&:first)
 
-        parent = new_draft.revision_types_de_champ.find_by(type_de_champ: new_repetition)
-        child = new_draft.revision_types_de_champ.find_by(type_de_champ: new_child)
+        parent = new_draft.revision_type_de_champs.find_by(type_de_champ: new_repetition)
+        child = new_draft.revision_type_de_champs.find_by(type_de_champ: new_child)
 
         expect(child.parent_id).to eq(parent.id)
       end
@@ -335,7 +335,7 @@ describe ProcedureRevision do
 
   describe '#update_type_de_champ' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :text }, { type: :integer_number }] }]) }
-    let(:last_coordinate) { draft.revision_types_de_champ.last }
+    let(:last_coordinate) { draft.revision_type_de_champs.last }
     let(:last_type_de_champ) { last_coordinate.type_de_champ }
 
     context 'bug with duplicated repetition child' do
@@ -349,7 +349,7 @@ describe ProcedureRevision do
 
       it do
         expect(procedure.revisions.size).to eq(2)
-        expect(draft.revision_types_de_champ.where.not(parent_id: nil).size).to eq(2)
+        expect(draft.revision_type_de_champs.where.not(parent_id: nil).size).to eq(2)
       end
     end
   end
@@ -1052,9 +1052,9 @@ describe ProcedureRevision do
         let(:child_position_1) { create(:type_de_champ_text) }
 
         before do
-          parent_coordinate = draft.revision_types_de_champ.find_by(type_de_champ_id: parent.id)
-          draft.revision_types_de_champ.create(type_de_champ: child_position_2, position: 2, parent_id: parent_coordinate.id)
-          draft.revision_types_de_champ.create(type_de_champ: child_position_1, position: 1, parent_id: parent_coordinate.id)
+          parent_coordinate = draft.revision_type_de_champs.find_by(type_de_champ_id: parent.id)
+          draft.revision_type_de_champs.create(type_de_champ: child_position_2, position: 2, parent_id: parent_coordinate.id)
+          draft.revision_type_de_champs.create(type_de_champ: child_position_1, position: 1, parent_id: parent_coordinate.id)
         end
 
         it 'returns the children in order' do
@@ -1071,10 +1071,10 @@ describe ProcedureRevision do
 
         before do
           new_draft
-            .revision_types_de_champ
+            .revision_type_de_champs
             .where(type_de_champ: first_child)
             .update(type_de_champ: new_child)
-          new_draft.revision_types_de_champ.reload
+          new_draft.revision_type_de_champs.reload
         end
 
         it 'returns the children regarding the revision' do
@@ -1385,7 +1385,7 @@ describe ProcedureRevision do
 
     let(:procedure) do
       create(:procedure, types_de_champ_public: [{ type: :integer_number, libelle: 'l1' }]).tap do |p|
-        tdc = p.draft_revision.revision_types_de_champ_public.last
+        tdc = p.draft_revision.public_revision_type_de_champs.last
         p.draft_revision.add_type_de_champ(type_champ: :integer_number,
                                            libelle: 'l2',
                                            condition: ds_eq(champ_value(tdc.stable_id), constant(true)),

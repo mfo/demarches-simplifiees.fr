@@ -56,8 +56,8 @@ describe ProcedureExportService do
 
         # before do
         #   # change one tdc place to check if the header is ordered
-        #   tdc_first = procedure.active_revision.revision_types_de_champ_public.first
-        #   tdc_last = procedure.active_revision.revision_types_de_champ_public.last
+        #   tdc_first = procedure.active_revision.public_revision_type_de_champs.first
+        #   tdc_last = procedure.active_revision.public_revision_type_de_champs.last
 
         #   tdc_first.update(position: tdc_last.position + 1)
         #   procedure.reload
@@ -409,8 +409,8 @@ describe ProcedureExportService do
     describe 'Repetitions sheet' do
       before do
         # change one tdc place to check if the header is ordered
-        tdc_first = procedure.active_revision.revision_types_de_champ_public.first
-        tdc_last = procedure.active_revision.revision_types_de_champ_public.last
+        tdc_first = procedure.active_revision.public_revision_type_de_champs.first
+        tdc_last = procedure.active_revision.public_revision_type_de_champs.last
 
         tdc_first.update(position: tdc_last.position + 1)
         procedure.reload

@@ -19,7 +19,7 @@ describe ProcedureRevisionTypeDeChamp do
       let(:l2_2) do
         procedure
           .draft_revision
-          .revision_types_de_champ.joins(:type_de_champ)
+          .revision_type_de_champs.joins(:type_de_champ)
           .find_by(type_de_champ: { libelle: 'l2.2' })
       end
 
@@ -47,7 +47,7 @@ describe ProcedureRevisionTypeDeChamp do
       let(:a2) do
         procedure
           .draft_revision
-          .revision_types_de_champ.joins(:type_de_champ)
+          .revision_type_de_champs.joins(:type_de_champ)
           .find_by(type_de_champ: { libelle: 'a2' })
       end
 

@@ -49,8 +49,8 @@ RSpec.describe TypesDeChamp::LibelleValidator do
           .to include(
             I18n.t(
               'activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.missing_libelle_in_repetition',
-              position: child.revision_types_de_champ.last.position + 1,
-              parent_position: repetition.revision_types_de_champ.last.position + 1
+              position: child.revision_type_de_champs.last.position + 1,
+              parent_position: repetition.revision_type_de_champs.last.position + 1
             )
           )
       end

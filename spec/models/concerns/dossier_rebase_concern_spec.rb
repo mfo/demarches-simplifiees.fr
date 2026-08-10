@@ -506,8 +506,8 @@ describe DossierRebaseConcern do
       let!(:dossier) { create(:dossier, procedure: procedure) }
       let(:repetition) { procedure.draft_revision.types_de_champ.find(&:repetition?) }
 
-      def child_libelles = dossier.revision.revision_types_de_champ_public.first.revision_types_de_champ.map(&:libelle)
-      def child_types_champ = dossier.revision.revision_types_de_champ_public.first.revision_types_de_champ.map(&:type_champ)
+      def child_libelles = dossier.revision.public_revision_type_de_champs.first.revision_type_de_champs.map(&:libelle)
+      def child_types_champ = dossier.revision.public_revision_type_de_champs.first.revision_type_de_champs.map(&:type_champ)
 
       context 'when a child tdc is added in the middle' do
         before do

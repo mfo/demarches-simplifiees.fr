@@ -205,7 +205,7 @@ namespace :benchmarks do
           end
 
           revisions_by_id.each_pair do |revision_id, revision|
-            revision.association(:revision_types_de_champ).target = coordinates_by_revision_id[revision_id] || []
+            revision.association(:revision_type_de_champs).target = coordinates_by_revision_id[revision_id] || []
           end
         end
       end

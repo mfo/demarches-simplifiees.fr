@@ -781,7 +781,7 @@ module Users
       user_procedures
         .distinct
         .order(:libelle)
-        .includes(published_revision: { revision_types_de_champ: :type_de_champ })
+        .includes(published_revision: { revision_type_de_champs: :type_de_champ })
         .filter { _1.customizable_columns_by_section.any? }
     end
 

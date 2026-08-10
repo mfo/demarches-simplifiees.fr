@@ -41,23 +41,23 @@ FactoryBot.define do
       procedure.defaut_groupe_instructeur = procedure.groupe_instructeurs.first
       initial_revision = build(:procedure_revision, procedure: procedure, dossier_submitted_message: evaluator.dossier_submitted_message)
 
-      revision_types_de_champ = []
+      revision_type_de_champs = []
 
       if evaluator.types_de_champ_public.present?
         if !evaluator.types_de_champ_public.first.is_a?(Hash)
           raise "types_de_champ_public must be an array of hashes"
         end
-        revision_types_de_champ += build_types_de_champ(evaluator.types_de_champ_public, revision: initial_revision, scope: :public)
+        revision_type_de_champs += build_types_de_champ(evaluator.types_de_champ_public, revision: initial_revision, scope: :public)
       end
 
       if evaluator.types_de_champ_private.present?
         if !evaluator.types_de_champ_private.first.is_a?(Hash)
           raise "types_de_champ_private must be an array of hashes"
         end
-        revision_types_de_champ += build_types_de_champ(evaluator.types_de_champ_private, revision: initial_revision, scope: :private)
+        revision_type_de_champs += build_types_de_champ(evaluator.types_de_champ_private, revision: initial_revision, scope: :private)
       end
 
-      initial_revision.association(:revision_types_de_champ).target = revision_types_de_champ
+      initial_revision.association(:revision_type_de_champs).target = revision_type_de_champs
 
       if procedure.brouillon?
         procedure.draft_revision = initial_revision

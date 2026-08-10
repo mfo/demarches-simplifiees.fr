@@ -13,9 +13,9 @@ describe Administrateurs::TypesDeChampController, type: :controller do
            ])
   end
 
-  def first_coordinate = procedure.draft_revision.revision_types_de_champ_public.first
-  def second_coordinate = procedure.draft_revision.reload.revision_types_de_champ_public.second
-  def third_coordinate = procedure.draft_revision.revision_types_de_champ_public.third
+  def first_coordinate = procedure.draft_revision.public_revision_type_de_champs.first
+  def second_coordinate = procedure.draft_revision.reload.public_revision_type_de_champs.second
+  def third_coordinate = procedure.draft_revision.public_revision_type_de_champs.third
 
   def extract_libelle(champ_component) = [champ_component.coordinate.libelle, champ_component.upper_coordinates.map(&:libelle)]
 
@@ -333,7 +333,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       let(:multiple_drop_down_list_type_de_champ) do
         procedure.draft_revision.root_types_de_champ_public.first
       end
-      let(:coordinate) { procedure.draft_revision.revision_types_de_champ_public.first }
+      let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
 
       let(:params) do
         {

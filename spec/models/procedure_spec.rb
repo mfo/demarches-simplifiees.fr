@@ -1139,7 +1139,7 @@ describe Procedure do
     it 'creates a new draft revision' do
       expect { subject }.to change(ProcedureRevision, :count).by(1)
       expect(procedure.draft_revision).to be_present
-      expect(procedure.draft_revision.revision_types_de_champ_public).to be_present
+      expect(procedure.draft_revision.public_revision_type_de_champs).to be_present
       expect(procedure.draft_revision.root_types_de_champ_public).to be_present
       expect(procedure.draft_revision.root_types_de_champ_public.first.libelle).to eq('libelle 1')
     end
@@ -1711,7 +1711,7 @@ describe Procedure do
         ]
       end
       let(:revision) { procedure.draft_revision }
-      let(:repetition) { revision.revision_types_de_champ_public.last }
+      let(:repetition) { revision.public_revision_type_de_champs.last }
 
       context 'with bouillon procedure' do
         let(:procedure) { build(:procedure, types_de_champ_public: types_de_champ) }
@@ -1720,9 +1720,9 @@ describe Procedure do
           expect(revision.types_de_champ.size).to eq(5)
           expect(revision.root_types_de_champ_public.size).to eq(2)
           expect(revision.root_types_de_champ_public.map(&:type_champ)).to eq(['yes_no', 'repetition'])
-          expect(repetition.revision_types_de_champ.size).to eq(3)
-          expect(repetition.revision_types_de_champ.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
-          expect(repetition.revision_types_de_champ.map(&:mandatory?)).to eq([true, true, false])
+          expect(repetition.revision_type_de_champs.size).to eq(3)
+          expect(repetition.revision_type_de_champs.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
+          expect(repetition.revision_type_de_champs.map(&:mandatory?)).to eq([true, true, false])
         end
       end
 
@@ -1734,9 +1734,9 @@ describe Procedure do
             expect(revision.types_de_champ.size).to eq(5)
             expect(revision.root_types_de_champ_public.size).to eq(2)
             expect(revision.root_types_de_champ_public.map(&:type_champ)).to eq(['yes_no', 'repetition'])
-            expect(repetition.revision_types_de_champ.size).to eq(3)
-            expect(repetition.revision_types_de_champ.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
-            expect(repetition.revision_types_de_champ.map(&:mandatory?)).to eq([true, true, false])
+            expect(repetition.revision_type_de_champs.size).to eq(3)
+            expect(repetition.revision_type_de_champs.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
+            expect(repetition.revision_type_de_champs.map(&:mandatory?)).to eq([true, true, false])
           end
         end
 
@@ -1747,9 +1747,9 @@ describe Procedure do
             expect(revision.types_de_champ.size).to eq(5)
             expect(revision.root_types_de_champ_public.size).to eq(2)
             expect(revision.root_types_de_champ_public.map(&:type_champ)).to eq(['yes_no', 'repetition'])
-            expect(repetition.revision_types_de_champ.size).to eq(3)
-            expect(repetition.revision_types_de_champ.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
-            expect(repetition.revision_types_de_champ.map(&:mandatory?)).to eq([true, true, false])
+            expect(repetition.revision_type_de_champs.size).to eq(3)
+            expect(repetition.revision_type_de_champs.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
+            expect(repetition.revision_type_de_champs.map(&:mandatory?)).to eq([true, true, false])
           end
         end
       end
@@ -2439,7 +2439,7 @@ describe Procedure do
     end
 
     it 'does not query procedure_revisions or type_de_champs on each call (no N+1)' do
-      p = Procedure.includes(published_revision: { revision_types_de_champ: :type_de_champ }).find(procedure.id)
+      p = Procedure.includes(published_revision: { revision_type_de_champs: :type_de_champ }).find(procedure.id)
 
       revision_query_count = 0
       tdc_query_count = 0

@@ -118,8 +118,8 @@ module ProcedureCloneConcern
       move_new_children_to_new_parent_coordinate(procedure.draft_revision)
     end
 
-    procedure.draft_revision.revision_types_de_champ.public_only.each(&:destroy) if !options[:clone_champs]
-    procedure.draft_revision.revision_types_de_champ.private_only.each(&:destroy) if !options[:clone_annotations]
+    procedure.draft_revision.revision_type_de_champs.public_only.each(&:destroy) if !options[:clone_champs]
+    procedure.draft_revision.revision_type_de_champs.private_only.each(&:destroy) if !options[:clone_annotations]
     procedure.labels = [] if !options[:clone_labels]
 
     if !same_admin?(admin) || options[:cloned_from_library]
@@ -260,7 +260,7 @@ module ProcedureCloneConcern
   def cloneable_associations(options, admin)
     associations = {
       draft_revision: {
-        revision_types_de_champ: :type_de_champ,
+        revision_type_de_champs: :type_de_champ,
         dossier_submitted_message: [],
       },
     }

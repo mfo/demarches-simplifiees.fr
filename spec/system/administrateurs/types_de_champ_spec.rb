@@ -351,9 +351,9 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
   context 'move and morph' do
     let(:procedure) { create(:procedure, types_de_champ_public: tdcs) }
-    let!(:initial_first_coordinate) { procedure.draft_revision.revision_types_de_champ_public[0] }
-    let!(:initial_second_coordinate) { procedure.draft_revision.revision_types_de_champ_public[1] }
-    let!(:initial_third_coordinate) { procedure.draft_revision.revision_types_de_champ_public[2] }
+    let!(:initial_first_coordinate) { procedure.draft_revision.public_revision_type_de_champs[0] }
+    let!(:initial_second_coordinate) { procedure.draft_revision.public_revision_type_de_champs[1] }
+    let!(:initial_third_coordinate) { procedure.draft_revision.public_revision_type_de_champs[2] }
 
     context 'with root champs' do
       let(:tdcs) do
@@ -394,14 +394,14 @@ describe 'As an administrateur I can edit types de champ', js: true do
         page.find(initial_first_coordinate_selector).click # seeds
         page.find(initial_first_coordinate_selector).select(initial_third_coordinate.libelle)
         wait_until do
-          procedure.reload.draft_revision.revision_types_de_champ.last.type_de_champ.libelle == initial_first_coordinate.type_de_champ.libelle
+          procedure.reload.draft_revision.revision_type_de_champs.last.type_de_champ.libelle == initial_first_coordinate.type_de_champ.libelle
         end
         # wait until turbo response
         expect(page).to have_text('Formulaire enregistré')
 
         # check reorder worked on backend
         reordered_coordinates = [initial_second_coordinate, initial_third_coordinate, initial_first_coordinate]
-        expect(procedure.reload.draft_revision.revision_types_de_champ.map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
+        expect(procedure.reload.draft_revision.revision_type_de_champs.map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
 
         # check reorder rerendered champ component between target->destination
         reordered_coordinates.map(&:reload).map do |coordinate|
@@ -425,7 +425,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
           { type: :text, libelle: 'root_thrid_tdc' },
         ]
       end
-      let(:children_coordinates) { procedure.draft_revision.revision_types_de_champ.filter { _1.parent.present? } }
+      let(:children_coordinates) { procedure.draft_revision.revision_type_de_champs.filter { _1.parent.present? } }
       let(:first_child_coordinate_selector) { "##{ActionView::RecordIdentifier.dom_id(children_coordinates.first, :move_and_morph)}" }
 
       scenario 'first child of repetition select is empty by default' do
@@ -454,7 +454,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
         # check reorder worked on backend
         reordered_coordinates = children_coordinates.reverse
-        expect(procedure.reload.draft_revision.revision_types_de_champ.filter { _1.parent.present? }.sort_by(&:position).map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
+        expect(procedure.reload.draft_revision.revision_type_de_champs.filter { _1.parent.present? }.sort_by(&:position).map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
 
         # check reorder rerendered champ component between target->destination
         reordered_coordinates.map(&:reload).map do |coordinate|

@@ -27,5 +27,5 @@ class TypesDeChamp::LibelleValidator < ActiveModel::EachValidator
     )
   end
 
-  def position_of(tdc) = tdc.revision_types_de_champ.last.position + 1
+  def position_of(tdc) = tdc.revision_type_de_champs.last.position + 1
 end

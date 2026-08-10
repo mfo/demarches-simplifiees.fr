@@ -123,9 +123,9 @@ class TypeDeChamp < ApplicationRecord
                  :max_repetitions,
                  :pre_rempli_hidden
 
-  has_many :revision_types_de_champ, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
+  has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
-  has_many :revisions, -> { ordered }, through: :revision_types_de_champ
+  has_many :revisions, -> { ordered }, through: :revision_type_de_champs
 
   belongs_to :referentiel, optional: true, inverse_of: :types_de_champ
 
@@ -303,7 +303,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def destroy_if_orphan
-    if revision_types_de_champ.empty?
+    if revision_type_de_champs.empty?
       destroy
     end
   end

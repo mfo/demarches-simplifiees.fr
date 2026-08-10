@@ -4,7 +4,7 @@ module RevisionDescribableToLLMConcern
   TYPES_WITH_OPTIONS = %w[formatted integer_number decimal_number date datetime].freeze
 
   def schema_to_llm(reject: [])
-    revision_types_de_champ.includes(:parent, :type_de_champ)
+    revision_type_de_champs.includes(:parent, :type_de_champ)
       .filter(&:public?).map do |rtdc|
         {
           stable_id: rtdc.stable_id,

@@ -39,12 +39,12 @@ RSpec.describe ChampValidateConcern do
     context 'do not validate champs not on current revision' do
       before {
         update_champ('test')
-        dossier.revision.revision_types_de_champ.delete_all
+        dossier.revision.revision_type_de_champs.delete_all
         dossier.reload
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.revision.revision_types_de_champ).to be_empty
+        expect(dossier.revision.revision_type_de_champs).to be_empty
         expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
@@ -54,12 +54,12 @@ RSpec.describe ChampValidateConcern do
       let(:types_de_champ_public) { [{ type: :piece_justificative }, { type: :piece_justificative, nature: 'titre_identite' }] }
 
       before {
-        dossier.revision.revision_types_de_champ.delete_all
+        dossier.revision.revision_type_de_champs.delete_all
         dossier.reload
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.revision.revision_types_de_champ).to be_empty
+        expect(dossier.revision.revision_type_de_champs).to be_empty
         expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
@@ -69,12 +69,12 @@ RSpec.describe ChampValidateConcern do
       let(:types_de_champ_public) { [{ type: :drop_down_list }] }
 
       before {
-        dossier.revision.revision_types_de_champ.delete_all
+        dossier.revision.revision_type_de_champs.delete_all
         dossier.reload
         dossier.validate(:champs_public_value)
       }
       it {
-        expect(dossier.revision.revision_types_de_champ).to be_empty
+        expect(dossier.revision.revision_type_de_champs).to be_empty
         expect(dossier.champ_data).not_to be_empty
         expect(dossier.errors).to be_empty
       }
@@ -87,7 +87,7 @@ RSpec.describe ChampValidateConcern do
         allow_any_instance_of(Champs::PieceJustificativeChamp).to receive(:external_data_needed_for_validation?).and_return(true)
 
         dossier.champ_data.first.update_column(:external_state, 'waiting_for_job')
-        dossier.revision.revision_types_de_champ.delete_all
+        dossier.revision.revision_type_de_champs.delete_all
 
         dossier.reload
         dossier.validate(:champs_public_value)
