@@ -10,7 +10,7 @@
           title: t("views.prefill_descriptions.edit.title.#{identity_item}"), description: t("views.prefill_descriptions.edit.description.#{identity_item}"), possible_values: t("views.prefill_descriptions.edit.possible_values.#{identity_item}"), example_value: t("views.prefill_descriptions.edit.examples.#{identity_item}")
 
   .fr-grid-row.fr-grid-row--gutters.fr-pt-1w.fr-pb-5w
-    - prefill_description.types_de_champ.each do |type_de_champ|
+    - prefill_description.type_de_champs.each do |type_de_champ|
       = render "prefillable_entity_card",
         prefill_description: prefill_description, type_de_champ: type_de_champ,
         prefillable: type_de_champ.prefillable?, already_included: prefill_description.include?(type_de_champ.id.to_s),

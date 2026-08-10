@@ -21,7 +21,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:drop_down_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'without any rules' do
         it { is_expected.to eq(defaut_groupe) }
@@ -82,7 +82,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:departements_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:departements_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'with a matching rule' do
         before do
@@ -101,7 +101,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:regions_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:regions_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'with a matching rule' do
         before do
@@ -120,7 +120,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:communes_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:communes_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'with a matching rule' do
         before do
@@ -139,7 +139,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:epci_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:epci_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'with a matching rule' do
         before do
@@ -164,7 +164,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:address_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:address_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'with a matching rule' do
         before do
@@ -188,7 +188,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:pays_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:pays_tdc) { procedure.draft_revision.type_de_champs.first }
 
       context 'with a matching rule' do
         before do
@@ -212,7 +212,7 @@ describe RoutingEngine, type: :model do
         end
       end
 
-      let(:drop_down_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
 
       let!(:gi_3) { procedure.groupe_instructeurs.find_by(label: 'c') }
 

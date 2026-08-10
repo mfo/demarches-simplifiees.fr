@@ -81,8 +81,8 @@ class Champs::ReferentielChamp < ChampData
     end
   end
 
-  def propagate_prefill(types_de_champ)
-    type_de_champs_by_stable_id = types_de_champ.index_by(&:stable_id)
+  def propagate_prefill(type_de_champs)
+    type_de_champs_by_stable_id = type_de_champs.index_by(&:stable_id)
     referentiel_mapping_prefillable_with_stable_id
       .transform_values do |mapping|
         type_de_champs_by_stable_id[mapping[:prefill_stable_id].to_i]
@@ -101,7 +101,7 @@ class Champs::ReferentielChamp < ChampData
 
   def prefillable_type_de_champs
     if main_stream?
-      dossier.revision.types_de_champ
+      dossier.revision.type_de_champs
     else
       dossier.public_type_de_champs_all
     end

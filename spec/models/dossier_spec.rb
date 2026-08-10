@@ -769,7 +769,7 @@ describe Dossier, type: :model do
                    { type: :text, libelle: 'Un champ texte' },
                  ])
         end
-        let!(:drop_down_tdc) { procedure.draft_revision.types_de_champ.first }
+        let!(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
         let(:dossier) { create(:dossier, :brouillon, user:, procedure:, groupe_instructeur: nil) }
         let(:gi) do
           create(:groupe_instructeur,
@@ -2083,9 +2083,9 @@ describe Dossier, type: :model do
   describe "#champs_public_valid?" do
     include Logic
 
-    let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+    let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
-    let(:types_de_champ) { [type_de_champ].compact }
+    let(:type_de_champs) { [type_de_champ].compact }
     let(:type_de_champ) { nil }
     let(:errors) { dossier.champs_public_valid?; dossier.errors }
 
@@ -2108,7 +2108,7 @@ describe Dossier, type: :model do
       end
 
       context "conditionaly visible" do
-        let(:types_de_champ) { [{ type: :yes_no, stable_id: 99, mandatory: false }, type_de_champ] }
+        let(:type_de_champs) { [{ type: :yes_no, stable_id: 99, mandatory: false }, type_de_champ] }
         let(:type_de_champ) { { mandatory: true, condition: ds_eq(champ_value(99), constant(true)) } }
 
         it 'should not have errors' do
@@ -2145,7 +2145,7 @@ describe Dossier, type: :model do
     context "with champ repetition" do
       let(:type_de_champ) { { type: :repetition, mandatory: true, children: [{ mandatory: true }] } }
       let(:revision) { procedure.active_revision }
-      let(:type_de_champ_repetition) { revision.types_de_champ.first }
+      let(:type_de_champ_repetition) { revision.type_de_champs.first }
 
       context "when no champs" do
         it 'should have errors' do
@@ -2166,7 +2166,7 @@ describe Dossier, type: :model do
         end
 
         context "conditionaly visible" do
-          let(:types_de_champ) { [{ type: :yes_no, stable_id: 99, mandatory: false }, type_de_champ] }
+          let(:type_de_champs) { [{ type: :yes_no, stable_id: 99, mandatory: false }, type_de_champ] }
           let(:type_de_champ) { { type: :repetition, mandatory: true, children: [{ mandatory: true }], condition: ds_eq(champ_value(99), constant(true)) } }
 
           it 'should not have errors' do
@@ -2186,9 +2186,9 @@ describe Dossier, type: :model do
   end
 
   describe "check simple mode options for formatted champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+    let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
-    let(:types_de_champ) { [type_de_champ] }
+    let(:type_de_champs) { [type_de_champ] }
     let(:type_de_champ) { { type: :formatted, formatted_mode: 'simple', letters_accepted:, numbers_accepted:, special_characters_accepted:, min_character_length:, max_character_length: } }
     let(:letters_accepted) { '1' }
     let(:numbers_accepted) { '1' }
@@ -2314,9 +2314,9 @@ describe Dossier, type: :model do
   end
 
   describe "check advanced mode options for formatted champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+    let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
-    let(:types_de_champ) { [type_de_champ] }
+    let(:type_de_champs) { [type_de_champ] }
     let(:type_de_champ) { { type: :formatted, formatted_mode: 'advanced', expression_reguliere:, expression_reguliere_exemple_text:, expression_reguliere_error_message: } }
 
     context "with bad example" do
@@ -2713,8 +2713,8 @@ describe Dossier, type: :model do
 
     context 'with a procedure with a condition' do
       include Logic
-      let(:types_de_champ) { [{ type: :yes_no }, { type: :text }] }
-      let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+      let(:type_de_champs) { [{ type: :yes_no }, { type: :text }] }
+      let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:yes_no_tdc) { procedure.active_revision.public_root_type_de_champs.first }
       let(:text_tdc) { procedure.active_revision.public_root_type_de_champs.second }
@@ -2805,35 +2805,35 @@ describe Dossier, type: :model do
 
     context 'user france connected' do
       let(:dossier) { build(:dossier, user: build(:user, france_connect_informations: [build(:france_connect_information)]), procedure: procedures.individual) }
-      it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["FranceConnect ?", true]) }
+      it { expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(["FranceConnect ?", true]) }
     end
 
     context 'user not france connected' do
       let(:dossier) { build(:dossier, procedure: procedures.individual) }
-      it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["FranceConnect ?", false]) }
+      it { expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(["FranceConnect ?", false]) }
     end
 
     context 'for_individual' do
       let(:dossier) { dossiers.brouillon }
       it do
-        expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Dépôt pour un tiers", :for_tiers])
-        expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(['Nom du mandataire', :mandataire_last_name])
-        expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(['Prénom du mandataire', :mandataire_first_name])
+        expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(["Dépôt pour un tiers", :for_tiers])
+        expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(['Nom du mandataire', :mandataire_last_name])
+        expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(['Prénom du mandataire', :mandataire_first_name])
       end
     end
 
-    it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["État du dossier", "Brouillon"]) }
+    it { expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(["État du dossier", "Brouillon"]) }
 
     context 'procedure sva' do
       let(:dossier) { build(:dossier, :en_instruction, procedure: procedures.sva) }
 
-      it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Date décision SVA", :sva_svr_decision_on]) }
+      it { expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(["Date décision SVA", :sva_svr_decision_on]) }
     end
 
     context 'procedure svr' do
       let(:dossier) { build(:dossier, :en_instruction, procedure: procedures.svr) }
 
-      it { expect(dossier.spreadsheet_columns(types_de_champ: [])).to include(["Date décision SVR", :sva_svr_decision_on]) }
+      it { expect(dossier.spreadsheet_columns(type_de_champs: [])).to include(["Date décision SVR", :sva_svr_decision_on]) }
     end
   end
 

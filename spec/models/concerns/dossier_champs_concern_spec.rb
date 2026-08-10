@@ -1152,7 +1152,7 @@ RSpec.describe DossierChampsConcern do
     let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, types_de_champ_public:, for_individual: true) }
     let(:types_de_champ_public) { [{ type: :quotient_familial }] }
     # Memoized before any context publishes a second quotient_familial tdc.
-    let(:qf_stable_id) { procedure.published_revision.types_de_champ.sole.stable_id }
+    let(:qf_stable_id) { procedure.published_revision.type_de_champs.sole.stable_id }
     # Enumerable#find over the loaded association, not find_by: the examples
     # stub this instance, so it has to be the same object the concern reuses.
     let(:champ_qf) { dossier.champ_data.find { it.stable_id == qf_stable_id } }

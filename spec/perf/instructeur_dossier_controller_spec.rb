@@ -19,7 +19,7 @@ describe Instructeurs::DossiersController, type: :controller do
     let(:last_yes_no_champ) { dossier.root_champs_public[99] }
 
     before do
-      tdcs = procedure.active_revision.types_de_champ.to_a
+      tdcs = procedure.active_revision.type_de_champs.to_a
 
       # one champ is visible if the previous champ is true
       (nb_champ - 1).times do |i|

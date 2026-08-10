@@ -74,7 +74,7 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
     end
 
     context 'when referentiel was persisted' do
-      let(:referentiel) { create(:api_referentiel, :autocomplete, types_de_champ: [type_de_champ]) }
+      let(:referentiel) { create(:api_referentiel, :autocomplete, type_de_champs: [type_de_champ]) }
       it 'render form to update' do
         expect(page).to have_css('form[method=post]')
         expect(page).to have_css('input[name=_method][value=patch]')

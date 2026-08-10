@@ -19,7 +19,7 @@ class ProcedureExportService::CsvExport
       .new(@dossiers.ordered_for_export)
       .in_batches(includes: DossierPreloader::SHEET_EXPORT_INCLUDES) do |batch|
       batch.each do |dossier|
-        columns = dossier.spreadsheet_columns_csv(types_de_champ:, export_template: @export_template)
+        columns = dossier.spreadsheet_columns_csv(type_de_champs:, export_template: @export_template)
 
         unless headers_written
           csv << columns.map(&:first)
@@ -41,5 +41,5 @@ class ProcedureExportService::CsvExport
     end
   end
 
-  def types_de_champ = @types_de_champ ||= @procedure.type_de_champs_for_procedure_export.to_a
+  def type_de_champs = @type_de_champs ||= @procedure.type_de_champs_for_procedure_export.to_a
 end

@@ -7,7 +7,7 @@ describe Logic::ChampValue do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: tdc_type, drop_down_other: }]) }
     let(:drop_down_other) { nil }
     let(:tdc_type) { :text }
-    let(:tdc) { procedure.active_revision.types_de_champ.first }
+    let(:tdc) { procedure.active_revision.type_de_champs.first }
     let(:dossier) { create(:dossier, procedure:) }
 
     subject { champ_value(champ.stable_id).compute([champ]) }

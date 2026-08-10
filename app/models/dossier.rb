@@ -1127,9 +1127,9 @@ class Dossier < ApplicationRecord
     end
   end
 
-  def prefill_and_enqueue_fetch_external_data_jobs(champs, types_de_champ)
+  def prefill_and_enqueue_fetch_external_data_jobs(champs, type_de_champs)
     prefilled_champs = Array.wrap(champs).flat_map do |champ|
-      champ.propagate_prefill(types_de_champ)
+      champ.propagate_prefill(type_de_champs)
     end
     enqueue_fetch_external_data_jobs(prefilled_champs)
   end
@@ -1159,8 +1159,8 @@ class Dossier < ApplicationRecord
     build_default_champs_for(revision.private_root_type_de_champs) if !champ_data.any?(&:private?)
   end
 
-  def build_default_champs_for(types_de_champ)
-    self.champ_data << types_de_champ.filter(&:fillable?).filter_map do |type_de_champ|
+  def build_default_champs_for(type_de_champs)
+    self.champ_data << type_de_champs.filter(&:fillable?).filter_map do |type_de_champ|
       if type_de_champ.repetition?
         if type_de_champ.private? || type_de_champ.mandatory?
           type_de_champ.build_champ(dossier: self, row_id: ULID.generate)

@@ -220,7 +220,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
         it 'creates a valid referentiel' do
           expect { subject }.to change(Referentiel, :count).by(1).and change(ReferentielItem, :count).by(3)
           expect(drop_down_list_type_de_champ.reload.referentiel).to eq Referentiel.last
-          expect(Referentiel.last.types_de_champ).to eq [drop_down_list_type_de_champ]
+          expect(Referentiel.last.type_de_champs).to eq [drop_down_list_type_de_champ]
           expect(Referentiel.last.name).to eq referentiel_file.original_filename
           expect(Referentiel.last.type).to eq 'Referentiels::CsvReferentiel'
           expect(ReferentielItem.first.data).to eq({ "row" => { "calorie_kcal" => "145", "dessert" => "Éclair au café", "poids_g" => "60" } })
@@ -351,7 +351,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
         it 'creates a valid referentiel' do
           expect { subject }.to change(Referentiel, :count).by(1).and change(ReferentielItem, :count).by(3)
           expect(multiple_drop_down_list_type_de_champ.reload.referentiel).to eq Referentiel.last
-          expect(Referentiel.last.types_de_champ).to eq [multiple_drop_down_list_type_de_champ]
+          expect(Referentiel.last.type_de_champs).to eq [multiple_drop_down_list_type_de_champ]
           expect(Referentiel.last.name).to eq referentiel_file.original_filename
           expect(Referentiel.last.type).to eq 'Referentiels::CsvReferentiel'
           expect(ReferentielItem.first.data).to eq({ "row" => { "calorie_kcal" => "145", "dessert" => "Éclair au café", "poids_g" => "60" } })
@@ -504,7 +504,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
 
   describe '#notice_explicative' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
-    let(:coordinate) { procedure.draft_revision.types_de_champ.first }
+    let(:coordinate) { procedure.draft_revision.type_de_champs.first }
     let(:content) { 'notice' }
     let(:blob) { ActiveStorage::Blob.create_and_upload!(io: StringIO.new(content), filename: 'notice.txt', content_type: 'text/plain') }
 

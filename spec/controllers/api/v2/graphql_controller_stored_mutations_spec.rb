@@ -511,7 +511,7 @@ describe API::V2::GraphqlController do
           # not to defaut_groupe_instructeur which becomes the defaut below
           let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
           let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
-          let(:routing_champ) { procedure.active_revision.types_de_champ.first }
+          let(:routing_champ) { procedure.active_revision.type_de_champs.first }
           let!(:defaut_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure) }
 
           before do
@@ -583,7 +583,7 @@ describe API::V2::GraphqlController do
         include Logic
         let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{ type: :drop_down_list }]) }
         let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
-        let(:routing_champ) { procedure.active_revision.types_de_champ.first }
+        let(:routing_champ) { procedure.active_revision.type_de_champs.first }
 
         before do
           groupe_instructeur.update(routing_rule: ds_eq(champ_value(routing_champ.stable_id), constant(groupe_instructeur.label)))

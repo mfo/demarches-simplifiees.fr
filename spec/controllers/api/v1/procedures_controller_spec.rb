@@ -47,12 +47,12 @@ describe API::V1::ProceduresController, type: :controller do
           expect(subject[:archived_at]).to eq(procedure.closed_at)
           expect(subject[:direction]).to eq("")
           expect(subject[:total_dossier]).to eq(procedure.total_dossier)
-          is_expected.to have_key(:types_de_champ)
-          expect(subject[:types_de_champ]).to be_an(Array)
+          is_expected.to have_key(:type_de_champs)
+          expect(subject[:type_de_champs]).to be_an(Array)
         end
 
         describe 'type_de_champ' do
-          subject { super()[:types_de_champ][0] }
+          subject { super()[:type_de_champs][0] }
 
           let(:champ) { procedure.active_revision.public_root_type_de_champs.first }
 

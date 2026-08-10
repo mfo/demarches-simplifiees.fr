@@ -15,24 +15,24 @@ RSpec.describe PrefillDescription, type: :model do
     end
   end
 
-  describe '#types_de_champ' do
+  describe '#type_de_champs' do
     let(:procedure) { create(:procedure, types_de_champ_public:) }
     let(:types_de_champ_public) { [{}] }
-    let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:prefill_description) { described_class.new(procedure) }
 
-    subject(:types_de_champ) { prefill_description.types_de_champ }
+    subject(:type_de_champs) { prefill_description.type_de_champs }
 
     it do
-      expect(types_de_champ.count).to eq(1)
-      expect(types_de_champ.first).to eql(TypesDeChamp::PrefillTypeDeChamp.build(type_de_champ, procedure.active_revision))
+      expect(type_de_champs.count).to eq(1)
+      expect(type_de_champs.first).to eql(TypesDeChamp::PrefillTypeDeChamp.build(type_de_champ, procedure.active_revision))
     end
 
     shared_examples "filters out non fillable types de champ" do |type_de_champ_name|
       context "when the procedure has a #{type_de_champ_name} champ" do
         let(:types_de_champ_public) { [{}, { type: type_de_champ_name }] }
 
-        it { expect(prefill_description.types_de_champ.map(&:type_champ)).not_to include(type_de_champ_name) }
+        it { expect(prefill_description.type_de_champs.map(&:type_champ)).not_to include(type_de_champ_name) }
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe PrefillDescription, type: :model do
       let(:types_de_champ_public) { [{}, { type: :carte }, { type: :decimal_number }] }
 
       it "sort types de champ by putting prefillable ones first" do
-        expect(prefill_description.types_de_champ.map(&:type_champ)).to eq([
+        expect(prefill_description.type_de_champs.map(&:type_champ)).to eq([
           'text',
           'decimal_number',
           'carte',
@@ -89,7 +89,7 @@ RSpec.describe PrefillDescription, type: :model do
     let(:procedure) { create(:procedure, types_de_champ_public:) }
     let(:types_de_champ_public) { [{}, {}] }
     let(:prefill_description) { described_class.new(procedure) }
-    let(:selected_type_de_champ_ids) { procedure.active_revision.types_de_champ.map(&:id).join(' ') }
+    let(:selected_type_de_champ_ids) { procedure.active_revision.type_de_champs.map(&:id).join(' ') }
 
     subject(:too_long) { prefill_description.link_too_long? }
 

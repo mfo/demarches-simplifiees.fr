@@ -61,7 +61,7 @@ RSpec.describe Referentiels::MappingFormComponent, type: :component do
 
       context 'when the champ is a private annotation' do
         let(:procedure) { create(:procedure, types_de_champ_private: [{ type: :referentiel, referentiel: }]) }
-        let(:type_de_champ) { procedure.draft_revision.types_de_champ.find(&:referentiel?) }
+        let(:type_de_champ) { procedure.draft_revision.type_de_champs.find(&:referentiel?) }
 
         it 'cancels back to the annotations list' do
           expect(page).to have_link("Annuler", href: url_helpers.annotations_admin_procedure_path(procedure))

@@ -72,8 +72,8 @@ class ProcedureRevisionChange
 
     def i18n_params
       {
-        previous_condition: @previous_ineligibilite_rules&.to_s(previous_revision.types_de_champ.filter { @previous_ineligibilite_rules.sources.include? _1.stable_id }),
-        new_condition: @new_ineligibilite_rules&.to_s(new_revision.types_de_champ.filter { @new_ineligibilite_rules.sources.include? _1.stable_id }),
+        previous_condition: @previous_ineligibilite_rules&.to_s(previous_revision.type_de_champs.filter { @previous_ineligibilite_rules.sources.include? _1.stable_id }),
+        new_condition: @new_ineligibilite_rules&.to_s(new_revision.type_de_champs.filter { @new_ineligibilite_rules.sources.include? _1.stable_id }),
       }
     end
   end

@@ -154,7 +154,7 @@ RSpec.describe TypesDeChamp::PrefillTypeDeChamp, type: :model do
   describe '#to_assignable_attributes' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :email }]) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:champ) { dossier.champ_data.first }
     let(:value) { "any@email.org" }
     subject(:to_assignable_attributes) { described_class.build(type_de_champ, procedure.active_revision).to_assignable_attributes(champ, value) }

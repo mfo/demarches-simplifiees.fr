@@ -263,7 +263,7 @@ describe GroupeInstructeur, type: :model do
       end
 
       context 'with invalid routing rule (unknown stable_id)' do
-        let(:unknown_stable_id) { routed_procedure.published_revision.types_de_champ.map(&:stable_id).max + 1 }
+        let(:unknown_stable_id) { routed_procedure.published_revision.type_de_champs.map(&:stable_id).max + 1 }
         let(:gi) do
           create(:groupe_instructeur,
                  procedure: routed_procedure,

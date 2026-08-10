@@ -144,7 +144,7 @@ class GroupeInstructeur < ApplicationRecord
   end
 
   def humanized_routing_rule
-    routing_rule&.to_s(procedure.active_revision.types_de_champ)
+    routing_rule&.to_s(procedure.active_revision.type_de_champs)
   end
 
   private

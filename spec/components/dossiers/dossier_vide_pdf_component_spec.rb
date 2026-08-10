@@ -58,8 +58,8 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
       ]
     end
     let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:source) { procedure.active_revision.types_de_champ.find { it.libelle == 'Choix simple' } }
-    let(:target) { procedure.active_revision.types_de_champ.find { it.libelle == 'Précisez' } }
+    let(:source) { procedure.active_revision.type_de_champs.find { it.libelle == 'Choix simple' } }
+    let(:target) { procedure.active_revision.type_de_champs.find { it.libelle == 'Précisez' } }
 
     def set_condition(condition) = target.update!(condition:)
 

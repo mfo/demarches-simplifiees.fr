@@ -320,8 +320,8 @@ FactoryBot.define do
   end
 end
 
-def build_type_de_champs(types_de_champ, revision:, scope: :public, parent: nil)
-  types_de_champ.map do |type_de_champ_attributes|
+def build_type_de_champs(type_de_champs, revision:, scope: :public, parent: nil)
+  type_de_champs.map do |type_de_champ_attributes|
     referentiel = type_de_champ_attributes.delete(:referentiel)
     if referentiel.present?
       type_de_champ_attributes[:referentiel_id] = referentiel.id

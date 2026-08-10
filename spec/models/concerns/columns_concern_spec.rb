@@ -27,7 +27,7 @@ describe ColumnsConcern do
 
     context 'when the column_id is a old linked drop down list id' do
       let(:linked_drop_down_column) { procedure.find_column(label: 'linked') }
-      let(:linked_tdc) { procedure.active_revision.types_de_champ.find { _1.type_champ == 'linked_drop_down_list' } }
+      let(:linked_tdc) { procedure.active_revision.type_de_champs.find { _1.type_champ == 'linked_drop_down_list' } }
 
       it do
         column_id = "type_de_champ/#{linked_tdc.stable_id}->value"
@@ -39,7 +39,7 @@ describe ColumnsConcern do
 
     context 'when the colum_id is an old department column id' do
       let(:department_column) { procedure.find_column(label: "address – Département") }
-      let(:address_tdc) { procedure.active_revision.types_de_champ.find { _1.type_champ == 'address' } }
+      let(:address_tdc) { procedure.active_revision.type_de_champs.find { _1.type_champ == 'address' } }
 
       it do
         column_id = "type_de_champ/#{address_tdc.stable_id}-$.departement_code"
@@ -63,7 +63,7 @@ describe ColumnsConcern do
     xcontext 'when the column lives only in the draft revision' do
       let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :integer_number }]) }
       let(:referentiel) { create(:csv_referentiel, :with_items) }
-      let(:integer_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:integer_tdc) { procedure.draft_revision.type_de_champs.first }
       let(:draft_tdc) do
         procedure.draft_revision.add_type_de_champ(
           type_champ: 'drop_down_list',

@@ -61,7 +61,7 @@ module Maintenance
     end
 
     def find_by_stable_id(stable_id)
-      procedure.draft_revision.types_de_champ.find { _1.stable_id == stable_id }
+      procedure.draft_revision.type_de_champs.find { _1.stable_id == stable_id }
     end
 
     def find_with_coordinate_by_stable_id(stable_id)

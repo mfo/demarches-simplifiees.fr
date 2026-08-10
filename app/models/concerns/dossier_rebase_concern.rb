@@ -45,7 +45,7 @@ module DossierRebaseConcern
 
     # add rows for new repetitions
     target_revision
-      .types_de_champ
+      .type_de_champs
       .filter { _1.repetition? && _1.stable_id.in?(added_stable_ids) && (_1.mandatory? || _1.private?) }
       .each do |type_de_champ|
         self.champ_data << type_de_champ.build_champ(row_id: ULID.generate, rebased_at: Time.zone.now)

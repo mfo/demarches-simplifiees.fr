@@ -127,7 +127,7 @@ class TypeDeChamp < ApplicationRecord
 
   has_many :revisions, -> { ordered }, through: :revision_type_de_champs
 
-  belongs_to :referentiel, optional: true, inverse_of: :types_de_champ
+  belongs_to :referentiel, optional: true, inverse_of: :type_de_champs
 
   class WithIndifferentAccess
     def self.load(options)

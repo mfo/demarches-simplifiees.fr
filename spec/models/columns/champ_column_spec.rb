@@ -6,7 +6,7 @@ describe Columns::ChampColumn do
 
     context 'without any cast' do
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:types_de_champ) { procedure.all_revisions_type_de_champs }
+      let(:type_de_champs) { procedure.all_revisions_type_de_champs }
 
       it 'extracts values for columns and type de champ', :slow do
         expect_type_de_champ_values('civilite', eq(["M."]))
@@ -50,7 +50,7 @@ describe Columns::ChampColumn do
         expect_type_de_champ_values('yes_no', eq([true]))
         expect_type_de_champ_values('annuaire_education', eq([nil]))
         expect_type_de_champ_values('piece_justificative', be_an_instance_of(Array))
-        type_de_champ = types_de_champ.find { it.piece_justificative? && it.titre_identite? }
+        type_de_champ = type_de_champs.find { it.piece_justificative? && it.titre_identite? }
         champ = dossier.send(:filled_champ, type_de_champ)
         columns = type_de_champ.columns(procedure_id: procedure.id)
         expect(columns.map { _1.value(champ) }).to be_an_instance_of(Array)
@@ -646,14 +646,14 @@ describe Columns::ChampColumn do
   private
 
   def expect_type_de_champ_values(type, assertion)
-    type_de_champ = types_de_champ.find { _1.type_champ == type }
+    type_de_champ = type_de_champs.find { _1.type_champ == type }
     champ = dossier.send(:filled_champ, type_de_champ)
     columns = type_de_champ.columns(procedure_id: procedure.id)
     expect(columns.map { _1.value(champ) }).to assertion
   end
 
   def retrieve_champ(type)
-    type_de_champ = types_de_champ.find { _1.type_champ == type }
+    type_de_champ = type_de_champs.find { _1.type_champ == type }
     dossier.send(:filled_champ, type_de_champ)
   end
 end

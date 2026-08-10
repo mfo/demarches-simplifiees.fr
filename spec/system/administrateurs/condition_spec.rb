@@ -13,8 +13,8 @@ describe 'As an administrateur I can edit types de champ condition', js: true do
   end
   let(:procedure_id) { procedure.id }
 
-  let(:first_tdc) { procedure.draft_revision.types_de_champ.first }
-  let(:second_tdc) { procedure.draft_revision.types_de_champ.second }
+  let(:first_tdc) { procedure.draft_revision.type_de_champs.first }
+  let(:second_tdc) { procedure.draft_revision.type_de_champs.second }
 
   before do
     login_as administrateur.user, scope: :user

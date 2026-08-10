@@ -607,7 +607,7 @@ describe Procedure do
         context 'validates fields nested in a repetition' do
           let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Bloc', children: }] }
           let(:types_de_champ_private) { [] }
-          let(:repetition) { procedure.draft_revision.types_de_champ.find(&:repetition?) }
+          let(:repetition) { procedure.draft_revision.type_de_champs.find(&:repetition?) }
           let(:nested_tdc) { procedure.draft_revision.children_of(repetition).first }
 
           context 'with invalid dropdown' do
@@ -1224,7 +1224,7 @@ describe Procedure do
       end
 
       it "should erase orphan tdc" do
-        published_tdc = procedure.published_revision.types_de_champ.first
+        published_tdc = procedure.published_revision.type_de_champs.first
         draft_tdc = procedure.draft_revision.add_type_de_champ(tdc_attributes)
 
         procedure.reset_draft_revision!
@@ -1648,56 +1648,56 @@ describe Procedure do
   end
 
   describe 'factory' do
-    let(:types_de_champ) { [{ type: :yes_no }, { type: :integer_number }] }
+    let(:type_de_champs) { [{ type: :yes_no }, { type: :integer_number }] }
 
     context 'create' do
-      let(:types_de_champ) { [{ type: :yes_no }, { type: :repetition, children: [{ type: :integer_number }] }] }
-      let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+      let(:type_de_champs) { [{ type: :yes_no }, { type: :repetition, children: [{ type: :integer_number }] }] }
+      let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs) }
 
       context 'with brouillon procedure' do
         it do
           expect(procedure.draft_revision.public_root_type_de_champs.count).to eq(2)
-          expect(procedure.draft_revision.types_de_champ.count).to eq(3)
+          expect(procedure.draft_revision.type_de_champs.count).to eq(3)
         end
       end
 
       context 'with published procedure' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: types_de_champ) }
+        let(:procedure) { create(:procedure, :published, types_de_champ_public: type_de_champs) }
 
         it do
           expect(procedure.draft_revision.public_root_type_de_champs.count).to eq(2)
-          expect(procedure.draft_revision.types_de_champ.count).to eq(3)
+          expect(procedure.draft_revision.type_de_champs.count).to eq(3)
           expect(procedure.published_revision.public_root_type_de_champs.count).to eq(2)
-          expect(procedure.published_revision.types_de_champ.count).to eq(3)
+          expect(procedure.published_revision.type_de_champs.count).to eq(3)
         end
       end
     end
 
     context 'with bouillon procedure' do
-      let(:procedure) { build(:procedure, types_de_champ_public: types_de_champ, types_de_champ_private: types_de_champ) }
+      let(:procedure) { build(:procedure, types_de_champ_public: type_de_champs, types_de_champ_private: type_de_champs) }
 
       it do
         expect(procedure.revisions.size).to eq(1)
-        expect(procedure.draft_revision.types_de_champ.size).to eq(4)
+        expect(procedure.draft_revision.type_de_champs.size).to eq(4)
         expect(procedure.draft_revision.public_root_type_de_champs.size).to eq(2)
         expect(procedure.published_revision).to be_nil
       end
     end
 
     context 'with published procedure' do
-      let(:procedure) { build(:procedure, :published, types_de_champ_public: types_de_champ, types_de_champ_private: types_de_champ) }
+      let(:procedure) { build(:procedure, :published, types_de_champ_public: type_de_champs, types_de_champ_private: type_de_champs) }
 
       it do
         expect(procedure.revisions.size).to eq(2)
-        expect(procedure.draft_revision.types_de_champ.size).to eq(4)
+        expect(procedure.draft_revision.type_de_champs.size).to eq(4)
         expect(procedure.draft_revision.public_root_type_de_champs.size).to eq(2)
-        expect(procedure.published_revision.types_de_champ.size).to eq(4)
+        expect(procedure.published_revision.type_de_champs.size).to eq(4)
         expect(procedure.published_revision.public_root_type_de_champs.size).to eq(2)
       end
     end
 
     context 'repetition' do
-      let(:types_de_champ) do
+      let(:type_de_champs) do
         [
           { type: :yes_no },
           {
@@ -1714,10 +1714,10 @@ describe Procedure do
       let(:repetition) { revision.public_revision_type_de_champs.last }
 
       context 'with bouillon procedure' do
-        let(:procedure) { build(:procedure, types_de_champ_public: types_de_champ) }
+        let(:procedure) { build(:procedure, types_de_champ_public: type_de_champs) }
 
         it do
-          expect(revision.types_de_champ.size).to eq(5)
+          expect(revision.type_de_champs.size).to eq(5)
           expect(revision.public_root_type_de_champs.size).to eq(2)
           expect(revision.public_root_type_de_champs.map(&:type_champ)).to eq(['yes_no', 'repetition'])
           expect(repetition.revision_type_de_champs.size).to eq(3)
@@ -1727,11 +1727,11 @@ describe Procedure do
       end
 
       context 'with published procedure' do
-        let(:procedure) { build(:procedure, :published, types_de_champ_public: types_de_champ) }
+        let(:procedure) { build(:procedure, :published, types_de_champ_public: type_de_champs) }
 
         context 'draft revision' do
           it do
-            expect(revision.types_de_champ.size).to eq(5)
+            expect(revision.type_de_champs.size).to eq(5)
             expect(revision.public_root_type_de_champs.size).to eq(2)
             expect(revision.public_root_type_de_champs.map(&:type_champ)).to eq(['yes_no', 'repetition'])
             expect(repetition.revision_type_de_champs.size).to eq(3)
@@ -1744,7 +1744,7 @@ describe Procedure do
           let(:revision) { procedure.published_revision }
 
           it do
-            expect(revision.types_de_champ.size).to eq(5)
+            expect(revision.type_de_champs.size).to eq(5)
             expect(revision.public_root_type_de_champs.size).to eq(2)
             expect(revision.public_root_type_de_champs.map(&:type_champ)).to eq(['yes_no', 'repetition'])
             expect(repetition.revision_type_de_champs.size).to eq(3)
@@ -2075,7 +2075,7 @@ describe Procedure do
                procedure: procedure,
                routing_rule: ds_eq(champ_value(stable_id), constant('Paris')))
       end
-      let(:unknown_stable_id) { procedure.published_revision.types_de_champ.map(&:stable_id).max + 1 }
+      let(:unknown_stable_id) { procedure.published_revision.type_de_champs.map(&:stable_id).max + 1 }
       let!(:gi_invalid) do
         create(:groupe_instructeur,
                procedure: procedure,
@@ -2210,8 +2210,8 @@ describe Procedure do
 
   describe '#used_by_referentiel_urls?' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, stable_id: 100 }, { type: :referentiel, stable_id: 200 }]) }
-    let(:text_tdc) { procedure.draft_revision.types_de_champ.find { _1.stable_id == 100 } }
-    let(:ref_tdc) { procedure.draft_revision.types_de_champ.find { _1.stable_id == 200 } }
+    let(:text_tdc) { procedure.draft_revision.type_de_champs.find { _1.stable_id == 100 } }
+    let(:ref_tdc) { procedure.draft_revision.type_de_champs.find { _1.stable_id == 200 } }
 
     context 'when referentiel url_tiptap references the text field' do
       before do

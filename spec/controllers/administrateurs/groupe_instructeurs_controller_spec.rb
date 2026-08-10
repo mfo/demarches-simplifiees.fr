@@ -1179,7 +1179,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:drop_down_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:drop_down_tdc) { procedure3.draft_revision.type_de_champs.first }
       let!(:dossier) { create(:dossier, :en_construction, procedure: procedure3) }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: drop_down_tdc.stable_id } } }
@@ -1212,7 +1212,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:departements_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:departements_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: departements_tdc.stable_id } } }
 
@@ -1248,7 +1248,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:regions_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:regions_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: regions_tdc.stable_id } } }
 
@@ -1268,7 +1268,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:pays_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:pays_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: pays_tdc.stable_id } } }
 
@@ -1303,7 +1303,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:communes_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:communes_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: communes_tdc.stable_id } } }
 
@@ -1338,7 +1338,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:epci_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:epci_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: epci_tdc.stable_id } } }
 
@@ -1358,7 +1358,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
                administrateurs: [admin])
       end
 
-      let!(:address_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:address_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: address_tdc.stable_id } } }
 
@@ -1382,7 +1382,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
              administrateurs: [admin])
     end
 
-    let!(:drop_down_tdc) { procedure4.draft_revision.types_de_champ.first }
+    let!(:drop_down_tdc) { procedure4.draft_revision.type_de_champs.first }
 
     before { patch :wizard, params: { procedure_id: procedure4.id, choice: { state: 'custom_routing' } } }
 
@@ -1502,7 +1502,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
              administrateurs: [admin])
     end
 
-    let!(:drop_down_tdc) { procedure.draft_revision.types_de_champ.first }
+    let!(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
     let!(:dossier1) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let!(:dossier2) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let!(:dossier3) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }

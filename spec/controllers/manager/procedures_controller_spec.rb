@@ -134,7 +134,7 @@ describe Manager::ProceduresController, type: :controller do
   describe '#change_piece_justificative_template' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
     let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:other_type_de_champ) { other_procedure.draft_revision.types_de_champ.first }
+    let(:other_type_de_champ) { other_procedure.draft_revision.type_de_champs.first }
     let(:upload) do
       Rack::Test::UploadedFile.new(
         Rails.root.join("spec/fixtures/files/RIB.pdf"),

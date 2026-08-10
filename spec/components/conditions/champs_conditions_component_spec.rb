@@ -121,7 +121,7 @@ describe Conditions::ChampsConditionsComponent, type: :component do
         let(:procedure) do
           create(:procedure, types_de_champ_public: [{ type: upper_tdc_type, libelle: 'col' }])
         end
-        let(:upper_tdc) { procedure.draft_revision.types_de_champ.first }
+        let(:upper_tdc) { procedure.draft_revision.type_de_champs.first }
         let(:target) { champ_column_value(upper_tdc.columns(procedure_id: procedure.id).first) }
 
         include_examples 'targeted condition rendering'

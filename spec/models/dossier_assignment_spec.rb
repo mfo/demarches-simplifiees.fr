@@ -14,7 +14,7 @@ RSpec.describe DossierAssignment, type: :model do
       end
     end
 
-    let(:drop_down_tdc) { procedure.draft_revision.types_de_champ.first }
+    let(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
 
     let(:dossier) { create(:dossier, :en_construction, procedure:).tap { _1.update(groupe_instructeur_id: nil) } }
 

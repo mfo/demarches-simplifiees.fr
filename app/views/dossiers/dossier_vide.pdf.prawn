@@ -132,10 +132,10 @@ def render_single_champ(pdf, revision, type_de_champ)
   case type_de_champ.type_champ
   when TypeDeChamp.type_champs.fetch(:repetition)
     add_libelle(pdf, type_de_champ)
-    types_de_champ = revision.children_of(type_de_champ)
+    type_de_champs = revision.children_of(type_de_champ)
 
     3.times do
-      types_de_champ.each do |type_de_champ|
+      type_de_champs.each do |type_de_champ|
         render_single_champ(pdf, revision, type_de_champ)
       end
     end
@@ -203,8 +203,8 @@ def render_single_champ(pdf, revision, type_de_champ)
   end
 end
 
-def empty_add_champs(pdf, revision, types_de_champ)
-  types_de_champ.each do |type_de_champ|
+def empty_add_champs(pdf, revision, type_de_champs)
+  type_de_champs.each do |type_de_champ|
     render_single_champ(pdf, revision, type_de_champ)
   end
 end

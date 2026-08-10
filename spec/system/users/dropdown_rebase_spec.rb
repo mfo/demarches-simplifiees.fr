@@ -20,7 +20,7 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
     champ.update_columns(value: '["Bravo","Charlie"]')
 
     # Admin removes "Bravo" from options and publishes
-    tdc = procedure.draft_revision.types_de_champ.find { _1.stable_id == stable_id }
+    tdc = procedure.draft_revision.type_de_champs.find { _1.stable_id == stable_id }
     tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(tdc)
     tdc_to_update.update(drop_down_options: ["Alpha", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"])
     procedure.publish_revision!(procedure.administrateurs.first)

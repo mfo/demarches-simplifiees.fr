@@ -47,7 +47,7 @@ end
 describe Logic::GreaterThan do
   include Logic
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :integer_number }]) }
-  let(:tdc) { procedure.active_revision.types_de_champ.first }
+  let(:tdc) { procedure.active_revision.type_de_champs.first }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { Champs::IntegerNumberChamp.new(value: nil, stable_id: tdc.stable_id, dossier:) }
 

@@ -72,7 +72,7 @@ module Administrateurs
     end
 
     def retrieve_tdcs
-      @source_tdcs = @procedure.active_revision.types_de_champ
+      @source_tdcs = @procedure.active_revision.type_de_champs
     end
 
     def retrieve_groupe_instructeur

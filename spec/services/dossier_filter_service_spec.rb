@@ -558,9 +558,9 @@ describe DossierFilterService do
             { type: :yes_no },
           ]
         end
-        let(:types_de_champ) { procedure.active_revision.public_root_type_de_champs }
-        let(:type_de_champ_resto) { types_de_champ[0] }
-        let(:type_de_champ_a_emporter) { types_de_champ[1] }
+        let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }
+        let(:type_de_champ_resto) { type_de_champs[0] }
+        let(:type_de_champ_a_emporter) { type_de_champs[1] }
 
         let(:another_discarded_dossier) { create(:dossier, procedure:) }
 
@@ -672,7 +672,7 @@ describe DossierFilterService do
     context 'for type_de_champ using AddressableColumnConcern' do
       let(:column) { filtered_columns.first.column }
       let(:types_de_champ_public) { [{ type: :rna, stable_id: 1, libelle: 'rna' }] }
-      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
       let(:kept_dossier) { create(:dossier, procedure:) }
 
       context "when searching by postal_code (text)" do

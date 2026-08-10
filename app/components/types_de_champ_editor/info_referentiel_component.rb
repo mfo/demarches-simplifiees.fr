@@ -34,6 +34,6 @@ class TypesDeChampEditor::InfoReferentielComponent < ApplicationComponent
   end
 
   def referentiel_used_in_published_procedure?
-    @procedure.published_revision&.types_de_champ&.any? { _1.referentiel_id == referentiel.id }
+    @procedure.published_revision&.type_de_champs&.any? { _1.referentiel_id == referentiel.id }
   end
 end

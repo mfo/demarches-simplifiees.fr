@@ -258,7 +258,7 @@ describe AttachmentsController, type: :controller do
 
         context 'can remove a type de champ notice explicative' do
           let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
-          let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+          let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
           let(:attachment) { type_de_champ.notice_explicative.attachments.first }
           let(:signed_id) { attachment.blob.signed_id }
 

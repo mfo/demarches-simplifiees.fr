@@ -163,7 +163,7 @@ class DossierPreloader
 
     # Prend un ordre de grandeur de la taille de la démarche
     sample_revision = @dossiers.first.procedure.active_revision
-    champs_per_dossier = sample_revision&.types_de_champ&.count.to_i + 1
+    champs_per_dossier = sample_revision&.type_de_champs&.count.to_i + 1
 
     # Reste sur un multiple de 100
     ideal_batch_size = (MAX_CHAMPS_PER_BATCH / champs_per_dossier).round(-2)

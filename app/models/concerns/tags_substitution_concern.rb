@@ -400,17 +400,17 @@ module TagsSubstitutionConcern
   end
 
   def champ_public_tags(dossier: nil)
-    types_de_champ = (dossier || procedure.active_revision).public_root_type_de_champs
-    type_de_champs_tags(types_de_champ, Dossier::SOUMIS)
+    type_de_champs = (dossier || procedure.active_revision).public_root_type_de_champs
+    type_de_champs_tags(type_de_champs, Dossier::SOUMIS)
   end
 
   def champ_private_tags(dossier: nil)
-    types_de_champ = (dossier || procedure.active_revision).private_root_type_de_champs
-    type_de_champs_tags(types_de_champ, Dossier::INSTRUCTION_COMMENCEE)
+    type_de_champs = (dossier || procedure.active_revision).private_root_type_de_champs
+    type_de_champs_tags(type_de_champs, Dossier::INSTRUCTION_COMMENCEE)
   end
 
-  def type_de_champs_tags(types_de_champ, available_for_states)
-    tags = types_de_champ.flat_map(&:tags_for_template)
+  def type_de_champs_tags(type_de_champs, available_for_states)
+    tags = type_de_champs.flat_map(&:tags_for_template)
     tags.each do |tag|
       tag[:available_for_states] = available_for_states
     end

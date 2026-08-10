@@ -17,7 +17,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     describe 'tdc dropdown' do
       let(:procedure) { create(:procedure, types_de_champ_public:) }
       let(:types_de_champ_public) { [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }] }
-      let(:tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:tdc) { procedure.draft_revision.type_de_champs.first }
       let(:coordinate) { procedure.draft_revision.coordinate_for(tdc) }
 
       context 'type behind a disabled feature flag' do
@@ -142,7 +142,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     describe 'select champ position' do
-      let(:tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:tdc) { procedure.draft_revision.type_de_champs.first }
       let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'a' }]) }
       it 'does not have select to move champs' do
@@ -195,7 +195,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     context 'when pj_limit_formats is enabled' do
-      let(:tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:tdc) { procedure.draft_revision.type_de_champs.first }
 
       before do
         tdc.update!(pj_limit_formats: true, pj_format_families: ['document_texte'])
@@ -208,7 +208,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     context 'when nature is titre_identite' do
-      let(:tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:tdc) { procedure.draft_revision.type_de_champs.first }
 
       before do
         tdc.update!(nature: 'titre_identite')
@@ -227,7 +227,7 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
     end
 
     context 'when nature is rib' do
-      let(:tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:tdc) { procedure.draft_revision.type_de_champs.first }
 
       before do
         tdc.update!(nature: 'rib')

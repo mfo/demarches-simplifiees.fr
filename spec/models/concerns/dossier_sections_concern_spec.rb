@@ -56,7 +56,7 @@ describe DossierSectionsConcern do
   describe '#index_for_section_header' do
     include Logic
     let(:number_stable_id) { 99 }
-    let(:types_de_champ) do
+    let(:type_de_champs) do
       [
         { type: :header_section, libelle: "Infos" },
         { type: :integer_number, stable_id: number_stable_id },
@@ -65,7 +65,7 @@ describe DossierSectionsConcern do
       ]
     end
 
-    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public: types_de_champ) }
+    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
 
     let(:headers) { dossier.revision.public_root_type_de_champs.filter(&:header_section?) }
@@ -96,7 +96,7 @@ describe DossierSectionsConcern do
     end
 
     context "with nested levels" do
-      let(:types_de_champ) {
+      let(:type_de_champs) {
         [
           { type: :header_section, libelle: "Identité", level: 1 },
           { type: :header_section, libelle: "État civil", level: 2 },
@@ -116,7 +116,7 @@ describe DossierSectionsConcern do
     end
 
     context "with three levels of nesting" do
-      let(:types_de_champ) {
+      let(:type_de_champs) {
         [
           { type: :header_section, libelle: "Niveau 1", level: 1 },
           { type: :header_section, libelle: "Niveau 2 a", level: 2 },
@@ -136,7 +136,7 @@ describe DossierSectionsConcern do
     end
 
     context "with an invisible sub-section" do
-      let(:types_de_champ) {
+      let(:type_de_champs) {
         [
           { type: :header_section, libelle: "Visible parent", level: 1 },
           { type: :header_section, libelle: "Invisible enfant", level: 2, condition: ds_eq(champ_value(number_stable_id), constant(5)) },

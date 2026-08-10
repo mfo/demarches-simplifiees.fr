@@ -7,9 +7,9 @@ describe Administrateurs::ConditionsController, type: :controller do
 
   context 'without bloc repetition' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :integer_number }] * 3) }
-    let(:first_tdc) { procedure.draft_revision.types_de_champ.first }
-    let(:second_tdc) { procedure.draft_revision.types_de_champ.second }
-    let(:third_tdc) { procedure.draft_revision.types_de_champ.third }
+    let(:first_tdc) { procedure.draft_revision.type_de_champs.first }
+    let(:second_tdc) { procedure.draft_revision.type_de_champs.second }
+    let(:third_tdc) { procedure.draft_revision.type_de_champs.third }
 
     before { sign_in(procedure.administrateurs.first.user) }
 
@@ -163,7 +163,7 @@ describe Administrateurs::ConditionsController, type: :controller do
       end
 
       it 'binds the column from the draft revision so the rendered component sees a typed left operand' do
-        draft_tdcs = procedure.draft_revision.types_de_champ
+        draft_tdcs = procedure.draft_revision.type_de_champs
         condition = assigns(:tdc).condition
         expect(condition).to be_a(Logic::Eq)
         expect(condition.left).to be_a(Logic::ChampColumnValue)
@@ -186,7 +186,7 @@ describe Administrateurs::ConditionsController, type: :controller do
         },
       ])
     end
-    let(:tdcs) { procedure.draft_revision.types_de_champ }
+    let(:tdcs) { procedure.draft_revision.type_de_champs }
     let(:top) { tdcs.find { _1.libelle == 'top_1' } }
     let(:repetition) { tdcs.find { _1.libelle == 'repetition' } }
     let(:child_1) { tdcs.find { _1.libelle == 'child_1' } }

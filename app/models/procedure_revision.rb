@@ -13,7 +13,7 @@ class ProcedureRevision < ApplicationRecord
 
   def public_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.public? }.sort_by(&:position)
   def private_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.private? }.sort_by(&:position)
-  def types_de_champ = revision_type_de_champs.map(&:type_de_champ)
+  def type_de_champs = revision_type_de_champs.map(&:type_de_champ)
   def public_root_type_de_champs = public_revision_type_de_champs.map(&:type_de_champ)
   def private_root_type_de_champs = private_revision_type_de_champs.map(&:type_de_champ)
 
@@ -201,16 +201,16 @@ class ProcedureRevision < ApplicationRecord
   def type_de_champs_for(scope: nil)
     case scope
     when :public
-      types_de_champ.filter(&:public?)
+      type_de_champs.filter(&:public?)
     when :private
-      types_de_champ.filter(&:private?)
+      type_de_champs.filter(&:private?)
     else
-      types_de_champ
+      type_de_champs
     end
   end
 
   def children_of(tdc)
-    coordinate_for(tdc).types_de_champ
+    coordinate_for(tdc).type_de_champs
   end
 
   def parent_of(tdc)
@@ -270,7 +270,7 @@ class ProcedureRevision < ApplicationRecord
   end
 
   def champ_value_in_condition?
-    conditions = types_de_champ.filter_map(&:condition) + [ineligibilite_rules].compact
+    conditions = type_de_champs.filter_map(&:condition) + [ineligibilite_rules].compact
 
     conditions
       .flat_map(&:terms)

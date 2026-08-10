@@ -24,10 +24,10 @@ module DossierSectionsConcern
   end
 
   def index_for_section_header(header)
-    types_de_champ = header.private? ? revision.private_root_type_de_champs : revision.public_root_type_de_champs
+    type_de_champs = header.private? ? revision.private_root_type_de_champs : revision.public_root_type_de_champs
     counters = []
 
-    types_de_champ
+    type_de_champs
       .filter(&:header_section?)
       .filter { project_champ(it).visible? }
       .each do |tdc|

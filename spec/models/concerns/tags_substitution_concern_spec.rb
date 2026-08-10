@@ -306,7 +306,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     context 'when the procedure has a linked drop down menus type de champ' do
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
       let(:types_de_champ_public) { [{ type: :linked_drop_down_list, libelle: 'libelle', options: ["--primo--", "secundo"] }] }
       let(:template) { 'tout : --libelle--, primaire : --libelle/primaire--, secondaire : --libelle/secondaire--' }
 
@@ -348,7 +348,7 @@ describe TagsSubstitutionConcern, type: :model do
       let(:referentiel) { create(:csv_referentiel, :with_items) }
       let(:types_de_champ_public) { [{ type: :drop_down_list }] }
       let(:template) { "--tdc#{dropdown_list_tdc.stable_id}/option-- --tdc#{dropdown_list_tdc.stable_id}/poids_g--" }
-      let(:dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+      let(:dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
 
       before do
         dropdown_list_tdc.update(referentiel:, drop_down_mode: 'advanced')
@@ -533,7 +533,7 @@ describe TagsSubstitutionConcern, type: :model do
 
     context 'when procedure has revisions' do
       let(:types_de_champ_public) { [{ libelle: 'mon ancien libellé' }] }
-      let(:draft_type_de_champ) { procedure.draft_revision.find_and_ensure_exclusive_use(procedure.draft_revision.types_de_champ.first.stable_id) }
+      let(:draft_type_de_champ) { procedure.draft_revision.find_and_ensure_exclusive_use(procedure.draft_revision.type_de_champs.first.stable_id) }
 
       before do
         draft_type_de_champ.update(libelle: 'mon nouveau libellé')
@@ -660,7 +660,7 @@ describe TagsSubstitutionConcern, type: :model do
     end
 
     it :aggregate_failures do
-      stable_id = procedure.draft_revision.types_de_champ.first.stable_id
+      stable_id = procedure.draft_revision.type_de_champs.first.stable_id
       expect(template_concern.used_tags_for(text)).to eq(["tdc#{stable_id}", 'dossier_number', 'yolo'])
       expect(template_concern.used_type_de_champ_tags(text)).to eq([["public", stable_id], ['yolo']])
     end

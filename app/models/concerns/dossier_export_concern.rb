@@ -3,20 +3,20 @@
 module DossierExportConcern
   extend ActiveSupport::Concern
 
-  def spreadsheet_columns_csv(types_de_champ:, export_template: nil)
-    spreadsheet_columns(with_etablissement: true, types_de_champ:, export_template:, format: :csv)
+  def spreadsheet_columns_csv(type_de_champs:, export_template: nil)
+    spreadsheet_columns(with_etablissement: true, type_de_champs:, export_template:, format: :csv)
   end
 
-  def spreadsheet_columns_xlsx(types_de_champ:, export_template: nil)
-    spreadsheet_columns(types_de_champ:, export_template:, format: :xlsx)
+  def spreadsheet_columns_xlsx(type_de_champs:, export_template: nil)
+    spreadsheet_columns(type_de_champs:, export_template:, format: :xlsx)
   end
 
-  def spreadsheet_columns_ods(types_de_champ:, export_template: nil)
-    spreadsheet_columns(types_de_champ:, export_template:, format: :ods)
+  def spreadsheet_columns_ods(type_de_champs:, export_template: nil)
+    spreadsheet_columns(type_de_champs:, export_template:, format: :ods)
   end
 
-  def champ_values_for_export(types_de_champ, row_id: nil, export_template: nil, format:)
-    types_de_champ.flat_map do |type_de_champ|
+  def champ_values_for_export(type_de_champs, row_id: nil, export_template: nil, format:)
+    type_de_champs.flat_map do |type_de_champ|
       champ = filled_champ(type_de_champ, row_id:, with_discarded: true)
       if export_template.present?
         export_template
@@ -30,10 +30,10 @@ module DossierExportConcern
     end
   end
 
-  def spreadsheet_columns(types_de_champ:, with_etablissement: false, export_template: nil, format: nil)
+  def spreadsheet_columns(type_de_champs:, with_etablissement: false, export_template: nil, format: nil)
     Sentry.with_scope do |scope|
       scope.set_tags(dossier: id)
-      dossier_values_for_export(with_etablissement:, export_template:, format:) + champ_values_for_export(types_de_champ, export_template:, format:)
+      dossier_values_for_export(with_etablissement:, export_template:, format:) + champ_values_for_export(type_de_champs, export_template:, format:)
     end
   end
 

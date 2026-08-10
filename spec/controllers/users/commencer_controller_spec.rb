@@ -225,7 +225,7 @@ describe Users::CommencerController, type: :controller do
 
     context 'when a dossier is being prefilled by GET' do
       let(:types_de_champ_public) { [{}] }
-      let(:type_de_champ_text) { published_procedure.published_revision.types_de_champ.first }
+      let(:type_de_champ_text) { published_procedure.published_revision.type_de_champs.first }
       let(:path) { published_procedure.path }
       let(:user) { create(:user) }
 

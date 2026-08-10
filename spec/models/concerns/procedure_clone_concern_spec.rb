@@ -333,7 +333,7 @@ describe ProcedureCloneConcern, type: :model do
       end
     end
 
-    it 'should keep types_de_champ ids stable' do
+    it 'should keep type_de_champs ids stable' do
       expect(subject.draft_revision.public_root_type_de_champs.first.id).not_to eq(procedure.draft_revision.public_root_type_de_champs.first.id)
       expect(subject.draft_revision.public_root_type_de_champs.first.stable_id).to eq(procedure.draft_revision.public_root_type_de_champs.first.id)
     end

@@ -20,7 +20,7 @@ class ProcedureRevisionTypeDeChamp < ApplicationRecord
   default_scope { eager_load(:type_de_champ) }
 
   def revision_type_de_champs = revision.revision_type_de_champs.filter { _1.persisted? ? _1.parent_id == id : _1.parent == self }.sort_by(&:position)
-  def types_de_champ = revision_type_de_champs.map(&:type_de_champ)
+  def type_de_champs = revision_type_de_champs.map(&:type_de_champ)
 
   # significant perf gain when accessed hundreds of thousands of times in API or export context
   def stable_id
@@ -107,7 +107,7 @@ class ProcedureRevisionTypeDeChamp < ApplicationRecord
   end
 
   def prefilled_by_type_de_champ
-    revision.types_de_champ
+    revision.type_de_champs
       .filter(&:referentiel?)
       .find { stable_id.to_s.in?(it.referentiel_mapping_prefillable_stable_ids.map(&:to_s)) }
   end

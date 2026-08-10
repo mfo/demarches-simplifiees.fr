@@ -97,21 +97,21 @@ module DossierChampsConcern
     when :private
       private_type_de_champs_all
     else
-      revision.types_de_champ
+      revision.type_de_champs
     end.find { _1.stable_id == stable_id.to_i }
   end
 
   def public_type_de_champs_all
-    revision.types_de_champ.filter(&:public?)
+    revision.type_de_champs.filter(&:public?)
   end
 
   def private_type_de_champs_all
-    revision.types_de_champ.filter(&:private?)
+    revision.type_de_champs.filter(&:private?)
   end
 
   def champs_for_prefill(stable_ids)
     revision
-      .types_de_champ
+      .type_de_champs
       .filter { _1.stable_id.in?(stable_ids) }
       .filter { !_1.child?(revision) }
       .map { _1.repetition? ? project_champ(_1) : champ_for_update(_1, updated_by: nil) }
@@ -356,7 +356,7 @@ module DossierChampsConcern
   end
 
   def revision_stable_ids
-    @revision_stable_ids ||= revision.types_de_champ.map(&:stable_id).to_set
+    @revision_stable_ids ||= revision.type_de_champs.map(&:stable_id).to_set
   end
 
   def champ_data_in_revision

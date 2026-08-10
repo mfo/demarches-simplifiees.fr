@@ -115,13 +115,13 @@ describe DossierRebaseConcern do
     end
     let(:types_de_champ_private) { [{ type: :text, stable_id: 11 }] }
     let(:dossier) { create(:dossier, :with_entreprise, procedure: procedure) }
-    let(:types_de_champ) { procedure.active_revision.types_de_champ }
+    let(:type_de_champs) { procedure.active_revision.type_de_champs }
 
-    let(:text_type_de_champ) { types_de_champ.find { _1.stable_id == 1 } }
-    let(:repetition_type_de_champ) { types_de_champ.find { _1.stable_id == 101 } }
-    let(:repetition_text_type_de_champ) { types_de_champ.find { _1.stable_id == 102 } }
-    let(:datetime_type_de_champ) { types_de_champ.find { _1.stable_id == 103 } }
-    let(:yes_no_type_de_champ) { types_de_champ.find { _1.stable_id == 104 } }
+    let(:text_type_de_champ) { type_de_champs.find { _1.stable_id == 1 } }
+    let(:repetition_type_de_champ) { type_de_champs.find { _1.stable_id == 101 } }
+    let(:repetition_text_type_de_champ) { type_de_champs.find { _1.stable_id == 102 } }
+    let(:datetime_type_de_champ) { type_de_champs.find { _1.stable_id == 103 } }
+    let(:yes_no_type_de_champ) { type_de_champs.find { _1.stable_id == 104 } }
 
     let(:text_champ) { dossier.root_champs_public.find { _1.stable_id == 1 } }
     let(:repetition_champ) { dossier.root_champs_public.find { _1.stable_id == 101 } }
@@ -134,7 +134,7 @@ describe DossierRebaseConcern do
 
     let(:rebased_new_repetition_champ) { dossier.root_champs_public.find { _1.libelle == "une autre repetition" } }
 
-    let(:private_text_type_de_champ) { types_de_champ.find { _1.stable_id == 11 } }
+    let(:private_text_type_de_champ) { type_de_champs.find { _1.stable_id == 11 } }
     let(:rebased_private_text_champ) { dossier.root_champs_private.find { _1.stable_id == 11 } }
 
     context "when revision is published" do
@@ -263,7 +263,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: 'v1')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["option", "updated", "v1"])
         end
@@ -275,7 +275,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: 'v1')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["option", "updated"])
         end
@@ -287,7 +287,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: 'v1')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["v1", "updated"])
         end
@@ -309,7 +309,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: '["v1"]')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["option", "updated", "v1"])
         end
@@ -321,7 +321,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: '["v1", "option"]')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["option", "updated"])
         end
@@ -333,7 +333,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: '["v1"]')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["v1", "updated"])
         end
@@ -355,7 +355,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: '["titre1",""]')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["--titre1--", "option", "v1", "updated", "--titre2--", "option2", "v2"])
         end
@@ -367,7 +367,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: '["titre2","option2"]')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["--titre1--", "option", "updated", "--titre2--", "v2"])
         end
@@ -379,7 +379,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: '["titre2",""]')
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(drop_down_options: ["--titre1--", "v1", "updated", "--titre2--", "option2", "v2"])
         end
@@ -401,7 +401,7 @@ describe DossierRebaseConcern do
         before do
           dossier.root_champs_public.first.update(value: 'v1', geo_areas: [build(:geo_area, :cadastre)])
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(cadastres: false)
         end
@@ -429,7 +429,7 @@ describe DossierRebaseConcern do
 
       context 'when the first tdc is removed' do
         before do
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_remove = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           procedure.draft_revision.remove_type_de_champ(tdc_to_remove.stable_id)
         end
@@ -439,7 +439,7 @@ describe DossierRebaseConcern do
 
       context 'when the second tdc is moved at the first place' do
         before do
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l2' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l2' }
           procedure.draft_revision.move_type_de_champ(stable_id, 0)
         end
 
@@ -448,7 +448,7 @@ describe DossierRebaseConcern do
 
       context 'when the first tdc libelle is updated' do
         before do
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(libelle: 'l1 updated')
         end
@@ -473,7 +473,7 @@ describe DossierRebaseConcern do
 
           first_champ.update_column('updated_at', Time.zone.parse('01/01/1901'))
 
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'l1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'l1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(type_champ: :integer_number)
         end
@@ -504,7 +504,7 @@ describe DossierRebaseConcern do
         ])
       end
       let!(:dossier) { create(:dossier, procedure: procedure) }
-      let(:repetition) { procedure.draft_revision.types_de_champ.find(&:repetition?) }
+      let(:repetition) { procedure.draft_revision.type_de_champs.find(&:repetition?) }
 
       def child_libelles = dossier.revision.public_revision_type_de_champs.first.revision_type_de_champs.map(&:libelle)
       def child_types_champ = dossier.revision.public_revision_type_de_champs.first.revision_type_de_champs.map(&:type_champ)
@@ -524,7 +524,7 @@ describe DossierRebaseConcern do
 
       context 'when the first child tdc is removed' do
         before do
-          tdc_to_remove = procedure.draft_revision.types_de_champ.find { _1.libelle == 'c1' }
+          tdc_to_remove = procedure.draft_revision.type_de_champs.find { _1.libelle == 'c1' }
           procedure.draft_revision.remove_type_de_champ(tdc_to_remove.stable_id)
         end
 
@@ -533,7 +533,7 @@ describe DossierRebaseConcern do
 
       context 'when the first child libelle tdc is updated' do
         before do
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'c1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'c1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(libelle: 'c1 updated')
         end
@@ -543,7 +543,7 @@ describe DossierRebaseConcern do
 
       context 'when the first child tdc type is updated' do
         before do
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'c1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'c1' }
           tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           tdc_to_update.update(type_champ: :integer_number)
         end
@@ -553,7 +553,7 @@ describe DossierRebaseConcern do
 
       context 'when the parents type is changed' do
         before do
-          stable_id = procedure.draft_revision.types_de_champ.find { _1.libelle == 'p1' }
+          stable_id = procedure.draft_revision.type_de_champs.find { _1.libelle == 'p1' }
           parent = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
           parent.update(type_champ: :integer_number)
         end

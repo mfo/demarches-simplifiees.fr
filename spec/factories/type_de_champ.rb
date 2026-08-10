@@ -226,17 +226,17 @@ FactoryBot.define do
       type_champ { TypeDeChamp.type_champs.fetch(:repetition) }
 
       transient do
-        types_de_champ { [] }
+        type_de_champs { [] }
       end
 
       after(:build) do |type_de_champ_repetition, evaluator|
         evaluator.procedure&.save!
         revision = evaluator.procedure&.active_revision || build(:procedure_revision)
         parent = revision.revision_type_de_champs.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
-        types_de_champ = revision.revision_type_de_champs.filter { |rtdc| rtdc.parent == parent }
-        position = types_de_champ.size
+        type_de_champs = revision.revision_type_de_champs.filter { |rtdc| rtdc.parent == parent }
+        position = type_de_champs.size
 
-        evaluator.types_de_champ.each.with_index(position) do |type_de_champ, position|
+        evaluator.type_de_champs.each.with_index(position) do |type_de_champ, position|
           revision.revision_type_de_champs << build(:procedure_revision_type_de_champ,
             revision: revision,
             type_de_champ: type_de_champ,

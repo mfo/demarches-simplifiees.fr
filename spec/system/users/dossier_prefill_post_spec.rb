@@ -20,18 +20,18 @@ describe 'Prefilling a dossier (with a POST request):', js: true do
   let(:procedure) { create(:procedure, :for_individual, :published, types_de_champ_public:) }
   let(:dossier) { procedure.dossiers.last }
   let(:linked_dossier) { create(:dossier, :en_construction, procedure:) }
-  let(:types_de_champ) { procedure.active_revision.public_root_type_de_champs }
+  let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }
 
-  let(:type_de_champ_text) { types_de_champ[0] }
-  let(:type_de_champ_phone) { types_de_champ[1] }
-  let(:type_de_champ_siret) { types_de_champ[2] }
-  let(:type_de_champ_datetime) { types_de_champ[3] }
-  let(:type_de_champ_multiple_drop_down_list) { types_de_champ[4] }
-  let(:type_de_champ_epci) { types_de_champ[5] }
-  let(:type_de_champ_dossier_link) { types_de_champ[6] }
-  let(:type_de_champ_commune) { types_de_champ[7] }
-  let(:type_de_champ_address) { types_de_champ[8] }
-  let(:type_de_champ_repetition) { types_de_champ[9] }
+  let(:type_de_champ_text) { type_de_champs[0] }
+  let(:type_de_champ_phone) { type_de_champs[1] }
+  let(:type_de_champ_siret) { type_de_champs[2] }
+  let(:type_de_champ_datetime) { type_de_champs[3] }
+  let(:type_de_champ_multiple_drop_down_list) { type_de_champs[4] }
+  let(:type_de_champ_epci) { type_de_champs[5] }
+  let(:type_de_champ_dossier_link) { type_de_champs[6] }
+  let(:type_de_champ_commune) { type_de_champs[7] }
+  let(:type_de_champ_address) { type_de_champs[8] }
+  let(:type_de_champ_repetition) { type_de_champs[9] }
 
   let(:text_value) { "My Neighbor Totoro is the best movie ever" }
   let(:phone_value) { "invalid phone value" }

@@ -4,8 +4,8 @@ class EditableChamp::SectionComponent < ApplicationComponent
   include ApplicationHelper
   include TreeableConcern
 
-  def initialize(dossier:, nodes: nil, types_de_champ: nil, row_id: nil, row_number: nil)
-    nodes ||= to_tree(types_de_champ:)
+  def initialize(dossier:, nodes: nil, type_de_champs: nil, row_id: nil, row_number: nil)
+    nodes ||= to_tree(type_de_champs:)
     @dossier = dossier
     @row_id = row_id
     @row_number = row_number

@@ -10,8 +10,8 @@ describe 'Dossier Inéligibilité', js: true do
   let(:dossier) { create(:dossier, procedure:, user:) }
 
   let(:published_revision) { procedure.published_revision }
-  let(:first_tdc) { published_revision.types_de_champ.first }
-  let(:second_tdc) { published_revision.types_de_champ.second }
+  let(:first_tdc) { published_revision.type_de_champs.first }
+  let(:second_tdc) { published_revision.type_de_champs.second }
   let(:ineligibilite_message) { 'sry vous pouvez aps soumettre votre dossier' }
   let(:eligibilite_params) { { ineligibilite_enabled: true, ineligibilite_message: } }
 

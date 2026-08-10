@@ -19,7 +19,7 @@ class PrefillDescription < SimpleDelegator
     @identity_items_selected = attributes[:identity_items_selected]&.split(' ') || []
   end
 
-  def types_de_champ
+  def type_de_champs
     TypesDeChamp::PrefillTypeDeChamp.wrap(active_fillable_public_type_de_champs.partition(&:prefillable?).flatten, active_revision)
   end
 

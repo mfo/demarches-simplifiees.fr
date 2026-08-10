@@ -59,7 +59,7 @@ module Maintenance
       end
 
       context "when procedure has a group with invalid routing rule" do
-        let(:unknown_stable_id) { procedure.published_revision.types_de_champ.map(&:stable_id).max + 1 }
+        let(:unknown_stable_id) { procedure.published_revision.type_de_champs.map(&:stable_id).max + 1 }
         let!(:gi1) do
           create(:groupe_instructeur,
                  procedure: procedure,

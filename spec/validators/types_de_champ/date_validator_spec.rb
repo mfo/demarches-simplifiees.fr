@@ -79,12 +79,12 @@ RSpec.describe TypesDeChamp::DateValidator do
     end
   end
 
-  describe "public types_de_champ" do
+  describe "public type_de_champs" do
     include_examples "date range validation", scope: :types_de_champ_public, type: :date
     include_examples "date range validation", scope: :types_de_champ_public, type: :datetime
   end
 
-  describe "private types_de_champ" do
+  describe "private type_de_champs" do
     include_examples "date range validation", scope: :types_de_champ_private, type: :date
     include_examples "date range validation", scope: :types_de_champ_private, type: :datetime
   end

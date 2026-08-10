@@ -3,7 +3,7 @@
 describe TypesDeChamp::EpciTypeDeChamp do
   describe '#columns' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :epci, libelle: 'Mon EPCI' }]) }
-    let(:tdc) { procedure.active_revision.types_de_champ.first }
+    let(:tdc) { procedure.active_revision.type_de_champs.first }
     let(:jsonpath_columns) { tdc.columns(procedure_id: procedure.id).grep(Columns::JSONPathColumn) }
 
     it 'exposes only department_code and region_code addressable columns' do

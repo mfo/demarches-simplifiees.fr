@@ -420,7 +420,7 @@ describe TypeDeChamp do
   end
 
   describe '#clean_options' do
-    subject { procedure.published_revision.types_de_champ.first.options }
+    subject { procedure.published_revision.type_de_champs.first.options }
 
     let(:procedure) { create(:procedure) }
 
@@ -597,7 +597,7 @@ describe TypeDeChamp do
       let(:procedure) { create(:procedure, types_de_champ_public:) }
       let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
       before do
         type_de_champ.update!(options: { 'referentiel_mapping' => { 'kikoo' => 'lol' } })
@@ -630,7 +630,7 @@ describe TypeDeChamp do
     let(:last_write_type_champ) { :text }
     let(:champ_value) { 'hello' }
     let(:champ_type) { TypeDeChamp.type_champ_to_champ_class_name(last_write_type_champ.to_s) }
-    let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:champ) { dossier.champ_data.first }
 
     subject { champ.update_columns(type: champ_type, value: champ_value); type_de_champ.champ_value(champ) }

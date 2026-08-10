@@ -62,7 +62,7 @@ describe ProcedureRevision do
       let(:tdc_params) { text_params.merge(parent_stable_id: type_de_champ_repetition.stable_id) }
 
       it do
-        expect { subject }.to change { draft.reload.types_de_champ.count }.from(4).to(5)
+        expect { subject }.to change { draft.reload.type_de_champs.count }.from(4).to(5)
         expect(draft.children_of(type_de_champ_repetition).last).to eq(subject)
         expect(draft.children_of(type_de_champ_repetition).map { draft.coordinate_for(_1).position }).to eq([0, 1])
 
@@ -320,10 +320,10 @@ describe ProcedureRevision do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :text }, { type: :integer_number }] }]) }
 
       it 'should have the same tdcs with different links' do
-        expect(new_draft.types_de_champ.count).to eq(3)
-        expect(new_draft.types_de_champ).to eq(draft.types_de_champ)
+        expect(new_draft.type_de_champs.count).to eq(3)
+        expect(new_draft.type_de_champs).to eq(draft.type_de_champs)
 
-        new_repetition, new_child = new_draft.types_de_champ.partition(&:repetition?).map(&:first)
+        new_repetition, new_child = new_draft.type_de_champs.partition(&:repetition?).map(&:first)
 
         parent = new_draft.revision_type_de_champs.find_by(type_de_champ: new_repetition)
         child = new_draft.revision_type_de_champs.find_by(type_de_champ: new_child)
@@ -1036,14 +1036,14 @@ describe ProcedureRevision do
     context 'with a simple tdc' do
       let(:procedure) { create(:procedure, :with_type_de_champ) }
 
-      it { expect(draft.children_of(draft.types_de_champ.first)).to be_empty }
+      it { expect(draft.children_of(draft.type_de_champs.first)).to be_empty }
     end
 
     context 'with a repetition tdc' do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :text }, { type: :integer_number }] }]) }
-      let!(:parent) { draft.types_de_champ.find(&:repetition?) }
-      let!(:first_child) { draft.types_de_champ.reject(&:repetition?).first }
-      let!(:second_child) { draft.types_de_champ.reject(&:repetition?).second }
+      let!(:parent) { draft.type_de_champs.find(&:repetition?) }
+      let!(:first_child) { draft.type_de_champs.reject(&:repetition?).first }
+      let!(:second_child) { draft.type_de_champs.reject(&:repetition?).second }
 
       it { expect(draft.children_of(parent)).to match([first_child, second_child]) }
 
@@ -1182,7 +1182,7 @@ describe ProcedureRevision do
 
         before do
           draft_revision.estimated_fill_duration
-          draft_revision.types_de_champ.first.update!(type_champ: TypeDeChamp.type_champs.fetch(:piece_justificative))
+          draft_revision.type_de_champs.first.update!(type_champ: TypeDeChamp.type_champs.fetch(:piece_justificative))
           draft_revision.reload
         end
 

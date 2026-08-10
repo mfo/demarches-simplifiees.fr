@@ -155,11 +155,11 @@ RSpec.describe TypesDeChamp::RepetitionValidator do
     end
   end
 
-  describe "public types_de_champ" do
+  describe "public type_de_champs" do
     include_examples "repetition limits validation", scope: :types_de_champ_public
   end
 
-  describe "private types_de_champ" do
+  describe "private type_de_champs" do
     include_examples "repetition limits validation", scope: :types_de_champ_private
   end
 end

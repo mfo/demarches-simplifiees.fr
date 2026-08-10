@@ -17,7 +17,7 @@ module Maintenance
 
       revision = Procedure.find(procedure_id).draft_revision
 
-      stable_id = revision.types_de_champ.find { _1.to_typed_id == typed_id }&.stable_id
+      stable_id = revision.type_de_champs.find { _1.to_typed_id == typed_id }&.stable_id
 
       fail "TypeDeChamp not found ! #{typed_id}" if stable_id.nil?
 

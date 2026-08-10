@@ -54,8 +54,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
           mode: 'exact_match',
         }
       end
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-      let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ], **original_data) }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+      let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ], **original_data) }
 
       it 'clone existing one' do
         get :new, params: { procedure_id: procedure.id, referentiel_id: referentiel.id, stable_id: }
@@ -116,7 +116,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
         expect(response).to have_http_status(:success)
 
-        expect(referentiel.types_de_champ).to include(TypeDeChamp.find_by(stable_id:))
+        expect(referentiel.type_de_champs).to include(TypeDeChamp.find_by(stable_id:))
         expect(referentiel.type).to eq(referentiel_params[:type])
         expect(referentiel.mode).to eq(referentiel_params[:mode])
         expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
@@ -163,7 +163,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
           expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
 
-          expect(referentiel.types_de_champ).to include(TypeDeChamp.find_by(stable_id:))
+          expect(referentiel.type_de_champs).to include(TypeDeChamp.find_by(stable_id:))
           expect(referentiel.type).to eq(referentiel_params[:type])
           expect(referentiel.mode).to eq(referentiel_params[:mode])
           expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
@@ -190,7 +190,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
           expect(response).to redirect_to(autocomplete_configuration_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
 
-          expect(referentiel.types_de_champ).to include(TypeDeChamp.find_by(stable_id:))
+          expect(referentiel.type_de_champs).to include(TypeDeChamp.find_by(stable_id:))
           expect(referentiel.type).to eq(referentiel_params[:type])
           expect(referentiel.mode).to eq(referentiel_params[:mode])
           expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
@@ -201,11 +201,11 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context 'cloning an existing referentiel whose auth fields were rendered disabled' do
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
       let(:original_authentication_data) { { 'header' => 'Authorization', 'value' => 'Bearer secret-token' } }
       let!(:existing_referentiel) do
         create(:api_referentiel, :exact_match,
-               types_de_champ: [type_de_champ],
+               type_de_champs: [type_de_champ],
                authentication_method: 'header_token',
                authentication_data: original_authentication_data)
       end
@@ -246,9 +246,9 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context 'cloning an existing referentiel having an autocomplete configuration' do
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
       let!(:existing_referentiel) do
-        create(:api_referentiel, :autocomplete, types_de_champ: [type_de_champ], datasource: '$.')
+        create(:api_referentiel, :autocomplete, type_de_champs: [type_de_champ], datasource: '$.')
       end
       let(:referentiel_params) do
         {
@@ -355,8 +355,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
         mode: 'exact_match',
       }
     end
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-    let(:referentiel) { create(:api_referentiel, types_de_champ: [type_de_champ], **original_tiptap_data) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+    let(:referentiel) { create(:api_referentiel, type_de_champs: [type_de_champ], **original_tiptap_data) }
 
     it 'clones tiptap columns' do
       get :new, params: { procedure_id: procedure.id, referentiel_id: referentiel.id, stable_id: }
@@ -368,8 +368,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe "#edit" do
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     it 'works' do
       get :edit, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id }
@@ -378,8 +378,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe "#update" do
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     context 'partial update (updating hint only)' do
       subject { patch :update, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: referentiel_params }, format: :turbo_stream }
@@ -406,7 +406,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
           :api_referentiel,
           :exact_match,
           :with_exact_match_response,
-          types_de_champ: [type_de_champ],
+          type_de_champs: [type_de_champ],
             datasource: '$.jsonpath',
           tiptap_template: { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "{{jsonpath}}" }] }] }.to_json
         )
@@ -441,7 +441,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe '#update with tiptap' do
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
     let(:initial_url_tiptap) do
       {
         "type" => "doc", "content" => [
@@ -455,7 +455,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       }
     end
     let(:referentiel) do
-      create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ],
+      create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ],
         url_tiptap: initial_url_tiptap,
         test_data_tiptap: { "{query}" => "old_value" })
     end
@@ -477,7 +477,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/new/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } }] }] }
       end
       let(:referentiel) do
-        create(:api_referentiel, :exact_match, :with_exact_match_response, types_de_champ: [type_de_champ],
+        create(:api_referentiel, :exact_match, :with_exact_match_response, type_de_champs: [type_de_champ],
             url_tiptap: initial_url_tiptap,
           test_data_tiptap: { "{query}" => "old_value" },
           datasource: '$.jsonpath',
@@ -546,8 +546,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe "configuration_error" do
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     it 'works' do
       allow_any_instance_of(Referentiels::APIReferentiel).to receive(:save).and_return(false)
@@ -557,10 +557,10 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe '#mapping_type_de_champ' do
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
     context 'when referentiel not ready' do
-      let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+      let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
       it 'redirects to configuration error' do
         allow_any_instance_of(ReferentielService).to receive(:validate_referentiel).and_return(false)
@@ -570,7 +570,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context "when referentiel is ready" do
-      let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, types_de_champ: [type_de_champ]) }
+      let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, type_de_champs: [type_de_champ]) }
 
       before do
         allow_any_instance_of(API::Client)
@@ -578,7 +578,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
 
       context 'test APIReferentiel return valid response' do
-        let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+        let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
         include Dry::Monads[:result]
         OK = Data.define(:body, :response)
 
@@ -607,8 +607,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
       }
     end
     let(:types_de_champ_public) { [{ type: :referentiel, stable_id:, referentiel_mapping: initial_mapping }] }
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.find { _1.stable_id == stable_id } }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.find { _1.stable_id == stable_id } }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
     subject do
       patch :update_mapping_type_de_champ, params: {
         procedure_id: procedure.id,
@@ -663,8 +663,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
         },
       }
     end
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     context 'when admin not signed in' do
       before { sign_out(procedure.administrateurs.first.user) }
@@ -694,8 +694,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
     let(:stable_id) { 1 }
     let(:prefillable_stable_id) { 2 }
 
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.find(&:referentiel?) }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.find(&:referentiel?) }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     let(:referentiel_mapping) do
       {
@@ -756,8 +756,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     describe '#autocomplete_configuration' do
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
-      let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, types_de_champ: [type_de_champ]) }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
+      let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, type_de_champs: [type_de_champ]) }
 
       context 'PATCH autocomplete_configuration' do
         subject do
@@ -836,8 +836,8 @@ describe Administrateurs::ReferentielsController, type: :controller do
   end
 
   describe '#reset_mapping' do
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.find(&:referentiel?) }
-    let(:referentiel) { create(:api_referentiel, :exact_match, types_de_champ: [type_de_champ]) }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.find(&:referentiel?) }
+    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     let(:referentiel_mapping) do
       {

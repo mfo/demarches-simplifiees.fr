@@ -6,7 +6,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
     let(:procedure) do
       create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
     end
-    let(:multiple_dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+    let(:multiple_dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
 
     it 'returns one column per referentiel header in advanced mode' do
       columns = multiple_dropdown_list_tdc.columns(procedure_id: procedure.id)
@@ -26,7 +26,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
     let(:procedure) do
       create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
     end
-    let(:multiple_dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+    let(:multiple_dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
 
     it 'returns a single column with path :value for standard export' do
       libelles = multiple_dropdown_list_tdc.libelles_for_export
@@ -40,7 +40,7 @@ describe TypesDeChamp::MultipleDropDownListTypeDeChamp do
     let(:procedure) do
       create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, referentiel:, drop_down_mode: 'advanced' }])
     end
-    let(:multiple_dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+    let(:multiple_dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
     let(:selected_items) { referentiel.items.first(2) }
     let(:champ) do
       multiple_dropdown_list_tdc.build_champ(value: selected_items.map(&:id).to_json).tap do |c|

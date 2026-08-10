@@ -5,16 +5,16 @@ describe TreeableConcern do
     include TreeableConcern
 
     attr_reader :root
-    def initialize(types_de_champ:)
-      @root = to_tree(types_de_champ:)
+    def initialize(type_de_champs:)
+      @root = to_tree(type_de_champs:)
     end
   end
 
-  subject { ChampsToTree.new(types_de_champ:).root }
+  subject { ChampsToTree.new(type_de_champs:).root }
   describe "to_tree" do
     let(:procedure) { create(:procedure, types_de_champ_public:) }
     let(:types_de_champ_public) { [] }
-    let(:types_de_champ) { procedure.active_revision.public_root_type_de_champs }
+    let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }
 
     let(:header_1) { { type: :header_section, level: 1, stable_id: 99 } }
     let(:header_1_2) { { type: :header_section, level: 2, stable_id: 199 } }
@@ -39,7 +39,7 @@ describe TreeableConcern do
         ]
       end
       it 'inlines champs at root level' do
-        expect(subject.size).to eq(types_de_champ.size)
+        expect(subject.size).to eq(type_de_champs.size)
         expect(subject).to eq([champ_text_tdc, champ_textarea_tdc])
       end
     end

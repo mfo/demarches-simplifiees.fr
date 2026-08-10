@@ -91,7 +91,7 @@ RSpec.describe TypesDeChamp::NumberValidator do
     end
   end
 
-  describe "public types_de_champ" do
+  describe "public type_de_champs" do
     include_examples "number range validation",
       scope: :types_de_champ_public,
       type: :decimal_number
@@ -101,7 +101,7 @@ RSpec.describe TypesDeChamp::NumberValidator do
       type: :integer_number
   end
 
-  describe "private types_de_champ" do
+  describe "private type_de_champs" do
     include_examples "number range validation",
       scope: :types_de_champ_private,
       type: :decimal_number

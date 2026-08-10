@@ -53,7 +53,7 @@ describe Champs::DossierLinkChamp, type: :model do
     let(:user) { dossier.user }
     let(:allowed_procedure) { create(:procedure) }
     let(:other_procedure) { create(:procedure) }
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
     before do
       type_de_champ.update!(options: type_de_champ.options.merge(

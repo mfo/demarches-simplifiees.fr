@@ -99,7 +99,7 @@ describe 'Referentiel API:' do
         # submit and check values
         click_on('Étape suivante')
         expect(page).to have_content("La configuration du mapping a bien été enregistrée")
-        referentiel_tdc = Referentiel.first.types_de_champ.first
+        referentiel_tdc = Referentiel.first.type_de_champs.first
         expect(referentiel_tdc.referentiel_mapping.dig("$.status", "prefill")).to eq("1")
         expect(referentiel_tdc.referentiel_mapping.dig("$.is_active", "prefill")).to eq("1")
 
@@ -359,7 +359,7 @@ describe 'Referentiel API:' do
         # submit and check values
         click_on('Étape suivante')
         expect(page).to have_content("La configuration du mapping a bien été enregistrée")
-        referentiel_tdc = Referentiel.first.types_de_champ.first
+        referentiel_tdc = Referentiel.first.type_de_champs.first
         expect(referentiel_tdc.referentiel_mapping.dig("$.status", "prefill")).to eq("1")
         expect(page).to have_content("$.status")
 
@@ -475,7 +475,7 @@ describe 'Referentiel API:' do
 
         click_on("Valider")
 
-        referentiel_tdc = Referentiel.first.types_de_champ.first
+        referentiel_tdc = Referentiel.first.type_de_champs.first
         wait_until { referentiel_tdc.reload.referentiel_mapping.dig("$.civilite", "prefill_stable_id").present? }
         expect(referentiel_tdc.referentiel_mapping.dig("$.civilite", "prefill_stable_id").to_s).to eq(prefill_civilite_stable_id.to_s)
         expect(referentiel_tdc.referentiel_mapping.dig("$.adresse", "prefill_stable_id").to_s).to eq(prefill_address_stable_id.to_s)

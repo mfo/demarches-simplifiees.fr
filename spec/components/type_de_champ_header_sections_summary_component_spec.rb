@@ -6,7 +6,7 @@ RSpec.describe TypesDeChampEditor::HeaderSectionsSummaryComponent, type: :compon
   subject { render_inline(component).to_html }
 
   let(:is_private) { false }
-  let(:types_de_champ) do
+  let(:type_de_champs) do
     [
       { type: :header_section, level: 1 },
       { type: :text },
@@ -16,7 +16,7 @@ RSpec.describe TypesDeChampEditor::HeaderSectionsSummaryComponent, type: :compon
       { type: :text },
     ]
   end
-  let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ, types_de_champ_private: types_de_champ) }
+  let(:procedure) { create(:procedure, types_de_champ_public: type_de_champs, types_de_champ_private: type_de_champs) }
   let(:component) { described_class.new(procedure:, is_private:) }
   let(:types_de_champ_public) { procedure.draft_revision.public_revision_type_de_champs.filter(&:header_section?) }
   let(:types_de_champ_private) { procedure.draft_revision.private_revision_type_de_champs.filter(&:header_section?) }

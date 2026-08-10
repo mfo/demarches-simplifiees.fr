@@ -25,8 +25,8 @@ describe PiecesJointesListConcern do
         ]
       end
 
-      let(:types_de_champ) { procedure.active_revision.types_de_champ }
-      def find_by_stable_id(stable_id) = types_de_champ.find { _1.stable_id == stable_id }
+      let(:type_de_champs) { procedure.active_revision.type_de_champs }
+      def find_by_stable_id(stable_id) = type_de_champs.find { _1.stable_id == stable_id }
 
       let(:pj1) { find_by_stable_id(910) }
       let(:pjcond) { find_by_stable_id(911) }

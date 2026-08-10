@@ -4,7 +4,7 @@ describe Logic::ExcludeOperator do
   include Logic
 
   let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list }]) }
-  let(:tdc) { procedure.active_revision.types_de_champ.first }
+  let(:tdc) { procedure.active_revision.type_de_champs.first }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { Champs::MultipleDropDownListChamp.new(value: '["val1", "val2"]', stable_id: tdc.stable_id, dossier:) }
 

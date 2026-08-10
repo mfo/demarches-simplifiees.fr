@@ -56,16 +56,16 @@ describe AttestationTemplate, type: :model do
   describe 'generate_attestation_for' do
     let(:procedure) do
       create(:procedure,
-        types_de_champ_public: types_de_champ,
+        types_de_champ_public: type_de_champs,
         types_de_champ_private: types_de_champ_private,
         attestation_acceptation_template: attestation_template)
     end
     let(:etablissement) { create(:etablissement) }
-    let(:types_de_champ) { [] }
+    let(:type_de_champs) { [] }
     let(:types_de_champ_private) { [] }
     let(:dossier) { create(:dossier, :accepte, procedure:) }
 
-    let(:types_de_champ) do
+    let(:type_de_champs) do
       [
         { libelle: 'libelleA' },
         { libelle: 'libelleB' },

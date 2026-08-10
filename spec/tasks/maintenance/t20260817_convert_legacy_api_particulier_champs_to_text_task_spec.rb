@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe T20260817ConvertLegacyAPIParticulierChampsToTextTask do
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text }]) }
-    let(:type_de_champ) { procedure.published_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.published_revision.type_de_champs.first }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
     let(:champ) { dossier.champ_data.first }
     let(:cnaf_data) { { 'quotient_familial' => { 'quotientFamilial' => 1234 } } }
