@@ -20,7 +20,6 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 fr:
-  insee_down: LʼINSEE est indisponible, les informations sur lʼentreprise arriveront dʼici quelques heures.
   invisible_captcha:
     sentence_for_humans: 'Si vous êtes un humain, laissez ce champ vide'
   clipboard:
@@ -589,31 +588,14 @@ fr:
             open: "Rechercher"
             panel_title: "Rechercher"
           filter_panel:
-            open: "Filtrer les dossiers"
-            title: "Filtrer les dossiers"
-            close: "Fermer"
-            loading: "Chargement des filtres…"
             groups:
-              procedure: "Par démarche"
               shared_with_me: "Partagé avec moi"
-              state: "État de traitement"
-              alert: "Alerte sur le dossier"
-            procedure_placeholder: "Sélectionnez une démarche"
             alerts:
               nouveau_message: "Nouveau message"
               message_avec_attente_de_reponse: "Message avec attente de réponse"
               a_corriger: "À corriger"
               expire_bientot: "Expire bientôt"
-            from_created_at_date: "Créé depuis le"
-            from_depose_at_date: "Déposé depuis le"
-            reset: "Réinitialiser"
-            apply:
-              zero: "Aucun dossier ne correspond"
-              one: "Afficher le dossier"
-              other: "Afficher les %{count} dossiers"
           active_filters:
-            reset: "Réinitialiser les filtres"
-            remove_tag: "Retirer le filtre : %{label}"
             from_created_at_date_tag: "Créé depuis le %{date}"
             from_depose_at_date_tag: "Déposé depuis le %{date}"
         dossiers_list:

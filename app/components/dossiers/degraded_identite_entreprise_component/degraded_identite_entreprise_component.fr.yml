@@ -2,3 +2,4 @@
 fr:
   source: Annuaire des Entreprises
   dossier_blocked: Il nʼest pas possible dʼaccepter ou de refuser un dossier sans cette étape.
+  insee_down: "LʼINSEE est indisponible, les informations sur lʼentreprise arriveront dʼici quelques heures."
