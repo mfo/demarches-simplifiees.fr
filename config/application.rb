@@ -97,6 +97,8 @@ module TPS
     # resolution. On large API V2 responses (tens of thousands of fields) this
     # costs ~16% of request wall time for per-field granularity that is unreadable
     # at that scale — we keep only request-level spans from the controller/AR probes.
+    # The probe's per-operation endpoint naming is reimplemented without that cost
+    # in API::V2::GraphqlController#rename_skylight_endpoint.
     config.skylight.probes += [:active_job, :excon, :httpclient, :redis]
 
     # Custom Configuration
