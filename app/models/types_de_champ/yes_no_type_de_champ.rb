@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::YesNoTypeDeChamp < TypesDeChamp::TypeDeChampBase
-  def filter_to_human(filter_value)
-    if filter_value == "true"
-      I18n.t('activerecord.attributes.type_de_champ.type_champs.yes_no_true')
-    elsif filter_value == "false"
-      I18n.t('activerecord.attributes.type_de_champ.type_champs.yes_no_false')
-    else
-      filter_value
-    end
-  end
-
   def champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'
   end
