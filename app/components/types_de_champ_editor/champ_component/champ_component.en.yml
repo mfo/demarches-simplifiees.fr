@@ -61,7 +61,7 @@ en:
     znieff: ZNIEFF
   character_limit:
     unlimited: No character limitation
-    limit: 3-character limit
+    limit: Limited to %{limit} characters
   kind:
     labels:
       simple: Simple mode
