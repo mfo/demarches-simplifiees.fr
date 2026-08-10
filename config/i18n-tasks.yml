@@ -109,6 +109,10 @@ ignore_unused:
   - 'dossiers.champs_rows_show_component.{blank,blank_optional,blank_attachment,blank_optional_attachment}'
   # t(updated? ? '.updated_at' : '.created_at') in gallery_item_component.html.erb
   - 'attachment.gallery_item_component.{created_at,updated_at}'
+  # t(@procedure.publiee? ? '.notification_alert.publiee' : '.notification_alert.non_publiee')
+  - 'procedure.instructeurs_management_component.notification_alert.*'
+  # t(@champ.fc_data_not_found? ? '.piece_justificative_champ.data_not_found' : '...data_not_recovered')
+  - 'editable_champ.france_connect_champ_base_component.piece_justificative_champ.*'
   # t("...", scope: ".decision_buttons") / ".resume_buttons" / ".unit_labels" in sva_svr_form_component
   - 'procedure.sva_svr_form_component.*'
   - 'errors.format'

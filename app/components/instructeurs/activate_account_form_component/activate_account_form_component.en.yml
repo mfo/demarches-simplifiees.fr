@@ -2,5 +2,4 @@
 en:
   title: Create an account for %{application_name}
   activate: Create an account with the e-mail address %{email}
-  email_disabled: Instructor email address not changeable
   submit: Create an account
