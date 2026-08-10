@@ -2,7 +2,7 @@
 
 describe Emails::Depose, type: :model do
   let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'nom' }]) }
-  let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public.first }
+  let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
   let(:mail) { described_class.default_for_procedure(procedure) }
 
   let(:email_subject) { '' }

@@ -14,8 +14,8 @@ class ProcedureRevision < ApplicationRecord
   def public_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.public? }.sort_by(&:position)
   def private_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.private? }.sort_by(&:position)
   def types_de_champ = revision_type_de_champs.map(&:type_de_champ)
-  def root_types_de_champ_public = public_revision_type_de_champs.map(&:type_de_champ)
-  def root_types_de_champ_private = private_revision_type_de_champs.map(&:type_de_champ)
+  def public_root_type_de_champs = public_revision_type_de_champs.map(&:type_de_champ)
+  def private_root_type_de_champs = private_revision_type_de_champs.map(&:type_de_champ)
 
   # All types de champ in document order, repetition children inlined after their repetition.
   def flat_types_de_champ_public = public_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
@@ -223,7 +223,7 @@ class ProcedureRevision < ApplicationRecord
   def dependent_conditions(tdc)
     stable_id = tdc.stable_id
 
-    (tdc.public? ? root_types_de_champ_public : root_types_de_champ_private).filter do |other_tdc|
+    (tdc.public? ? public_root_type_de_champs : private_root_type_de_champs).filter do |other_tdc|
       next if !other_tdc.condition?
 
       other_tdc.condition.sources.include?(stable_id)
@@ -244,11 +244,11 @@ class ProcedureRevision < ApplicationRecord
   end
 
   def carte?
-    root_types_de_champ_public.any?(&:carte?)
+    public_root_type_de_champs.any?(&:carte?)
   end
 
   def has_france_connect_type_de_champ?
-    root_types_de_champ_public.any?(&:france_connect?)
+    public_root_type_de_champs.any?(&:france_connect?)
   end
 
   def coordinate_and_tdc(stable_id)
@@ -262,7 +262,7 @@ class ProcedureRevision < ApplicationRecord
   end
 
   def simple_routable_types_de_champ
-    root_types_de_champ_public.filter(&:simple_routable?)
+    public_root_type_de_champs.filter(&:simple_routable?)
   end
 
   def conditionable_types_de_champ
@@ -343,7 +343,7 @@ class ProcedureRevision < ApplicationRecord
   private
 
   def compute_estimated_fill_duration
-    root_types_de_champ_public.sum do |tdc|
+    public_root_type_de_champs.sum do |tdc|
       next tdc.estimated_read_duration unless tdc.fillable?
 
       duration = tdc.estimated_read_duration + tdc.estimated_fill_duration(self)

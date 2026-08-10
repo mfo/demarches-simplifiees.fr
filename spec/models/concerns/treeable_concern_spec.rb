@@ -14,7 +14,7 @@ describe TreeableConcern do
   describe "to_tree" do
     let(:procedure) { create(:procedure, types_de_champ_public:) }
     let(:types_de_champ_public) { [] }
-    let(:types_de_champ) { procedure.active_revision.root_types_de_champ_public }
+    let(:types_de_champ) { procedure.active_revision.public_root_type_de_champs }
 
     let(:header_1) { { type: :header_section, level: 1, stable_id: 99 } }
     let(:header_1_2) { { type: :header_section, level: 2, stable_id: 199 } }
@@ -24,13 +24,13 @@ describe TreeableConcern do
     let(:champ_explication) { { type: :explication, stable_id: 599 } }
     let(:champ_communes) { { type: :communes, stable_id: 699 } }
 
-    let(:header_1_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 99 } }
-    let(:header_1_2_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 199 } }
-    let(:header_2_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 299 } }
-    let(:champ_text_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 399 } }
-    let(:champ_textarea_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 499 } }
-    let(:champ_explication_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 599 } }
-    let(:champ_communes_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 699 } }
+    let(:header_1_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 99 } }
+    let(:header_1_2_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 199 } }
+    let(:header_2_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 299 } }
+    let(:champ_text_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 399 } }
+    let(:champ_textarea_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 499 } }
+    let(:champ_explication_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 599 } }
+    let(:champ_communes_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 699 } }
 
     context 'without section' do
       let(:types_de_champ_public) do
@@ -66,7 +66,7 @@ describe TreeableConcern do
 
     context 'leading champs, and in between sections only' do
       let(:champ_textarea_bis) { { type: :textarea, stable_id: 799 } }
-      let(:champ_textarea_bis_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 799 } }
+      let(:champ_textarea_bis_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 799 } }
       let(:types_de_champ_public) do
         [
           champ_text,
@@ -114,9 +114,9 @@ describe TreeableConcern do
       let(:header_1_2_2) { { type: :header_section, level: 2, stable_id: 899 } }
       let(:header_1_2_3) { { type: :header_section, level: 2, stable_id: 999 } }
 
-      let(:header_1_2_1_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 799 } }
-      let(:header_1_2_2_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 899 } }
-      let(:header_1_2_3_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 999 } }
+      let(:header_1_2_1_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 799 } }
+      let(:header_1_2_2_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 899 } }
+      let(:header_1_2_3_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 999 } }
 
       let(:types_de_champ_public) do
        [
@@ -144,7 +144,7 @@ describe TreeableConcern do
 
     context 'with skipped header level (h1 then h3, no h2)' do
       let(:header_1_3) { { type: :header_section, level: 3, stable_id: 799 } }
-      let(:header_1_3_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 799 } }
+      let(:header_1_3_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 799 } }
 
       let(:types_de_champ_public) do
         [
@@ -165,7 +165,7 @@ describe TreeableConcern do
 
     context 'with one sub sections and one subsub section' do
       let(:header_1_2_3) { { type: :header_section, level: 3, stable_id: 799 } }
-      let(:header_1_2_3_tdc) { procedure.active_revision.root_types_de_champ_public.find { _1.stable_id == 799 } }
+      let(:header_1_2_3_tdc) { procedure.active_revision.public_root_type_de_champs.find { _1.stable_id == 799 } }
 
       let(:types_de_champ_public) do
         [

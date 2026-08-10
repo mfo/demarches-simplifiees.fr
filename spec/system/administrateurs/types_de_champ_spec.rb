@@ -54,7 +54,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     expect(page).to have_text('file.pdf')
 
     # Verify attachment is persisted in database
-    tdc = procedure.active_revision.root_types_de_champ_public.first
+    tdc = procedure.active_revision.public_root_type_de_champs.first
     wait_until { tdc.reload.piece_justificative_template.attached? }
     expect(tdc.piece_justificative_template).to be_attached
     expect(tdc.piece_justificative_template.filename.to_s).to eq('file.pdf')
@@ -76,7 +76,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
       expect(page).to have_text('file.pdf')
 
-      tdc = procedure.active_revision.root_types_de_champ_public.first
+      tdc = procedure.active_revision.public_root_type_de_champs.first
       wait_until { tdc.reload.notice_explicative.attached? }
       expect(tdc.notice_explicative).to be_attached
 
@@ -99,7 +99,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
       expect(page).to have_text('Fichier de référentiel à importer (CSV)')
 
       # Upload CSV file
-      tdc = procedure.active_revision.root_types_de_champ_public.first
+      tdc = procedure.active_revision.public_root_type_de_champs.first
       file_input = find("##{dom_id(tdc, :import_referentiel)}", visible: :all)
       file_input.attach_file(Rails.root.join('spec/fixtures/files/modele-import-referentiel.csv'))
 
@@ -201,7 +201,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     # The notice alone is not a reliable sync point; poll the DB so the
     # refresh can't race the in-flight saves.
     wait_until do
-      tdc = procedure.active_revision.reload.root_types_de_champ_public.first
+      tdc = procedure.active_revision.reload.public_root_type_de_champs.first
       tdc&.repetition? && tdc.libelle == 'libellé de champ'
     end
     page.refresh
@@ -243,7 +243,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     # Autosaves are serialized and coalesced client-side, so the last save
     # carries the whole form; poll for it before refreshing away.
     wait_until do
-      tdc = procedure.active_revision.reload.root_types_de_champ_public.first
+      tdc = procedure.active_revision.reload.public_root_type_de_champs.first
       tdc&.libelle == 'Libellé de champ carte' && tdc.layer_enabled?(:cadastres)
     end
 
@@ -272,7 +272,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     # Autosaves are serialized and coalesced client-side, so the last save
     # carries the whole form; poll for it before refreshing away.
     wait_until do
-      tdc = procedure.active_revision.reload.root_types_de_champ_public.first
+      tdc = procedure.active_revision.reload.public_root_type_de_champs.first
       tdc&.drop_down_options == ['Un menu'] && tdc.drop_down_other == "1"
     end
 
@@ -321,18 +321,18 @@ describe 'As an administrateur I can edit types de champ', js: true do
     scenario 'with public tdc, having invalid order, it pops up errors summary' do
       add_champ
       select('Titre de section', from: 'Type de champ')
-      wait_until { procedure.reload.active_revision.root_types_de_champ_public.first&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
-      first_header = procedure.active_revision.root_types_de_champ_public.first
+      wait_until { procedure.reload.active_revision.public_root_type_de_champs.first&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
+      first_header = procedure.active_revision.public_root_type_de_champs.first
       select('Titre de niveau 1', from: dom_id(first_header, :header_section_level))
 
       within(find('.type-de-champ-add-button', match: :first)) {
         add_champ
       }
 
-      wait_until { procedure.reload.active_revision.root_types_de_champ_public.count == 2 }
-      second_header = procedure.active_revision.root_types_de_champ_public.last
+      wait_until { procedure.reload.active_revision.public_root_type_de_champs.count == 2 }
+      second_header = procedure.active_revision.public_root_type_de_champs.last
       select('Titre de section', from: dom_id(second_header, :type_champ))
-      wait_until { procedure.reload.active_revision.root_types_de_champ_public.last&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
+      wait_until { procedure.reload.active_revision.public_root_type_de_champs.last&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
       select('Titre de niveau 2', from: dom_id(second_header, :header_section_level))
 
       within(".types-de-champ-block li:first-child") do
@@ -343,7 +343,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
       expect(page).to have_content("devrait être précédé d’un titre de niveau 1")
 
       # check summary refresh
-      procedure.reload.active_revision.root_types_de_champ_private.each do |header_section|
+      procedure.reload.active_revision.private_root_type_de_champs.each do |header_section|
         expect(page).to have_link(header_section.libelle)
       end
     end

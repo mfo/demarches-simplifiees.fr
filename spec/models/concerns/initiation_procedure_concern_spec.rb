@@ -10,7 +10,7 @@ describe InitiationProcedureConcern do
       subject.reload
       expect(subject).to be_valid
       expect(subject.defaut_groupe_instructeur.instructeurs.count).to eq(1)
-      expect(subject.draft_revision.root_types_de_champ_public).not_to be_empty
+      expect(subject.draft_revision.public_root_type_de_champs).not_to be_empty
       expect(subject.service).not_to be_nil
     end
   end

@@ -18,11 +18,11 @@ module DossierChampsConcern
   end
 
   def root_champs_public
-    @root_champs_public ||= revision.root_types_de_champ_public.map { project_champ(_1) }
+    @root_champs_public ||= revision.public_root_type_de_champs.map { project_champ(_1) }
   end
 
   def root_champs_private
-    @root_champs_private ||= revision.root_types_de_champ_private.map { project_champ(_1) }
+    @root_champs_private ||= revision.private_root_type_de_champs.map { project_champ(_1) }
   end
 
   def champs
@@ -58,7 +58,7 @@ module DossierChampsConcern
   end
 
   def flat_champs_public
-    @flat_champs_public ||= revision.root_types_de_champ_public.flat_map do |type_de_champ|
+    @flat_champs_public ||= revision.public_root_type_de_champs.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -69,7 +69,7 @@ module DossierChampsConcern
   end
 
   def flat_champs_private
-    @flat_champs_private ||= revision.root_types_de_champ_private.flat_map do |type_de_champ|
+    @flat_champs_private ||= revision.private_root_type_de_champs.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -229,7 +229,7 @@ module DossierChampsConcern
   end
 
   def set_default_value_for_france_connect_champs(user_email)
-    revision.root_types_de_champ_public.filter(&:france_connect?).each do |type_de_champ|
+    revision.public_root_type_de_champs.filter(&:france_connect?).each do |type_de_champ|
       existing_champ_data_on_main_stream = champ_data_on_main_stream.any? { _1.stable_id == type_de_champ.stable_id }
 
       next if existing_champ_data_on_main_stream && en_construction?

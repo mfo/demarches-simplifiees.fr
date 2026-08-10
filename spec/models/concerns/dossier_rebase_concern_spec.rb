@@ -4,9 +4,9 @@ describe DossierRebaseConcern do
   describe '#can_rebase?' do
     let(:procedure) { create(:procedure, types_de_champ_public: [{ mandatory: true }, { type: :yes_no, mandatory: false }], types_de_champ_private: [{}]) }
     let(:attestation_template) { procedure.draft_revision.attestation_acceptation_template.find_or_revise! }
-    let(:type_de_champ) { procedure.active_revision.root_types_de_champ_public.find { |tdc| !tdc.mandatory? } }
-    let(:private_type_de_champ) { procedure.active_revision.root_types_de_champ_private.first }
-    let(:mandatory_type_de_champ) { procedure.active_revision.root_types_de_champ_public.find(&:mandatory?) }
+    let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.find { |tdc| !tdc.mandatory? } }
+    let(:private_type_de_champ) { procedure.active_revision.private_root_type_de_champs.first }
+    let(:mandatory_type_de_champ) { procedure.active_revision.public_root_type_de_champs.find(&:mandatory?) }
 
     context 'on unpublished procedure' do
       context 'en_construction' do
@@ -416,7 +416,7 @@ describe DossierRebaseConcern do
       end
       let!(:dossier) { create(:dossier, procedure: procedure) }
 
-      def champ_libelles = dossier.revision.root_types_de_champ_public.map(&:libelle)
+      def champ_libelles = dossier.revision.public_root_type_de_champs.map(&:libelle)
 
       context 'when a tdc is added in the middle' do
         before do
@@ -478,7 +478,7 @@ describe DossierRebaseConcern do
           tdc_to_update.update(type_champ: :integer_number)
         end
 
-        it { expect { subject }.to change { dossier.revision.root_types_de_champ_public.map(&:type_champ) }.from(['text', 'text']).to(['integer_number', 'text']) }
+        it { expect { subject }.to change { dossier.revision.public_root_type_de_champs.map(&:type_champ) }.from(['text', 'text']).to(['integer_number', 'text']) }
         it { expect { subject }.to change { first_champ.class }.from(Champs::TextChamp).to(Champs::IntegerNumberChamp) }
         it { expect { subject }.not_to change { first_champ.to_s } }
         it { expect { subject }.to change { first_champ.external_id }.from('123').to(nil) }

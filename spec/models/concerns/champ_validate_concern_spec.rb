@@ -3,7 +3,7 @@
 RSpec.describe ChampValidateConcern do
   let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-  let(:type_de_champ) { dossier.revision.root_types_de_champ_public.first }
+  let(:type_de_champ) { dossier.revision.public_root_type_de_champs.first }
   let(:public_id) { type_de_champ.public_id(nil) }
   let(:types_de_champ_public) { [{ type: :email }] }
 

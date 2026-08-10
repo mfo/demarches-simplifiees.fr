@@ -463,7 +463,7 @@ describe ProcedureExportService do
 
       context 'with long libelle composed of utf8 characteres' do
         before do
-          procedure.active_revision.root_types_de_champ_public.each do |type_de_champ|
+          procedure.active_revision.public_root_type_de_champs.each do |type_de_champ|
             type_de_champ.update!(libelle: "#{type_de_champ.id} - ?/[] ééé ééé ééééééé ééééééé éééééééé. ééé éé éééééééé éé ééé. ééééé éééééééé ééé ééé.")
           end
           procedure.active_revision.children_of(champ_repetition.type_de_champ).each do |type_de_champ|
@@ -479,8 +479,8 @@ describe ProcedureExportService do
       context 'with non unique labels' do
         let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Une repetition', children: [{}] }, { type: :repetition, libelle: 'Une repetition', children: [{}] }] }
         let(:dossier) { create(:dossier, :en_instruction, :with_populated_champs, :with_individual, procedure:) }
-        let(:type_de_champ_repetition) { dossier.revision.root_types_de_champ_public.first }
-        let(:another_type_de_champ_repetition) { dossier.revision.root_types_de_champ_public.second }
+        let(:type_de_champ_repetition) { dossier.revision.public_root_type_de_champs.first }
+        let(:another_type_de_champ_repetition) { dossier.revision.public_root_type_de_champs.second }
 
         it 'should have sheets' do
           expect(subject.sheets.map(&:name)).to eq(['Dossiers', 'Etablissements', 'Avis', type_de_champ_repetition.libelle_for_export, another_type_de_champ_repetition.libelle_for_export])

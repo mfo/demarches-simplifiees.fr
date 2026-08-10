@@ -201,7 +201,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
     context 'with a dropdown list with a referentiel' do
       let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/modele-import-referentiel.csv', 'text/csv') }
       let(:drop_down_list_type_de_champ) do
-        procedure.draft_revision.root_types_de_champ_public.third
+        procedure.draft_revision.public_root_type_de_champs.third
       end
 
       let(:params) do
@@ -331,7 +331,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       end
       let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/modele-import-referentiel.csv', 'text/csv') }
       let(:multiple_drop_down_list_type_de_champ) do
-        procedure.draft_revision.root_types_de_champ_public.first
+        procedure.draft_revision.public_root_type_de_champs.first
       end
       let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
 
@@ -708,7 +708,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       expect { subject }.to change { suggestion.reload.state }.from('completed').to('accepted')
       expect(response).to redirect_to(simplify_admin_procedure_types_de_champ_path(procedure, tunnel_id:, rule: 'improve_structure'))
 
-      libelles = procedure.draft_revision.reload.root_types_de_champ_public.map(&:libelle)
+      libelles = procedure.draft_revision.reload.public_root_type_de_champs.map(&:libelle)
       expect(libelles).to include('Nouveau')
       expect(libelles).not_to include('A')
 

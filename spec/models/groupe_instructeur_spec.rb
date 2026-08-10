@@ -238,7 +238,7 @@ describe GroupeInstructeur, type: :model do
     include Logic
 
     let(:routed_procedure) { create(:procedure, :published, routing_enabled: true, administrateur: admin) }
-    let(:stable_id) { routed_procedure.published_revision.root_types_de_champ_public.last.stable_id }
+    let(:stable_id) { routed_procedure.published_revision.public_root_type_de_champs.last.stable_id }
 
     before do
       routed_procedure.draft_revision.add_type_de_champ(

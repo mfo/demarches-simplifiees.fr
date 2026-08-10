@@ -42,8 +42,8 @@ describe ProcedureRevisionPreloader do
       expect_relation_is_preloaded_sorted(original, procedure, :public_revision_type_de_champs)
       expect_relation_is_preloaded_sorted(original, procedure, :private_revision_type_de_champs)
       expect_relation_is_preloaded_sorted(original, procedure, :types_de_champ)
-      expect_relation_is_preloaded_sorted(original, procedure, :root_types_de_champ_public)
-      expect_relation_is_preloaded_sorted(original, procedure, :root_types_de_champ_private)
+      expect_relation_is_preloaded_sorted(original, procedure, :public_root_type_de_champs)
+      expect_relation_is_preloaded_sorted(original, procedure, :private_root_type_de_champs)
     end
 
     def expect_relation_is_preloaded_sorted(original, preloaded, association)

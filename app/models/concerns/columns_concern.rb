@@ -133,7 +133,7 @@ module ColumnsConcern
 
   def customizable_columns
     current_revision = published_revision || active_revision
-    current_revision.root_types_de_champ_public
+    current_revision.public_root_type_de_champs
       .filter(&:customizable?)
       .filter { _1.condition.nil? }
       .filter_map { _1.customization_column(procedure_id: id) }
@@ -142,7 +142,7 @@ module ColumnsConcern
 
   def customizable_columns_by_section
     current_revision = published_revision || active_revision
-    tdcs_public = current_revision.root_types_de_champ_public
+    tdcs_public = current_revision.public_root_type_de_champs
     auto_numbering = tdcs_public.none? { _1.header_section? && _1.libelle.match?(/^\d/) }
 
     customizable_by_stable_id = customizable_columns.index_by(&:stable_id)

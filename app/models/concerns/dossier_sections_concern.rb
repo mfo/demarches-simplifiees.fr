@@ -7,9 +7,9 @@ module DossierSectionsConcern
     @sections = Hash.new do |hash, parent|
       case parent
       when :public
-        hash[parent] = revision.root_types_de_champ_public.filter(&:header_section?)
+        hash[parent] = revision.public_root_type_de_champs.filter(&:header_section?)
       when :private
-        hash[parent] = revision.root_types_de_champ_private.filter(&:header_section?)
+        hash[parent] = revision.private_root_type_de_champs.filter(&:header_section?)
       else
         hash[parent] = revision.children_of(parent).filter(&:header_section?)
       end
@@ -24,7 +24,7 @@ module DossierSectionsConcern
   end
 
   def index_for_section_header(header)
-    types_de_champ = header.private? ? revision.root_types_de_champ_private : revision.root_types_de_champ_public
+    types_de_champ = header.private? ? revision.private_root_type_de_champs : revision.public_root_type_de_champs
     counters = []
 
     types_de_champ

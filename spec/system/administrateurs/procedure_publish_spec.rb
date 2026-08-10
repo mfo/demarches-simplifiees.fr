@@ -71,9 +71,9 @@ describe 'Publishing a procedure', js: true do
       end
 
       before do
-        drop_down = procedure.draft_revision.root_types_de_champ_public.find(&:any_drop_down_list?)
+        drop_down = procedure.draft_revision.public_root_type_de_champs.find(&:any_drop_down_list?)
         drop_down.update!(drop_down_options: [])
-        drop_down = procedure.draft_revision.root_types_de_champ_private.find(&:any_drop_down_list?)
+        drop_down = procedure.draft_revision.private_root_type_de_champs.find(&:any_drop_down_list?)
         drop_down.update!(drop_down_options: [])
       end
 
