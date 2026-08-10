@@ -10,6 +10,7 @@
     one: Tomorrow
     other: in %{count} days
   remaining_days_after_correction:
+    one: "%{count} d. after correction"
     other: "%{count} d. after correction"
   dossier_terminated_x_days_after_correction:
     one: "The file will be automatically processed %{count} day after the applicant has re-submitted his file"
