@@ -1,23 +1,25 @@
 # i18n-tasks finds and manages missing and unused translations: https://github.com/glebm/i18n-tasks
 
+<% require './lib/linters/i18n_tasks_view_components' %>
+
 # The "main" locale.
 base_locale: fr
-## All available locales are inferred from the data by default. Alternatively, specify them explicitly:
-# locales: [es, fr]
+locales: [fr, en]
 ## Reporting locale, default: en. Available: en, ru.
 # internal_locale: en
 
 # Read and write translations.
 data:
-  ## Translations are read from the file system. Supported format: YAML, JSON.
-  ## Provide a custom adapter:
-  # adapter: I18n::Tasks::Data::FileSystem
+  # Custom adapter nesting ViewComponent sidecar files under their component scope:
+  adapter: I18nTasksViewComponents::Data
 
   # Locale files or `File.find` patterns where translations are read from:
   read:
     - config/locales/*%{locale}.yml
     - config/locales/**/*%{locale}.yml
     - config/custom_locales/*%{locale}.yml
+    # ViewComponent sidecar translations (bar_component.fr.yml and bare fr.yml styles):
+    - app/components/**/*%{locale}.yml
 
   # Locale files to write new keys to, based on a list of key pattern => file rules. Matched from top to bottom:
   # `i18n-tasks normalize -p` will force move the keys according to these rules
@@ -56,12 +58,13 @@ search:
   #  - app/
 
   ## Root directories for relative keys resolution.
-  # relative_roots:
-  #   - app/controllers
-  #   - app/helpers
-  #   - app/mailers
-  #   - app/presenters
-  #   - app/views
+  relative_roots:
+    - app/components
+    - app/controllers
+    - app/helpers
+    - app/mailers
+    - app/presenters
+    - app/views
 
   ## Files or `File.fnmatch` patterns to exclude from search. Some files are always excluded regardless of this setting:
   ##   %w(*.jpg *.png *.gif *.svg *.ico *.eot *.otf *.ttf *.woff *.woff2 *.pdf *.css *.sass *.scss *.less *.yml *.json)
@@ -69,7 +72,6 @@ search:
     - app/assets/images
     - app/assets/fonts
     - app/assets/videos
-    - app/components
 
   ## Alternatively, the only files or `File.fnmatch patterns` to search in `paths`:
   ## If specified, this settings takes priority over `exclude`, but `exclude` still applies.
@@ -91,8 +93,24 @@ search:
 #   # Get an API key and subscription at https://www.deepl.com/pro to use DeepL Pro
 #   deepl_api_key: "48E92789-57A3-466A-9959-1A1A1A1A1A1A"
 
+## Consider these keys defined (missing check):
+ignore_missing:
+  # Abstract base component: t('.add_condition') etc. resolve at runtime against
+  # each subclass's sidecar (champs_conditions, ineligibilite_rules, routing_rules).
+  - 'conditions.conditions_component.*'
+
 ## Consider these keys used:
 ignore_unused:
+  # t(".#{batch.operation}.finish.text_success") in batch_alert_component.html.haml
+  - 'dossiers.batch_alert_component.*'
+  # t(category, scope: ".categories") in tags_button_list_component.html.erb
+  - 'tags_button_list_component.categories.*'
+  # dynamic key composition (".blank" / ".blank_optional" + "_attachment") in champs_rows_show_component.rb
+  - 'dossiers.champs_rows_show_component.{blank,blank_optional,blank_attachment,blank_optional_attachment}'
+  # t(updated? ? '.updated_at' : '.created_at') in gallery_item_component.html.erb
+  - 'attachment.gallery_item_component.{created_at,updated_at}'
+  # t("...", scope: ".decision_buttons") / ".resume_buttons" / ".unit_labels" in sva_svr_form_component
+  - 'procedure.sva_svr_form_component.*'
   - 'errors.format'
   - 'user_mailer.*.subject'
   - 'groupe_gestionnaire_mailer.*.subject'
@@ -102,8 +120,8 @@ ignore_unused:
   - 'activerecord.models.*'
   - 'activerecord.attributes.*'
   - 'activemodel.attributes.map_filter.*'
-  - 'activemodel.attributes.justificatif_domicile.*' # used in ocr_viewer_component
-  - 'activemodel.attributes.avis_impot.*' # used in ocr_viewer_component
+  - 'activemodel.attributes.justificatif_domicile.*' # used dynamically in ocr_viewer_component
+  - 'activemodel.attributes.avis_impot.*' # used dynamically in ocr_viewer_component
   - 'activemodel.errors.models.*'
   - 'activerecord.errors.*'
   - 'errors.messages.blank'
@@ -120,11 +138,9 @@ ignore_unused:
   - 'helpers.page_entries_info.*'
   - 'combo_search_component.result_slot_html.*'
   - 'combo_search_component.screen_reader_instructions'
-  - 'editable_champ.repetition_component.*'
   - 'links.common.*'
   - 'views.instructeurs.dossiers.acts_on_behalf'
   - 'views.shared.dossiers.identite_entreprise.non_diffusible'
-  - 'views.components.*'
   - 'utils.array'
   - 'utils.boolean'
   - 'utils.date'
@@ -140,19 +156,10 @@ ignore_unused:
   - 'links.main_navigation.doc.expert_title'
   - 'links.main_navigation.doc.instructeur_title'
   - 'shared.dossiers.geo.*'
-  # used in app/components/dossiers/user_filter_panel_component (excluded from search above)
-  - 'views.users.dossiers.index.filter_panel.*'
-  # used in app/components/dossiers/user_active_filters_component (excluded from search above)
-  - 'views.users.dossiers.index.active_filters.*'
-  # used in app/components/dossiers/user_search_component mobile search panel (excluded from search above)
-  - 'views.users.dossiers.index.search.open'
-  - 'views.users.dossiers.index.search.panel_title'
   - 'shared.champs.external_data.*'
   # used dynamically in _status_overview via t(decision, scope: '...delay_title')
   - 'views.users.dossiers.show.status_overview.delay_title.*'
   - 'instructeurs.dossiers.alert_error_annotations_link'
-  # used in app/components/dossiers/jdma_button_component (excluded from search above)
-  - 'jdma.alt'
 
 # - '{devise,kaminari,will_paginate}.*'
 # - 'simple_form.{yes,no}'
