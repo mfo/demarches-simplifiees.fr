@@ -60,7 +60,7 @@ describe Mails::InitiatedMail, type: :model do
         procedure.draft_revision.remove_type_de_champ(type_de_champ.stable_id)
       end
 
-      it { expect(subject.errors.full_messages).to eq(["Le champ « Corps de l’email » contient la balise \"nom\" qui a été supprimée mais la suppression n’est pas encore publiée. Publier la nouvelle version de la démarche et recommencer"]) }
+      it { expect(subject.errors.full_messages).to eq(["Le champ « Corps de l’email » contient la balise \"nom\" qui a été supprimée dans les modifications en cours du formulaire. Supprimer cette balise ou réinitialiser les modifications du formulaire puis recommencer"]) }
     end
 
     context 'template with removed tag' do

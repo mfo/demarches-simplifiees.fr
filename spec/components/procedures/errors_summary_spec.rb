@@ -102,8 +102,26 @@ describe Procedure::ErrorsSummary, type: :component do
     it 'render error nicely' do
       expect(page).to have_selector("a", text: "Les règles d’inéligibilité")
       expect(page).to have_selector("a[href*='v2']", text: "Le modèle d’attestation")
-      expect(page).to have_selector("a", text: "L’adresse électronique de notification de passage de dossier en instruction")
-      expect(page).to have_text("n’est pas valide", count: 2)
+      expect(page).to have_selector("a[href*='mail_templates']", text: "Le modèle d’email « Accusé de réception »")
+      expect(page).to have_text('contient la balise "invalidtag" qui n’existe pas')
+      expect(page).to have_text("n’est pas valide", count: 1)
+    end
+  end
+
+  describe 'render detailed error for mail template with tiptap body' do
+    let(:validation_context) { :publication }
+    let(:procedure) { create(:procedure, initiated_mail: build(:initiated_mail)) }
+
+    before do
+      procedure.initiated_mail.update_column(:json_body, { type: :doc, content: [{ type: :paragraph, content: [{ type: :mention, attrs: { id: "tdc999999", label: "Nom du projet" } }] }] })
+      subject
+    end
+
+    it 'renders the underlying tag error with a link to the template editor' do
+      expect(page).to have_selector("a[href*='mail_templates/initiated_mail']", text: "Le modèle d’email « Accusé de réception »")
+      expect(page).to have_text('contient la balise "Nom du projet" qui a été supprimée dans les modifications en cours du formulaire')
+      expect(page).to have_no_text(/translation missing/i)
+      expect(page).to have_no_text("n’est pas valide")
     end
   end
 

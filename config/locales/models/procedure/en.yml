@@ -61,11 +61,12 @@ en:
         declarative_with_state/accepte: Accepted
         api_entreprise_token: Token API Entreprise
         api_particulier_token: Token API Particulier
-        initiated_mail: File sorted for processing notification email
-        received_mail: File submitted notification email
-        closed_mail: File sorted as accepted notification email
-        refused_mail: File sorted as refused notification email
-        without_continuation_mail: File sorted with no further action notification email
+        initiated_mail: The “Acknowledgement of receipt” email template
+        received_mail: The “Acknowledgement of processing” email template
+        closed_mail: The “Acceptance” email template
+        refused_mail: The “Refusal” email template
+        without_continuation_mail: The “Closed with no further action” email template
+        re_instructed_mail: The “File re-examination” email template
         attestation_acceptation_template: Attestation template acceptation
         attestation_refus_template: Attestation template refused
         draft_revision: The form

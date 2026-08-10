@@ -1,12 +1,12 @@
 fr:
   activerecord:
     attributes:
-      mails/closed_mail:
+      mails/re_instructed_mail:
         subject: Objet de l’email
         rich_body: Corps de l’email
     errors:
       models:
-        mails/closed_mail:
+        mails/re_instructed_mail:
           attributes:
             subject:
               format: Le champ « Objet de l’email » %{message}

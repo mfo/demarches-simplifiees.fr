@@ -68,11 +68,12 @@ fr:
         declarative_with_state/accepte: Accepté
         api_entreprise_token: Jeton API Entreprise
         api_particulier_token: Jeton API Particulier
-        initiated_mail: L’adresse électronique de notification de passage de dossier en instruction
-        received_mail: L’adresse électronique de notification de dépôt de dossier
-        closed_mail: L’adresse électronique de notification d’acceptation de dossier
-        refused_mail: L’adresse électronique de notification de refus de dossier
-        without_continuation_mail: L’adresse électronique de notification de classement sans suite de dossier
+        initiated_mail: Le modèle d’email « Accusé de réception »
+        received_mail: Le modèle d’email « Accusé de passage en instruction »
+        closed_mail: Le modèle d’email « Accusé d’acceptation »
+        refused_mail: Le modèle d’email « Accusé de refus »
+        without_continuation_mail: Le modèle d’email « Accusé de classement sans suite »
+        re_instructed_mail: Le modèle d’email « Réexamen du dossier »
         attestation_acceptation_template: Le modèle d’attestation d’acceptation
         attestation_refus_template: Le modèle d’attestation de refus
         draft_revision: Le formulaire
