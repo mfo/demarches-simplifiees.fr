@@ -21,7 +21,9 @@ RSpec.describe Typhoeus::EasyFactory do
     end
 
     it 'sets no proxy headers outside of a request or job context' do
-      expect(easy.proxy_headers).to be_nil
+      Current.set(request_id: nil, job_id: nil) do
+        expect(easy.proxy_headers).to be_nil
+      end
     end
 
     it 'does not alter the request options, keeping the cache key stable' do
