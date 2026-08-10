@@ -6,17 +6,27 @@ const {
 } = getConfig();
 
 // Google's iOS browsers (Chrome Mobile iOS, Google app) inject scripts into
-// every page that regularly overflow the call stack. These events carry no
-// attributable frame (filename is `undefined` or `<anonymous>`), unlike a
-// genuine stack overflow in our bundles, which always resolves to an http(s)
-// filename.
-const isInjectedScriptStackOverflow = (event: Sentry.Event): boolean => {
+// every page that regularly throw unhandled errors: call stack overflows and
+// minified errors such as `Error: ga`. These events carry no frame resolving
+// to an actual script file (no stacktrace at all, or filenames pointing to
+// the page URL), unlike genuine errors in our bundles, which always resolve
+// to a `.js` filename. Unhandled errors outside these two signatures (e.g.
+// module import failures) are still reported even when frameless.
+const INJECTED_SCRIPT_ERRORS = [
+  /^Maximum call stack size exceeded\.?$/,
+  // Minified symbol thrown by an injected bundle
+  /^[A-Za-z$_]{1,3}$/
+];
+const isInjectedScriptError = (event: Sentry.Event): boolean => {
   const exception = event.exception?.values?.at(-1);
-  if (!exception?.value?.includes('Maximum call stack size exceeded')) {
+  if (exception?.mechanism?.handled !== false) {
+    return false;
+  }
+  if (!INJECTED_SCRIPT_ERRORS.some((re) => re.test(exception.value ?? ''))) {
     return false;
   }
   const frames = exception.stacktrace?.frames ?? [];
-  return !frames.some((frame) => frame.filename?.startsWith('http'));
+  return !frames.some((frame) => /\.[cm]?js(\?|$)/.test(frame.filename ?? ''));
 };
 
 // We need to check for key presence here as we do not have a dsn for browser yet
@@ -42,7 +52,7 @@ if (enabled && key) {
       'NetworkError when attempting to fetch resource. (integration.lasuite.numerique.gouv.fr)'
     ],
     beforeSend(event) {
-      if (isInjectedScriptStackOverflow(event)) {
+      if (isInjectedScriptError(event)) {
         return null;
       }
       return event;
