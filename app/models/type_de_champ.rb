@@ -303,6 +303,8 @@ class TypeDeChamp < ApplicationRecord
       default: I18n.t(type_champ, scope: [:activerecord, :attributes, :type_de_champ, :type_champs]), app_name: APPLICATION_NAME)
   end
 
+  def libelle_optionnal? = type_champ.in?([TypeDeChamp.type_champs.fetch(:explication)])
+
   def safe_referentiel_mapping
     Hash(referentiel_mapping).with_indifferent_access
   end

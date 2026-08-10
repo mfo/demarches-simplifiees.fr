@@ -2,7 +2,7 @@
 
 class TypesDeChamp::LibelleValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
-    types_de_champ.each do |tdc|
+    types_de_champ.reject(&:libelle_optionnal?).each do |tdc|
       validate_libelle(procedure, attribute, tdc)
     end
   end
