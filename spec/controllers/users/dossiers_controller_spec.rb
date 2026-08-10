@@ -1900,6 +1900,26 @@ describe Users::DossiersController, type: :controller do
       expect(assigns(:pending_transfers_count)).to be_a(Integer)
     end
 
+    context 'user buffer changes prefilter' do
+      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{}]) }
+      let!(:dossier_with_changes) { create(:dossier, :en_construction, user:, procedure:) }
+      let!(:dossier_without_changes) { create(:dossier, :en_construction, user:, procedure:) }
+      let!(:dossier_brouillon) { create(:dossier, user:, procedure:) }
+
+      before do
+        dossier_with_changes.with_update_stream(user) do
+          dossier_with_changes
+            .champ_for_update(dossier_with_changes.revision.root_types_de_champ_public.first, updated_by: user.email)
+            .update!(value: 'nouvelle valeur')
+        end
+      end
+
+      it 'flags only en_construction dossiers with unsubmitted user changes' do
+        get :index
+        expect(assigns(:dossier_ids_with_user_buffer_changes)).to eq(Set[dossier_with_changes.id])
+      end
+    end
+
     context 'filter panel-only request' do
       before { create_list(:dossier, 6, :en_construction, user: user) }
 
