@@ -33,10 +33,10 @@ class Procedure < ApplicationRecord
   has_many :deleted_dossiers, dependent: :destroy
   has_many :llm_rule_suggestions, through: :revisions
 
-  def draft_types_de_champ_public = draft_revision&.flat_types_de_champ_public || []
-  def draft_types_de_champ_private = draft_revision&.flat_types_de_champ_private || []
-  def published_types_de_champ_public = published_revision&.flat_types_de_champ_public || []
-  def published_types_de_champ_private = published_revision&.flat_types_de_champ_private || []
+  def public_draft_type_de_champs = draft_revision&.public_flat_type_de_champs || []
+  def private_draft_type_de_champs = draft_revision&.private_flat_type_de_champs || []
+  def public_published_type_de_champs = published_revision&.public_flat_type_de_champs || []
+  def private_published_type_de_champs = published_revision&.private_flat_type_de_champs || []
 
   has_one :published_dossier_submitted_message, dependent: :destroy, through: :published_revision, source: :dossier_submitted_message
   has_one :draft_dossier_submitted_message, dependent: :destroy, through: :draft_revision, source: :dossier_submitted_message
@@ -87,7 +87,7 @@ class Procedure < ApplicationRecord
     brouillon? ? draft_revision : published_revision
   end
 
-  def all_revisions_types_de_champ(parent: nil, with_header_section: false)
+  def all_revisions_type_de_champs(parent: nil, with_header_section: false)
     if brouillon?
       if parent.nil?
         (with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable)
@@ -100,13 +100,13 @@ class Procedure < ApplicationRecord
     else
       # 'sti': entries marshalled before the TypeDeChamp STI deserialize as the
       # base class, without the typed behavior.
-      cache_key = ['all_revisions_types_de_champ', 'sti', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
-      Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_types_de_champ(parent:, with_header_section:) }
+      cache_key = ['all_revisions_type_de_champs', 'sti', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
+      Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_type_de_champs(parent:, with_header_section:) }
     end
   end
 
-  def types_de_champ_for_procedure_export
-    all_revisions_types_de_champ.not_repetition
+  def type_de_champs_for_procedure_export
+    all_revisions_type_de_champs.not_repetition
   end
 
   # The template tag parser's vocabulary (mail templates, attestations,
@@ -120,7 +120,7 @@ class Procedure < ApplicationRecord
   #   older revisions must keep matching.
   # Both are pinned in tags_substitution_concern_spec ('replace_tags' with
   # revisions and with a draft-only champ).
-  def types_de_champ_for_tags
+  def type_de_champs_for_tags
     TypeDeChamp
       .fillable
       .joins(:revisions)
@@ -130,12 +130,12 @@ class Procedure < ApplicationRecord
       .distinct(:id)
   end
 
-  def types_de_champ_public_for_tags
-    types_de_champ_for_tags.public_only
+  def public_type_de_champs_for_tags
+    type_de_champs_for_tags.public_only
   end
 
-  def types_de_champ_private_for_tags
-    types_de_champ_for_tags.private_only
+  def private_type_de_champs_for_tags
+    type_de_champs_for_tags.private_only
   end
 
   def revisions_with_pending_dossiers
@@ -253,7 +253,7 @@ class Procedure < ApplicationRecord
   validates :web_hook_url, url: { no_local: true, allow_blank: true }
   validates :web_hook_url, no_private_ip_url: true, allow_blank: true
 
-  validates :draft_types_de_champ_public,
+  validates :public_draft_type_de_champs,
     'types_de_champ/condition': true,
     'types_de_champ/header_section_consistency': true,
     'types_de_champ/no_empty_block': true,
@@ -267,7 +267,7 @@ class Procedure < ApplicationRecord
     'types_de_champ/api_particulier': true,
     on: [:types_de_champ_public_editor, :publication]
 
-  validates :draft_types_de_champ_private,
+  validates :private_draft_type_de_champs,
     'types_de_champ/condition': true,
     'types_de_champ/header_section_consistency': true,
     'types_de_champ/no_empty_block': true,
@@ -874,7 +874,7 @@ class Procedure < ApplicationRecord
       .uniq
   end
 
-  def published_revisions_types_de_champ(parent: nil, with_header_section: false)
+  def published_revisions_type_de_champs(parent: nil, with_header_section: false)
     # all published revisions
     revision_ids = revisions.ids - [draft_revision_id]
     # fetch all parent types de champ

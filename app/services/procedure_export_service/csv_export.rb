@@ -41,5 +41,5 @@ class ProcedureExportService::CsvExport
     end
   end
 
-  def types_de_champ = @types_de_champ ||= @procedure.types_de_champ_for_procedure_export.to_a
+  def types_de_champ = @types_de_champ ||= @procedure.type_de_champs_for_procedure_export.to_a
 end

@@ -1209,7 +1209,7 @@ describe Dossier, type: :model do
       # - with tag correponding to a champ and an annotation privée
       let(:body) {
         [
-          { "type" => "mention", "attrs" => { "id" => "tdc#{procedure.types_de_champ_for_tags.find {  _1.libelle == "unspecified champ-in-body" }.stable_id}", "label" => "unspecified champ-in-body" } },
+          { "type" => "mention", "attrs" => { "id" => "tdc#{procedure.type_de_champs_for_tags.find {  _1.libelle == "unspecified champ-in-body" }.stable_id}", "label" => "unspecified champ-in-body" } },
         ]
       }
       let(:attestation_acceptation_template) { build(:attestation_template, :v2) }
@@ -1220,7 +1220,7 @@ describe Dossier, type: :model do
 
           {
             "type" => "mention",
-            "attrs" => { "id" => "tdc#{procedure.types_de_champ_for_tags.find { _1.libelle == tdc_config[:libelle] }.stable_id}", "label" => tdc_config[:libelle] },
+            "attrs" => { "id" => "tdc#{procedure.type_de_champs_for_tags.find { _1.libelle == tdc_config[:libelle] }.stable_id}", "label" => tdc_config[:libelle] },
           }
         end
 
@@ -2622,7 +2622,7 @@ describe Dossier, type: :model do
         dossier
         expect {
           integer_number_type_de_champ.update(type_champ: :decimal_number)
-        }.to change { dossier.reload.champ_values_for_export(procedure.all_revisions_types_de_champ.not_repetition.to_a, format: :xlsx) }
+        }.to change { dossier.reload.champ_values_for_export(procedure.all_revisions_type_de_champs.not_repetition.to_a, format: :xlsx) }
           .from([["c1", 42]]).to([["c1", 42.0]])
       end
     end
@@ -2649,8 +2649,8 @@ describe Dossier, type: :model do
       let(:repetition_second_revision_champ) { dossier_second_revision.root_champs_public.find(&:repetition?) }
       let(:dossier) { create(:dossier, procedure: procedure) }
       let(:dossier_second_revision) { create(:dossier, procedure: procedure) }
-      let(:dossier_champ_values_for_export) { dossier.champ_values_for_export(procedure.types_de_champ_for_procedure_export, format: :xlsx) }
-      let(:dossier_second_revision_champ_values_for_export) { dossier_second_revision.champ_values_for_export(procedure.types_de_champ_for_procedure_export, format: :xlsx) }
+      let(:dossier_champ_values_for_export) { dossier.champ_values_for_export(procedure.type_de_champs_for_procedure_export, format: :xlsx) }
+      let(:dossier_second_revision_champ_values_for_export) { dossier_second_revision.champ_values_for_export(procedure.type_de_champs_for_procedure_export, format: :xlsx) }
 
       context "when procedure published" do
         before do
@@ -2683,7 +2683,7 @@ describe Dossier, type: :model do
             draft.add_type_de_champ(type_champ: :communes, libelle: "communes", parent_stable_id: tdc_repetition.stable_id)
 
             dossier_test = create(:dossier, procedure: proc_test)
-            type_champs = proc_test.all_revisions_types_de_champ(parent: tdc_repetition).to_a
+            type_champs = proc_test.all_revisions_type_de_champs(parent: tdc_repetition).to_a
             expect(type_champs.size).to eq(1)
             expect(dossier.champ_values_for_export(type_champs, format: :xlsx).size).to eq(3)
           end
@@ -2697,7 +2697,7 @@ describe Dossier, type: :model do
             expect do
               dossier.rebase!
               dossier.reload
-            end.not_to change { dossier.champ_values_for_export(procedure.types_de_champ_for_procedure_export, format: :xlsx) }
+            end.not_to change { dossier.champ_values_for_export(procedure.type_de_champs_for_procedure_export, format: :xlsx) }
           end
         end
       end

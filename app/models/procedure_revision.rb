@@ -18,8 +18,8 @@ class ProcedureRevision < ApplicationRecord
   def private_root_type_de_champs = private_revision_type_de_champs.map(&:type_de_champ)
 
   # All types de champ in document order, repetition children inlined after their repetition.
-  def flat_types_de_champ_public = public_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
-  def flat_types_de_champ_private = private_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
+  def public_flat_type_de_champs = public_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
+  def private_flat_type_de_champs = private_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
 
   has_one :draft_procedure, -> { with_discarded }, class_name: 'Procedure', foreign_key: :draft_revision_id, dependent: :nullify, inverse_of: :draft_revision
   has_one :published_procedure, -> { with_discarded }, class_name: 'Procedure', foreign_key: :published_revision_id, dependent: :nullify, inverse_of: :published_revision

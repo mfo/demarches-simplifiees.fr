@@ -129,7 +129,7 @@ describe ProcedureRevision do
         draft.reload
         expect(draft.public_revision_type_de_champs.map(&:position)).to eq([0, 1, 2, 3])
         expect(draft.public_root_type_de_champs.index(type_de_champ_public)).to eq(2)
-        expect(draft.procedure.types_de_champ_for_procedure_export.index(type_de_champ_public)).to eq(2)
+        expect(draft.procedure.type_de_champs_for_procedure_export.index(type_de_champ_public)).to eq(2)
       end
 
       it 'move up' do
@@ -138,7 +138,7 @@ describe ProcedureRevision do
         draft.reload
         expect(draft.public_revision_type_de_champs.map(&:position)).to eq([0, 1, 2, 3])
         expect(draft.public_root_type_de_champs.index(last_type_de_champ)).to eq(0)
-        expect(draft.procedure.types_de_champ_for_procedure_export.index(last_type_de_champ)).to eq(0)
+        expect(draft.procedure.type_de_champs_for_procedure_export.index(last_type_de_champ)).to eq(0)
       end
     end
 
@@ -1246,7 +1246,7 @@ describe ProcedureRevision do
       before { second_champ.update(condition: condition) }
       let(:condition) { ds_eq(constant(true), constant(1)) }
 
-      it { expect(subject.first.attribute).to eq(:draft_types_de_champ_public) }
+      it { expect(subject.first.attribute).to eq(:public_draft_type_de_champs) }
     end
 
     context 'when a champ has an invalid condition: needed tdc is down in the forms' do
@@ -1257,7 +1257,7 @@ describe ProcedureRevision do
         first_champ.update(condition: need_second_champ)
       end
 
-      it { expect(subject.first.attribute).to eq(:draft_types_de_champ_public) }
+      it { expect(subject.first.attribute).to eq(:public_draft_type_de_champs) }
     end
 
     context 'with a repetition' do
@@ -1285,7 +1285,7 @@ describe ProcedureRevision do
       context 'when a champ belongs to a repetition' do
         let(:condition) { ds_eq(champ_value(-1), constant(1)) }
 
-        it { expect(subject.first.attribute).to eq(:draft_types_de_champ_public) }
+        it { expect(subject.first.attribute).to eq(:public_draft_type_de_champs) }
       end
     end
   end

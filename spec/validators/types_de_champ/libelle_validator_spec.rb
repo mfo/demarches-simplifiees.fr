@@ -45,10 +45,10 @@ RSpec.describe TypesDeChamp::LibelleValidator do
       it 'adds an error mentioning both the child position and the parent repetition position' do
         subject
 
-        expect(procedure.errors.messages_for(:draft_types_de_champ_public))
+        expect(procedure.errors.messages_for(:public_draft_type_de_champs))
           .to include(
             I18n.t(
-              'activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.missing_libelle_in_repetition',
+              'activerecord.errors.models.procedure.attributes.public_draft_type_de_champs.missing_libelle_in_repetition',
               position: child.revision_type_de_champs.last.position + 1,
               parent_position: repetition.revision_type_de_champs.last.position + 1
             )

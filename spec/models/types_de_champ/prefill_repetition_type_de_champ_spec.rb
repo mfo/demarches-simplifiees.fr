@@ -32,7 +32,7 @@ RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
   describe '#possible_values does not contain unescaped HTML (XSS prevention)' do
     let(:xss_payload) { '<script>alert("XSS")</script>' }
     let(:procedure_with_dropdown) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :drop_down_list }] }]) }
-    let(:repetition_tdc) { procedure_with_dropdown.draft_types_de_champ_public.find(&:repetition?) }
+    let(:repetition_tdc) { procedure_with_dropdown.public_draft_type_de_champs.find(&:repetition?) }
 
     before do
       sub_tdc = procedure_with_dropdown.active_revision.children_of(repetition_tdc).first

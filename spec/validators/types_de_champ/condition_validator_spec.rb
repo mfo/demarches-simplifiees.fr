@@ -7,11 +7,11 @@ RSpec.describe TypesDeChamp::ConditionValidator do
 
   subject do
     procedure.validate(:types_de_champ_public_editor)
-    procedure.errors.messages_for(:draft_types_de_champ_public)
+    procedure.errors.messages_for(:public_draft_type_de_champs)
   end
 
   let(:invalid_condition_message) do
-    I18n.t('activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.invalid_condition')
+    I18n.t('activerecord.errors.models.procedure.attributes.public_draft_type_de_champs.invalid_condition')
   end
 
   context 'when a child references an upper sibling in the same repetition' do

@@ -468,8 +468,8 @@ module TagsSubstitutionConcern
   end
 
   def procedure_types_de_champ_tags
-    tags_for_dossier_state(types_de_champ_tags(procedure.types_de_champ_public_for_tags, Dossier::SOUMIS) +
-      types_de_champ_tags(procedure.types_de_champ_private_for_tags, Dossier::INSTRUCTION_COMMENCEE) +
+    tags_for_dossier_state(types_de_champ_tags(procedure.public_type_de_champs_for_tags, Dossier::SOUMIS) +
+      types_de_champ_tags(procedure.private_type_de_champs_for_tags, Dossier::INSTRUCTION_COMMENCEE) +
       identity_tags + dossier_tags + ROUTAGE_TAGS)
   end
 

@@ -19,7 +19,7 @@ RSpec.describe TypesDeChamp::APIParticulierValidator do
 
     it 'adds errors to the procedure' do
       subject
-      expect(procedure.errors.details[:draft_types_de_champ_public])
+      expect(procedure.errors.details[:public_draft_type_de_champs])
         .to include(hash_including(error: :missing_api_particulier_token))
     end
   end

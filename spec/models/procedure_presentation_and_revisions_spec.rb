@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe ProcedurePresentation do
-  describe "#types_de_champ_for_procedure_export" do
-    subject { procedure.types_de_champ_for_procedure_export.pluck(:libelle) }
+  describe "#type_de_champs_for_procedure_export" do
+    subject { procedure.type_de_champs_for_procedure_export.pluck(:libelle) }
 
     context 'for a draft procedure' do
       let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :number, libelle: 'libelle 1' }]) }

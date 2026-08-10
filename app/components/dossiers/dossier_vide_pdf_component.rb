@@ -178,7 +178,7 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
     term.right.to_s(condition_type_de_champs)
   end
 
-  def condition_type_de_champs = revision.flat_types_de_champ_public
+  def condition_type_de_champs = revision.public_flat_type_de_champs
 
   def description(type_de_champ)
     return if type_de_champ.description.blank?

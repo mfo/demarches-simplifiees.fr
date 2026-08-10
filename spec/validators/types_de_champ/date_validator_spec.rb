@@ -3,7 +3,7 @@
 RSpec.describe TypesDeChamp::DateValidator do
   shared_examples "date range validation" do |scope:, type:|
     let(:attribute) do
-      scope == :types_de_champ_public ? :draft_types_de_champ_public : :draft_types_de_champ_private
+      scope == :types_de_champ_public ? :public_draft_type_de_champs : :private_draft_type_de_champs
     end
 
     let(:validation_context) do
@@ -117,7 +117,7 @@ RSpec.describe TypesDeChamp::DateValidator do
 
       it "adds an error for each conflicting field" do
         subject
-        conflicting_errors = procedure.errors.where(:draft_types_de_champ_public, :prefill_with_france_connect_information_taken)
+        conflicting_errors = procedure.errors.where(:public_draft_type_de_champs, :prefill_with_france_connect_information_taken)
         expect(conflicting_errors.size).to eq(2)
         expect(conflicting_errors.map { it.options[:type_de_champ] }).to match_array([tdcs[0], tdcs[1]])
       end
