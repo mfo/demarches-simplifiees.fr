@@ -3,7 +3,7 @@
 RSpec.describe DossierChampsConcern do
   # Defined as methods (not `let`) so `let_it_be` can call them from its
   # before_all context, while nested contexts can still shadow them with `let`.
-  def default_types_de_champ_public
+  def public_default_type_de_champs
     [
       { type: :text, libelle: "Un champ text", stable_id: 99 },
       { type: :text, libelle: "Un autre champ text", stable_id: 991 },
@@ -12,7 +12,7 @@ RSpec.describe DossierChampsConcern do
     ]
   end
 
-  def default_types_de_champ_private
+  def private_default_type_de_champs
     [
       { type: :text, libelle: "Une annotation", stable_id: 995 },
     ]
@@ -25,17 +25,17 @@ RSpec.describe DossierChampsConcern do
   # without a block pins @stream, and champ_data association targets are
   # reassigned in place.
   let_it_be(:default_procedure, refind: true) do
-    create(:procedure, types_de_champ_public: default_types_de_champ_public, types_de_champ_private: default_types_de_champ_private)
+    create(:procedure, types_de_champ_public: public_default_type_de_champs, types_de_champ_private: private_default_type_de_champs)
   end
   let_it_be(:default_dossier, refind: true) { create(:dossier, procedure: default_procedure) }
 
-  let(:types_de_champ_public) { default_types_de_champ_public }
-  let(:types_de_champ_private) { default_types_de_champ_private }
+  let(:types_de_champ_public) { public_default_type_de_champs }
+  let(:types_de_champ_private) { private_default_type_de_champs }
 
   # Contexts that override the champ lists (or `procedure`/`dossier`
   # themselves) build their own records; everyone else shares the default.
   let(:procedure) do
-    if [types_de_champ_public, types_de_champ_private] == [default_types_de_champ_public, default_types_de_champ_private]
+    if [types_de_champ_public, types_de_champ_private] == [public_default_type_de_champs, private_default_type_de_champs]
       default_procedure
     else
       create(:procedure, types_de_champ_public:, types_de_champ_private:)

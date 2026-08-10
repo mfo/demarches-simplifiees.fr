@@ -298,7 +298,7 @@ module TagsSubstitutionConcern
         # A tiptap mention carries its tag id verbatim, so ids of tags unknown or
         # not available for this template's DOSSIER_STATE must be rejected here —
         # the legacy text parsing did it implicitly (the libelle didn't resolve).
-        available_ids ||= procedure_types_de_champ_tags.map { _1[:id] }
+        available_ids ||= procedure_type_de_champs_tags.map { _1[:id] }
         [libelle] unless tag.in?(available_ids)
       end
     end
@@ -401,15 +401,15 @@ module TagsSubstitutionConcern
 
   def champ_public_tags(dossier: nil)
     types_de_champ = (dossier || procedure.active_revision).public_root_type_de_champs
-    types_de_champ_tags(types_de_champ, Dossier::SOUMIS)
+    type_de_champs_tags(types_de_champ, Dossier::SOUMIS)
   end
 
   def champ_private_tags(dossier: nil)
     types_de_champ = (dossier || procedure.active_revision).private_root_type_de_champs
-    types_de_champ_tags(types_de_champ, Dossier::INSTRUCTION_COMMENCEE)
+    type_de_champs_tags(types_de_champ, Dossier::INSTRUCTION_COMMENCEE)
   end
 
-  def types_de_champ_tags(types_de_champ, available_for_states)
+  def type_de_champs_tags(types_de_champ, available_for_states)
     tags = types_de_champ.flat_map(&:tags_for_template)
     tags.each do |tag|
       tag[:available_for_states] = available_for_states
@@ -467,9 +467,9 @@ module TagsSubstitutionConcern
     @escape_unsafe_tags
   end
 
-  def procedure_types_de_champ_tags
-    tags_for_dossier_state(types_de_champ_tags(procedure.public_type_de_champs_for_tags, Dossier::SOUMIS) +
-      types_de_champ_tags(procedure.private_type_de_champs_for_tags, Dossier::INSTRUCTION_COMMENCEE) +
+  def procedure_type_de_champs_tags
+    tags_for_dossier_state(type_de_champs_tags(procedure.public_type_de_champs_for_tags, Dossier::SOUMIS) +
+      type_de_champs_tags(procedure.private_type_de_champs_for_tags, Dossier::INSTRUCTION_COMMENCEE) +
       identity_tags + dossier_tags + ROUTAGE_TAGS)
   end
 
@@ -500,7 +500,7 @@ module TagsSubstitutionConcern
   end
 
   def tags_by_libelle
-    procedure_types_de_champ_tags.index_by { _1[:libelle] }
+    procedure_type_de_champs_tags.index_by { _1[:libelle] }
   end
 
   def used_tags_and_libelle_for(text)

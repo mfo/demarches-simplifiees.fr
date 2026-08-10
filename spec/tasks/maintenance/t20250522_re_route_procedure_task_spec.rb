@@ -17,7 +17,7 @@ module Maintenance
 
         dossier2.champ_data.last.update(value: 'Allier')
 
-        tdc = procedure.active_revision.simple_routable_types_de_champ.first
+        tdc = procedure.active_revision.simple_routable_type_de_champs.first
 
         tdc_options = APIGeoService.departement_options
 

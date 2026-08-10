@@ -3,7 +3,7 @@
 class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
   # condition are valid when
   #   tdc.condition.left is present in upper tdcs
-  #   in case of types_de_champ_private, we should include types_de_champ_publics too
+  #   in case of private type_de_champs, we should include public type_de_champs too
   def validate_each(procedure, collection, tdcs)
     return if tdcs.empty?
 

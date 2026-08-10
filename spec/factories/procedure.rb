@@ -47,14 +47,14 @@ FactoryBot.define do
         if !evaluator.types_de_champ_public.first.is_a?(Hash)
           raise "types_de_champ_public must be an array of hashes"
         end
-        revision_type_de_champs += build_types_de_champ(evaluator.types_de_champ_public, revision: initial_revision, scope: :public)
+        revision_type_de_champs += build_type_de_champs(evaluator.types_de_champ_public, revision: initial_revision, scope: :public)
       end
 
       if evaluator.types_de_champ_private.present?
         if !evaluator.types_de_champ_private.first.is_a?(Hash)
           raise "types_de_champ_private must be an array of hashes"
         end
-        revision_type_de_champs += build_types_de_champ(evaluator.types_de_champ_private, revision: initial_revision, scope: :private)
+        revision_type_de_champs += build_type_de_champs(evaluator.types_de_champ_private, revision: initial_revision, scope: :private)
       end
 
       initial_revision.association(:revision_type_de_champs).target = revision_type_de_champs
@@ -228,7 +228,7 @@ FactoryBot.define do
             libelle = 'simple_drop_down_list'
           end
           if type_champ == 'repetition'
-            build(:type_de_champ_repetition, :with_types_de_champ, procedure: procedure, mandatory: true, libelle: libelle, position: index)
+            build(:type_de_champ_repetition, :with_type_de_champs, procedure: procedure, mandatory: true, libelle: libelle, position: index)
           elsif type_champ == 'referentiel'
             referentiel = build(:api_referentiel, :exact_match)
 
@@ -250,7 +250,7 @@ FactoryBot.define do
             libelle = 'simple_drop_down_list'
           end
           if type_champ == 'repetition'
-            build(:type_de_champ_repetition, :with_types_de_champ, procedure: procedure, libelle: libelle, position: index)
+            build(:type_de_champ_repetition, :with_type_de_champs, procedure: procedure, libelle: libelle, position: index)
           elsif type_champ == 'referentiel'
             referentiel = build(:api_referentiel, :exact_match)
 
@@ -320,7 +320,7 @@ FactoryBot.define do
   end
 end
 
-def build_types_de_champ(types_de_champ, revision:, scope: :public, parent: nil)
+def build_type_de_champs(types_de_champ, revision:, scope: :public, parent: nil)
   types_de_champ.map do |type_de_champ_attributes|
     referentiel = type_de_champ_attributes.delete(:referentiel)
     if referentiel.present?
@@ -369,7 +369,7 @@ def build_types_de_champ(types_de_champ, revision:, scope: :public, parent: nil)
       parent:)
 
     if type_de_champ.repetition? && children.present?
-      [coordinate] + build_types_de_champ(children, revision:, scope:, parent: coordinate)
+      [coordinate] + build_type_de_champs(children, revision:, scope:, parent: coordinate)
     else
       coordinate
     end

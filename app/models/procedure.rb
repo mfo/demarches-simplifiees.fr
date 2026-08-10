@@ -399,11 +399,11 @@ class Procedure < ApplicationRecord
 
   def draft_changed?
     preload_draft_and_published_revisions
-    !brouillon? && (types_de_champ_revision_changes.present? || ineligibilite_rules_revision_changes.present?)
+    !brouillon? && (type_de_champs_revision_changes.present? || ineligibilite_rules_revision_changes.present?)
   end
 
-  def types_de_champ_revision_changes
-    published_revision.compare_types_de_champ(draft_revision)
+  def type_de_champs_revision_changes
+    published_revision.compare_type_de_champs(draft_revision)
   end
 
   def ineligibilite_rules_revision_changes
@@ -888,8 +888,8 @@ class Procedure < ApplicationRecord
 
     # fetch all type_de_champ.stable_id for all the revisions expect draft
     # and for each stable_id take the bigger (more recent) type_de_champ.id
-    types_de_champ_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
-    recent_ids = types_de_champ_scope
+    type_de_champs_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
+    recent_ids = type_de_champs_scope
       .joins(:revision_type_de_champs)
       .where(revision_type_de_champs: { revision_id: revision_ids, parent_id: parent_ids })
       .group(:stable_id).pluck('MAX(types_de_champ.id)')

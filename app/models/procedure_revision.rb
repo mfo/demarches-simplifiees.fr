@@ -173,7 +173,7 @@ class ProcedureRevision < ApplicationRecord
     !draft?
   end
 
-  def compare_types_de_champ(revision)
+  def compare_type_de_champs(revision)
     changes = []
     changes += compare_revision_type_de_champs(revision_type_de_champs, revision.revision_type_de_champs)
     changes
@@ -198,7 +198,7 @@ class ProcedureRevision < ApplicationRecord
     dossier
   end
 
-  def types_de_champ_for(scope: nil)
+  def type_de_champs_for(scope: nil)
     case scope
     when :public
       types_de_champ.filter(&:public?)
@@ -261,12 +261,12 @@ class ProcedureRevision < ApplicationRecord
     [coordinate, coordinate&.type_de_champ]
   end
 
-  def simple_routable_types_de_champ
+  def simple_routable_type_de_champs
     public_root_type_de_champs.filter(&:simple_routable?)
   end
 
-  def conditionable_types_de_champ
-    types_de_champ_for(scope: :public).filter(&:conditionable?)
+  def conditionable_type_de_champs
+    type_de_champs_for(scope: :public).filter(&:conditionable?)
   end
 
   def champ_value_in_condition?
@@ -755,7 +755,7 @@ class ProcedureRevision < ApplicationRecord
   def ineligibilite_rules_are_valid?
     return unless ineligibilite_rules
 
-    rules_errors = ineligibilite_rules.errors(types_de_champ_for(scope: :public).to_a)
+    rules_errors = ineligibilite_rules.errors(type_de_champs_for(scope: :public).to_a)
 
     if rules_errors.any? || ineligibilite_rules.type == :empty
       errors.add(:ineligibilite_rules, :invalid)

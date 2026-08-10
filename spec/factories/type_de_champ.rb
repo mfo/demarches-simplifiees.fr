@@ -248,7 +248,7 @@ FactoryBot.define do
       end
 
       # TODO: drop
-      trait :with_types_de_champ do
+      trait :with_type_de_champs do
         after(:build) do |type_de_champ_repetition, evaluator|
           revision = evaluator.procedure.active_revision
           parent = revision.revision_type_de_champs.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
@@ -258,7 +258,7 @@ FactoryBot.define do
         end
       end
 
-      trait :with_region_types_de_champ do
+      trait :with_region_type_de_champs do
         after(:build) do |type_de_champ_repetition, evaluator|
           revision = evaluator.procedure.active_revision
           parent = revision.revision_type_de_champs.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }

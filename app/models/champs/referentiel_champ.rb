@@ -25,7 +25,7 @@ class Champs::ReferentielChamp < ChampData
 
     transaction do
       update!(hash.merge(fetch_external_data_exceptions: [])) # void previous errors
-      dossier.prefill_and_enqueue_fetch_external_data_jobs(self, prefillable_types_de_champ)
+      dossier.prefill_and_enqueue_fetch_external_data_jobs(self, prefillable_type_de_champs)
     end
   end
 
@@ -41,7 +41,7 @@ class Champs::ReferentielChamp < ChampData
       super(data)
       self.value_json = cast_displayable_values(data)
 
-      dossier.prefill_and_enqueue_fetch_external_data_jobs(self, prefillable_types_de_champ)
+      dossier.prefill_and_enqueue_fetch_external_data_jobs(self, prefillable_type_de_champs)
     end
   end
 
@@ -82,10 +82,10 @@ class Champs::ReferentielChamp < ChampData
   end
 
   def propagate_prefill(types_de_champ)
-    types_de_champ_by_stable_id = types_de_champ.index_by(&:stable_id)
+    type_de_champs_by_stable_id = types_de_champ.index_by(&:stable_id)
     referentiel_mapping_prefillable_with_stable_id
       .transform_values do |mapping|
-        types_de_champ_by_stable_id[mapping[:prefill_stable_id].to_i]
+        type_de_champs_by_stable_id[mapping[:prefill_stable_id].to_i]
       end.compact.group_by do |_, type_de_champ|
         dossier.revision.parent_of(type_de_champ)
       end.flat_map do |repetition_type_de_champ, mappings|
@@ -99,11 +99,11 @@ class Champs::ReferentielChamp < ChampData
 
   private
 
-  def prefillable_types_de_champ
+  def prefillable_type_de_champs
     if main_stream?
       dossier.revision.types_de_champ
     else
-      dossier.types_de_champ_public_all
+      dossier.public_type_de_champs_all
     end
   end
 

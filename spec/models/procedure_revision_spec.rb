@@ -354,10 +354,10 @@ describe ProcedureRevision do
     end
   end
 
-  describe '#compare_types_de_champ' do
+  describe '#compare_type_de_champs' do
     include Logic
     let(:new_draft) { procedure.create_new_revision }
-    subject { procedure.active_revision.compare_types_de_champ(new_draft.reload).map(&:to_h) }
+    subject { procedure.active_revision.compare_type_de_champs(new_draft.reload).map(&:to_h) }
 
     describe 'when tdcs changes' do
       let(:first_tdc) { draft.public_root_type_de_champs.first }
@@ -967,7 +967,7 @@ describe ProcedureRevision do
       let(:ineligibilite_rules) { ds_eq(constant(true), constant(1)) }
       let(:procedure) { create(:procedure, types_de_champ_public:) }
       let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :integer_number }] }] }
-      let(:tdc_number) { draft_revision.types_de_champ_for(scope: :public).find { _1.type_champ == 'integer_number' } }
+      let(:tdc_number) { draft_revision.type_de_champs_for(scope: :public).find { _1.type_champ == 'integer_number' } }
       let(:ineligibilite_rules) do
         ds_eq(champ_value(tdc_number.stable_id), constant(true))
       end
@@ -1416,7 +1416,7 @@ describe ProcedureRevision do
     }
   end
 
-  describe '#simple_routable_types_de_champ' do
+  describe '#simple_routable_type_de_champs' do
     let(:procedure) do
       create(:procedure, types_de_champ_public: [
         { type: :text, libelle: 'l1' },
@@ -1428,7 +1428,7 @@ describe ProcedureRevision do
       ])
     end
 
-    it { expect(draft.simple_routable_types_de_champ.pluck(:libelle)).to eq(['l2', 'l3', 'l4', 'l5', 'l6']) }
+    it { expect(draft.simple_routable_type_de_champs.pluck(:libelle)).to eq(['l2', 'l3', 'l4', 'l5', 'l6']) }
   end
 
   describe "#schema_to_llm" do

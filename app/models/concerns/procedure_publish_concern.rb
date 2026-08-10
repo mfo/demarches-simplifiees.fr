@@ -104,8 +104,8 @@ module ProcedurePublishConcern
   private
 
   def publish_new_revision(administrateur)
-    cleanup_types_de_champ_options!
-    cleanup_types_de_champ_children!
+    cleanup_type_de_champs_options!
+    cleanup_type_de_champs_children!
     nullify_unused_referentiels
     self.published_revision = draft_revision
     self.draft_revision = create_new_revision
@@ -127,13 +127,13 @@ module ProcedurePublishConcern
     new_draft.reload
   end
 
-  def cleanup_types_de_champ_options!
+  def cleanup_type_de_champs_options!
     draft_revision.types_de_champ.each do |type_de_champ|
       type_de_champ.update!(options: type_de_champ.clean_options)
     end
   end
 
-  def cleanup_types_de_champ_children!
+  def cleanup_type_de_champs_children!
     draft_revision.revision_type_de_champs
       .filter(&:orphan?)
       .each { draft_revision.remove_type_de_champ(_1.stable_id) }

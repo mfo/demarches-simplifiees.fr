@@ -22,7 +22,7 @@ module DossierRebaseConcern
   end
 
   def pending_changes
-    procedure.published_revision.present? ? revision.compare_types_de_champ(procedure.published_revision) : []
+    procedure.published_revision.present? ? revision.compare_type_de_champs(procedure.published_revision) : []
   end
 
   private

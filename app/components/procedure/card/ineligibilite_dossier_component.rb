@@ -7,7 +7,7 @@ class Procedure::Card::IneligibiliteDossierComponent < ApplicationComponent
 
   def ready?
     @procedure.draft_revision
-      .conditionable_types_de_champ
+      .conditionable_type_de_champs
       .present? && @procedure.draft_revision.ineligibilite_enabled
   end
 

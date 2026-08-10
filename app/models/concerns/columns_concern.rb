@@ -35,7 +35,7 @@ module ColumnsConcern
       columns.concat(individual_columns) if for_individual
       columns.concat(moral_columns) if !for_individual
       columns.concat(procedure_chorus_columns) if chorusable? && chorus_configuration.complete?
-      columns.concat(types_de_champ_columns)
+      columns.concat(type_de_champs_columns)
     end
   end
 
@@ -279,7 +279,7 @@ module ColumnsConcern
     [siret_column, etablissements, others, for_export].flatten
   end
 
-  def types_de_champ_columns
+  def type_de_champs_columns
     all_revisions_type_de_champs.flat_map { _1.columns(procedure_id: id) }
   end
 
