@@ -8,10 +8,6 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
       .concat(legacy_columns(procedure_id:, prefix:))
   end
 
-  def filter_to_human(filter_value)
-    APIGeoService.departement_name(filter_value).presence || filter_value
-  end
-
   def champ_value(champ)
     "#{champ.code} – #{champ.name}"
   end

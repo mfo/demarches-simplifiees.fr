@@ -53,10 +53,6 @@ class TypesDeChamp::TypeDeChampBase
     (words / READ_WORDS_PER_SECOND).round.seconds
   end
 
-  def filter_to_human(filter_value)
-    filter_value
-  end
-
   def champ_value(champ)
     champ.value.present? ? champ_text_value(champ) : champ_default_value
   end
@@ -129,10 +125,6 @@ class TypesDeChamp::TypeDeChampBase
     columns(procedure_id: procedure.id).filter_map do |column|
       column.label.sub(regex_prefix, '')
     end
-  end
-
-  def column(column_id)
-    columns(procedure_id: nil).find { it.h_id[:column_id] == column_id }
   end
 
   private
