@@ -61,6 +61,23 @@ ActiveSupport.on_load(:active_storage_blob) do
     end
   end
 
+  # Direct upload is the one path that stores the content type declared by the
+  # client without ever reading the file, and `identified` stays false until
+  # something does. Building a variant from such a blob means deciding it is an
+  # image on the uploader's word alone, so refuse: the image library picks its
+  # decoder from the bytes and will not agree with a type nobody checked.
+  def variable?
+    identified? && super
+  end
+
+  # Same for previews: the previewer is picked from the declared content type
+  # too, and it hands the bytes to pdftoppm or ffmpeg rather than to the image
+  # library. `representation` tries this before `variant`, so guarding only the
+  # latter would leave the wider decoder open.
+  def previewable?
+    identified? && super
+  end
+
   ActiveStorage::Blob.class_eval do
     def purge_later
       DelayedPurgeJob.perform_later(self)
@@ -99,6 +116,15 @@ Rails.application.reloader.to_prepare do
   class ActiveStorage::BaseController
     # same store as ApplicationController
     protect_from_forgery with: :exception, store: :cookie
+  end
+
+  # A blob we decline to transform is a missing representation, not a server
+  # error: the signed id and the variation key are both valid, they just do not
+  # compose into something we are willing to render.
+  class ActiveStorage::Representations::BaseController
+    rescue_from ActiveStorage::UnrepresentableError, ActiveStorage::InvariableError do
+      head :not_found
+    end
   end
 end
 
