@@ -84,6 +84,68 @@ describe "ActiveStorage configuration" do
     end
   end
 
+  describe "strict identification of variable (image) content types" do
+    # Reproduce the direct-upload path: a blob created without reading the file,
+    # then re-identified at attach time. `identify_content_type` is where the
+    # declared type gets confirmed (or downgraded) against the magic bytes.
+    def reidentify(bytes, filename:, content_type:)
+      blob = ActiveStorage::Blob.create_before_direct_upload!(
+        filename:,
+        byte_size: bytes.bytesize,
+        checksum: Digest::MD5.base64digest(bytes),
+        content_type:
+      )
+      blob.upload_without_unfurling(StringIO.new(bytes))
+      blob.identify
+      blob.content_type
+    end
+
+    it "keeps a real PNG whose magic confirms the declared image type" do
+      png = Rails.root.join("spec/fixtures/files/logo_test_procedure.png").binread
+      expect(reidentify(png, filename: "poc.png", content_type: "image/png")).to eq("image/png")
+    end
+
+    it "downgrades a binary PNM posing as image/png to octet-stream" do
+      binary_ppm = "P6\n2 2\n255\n" + ([255, 0, 255].pack("C*") * 4)
+      expect(reidentify(binary_ppm, filename: "poc.png", content_type: "image/png")).to eq("application/octet-stream")
+    end
+
+    it "downgrades a header-shifted PDF (Marcel offset gap) to octet-stream" do
+      pdf = Rails.root.join("spec/fixtures/files/dossierPDF.pdf").binread
+      shifted = "%PDF\n" + (" " * 515) + pdf # real %PDF-1.x pushed past Marcel's 512-byte window
+      expect(reidentify(shifted, filename: "poc.png", content_type: "image/png")).to eq("application/octet-stream")
+    end
+
+    it "leaves a non-variable type (PDF) untouched" do
+      pdf = Rails.root.join("spec/fixtures/files/dossierPDF.pdf").binread
+      expect(reidentify(pdf, filename: "doc.pdf", content_type: "application/pdf")).to eq("application/pdf")
+    end
+
+    it "reports a downgraded file to Sentry with its magic bytes for inspection" do
+      disguised = %(<?pp x?>\n<svg xmlns="http://www.w3.org/2000/svg"/>) # SVG hidden behind a bogus PI
+
+      expect(Sentry).to receive(:capture_message).with(
+        a_string_including("Suspicious attachment"),
+        hash_including(
+          level: :warning,
+          extra: hash_including(
+            declared_type: "image/png",
+            magic_type: "application/octet-stream",
+            head_hex: start_with("3c3f707020") # "<?pp "
+          )
+        )
+      )
+
+      expect(reidentify(disguised, filename: "poc.png", content_type: "image/png")).to eq("application/octet-stream")
+    end
+
+    it "does not report a legitimate image to Sentry" do
+      png = Rails.root.join("spec/fixtures/files/logo_test_procedure.png").binread
+      expect(Sentry).not_to receive(:capture_message)
+      reidentify(png, filename: "logo.png", content_type: "image/png")
+    end
+  end
+
   describe "per-procedure storage service for direct upload" do
     let(:procedure) { create(:procedure) }
 
