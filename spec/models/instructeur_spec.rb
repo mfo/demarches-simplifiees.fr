@@ -788,6 +788,30 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur has per-procedure settings' do
+      let!(:instructeurs_procedure) { create(:instructeurs_procedure, instructeur: old_instructeur, daily_email_summary: true) }
+
+      before { subject }
+
+      it 'transfers the settings to the new instructeur' do
+        expect(instructeurs_procedure.reload.instructeur).to eq(new_instructeur)
+        expect(instructeurs_procedure.daily_email_summary).to eq(true)
+      end
+    end
+
+    context 'when both instructeurs have settings on the same procedure' do
+      let(:procedure) { create(:procedure) }
+      let!(:old_settings) { create(:instructeurs_procedure, instructeur: old_instructeur, procedure:) }
+      let!(:new_settings) { create(:instructeurs_procedure, instructeur: new_instructeur, procedure:) }
+
+      before { subject }
+
+      it 'keeps the new instructeur settings and leaves the duplicate behind' do
+        expect(new_settings.reload.instructeur).to eq(new_instructeur)
+        expect(old_settings.reload.instructeur).to eq(old_instructeur)
+      end
+    end
+
     context 'when old instructeur has avis' do
       let(:avis) { create(:avis, claimant: old_instructeur) }
       before do

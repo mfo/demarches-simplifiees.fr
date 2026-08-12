@@ -270,6 +270,11 @@ class Instructeur < ApplicationRecord
     admin_with_new_instructeur.each do |admin|
       admin.instructeurs.delete(old_instructeur)
     end
+    old_instructeur
+      .instructeurs_procedures
+      .where.not(procedure_id: instructeurs_procedures.pluck(:procedure_id))
+      .update_all(instructeur_id: id)
+
     old_instructeur.dossier_notifications.find_each do |notification|
       unless dossier_notifications.exists?(dossier_id: notification.dossier_id, notification_type: notification.notification_type)
         notification.update(instructeur_id: id)
