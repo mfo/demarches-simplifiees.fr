@@ -25,6 +25,7 @@ class Instructeur < ApplicationRecord
   has_many :archives, as: :user_profile
   has_many :instructeurs_procedures, dependent: :destroy
   has_many :dossier_notifications, dependent: :destroy
+  has_many :rdvs
 
   has_one :rdv_connection, dependent: :destroy
 
@@ -271,6 +272,7 @@ class Instructeur < ApplicationRecord
     end
     old_instructeur.commentaires.update_all(instructeur_id: id)
     old_instructeur.bulk_messages.update_all(instructeur_id: id)
+    old_instructeur.rdvs.update_all(instructeur_id: id)
 
     Avis
       .where(claimant_id: old_instructeur.id, claimant_type: Instructeur.name)

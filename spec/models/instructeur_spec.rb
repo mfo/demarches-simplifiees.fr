@@ -745,6 +745,16 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur has a rdv' do
+      let!(:rdv) { create(:rdv, instructeur: old_instructeur) }
+
+      before { subject }
+
+      it 'transfers the rdv to the new instructeur' do
+        expect(rdv.reload.instructeur).to eq(new_instructeur)
+      end
+    end
+
     context 'when old instructeur has avis' do
       let(:avis) { create(:avis, claimant: old_instructeur) }
       before do
