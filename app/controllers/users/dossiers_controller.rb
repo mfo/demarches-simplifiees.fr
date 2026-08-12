@@ -56,6 +56,7 @@ module Users
         @dossiers.load
       end
       load_personnalisation_data(@dossiers)
+      load_user_buffer_changes_data(@dossiers)
       @corbeille_count = current_user.dossiers.hidden_by_user.or(current_user.dossiers.hidden_by_expired).count
       @pending_transfers_count = current_user.dossier_transfers_received_pending.count
       @show_simple_list = params[:search].blank? && !@filter.active? && @total_count <= SIMPLE_LIST_THRESHOLD
@@ -559,6 +560,7 @@ module Users
         .page(page)
         .per(ITEMS_PER_PAGE)
       @total_count = @dossiers.total_count
+      load_user_buffer_changes_data(@dossiers)
     end
 
     private
@@ -742,6 +744,20 @@ module Users
         .find_each do |champ|
           (@champs_by_dossier_id[champ.dossier_id] ||= {})[champ.stable_id] = champ
         end
+    end
+
+    # Sur-ensemble des dossiers ayant des champs sur le stream « user:buffer » :
+    # une seule requête pour toute la page, au lieu de charger tous les champs
+    # de chaque dossier en_construction juste pour décider d'afficher la bannière
+    # « modifications non soumises ». Le composant fait ensuite la vérification
+    # précise (stable_id dans la révision) sur les seuls dossiers signalés.
+    def load_user_buffer_changes_data(dossiers)
+      dossier_ids = dossiers.filter(&:en_construction?).map(&:id)
+      @dossier_ids_with_user_buffer_changes = ChampData
+        .where(dossier_id: dossier_ids, stream: Dossier::USER_BUFFER_STREAM)
+        .distinct
+        .pluck(:dossier_id)
+        .to_set
     end
 
     def personnalisation_available?
