@@ -273,6 +273,9 @@ class Instructeur < ApplicationRecord
     old_instructeur.commentaires.update_all(instructeur_id: id)
     old_instructeur.bulk_messages.update_all(instructeur_id: id)
     old_instructeur.rdvs.update_all(instructeur_id: id)
+    # instructeur_id is a legacy column (exports are now owned through the
+    # polymorphic user_profile), but its foreign key would abort the merge
+    Export.where(instructeur: old_instructeur).update_all(instructeur_id: id)
 
     Avis
       .where(claimant_id: old_instructeur.id, claimant_type: Instructeur.name)

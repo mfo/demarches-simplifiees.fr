@@ -755,6 +755,16 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur is referenced by a legacy export' do
+      let!(:export) { create(:export, instructeur: old_instructeur) }
+
+      before { subject }
+
+      it 'transfers the legacy reference to the new instructeur' do
+        expect(export.reload.instructeur).to eq(new_instructeur)
+      end
+    end
+
     context 'when old instructeur has avis' do
       let(:avis) { create(:avis, claimant: old_instructeur) }
       before do
