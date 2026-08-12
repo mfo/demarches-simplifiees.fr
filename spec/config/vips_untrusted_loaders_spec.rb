@@ -48,3 +48,17 @@ describe "libvips untrusted loaders", :external_deps do
     end
   end
 end
+
+describe TrustedVipsLoader do
+  it "denies every unfuzzed loader present in our libvips build" do
+    expect(described_class::BLOCKED_LOADERS).to contain_exactly(
+      "VipsForeignLoadMat",
+      "VipsForeignLoadOpenslideFile",
+      "VipsForeignLoadSvgFile",
+      "VipsForeignLoadPdfFile",
+      "VipsForeignLoadPpmFile",
+      "VipsForeignLoadRadFile",
+      "VipsForeignLoadMagickFile"
+    )
+  end
+end
