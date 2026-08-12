@@ -718,6 +718,16 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur previously followed a dossier' do
+      let!(:previous_follow) { create(:follow, instructeur: old_instructeur, unfollowed_at: 1.day.ago) }
+
+      before { subject }
+
+      it 'transfers the previous follow to the new instructeur' do
+        expect(previous_follow.reload.instructeur_id).to eq(new_instructeur.id)
+      end
+    end
+
     context 'when the old instructeur is on on admin list' do
       let(:administrateur) { administrateurs.default }
 

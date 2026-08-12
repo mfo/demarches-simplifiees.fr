@@ -258,6 +258,10 @@ class Instructeur < ApplicationRecord
       .where.not(dossier_id: follows.pluck(:dossier_id))
       .update_all(instructeur_id: id)
 
+    old_instructeur
+      .previous_follows
+      .update_all(instructeur_id: id)
+
     admin_with_new_instructeur, admin_without_new_instructeur = old_instructeur
       .administrateurs
       .partition { |admin| admin.instructeurs.exists?(id) }
