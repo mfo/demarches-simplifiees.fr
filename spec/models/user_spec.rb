@@ -576,6 +576,16 @@ describe User, type: :model do
       end
     end
 
+    context 'and the old account has a contact_form' do
+      let!(:contact_form) { create(:contact_form, user: old_user) }
+
+      it 'transfers the contact_form' do
+        subject
+
+        expect(contact_form.reload.user).to eq(targeted_user)
+      end
+    end
+
     context 'and the old account had targeted_user_links' do
       let(:expert) { create(:expert, user: old_user) }
       let(:expert_procedure) { create(:experts_procedure, expert: expert) }
