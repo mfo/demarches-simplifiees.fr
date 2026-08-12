@@ -9,6 +9,8 @@ class API::V2::GraphqlController < API::V2::BaseController
     result = API::V2::Schema.execute(query:, variables:, context:, operation_name:)
     @query_info = result.context.query_info
 
+    rename_skylight_endpoint(result)
+
     render json: result
   rescue GraphQL::ParseError, JSON::ParserError => exception
     handle_parse_error(exception, :graphql_parse_failed)
@@ -27,6 +29,23 @@ class API::V2::GraphqlController < API::V2::BaseController
   end
 
   private
+
+  # Segment GraphQL traffic into per-operation Skylight endpoints, using the same
+  # naming as Skylight's official :graphql probe ("graphql:<operation>") but
+  # without the per-field tracing the probe would force on us (~16% of request
+  # wall time, see the probes comment in config/application.rb).
+  # Stored queries have a bounded set of operation names; custom integrator
+  # queries share a single bucket to keep endpoint cardinality under control.
+  def rename_skylight_endpoint(result)
+    trace = Skylight.instrumenter&.current_trace
+    return if trace.nil?
+
+    trace.endpoint = if params[:queryId].present?
+      "graphql:#{result.query.selected_operation&.name || 'anonymous'}"
+    else
+      "graphql:custom"
+    end
+  end
 
   def vernier_profile_requested?
     params[:profile].present?
