@@ -72,6 +72,9 @@ class Expert < ApplicationRecord
       .find_each do |old_experts_procedure|
         new_experts_procedure = ExpertsProcedure.find_by(expert_id: id, procedure_id: old_experts_procedure.procedure_id)
         old_experts_procedure.avis.update_all(experts_procedure_id: new_experts_procedure.id)
+        if old_experts_procedure.revoked_at.nil? && new_experts_procedure.revoked_at.present?
+          new_experts_procedure.update(revoked_at: nil)
+        end
         old_experts_procedure.destroy
       end
 
