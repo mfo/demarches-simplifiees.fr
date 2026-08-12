@@ -765,6 +765,29 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur has a dossier notification' do
+      let!(:notification) { create(:dossier_notification, instructeur: old_instructeur) }
+
+      before { subject }
+
+      it 'transfers the notification to the new instructeur' do
+        expect(notification.reload.instructeur).to eq(new_instructeur)
+      end
+    end
+
+    context 'when both instructeurs have the same notification on the same dossier' do
+      let(:dossier) { create(:dossier) }
+      let!(:old_notification) { create(:dossier_notification, instructeur: old_instructeur, dossier:) }
+      let!(:new_notification) { create(:dossier_notification, instructeur: new_instructeur, dossier:) }
+
+      before { subject }
+
+      it 'keeps the new instructeur notification and leaves the duplicate behind' do
+        expect(new_notification.reload.instructeur).to eq(new_instructeur)
+        expect(old_notification.reload.instructeur).to eq(old_instructeur)
+      end
+    end
+
     context 'when old instructeur has avis' do
       let(:avis) { create(:avis, claimant: old_instructeur) }
       before do
