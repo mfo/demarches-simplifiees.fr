@@ -835,6 +835,19 @@ describe Instructeur, type: :model do
     end
   end
 
+  describe 'when an instructeur is destroyed' do
+    let(:instructeur) { create(:instructeur) }
+    let!(:export) { create(:export, user_profile: instructeur) }
+    let!(:archive) { create(:archive, user_profile: instructeur) }
+
+    it 'destroys its exports and archives' do
+      instructeur.destroy!
+
+      expect(Export.exists?(export.id)).to eq(false)
+      expect(Archive.exists?(archive.id)).to eq(false)
+    end
+  end
+
   private
 
   def assign(procedure_to_assign, instructeur_assigne: instructeur)
