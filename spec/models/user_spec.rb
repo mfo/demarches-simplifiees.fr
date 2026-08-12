@@ -576,6 +576,16 @@ describe User, type: :model do
       end
     end
 
+    context 'and the old account has a deleted_dossier' do
+      let!(:deleted_dossier) { create(:deleted_dossier, user_id: old_user.id) }
+
+      it 'transfers the deleted_dossier' do
+        subject
+
+        expect(deleted_dossier.reload.user_id).to eq(targeted_user.id)
+      end
+    end
+
     context 'and the old account has a contact_form' do
       let!(:contact_form) { create(:contact_form, user: old_user) }
 

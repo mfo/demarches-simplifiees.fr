@@ -296,6 +296,7 @@ class User < ApplicationRecord
       old_user.merge_logs.update_all(user_id: id)
       old_user.targeted_user_links.update_all(user_id: id)
       old_user.contact_forms.update_all(user_id: id)
+      old_user.deleted_dossiers.update_all(user_id: id)
 
       # Move or merge old user's roles to the user
       [
