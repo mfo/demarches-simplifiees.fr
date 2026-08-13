@@ -357,35 +357,7 @@ class TypeDeChamp < ApplicationRecord
     super(Array.wrap(value).map(&:to_i).reject(&:zero?).uniq)
   end
 
-  def prefillable?
-    type_champ.in?([
-      TypeDeChamp.type_champs.fetch(:text),
-      TypeDeChamp.type_champs.fetch(:textarea),
-      TypeDeChamp.type_champs.fetch(:decimal_number),
-      TypeDeChamp.type_champs.fetch(:integer_number),
-      TypeDeChamp.type_champs.fetch(:formatted),
-      TypeDeChamp.type_champs.fetch(:email),
-      TypeDeChamp.type_champs.fetch(:phone),
-      TypeDeChamp.type_champs.fetch(:iban),
-      TypeDeChamp.type_champs.fetch(:civilite),
-      TypeDeChamp.type_champs.fetch(:pays),
-      TypeDeChamp.type_champs.fetch(:regions),
-      TypeDeChamp.type_champs.fetch(:departements),
-      TypeDeChamp.type_champs.fetch(:communes),
-      TypeDeChamp.type_champs.fetch(:address),
-      TypeDeChamp.type_champs.fetch(:date),
-      TypeDeChamp.type_champs.fetch(:datetime),
-      TypeDeChamp.type_champs.fetch(:yes_no),
-      TypeDeChamp.type_champs.fetch(:checkbox),
-      TypeDeChamp.type_champs.fetch(:drop_down_list),
-      TypeDeChamp.type_champs.fetch(:repetition),
-      TypeDeChamp.type_champs.fetch(:multiple_drop_down_list),
-      TypeDeChamp.type_champs.fetch(:epci),
-      TypeDeChamp.type_champs.fetch(:dossier_link),
-      TypeDeChamp.type_champs.fetch(:siret),
-      TypeDeChamp.type_champs.fetch(:pre_rempli),
-    ]) || referentiel_in_exact_match?
-  end
+  def prefillable? = false
 
   def pre_rempli_hidden?
     pre_rempli? && pre_rempli_hidden == "1"

@@ -4,6 +4,8 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = STRUCTURE
   def self.editable_option_keys = [:limit_repetitions, :min_repetitions, :max_repetitions]
 
+  def prefillable? = true
+
   def typed_champ_value_for_tag(champ, path = :value)
     return nil if path != :value
     ChampPresentations::RepetitionPresentation.new(libelle, champ.dossier.project_rows_for(self))

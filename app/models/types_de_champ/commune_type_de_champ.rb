@@ -3,6 +3,8 @@
 class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = LOCALISATION
 
+  def prefillable? = true
+
   include AddressableColumnConcern
 
   def typed_champ_value_for_export(champ, path = :value)

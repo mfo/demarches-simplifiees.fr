@@ -3,6 +3,8 @@
 class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = PAIEMENT_IDENTIFICATION
 
+  def prefillable? = true
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)

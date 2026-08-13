@@ -3,6 +3,8 @@
 class TypesDeChamp::FormattedTypeDeChamp < TypesDeChamp::TypeDeChampBase
   after_initialize :set_default_options
 
+  def prefillable? = true
+
   def self.editable_option_keys
     [
       :formatted_mode, :numbers_accepted, :letters_accepted, :special_characters_accepted,

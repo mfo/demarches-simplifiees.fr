@@ -5,6 +5,8 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampB
   def self.editable_option_keys = [:drop_down_options, :drop_down_mode]
   def self.column_type = :enums
 
+  def prefillable? = true
+
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?
       champ.referentiels_items_user_values.join(', ')

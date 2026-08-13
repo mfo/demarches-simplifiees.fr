@@ -4,6 +4,8 @@ class TypesDeChamp::DecimalNumberTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.editable_option_keys = [:positive_number, :min_number, :max_number, :range_number]
   def self.column_type = :decimal
 
+  def prefillable? = true
+
   def typed_champ_value_for_export(champ, path = :value)
     champ_formatted_value(champ)
   end

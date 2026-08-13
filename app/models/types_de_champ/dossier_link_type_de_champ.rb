@@ -3,4 +3,6 @@
 class TypesDeChamp::DossierLinkTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = STRUCTURE
   def self.editable_option_keys = [:procedures_limit, :dossier_link_procedure_ids]
+
+  def prefillable? = true
 end
