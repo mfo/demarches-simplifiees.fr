@@ -3,6 +3,7 @@
 class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = REFERENTIEL_EXTERNE
   def self.editable_option_keys = CARTE_LAYERS
+  def self.column_type = :geojson
 
   def estimated_fill_duration(revision)
     FILL_DURATION_LONG
@@ -30,7 +31,7 @@ class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
       stable_id:,
       tdc_type: type_champ,
       label: libelle_with_prefix(prefix),
-      type: TypeDeChamp.column_type(type_champ),
+      type: self.class.column_type,
       displayable: false,
       filterable: false,
       mandatory: mandatory?

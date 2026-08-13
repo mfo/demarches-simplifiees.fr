@@ -2,6 +2,7 @@
 
 class TypesDeChamp::PaysTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
+  def self.column_type = :enum
 
   def typed_champ_value(champ)
     champ.name

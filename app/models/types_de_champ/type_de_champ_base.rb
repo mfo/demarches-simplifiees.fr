@@ -2,6 +2,7 @@
 
 class TypesDeChamp::TypeDeChampBase < TypeDeChamp
   def self.category = STANDARD
+  def self.column_type = :text
 
   FILL_DURATION_SHORT  = 10.seconds
   FILL_DURATION_MEDIUM = 1.minute
@@ -96,7 +97,7 @@ class TypesDeChamp::TypeDeChampBase < TypeDeChamp
       stable_id:,
       tdc_type: type_champ,
       label: libelle_with_prefix(prefix),
-      type: TypeDeChamp.column_type(type_champ),
+      type: self.class.column_type,
       displayable:,
       options_for_select:,
       mandatory: mandatory?

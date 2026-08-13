@@ -2,6 +2,7 @@
 
 class TypesDeChamp::YesNoTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = CHOICE
+  def self.column_type = :boolean
 
   def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'

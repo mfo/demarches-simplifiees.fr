@@ -2,6 +2,7 @@
 
 class TypesDeChamp::DatetimeTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.editable_option_keys = [:date_in_past, :start_date, :end_date, :range_date]
+  def self.column_type = :datetime
 
   def typed_champ_value(champ)
     I18n.l(Time.zone.parse(champ.value))

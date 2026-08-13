@@ -2,6 +2,7 @@
 
 class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
+  def self.column_type = :enum
 
   include AddressableColumnConcern
 

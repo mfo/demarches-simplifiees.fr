@@ -565,31 +565,6 @@ class TypeDeChamp < ApplicationRecord
     end
   end
 
-  def self.column_type(type_champ)
-    case type_champ
-    when type_champs.fetch(:datetime)
-      :datetime
-    when type_champs.fetch(:date)
-      :date
-    when type_champs.fetch(:integer_number)
-      :integer
-    when type_champs.fetch(:decimal_number)
-      :decimal
-    when type_champs.fetch(:multiple_drop_down_list)
-      :enums
-    when type_champs.fetch(:drop_down_list), type_champs.fetch(:departements), type_champs.fetch(:regions), type_champs.fetch(:civilite), type_champs.fetch(:pays)
-      :enum
-    when type_champs.fetch(:checkbox), type_champs.fetch(:yes_no)
-      :boolean
-    when type_champs.fetch(:piece_justificative)
-      :attachments
-    when type_champs.fetch(:carte)
-      :geojson
-    else
-      :text
-    end
-  end
-
   def layer_enabled?(layer)
     options && options[layer] && options[layer] != '0'
   end

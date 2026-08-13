@@ -54,7 +54,7 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
       stable_id:,
       tdc_type: type_champ,
       label: libelle_with_prefix(prefix),
-      type: TypeDeChamp.column_type(type_champ),
+      type: self.class.column_type,
       displayable:,
       mandatory: mandatory?
     )
