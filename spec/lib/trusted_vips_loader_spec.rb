@@ -25,16 +25,4 @@ describe TrustedVipsLoader, :external_deps do
 
     expect(described_class.new_from_file(File.open(path)).width).to be_positive
   end
-
-  # Pins the scope of the deny list: other decoders libvips flags as unfuzzed, such as
-  # the PDF one the watermark path can reach, are deliberately still let through, since
-  # naming them wrongly would reject real uploads. Only libvips 8.13 or later refuses
-  # the whole family, via Vips.block_untrusted.
-  describe "the decoders it lets through" do
-    it "does not refuse a PDF" do
-      path.binwrite(Rails.root.join("spec/fixtures/files/Contrat.pdf").binread)
-
-      expect(described_class).to be_allowed(path.to_s)
-    end
-  end
 end

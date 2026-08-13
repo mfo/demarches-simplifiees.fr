@@ -7,15 +7,20 @@
 # on they can be disabled outright; before that there is no such switch, so we ask
 # which decoder libvips would choose and refuse the ones listed below.
 #
-# Deliberately a deny list rather than an allow list. An allow list would also have
-# to name every decoder a legitimate upload may go through, and those names are read
-# from a newer libvips than the one we deploy — an entry we got wrong would reject
-# real files. This errs the other way: it only stops what we have named.
+# Deliberately a deny list rather than an allow list: a wrong entry here is inert (it
+# never matches the class name libvips actually reports), while a wrong allow entry
+# would reject real uploads. The names are the exact loader classes present in our
+# deployed libvips 8.12.1, read off the build itself — they vary between versions
+# (this build exposes VipsForeignLoadPngFile; newer ones VipsForeignLoadPng).
 module TrustedVipsLoader
-  # Reads MATLAB files, via a library whose format handling reaches well outside the
-  # file it was given. Nothing we accept is ever decoded by it.
   BLOCKED_LOADERS = %w[
     VipsForeignLoadMat
+    VipsForeignLoadOpenslideFile
+    VipsForeignLoadSvgFile
+    VipsForeignLoadPdfFile
+    VipsForeignLoadPpmFile
+    VipsForeignLoadRadFile
+    VipsForeignLoadMagickFile
   ].freeze
 
   class << self
