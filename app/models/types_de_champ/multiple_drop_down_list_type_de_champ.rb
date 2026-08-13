@@ -6,6 +6,9 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampB
   def self.column_type = :enums
 
   def prefillable? = true
+  def options_for_select = options_for_select_with_other
+  def choice_type? = true
+  def any_drop_down_list? = true
 
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?

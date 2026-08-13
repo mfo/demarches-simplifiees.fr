@@ -5,6 +5,8 @@ class TypesDeChamp::CheckboxTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.column_type = :boolean
 
   def prefillable? = true
+  def options_for_select = Champs::CheckboxChamp.options
+  def choice_type? = true
 
   def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'

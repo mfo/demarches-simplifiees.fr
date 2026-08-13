@@ -5,6 +5,8 @@ class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.editable_option_keys = CARTE_LAYERS
   def self.column_type = :geojson
 
+  def refresh_after_update? = false
+
   def estimated_fill_duration(revision)
     FILL_DURATION_LONG
   end

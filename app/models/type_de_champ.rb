@@ -378,14 +378,7 @@ class TypeDeChamp < ApplicationRecord
 
   def cannot_be_mandatory? = false
 
-  def choice_type?
-    type_champ.in?([
-      TypeDeChamp.type_champs.fetch(:checkbox),
-      TypeDeChamp.type_champs.fetch(:drop_down_list),
-      TypeDeChamp.type_champs.fetch(:multiple_drop_down_list),
-      TypeDeChamp.type_champs.fetch(:yes_no),
-    ])
-  end
+  def choice_type? = false
 
   def public?
     !private?
@@ -437,25 +430,7 @@ class TypeDeChamp < ApplicationRecord
     end
   end
 
-  def options_for_select
-    if departements?
-      APIGeoService.departement_options
-    elsif regions?
-      APIGeoService.region_options
-    elsif pays?
-      APIGeoService.country_options
-    elsif any_drop_down_list?
-      options_for_select_with_other
-    elsif pre_rempli?
-      Array.wrap(drop_down_options).uniq.map { [_1, _1] }
-    elsif yes_no?
-      Champs::YesNoChamp.options
-    elsif checkbox?
-      Champs::CheckboxChamp.options
-    elsif civilite?
-      Champs::CiviliteChamp.options
-    end
-  end
+  def options_for_select = nil
 
   def options_for_select_with_other
     options = if drop_down_advanced?
@@ -582,20 +557,9 @@ class TypeDeChamp < ApplicationRecord
     )
   end
 
-  def refresh_after_update?
-    self.class.refresh_after_update?(type_champ)
-  end
-
-  def self.refresh_after_update?(type_champ)
-    # We should refresh all champs after update except for champs using react or custom refresh
-    # logic (RNA, SIRET, etc.)
-    case type_champ
-    when type_champs.fetch(:carte)
-      false
-    else
-      true
-    end
-  end
+  # We should refresh all champs after update except for champs using react or
+  # custom refresh logic (RNA, SIRET, etc.)
+  def refresh_after_update? = true
 
   def simple_routable?
     type_champ.in?(SIMPLE_ROUTABLE_TYPES) && !drop_down_advanced?
@@ -795,13 +759,7 @@ class TypeDeChamp < ApplicationRecord
   CHAMP_TYPE_TO_TYPE_CHAMP = type_champs.values.index_by { type_champ_to_champ_class_name(_1) }
   CLASS_NAME_TO_TYPE_CHAMP = type_champs.values.index_by { type_champ_to_class_name(_1) }
 
-  def any_drop_down_list?
-    type_champ.in?([
-      TypeDeChamp.type_champs.fetch(:drop_down_list),
-      TypeDeChamp.type_champs.fetch(:multiple_drop_down_list),
-      TypeDeChamp.type_champs.fetch(:linked_drop_down_list),
-    ])
-  end
+  def any_drop_down_list? = false
 
   def allowed_extensions
     allowed_content_types

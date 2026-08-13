@@ -4,6 +4,8 @@ class TypesDeChamp::PaysTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
   def self.column_type = :enum
 
+  def options_for_select = APIGeoService.country_options
+
   def typed_champ_value(champ)
     champ.name
   end
