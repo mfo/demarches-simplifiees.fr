@@ -3,6 +3,10 @@
 class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = FRANCE_CONNECT
 
+  def france_connect? = true
+  def api_particulier? = true
+  def must_be_mandatory? = true
+
   REGISTRY = {
     quotient_familial: {
       resource: 'v3/dss/quotient_familial/identite',

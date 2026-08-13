@@ -402,11 +402,9 @@ class TypeDeChamp < ApplicationRecord
 
   def non_fillable? = !fillable?
 
-  def must_be_mandatory? = type_champ.in?(API_PART_FC_TDC)
+  def must_be_mandatory? = false
 
-  def cannot_be_mandatory?
-    type_champ == TypeDeChamp.type_champs.fetch(:pre_rempli)
-  end
+  def cannot_be_mandatory? = false
 
   def choice_type?
     type_champ.in?([
@@ -421,9 +419,9 @@ class TypeDeChamp < ApplicationRecord
     !private?
   end
 
-  def france_connect? = type_champ.in?([*API_PART_FC_TDC])
+  def france_connect? = false
 
-  def api_particulier? = type_champ.in?(API_PART_FC_TDC)
+  def api_particulier? = false
 
   def child?(revision)
     revision.coordinate_for(self)&.child?
