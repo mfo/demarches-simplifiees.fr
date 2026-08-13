@@ -241,7 +241,7 @@ class TypeDeChamp < ApplicationRecord
       default: I18n.t(type_champ, scope: [:activerecord, :attributes, :type_de_champ, :type_champs]), app_name: APPLICATION_NAME)
   end
 
-  def libelle_optionnal? = type_champ.in?([TypeDeChamp.type_champs.fetch(:explication)])
+  def libelle_optionnal? = false
 
   def safe_referentiel_mapping
     Hash(referentiel_mapping).with_indifferent_access
@@ -398,16 +398,9 @@ class TypeDeChamp < ApplicationRecord
     maybe_referentiel && maybe_exact_match
   end
 
-  def fillable?
-    !non_fillable?
-  end
+  def fillable? = true
 
-  def non_fillable?
-    type_champ.in?([
-      TypeDeChamp.type_champs.fetch(:header_section),
-      TypeDeChamp.type_champs.fetch(:explication),
-    ])
-  end
+  def non_fillable? = !fillable?
 
   def must_be_mandatory? = type_champ.in?(API_PART_FC_TDC)
 
