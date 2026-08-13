@@ -113,6 +113,31 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       end
     end
 
+    context 'changing the type to formatted' do
+      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :textarea, libelle: 'l1' }]) }
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          stable_id: first_coordinate.stable_id,
+          # the editor form submits the options of the previous type along the new type
+          type_de_champ: { type_champ: 'formatted', character_limit: '' },
+        }
+      end
+
+      it 'persists the formatted default options' do
+        is_expected.to have_http_status(:ok)
+
+        options = TypeDeChamp.where(id: first_coordinate.type_de_champ.id).pick(:options)
+        expect(options).to eq({
+          'character_limit' => '',
+          'formatted_mode' => 'simple',
+          'letters_accepted' => true,
+          'numbers_accepted' => true,
+          'special_characters_accepted' => true,
+        })
+      end
+    end
+
     context 'rejected if type changed and routing involved' do
       let(:params) do
         default_params.deep_merge(type_de_champ: { type_champ: 'text', stable_id: third_coordinate.stable_id })

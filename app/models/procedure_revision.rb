@@ -318,6 +318,7 @@ class ProcedureRevision < ApplicationRecord
         stable_id, type_champ, options = payload.values_at(:stable_id, :type_champ, :options)
 
         tdc = find_and_ensure_exclusive_use(stable_id)
+        tdc = tdc.becomes_type(type_champ) if type_champ != tdc.type_champ
         update_params = { type_champ: }
         update_params[:options] = tdc.options.merge(options) if options.present?
         tdc.update(update_params)

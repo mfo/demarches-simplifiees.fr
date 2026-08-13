@@ -330,6 +330,13 @@ class TypeDeChamp < ApplicationRecord
     champ_class.new(params_for_champ.merge(params))
   end
 
+  # Changing type_champ cannot change the class of an already-instantiated
+  # record: save the change through an instance of the target subclass, so its
+  # validations and callbacks apply instead of the source type's.
+  def becomes_type(new_type_champ)
+    becomes(self.class.find_sti_class(new_type_champ))
+  end
+
   def check_mandatory
     return if mandatory_changed?
 

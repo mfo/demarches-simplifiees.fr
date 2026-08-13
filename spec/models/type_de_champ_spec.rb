@@ -159,6 +159,27 @@ describe TypeDeChamp do
     end
   end
 
+  describe '#becomes_type' do
+    it 'runs the target type validations instead of the source ones' do
+      tdc = create(:type_de_champ_linked_drop_down_list)
+      tdc.update_column(:options, { 'drop_down_options' => ['pas de primaire'] })
+      tdc = TypeDeChamp.find(tdc.id)
+
+      expect(tdc).to be_invalid
+      expect(tdc.becomes_type('text').update(type_champ: 'text')).to be true
+    end
+
+    it 'runs the target type callbacks, persisting the formatted default options' do
+      tdc = create(:type_de_champ_text)
+
+      morphed = tdc.becomes_type('formatted')
+      morphed.update!(type_champ: 'formatted')
+
+      expect(morphed).to be_an_instance_of(TypesDeChamp::FormattedTypeDeChamp)
+      expect(morphed.reload.options['formatted_mode']).to eq('simple')
+    end
+  end
+
   describe 'piece_justificative nature and options' do
     describe '#allowed_content_types' do
       it 'returns jpeg/png for titre_identite' do

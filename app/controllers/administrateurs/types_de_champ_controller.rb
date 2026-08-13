@@ -38,15 +38,19 @@ module Administrateurs
         errors = "« #{type_de_champ.libelle} » est utilisé par un référentiel, vous ne pouvez pas modifier son type."
         @morphed = [champ_component_from(@coordinate, focused: false, errors:)]
         flash.alert = errors
-      elsif type_de_champ.update(type_de_champ_update_params)
-        reload_procedure_with_includes
-        @morphed = if was_prefill_with_fc_information != type_de_champ.prefill_with_france_connect_information?
-          draft.revision_types_de_champ.map { |c| champ_component_from(c) }
-        else
-          champ_components_starting_at(@coordinate)
-        end
       else
-        flash.alert = type_de_champ.errors.full_messages
+        type_de_champ = type_de_champ.becomes_type(type_de_champ_update_params['type_champ']) if changing_of_type?(type_de_champ)
+
+        if type_de_champ.update(type_de_champ_update_params)
+          reload_procedure_with_includes
+          @morphed = if was_prefill_with_fc_information != type_de_champ.prefill_with_france_connect_information?
+            draft.revision_types_de_champ.map { |c| champ_component_from(c) }
+          else
+            champ_components_starting_at(@coordinate)
+          end
+        else
+          flash.alert = type_de_champ.errors.full_messages
+        end
       end
     end
 
