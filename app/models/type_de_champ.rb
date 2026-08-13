@@ -215,12 +215,6 @@ class TypeDeChamp < ApplicationRecord
 
   serialize :condition, coder: LogicSerializer
 
-  # Transitional: typed behavior now lives on the record itself; nil for
-  # legacy rows whose type_champ is no longer in the enum.
-  def dynamic_type
-    type_champ.present? ? self : nil
-  end
-
   scope :public_only, -> { where(private: false) }
   scope :private_only, -> { where(private: true) }
   scope :repetition, -> { where(type_champ: type_champs.fetch(:repetition)) }

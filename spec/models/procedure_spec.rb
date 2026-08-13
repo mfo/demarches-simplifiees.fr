@@ -2326,7 +2326,7 @@ describe Procedure do
       ])
       legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
       TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
-      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      expect(TypeDeChamp.find(legacy_tdc_id)).to be_an_instance_of(TypeDeChamp)
       procedure.reload
 
       expect { procedure.personnalisable_columns }.not_to raise_error
@@ -2464,7 +2464,7 @@ describe Procedure do
       ])
       legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
       TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
-      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      expect(TypeDeChamp.find(legacy_tdc_id)).to be_an_instance_of(TypeDeChamp)
       procedure.reload
 
       expect { procedure.personnalisable_columns_by_section }.not_to raise_error
@@ -2494,7 +2494,7 @@ describe Procedure do
       valid_tdc = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ valide' }
       legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
       TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
-      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
+      expect(TypeDeChamp.find(legacy_tdc_id)).to be_an_instance_of(TypeDeChamp)
       procedure.reload
       Current.procedure_columns = nil
 
