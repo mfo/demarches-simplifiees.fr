@@ -2,6 +2,7 @@
 
 class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = REFERENTIEL_EXTERNE
+  def self.editable_option_keys = CARTE_LAYERS
 
   def estimated_fill_duration(revision)
     FILL_DURATION_LONG

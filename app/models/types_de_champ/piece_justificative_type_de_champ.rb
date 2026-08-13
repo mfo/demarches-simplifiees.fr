@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.editable_option_keys = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :pj_limit_formats, :pj_format_families, :pj_auto_purge]
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)

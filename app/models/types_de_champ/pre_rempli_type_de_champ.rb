@@ -2,4 +2,5 @@
 
 class TypesDeChamp::PreRempliTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = REFERENTIEL_EXTERNE
+  def self.editable_option_keys = [:drop_down_options, :pre_rempli_hidden]
 end

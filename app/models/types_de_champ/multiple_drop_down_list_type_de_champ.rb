@@ -2,6 +2,7 @@
 
 class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def self.category = CHOICE
+  def self.editable_option_keys = [:drop_down_options, :drop_down_mode]
 
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?

@@ -729,40 +729,10 @@ class TypeDeChamp < ApplicationRecord
     :rpg,
   ]
 
-  OPTS_BY_TYPE = {
-    type_champs.fetch(:header_section) => [:header_section_level],
-    type_champs.fetch(:explication) => [:collapsible_explanation_enabled, :collapsible_explanation_text],
-    type_champs.fetch(:textarea) => [:character_limit],
-    type_champs.fetch(:integer_number) => [:positive_number, :min_number, :max_number, :range_number],
-    type_champs.fetch(:decimal_number) => [:positive_number, :min_number, :max_number, :range_number],
-    type_champs.fetch(:date) => [:birthdate, :prefill_with_france_connect_information, :date_in_past, :start_date, :end_date, :range_date],
-    type_champs.fetch(:datetime) => [:date_in_past, :start_date, :end_date, :range_date],
-    type_champs.fetch(:carte) => CARTE_LAYERS,
-    type_champs.fetch(:drop_down_list) => [:drop_down_other, :drop_down_options, :drop_down_mode],
-    type_champs.fetch(:multiple_drop_down_list) => [:drop_down_options, :drop_down_mode],
-    type_champs.fetch(:linked_drop_down_list) => [:drop_down_options, :drop_down_secondary_libelle, :drop_down_secondary_description],
-    type_champs.fetch(:piece_justificative) => [
-      :old_pj,
-      :skip_pj_validation,
-      :skip_content_type_pj_validation,
-      :pj_limit_formats,
-      :pj_format_families,
-      :pj_auto_purge,
-    ],
-    type_champs.fetch(:formatted) => [
-      :formatted_mode, :numbers_accepted, :letters_accepted, :special_characters_accepted,
-      :min_character_length, :max_character_length,
-      :expression_reguliere, :expression_reguliere_indications, :expression_reguliere_exemple_text, :expression_reguliere_error_message,
-    ],
-    type_champs.fetch(:referentiel) => [:referentiel_mapping],
-    type_champs.fetch(:dossier_link) => [:procedures_limit, :dossier_link_procedure_ids],
-    type_champs.fetch(:repetition) => [:limit_repetitions, :min_repetitions, :max_repetitions],
-    type_champs.fetch(:pre_rempli) => [:drop_down_options, :pre_rempli_hidden],
-  }
+  def self.editable_option_keys = []
 
   def clean_options
-    kept_keys = OPTS_BY_TYPE.fetch(type_champ.to_s) { [] }
-    options.slice(*kept_keys.map(&:to_s))
+    options.slice(*self.class.editable_option_keys.map(&:to_s))
   end
 
   def pj_limit_formats?

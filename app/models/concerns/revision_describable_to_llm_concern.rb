@@ -30,6 +30,6 @@ module RevisionDescribableToLLMConcern
     return nil unless TYPES_WITH_OPTIONS.include?(tdc.type_champ)
     return nil if tdc.options.blank?
 
-    tdc.options.slice(*TypeDeChamp::OPTS_BY_TYPE.fetch(tdc.type_champ, []).map(&:to_s)).presence
+    tdc.options.slice(*tdc.class.editable_option_keys.map(&:to_s)).presence
   end
 end

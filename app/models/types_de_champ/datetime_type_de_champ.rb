@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::DatetimeTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.editable_option_keys = [:date_in_past, :start_date, :end_date, :range_date]
+
   def typed_champ_value(champ)
     I18n.l(Time.zone.parse(champ.value))
   end
