@@ -3,13 +3,13 @@
 class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
   def typed_champ_value_for_tag(champ, path = :value)
     return nil if path != :value
-    ChampPresentations::RepetitionPresentation.new(libelle, champ.dossier.project_rows_for(@type_de_champ))
+    ChampPresentations::RepetitionPresentation.new(libelle, champ.dossier.project_rows_for(self))
   end
 
   def estimated_fill_duration(revision)
     estimated_rows_in_repetition = 2.5
 
-    children = revision.children_of(@type_de_champ)
+    children = revision.children_of(self)
 
     estimated_row_duration = children.map { _1.estimated_fill_duration(revision) }.sum
     estimated_children_read_duration = children.map(&:estimated_read_duration).sum
@@ -33,9 +33,9 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
     prefix = prefix.present? ? "(#{prefix} #{libelle})" : libelle
 
     Procedure.find(procedure_id)
-      .all_revisions_types_de_champ(parent: @type_de_champ)
+      .all_revisions_types_de_champ(parent: self)
       .flat_map { it.columns(procedure_id:, displayable: false, prefix:) }
   end
 
-  def typed_champ_blank?(champ) = champ.dossier.repetition_row_ids(@type_de_champ).blank?
+  def typed_champ_blank?(champ) = champ.dossier.repetition_row_ids(self).blank?
 end

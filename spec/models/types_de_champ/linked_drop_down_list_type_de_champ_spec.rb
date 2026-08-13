@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 describe TypesDeChamp::LinkedDropDownListTypeDeChamp do
-  let(:type_de_champ) { build(:type_de_champ_linked_drop_down_list, drop_down_options: menu_options) }
+  # On creation (type_champ_changed?) set_drop_down_list_options would overwrite an invalid menu.
+  let(:type_de_champ) { create(:type_de_champ_linked_drop_down_list).tap { _1.drop_down_options = menu_options } }
 
-  subject { type_de_champ.dynamic_type }
+  subject { type_de_champ }
 
   describe 'validation' do
     context 'It must start with one primary option' do
