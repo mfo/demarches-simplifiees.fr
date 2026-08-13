@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::TypeDeChampBase < TypeDeChamp
+  def self.category = STANDARD
+
   FILL_DURATION_SHORT  = 10.seconds
   FILL_DURATION_MEDIUM = 1.minute
   FILL_DURATION_LONG   = 3.minutes

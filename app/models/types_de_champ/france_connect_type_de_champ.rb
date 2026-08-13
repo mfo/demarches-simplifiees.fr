@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = FRANCE_CONNECT
+
   REGISTRY = {
     quotient_familial: {
       resource: 'v3/dss/quotient_familial/identite',

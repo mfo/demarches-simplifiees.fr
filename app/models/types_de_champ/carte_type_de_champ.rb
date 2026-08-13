@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = REFERENTIEL_EXTERNE
+
   def estimated_fill_duration(revision)
     FILL_DURATION_LONG
   end

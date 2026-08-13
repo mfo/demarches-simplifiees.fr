@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = STRUCTURE
+
   def typed_champ_value_for_tag(champ, path = :value)
     return nil if path != :value
     ChampPresentations::RepetitionPresentation.new(libelle, champ.dossier.project_rows_for(self))

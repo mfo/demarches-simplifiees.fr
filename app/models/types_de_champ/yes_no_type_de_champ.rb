@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::YesNoTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = CHOICE
+
   def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'
   end

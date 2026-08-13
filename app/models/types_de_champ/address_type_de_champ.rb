@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = LOCALISATION
+
   include AddressableColumnConcern
 
   def libelles_for_export

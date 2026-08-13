@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = CHOICE
+
   PRIMARY_PATTERN = /^--(.*)--$/
 
   validate :check_presence_of_primary_options

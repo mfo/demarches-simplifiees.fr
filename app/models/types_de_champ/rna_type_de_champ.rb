@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RNATypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = REFERENTIEL_EXTERNE
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)

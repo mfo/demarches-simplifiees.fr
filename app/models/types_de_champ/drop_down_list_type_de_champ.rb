@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::DropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = CHOICE
+
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiel) && champ.referentiel.present?
       path = champ.referentiel_headers&.first&.second

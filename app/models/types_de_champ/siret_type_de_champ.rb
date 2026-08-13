@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = PAIEMENT_IDENTIFICATION
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)

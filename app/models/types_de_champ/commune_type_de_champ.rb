@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = LOCALISATION
+
   include AddressableColumnConcern
 
   def typed_champ_value_for_export(champ, path = :value)

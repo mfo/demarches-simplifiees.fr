@@ -75,7 +75,7 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
       .filter(&method(:filter_featured_type_champ))
       .filter(&method(:filter_block_type_champ))
       .filter(&method(:filter_public_or_private_only_type_champ))
-      .group_by { TypeDeChamp::TYPE_DE_CHAMP_TO_CATEGORIE.fetch(_1.to_sym) }
+      .group_by { TypeDeChamp.category_for(_1) }
       .sort_by { |k, _v| TypeDeChamp::CATEGORIES.find_index(k) }
       .to_h do |cat, tdc|
         [

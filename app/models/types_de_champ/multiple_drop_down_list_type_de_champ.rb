@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+  def self.category = CHOICE
+
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?
       champ.referentiels_items_user_values.join(', ')

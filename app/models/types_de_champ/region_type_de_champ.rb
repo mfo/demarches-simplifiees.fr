@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RegionTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = LOCALISATION
+
   include AddressableColumnConcern
 
   def columns(procedure_id:, displayable: true, prefix: nil)

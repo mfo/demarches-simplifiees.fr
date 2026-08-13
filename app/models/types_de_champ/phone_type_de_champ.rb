@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::PhoneTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = ETAT_CIVIL
+
   # We want to allow:
   # * international (e164) phone numbers
   # * “french format” (ten digits with a leading 0)

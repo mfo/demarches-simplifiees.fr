@@ -34,50 +34,9 @@ class TypeDeChamp < ApplicationRecord
 
   CATEGORIES = [STRUCTURE, ETAT_CIVIL, LOCALISATION, PAIEMENT_IDENTIFICATION, STANDARD, PIECES_JOINTES, CHOICE, REFERENTIEL_EXTERNE, FRANCE_CONNECT]
 
-  TYPE_DE_CHAMP_TO_CATEGORIE = {
-    pre_rempli: REFERENTIEL_EXTERNE,
-    referentiel: REFERENTIEL_EXTERNE,
-    engagement_juridique: REFERENTIEL_EXTERNE,
-    header_section: STRUCTURE,
-    repetition: STRUCTURE,
-    dossier_link: STRUCTURE,
-    explication: STRUCTURE,
-    civilite: ETAT_CIVIL,
-    email: ETAT_CIVIL,
-    phone: ETAT_CIVIL,
-    address: LOCALISATION,
-    communes: LOCALISATION,
-    departements: LOCALISATION,
-    regions: LOCALISATION,
-    pays: LOCALISATION,
-    epci: LOCALISATION,
-    iban: PAIEMENT_IDENTIFICATION,
-    siret: PAIEMENT_IDENTIFICATION,
-    text: STANDARD,
-    textarea: STANDARD,
-    number: STANDARD,
-    decimal_number: STANDARD,
-    integer_number: STANDARD,
-    formatted: STANDARD,
-    date: STANDARD,
-    datetime: STANDARD,
-    piece_justificative: STANDARD,
-    checkbox: CHOICE,
-    drop_down_list: CHOICE,
-    multiple_drop_down_list: CHOICE,
-    linked_drop_down_list: CHOICE,
-    yes_no: CHOICE,
-    annuaire_education: REFERENTIEL_EXTERNE,
-    rna: REFERENTIEL_EXTERNE,
-    rnf: REFERENTIEL_EXTERNE,
-    carte: REFERENTIEL_EXTERNE,
-    cojo: REFERENTIEL_EXTERNE,
-    quotient_familial: FRANCE_CONNECT,
-    etudiant_boursier: FRANCE_CONNECT,
-    aah: FRANCE_CONNECT,
-    aeeh: FRANCE_CONNECT,
-    ars: FRANCE_CONNECT,
-  }
+  def self.category_for(type_champ)
+    find_sti_class(type_champ).category
+  end
 
   enum :type_champ, {
     engagement_juridique: 'engagement_juridique',
