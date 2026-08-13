@@ -53,25 +53,25 @@ class TypesDeChamp::TypeDeChampBase
     (words / READ_WORDS_PER_SECOND).round.seconds
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     champ.value.present? ? champ_text_value(champ) : champ_default_value
   end
 
-  def champ_value_for_api(champ, version: 2)
+  def typed_champ_value_for_api(champ, version: 2)
     case version
     when 2
-      champ_value(champ)
+      typed_champ_value(champ)
     else
       champ.value.presence || champ_default_api_value(version)
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     path == :value ? champ_text_value(champ).presence : champ_default_export_value(path)
   end
 
-  def champ_value_for_tag(champ, path = :value)
-    path == :value ? champ_value(champ) : nil
+  def typed_champ_value_for_tag(champ, path = :value)
+    path == :value ? typed_champ_value(champ) : nil
   end
 
   def champ_default_value
@@ -91,8 +91,8 @@ class TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def champ_blank?(champ) = champ.value.blank?
-  def champ_blank_or_invalid?(champ) = champ_blank?(champ)
+  def typed_champ_blank?(champ) = champ.value.blank?
+  def typed_champ_blank_or_invalid?(champ) = typed_champ_blank?(champ)
 
   def canonical_column(procedure_id:, displayable: true, prefix: nil)
     return nil unless fillable?

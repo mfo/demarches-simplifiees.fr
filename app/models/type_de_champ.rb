@@ -841,7 +841,7 @@ class TypeDeChamp < ApplicationRecord
     if champ_blank?(champ)
       dynamic_type.champ_default_value
     else
-      dynamic_type.champ_value(champ)
+      dynamic_type.typed_champ_value(champ)
     end
   end
 
@@ -849,7 +849,7 @@ class TypeDeChamp < ApplicationRecord
     if champ_blank?(champ)
       dynamic_type.champ_default_api_value(version)
     else
-      dynamic_type.champ_value_for_api(champ, version:)
+      dynamic_type.typed_champ_value_for_api(champ, version:)
     end
   end
 
@@ -857,7 +857,7 @@ class TypeDeChamp < ApplicationRecord
     if champ_blank?(champ)
       dynamic_type.champ_default_export_value(path)
     else
-      dynamic_type.champ_value_for_export(champ, path)
+      dynamic_type.typed_champ_value_for_export(champ, path)
     end
   end
 
@@ -865,7 +865,7 @@ class TypeDeChamp < ApplicationRecord
     if champ_blank?(champ)
       ''
     else
-      dynamic_type.champ_value_for_tag(champ, path)
+      dynamic_type.typed_champ_value_for_tag(champ, path)
     end
   end
 
@@ -874,7 +874,7 @@ class TypeDeChamp < ApplicationRecord
     return true if champ.nil?
     # type de champ on the revision changed
     if champ.is_type?(type_champ) || castable_on_change?(champ.last_write_type_champ, type_champ)
-      dynamic_type.champ_blank?(champ)
+      dynamic_type.typed_champ_blank?(champ)
     else
       true
     end
@@ -885,7 +885,7 @@ class TypeDeChamp < ApplicationRecord
     return true if champ.nil?
     # type de champ on the revision changed
     if champ.is_type?(type_champ) || castable_on_change?(champ.last_write_type_champ, type_champ)
-      mandatory? && dynamic_type.champ_blank_or_invalid?(champ)
+      mandatory? && dynamic_type.typed_champ_blank_or_invalid?(champ)
     else
       true
     end

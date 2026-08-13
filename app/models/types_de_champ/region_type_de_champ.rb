@@ -8,23 +8,23 @@ class TypesDeChamp::RegionTypeDeChamp < TypesDeChamp::TextTypeDeChamp
       .concat(legacy_columns(procedure_id:, prefix:))
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     champ.name
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :code
       champ.code
     end
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :code
       champ.code
     end

@@ -47,7 +47,7 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
     FILL_DURATION_MEDIUM
   end
 
-  def champ_blank?(champ)
+  def typed_champ_blank?(champ)
     return true if champ.fetched? && champ.fc_data_approved?.nil?
     return false if champ.fc_data_correct?
 
@@ -56,7 +56,7 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     ''
   end
 
