@@ -636,7 +636,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def carte_optional_layers
-    TypesDeChamp::CarteTypeDeChamp::LAYERS.filter_map do |layer|
+    CARTE_LAYERS.filter_map do |layer|
       layer_enabled?(layer) ? layer : nil
     end.sort
   end
@@ -650,7 +650,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def editable_options
-    layers = TypesDeChamp::CarteTypeDeChamp::LAYERS.map do |layer|
+    layers = CARTE_LAYERS.map do |layer|
       disabled = case layer
       when :cadastres
         layer_enabled?(:rpg)
@@ -753,6 +753,23 @@ class TypeDeChamp < ApplicationRecord
       .parameterize
   end
 
+  # Kept here rather than on TypesDeChamp::CarteTypeDeChamp: that subclass now
+  # inherits from TypeDeChamp, so referencing it from this class body would close
+  # an autoload cycle.
+  CARTE_LAYERS = [
+    :unesco,
+    :arretes_protection,
+    :conservatoire_littoral,
+    :reserves_chasse_faune_sauvage,
+    :reserves_biologiques,
+    :reserves_naturelles,
+    :natura_2000,
+    :zones_humides,
+    :znieff,
+    :cadastres,
+    :rpg,
+  ]
+
   OPTS_BY_TYPE = {
     type_champs.fetch(:header_section) => [:header_section_level],
     type_champs.fetch(:explication) => [:collapsible_explanation_enabled, :collapsible_explanation_text],
@@ -761,7 +778,7 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:decimal_number) => [:positive_number, :min_number, :max_number, :range_number],
     type_champs.fetch(:date) => [:birthdate, :prefill_with_france_connect_information, :date_in_past, :start_date, :end_date, :range_date],
     type_champs.fetch(:datetime) => [:date_in_past, :start_date, :end_date, :range_date],
-    type_champs.fetch(:carte) => TypesDeChamp::CarteTypeDeChamp::LAYERS,
+    type_champs.fetch(:carte) => CARTE_LAYERS,
     type_champs.fetch(:drop_down_list) => [:drop_down_other, :drop_down_options, :drop_down_mode],
     type_champs.fetch(:multiple_drop_down_list) => [:drop_down_options, :drop_down_mode],
     type_champs.fetch(:linked_drop_down_list) => [:drop_down_options, :drop_down_secondary_libelle, :drop_down_secondary_description],
