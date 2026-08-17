@@ -5,4 +5,4 @@ en:
         one: is not of an accepted type (%{content_type}).
         other: is not of an accepted type (%{content_type}).
       file_size_out_of_range: is too big. The file must be at most %{max_size}.
-      file_empty: is empty (%{filename}). The uploaded file contains no data.
+      file_empty: is empty (%{filename}). If the file comes from an email app or an online storage service, download it to your device first, then try again.
