@@ -254,14 +254,6 @@ class TypeDeChamp < ApplicationRecord
     drop_down_list? && (drop_down_other == "1" || drop_down_other == true)
   end
 
-  def positive_number?
-    positive_number == "1"
-  end
-
-  def range_number?
-    range_number == "1"
-  end
-
   def limit_repetitions?
     limit_repetitions == "1"
   end
