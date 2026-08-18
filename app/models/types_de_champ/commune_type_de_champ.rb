@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
   def self.category = LOCALISATION
 
   def prefillable? = true

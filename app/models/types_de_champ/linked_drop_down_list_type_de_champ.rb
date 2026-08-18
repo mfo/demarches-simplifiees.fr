@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypeDeChamp
   def self.category = CHOICE
   def self.editable_option_keys = [:drop_down_options, :drop_down_secondary_libelle, :drop_down_secondary_description]
 

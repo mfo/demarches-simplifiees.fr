@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::FranceConnectTypeDeChamp < TypeDeChamp
   def self.category = FRANCE_CONNECT
 
   def france_connect? = true

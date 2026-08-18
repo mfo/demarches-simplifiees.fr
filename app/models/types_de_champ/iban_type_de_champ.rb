@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::IbanTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::IbanTypeDeChamp < TypeDeChamp
   def self.category = PAIEMENT_IDENTIFICATION
 
   def prefillable? = true

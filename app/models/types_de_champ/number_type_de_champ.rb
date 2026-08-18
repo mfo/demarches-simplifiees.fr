@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::NumberTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::NumberTypeDeChamp < TypeDeChamp
 end

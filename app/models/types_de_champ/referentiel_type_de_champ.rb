@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::ReferentielTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::ReferentielTypeDeChamp < TypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
   def self.editable_option_keys = [:referentiel_mapping]
 

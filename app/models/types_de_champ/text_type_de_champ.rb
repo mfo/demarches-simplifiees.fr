@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::TextTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::TextTypeDeChamp < TypeDeChamp
   def prefillable? = true
 
   def typed_champ_value_for_export(champ, path = :value)

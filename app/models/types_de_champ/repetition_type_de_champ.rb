@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::RepetitionTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
   def self.category = STRUCTURE
   def self.editable_option_keys = [:limit_repetitions, :min_repetitions, :max_repetitions]
 

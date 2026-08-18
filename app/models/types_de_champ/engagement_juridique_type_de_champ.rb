@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::EngagementJuridiqueTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::EngagementJuridiqueTypeDeChamp < TypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
 end

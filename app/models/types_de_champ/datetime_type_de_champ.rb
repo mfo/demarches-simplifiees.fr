@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::DatetimeTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::DatetimeTypeDeChamp < TypeDeChamp
   def self.editable_option_keys = [:date_in_past, :start_date, :end_date, :range_date]
   def self.column_type = :datetime
 

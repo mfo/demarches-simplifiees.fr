@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
   def self.editable_option_keys = CARTE_LAYERS
   def self.column_type = :geojson

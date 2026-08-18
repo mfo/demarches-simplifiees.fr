@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::DecimalNumberTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::DecimalNumberTypeDeChamp < TypeDeChamp
   def self.editable_option_keys = [:positive_number, :min_number, :max_number, :range_number]
   def self.column_type = :decimal
 

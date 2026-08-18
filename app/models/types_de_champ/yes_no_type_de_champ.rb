@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::YesNoTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::YesNoTypeDeChamp < TypeDeChamp
   def self.category = CHOICE
   def self.column_type = :boolean
 

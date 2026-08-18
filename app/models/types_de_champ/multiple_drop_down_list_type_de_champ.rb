@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
   def self.category = CHOICE
   def self.editable_option_keys = [:drop_down_options, :drop_down_mode]
   def self.column_type = :enums

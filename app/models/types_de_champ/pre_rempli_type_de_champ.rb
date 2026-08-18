@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::PreRempliTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::PreRempliTypeDeChamp < TypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
   def self.editable_option_keys = [:drop_down_options, :pre_rempli_hidden]
 
