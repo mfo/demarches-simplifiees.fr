@@ -10,4 +10,5 @@ class TypesDeChamp::ExplicationTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def has_label? = false
   def tags_for_template = [].freeze
   def customizable? = false
+  def collapsible_explanation_enabled? = collapsible_explanation_enabled == "1"
 end

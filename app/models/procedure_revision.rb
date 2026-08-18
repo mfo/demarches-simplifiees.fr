@@ -435,18 +435,6 @@ class ProcedureRevision < ApplicationRecord
         from_type_de_champ.libelle,
         to_type_de_champ.libelle)
     end
-    if from_type_de_champ.collapsible_explanation_enabled? != to_type_de_champ.collapsible_explanation_enabled?
-      changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
-        :collapsible_explanation_enabled,
-        from_type_de_champ.collapsible_explanation_enabled?,
-        to_type_de_champ.collapsible_explanation_enabled?)
-    end
-    if from_type_de_champ.collapsible_explanation_text != to_type_de_champ.collapsible_explanation_text
-      changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
-        :collapsible_explanation_text,
-        from_type_de_champ.collapsible_explanation_text,
-        to_type_de_champ.collapsible_explanation_text)
-    end
     if from_type_de_champ.description != to_type_de_champ.description
       changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
         :description,
@@ -561,6 +549,18 @@ class ProcedureRevision < ApplicationRecord
           :notice_explicative,
           from_type_de_champ.filename_for_attachement(:notice_explicative),
           to_type_de_champ.filename_for_attachement(:notice_explicative))
+      end
+      if from_type_de_champ.collapsible_explanation_enabled? != to_type_de_champ.collapsible_explanation_enabled?
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :collapsible_explanation_enabled,
+          from_type_de_champ.collapsible_explanation_enabled?,
+          to_type_de_champ.collapsible_explanation_enabled?)
+      end
+      if from_type_de_champ.collapsible_explanation_text != to_type_de_champ.collapsible_explanation_text
+        changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
+          :collapsible_explanation_text,
+          from_type_de_champ.collapsible_explanation_text,
+          to_type_de_champ.collapsible_explanation_text)
       end
     elsif to_type_de_champ.textarea?
       if from_type_de_champ.character_limit.presence != to_type_de_champ.character_limit.presence

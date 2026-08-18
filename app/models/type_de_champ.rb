@@ -254,35 +254,11 @@ class TypeDeChamp < ApplicationRecord
     drop_down_list? && (drop_down_other == "1" || drop_down_other == true)
   end
 
-  def limit_repetitions?
-    limit_repetitions == "1"
-  end
-
   def prefill_with_france_connect_information? = false
-
-  def character_limit?
-    character_limit.present?
-  end
-
-  def collapsible_explanation_enabled?
-    collapsible_explanation_enabled == "1"
-  end
-
-  def procedures_limit?
-    procedures_limit == "1"
-  end
-
-  def dossier_link_procedure_ids = Array.wrap(super)
-
-  def dossier_link_procedure_ids=(value)
-    super(Array.wrap(value).map(&:to_i).reject(&:zero?).uniq)
-  end
 
   def prefillable? = false
 
-  def pre_rempli_hidden?
-    pre_rempli? && pre_rempli_hidden == "1"
-  end
+  def pre_rempli_hidden? = false
 
   def fillable? = true
 
@@ -320,13 +296,7 @@ class TypeDeChamp < ApplicationRecord
     end
   end
 
-  def formatted_simple?
-    formatted? && formatted_mode != 'advanced'
-  end
-
-  def formatted_advanced?
-    formatted? && formatted_mode == 'advanced'
-  end
+  def formatted_advanced? = false
 
   def drop_down_simple?
     (drop_down_list? || multiple_drop_down_list?) && drop_down_mode != 'advanced'
@@ -441,24 +411,6 @@ class TypeDeChamp < ApplicationRecord
     Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
       .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !find_sti_class(_1).simple_routable? } }
       .reject(&:empty?)
-  end
-
-  def invalid_regexp?
-    self.errors.delete(:expression_reguliere)
-    self.errors.delete(:expression_reguliere_exemple_text)
-
-    return false if expression_reguliere.blank?
-    return false if expression_reguliere_exemple_text.blank?
-    return false if expression_reguliere_exemple_text.match?(Regexp.new(expression_reguliere, timeout: ExpressionReguliereValidator::TIMEOUT))
-
-    self.errors.add(:expression_reguliere_exemple_text, I18n.t('errors.messages.mismatch_regexp'))
-    true
-  rescue Regexp::TimeoutError
-    self.errors.add(:expression_reguliere, I18n.t('errors.messages.evil_regexp'))
-    true
-  rescue RegexpError
-    self.errors.add(:expression_reguliere, I18n.t('errors.messages.syntax_error_regexp'))
-    true
   end
 
   def public_id(row_id)

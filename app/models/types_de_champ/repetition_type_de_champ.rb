@@ -7,6 +7,7 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def has_label? = false
+  def limit_repetitions? = limit_repetitions == "1"
 
   before_validation :reset_limits_if_disabled
 
