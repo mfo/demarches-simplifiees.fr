@@ -244,6 +244,30 @@ describe Administrateurs::ReferentielsController, type: :controller do
         expect(new_referentiel.authentication_data.with_indifferent_access).to eq(original_authentication_data.with_indifferent_access)
       end
     end
+
+    context 'cloning an existing referentiel having an autocomplete configuration' do
+      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let!(:existing_referentiel) do
+        create(:api_referentiel, :autocomplete, types_de_champ: [type_de_champ], datasource: '$.')
+      end
+      let(:referentiel_params) do
+        {
+          type: 'Referentiels::APIReferentiel',
+          mode: 'autocomplete',
+          url_tiptap: existing_referentiel.url_tiptap.to_json,
+          test_data_tiptap: existing_referentiel.test_data_tiptap,
+          referentiel_id: existing_referentiel.id.to_s,
+        }
+      end
+
+      it 'carries over the autocomplete configuration from the source referentiel' do
+        post :create, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream
+
+        new_referentiel = type_de_champ.reload.referentiel
+        expect(new_referentiel.id).not_to eq(existing_referentiel.id)
+        expect(new_referentiel.autocomplete_configuration).to eq(existing_referentiel.autocomplete_configuration)
+      end
+    end
   end
 
   describe '#create with tiptap' do
