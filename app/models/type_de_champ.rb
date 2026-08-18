@@ -7,13 +7,6 @@ class TypeDeChamp < ApplicationRecord
 
   FILE_MAX_SIZE = 200.megabytes
   IDENTITY_FILE_MAX_SIZE = 20.megabytes
-  PERSONNALISABLE_TYPE_CHAMPS = %w[
-    text integer_number decimal_number formatted date datetime
-    dossier_link drop_down_list multiple_drop_down_list linked_drop_down_list
-    civilite email phone siret rna rnf annuaire_education iban
-    address communes departements regions pays epci
-  ].freeze
-
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
 
   FILL_DURATION_SHORT  = 10.seconds
@@ -236,6 +229,7 @@ class TypeDeChamp < ApplicationRecord
   def libelle_configurable? = true
   def description_configurable? = true
   def has_label? = true
+  def customizable? = false
 
   def safe_referentiel_mapping
     Hash(referentiel_mapping).with_indifferent_access

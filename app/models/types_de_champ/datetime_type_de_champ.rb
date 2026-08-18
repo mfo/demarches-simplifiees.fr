@@ -5,6 +5,7 @@ class TypesDeChamp::DatetimeTypeDeChamp < TypeDeChamp
   def self.column_type = :datetime
 
   def prefillable? = true
+  def customizable? = true
 
   def typed_champ_value(champ)
     I18n.l(Time.zone.parse(champ.value))

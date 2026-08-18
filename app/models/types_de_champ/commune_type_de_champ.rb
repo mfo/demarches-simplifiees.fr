@@ -4,6 +4,7 @@ class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
   def self.category = LOCALISATION
 
   def prefillable? = true
+  def customizable? = true
 
   include AddressableColumnConcern
 

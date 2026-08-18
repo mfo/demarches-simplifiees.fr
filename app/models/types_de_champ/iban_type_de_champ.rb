@@ -4,6 +4,7 @@ class TypesDeChamp::IbanTypeDeChamp < TypeDeChamp
   def self.category = PAIEMENT_IDENTIFICATION
 
   def prefillable? = true
+  def customizable? = true
 
   def estimated_fill_duration(revision)
     FILL_DURATION_MEDIUM

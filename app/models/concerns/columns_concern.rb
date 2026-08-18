@@ -134,7 +134,7 @@ module ColumnsConcern
   def personnalisable_columns
     current_revision = published_revision || active_revision
     current_revision.root_types_de_champ_public
-      .filter { _1.type_champ.in?(TypeDeChamp::PERSONNALISABLE_TYPE_CHAMPS) }
+      .filter(&:customizable?)
       .filter { _1.condition.nil? }
       .filter_map { _1.personnalisation_column(procedure_id: id) }
       .uniq(&:stable_id)

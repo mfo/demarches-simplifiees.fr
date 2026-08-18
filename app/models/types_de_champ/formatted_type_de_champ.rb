@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
+  def customizable? = true
+
   after_initialize :set_default_options
 
   def prefillable? = true

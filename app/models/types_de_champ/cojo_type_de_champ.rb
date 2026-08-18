@@ -5,6 +5,7 @@ class TypesDeChamp::COJOTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.feature_flag = :cojo_type_de_champ
 
   def prefillable? = false
+  def customizable? = false
 
   def typed_champ_value(champ)
     "#{champ.accreditation_number} – #{champ.accreditation_birthdate}"

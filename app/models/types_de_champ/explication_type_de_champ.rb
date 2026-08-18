@@ -9,4 +9,5 @@ class TypesDeChamp::ExplicationTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def libelle_optionnal? = true
   def has_label? = false
   def tags_for_template = [].freeze
+  def customizable? = false
 end

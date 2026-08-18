@@ -9,6 +9,7 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def options_for_select = options_for_select_with_other
   def choice_type? = true
   def any_drop_down_list? = true
+  def customizable? = true
 
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiel) && champ.referentiel.present?

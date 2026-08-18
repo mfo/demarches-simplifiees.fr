@@ -3,6 +3,8 @@
 class TypesDeChamp::TextareaTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.editable_option_keys = [:character_limit]
 
+  def customizable? = false
+
   def estimated_fill_duration(revision)
     FILL_DURATION_MEDIUM
   end

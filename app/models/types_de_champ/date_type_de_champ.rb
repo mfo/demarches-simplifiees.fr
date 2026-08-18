@@ -5,6 +5,7 @@ class TypesDeChamp::DateTypeDeChamp < TypeDeChamp
   def self.column_type = :date
 
   def prefillable? = true
+  def customizable? = true
 
   def typed_champ_value(champ)
     I18n.l(Time.zone.parse(champ.value).to_date, format: :long)

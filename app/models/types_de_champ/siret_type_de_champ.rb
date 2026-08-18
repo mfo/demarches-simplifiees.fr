@@ -4,6 +4,7 @@ class TypesDeChamp::SiretTypeDeChamp < TypeDeChamp
   def self.category = PAIEMENT_IDENTIFICATION
 
   def prefillable? = true
+  def customizable? = true
 
   include AddressableColumnConcern
 
