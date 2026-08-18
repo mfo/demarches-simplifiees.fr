@@ -4,6 +4,6 @@
     = render Referentiels::ReferentielDisplayComponent.new(procedure: procedure, type_de_champ: type_de_champ, referentiel: referentiel)
 
   %ul.fr-btns-group.fr-btns-group--inline-sm.flex.justify-center.fr-mt-5w
-    %li= link_to "Annuler", champs_admin_procedure_path(procedure), class: 'fr-btn fr-btn--secondary fr-mr-3w'
+    %li= link_to "Annuler", cancel_url, class: 'fr-btn fr-btn--secondary fr-mr-3w'
     %li= link_to "Étape précédente", mapping_type_de_champ_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel), class: 'fr-btn fr-btn--secondary'
     %li= f.submit "Valider", class: "fr-btn"

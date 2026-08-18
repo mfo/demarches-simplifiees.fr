@@ -24,8 +24,8 @@ RSpec.describe Referentiels::MappingFormComponent, type: :component do
         expect(page).to have_selector("th", text: "Propriété")
         expect(page).to have_selector("th", text: "Exemple de donnée")
         expect(page).to have_selector("th", text: "Type de donnée")
-        expect(page).to have_selector("th", text: "Utiliser la donnéepour préremplirun champ duformulaire")
-        expect(page).to have_selector("th", text: "Libellé de la donnée récupérée(pour afficher à l’usager et/ou l’instructeur)")
+        expect(page).to have_selector("th", text: "Utiliser la donnéepour préremplirun champ ouune annotation")
+        expect(page).to have_selector("th", text: "Libellé de la donnée récupérée(pour l’affichage)")
 
         # tbody
         ["$.point.type", "$.point.coordinates", "$.shape.type"].each do |sample|
@@ -52,6 +52,19 @@ RSpec.describe Referentiels::MappingFormComponent, type: :component do
       context 'when referentiel is exact match' do
         it 'renders the autocomplete configuration link' do
           expect(page).to have_link("Étape précédente", href: url_helpers.edit_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel.id))
+        end
+      end
+
+      it 'cancels back to the champs list for a public champ' do
+        expect(page).to have_link("Annuler", href: url_helpers.champs_admin_procedure_path(procedure))
+      end
+
+      context 'when the champ is a private annotation' do
+        let(:procedure) { create(:procedure, types_de_champ_private: [{ type: :referentiel, referentiel: }]) }
+        let(:type_de_champ) { procedure.draft_revision.types_de_champ.find(&:referentiel?) }
+
+        it 'cancels back to the annotations list' do
+          expect(page).to have_link("Annuler", href: url_helpers.annotations_admin_procedure_path(procedure))
         end
       end
     end
