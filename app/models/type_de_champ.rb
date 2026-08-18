@@ -35,6 +35,8 @@ class TypeDeChamp < ApplicationRecord
 
   def self.category = STANDARD
   def self.feature_flag = nil
+  def self.private_only? = false
+  def self.public_only? = false
 
   def self.category_for(type_champ)
     find_sti_class(type_champ).category
@@ -97,10 +99,6 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:address),
   ]
 
-  PRIVATE_ONLY_TYPES = [
-    type_champs.fetch(:engagement_juridique),
-  ]
-
   API_PART_FC_TDC = [
     type_champs.fetch(:quotient_familial),
     type_champs.fetch(:etudiant_boursier),
@@ -108,8 +106,6 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:aeeh),
     type_champs.fetch(:ars),
   ]
-
-  PUBLIC_ONLY_TYPES = API_PART_FC_TDC
 
   store_accessor :options,
                  :cadastres,

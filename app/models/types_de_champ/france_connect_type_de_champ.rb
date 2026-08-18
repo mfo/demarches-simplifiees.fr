@@ -2,6 +2,7 @@
 
 class TypesDeChamp::FranceConnectTypeDeChamp < TypeDeChamp
   def self.category = FRANCE_CONNECT
+  def self.public_only? = true
 
   def france_connect? = true
   def api_particulier? = true

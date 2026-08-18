@@ -122,11 +122,8 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   end
 
   def filter_public_or_private_only_type_champ(type_champ)
-    if coordinate.private?
-      !TypeDeChamp::PUBLIC_ONLY_TYPES.include?(type_champ)
-    else
-      !TypeDeChamp::PRIVATE_ONLY_TYPES.include?(type_champ)
-    end
+    klass = TypeDeChamp.find_sti_class(type_champ)
+    coordinate.private? ? !klass.public_only? : !klass.private_only?
   end
 
   def filter_featured_type_champ(type_champ)
