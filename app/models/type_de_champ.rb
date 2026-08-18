@@ -250,9 +250,7 @@ class TypeDeChamp < ApplicationRecord
     revisions.one? && revisions.first.draft?
   end
 
-  def drop_down_other?
-    drop_down_list? && (drop_down_other == "1" || drop_down_other == true)
-  end
+  def drop_down_other? = false
 
   def prefill_with_france_connect_information? = false
 
@@ -298,49 +296,9 @@ class TypeDeChamp < ApplicationRecord
 
   def formatted_advanced? = false
 
-  def drop_down_simple?
-    (drop_down_list? || multiple_drop_down_list?) && drop_down_mode != 'advanced'
-  end
-
-  def drop_down_advanced?
-    (drop_down_list? || multiple_drop_down_list?) && drop_down_mode == 'advanced'
-  end
-
-  def drop_down_options
-    if drop_down_advanced?
-      Array.wrap(referentiel&.drop_down_options)
-    else
-      Array.wrap(super)
-    end
-  end
+  def drop_down_advanced? = false
 
   def options_for_select = nil
-
-  def options_for_select_with_other
-    options = if drop_down_advanced?
-      Array.wrap(referentiel&.options_for_select)
-    else
-      drop_down_options.uniq.map { [it, it] }
-    end
-
-    if drop_down_other?
-      options << [I18n.t('shared.champs.drop_down_list.other'), Champs::DropDownListChamp::OTHER]
-    end
-
-    options
-  end
-
-  def drop_down_options_from_text=(text)
-    self.drop_down_options = text.to_s.lines
-  end
-
-  def drop_down_options=(options)
-    super(normalize_drop_down_options(options))
-  end
-
-  def value_is_in_options?(checked_value)
-    options_for_select.any? { _1.last == checked_value }
-  end
 
   def previous_section_level(upper_tdcs)
     previous_header_section = upper_tdcs.reverse.find(&:header_section?)
@@ -704,9 +662,5 @@ class TypeDeChamp < ApplicationRecord
   def clean_referentiel
     return if !persisted? || !type_champ_changed? || !referentiel_id?
     self.referentiel_id = nil
-  end
-
-  def normalize_drop_down_options(options)
-    Array.wrap(options).filter_map { _1.to_s.squish.presence }
   end
 end
