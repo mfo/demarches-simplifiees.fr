@@ -7,12 +7,6 @@ class TypeDeChamp < ApplicationRecord
 
   FILE_MAX_SIZE = 200.megabytes
   IDENTITY_FILE_MAX_SIZE = 20.megabytes
-  FEATURE_FLAGS = {
-    engagement_juridique: :engagement_juridique_type_de_champ,
-    cojo: :cojo_type_de_champ,
-    pre_rempli: :pre_rempli_type_de_champ,
-  }
-
   PERSONNALISABLE_TYPE_CHAMPS = %w[
     text integer_number decimal_number formatted date datetime
     dossier_link drop_down_list multiple_drop_down_list linked_drop_down_list
@@ -40,6 +34,7 @@ class TypeDeChamp < ApplicationRecord
   CATEGORIES = [STRUCTURE, ETAT_CIVIL, LOCALISATION, PAIEMENT_IDENTIFICATION, STANDARD, PIECES_JOINTES, CHOICE, REFERENTIEL_EXTERNE, FRANCE_CONNECT]
 
   def self.category = STANDARD
+  def self.feature_flag = nil
 
   def self.category_for(type_champ)
     find_sti_class(type_champ).category

@@ -2,6 +2,7 @@
 
 class TypesDeChamp::COJOTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
+  def self.feature_flag = :cojo_type_de_champ
 
   def prefillable? = false
 
