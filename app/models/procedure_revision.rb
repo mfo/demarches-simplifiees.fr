@@ -80,6 +80,10 @@ class ProcedureRevision < ApplicationRecord
   def find_and_ensure_exclusive_use(stable_id)
     coordinate, tdc = coordinate_and_tdc(stable_id)
 
+    # replayed request targeting a tdc no longer in this revision (deleted in
+    # another tab or by a previous request)
+    raise ActiveRecord::RecordNotFound if tdc.nil?
+
     if tdc.only_present_on_draft?
       tdc
     else
