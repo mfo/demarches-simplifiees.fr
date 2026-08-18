@@ -280,20 +280,6 @@ class TypeDeChamp < ApplicationRecord
     revision.coordinate_for(self)&.child?
   end
 
-  def filename_for_attachement(attachment_sym)
-    attachment = send(attachment_sym)
-    if attachment.attached?
-      attachment.filename
-    end
-  end
-
-  def checksum_for_attachment(attachment_sym)
-    attachment = send(attachment_sym)
-    if attachment.attached?
-      attachment.checksum
-    end
-  end
-
   def formatted_advanced? = false
 
   def drop_down_advanced? = false

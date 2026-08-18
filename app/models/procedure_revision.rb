@@ -509,11 +509,11 @@ class ProcedureRevision < ApplicationRecord
           to_type_de_champ.carte_optional_layers)
       end
     elsif to_type_de_champ.piece_justificative?
-      if from_type_de_champ.checksum_for_attachment(:piece_justificative_template) != to_type_de_champ.checksum_for_attachment(:piece_justificative_template)
+      if from_type_de_champ.piece_justificative_template.blob&.checksum != to_type_de_champ.piece_justificative_template.blob&.checksum
         changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
           :piece_justificative_template,
-          from_type_de_champ.filename_for_attachement(:piece_justificative_template),
-          to_type_de_champ.filename_for_attachement(:piece_justificative_template))
+          from_type_de_champ.piece_justificative_template.blob&.filename,
+          to_type_de_champ.piece_justificative_template.blob&.filename)
       end
       if from_type_de_champ.nature != to_type_de_champ.nature
         changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
@@ -544,11 +544,11 @@ class ProcedureRevision < ApplicationRecord
         end
       end
     elsif to_type_de_champ.explication?
-      if from_type_de_champ.checksum_for_attachment(:notice_explicative) != to_type_de_champ.checksum_for_attachment(:notice_explicative)
+      if from_type_de_champ.notice_explicative.blob&.checksum != to_type_de_champ.notice_explicative.blob&.checksum
         changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
           :notice_explicative,
-          from_type_de_champ.filename_for_attachement(:notice_explicative),
-          to_type_de_champ.filename_for_attachement(:notice_explicative))
+          from_type_de_champ.notice_explicative.blob&.filename,
+          to_type_de_champ.notice_explicative.blob&.filename)
       end
       if from_type_de_champ.collapsible_explanation_enabled? != to_type_de_champ.collapsible_explanation_enabled?
         changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
