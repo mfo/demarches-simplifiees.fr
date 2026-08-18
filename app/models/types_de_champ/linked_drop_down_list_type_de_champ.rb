@@ -9,6 +9,8 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypeDeChamp
   def has_label? = false
   def customizable? = true
 
+  before_validation :set_default_drop_down_options, if: :type_champ_changed?
+
   PRIMARY_PATTERN = /^--(.*)--$/
 
   validate :check_presence_of_primary_options
@@ -161,6 +163,12 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypeDeChamp
   def check_presence_of_primary_options
     if !PRIMARY_PATTERN.match?(drop_down_options.first)
       errors.add(libelle.presence || "La liste", "doit commencer par une entrée de menu primaire de la forme <code style='white-space: pre-wrap;'>--texte--</code>")
+    end
+  end
+
+  def set_default_drop_down_options
+    if drop_down_options.none?(PRIMARY_PATTERN)
+      self.drop_down_options = ['--Fromage--', 'bleu de sassenage', 'picodon', '--Dessert--', 'éclair', 'tarte aux pommes']
     end
   end
 end

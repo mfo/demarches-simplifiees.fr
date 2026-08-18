@@ -4,6 +4,8 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
   def self.editable_option_keys = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :pj_limit_formats, :pj_format_families, :pj_auto_purge]
   def self.column_type = :attachments
 
+  before_validation :reset_format_options_if_forced_nature
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)
@@ -150,5 +152,14 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
     end
 
     cs
+  end
+
+  private
+
+  def reset_format_options_if_forced_nature
+    if titre_identite? || rib?
+      self.pj_limit_formats = nil
+      self.pj_format_families = []
+    end
   end
 end

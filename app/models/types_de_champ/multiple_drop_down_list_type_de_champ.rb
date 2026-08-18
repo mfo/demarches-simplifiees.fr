@@ -11,6 +11,8 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
   def any_drop_down_list? = true
   def customizable? = true
 
+  before_validation :set_default_drop_down_options, if: :type_champ_changed?
+
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?
       champ.referentiels_items_user_values.join(', ')
@@ -65,5 +67,11 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
 
   def selected_options(champ)
     self.class.parse_selected_options(champ)
+  end
+
+  def set_default_drop_down_options
+    if drop_down_options.empty?
+      self.drop_down_options = ['Fromage', 'Dessert']
+    end
   end
 end

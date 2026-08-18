@@ -183,16 +183,11 @@ class TypeDeChamp < ApplicationRecord
 
   before_validation :check_mandatory
   before_validation :set_default_libelle, if: -> { type_champ_changed? }
-  before_validation :set_drop_down_list_options, if: -> { type_champ_changed? }
-  before_validation :reset_pj_format_options_if_forced_nature
-  before_validation :reset_repetition_limits_if_disabled
 
   normalizes :libelle, with: -> (value) { value.strip }
 
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
-  before_save :clear_conflicting_date_options, if: :birthdate?
-  before_save :clear_prefill_with_france_connect_information_if_not_birthdate
 
   def libelle_with_parent(revision)
     if child?(revision)
@@ -895,17 +890,6 @@ class TypeDeChamp < ApplicationRecord
     ]
   end
 
-  def clear_conflicting_date_options
-    self.date_in_past = nil
-    self.range_date = nil
-    self.start_date = nil
-    self.end_date = nil
-  end
-
-  def clear_prefill_with_france_connect_information_if_not_birthdate
-    self.prefill_with_france_connect_information = nil if !birthdate?
-  end
-
   def families_to_content_types(families)
     return AUTHORIZED_CONTENT_TYPES if families.blank?
 
@@ -935,28 +919,6 @@ class TypeDeChamp < ApplicationRecord
   def clean_referentiel
     return if !persisted? || !type_champ_changed? || !referentiel_id?
     self.referentiel_id = nil
-  end
-
-  def set_drop_down_list_options
-    if (drop_down_list? || multiple_drop_down_list?) && drop_down_options.empty?
-      self.drop_down_options = ['Fromage', 'Dessert']
-    elsif linked_drop_down_list? && drop_down_options.none?(/^--.*--$/)
-      self.drop_down_options = ['--Fromage--', 'bleu de sassenage', 'picodon', '--Dessert--', 'éclair', 'tarte aux pommes']
-    end
-  end
-
-  def reset_repetition_limits_if_disabled
-    return unless type_champ == TypeDeChamp.type_champs.fetch(:repetition)
-    return if limit_repetitions?
-    self.min_repetitions = nil
-    self.max_repetitions = nil
-  end
-
-  def reset_pj_format_options_if_forced_nature
-    if titre_identite? || rib?
-      self.pj_limit_formats = nil
-      self.pj_format_families = []
-    end
   end
 
   def normalize_drop_down_options(options)

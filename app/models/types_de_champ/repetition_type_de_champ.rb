@@ -8,6 +8,8 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
   def prefillable? = true
   def has_label? = false
 
+  before_validation :reset_limits_if_disabled
+
   def typed_champ_value_for_tag(champ, path = :value)
     return nil if path != :value
     ChampPresentations::RepetitionPresentation.new(libelle, champ.dossier.project_rows_for(self))
@@ -45,4 +47,13 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
   end
 
   def typed_champ_blank?(champ) = champ.dossier.repetition_row_ids(self).blank?
+
+  private
+
+  def reset_limits_if_disabled
+    return if limit_repetitions?
+
+    self.min_repetitions = nil
+    self.max_repetitions = nil
+  end
 end
