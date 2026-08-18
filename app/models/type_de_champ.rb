@@ -594,13 +594,6 @@ class TypeDeChamp < ApplicationRecord
 
   def any_drop_down_list? = false
 
-  def allowed_extensions
-    allowed_content_types
-      .filter_map { |mime| MiniMime.lookup_by_content_type(mime)&.extension }
-      .uniq
-      .map { |ext| ".#{ext}" }
-  end
-
   private
 
   # A value written by a multiple drop-down list, read after a type change.
