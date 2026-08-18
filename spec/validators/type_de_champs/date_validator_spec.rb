@@ -7,7 +7,7 @@ RSpec.describe TypeDeChamps::DateValidator do
     end
 
     let(:validation_context) do
-      scope == :public_type_de_champs ? :types_de_champ_public_editor : :types_de_champ_private_editor
+      scope == :public_type_de_champs ? :public_type_de_champs_editor : :private_type_de_champs_editor
     end
 
     let(:procedure) do
@@ -93,7 +93,7 @@ RSpec.describe TypeDeChamps::DateValidator do
     let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :date }, { type: :date }, { type: :text }]) }
     let(:tdcs) { procedure.active_revision.public_root_type_de_champs }
 
-    subject { procedure.validate(:types_de_champ_public_editor) }
+    subject { procedure.validate(:public_type_de_champs_editor) }
 
     context "when no date field has the option enabled" do
       it "does not add errors" do

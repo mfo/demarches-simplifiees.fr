@@ -7,7 +7,7 @@ RSpec.describe TypeDeChamps::NumberValidator do
     end
 
     let(:validation_context) do
-      scope == :public_type_de_champs ? :types_de_champ_public_editor : :types_de_champ_private_editor
+      scope == :public_type_de_champs ? :public_type_de_champs_editor : :private_type_de_champs_editor
     end
 
     let(:procedure) do

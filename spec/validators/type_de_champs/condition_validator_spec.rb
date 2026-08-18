@@ -6,7 +6,7 @@ RSpec.describe TypeDeChamps::ConditionValidator do
   let(:procedure) { create(:procedure, public_type_de_champs:) }
 
   subject do
-    procedure.validate(:types_de_champ_public_editor)
+    procedure.validate(:public_type_de_champs_editor)
     procedure.errors.messages_for(:public_draft_type_de_champs)
   end
 

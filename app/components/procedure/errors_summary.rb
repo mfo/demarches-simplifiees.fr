@@ -12,9 +12,9 @@ class Procedure::ErrorsSummary < ApplicationComponent
 
   def title
     case @validation_context
-    when :types_de_champ_private_editor
+    when :private_type_de_champs_editor
       "Les annotations privées contiennent des erreurs"
-    when :types_de_champ_public_editor
+    when :public_type_de_champs_editor
       "Les champs du formulaire contiennent des erreurs"
     when :publication
       if @procedure.publiee?

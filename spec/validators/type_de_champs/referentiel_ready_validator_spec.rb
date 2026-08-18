@@ -7,7 +7,7 @@ RSpec.describe TypeDeChamps::ReferentielReadyValidator do
   let(:referentiel) { create(:api_referentiel, :exact_match) }
   let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
 
-  subject { procedure.validate(:types_de_champ_public_editor) }
+  subject { procedure.validate(:public_type_de_champs_editor) }
 
   context 'when all referentiel is ready' do
     before { expect_any_instance_of(Referentiels::APIReferentiel).to receive(:ready?).and_return(true) }

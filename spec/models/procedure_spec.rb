@@ -776,7 +776,7 @@ describe Procedure do
         end
 
         it 'validate allows condition' do
-          procedure.validate(:types_de_champ_private_editor)
+          procedure.validate(:private_type_de_champs_editor)
           expect(procedure.errors.full_messages_for(:private_draft_type_de_champs)).to be_empty
         end
       end
@@ -803,7 +803,7 @@ describe Procedure do
         end
 
         it 'validate allows condition' do
-          procedure.validate(:types_de_champ_private_editor)
+          procedure.validate(:private_type_de_champs_editor)
           expect(procedure.errors.full_messages_for(:private_draft_type_de_champs)).to be_empty
         end
       end
@@ -820,7 +820,7 @@ describe Procedure do
         end
 
         it 'validate prevent condition' do
-          procedure.validate(:types_de_champ_public_editor)
+          procedure.validate(:public_type_de_champs_editor)
           expect(procedure.errors.full_messages_for(:public_draft_type_de_champs)).to include(error_on_condition)
         end
       end

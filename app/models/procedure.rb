@@ -265,7 +265,7 @@ class Procedure < ApplicationRecord
     'type_de_champs/date': true,
     'type_de_champs/repetition': true,
     'type_de_champs/api_particulier': true,
-    on: [:types_de_champ_public_editor, :publication]
+    on: [:public_type_de_champs_editor, :publication]
 
   validates :private_draft_type_de_champs,
     'type_de_champs/condition': true,
@@ -278,7 +278,7 @@ class Procedure < ApplicationRecord
     'type_de_champs/number': true,
     'type_de_champs/date': true,
     'type_de_champs/repetition': true,
-    on: [:types_de_champ_private_editor, :publication]
+    on: [:private_type_de_champs_editor, :publication]
 
   validate :check_juridique, on: [:create, :publication]
 
