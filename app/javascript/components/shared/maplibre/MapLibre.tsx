@@ -36,27 +36,30 @@ export function MapLibre({ children, layers }: MapLibreProps) {
   const isSupported = useMemo(() => isWebglSupported(), []);
   const containerRef = useRef<HTMLDivElement>(null);
   const visible = useElementVisible(containerRef);
+  const mapRef = useRef<Map | null>(null);
   const [map, setMap] = useState<Map | null>();
   const [styleControlElement, setStyleControlElement] =
     useState<HTMLElement | null>(null);
 
-  const onStyleChange = useCallback(
-    (style: StyleSpecification) => {
-      if (map) {
-        map.setStyle(style);
-      }
-    },
-    [map]
-  );
+  // Read the map from a ref rather than from state, so this callback keeps a
+  // stable identity: depending on the state would make useStyle replay
+  // setStyle() as soon as the map loads, with the very style the map was built
+  // with — recreating every source and refetching every tile for nothing.
+  const onStyleChange = useCallback((style: StyleSpecification) => {
+    mapRef.current?.setStyle(style);
+  }, []);
   const { style, ...mapStyleProps } = useStyle(layers, onStyleChange);
 
   useEffect(() => {
-    if (isSupported && visible && !map) {
+    // Guard on the ref, not on the state: the state is only set once `load`
+    // fires, so a re-render before then would build a second map.
+    if (isSupported && visible && !mapRef.current) {
       invariant(containerRef.current, 'Map container not found');
       const map = new Map({
         container: containerRef.current,
         style
       });
+      mapRef.current = map;
       map.addControl(new NavigationControl({}), 'top-right');
       const styleControl = new ReactControl();
       map.addControl(styleControl, 'bottom-left');
@@ -67,7 +70,7 @@ export function MapLibre({ children, layers }: MapLibreProps) {
         setStyleControlElement(styleControl.container);
       });
     }
-  }, [map, style, visible, isSupported]);
+  }, [style, visible, isSupported]);
 
   if (!isSupported) {
     return (
