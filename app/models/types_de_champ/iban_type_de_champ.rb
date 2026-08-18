@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::IbanTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::IbanTypeDeChamp < TypeDeChamp
+  def self.category = PAIEMENT_IDENTIFICATION
+
+  def prefillable? = true
+
   def estimated_fill_duration(revision)
     FILL_DURATION_MEDIUM
   end

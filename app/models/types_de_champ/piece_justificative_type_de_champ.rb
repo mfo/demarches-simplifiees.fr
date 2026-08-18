@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
+  def self.editable_option_keys = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :pj_limit_formats, :pj_format_families, :pj_auto_purge]
+  def self.column_type = :attachments
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)
@@ -50,7 +53,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),
-        type: TypeDeChamp.column_type(type_champ),
+        type: self.class.column_type,
         displayable: false,
         filterable: false,
         mandatory: mandatory?
@@ -67,7 +70,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),
-        type: TypeDeChamp.column_type(type_champ),
+        type: self.class.column_type,
         displayable: false,
         filterable: false,
         mandatory: mandatory?

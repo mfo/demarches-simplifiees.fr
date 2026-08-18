@@ -1076,7 +1076,7 @@ describe ProcedureRevision do
   describe '#estimated_fill_duration' do
     let(:mandatory) { true }
     let(:description) { nil }
-    let(:description_read_time) { ((description || "").split.size / TypesDeChamp::TypeDeChampBase::READ_WORDS_PER_SECOND).round }
+    let(:description_read_time) { ((description || "").split.size / TypeDeChamp::READ_WORDS_PER_SECOND).round }
 
     let(:types_de_champ_public) do
       [
@@ -1091,9 +1091,9 @@ describe ProcedureRevision do
 
     it 'sums the durations of public champs' do
       expect(subject).to eq \
-          TypesDeChamp::TypeDeChampBase::FILL_DURATION_SHORT \
-        + TypesDeChamp::TypeDeChampBase::FILL_DURATION_MEDIUM \
-        + TypesDeChamp::TypeDeChampBase::FILL_DURATION_LONG \
+          TypeDeChamp::FILL_DURATION_SHORT \
+        + TypeDeChamp::FILL_DURATION_MEDIUM \
+        + TypeDeChamp::FILL_DURATION_LONG \
         + 3 * description_read_time
     end
 
@@ -1102,10 +1102,10 @@ describe ProcedureRevision do
 
       it 'estimates that half of optional champs will be filled' do
         expect(subject).to eq \
-            TypesDeChamp::TypeDeChampBase::FILL_DURATION_SHORT \
-          + TypesDeChamp::TypeDeChampBase::FILL_DURATION_MEDIUM \
+            TypeDeChamp::FILL_DURATION_SHORT \
+          + TypeDeChamp::FILL_DURATION_MEDIUM \
           + 2 * description_read_time \
-          + (description_read_time + TypesDeChamp::TypeDeChampBase::FILL_DURATION_LONG) / 2
+          + (description_read_time + TypeDeChamp::FILL_DURATION_LONG) / 2
       end
     end
 
@@ -1114,9 +1114,9 @@ describe ProcedureRevision do
 
       it 'estimates that duration includes description reading time' do
         expect(subject).to eq \
-            TypesDeChamp::TypeDeChampBase::FILL_DURATION_SHORT \
-          + TypesDeChamp::TypeDeChampBase::FILL_DURATION_MEDIUM \
-          + TypesDeChamp::TypeDeChampBase::FILL_DURATION_LONG \
+            TypeDeChamp::FILL_DURATION_SHORT \
+          + TypeDeChamp::FILL_DURATION_MEDIUM \
+          + TypeDeChamp::FILL_DURATION_LONG \
           + 3 * description_read_time
       end
     end
@@ -1139,8 +1139,8 @@ describe ProcedureRevision do
       it 'estimates that between 2 and 3 rows will be filled for each repetition' do
         repetable_block_read_duration = description_read_time
 
-        row_duration = TypesDeChamp::TypeDeChampBase::FILL_DURATION_SHORT + TypesDeChamp::TypeDeChampBase::FILL_DURATION_LONG
-        children_read_duration = (10 / TypesDeChamp::TypeDeChampBase::READ_WORDS_PER_SECOND).round
+        row_duration = TypeDeChamp::FILL_DURATION_SHORT + TypeDeChamp::FILL_DURATION_LONG
+        children_read_duration = (10 / TypeDeChamp::READ_WORDS_PER_SECOND).round
 
         expect(subject).to eq repetable_block_read_duration + row_duration * 2.5 + children_read_duration
       end
@@ -1158,7 +1158,7 @@ describe ProcedureRevision do
       end
 
       it 'estimates duration based on content reading' do
-        expect(subject).to eq((100 / TypesDeChamp::TypeDeChampBase::READ_WORDS_PER_SECOND).round + TypesDeChamp::TypeDeChampBase::FILL_DURATION_SHORT)
+        expect(subject).to eq((100 / TypeDeChamp::READ_WORDS_PER_SECOND).round + TypeDeChamp::FILL_DURATION_SHORT)
       end
     end
 
@@ -1176,9 +1176,9 @@ describe ProcedureRevision do
 
         it 'returns an up-to-date estimate' do
           expect(draft_revision.estimated_fill_duration).to eq \
-              TypesDeChamp::TypeDeChampBase::FILL_DURATION_LONG \
-            + TypesDeChamp::TypeDeChampBase::FILL_DURATION_MEDIUM \
-            + TypesDeChamp::TypeDeChampBase::FILL_DURATION_LONG \
+              TypeDeChamp::FILL_DURATION_LONG \
+            + TypeDeChamp::FILL_DURATION_MEDIUM \
+            + TypeDeChamp::FILL_DURATION_LONG \
             + 3 * description_read_time
         end
       end

@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
+  def self.category = CHOICE
+  def self.editable_option_keys = [:drop_down_options, :drop_down_mode]
+  def self.column_type = :enums
+
+  def prefillable? = true
+  def options_for_select = options_for_select_with_other
+  def choice_type? = true
+  def any_drop_down_list? = true
+
   def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?
       champ.referentiels_items_user_values.join(', ')

@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = LOCALISATION
+  def self.column_type = :enum
+
+  def options_for_select = APIGeoService.departement_options
+
   include AddressableColumnConcern
 
   def columns(procedure_id:, displayable: true, prefix: nil)

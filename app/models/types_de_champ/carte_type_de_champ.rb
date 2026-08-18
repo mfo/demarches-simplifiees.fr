@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
+  def self.category = REFERENTIEL_EXTERNE
+  def self.editable_option_keys = CARTE_LAYERS
+  def self.column_type = :geojson
+
+  def refresh_after_update? = false
+
   def estimated_fill_duration(revision)
     FILL_DURATION_LONG
   end
@@ -27,7 +33,7 @@ class TypesDeChamp::CarteTypeDeChamp < TypesDeChamp::TypeDeChampBase
       stable_id:,
       tdc_type: type_champ,
       label: libelle_with_prefix(prefix),
-      type: TypeDeChamp.column_type(type_champ),
+      type: self.class.column_type,
       displayable: false,
       filterable: false,
       mandatory: mandatory?

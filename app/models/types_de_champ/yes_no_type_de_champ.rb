@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::YesNoTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::YesNoTypeDeChamp < TypeDeChamp
+  def self.category = CHOICE
+  def self.column_type = :boolean
+
+  def prefillable? = true
+  def options_for_select = Champs::YesNoChamp.options
+  def choice_type? = true
+
   def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'
   end

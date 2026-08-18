@@ -1,7 +1,17 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::FormattedTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
   after_initialize :set_default_options
+
+  def prefillable? = true
+
+  def self.editable_option_keys
+    [
+      :formatted_mode, :numbers_accepted, :letters_accepted, :special_characters_accepted,
+      :min_character_length, :max_character_length,
+      :expression_reguliere, :expression_reguliere_indications, :expression_reguliere_exemple_text, :expression_reguliere_error_message,
+    ]
+  end
 
   def typed_champ_value_for_export(champ, path = :value)
     Sanitizers::Xml.sanitize(champ_text_value(champ))

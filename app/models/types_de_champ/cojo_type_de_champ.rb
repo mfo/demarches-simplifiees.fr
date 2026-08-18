@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::COJOTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = REFERENTIEL_EXTERNE
+
+  def prefillable? = false
+
   def typed_champ_value(champ)
     "#{champ.accreditation_number} – #{champ.accreditation_birthdate}"
   end

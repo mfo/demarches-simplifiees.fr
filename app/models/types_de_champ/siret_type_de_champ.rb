@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::SiretTypeDeChamp < TypeDeChamp
+  def self.category = PAIEMENT_IDENTIFICATION
+
+  def prefillable? = true
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)

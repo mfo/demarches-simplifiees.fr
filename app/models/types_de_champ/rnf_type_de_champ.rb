@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RNFTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = REFERENTIEL_EXTERNE
+
+  def prefillable? = false
+
   include AddressableColumnConcern
 
   def typed_champ_value_for_export(champ, path = :value)
