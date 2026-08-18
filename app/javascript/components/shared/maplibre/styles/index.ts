@@ -3,6 +3,7 @@ import type { LayerSpecification, StyleSpecification } from 'maplibre-gl';
 import {
   style as baseStyle,
   buildOptionalLayers,
+  buildOptionalSources,
   getLayerName,
   NBS
 } from './base';
@@ -30,6 +31,7 @@ export function getMapStyle(
   opacity: Record<string, number>
 ): StyleSpecification & { id: MapStyle } {
   const optionalLayers = buildOptionalLayers(layers, opacity);
+  const sources = { ...baseStyle.sources, ...buildOptionalSources(layers) };
 
   switch (id) {
     case 'ortho':
@@ -37,6 +39,7 @@ export function getMapStyle(
         ...baseStyle,
         id,
         name: 'Photographies aériennes',
+        sources,
         layers: [...(orthoLayers as LayerSpecification[]), ...optionalLayers]
       };
     case 'vector':
@@ -44,6 +47,7 @@ export function getMapStyle(
         ...baseStyle,
         id,
         name: 'Carte OSM',
+        sources,
         layers: [...(vectorLayers as LayerSpecification[]), ...optionalLayers]
       };
     default:
@@ -51,6 +55,7 @@ export function getMapStyle(
         ...baseStyle,
         id,
         name: 'Carte IGN',
+        sources,
         layers: [...ignLayers, ...optionalLayers]
       };
   }
