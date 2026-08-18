@@ -22,7 +22,7 @@ class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
   def refresh_after_update? = false
 
   def layer_enabled?(layer)
-    options && options[layer] && options[layer] != '0'
+    ActiveModel::Type::Boolean.new.cast(options&.dig(layer)) || false
   end
 
   def carte_optional_layers

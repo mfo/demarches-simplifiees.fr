@@ -6,8 +6,7 @@ class TypesDeChamp::DecimalNumberTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def customizable? = true
-  def positive_number? = positive_number == "1"
-  def range_number? = range_number == "1"
+  boolean_options :positive_number, :range_number
 
   def typed_champ_value_for_export(champ, path = :value)
     champ_formatted_value(champ)

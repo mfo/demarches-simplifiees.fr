@@ -593,6 +593,14 @@ class TypeDeChamp < ApplicationRecord
     def model_name
       self == TypeDeChamp ? super : TypeDeChamp.model_name
     end
+
+    # Predicates over jsonb options read as booleans: the editor form writes
+    # "1"/"0", the defaults and the LLM improver write true/false.
+    def boolean_options(*keys)
+      keys.each do |key|
+        define_method(:"#{key}?") { ActiveModel::Type::Boolean.new.cast(public_send(key)) || false }
+      end
+    end
   end
 
   CHAMP_TYPE_TO_TYPE_CHAMP = type_champs.values.index_by { type_champ_to_champ_class_name(_1) }

@@ -14,7 +14,7 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def any_drop_down_list? = true
   def drop_down_simple? = drop_down_mode != 'advanced'
   def drop_down_advanced? = drop_down_mode == 'advanced'
-  def drop_down_other? = drop_down_other == "1" || drop_down_other == true
+  boolean_options :drop_down_other
   def value_is_in_options?(checked_value) = options_for_select.any? { _1.last == checked_value }
   def customizable? = true
 

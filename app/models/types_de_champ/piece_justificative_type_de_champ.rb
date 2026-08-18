@@ -42,16 +42,14 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
 
   def typed_champ_blank?(champ) = champ.piece_justificative_file.blank?
 
-  def pj_limit_formats?
-    [true, '1'].include?(options[:pj_limit_formats])
-  end
+  boolean_options :pj_limit_formats
 
   def pj_format_families
     Array.wrap(options[:pj_format_families]).map(&:to_s)
   end
 
   def pj_auto_purge?
-    titre_identite? || [true, '1'].include?(options[:pj_auto_purge])
+    titre_identite? || ActiveModel::Type::Boolean.new.cast(pj_auto_purge) || false
   end
 
   def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
