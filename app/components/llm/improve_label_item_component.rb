@@ -2,7 +2,7 @@
 
 class LLM::ImproveLabelItemComponent < LLM::SuggestionItemComponent
   def self.step_title
-    "Libellés et descriptions des champs"
+    t(".step_title")
   end
 
   def render?
