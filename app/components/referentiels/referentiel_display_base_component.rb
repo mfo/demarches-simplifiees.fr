@@ -13,7 +13,7 @@ class Referentiels::ReferentielDisplayBaseComponent < ApplicationComponent
   end
 
   def render?
-    data.present?
+    type_de_champ.referentiel? && data.present?
   end
 
   private
