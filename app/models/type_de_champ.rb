@@ -262,25 +262,11 @@ class TypeDeChamp < ApplicationRecord
     range_number == "1"
   end
 
-  def birthdate?
-    birthdate == "1"
-  end
-
   def limit_repetitions?
     limit_repetitions == "1"
   end
 
-  def prefill_with_france_connect_information?
-    prefill_with_france_connect_information == "1"
-  end
-
-  def date_in_past?
-    date_in_past == "1"
-  end
-
-  def range_date?
-    range_date == "1"
-  end
+  def prefill_with_france_connect_information? = false
 
   def character_limit?
     character_limit.present?
