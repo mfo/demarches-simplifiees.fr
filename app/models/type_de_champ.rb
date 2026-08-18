@@ -915,15 +915,7 @@ class TypeDeChamp < ApplicationRecord
       "TypesDeChamp::#{type_champ.classify}TypeDeChamp"
     end
 
-    def find_sti_class(type_name)
-      type_name = type_name.to_s
-      if type_champs.value?(type_name)
-        type_champ_to_class_name(type_name).constantize
-      else
-        # Legacy values removed from the enum load as plain TypeDeChamp.
-        TypeDeChamp
-      end
-    end
+    def find_sti_class(type_name) = type_champ_to_class_name(type_name.to_s).constantize
 
     def sti_name = CLASS_NAME_TO_TYPE_CHAMP[name]
 

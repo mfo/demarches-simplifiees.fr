@@ -21,17 +21,22 @@ module Maintenance
       type_de_champ.update_columns(type_champ: 'cnaf')
     end
 
+    # the enum casts unknown values to nil, read the column as stored
+    def raw_type_champ
+      TypeDeChamp.connection.select_value("SELECT type_champ FROM types_de_champ WHERE id = #{type_de_champ.id}")
+    end
+
     describe "#collection" do
-      it "returns the legacy types de champ" do
-        expect(described_class.new.collection).to contain_exactly(type_de_champ)
+      it "returns the ids of the legacy types de champ" do
+        expect(described_class.new.collection).to contain_exactly([type_de_champ.id, type_de_champ.stable_id])
       end
     end
 
     describe "#process" do
-      subject(:process) { described_class.process(TypeDeChamp.find(type_de_champ.id)) }
+      subject(:process) { described_class.process([type_de_champ.id, type_de_champ.stable_id]) }
 
       it "converts the type de champ to text" do
-        expect { process }.to change { TypeDeChamp.find(type_de_champ.id).type_champ }.from(nil).to('text')
+        expect { process }.to change { raw_type_champ }.from('cnaf').to('text')
       end
 
       it "converts the champ to text, keeping the identifiers as value and the fetched data" do

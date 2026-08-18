@@ -280,9 +280,7 @@ module ColumnsConcern
   end
 
   def types_de_champ_columns
-    # type_champ is nil for legacy values removed from the enum: those rows
-    # load as plain TypeDeChamp, without columns.
-    all_revisions_types_de_champ.filter { _1.type_champ.present? }.flat_map { _1.columns(procedure_id: id) }
+    all_revisions_types_de_champ.flat_map { _1.columns(procedure_id: id) }
   end
 
   def dossier_col(**args) = Columns::DossierColumn.new(**(args.merge(procedure_id: id)))

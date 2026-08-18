@@ -12,16 +12,19 @@ module Maintenance
     # `external_id` (JSON) ou, pour les plus anciens, dans `value_json` : ils sont
     # recopiés en clair dans `value`. Les données récupérées auprès de l'API
     # restent dans `data`.
+    #
+    # TypeDeChamp est en STI sur `type_champ` : une valeur hors enum n'a pas de
+    # classe et ne peut pas être instanciée, on travaille donc sur les ids.
 
     LEGACY_TYPE_CHAMPS = ['cnaf', 'dgfip', 'mesri', 'pole_emploi'].freeze
 
     def collection
-      TypeDeChamp.where(type_champ: LEGACY_TYPE_CHAMPS)
+      TypeDeChamp.where(type_champ: LEGACY_TYPE_CHAMPS).pluck(:id, :stable_id)
     end
 
-    def process(type_de_champ)
+    def process((id, stable_id))
       ChampData
-        .where(stable_id: type_de_champ.stable_id, type: ChampData::REMOVED_TYPES)
+        .where(stable_id:, type: ChampData::REMOVED_TYPES)
         .find_each do |champ|
           champ.update_columns(
             type: 'Champs::TextChamp',
@@ -32,11 +35,7 @@ module Maintenance
           )
         end
 
-      type_de_champ.update_columns(type_champ: TypeDeChamp.type_champs.fetch(:text))
-    end
-
-    def count
-      collection.count
+      TypeDeChamp.where(id:).update_all(type_champ: TypeDeChamp.type_champs.fetch(:text))
     end
 
     private
