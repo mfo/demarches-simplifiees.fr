@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TypesDeChamp::ReferentielReadyValidator do
+RSpec.describe TypeDeChamps::ReferentielReadyValidator do
   let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:referentiel) { create(:api_referentiel, :exact_match) }
   let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }

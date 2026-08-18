@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::ConditionValidator do
+RSpec.describe TypeDeChamps::ConditionValidator do
   include Logic
 
   let(:procedure) { create(:procedure, public_type_de_champs:) }

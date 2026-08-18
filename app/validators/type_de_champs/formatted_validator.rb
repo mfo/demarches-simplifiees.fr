@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::FormattedValidator < ActiveModel::EachValidator
+class TypeDeChamps::FormattedValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ
       .filter(&:formatted?)

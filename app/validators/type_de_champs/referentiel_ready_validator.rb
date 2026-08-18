@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::ReferentielReadyValidator < ActiveModel::EachValidator
+class TypeDeChamps::ReferentielReadyValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ
       .filter(&:referentiel?).each do |referentiel_champ|

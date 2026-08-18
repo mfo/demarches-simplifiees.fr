@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::RepetitionValidator < ActiveModel::EachValidator
+class TypeDeChamps::RepetitionValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ.filter(&:repetition?).each do |tdc|
       validate_limits(procedure, attribute, tdc) if tdc.limit_repetitions?

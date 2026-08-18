@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::APIParticulierValidator do
+RSpec.describe TypeDeChamps::APIParticulierValidator do
   subject { procedure.validate(:types_de_champ_public_editor) }
 
   context 'when procedure has a API Particulier champ and a API Particulier token' do

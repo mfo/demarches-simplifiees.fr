@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::DateValidator do
+RSpec.describe TypeDeChamps::DateValidator do
   shared_examples "date range validation" do |scope:, type:|
     let(:attribute) do
       scope == :public_type_de_champs ? :public_draft_type_de_champs : :private_draft_type_de_champs

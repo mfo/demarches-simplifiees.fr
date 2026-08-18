@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::RepetitionValidator do
+RSpec.describe TypeDeChamps::RepetitionValidator do
   shared_examples "repetition limits validation" do |scope:|
     let(:attribute) do
       scope == :public_type_de_champs ? :public_draft_type_de_champs : :private_draft_type_de_champs

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::NumberValidator do
+RSpec.describe TypeDeChamps::NumberValidator do
   shared_examples "number range validation" do |scope:, type:|
     let(:attribute) do
       scope == :public_type_de_champs ? :public_draft_type_de_champs : :private_draft_type_de_champs

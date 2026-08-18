@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
+class TypeDeChamps::ConditionValidator < ActiveModel::EachValidator
   # condition are valid when
   #   tdc.condition.left is present in upper tdcs
   #   in case of private type_de_champs, we should include public type_de_champs too

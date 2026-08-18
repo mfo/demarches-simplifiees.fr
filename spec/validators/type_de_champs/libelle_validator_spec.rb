@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TypesDeChamp::LibelleValidator do
+RSpec.describe TypeDeChamps::LibelleValidator do
   let(:procedure) { create(:procedure, public_type_de_champs: types) }
   let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
 

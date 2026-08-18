@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::HeaderSectionConsistencyValidator < ActiveModel::EachValidator
+class TypeDeChamps::HeaderSectionConsistencyValidator < ActiveModel::EachValidator
   # header levels are checked per scope: root types de champ together, each
   # repetition's children together
   def validate_each(procedure, attribute, types_de_champ)
