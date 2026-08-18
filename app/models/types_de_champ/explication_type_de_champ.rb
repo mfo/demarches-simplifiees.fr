@@ -7,5 +7,6 @@ class TypesDeChamp::ExplicationTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def prefillable? = false
   def fillable? = false
   def libelle_optionnal? = true
+  def has_label? = false
   def tags_for_template = [].freeze
 end

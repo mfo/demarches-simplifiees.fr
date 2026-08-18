@@ -3,8 +3,10 @@
 class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
   def self.category = STRUCTURE
   def self.editable_option_keys = [:limit_repetitions, :min_repetitions, :max_repetitions]
+  def self.allowed_in_repetition? = false
 
   def prefillable? = true
+  def has_label? = false
 
   def typed_champ_value_for_tag(champ, path = :value)
     return nil if path != :value

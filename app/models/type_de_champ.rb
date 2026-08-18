@@ -37,6 +37,7 @@ class TypeDeChamp < ApplicationRecord
   def self.feature_flag = nil
   def self.private_only? = false
   def self.public_only? = false
+  def self.allowed_in_repetition? = true
 
   def self.category_for(type_champ)
     find_sti_class(type_champ).category
@@ -97,14 +98,6 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:pays),
     type_champs.fetch(:epci),
     type_champs.fetch(:address),
-  ]
-
-  API_PART_FC_TDC = [
-    type_champs.fetch(:quotient_familial),
-    type_champs.fetch(:etudiant_boursier),
-    type_champs.fetch(:aah),
-    type_champs.fetch(:aeeh),
-    type_champs.fetch(:ars),
   ]
 
   store_accessor :options,
@@ -240,6 +233,9 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def libelle_optionnal? = false
+  def libelle_configurable? = true
+  def description_configurable? = true
+  def has_label? = true
 
   def safe_referentiel_mapping
     Hash(referentiel_mapping).with_indifferent_access

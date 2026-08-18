@@ -3,10 +3,14 @@
 class TypesDeChamp::FranceConnectTypeDeChamp < TypeDeChamp
   def self.category = FRANCE_CONNECT
   def self.public_only? = true
+  def self.allowed_in_repetition? = false
 
   def france_connect? = true
   def api_particulier? = true
   def must_be_mandatory? = true
+  def libelle_configurable? = false
+  def description_configurable? = false
+  def has_label? = false
 
   REGISTRY = {
     quotient_familial: {

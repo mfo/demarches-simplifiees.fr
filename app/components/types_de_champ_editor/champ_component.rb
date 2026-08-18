@@ -13,21 +13,10 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   private
 
   delegate :type_de_champ, :revision, :procedure, to: :coordinate
+  delegate :libelle_configurable?, :description_configurable?, to: :type_de_champ
 
   def mandatory_configurable?
     type_de_champ.fillable? && !type_de_champ.must_be_mandatory? && !type_de_champ.cannot_be_mandatory?
-  end
-
-  def libelle_configurable?
-    !type_de_champ.type_champ.in?(TypeDeChamp::API_PART_FC_TDC)
-  end
-
-  def description_configurable?
-    !type_de_champ.type_champ.in?(
-      TypeDeChamp::API_PART_FC_TDC + [
-        TypeDeChamp.type_champs.fetch(:header_section),
-      ]
-    )
   end
 
   def type_de_champ_path
@@ -113,12 +102,8 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     }
   end
 
-  EXCLUDE_FROM_BLOCK = TypeDeChamp::API_PART_FC_TDC + [
-    TypeDeChamp.type_champs.fetch(:repetition),
-  ]
-
   def filter_block_type_champ(type_champ)
-    !coordinate.child? || !EXCLUDE_FROM_BLOCK.include?(type_champ)
+    !coordinate.child? || TypeDeChamp.find_sti_class(type_champ).allowed_in_repetition?
   end
 
   def filter_public_or_private_only_type_champ(type_champ)
