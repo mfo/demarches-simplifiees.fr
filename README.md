@@ -22,6 +22,15 @@ Would you like to make changes or improvements? Read our [contribution guide](CO
 - postgresql (version >= 15)
 - libvips-dev (image processing and watermark generation)
 - gsfonts (fonts for watermark text rendering)
+- zip (Info-ZIP 3.0 or later, used to build the export and archive files)
+
+  On macOS the system `/usr/bin/zip` is an Apple build that dropped support for
+  the `-UN=UTF8` flag, which we pass to keep accented filenames intact. Export
+  and archive specs then fail with `zip error: Invalid command arguments (short
+  option 'N' not supported)`. Install Info-ZIP and put it first in your `PATH`:
+
+      brew install zip
+      echo 'export PATH="/opt/homebrew/opt/zip/bin:$PATH"' >> ~/.zshrc
 
 - redis
 
