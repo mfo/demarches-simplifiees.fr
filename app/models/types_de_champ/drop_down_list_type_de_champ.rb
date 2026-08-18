@@ -4,6 +4,7 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def self.category = CHOICE
   def self.editable_option_keys = [:drop_down_other, :drop_down_options, :drop_down_mode]
   def self.column_type = :enum
+  def self.simple_routable? = true
 
   def prefillable? = true
   def options_for_select = options_for_select_with_other

@@ -2,6 +2,7 @@
 
 class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
   def self.category = LOCALISATION
+  def self.simple_routable? = true
 
   def prefillable? = true
   def customizable? = true

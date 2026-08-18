@@ -31,6 +31,7 @@ class TypeDeChamp < ApplicationRecord
   def self.private_only? = false
   def self.public_only? = false
   def self.allowed_in_repetition? = true
+  def self.simple_routable? = false
 
   def self.category_for(type_champ)
     find_sti_class(type_champ).category
@@ -82,16 +83,6 @@ class TypeDeChamp < ApplicationRecord
   }
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
-
-  SIMPLE_ROUTABLE_TYPES = [
-    type_champs.fetch(:drop_down_list),
-    type_champs.fetch(:communes),
-    type_champs.fetch(:departements),
-    type_champs.fetch(:regions),
-    type_champs.fetch(:pays),
-    type_champs.fetch(:epci),
-    type_champs.fetch(:address),
-  ]
 
   store_accessor :options,
                  :cadastres,
@@ -550,7 +541,7 @@ class TypeDeChamp < ApplicationRecord
   def refresh_after_update? = true
 
   def simple_routable?
-    type_champ.in?(SIMPLE_ROUTABLE_TYPES) && !drop_down_advanced?
+    self.class.simple_routable? && !drop_down_advanced?
   end
 
   def conditionable?
@@ -564,13 +555,13 @@ class TypeDeChamp < ApplicationRecord
 
   def self.humanized_simple_routable_types_by_category
     Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if _1.to_s.in?(SIMPLE_ROUTABLE_TYPES) } }
+      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if find_sti_class(_1).simple_routable? } }
       .reject(&:empty?)
   end
 
   def self.humanized_custom_routable_types_by_category
     Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !_1.to_s.in?(SIMPLE_ROUTABLE_TYPES) } }
+      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !find_sti_class(_1).simple_routable? } }
       .reject(&:empty?)
   end
 
