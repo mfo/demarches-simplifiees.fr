@@ -1,0 +1,7 @@
+fr:
+  activerecord:
+    models:
+      email:
+        accepte:
+          default_subject: Votre dossier n° %{dossier_number} a été accepté (%{procedure_libelle})
+          acceptance_acknowledgment: Accusé d’acceptation

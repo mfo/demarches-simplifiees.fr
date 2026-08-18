@@ -205,22 +205,22 @@ namespace :stats do
 
     # 23. Emails personnalisés
     email_stats = [
-      ["Email construction personnalisé", :initiated_mail],
-      ["Email instruction personnalisé", :received_mail],
-      ["Email acceptation personnalisé", :closed_mail],
-      ["Email refus personnalisé", :refused_mail],
-      ["Email classé sans suite personnalisé", :without_continuation_mail],
-      ["Email ré-instruction personnalisé", :re_instructed_mail],
+      ["Email construction personnalisé", :email_depose],
+      ["Email instruction personnalisé", :email_passe_en_instruction],
+      ["Email acceptation personnalisé", :email_accepte],
+      ["Email refus personnalisé", :email_refuse],
+      ["Email classé sans suite personnalisé", :email_classe_sans_suite],
+      ["Email ré-instruction personnalisé", :email_repasse_en_instruction],
     ]
 
     email_stats.each do |label, association|
       table_name = case association
-      when :initiated_mail then 'initiated_mails'
-      when :received_mail then 'received_mails'
-      when :closed_mail then 'closed_mails'
-      when :refused_mail then 'refused_mails'
-      when :without_continuation_mail then 'without_continuation_mails'
-      when :re_instructed_mail then 're_instructed_mails'
+      when :email_depose then 'initiated_mails'
+      when :email_passe_en_instruction then 'received_mails'
+      when :email_accepte then 'closed_mails'
+      when :email_refuse then 'refused_mails'
+      when :email_classe_sans_suite then 'without_continuation_mails'
+      when :email_repasse_en_instruction then 're_instructed_mails'
       end
 
       ApplicationRecord.transaction do

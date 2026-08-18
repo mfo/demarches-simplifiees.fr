@@ -62,12 +62,12 @@ describe Procedure do
     subject { procedures.brouillon }
 
     it "returns expected classes" do
-      expect(subject.passer_en_construction_email_template).to be_a(Mails::InitiatedMail)
-      expect(subject.passer_en_instruction_email_template).to be_a(Mails::ReceivedMail)
-      expect(subject.accepter_email_template).to be_a(Mails::ClosedMail)
-      expect(subject.refuser_email_template).to be_a(Mails::RefusedMail)
-      expect(subject.classer_sans_suite_email_template).to be_a(Mails::WithoutContinuationMail)
-      expect(subject.repasser_en_instruction_email_template).to be_a(Mails::ReInstructedMail)
+      expect(subject.email_depose_or_default).to be_a(Emails::Depose)
+      expect(subject.email_passe_en_instruction_or_default).to be_a(Emails::PasseEnInstruction)
+      expect(subject.email_accepte_or_default).to be_a(Emails::Accepte)
+      expect(subject.email_refuse_or_default).to be_a(Emails::Refuse)
+      expect(subject.email_classe_sans_suite_or_default).to be_a(Emails::ClasseSansSuite)
+      expect(subject.email_repasse_en_instruction_or_default).to be_a(Emails::RepasseEnInstruction)
     end
   end
 
@@ -85,33 +85,33 @@ describe Procedure do
     end
   end
 
-  describe 'initiated_mail' do
+  describe 'depose' do
     let(:procedure) { procedures.brouillon }
 
     subject { procedure }
 
-    context 'when initiated_mail is not customize' do
-      it { expect(subject.passer_en_construction_email_template.body).to eq(Mails::InitiatedMail.default_for_procedure(procedure).body) }
+    context 'when email_depose is not customize' do
+      it { expect(subject.email_depose_or_default.body).to eq(Emails::Depose.default_for_procedure(procedure).body) }
     end
 
-    context 'when initiated_mail is customize' do
+    context 'when email_depose is customize' do
       before :each do
-        subject.initiated_mail = Mails::InitiatedMail.new(body: 'sisi')
+        subject.email_depose = Emails::Depose.new(body: 'sisi')
         subject.save
         subject.reload
       end
-      it { expect(subject.passer_en_construction_email_template.body).to eq('sisi') }
+      it { expect(subject.email_depose_or_default.body).to eq('sisi') }
     end
 
-    context 'when initiated_mail is customize ... again' do
+    context 'when email_depose is customize ... again' do
       before :each do
-        subject.initiated_mail = Mails::InitiatedMail.new(body: 'toto')
+        subject.email_depose = Emails::Depose.new(body: 'toto')
         subject.save
         subject.reload
       end
       it do
-        expect(subject.passer_en_construction_email_template.body).to eq('toto')
-        expect(Mails::InitiatedMail.where(procedure:).count).to eq(1)
+        expect(subject.email_depose_or_default.body).to eq('toto')
+        expect(Emails::Depose.where(procedure:).count).to eq(1)
       end
     end
   end
@@ -120,7 +120,7 @@ describe Procedure do
     let(:procedure) { procedures.brouillon.tap { it.update!(attestation_acceptation_template: attestation_template) } }
     let(:attestation_template) { nil }
 
-    subject { procedure.accepter_email_template.body }
+    subject { procedure.email_accepte_or_default.body }
 
     context 'for procedures without an attestation' do
       it { is_expected.not_to include('lien attestation') }
@@ -147,7 +147,7 @@ describe Procedure do
     let(:procedure) { procedures.brouillon.tap { it.update!(attestation_refus_template: attestation_template) } }
     let(:attestation_template) { nil }
 
-    subject { procedure.refuser_email_template.body }
+    subject { procedure.email_refuse_or_default.body }
 
     context 'for procedures without an attestation' do
       it { is_expected.not_to include('lien attestation') }
@@ -170,20 +170,20 @@ describe Procedure do
     end
   end
 
-  describe '#mail_template_attestation_inconsistency_state with closed_mail' do
-    let(:procedure_without_attestation) { procedures.brouillon.tap { it.update!(closed_mail: closed_mail, attestation_acceptation_template: nil) } }
+  describe '#email_template_attestation_inconsistency_state with email_accepte' do
+    let(:procedure_without_attestation) { procedures.brouillon.tap { it.update!(email_accepte: email_accepte, attestation_acceptation_template: nil) } }
     let(:procedure_with_active_attestation) do
-      procedures.brouillon.tap { it.update!(closed_mail: closed_mail, attestation_acceptation_template: build(:attestation_template, activated: true)) }
+      procedures.brouillon.tap { it.update!(email_accepte: email_accepte, attestation_acceptation_template: build(:attestation_template, activated: true)) }
     end
     let(:procedure_with_inactive_attestation) do
-      procedures.brouillon.tap { it.update!(closed_mail: closed_mail, attestation_acceptation_template: build(:attestation_template, activated: false)) }
+      procedures.brouillon.tap { it.update!(email_accepte: email_accepte, attestation_acceptation_template: build(:attestation_template, activated: false)) }
     end
 
-    subject { procedure.mail_template_attestation_inconsistency_state(:acceptation) }
+    subject { procedure.email_template_attestation_inconsistency_state(:acceptation) }
 
     context 'with a custom mail template' do
       context 'that contains a lien attestation tag' do
-        let(:closed_mail) { build(:closed_mail, body: '--lien attestation--') }
+        let(:email_accepte) { build(:email_accepte, body: '--lien attestation--') }
 
         context 'when the procedure doesn’t have an attestation' do
           let(:procedure) { procedure_without_attestation }
@@ -208,7 +208,7 @@ describe Procedure do
       end
 
       context 'that doesn’t contain a lien attestation tag' do
-        let(:closed_mail) { build(:closed_mail) }
+        let(:email_accepte) { build(:email_accepte) }
 
         context 'when the procedure doesn’t have an attestation' do
           let(:procedure) { procedure_without_attestation }
@@ -231,20 +231,20 @@ describe Procedure do
     end
   end
 
-  describe '#mail_template_attestation_inconsistency_state with refused_mail' do
-    let(:procedure_without_attestation) { procedures.brouillon.tap { it.update!(refused_mail: refused_mail, attestation_refus_template: nil) } }
+  describe '#email_template_attestation_inconsistency_state with email_refuse' do
+    let(:procedure_without_attestation) { procedures.brouillon.tap { it.update!(email_refuse: email_refuse, attestation_refus_template: nil) } }
     let(:procedure_with_active_attestation) do
-      procedures.brouillon.tap { it.update!(refused_mail: refused_mail, attestation_refus_template: build(:attestation_template, activated: true, kind: 'refus')) }
+      procedures.brouillon.tap { it.update!(email_refuse: email_refuse, attestation_refus_template: build(:attestation_template, activated: true, kind: 'refus')) }
     end
     let(:procedure_with_inactive_attestation) do
-      procedures.brouillon.tap { it.update!(refused_mail: refused_mail, attestation_refus_template: build(:attestation_template, activated: false, kind: 'refus')) }
+      procedures.brouillon.tap { it.update!(email_refuse: email_refuse, attestation_refus_template: build(:attestation_template, activated: false, kind: 'refus')) }
     end
 
-    subject { procedure.mail_template_attestation_inconsistency_state(:refus) }
+    subject { procedure.email_template_attestation_inconsistency_state(:refus) }
 
     context 'with a custom mail template' do
       context 'that contains a lien attestation tag' do
-        let(:refused_mail) { build(:refused_mail, body: '--lien attestation--') }
+        let(:email_refuse) { build(:email_refuse, body: '--lien attestation--') }
 
         context 'when the procedure doesn’t have an attestation' do
           let(:procedure) { procedure_without_attestation }
@@ -269,7 +269,7 @@ describe Procedure do
       end
 
       context 'that doesn’t contain a lien attestation tag' do
-        let(:refused_mail) { build(:refused_mail) }
+        let(:email_refuse) { build(:email_refuse) }
 
         context 'when the procedure doesn’t have an attestation' do
           let(:procedure) { procedure_without_attestation }

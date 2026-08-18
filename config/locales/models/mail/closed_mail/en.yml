@@ -1,7 +1,0 @@
-en:
-  activerecord:
-    models:
-      mail:
-        closed_mail:
-          default_subject: Your file n° %{dossier_number} has been accepted (%{procedure_libelle})
-          acceptance_acknowledgment: Acceptance acknowledgment

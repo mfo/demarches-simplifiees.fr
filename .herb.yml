@@ -30,3 +30,10 @@ formatter:
   enabled: true
   indentWidth: 2
   maxLineLength: 80
+
+  # Default email bodies: their whitespace is content, not layout. The rendered
+  # HTML is stored as the template body an admin then edits, and its newlines
+  # are turned into spaces by EmailTemplateConcern.default_for_procedure, so
+  # indenting these files would put stray spaces inside the emails we send.
+  exclude:
+    - 'app/views/notification_mailer/default_templates/**'

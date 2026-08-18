@@ -81,12 +81,12 @@ module Administrateurs
           },
           attestation_acceptation_template: [],
           attestation_refus_template: [],
-          initiated_mail: [],
-          received_mail: [],
-          closed_mail: [],
-          refused_mail: [],
-          without_continuation_mail: [],
-          re_instructed_mail: []
+          email_depose: [],
+          email_passe_en_instruction: [],
+          email_accepte: [],
+          email_refuse: [],
+          email_classe_sans_suite: [],
+          email_repasse_en_instruction: []
         )
         .find(params[:id])
 
@@ -143,7 +143,7 @@ module Administrateurs
       @procedure = Procedure.find(params[:procedure_id])
       @cloned_from_library = cloned_from_library?
       @is_same_admin = current_administrateur.owns?(@procedure)
-      @updated_mail_templates = @procedure.mail_templates.any? { _1.updated_at.present? }
+      @updated_email_templates = @procedure.email_templates.any? { _1.updated_at.present? }
 
       if @procedure.hidden_as_template? && !@is_same_admin
         flash.alert = "Cette démarche n’est pas clonable"
@@ -698,6 +698,7 @@ module Administrateurs
         :dossier_submitted_message,
         :accuse_lecture,
         :api_entreprise_token,
+        :email_templates,
         :mail_templates,
         :sva_svr,
         :avis,
@@ -717,7 +718,8 @@ module Administrateurs
         clone_dossier_submitted_message: options[:dossier_submitted_message] == '1',
         clone_accuse_lecture: options[:accuse_lecture] == '1',
         clone_api_entreprise_token: options[:api_entreprise_token] == '1',
-        clone_mail_templates: options[:mail_templates] == '1',
+        # mail_templates: the checkbox name of a form rendered before the rename
+        clone_email_templates: [options[:email_templates], options[:mail_templates]].include?('1'),
         clone_sva_svr: options[:sva_svr] == '1',
         clone_avis: options[:avis] == '1',
         clone_labels: options[:labels] == '1',

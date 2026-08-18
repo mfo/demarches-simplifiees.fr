@@ -6,7 +6,7 @@ describe ProcedureCloneConcern, type: :model do
     let(:procedure) do
       create(:procedure,
         administrateurs: [administrateurs.default],
-        received_mail: received_mail,
+        email_passe_en_instruction: email_passe_en_instruction,
         service: service,
         opendata: opendata,
         duree_conservation_etendue_par_ds: true,
@@ -24,7 +24,7 @@ describe ProcedureCloneConcern, type: :model do
     let(:types_de_champ_private) { [{}, {}, { type: :drop_down_list }, { type: :repetition, children: [{}] }] }
     let(:type_de_champ_repetition) { procedure.draft_revision.root_types_de_champ_public.last }
     let(:type_de_champ_private_repetition) { procedure.draft_revision.root_types_de_champ_private.last }
-    let(:received_mail) { build(:received_mail) }
+    let(:email_passe_en_instruction) { build(:email_passe_en_instruction) }
     let(:from_library) { false }
     let(:opendata) { true }
     let(:administrateur) { procedure.administrateurs.first }
@@ -49,7 +49,7 @@ describe ProcedureCloneConcern, type: :model do
         cloned_from_library: from_library,
         clone_presentation: true,
         clone_instructeurs: true,
-        clone_mail_templates: true,
+        clone_email_templates: true,
         clone_champs: true,
         clone_annotations: true,
         clone_api_entreprise_token: true,
@@ -206,7 +206,7 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     context 'when the procedure is cloned from the library' do
-      let(:procedure) { create(:procedure, received_mail: received_mail, service: service, ask_birthday: true) }
+      let(:procedure) { create(:procedure, email_passe_en_instruction: email_passe_en_instruction, service: service, ask_birthday: true) }
 
       it 'should set ask_birthday to false' do
         expect(subject.ask_birthday?).to eq(false)
@@ -285,16 +285,16 @@ describe ProcedureCloneConcern, type: :model do
       end
     end
 
-    it 'should duplicate existing mail_templates' do
-      expect(subject.received_mail.attributes.except("id", "procedure_id", "created_at", "updated_at")).to eq procedure.received_mail.attributes.except("id", "procedure_id", "created_at", "updated_at")
-      expect(subject.received_mail.id).not_to eq procedure.received_mail.id
-      expect(subject.received_mail.id).not_to be nil
-      expect(subject.received_mail.procedure_id).not_to eq procedure.received_mail.procedure_id
-      expect(subject.received_mail.procedure_id).not_to be nil
+    it 'should duplicate existing email_templates' do
+      expect(subject.email_passe_en_instruction.attributes.except("id", "procedure_id", "created_at", "updated_at")).to eq procedure.email_passe_en_instruction.attributes.except("id", "procedure_id", "created_at", "updated_at")
+      expect(subject.email_passe_en_instruction.id).not_to eq procedure.email_passe_en_instruction.id
+      expect(subject.email_passe_en_instruction.id).not_to be nil
+      expect(subject.email_passe_en_instruction.procedure_id).not_to eq procedure.email_passe_en_instruction.procedure_id
+      expect(subject.email_passe_en_instruction.procedure_id).not_to be nil
     end
 
-    it 'should not duplicate default mail_template' do
-      expect(subject.passer_en_construction_email_template.attributes).to eq Mails::InitiatedMail.default_for_procedure(subject).attributes
+    it 'should not duplicate default email_template' do
+      expect(subject.email_depose_or_default.attributes).to eq Emails::Depose.default_for_procedure(subject).attributes
     end
 
     it 'should not duplicate specific related objects' do
@@ -321,7 +321,7 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     describe 'procedure status is reset' do
-      let(:procedure) { create(:procedure, :closed, received_mail: received_mail, service: service, auto_archive_on: 3.weeks.from_now) }
+      let(:procedure) { create(:procedure, :closed, email_passe_en_instruction: email_passe_en_instruction, service: service, auto_archive_on: 3.weeks.from_now) }
 
       it 'Not published nor closed' do
         expect(subject.closed_at).to be_nil
@@ -343,7 +343,7 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     context 'with a notice attached' do
-      let(:procedure) { create(:procedure, :with_notice, received_mail: received_mail, service: service) }
+      let(:procedure) { create(:procedure, :with_notice, email_passe_en_instruction: email_passe_en_instruction, service: service) }
 
       it 'should duplicate notice' do
         expect(subject.notice.attached?).to be_truthy
@@ -367,7 +367,7 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     context 'with a deliberation attached' do
-      let(:procedure) { create(:procedure, :with_deliberation, received_mail: received_mail, service: service) }
+      let(:procedure) { create(:procedure, :with_deliberation, email_passe_en_instruction: email_passe_en_instruction, service: service) }
 
       it 'should duplicate deliberation' do
         expect(subject.deliberation.attached?).to be true
@@ -394,7 +394,7 @@ describe ProcedureCloneConcern, type: :model do
 
     context 'with canonical procedure' do
       let(:canonical_procedure) { create(:procedure) }
-      let(:procedure) { create(:procedure, canonical_procedure: canonical_procedure, received_mail: received_mail, service: service) }
+      let(:procedure) { create(:procedure, canonical_procedure: canonical_procedure, email_passe_en_instruction: email_passe_en_instruction, service: service) }
 
       it 'do not clone canonical procedure' do
         expect(subject.canonical_procedure).to be_nil

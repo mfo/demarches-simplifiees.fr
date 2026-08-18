@@ -361,7 +361,7 @@ module TagsSubstitutionConcern
   end
 
   def dossier_tags
-    # Overridden by MailTemplateConcern
+    # Overridden by EmailTemplateConcern
     DOSSIER_TAGS + contextual_dossier_tags
   end
 

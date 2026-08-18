@@ -168,12 +168,12 @@ class Procedure < ApplicationRecord
 
   has_many :rdvs, through: :dossiers
 
-  has_one :initiated_mail, class_name: "Mails::InitiatedMail", dependent: :destroy
-  has_one :received_mail, class_name: "Mails::ReceivedMail", dependent: :destroy
-  has_one :closed_mail, class_name: "Mails::ClosedMail", dependent: :destroy
-  has_one :refused_mail, class_name: "Mails::RefusedMail", dependent: :destroy
-  has_one :without_continuation_mail, class_name: "Mails::WithoutContinuationMail", dependent: :destroy
-  has_one :re_instructed_mail, class_name: "Mails::ReInstructedMail", dependent: :destroy
+  has_one :email_depose, class_name: "Emails::Depose", dependent: :destroy
+  has_one :email_passe_en_instruction, class_name: "Emails::PasseEnInstruction", dependent: :destroy
+  has_one :email_accepte, class_name: "Emails::Accepte", dependent: :destroy
+  has_one :email_refuse, class_name: "Emails::Refuse", dependent: :destroy
+  has_one :email_classe_sans_suite, class_name: "Emails::ClasseSansSuite", dependent: :destroy
+  has_one :email_repasse_en_instruction, class_name: "Emails::RepasseEnInstruction", dependent: :destroy
 
   belongs_to :defaut_groupe_instructeur, class_name: 'GroupeInstructeur', inverse_of: false, optional: true
 
@@ -302,12 +302,12 @@ class Procedure < ApplicationRecord
   validates_with MonAvisEmbedValidator, on: :publication
 
   validate :validates_associated_draft_revision_with_context
-  validates_associated :initiated_mail, on: :publication
-  validates_associated :received_mail, on: :publication
-  validates_associated :closed_mail, on: :publication
-  validates_associated :refused_mail, on: :publication
-  validates_associated :without_continuation_mail, on: :publication
-  validates_associated :re_instructed_mail, on: :publication
+  validates_associated :email_depose, on: :publication
+  validates_associated :email_passe_en_instruction, on: :publication
+  validates_associated :email_accepte, on: :publication
+  validates_associated :email_refuse, on: :publication
+  validates_associated :email_classe_sans_suite, on: :publication
+  validates_associated :email_repasse_en_instruction, on: :publication
   validates_associated :attestation_acceptation_template, on: :publication, if: -> { attestation_acceptation_template&.activated? }
   validates_associated :attestation_refus_template, on: :publication, if: -> { attestation_refus_template&.activated? }
 
@@ -489,44 +489,44 @@ class Procedure < ApplicationRecord
     self.dossiers.state_not_brouillon.size
   end
 
-  def passer_en_construction_email_template
-    initiated_mail || Mails::InitiatedMail.default_for_procedure(self)
+  def email_depose_or_default
+    email_depose || Emails::Depose.default_for_procedure(self)
   end
 
-  def passer_en_instruction_email_template
-    received_mail || Mails::ReceivedMail.default_for_procedure(self)
+  def email_passe_en_instruction_or_default
+    email_passe_en_instruction || Emails::PasseEnInstruction.default_for_procedure(self)
   end
 
-  def accepter_email_template
-    closed_mail || Mails::ClosedMail.default_for_procedure(self)
+  def email_accepte_or_default
+    email_accepte || Emails::Accepte.default_for_procedure(self)
   end
 
-  def refuser_email_template
-    refused_mail || Mails::RefusedMail.default_for_procedure(self)
+  def email_refuse_or_default
+    email_refuse || Emails::Refuse.default_for_procedure(self)
   end
 
-  def classer_sans_suite_email_template
-    without_continuation_mail || Mails::WithoutContinuationMail.default_for_procedure(self)
+  def email_classe_sans_suite_or_default
+    email_classe_sans_suite || Emails::ClasseSansSuite.default_for_procedure(self)
   end
 
-  def repasser_en_instruction_email_template
-    re_instructed_mail || Mails::ReInstructedMail.default_for_procedure(self)
+  def email_repasse_en_instruction_or_default
+    email_repasse_en_instruction || Emails::RepasseEnInstruction.default_for_procedure(self)
   end
 
   def email_template_for(state)
     case state
     when Dossier.states.fetch(:en_construction)
-      passer_en_construction_email_template
+      email_depose_or_default
     when Dossier.states.fetch(:en_instruction)
-      passer_en_instruction_email_template
+      email_passe_en_instruction_or_default
     when DossierOperationLog.operations.fetch(:repasser_en_instruction)
-      repasser_en_instruction_email_template
+      email_repasse_en_instruction_or_default
     when Dossier.states.fetch(:accepte)
-      accepter_email_template
+      email_accepte_or_default
     when Dossier.states.fetch(:refuse)
-      refuser_email_template
+      email_refuse_or_default
     when Dossier.states.fetch(:sans_suite)
-      classer_sans_suite_email_template
+      email_classe_sans_suite_or_default
     else
       raise "Unknown dossier state: #{state}"
     end
@@ -536,19 +536,19 @@ class Procedure < ApplicationRecord
     touch(:whitelisted_at)
   end
 
-  def mail_template_attestation_inconsistency_state(mail_type)
-    case mail_type
+  def email_template_attestation_inconsistency_state(email_type)
+    case email_type
     when :acceptation
-      mail = closed_mail
+      email = email_accepte
       attestation = attestation_acceptation_template
     when :refus
-      mail = refused_mail
+      email = email_refuse
       attestation = attestation_refus_template
     end
 
-    return if mail.nil?
+    return if email.nil?
 
-    tag_present = mail.body.to_s.include?('--lien attestation--')
+    tag_present = email.body.to_s.include?('--lien attestation--')
     if attestation&.activated? && !tag_present
       :missing_tag
     elsif !attestation&.activated? && tag_present
@@ -803,14 +803,14 @@ class Procedure < ApplicationRecord
     update!(closing_reason: nil, closing_details: nil, replaced_by_procedure_id: nil, closing_notification_brouillon: false, closing_notification_en_cours: false)
   end
 
-  def mail_templates
+  def email_templates
     [
-      self.passer_en_construction_email_template,
-      self.passer_en_instruction_email_template,
-      self.accepter_email_template,
-      self.refuser_email_template,
-      self.classer_sans_suite_email_template,
-      self.repasser_en_instruction_email_template,
+      email_depose_or_default,
+      email_passe_en_instruction_or_default,
+      email_accepte_or_default,
+      email_refuse_or_default,
+      email_classe_sans_suite_or_default,
+      email_repasse_en_instruction_or_default,
     ]
   end
 

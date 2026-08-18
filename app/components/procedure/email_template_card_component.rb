@@ -45,11 +45,11 @@ class Procedure::EmailTemplateCardComponent < ApplicationComponent
   end
 
   def edit_path
-    edit_admin_procedure_mail_template_path(procedure, slug)
+    edit_admin_procedure_email_template_path(procedure, slug)
   end
 
   def final_decision_templates
-    [Mails::WithoutContinuationMail.const_get(:SLUG), Mails::RefusedMail.const_get(:SLUG), Mails::ClosedMail.const_get(:SLUG)]
+    [Emails::ClasseSansSuite.const_get(:SLUG), Emails::Refuse.const_get(:SLUG), Emails::Accepte.const_get(:SLUG)]
   end
 
   def not_editable?

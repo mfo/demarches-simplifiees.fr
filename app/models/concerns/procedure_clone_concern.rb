@@ -206,7 +206,7 @@ module ProcedureCloneConcern
       clone_monavis_embed: true,
       clone_dossier_submitted_message: true,
       clone_accuse_lecture: true,
-      clone_mail_templates: true,
+      clone_email_templates: true,
       clone_labels: true,
     }
   end
@@ -245,13 +245,13 @@ module ProcedureCloneConcern
       procedure.draft_revision.ineligibilite_message = nil
     end
 
-    if options[:clone_mail_templates]
-      procedure.initiated_mail = initiated_mail&.dup
-      procedure.received_mail = received_mail&.dup
-      procedure.closed_mail = closed_mail&.dup
-      procedure.refused_mail = refused_mail&.dup
-      procedure.re_instructed_mail = re_instructed_mail&.dup
-      procedure.without_continuation_mail = without_continuation_mail&.dup
+    if options[:clone_email_templates]
+      procedure.email_depose = email_depose&.dup
+      procedure.email_passe_en_instruction = email_passe_en_instruction&.dup
+      procedure.email_accepte = email_accepte&.dup
+      procedure.email_refuse = email_refuse&.dup
+      procedure.email_repasse_en_instruction = email_repasse_en_instruction&.dup
+      procedure.email_classe_sans_suite = email_classe_sans_suite&.dup
     end
 
     if !same_admin?(admin)
