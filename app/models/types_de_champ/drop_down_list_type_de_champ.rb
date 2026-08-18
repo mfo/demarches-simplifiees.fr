@@ -99,4 +99,12 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
       self.drop_down_options = ['Fromage', 'Dessert']
     end
   end
+
+  def champ_text_value(champ)
+    if champ.is_type?(TypeDeChamp.type_champs.fetch(:multiple_drop_down_list))
+      TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ).first
+    else
+      super
+    end
+  end
 end

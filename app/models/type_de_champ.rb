@@ -617,26 +617,17 @@ class TypeDeChamp < ApplicationRecord
 
   private
 
+  # A value written by a multiple drop-down list, read after a type change.
   def champ_text_value(champ)
     if champ.is_type?(TypeDeChamp.type_champs.fetch(:multiple_drop_down_list))
-      values = TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ)
-      if drop_down_list?
-        values.first
-      else
-        values.join(', ')
-      end
+      TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ).join(', ')
     else
       champ.value
     end
   end
 
   def libelle_with_prefix(prefix)
-    # SIRET needs to be explicit in listings for better UI readability
-    if type_champ == "siret" && !libelle.upcase.include?("SIRET")
-      [prefix, libelle, "SIRET"].compact.join(' – ')
-    else
-      [prefix, libelle].compact.join(' – ')
-    end
+    [prefix, libelle].compact.join(' – ')
   end
 
   def paths
