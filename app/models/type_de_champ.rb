@@ -161,13 +161,7 @@ class TypeDeChamp < ApplicationRecord
   }
 
   has_one_attached :piece_justificative_template
-  validates :piece_justificative_template, size: { less_than: FILE_MAX_SIZE }, on: :update
-  validates :piece_justificative_template, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, on: :update
-  validates :piece_justificative_template, empty_file: true, on: :update
-
   has_one_attached :notice_explicative
-  validates :notice_explicative, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, size: { less_than: 20.megabytes }, on: :update
-  validates :notice_explicative, empty_file: true, on: :update
 
   validates :type_champ, presence: true, allow_blank: false, allow_nil: false
   validates :character_limit, numericality: {
