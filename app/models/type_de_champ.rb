@@ -6,7 +6,6 @@ class TypeDeChamp < ApplicationRecord
   self.inheritance_column = :type_champ
 
   FILE_MAX_SIZE = 200.megabytes
-  IDENTITY_FILE_MAX_SIZE = 20.megabytes
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
 
   FILL_DURATION_SHORT  = 10.seconds
@@ -81,8 +80,6 @@ class TypeDeChamp < ApplicationRecord
     aeeh: 'aeeh',
     ars: 'ars',
   }
-
-  enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
 
   store_accessor :options,
                  :cadastres,
@@ -612,39 +609,14 @@ class TypeDeChamp < ApplicationRecord
     options.slice(*self.class.editable_option_keys.map(&:to_s))
   end
 
-  def pj_limit_formats?
-    [true, '1'].include?(options[:pj_limit_formats])
-  end
+  def titre_identite? = false
+  def rib? = false
+  def justificatif_domicile? = false
+  def avis_impot? = false
+  def ocr_compatible? = false
 
-  def pj_format_families
-    Array.wrap(options[:pj_format_families]).map(&:to_s)
-  end
-
-  def pj_auto_purge?
-    titre_identite? || [true, '1'].include?(options[:pj_auto_purge])
-  end
-
-  def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
-
-  def max_file_size_bytes
-    if titre_identite?
-      IDENTITY_FILE_MAX_SIZE
-    else
-      FILE_MAX_SIZE
-    end
-  end
-
-  def allowed_content_types
-    if titre_identite?
-      families_to_content_types(%w[image_scan])
-    elsif ocr_compatible?
-      families_to_content_types(%w[document_texte image_scan])
-    elsif pj_limit_formats? && pj_format_families.present?
-      families_to_content_types(pj_format_families)
-    else
-      AUTHORIZED_CONTENT_TYPES
-    end
-  end
+  def max_file_size_bytes = FILE_MAX_SIZE
+  def allowed_content_types = AUTHORIZED_CONTENT_TYPES
 
   def champ_value(champ)
     if champ_blank?(champ)
@@ -888,14 +860,6 @@ class TypeDeChamp < ApplicationRecord
         description:,
       },
     ]
-  end
-
-  def families_to_content_types(families)
-    return AUTHORIZED_CONTENT_TYPES if families.blank?
-
-    families
-      .flat_map { |f| FORMAT_FAMILIES[f.to_sym] || [] }
-      .presence || AUTHORIZED_CONTENT_TYPES
   end
 
   def castable_on_change?(from_type, to_type)
