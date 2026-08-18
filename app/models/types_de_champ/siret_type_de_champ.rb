@@ -7,7 +7,7 @@ class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
     FILL_DURATION_MEDIUM
   end
 
-  def champ_blank_or_invalid?(champ) = Siret.new(siret: champ.value).invalid?
+  def typed_champ_blank_or_invalid?(champ) = Siret.new(siret: champ.value).invalid?
 
   def columns(procedure_id:, displayable: true, prefix: nil)
     super

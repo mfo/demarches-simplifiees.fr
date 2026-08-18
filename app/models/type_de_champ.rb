@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class TypeDeChamp < ApplicationRecord
+  # STI on the historical type_champ column: values are enum strings ('text'),
+  # not class names, so find_sti_class/sti_name below translate both ways.
+  self.inheritance_column = :type_champ
+
   FILE_MAX_SIZE = 200.megabytes
   IDENTITY_FILE_MAX_SIZE = 20.megabytes
   FEATURE_FLAGS = {
@@ -197,8 +201,6 @@ class TypeDeChamp < ApplicationRecord
 
   belongs_to :referentiel, optional: true, inverse_of: :types_de_champ
 
-  delegate :estimated_fill_duration, :estimated_read_duration, :tags_for_template, :libelles_for_export, :libelle_for_export, :primary_options, :secondary_options, :columns, :canonical_column, :personnalisation_column, :info_columns, to: :dynamic_type
-
   class WithIndifferentAccess
     def self.load(options)
       options&.with_indifferent_access
@@ -212,8 +214,6 @@ class TypeDeChamp < ApplicationRecord
   serialize :options, coder: WithIndifferentAccess
 
   serialize :condition, coder: LogicSerializer
-
-  attr_reader :dynamic_type
 
   scope :public_only, -> { where(private: false) }
   scope :private_only, -> { where(private: true) }
@@ -245,7 +245,6 @@ class TypeDeChamp < ApplicationRecord
     allow_blank: true,
   }
 
-  after_initialize :set_dynamic_type
   after_create :populate_stable_id
 
   before_validation :check_mandatory
@@ -261,15 +260,6 @@ class TypeDeChamp < ApplicationRecord
   before_save :clear_conflicting_date_options, if: :birthdate?
   before_save :clear_prefill_with_france_connect_information_if_not_birthdate
 
-  def valid?(context = nil)
-    super
-    if dynamic_type.present?
-      dynamic_type.valid?
-      errors.merge!(dynamic_type.errors)
-    end
-    errors.empty?
-  end
-
   def libelle_with_parent(revision)
     if child?(revision)
       parent_type_de_champ = revision.parent_of(self)
@@ -277,17 +267,6 @@ class TypeDeChamp < ApplicationRecord
     else
       libelle
     end
-  end
-
-  alias_method :validate, :valid?
-
-  def set_dynamic_type
-    @dynamic_type = type_champ.present? ? self.class.type_champ_to_class_name(type_champ).constantize.new(self) : nil
-  end
-
-  def type_champ=(value)
-    super(value)
-    set_dynamic_type
   end
 
   def set_default_libelle
@@ -349,6 +328,13 @@ class TypeDeChamp < ApplicationRecord
 
   def build_champ(params = {})
     champ_class.new(params_for_champ.merge(params))
+  end
+
+  # Changing type_champ cannot change the class of an already-instantiated
+  # record: save the change through an instance of the target subclass, so its
+  # validations and callbacks apply instead of the source type's.
+  def becomes_type(new_type_champ)
+    becomes(self.class.find_sti_class(new_type_champ))
   end
 
   def check_mandatory
@@ -650,7 +636,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def carte_optional_layers
-    TypesDeChamp::CarteTypeDeChamp::LAYERS.filter_map do |layer|
+    CARTE_LAYERS.filter_map do |layer|
       layer_enabled?(layer) ? layer : nil
     end.sort
   end
@@ -664,7 +650,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def editable_options
-    layers = TypesDeChamp::CarteTypeDeChamp::LAYERS.map do |layer|
+    layers = CARTE_LAYERS.map do |layer|
       disabled = case layer
       when :cadastres
         layer_enabled?(:rpg)
@@ -767,6 +753,23 @@ class TypeDeChamp < ApplicationRecord
       .parameterize
   end
 
+  # Kept here rather than on TypesDeChamp::CarteTypeDeChamp: that subclass now
+  # inherits from TypeDeChamp, so referencing it from this class body would close
+  # an autoload cycle.
+  CARTE_LAYERS = [
+    :unesco,
+    :arretes_protection,
+    :conservatoire_littoral,
+    :reserves_chasse_faune_sauvage,
+    :reserves_biologiques,
+    :reserves_naturelles,
+    :natura_2000,
+    :zones_humides,
+    :znieff,
+    :cadastres,
+    :rpg,
+  ]
+
   OPTS_BY_TYPE = {
     type_champs.fetch(:header_section) => [:header_section_level],
     type_champs.fetch(:explication) => [:collapsible_explanation_enabled, :collapsible_explanation_text],
@@ -775,7 +778,7 @@ class TypeDeChamp < ApplicationRecord
     type_champs.fetch(:decimal_number) => [:positive_number, :min_number, :max_number, :range_number],
     type_champs.fetch(:date) => [:birthdate, :prefill_with_france_connect_information, :date_in_past, :start_date, :end_date, :range_date],
     type_champs.fetch(:datetime) => [:date_in_past, :start_date, :end_date, :range_date],
-    type_champs.fetch(:carte) => TypesDeChamp::CarteTypeDeChamp::LAYERS,
+    type_champs.fetch(:carte) => CARTE_LAYERS,
     type_champs.fetch(:drop_down_list) => [:drop_down_other, :drop_down_options, :drop_down_mode],
     type_champs.fetch(:multiple_drop_down_list) => [:drop_down_options, :drop_down_mode],
     type_champs.fetch(:linked_drop_down_list) => [:drop_down_options, :drop_down_secondary_libelle, :drop_down_secondary_description],
@@ -839,25 +842,25 @@ class TypeDeChamp < ApplicationRecord
 
   def champ_value(champ)
     if champ_blank?(champ)
-      dynamic_type.champ_default_value
+      champ_default_value
     else
-      dynamic_type.champ_value(champ)
+      typed_champ_value(champ)
     end
   end
 
   def champ_value_for_api(champ, version: 2)
     if champ_blank?(champ)
-      dynamic_type.champ_default_api_value(version)
+      champ_default_api_value(version)
     else
-      dynamic_type.champ_value_for_api(champ, version:)
+      typed_champ_value_for_api(champ, version:)
     end
   end
 
   def champ_value_for_export(champ, path = :value)
     if champ_blank?(champ)
-      dynamic_type.champ_default_export_value(path)
+      champ_default_export_value(path)
     else
-      dynamic_type.champ_value_for_export(champ, path)
+      typed_champ_value_for_export(champ, path)
     end
   end
 
@@ -865,7 +868,7 @@ class TypeDeChamp < ApplicationRecord
     if champ_blank?(champ)
       ''
     else
-      dynamic_type.champ_value_for_tag(champ, path)
+      typed_champ_value_for_tag(champ, path)
     end
   end
 
@@ -874,7 +877,7 @@ class TypeDeChamp < ApplicationRecord
     return true if champ.nil?
     # type de champ on the revision changed
     if champ.is_type?(type_champ) || castable_on_change?(champ.last_write_type_champ, type_champ)
-      dynamic_type.champ_blank?(champ)
+      typed_champ_blank?(champ)
     else
       true
     end
@@ -885,7 +888,7 @@ class TypeDeChamp < ApplicationRecord
     return true if champ.nil?
     # type de champ on the revision changed
     if champ.is_type?(type_champ) || castable_on_change?(champ.last_write_type_champ, type_champ)
-      mandatory? && dynamic_type.champ_blank_or_invalid?(champ)
+      mandatory? && typed_champ_blank_or_invalid?(champ)
     else
       true
     end
@@ -911,9 +914,19 @@ class TypeDeChamp < ApplicationRecord
     def type_champ_to_class_name(type_champ)
       "TypesDeChamp::#{type_champ.classify}TypeDeChamp"
     end
+
+    def find_sti_class(type_name) = type_champ_to_class_name(type_name.to_s).constantize
+
+    def sti_name = CLASS_NAME_TO_TYPE_CHAMP[name]
+
+    # Forms, params, dom ids and i18n keys expect 'type_de_champ' for every subclass.
+    def model_name
+      self == TypeDeChamp ? super : TypeDeChamp.model_name
+    end
   end
 
   CHAMP_TYPE_TO_TYPE_CHAMP = type_champs.values.index_by { type_champ_to_champ_class_name(_1) }
+  CLASS_NAME_TO_TYPE_CHAMP = type_champs.values.index_by { type_champ_to_class_name(_1) }
 
   def any_drop_down_list?
     type_champ.in?([

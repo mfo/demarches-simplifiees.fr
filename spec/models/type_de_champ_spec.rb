@@ -16,7 +16,7 @@ describe TypeDeChamp do
       it do
         dossier.revision.root_types_de_champ_public.each do |type_de_champ|
           champ = dossier.project_champ(type_de_champ)
-          expect(type_de_champ.dynamic_type.class.name).to match(/^TypesDeChamp::/)
+          expect(type_de_champ.class.name).to match(/^TypesDeChamp::/)
           expect(champ.class.name).to match(/^Champs::/)
         end
       end
@@ -148,24 +148,35 @@ describe TypeDeChamp do
       end
     end
 
-    context 'delegate validation to dynamic type' do
-      subject { build(:type_de_champ_text) }
-      let(:dynamic_type) do
-        Class.new(TypesDeChamp::TypeDeChampBase) do
-          validate :never_valid
-
-          def never_valid
-            errors.add(:troll, 'always invalid')
-          end
-        end.new(subject)
-      end
-
-      before { subject.instance_variable_set(:@dynamic_type, dynamic_type) }
+    context "runs the STI subclass validations" do
+      subject { create(:type_de_champ_linked_drop_down_list).tap { _1.drop_down_options = ["pas de primaire"] } }
 
       it do
+        is_expected.to be_an_instance_of(TypesDeChamp::LinkedDropDownListTypeDeChamp)
         is_expected.to be_invalid
-        expect(subject.errors.full_messages.to_sentence).to eq("Le champ « Troll » always invalid")
+        expect(subject.errors.full_messages.to_sentence).to include("doit commencer par une entrée de menu primaire")
       end
+    end
+  end
+
+  describe '#becomes_type' do
+    it 'runs the target type validations instead of the source ones' do
+      tdc = create(:type_de_champ_linked_drop_down_list)
+      tdc.update_column(:options, { 'drop_down_options' => ['pas de primaire'] })
+      tdc = TypeDeChamp.find(tdc.id)
+
+      expect(tdc).to be_invalid
+      expect(tdc.becomes_type('text').update(type_champ: 'text')).to be true
+    end
+
+    it 'runs the target type callbacks, persisting the formatted default options' do
+      tdc = create(:type_de_champ_text)
+
+      morphed = tdc.becomes_type('formatted')
+      morphed.update!(type_champ: 'formatted')
+
+      expect(morphed).to be_an_instance_of(TypesDeChamp::FormattedTypeDeChamp)
+      expect(morphed.reload.options['formatted_mode']).to eq('simple')
     end
   end
 

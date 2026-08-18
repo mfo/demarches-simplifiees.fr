@@ -4,6 +4,9 @@ FactoryBot.define do
   sequence(:stable_id) { |n| 100_000 + n }
 
   factory :type_de_champ do
+    # STI: attributes must go through new so the subclass is picked from type_champ.
+    initialize_with { TypeDeChamp.new(attributes) }
+
     sequence(:libelle) { |n| "Libelle du champ #{n}" }
     sequence(:description) { |n| "description du champ #{n}" }
     type_champ { TypeDeChamp.type_champs.fetch(:text) }

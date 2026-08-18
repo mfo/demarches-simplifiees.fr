@@ -280,7 +280,7 @@ module ColumnsConcern
   end
 
   def types_de_champ_columns
-    all_revisions_types_de_champ.filter(&:dynamic_type).flat_map { _1.columns(procedure_id: id) }
+    all_revisions_types_de_champ.flat_map { _1.columns(procedure_id: id) }
   end
 
   def dossier_col(**args) = Columns::DossierColumn.new(**(args.merge(procedure_id: id)))

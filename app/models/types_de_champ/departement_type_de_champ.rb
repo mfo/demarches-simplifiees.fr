@@ -8,11 +8,11 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
       .concat(legacy_columns(procedure_id:, prefix:))
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     "#{champ.code} – #{champ.name}"
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :code
       champ.code
@@ -21,21 +21,21 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :code
       champ.code
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     end
   end
 
-  def champ_value_for_api(champ, version: 2)
+  def typed_champ_value_for_api(champ, version: 2)
     case version
     when 2
-      champ_value(champ).tr('–', '-')
+      typed_champ_value(champ).tr('–', '-')
     else
-      champ_value(champ)
+      typed_champ_value(champ)
     end
   end
 

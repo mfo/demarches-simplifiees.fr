@@ -1,21 +1,13 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::TypeDeChampBase
-  include ActiveModel::Validations
-
-  delegate :description, :libelle, :mandatory, :mandatory?, :stable_id, :fillable?, :public?, :type_champ, :options_for_select, :drop_down_options, :drop_down_other?, :drop_down_advanced?, :referentiel, :rib?, :justificatif_domicile?, :avis_impot?, :titre_identite?, :ocr_compatible?, to: :@type_de_champ
-
+class TypesDeChamp::TypeDeChampBase < TypeDeChamp
   FILL_DURATION_SHORT  = 10.seconds
   FILL_DURATION_MEDIUM = 1.minute
   FILL_DURATION_LONG   = 3.minutes
   READ_WORDS_PER_SECOND = 140.0 / 60 # 140 words per minute
 
-  def initialize(type_de_champ)
-    @type_de_champ = type_de_champ
-  end
-
   def tags_for_template
-    type_de_champ = @type_de_champ
+    type_de_champ = self
     conditional = type_de_champ.condition.present?
     paths.map do |path|
       path.merge(
@@ -53,25 +45,25 @@ class TypesDeChamp::TypeDeChampBase
     (words / READ_WORDS_PER_SECOND).round.seconds
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     champ.value.present? ? champ_text_value(champ) : champ_default_value
   end
 
-  def champ_value_for_api(champ, version: 2)
+  def typed_champ_value_for_api(champ, version: 2)
     case version
     when 2
-      champ_value(champ)
+      typed_champ_value(champ)
     else
       champ.value.presence || champ_default_api_value(version)
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     path == :value ? champ_text_value(champ).presence : champ_default_export_value(path)
   end
 
-  def champ_value_for_tag(champ, path = :value)
-    path == :value ? champ_value(champ) : nil
+  def typed_champ_value_for_tag(champ, path = :value)
+    path == :value ? typed_champ_value(champ) : nil
   end
 
   def champ_default_value
@@ -91,8 +83,8 @@ class TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def champ_blank?(champ) = champ.value.blank?
-  def champ_blank_or_invalid?(champ) = champ_blank?(champ)
+  def typed_champ_blank?(champ) = champ.value.blank?
+  def typed_champ_blank_or_invalid?(champ) = typed_champ_blank?(champ)
 
   def canonical_column(procedure_id:, displayable: true, prefix: nil)
     return nil unless fillable?
@@ -132,7 +124,7 @@ class TypesDeChamp::TypeDeChampBase
   def champ_text_value(champ)
     if champ.is_type?(TypeDeChamp.type_champs.fetch(:multiple_drop_down_list))
       values = TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ)
-      if @type_de_champ.drop_down_list?
+      if drop_down_list?
         values.first
       else
         values.join(', ')

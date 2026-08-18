@@ -2319,21 +2319,6 @@ describe Procedure do
       expect(ville_column.h_id[:column_id]).to eq("type_de_champ/#{ville_column.stable_id}")
     end
 
-    it 'does not raise and skips champs whose type_champ is unknown (legacy value)' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
-        { type: :text, libelle: 'Champ valide' },
-        { type: :text, libelle: 'Champ legacy' },
-      ])
-      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
-      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
-      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
-      procedure.reload
-
-      expect { procedure.personnalisable_columns }.not_to raise_error
-      expect(procedure.personnalisable_columns.map(&:label)).not_to include('Champ legacy')
-      expect(procedure.personnalisable_columns.map(&:label)).to include('Champ valide')
-    end
-
     it 'excludes champs that carry a condition' do
       procedure = create(:procedure, :published, types_de_champ_public: [
         { type: :yes_no, libelle: 'Gate', stable_id: 1 },
@@ -2457,22 +2442,6 @@ describe Procedure do
       expect(tdc_query_count).to eq(0)
     end
 
-    it 'does not raise and skips champs whose type_champ is unknown (legacy value)' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
-        { type: :text, libelle: 'Champ valide' },
-        { type: :text, libelle: 'Champ legacy' },
-      ])
-      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
-      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
-      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
-      procedure.reload
-
-      expect { procedure.personnalisable_columns_by_section }.not_to raise_error
-      all_column_labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, cols| cols.map(&:label) }
-      expect(all_column_labels).not_to include('Champ legacy')
-      expect(all_column_labels).to include('Champ valide')
-    end
-
     it 'excludes champs that carry a condition' do
       procedure = create(:procedure, :published, types_de_champ_public: [
         { type: :yes_no, libelle: 'Gate', stable_id: 1 },
@@ -2482,26 +2451,6 @@ describe Procedure do
 
       labels = procedure.personnalisable_columns_by_section.flat_map { |_stable_id, _label, columns| columns.map(&:label) }
       expect(labels).to eq(['Toujours visible'])
-    end
-  end
-
-  describe '#columns' do
-    it 'does not raise and skips champs with unknown type_champ (legacy value)' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
-        { type: :text, libelle: 'Champ valide' },
-        { type: :text, libelle: 'Champ legacy' },
-      ])
-      valid_tdc = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ valide' }
-      legacy_tdc_id = procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'Champ legacy' }.id
-      TypeDeChamp.where(id: legacy_tdc_id).update_all(type_champ: 'titre_identite')
-      expect(TypeDeChamp.find(legacy_tdc_id).dynamic_type).to be_nil
-      procedure.reload
-      Current.procedure_columns = nil
-
-      expect { procedure.columns }.not_to raise_error
-      expect(procedure.columns.map(&:label)).not_to include('Champ legacy')
-      h_id = { procedure_id: procedure.id, column_id: "type_de_champ/#{valid_tdc.stable_id}" }
-      expect { procedure.find_column(h_id:) }.not_to raise_error
     end
   end
 

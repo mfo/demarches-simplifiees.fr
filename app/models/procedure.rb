@@ -100,7 +100,9 @@ class Procedure < ApplicationRecord
         draft_revision.children_of(parent)
       end
     else
-      cache_key = ['all_revisions_types_de_champ', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
+      # 'sti': entries marshalled before the TypeDeChamp STI deserialize as the
+      # base class, without the typed behavior.
+      cache_key = ['all_revisions_types_de_champ', 'sti', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
       Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_types_de_champ(parent:, with_header_section:) }
     end
   end
