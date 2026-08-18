@@ -36,8 +36,8 @@ module Ami
       case result
       in Success(body:)
         Success(body)
-      in Failure(code:, reason:, retryable:)
-        Failure(API::Client::Error[:api_error, code, retryable, reason])
+      in Failure(API::Client::Error => error)
+        Failure(error)
       end
     end
   end
