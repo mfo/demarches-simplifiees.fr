@@ -429,31 +429,11 @@ class TypeDeChamp < ApplicationRecord
     options_for_select.any? { _1.last == checked_value }
   end
 
-  def header_section_level_value
-    if header_section_level.presence
-      header_section_level.to_i
-    else
-      1
-    end
-  end
-
   def previous_section_level(upper_tdcs)
     previous_header_section = upper_tdcs.reverse.find(&:header_section?)
 
     return 0 if !previous_header_section
     previous_header_section.header_section_level_value.to_i
-  end
-
-  def check_coherent_header_level(upper_tdcs)
-    previous_level = previous_section_level(upper_tdcs)
-    current_level = header_section_level_value.to_i
-
-    difference = current_level - previous_level
-    if current_level > previous_level && difference != 1
-      I18n.t('activerecord.errors.type_de_champ.attributes.header_section_level.gap_error', level: current_level - previous_level - 1)
-    else
-      nil
-    end
   end
 
   def current_section_level(revision)
@@ -462,49 +442,12 @@ class TypeDeChamp < ApplicationRecord
     previous_section_level(tdcs.take(tdcs.find_index(self)))
   end
 
-  def level_for_revision(revision)
-    parent_type_de_champ = revision.parent_of(self)
-
-    if parent_type_de_champ.present?
-      header_section_level_value.to_i + parent_type_de_champ.current_section_level(revision)
-    elsif header_section_level_value
-      header_section_level_value.to_i
-    else
-      0
-    end
-  end
-
-  def layer_enabled?(layer)
-    options && options[layer] && options[layer] != '0'
-  end
-
-  def carte_optional_layers
-    CARTE_LAYERS.filter_map do |layer|
-      layer_enabled?(layer) ? layer : nil
-    end.sort
-  end
-
   def to_typed_id
     GraphQL::Schema::UniqueWithinType.encode('Champ', stable_id)
   end
 
   def editable_options=(options)
     self.options.merge!(options)
-  end
-
-  def editable_options
-    layers = CARTE_LAYERS.map do |layer|
-      disabled = case layer
-      when :cadastres
-        layer_enabled?(:rpg)
-      when :rpg
-        layer_enabled?(:cadastres)
-      else
-        false
-      end
-      [layer, layer_enabled?(layer), disabled]
-    end
-    layers.each_slice((layers.size / 2.0).round).to_a
   end
 
   def read_attribute_for_serialization(name)
@@ -584,23 +527,6 @@ class TypeDeChamp < ApplicationRecord
       .truncate(30, omission: '', separator: ' ')
       .parameterize
   end
-
-  # Kept here rather than on TypesDeChamp::CarteTypeDeChamp: that subclass now
-  # inherits from TypeDeChamp, so referencing it from this class body would close
-  # an autoload cycle.
-  CARTE_LAYERS = [
-    :unesco,
-    :arretes_protection,
-    :conservatoire_littoral,
-    :reserves_chasse_faune_sauvage,
-    :reserves_biologiques,
-    :reserves_naturelles,
-    :natura_2000,
-    :zones_humides,
-    :znieff,
-    :cadastres,
-    :rpg,
-  ]
 
   def self.editable_option_keys = []
   def self.column_type = :text

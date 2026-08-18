@@ -426,6 +426,8 @@ class ProcedureRevision < ApplicationRecord
         :type_champ,
         from_type_de_champ.type_champ,
         to_type_de_champ.type_champ)
+      # the options are compared as the new type reads them
+      from_type_de_champ = from_type_de_champ.becomes_type(to_type_de_champ.type_champ)
     end
     if from_type_de_champ.libelle != to_type_de_champ.libelle
       changes << ProcedureRevisionChange::UpdateChamp.new(from_type_de_champ,
