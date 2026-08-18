@@ -10,8 +10,8 @@ class ProcedureDashboard < Administrate::BaseDashboard
   # which determines how the attribute is displayed
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
-    public_published_type_de_champs: TypesDeChampCollectionField,
-    private_published_type_de_champs: TypesDeChampCollectionField,
+    public_published_type_de_champs: TypeDeChampsCollectionField,
+    private_published_type_de_champs: TypeDeChampsCollectionField,
     # `path` n'est plus une colonne mais une méthode (le path canonique de la
     # dernière ProcedurePath) : Administrate ne peut pas le chercher en SQL.
     path: ProcedureLinkField.with_options(searchable: false),
