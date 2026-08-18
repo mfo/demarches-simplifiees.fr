@@ -24,7 +24,13 @@ if [ "${1:-}" = "--setup" ]; then
 fi
 
 # Build assets once up front; otherwise every process would race to autobuild.
-bin/vite build
+# assets:precompile covers both pipelines: vite_ruby enhances it with
+# vite:build_all, and config.assets.compile is false in test so the Sprockets
+# bundle must be precompiled too — otherwise system specs run against a stale
+# application.css. Same step as .github/actions/ci-setup-assets in CI.
+# Both halves skip on a content digest, so an unchanged tree costs ~2.5s —
+# about 1s more than the vite build alone that this replaces.
+bin/rails assets:precompile
 
 # Processes are balanced with the runtimes recorded in
 # tmp/parallel_runtime_rspec.log by previous runs (parallel_tests' default
