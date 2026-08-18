@@ -4,9 +4,9 @@ class SimpleFormattedChampValidator < ActiveModel::Validator
   TIMEOUT = 1.second.freeze
 
   def validate(record)
-    letters_accepted = string_to_bool(options[:letters_accepted]) || string_to_bool(record.letters_accepted)
-    numbers_accepted = string_to_bool(options[:numbers_accepted]) || string_to_bool(record.numbers_accepted)
-    special_characters_accepted = string_to_bool(options[:special_characters_accepted]) || string_to_bool(record.special_characters_accepted)
+    letters_accepted = record.letters_accepted?
+    numbers_accepted = record.numbers_accepted?
+    special_characters_accepted = record.special_characters_accepted?
     min_character_length = options[:min_character_length] || record.min_character_length
     max_character_length = options[:max_character_length] || record.max_character_length
 
@@ -43,11 +43,5 @@ class SimpleFormattedChampValidator < ActiveModel::Validator
     end
   rescue Regexp::TimeoutError
     record.errors.add(:expression_reguliere, :evil_regexp)
-  end
-
-  private
-
-  def string_to_bool(s)
-    ActiveModel::Type::Boolean.new.cast(s)
   end
 end

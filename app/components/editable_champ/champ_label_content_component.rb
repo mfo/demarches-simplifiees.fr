@@ -71,9 +71,9 @@ class EditableChamp::ChampLabelContentComponent < ApplicationComponent
     if @champ.formatted_simple?
       hints = []
 
-      letters_accepted = string_to_bool(@champ.letters_accepted)
-      numbers_accepted = string_to_bool(@champ.numbers_accepted)
-      special_characters_accepted = string_to_bool(@champ.special_characters_accepted)
+      letters_accepted = @champ.letters_accepted?
+      numbers_accepted = @champ.numbers_accepted?
+      special_characters_accepted = @champ.special_characters_accepted?
 
       allowed_parts = []
       allowed_parts << :letters if letters_accepted
@@ -166,9 +166,5 @@ class EditableChamp::ChampLabelContentComponent < ApplicationComponent
     end
 
     hints
-  end
-
-  def string_to_bool(str)
-    ActiveModel::Type::Boolean.new.cast(str)
   end
 end

@@ -13,6 +13,7 @@ class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
   def customizable? = true
   def formatted_simple? = formatted_mode != 'advanced'
   def formatted_advanced? = formatted_mode == 'advanced'
+  boolean_options :letters_accepted, :numbers_accepted, :special_characters_accepted
 
   after_initialize :set_default_options
 
