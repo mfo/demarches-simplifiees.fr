@@ -241,8 +241,6 @@ class TypeDeChamp < ApplicationRecord
     revisions.one? && revisions.first.draft?
   end
 
-  def drop_down_other? = false
-
   def prefill_with_france_connect_information? = false
 
   def prefillable? = false

@@ -2,6 +2,7 @@
 
 module TypesDeChamp::DropDownOptionsConcern
   def drop_down_advanced? = false
+  def drop_down_other? = false
 
   def drop_down_options
     if drop_down_advanced?
