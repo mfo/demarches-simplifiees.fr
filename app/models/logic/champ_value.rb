@@ -17,11 +17,6 @@ class Logic::ChampValue < Logic::Term
     :pre_rempli
   )
 
-  MANAGED_TYPE_DE_CHAMP_BY_CATEGORY = MANAGED_TYPE_DE_CHAMP.keys.map(&:to_sym)
-    .each_with_object(Hash.new { |h, k| h[k] = [] }) do |type, h|
-    h[TypeDeChamp.category_for(type)] << type
-  end
-
   CHAMP_VALUE_TYPE = {
     boolean: :boolean, # from yes_no or checkbox champ
     number: :number, # from integer or decimal number champ

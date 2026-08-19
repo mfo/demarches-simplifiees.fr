@@ -33,10 +33,6 @@ class TypeDeChamp < ApplicationRecord
   def self.simple_routable? = false
   def self.conditionable? = false
 
-  def self.category_for(type_champ)
-    find_sti_class(type_champ).category
-  end
-
   enum :type_champ, {
     engagement_juridique: 'engagement_juridique',
     header_section: 'header_section',
@@ -336,20 +332,21 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def self.humanized_conditionable_types_by_category
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" } }
+    humanized_types_by_category(type_champ_classes.filter(&:conditionable?))
   end
 
   def self.humanized_simple_routable_types_by_category
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if find_sti_class(_1).simple_routable? } }
-      .reject(&:empty?)
+    humanized_types_by_category(type_champ_classes.filter { _1.conditionable? && _1.simple_routable? })
   end
 
   def self.humanized_custom_routable_types_by_category
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !find_sti_class(_1).simple_routable? } }
-      .reject(&:empty?)
+    humanized_types_by_category(type_champ_classes.filter { _1.conditionable? && !_1.simple_routable? })
+  end
+
+  def self.humanized_types_by_category(klasses)
+    klasses.group_by(&:category)
+      .sort_by { |category, _| CATEGORIES.find_index(category) }
+      .map { |_, group| group.map { "« #{I18n.t(_1.sti_name, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" } }
   end
 
   def public_id(row_id)

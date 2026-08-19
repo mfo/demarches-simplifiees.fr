@@ -779,14 +779,14 @@ describe TypeDeChamp do
   describe '#humanized_conditionable_types_by_category' do
     subject { TypeDeChamp.humanized_conditionable_types_by_category }
 
-    it {
-  is_expected.to eq([
-    ["« Oui/Non »", "« Case à cocher seule »", "« Choix simple »", "« Choix multiple »"],
-    ["« Nombre entier »", "« Nombre décimal »"],
-    ["« Adresse »", "« Commune française actuelle »", "« EPCI »", "« Département »", "« Région »", "« Pays »"],
-    ["« Champ pré-rempli »"],
-  ])
-}
+    it 'groups the conditionable types by category, in the editor order' do
+      is_expected.to eq([
+        ["« Adresse »", "« Commune française actuelle »", "« Département »", "« Région »", "« Pays »", "« EPCI »"],
+        ["« Nombre décimal »", "« Nombre entier »"],
+        ["« Case à cocher seule »", "« Choix simple »", "« Choix multiple »", "« Oui/Non »"],
+        ["« Champ pré-rempli »"],
+      ])
+    end
   end
 
   describe '#ocr_compatible?' do
