@@ -7,9 +7,6 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def self.simple_routable? = true
   def self.conditionable? = true
 
-  def condition_value_type = :enum
-  def condition_options = options_for_select_with_other
-
   include TypesDeChamp::DropDownOptionsConcern
 
   def prefillable? = true
@@ -18,6 +15,10 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def any_drop_down_list? = true
   def drop_down_simple? = drop_down_mode != 'advanced'
   def drop_down_advanced? = drop_down_mode == 'advanced'
+  def conditionable? = !drop_down_advanced?
+  def simple_routable? = !drop_down_advanced?
+  def condition_value_type = :enum
+  def condition_options = options_for_select_with_other
   boolean_options :drop_down_other
   def value_is_in_options?(checked_value) = options_for_select.any? { _1.last == checked_value }
   def customizable? = true

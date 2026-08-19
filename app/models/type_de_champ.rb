@@ -323,13 +323,9 @@ class TypeDeChamp < ApplicationRecord
   # custom refresh logic (RNA, SIRET, etc.)
   def refresh_after_update? = true
 
-  def simple_routable?
-    self.class.simple_routable? && !drop_down_advanced?
-  end
+  def simple_routable? = self.class.simple_routable?
 
-  def conditionable?
-    self.class.conditionable? && !drop_down_advanced?
-  end
+  def conditionable? = self.class.conditionable?
 
   def condition_value_type = :unmanaged
   def condition_options = []
