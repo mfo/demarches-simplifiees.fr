@@ -3082,7 +3082,7 @@ describe Users::DossiersController, type: :controller do
   describe 'PATCH #update_personnalisation' do
     let(:user) { create(:user) }
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }]) }
-    let(:column) { procedure.personnalisable_columns.first }
+    let(:column) { procedure.customizable_columns.first }
 
     before do
       Flipper.enable(:dossiers_list_personnalisation, user)
@@ -3104,7 +3104,7 @@ describe Users::DossiersController, type: :controller do
       invited_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Région' }])
       invited_dossier = create(:dossier, :en_construction, procedure: invited_procedure)
       create(:invite, dossier: invited_dossier, user:)
-      invited_column = invited_procedure.personnalisable_columns.first
+      invited_column = invited_procedure.customizable_columns.first
 
       patch :update_personnalisation, params: {
         personnalisations: { invited_procedure.id.to_s => { displayed_columns: [invited_column.id] } },
@@ -3185,7 +3185,7 @@ describe Users::DossiersController, type: :controller do
 
     let(:user) { create(:user) }
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
-    let(:column) { procedure.personnalisable_columns.first }
+    let(:column) { procedure.customizable_columns.first }
 
     before do
       Flipper.enable(:dossiers_list_personnalisation, user)
@@ -3218,8 +3218,8 @@ describe Users::DossiersController, type: :controller do
 
     before do
       Flipper.enable(:dossiers_list_personnalisation, user)
-      create(:dossiers_list_personnalisation, user:, procedure: procedure1, displayed_columns: [procedure1.personnalisable_columns.first])
-      create(:dossiers_list_personnalisation, user:, procedure: procedure2, displayed_columns: [procedure2.personnalisable_columns.first])
+      create(:dossiers_list_personnalisation, user:, procedure: procedure1, displayed_columns: [procedure1.customizable_columns.first])
+      create(:dossiers_list_personnalisation, user:, procedure: procedure2, displayed_columns: [procedure2.customizable_columns.first])
       sign_in(user)
     end
 
@@ -3253,7 +3253,7 @@ describe Users::DossiersController, type: :controller do
 
     def add_personnalised_procedure(libelle)
       procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: }])
-      create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [procedure.personnalisable_columns.first])
+      create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [procedure.customizable_columns.first])
       create_list(:dossier, 3, :en_construction, user:, procedure:, populate_champs: true)
     end
 
@@ -3291,7 +3291,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when a persisted column can no longer be resolved' do
       before do
-        pays_column = procedure.personnalisable_columns.find { _1.label == 'Pays' }
+        pays_column = procedure.customizable_columns.find { _1.label == 'Pays' }
         draft_only_tdc = procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'Futur champ')
         draft_only_column = draft_only_tdc.canonical_column(procedure_id: procedure.id)
         create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [draft_only_column, pays_column])
@@ -3316,7 +3316,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when the personnalised champ is removed in a later published revision' do
       before do
-        ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+        ville_column = procedure.customizable_columns.find { _1.label == 'Ville' }
         create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [ville_column])
         dossiers = create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
         dossiers.first.champs.find { _1.stable_id == ville_column.stable_id }.update(value: 'Nantes')

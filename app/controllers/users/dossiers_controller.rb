@@ -536,7 +536,7 @@ module Users
           if submitted_ids.empty?
             []
           else
-            columns_by_id = procedure.personnalisable_columns.index_by(&:id)
+            columns_by_id = procedure.customizable_columns.index_by(&:id)
             submitted_ids.filter_map { columns_by_id[_1] }
           end
         perso = current_user.dossiers_list_personnalisations.find_or_initialize_by(procedure_id:)
@@ -782,7 +782,7 @@ module Users
         .distinct
         .order(:libelle)
         .includes(published_revision: { revision_types_de_champ: :type_de_champ })
-        .filter { _1.personnalisable_columns_by_section.any? }
+        .filter { _1.customizable_columns_by_section.any? }
     end
 
     def redirect_if_hidden_or_deleted_dossier

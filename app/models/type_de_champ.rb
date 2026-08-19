@@ -799,7 +799,7 @@ class TypeDeChamp < ApplicationRecord
     [canonical_column(procedure_id:, displayable:, prefix:)].compact
   end
 
-  def personnalisation_column(procedure_id:)
+  def customization_column(procedure_id:)
     columns(procedure_id:).find(&:displayable)
   end
 
