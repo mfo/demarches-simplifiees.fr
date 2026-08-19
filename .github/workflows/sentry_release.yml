@@ -41,7 +41,7 @@ permissions:
 jobs:
   associate-commits:
     name: Associate commits
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     # Forks and instances that do not use Sentry, or use another organization,
     # simply never run this job.
     if: vars.SENTRY_ORG != ''
