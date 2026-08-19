@@ -190,4 +190,16 @@ describe DossierSearchService do
       end
     end
   end
+
+  describe '.to_tsquery' do
+    it 'builds a prefix matching query out of the terms' do
+      expect(described_class.to_tsquery('Direction nicolas')).to eq('Direction:* & nicolas:*')
+    end
+
+    # The quote would otherwise close the SQL literal the query is quoted into,
+    # the rest are tsquery operators postgres would parse rather than match.
+    it 'drops the characters postgres would not treat as text' do
+      expect(described_class.to_tsquery("Dupont') OR 1=1--")).to eq('Dupont:* & OR:* & 1=1--:*')
+    end
+  end
 end

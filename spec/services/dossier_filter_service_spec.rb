@@ -1086,4 +1086,17 @@ describe DossierFilterService do
       end
     end
   end
+
+  describe '.sanitized_column' do
+    it 'resolves an association to its table name' do
+      expect(described_class.sanitized_column('user', 'email')).to eq('"users"."email"')
+    end
+
+    # table and column are the only parts of the ILIKE filter that are
+    # interpolated, so they have to stay identifiers whatever they contain.
+    it 'quotes a hostile identifier instead of letting it break out' do
+      expect(described_class.sanitized_column('users"; DROP TABLE users--', 'email'))
+        .to eq(%{"users""; DROP TABLE users--"."email"})
+    end
+  end
 end
