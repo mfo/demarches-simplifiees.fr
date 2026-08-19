@@ -34,12 +34,12 @@ module Administrateurs
       @buttons = [
         [
           ['Gras', 'bold', 'bold'],
-          ['Italic', 'italic', 'italic'],
+          ['Italique', 'italic', 'italic'],
         ],
         [
           ['Titre', 'title', :hidden], # only for "title" section, without any action possible
-          ['Sous titre', 'heading2', 'h-1'],
-          ['Titre de section', 'heading3', 'h-2'],
+          ['Titre', 'heading2', 'h-1'],
+          ['Sous-titre', 'heading3', 'h-2'],
         ],
         [
           ['Liste à puces', 'bulletList', 'list-unordered'],
@@ -52,12 +52,12 @@ module Administrateurs
         ],
         [
           ['Aligner à gauche', 'left', 'align-left'],
-          ['Aligner au centre', 'center', 'align-center'],
+          ['Centrer', 'center', 'align-center'],
           ['Aligner à droite', 'right', 'align-right'],
         ],
         [
-          ['Undo', 'undo', 'arrow-go-back-line'],
-          ['Redo', 'redo', 'arrow-go-forward-line'],
+          ['Annuler', 'undo', 'arrow-go-back-line'],
+          ['Rétablir', 'redo', 'arrow-go-forward-line'],
         ],
       ]
 
