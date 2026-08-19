@@ -47,6 +47,7 @@ module Administrateurs
         ],
         [
           ['Saut de ligne', 'hardBreak', 'corner-down-left-line'],
+          ['Paragraphe', 'paragraph', 'paragraph'],
           ['Saut de page', 'pageBreak', 'page-separator'],
         ],
         [

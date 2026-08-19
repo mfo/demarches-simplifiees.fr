@@ -28,6 +28,15 @@ describe TiptapEditorComponent, type: :component do
     end
   end
 
+  context "with the paragraph action" do
+    subject(:rendered) { render_inline(described_class.new(form:, field_name: :tiptap_body, label: "Message personnalisé", actions: %w[hardBreak paragraph])) }
+
+    it "renders the paragraph button with its icon" do
+      expect(rendered).to have_button("Paragraphe")
+      expect(rendered).to have_css('button.fr-icon-paragraph[data-tiptap-action="paragraph"][title="Paragraphe"]')
+    end
+  end
+
   it "does not render any tag button when tags: is not given" do
     expect(rendered).not_to have_css('[data-tiptap-target="tag"]')
   end
