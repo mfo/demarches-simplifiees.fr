@@ -67,7 +67,7 @@ class Columns::JSONPathColumn < Columns::ChampColumn
 
       condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'})
     else
-      value = quote_string(search_terms.join('|'))
+      value = quote_string(jsonpath_escape(search_terms.join('|')))
       condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (@ like_regex "#{value}" flag "i")'})
     end
 
@@ -95,6 +95,11 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   end
 
   def quote_string(string) = ActiveRecord::Base.connection.quote_string(string)
+
+  # `"` delimits the like_regex literal and `\` escapes inside it: left as-is, a
+  # search term containing either one breaks out of the literal and postgres
+  # rejects the whole jsonpath expression.
+  def jsonpath_escape(string) = string.gsub(/["\\]/) { "\\#{it}" }
 
   def sanitize_sql(sql) = ActiveRecord::Base.sanitize_sql(sql)
 

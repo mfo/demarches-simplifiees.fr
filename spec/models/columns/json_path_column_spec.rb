@@ -184,6 +184,21 @@ describe Columns::JSONPathColumn do
       end
     end
 
+    context 'with search terms containing jsonpath string delimiters' do
+      let(:jsonpath) { '$.city_name' }
+      let(:dossiers) { Dossier.where(id: dossier.id) }
+
+      before { champ.update(value_json: { city_name: 'Aix "la" Belle' }) }
+
+      it 'matches a term containing a double quote' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['"la"'] })).to eq([dossier.id])
+      end
+
+      it 'does not blow up on a term ending with a backslash' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['Aix\\'] })).to eq([])
+      end
+    end
+
     context 'with blank filter values' do
       let(:jsonpath) { '$.postal_code' }
       let(:dossier1) { create(:dossier, procedure:) }
