@@ -1,22 +1,6 @@
 # frozen_string_literal: true
 
 class Logic::ChampValue < Logic::Term
-  MANAGED_TYPE_DE_CHAMP = TypeDeChamp.type_champs.slice(
-    :yes_no,
-    :checkbox,
-    :integer_number,
-    :decimal_number,
-    :drop_down_list,
-    :multiple_drop_down_list,
-    :address,
-    :communes,
-    :epci,
-    :departements,
-    :regions,
-    :pays,
-    :pre_rempli
-  )
-
   CHAMP_VALUE_TYPE = {
     boolean: :boolean, # from yes_no or checkbox champ
     number: :number, # from integer or decimal number champ
@@ -105,16 +89,12 @@ class Logic::ChampValue < Logic::Term
   end
 
   def options(type_de_champs, operator_name = nil)
-    tdc = type_de_champ(type_de_champs)
-
-    if operator_name.in?([Logic::InRegionOperator.name, Logic::NotInRegionOperator.name]) || tdc.type_champ == MANAGED_TYPE_DE_CHAMP.fetch(:regions)
+    if operator_name.in?([Logic::InRegionOperator.name, Logic::NotInRegionOperator.name])
       APIGeoService.region_options
-    elsif operator_name.in?([Logic::InDepartementOperator.name, Logic::NotInDepartementOperator.name]) || tdc.type_champ.in?([MANAGED_TYPE_DE_CHAMP.fetch(:communes), MANAGED_TYPE_DE_CHAMP.fetch(:epci), MANAGED_TYPE_DE_CHAMP.fetch(:departements), MANAGED_TYPE_DE_CHAMP.fetch(:address)])
+    elsif operator_name.in?([Logic::InDepartementOperator.name, Logic::NotInDepartementOperator.name])
       APIGeoService.departement_options
-    elsif tdc.type_champ == MANAGED_TYPE_DE_CHAMP.fetch(:pays)
-      APIGeoService.countries.map { ["#{_1[:name]} – #{_1[:code]}", _1[:code]] }
     else
-      tdc.options_for_select_with_other
+      type_de_champ(type_de_champs).condition_options
     end
   end
 

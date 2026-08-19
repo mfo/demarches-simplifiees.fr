@@ -332,6 +332,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def condition_value_type = :unmanaged
+  def condition_options = []
 
   def self.humanized_conditionable_types_by_category
     humanized_types_by_category(type_champ_classes.filter(&:conditionable?))

@@ -7,6 +7,7 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
   def self.conditionable? = true
 
   def condition_value_type = :enums
+  def condition_options = options_for_select_with_other
 
   include TypesDeChamp::DropDownOptionsConcern
 

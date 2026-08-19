@@ -8,6 +8,7 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
 
   def options_for_select = APIGeoService.departement_options
   def condition_value_type = :departement_enum
+  def condition_options = APIGeoService.departement_options
 
   include AddressableColumnConcern
 
