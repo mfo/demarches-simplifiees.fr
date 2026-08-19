@@ -17,7 +17,7 @@ Vous souhaitez y apporter des changements ou des améliorations ? Lisez notre [
 #### Tous environnements
 
 - postgresql (version >= 15)
-- libvips-dev (traitement d’images et génération de filigranes)
+- libvips-dev (version >= 8.13, traitement d’images et génération de filigranes)
 - gsfonts (polices pour le rendu du texte des filigranes)
 
 Nous sommes en cours de migration de `delayed_job` vers `sidekiq` pour le traitement des jobs asynchrones.
