@@ -273,8 +273,6 @@ class TypeDeChamp < ApplicationRecord
 
   def formatted_advanced? = false
 
-  def drop_down_advanced? = false
-
   def options_for_select = nil
 
   def previous_section_level(upper_tdcs)

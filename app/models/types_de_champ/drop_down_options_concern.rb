@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module TypesDeChamp::DropDownOptionsConcern
+  def drop_down_advanced? = false
+
   def drop_down_options
     if drop_down_advanced?
       Array.wrap(referentiel&.drop_down_options)
