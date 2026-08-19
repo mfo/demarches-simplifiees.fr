@@ -207,4 +207,17 @@ RSpec.describe GeoArea, type: :model do
       end
     end
   end
+
+  # The map render is not triggered by geo_areas: it is triggered on dépôt and
+  # on submissions of changes (cf. dossier_state_concern_spec).
+  describe 'static map rendering' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte }]) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:champ) { dossier.champ_data.first }
+
+    it 'is not scheduled while the usager is drawing' do
+      expect { create(:geo_area, :selection_utilisateur, :polygon, champ_data: champ) }
+        .not_to have_enqueued_job(RenderCarteChampJob)
+    end
+  end
 end

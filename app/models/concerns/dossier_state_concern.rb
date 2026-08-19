@@ -14,6 +14,7 @@ module DossierStateConcern
     resolve_pending_correction!
     process_sva_svr!
     clean_champs_after_submit!
+    render_carte_champs_later!
     DossierNotification.create_notification(self, :dossier_modifie)
   end
 
@@ -23,6 +24,7 @@ module DossierStateConcern
     save!
 
     RoutingEngine.compute(self)
+    render_carte_champs_later!
     Message::DossierModifierParInstructeurComponent.create_commentaire(traitement)
   end
 
@@ -58,6 +60,23 @@ module DossierStateConcern
     DossierNotification.create_notification(self, :dossier_depose) if !procedure.declarative? && !procedure.sva_svr_enabled?
 
     clean_champs_after_submit!
+    render_carte_champs_later!
+  end
+
+  # The static image of a carte champ only serves the PDF exports, which only
+  # concern submitted dossiers: we render at the moments the geometry becomes
+  # official, never while the usager is drawing. The job short-circuits on its
+  # own when the map has not moved since the last render.
+  #
+  # A champ that has lost its geometry still gets a job, which purges the image
+  # instead of rendering one: a submission that removes the last geo area must
+  # not leave the previous map behind. Only a champ with neither geometry nor
+  # image is skipped, as there is nothing to do for it.
+  def render_carte_champs_later!
+    champ_data
+      .where(type: Champs::CarteChamp.to_s, stream: Dossier::MAIN_STREAM)
+      .includes(:static_map_attachment)
+      .find_each { RenderCarteChampJob.enqueue_for(it) if it.geometry? || it.static_map.attached? }
   end
 
   def after_passer_en_instruction(h)

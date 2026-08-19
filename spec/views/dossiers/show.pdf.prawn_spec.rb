@@ -175,4 +175,41 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
       expect(text).not_to include('true')
     end
   end
+
+  describe 'carte champ' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte, libelle: 'Emprise' }]) }
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+    let(:champ) { dossier.root_champs_public.first }
+
+    before { champ.update(geo_areas: [build(:geo_area, :selection_utilisateur, :polygon)]) }
+
+    context 'when the static map has been rendered' do
+      before do
+        champ.attach_static_map(File.open(Rails.root.join('spec/fixtures/files/image-no-exif.jpg')), digest: 'abc')
+      end
+
+      # Prawn embeds a JPEG as a DCTDecode-filtered stream: its presence in the
+      # PDF attests that the image really was included.
+      it 'embeds the map image' do
+        render_and_extract(dossier, procedure, 'carte_with_map')
+
+        expect(rendered).to include('DCTDecode')
+      end
+
+      it 'still lists the geometries', if: PDFTOTEXT_AVAILABLE do
+        text = render_and_extract(dossier, procedure, 'carte_with_map')
+
+        expect(text).to include('Emprise')
+      end
+    end
+
+    context 'when the static map is missing' do
+      it 'falls back to the geometry list', if: PDFTOTEXT_AVAILABLE do
+        text = render_and_extract(dossier, procedure, 'carte_without_map')
+
+        expect(rendered).not_to include('DCTDecode')
+        expect(text).to include('Emprise')
+      end
+    end
+  end
 end

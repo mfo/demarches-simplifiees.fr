@@ -20,6 +20,22 @@ describe FetchCadastreRealGeometryJob, type: :job do
         expect { subject }.to change { geo_area.geometry }
         expect(GeoArea.cadastre_fetched.count).to eq(1)
       end
+
+      # The dépôt will trigger the render anyway: no point rendering a map the
+      # usager is still putting together.
+      it 'does not schedule a static map render on a brouillon', vcr: { cassette_name: :cadastre_ok } do
+        expect { subject }.not_to have_enqueued_job(RenderCarteChampJob)
+      end
+
+      # The real geometry can land after the dépôt (CRON fallback), in which
+      # case the image frozen at dépôt would show the approximate geometry.
+      context 'when the dossier is already submitted' do
+        let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+        it 'schedules a new static map render', vcr: { cassette_name: :cadastre_ok } do
+          expect { subject }.to have_enqueued_job(RenderCarteChampJob).with(champ)
+        end
+      end
     end
     context 'when cadastre lookup fails by not found', vcr: { cassette_name: :cadastre_ko } do
       let(:properties) do

@@ -11,6 +11,11 @@ class FetchCadastreRealGeometryJob < ApplicationJob
         cadastre_state: :cadastre_fetched,
         geometry: parcelle_data
       )
+      # On a brouillon, the dépôt will take care of it. But the fetch can also
+      # land afterwards (Cron::FallbackFetchCadastreRealGeometryJob), in which
+      # case the image frozen at dépôt would show the approximate geometry.
+      champ = geo_area.champ_data
+      RenderCarteChampJob.enqueue_for(champ) if !champ.dossier.brouillon?
     else
       geo_area.update_columns(
         cadastre_state: :cadastre_error,
