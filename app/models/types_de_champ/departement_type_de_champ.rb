@@ -4,6 +4,7 @@ class TypesDeChamp::DepartementTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
   def self.column_type = :enum
   def self.simple_routable? = true
+  def self.conditionable? = true
 
   def options_for_select = APIGeoService.departement_options
 

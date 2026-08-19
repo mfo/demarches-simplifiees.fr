@@ -5,6 +5,7 @@ class TypesDeChamp::PreRempliTypeDeChamp < TypeDeChamp
   def self.editable_option_keys = [:drop_down_options, :pre_rempli_hidden]
   def self.feature_flag = :pre_rempli_type_de_champ
   def self.column_type = :enum
+  def self.conditionable? = true
 
   include TypesDeChamp::DropDownOptionsConcern
 

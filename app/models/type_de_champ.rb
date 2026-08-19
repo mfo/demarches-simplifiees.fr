@@ -31,6 +31,7 @@ class TypeDeChamp < ApplicationRecord
   def self.public_only? = false
   def self.allowed_in_repetition? = true
   def self.simple_routable? = false
+  def self.conditionable? = false
 
   def self.category_for(type_champ)
     find_sti_class(type_champ).category
@@ -331,7 +332,7 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def conditionable?
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP.values.include?(type_champ) && !drop_down_advanced?
+    self.class.conditionable? && !drop_down_advanced?
   end
 
   def self.humanized_conditionable_types_by_category
@@ -566,6 +567,8 @@ class TypeDeChamp < ApplicationRecord
     end
 
     def find_sti_class(type_name) = type_champ_to_class_name(type_name.to_s).constantize
+
+    def type_champ_classes = type_champs.values.map { find_sti_class(_1) }
 
     def sti_name = CLASS_NAME_TO_TYPE_CHAMP[name]
 

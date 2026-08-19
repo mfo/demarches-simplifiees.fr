@@ -3,6 +3,7 @@
 class TypesDeChamp::DecimalNumberTypeDeChamp < TypeDeChamp
   def self.editable_option_keys = [:positive_number, :min_number, :max_number, :range_number]
   def self.column_type = :decimal
+  def self.conditionable? = true
 
   def prefillable? = true
   def customizable? = true

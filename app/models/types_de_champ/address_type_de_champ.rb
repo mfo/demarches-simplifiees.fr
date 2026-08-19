@@ -3,6 +3,7 @@
 class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
   def self.simple_routable? = true
+  def self.conditionable? = true
 
   include AddressableColumnConcern
 

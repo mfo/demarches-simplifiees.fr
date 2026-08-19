@@ -3,6 +3,7 @@
 class TypesDeChamp::YesNoTypeDeChamp < TypeDeChamp
   def self.category = CHOICE
   def self.column_type = :boolean
+  def self.conditionable? = true
 
   def prefillable? = true
   def choice_type? = true
