@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_04_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_19_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -367,22 +367,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_04_120000) do
     t.bigint "zone_id"
     t.index ["administrateur_id"], name: "index_default_zones_administrateurs_on_administrateur_id"
     t.index ["zone_id"], name: "index_default_zones_administrateurs_on_zone_id"
-  end
-
-  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
-    t.integer "attempts", default: 0, null: false
-    t.datetime "created_at", precision: nil
-    t.string "cron"
-    t.datetime "failed_at", precision: nil
-    t.text "handler", null: false
-    t.text "last_error"
-    t.datetime "locked_at", precision: nil
-    t.string "locked_by"
-    t.integer "priority", default: 0, null: false
-    t.string "queue"
-    t.datetime "run_at", precision: nil
-    t.datetime "updated_at", precision: nil
-    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
   create_table "deleted_dossiers", force: :cascade do |t|
