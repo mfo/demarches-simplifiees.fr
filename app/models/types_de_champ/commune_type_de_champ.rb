@@ -2,8 +2,10 @@
 
 class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
   def self.category = LOCALISATION
+  def self.simple_routable? = true
 
   def prefillable? = true
+  def customizable? = true
 
   include AddressableColumnConcern
 
@@ -38,7 +40,7 @@ class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
       .concat(legacy_columns(procedure_id:, prefix:))
   end
 
-  def personnalisation_column(procedure_id:)
+  def customization_column(procedure_id:)
     addressable_columns(procedure_id:, only: [:city_name]).first
   end
 

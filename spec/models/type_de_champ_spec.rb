@@ -114,7 +114,7 @@ describe TypeDeChamp do
     end
 
     describe 'changing the type_champ from a drop_down_list' do
-      let(:tdc) { create(:type_de_champ_drop_down_list) }
+      let(:tdc) { create(:type_de_champ_drop_down_list).becomes_type(target_type_champ) }
 
       before do
         tdc.update(type_champ: target_type_champ)

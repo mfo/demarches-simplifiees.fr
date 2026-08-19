@@ -7,19 +7,6 @@ class TypeDeChamp < ApplicationRecord
 
   FILE_MAX_SIZE = 200.megabytes
   IDENTITY_FILE_MAX_SIZE = 20.megabytes
-  FEATURE_FLAGS = {
-    engagement_juridique: :engagement_juridique_type_de_champ,
-    cojo: :cojo_type_de_champ,
-    pre_rempli: :pre_rempli_type_de_champ,
-  }
-
-  PERSONNALISABLE_TYPE_CHAMPS = %w[
-    text integer_number decimal_number formatted date datetime
-    dossier_link drop_down_list multiple_drop_down_list linked_drop_down_list
-    civilite email phone siret rna rnf annuaire_education iban
-    address communes departements regions pays epci
-  ].freeze
-
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
 
   FILL_DURATION_SHORT  = 10.seconds
@@ -40,6 +27,11 @@ class TypeDeChamp < ApplicationRecord
   CATEGORIES = [STRUCTURE, ETAT_CIVIL, LOCALISATION, PAIEMENT_IDENTIFICATION, STANDARD, PIECES_JOINTES, CHOICE, REFERENTIEL_EXTERNE, FRANCE_CONNECT]
 
   def self.category = STANDARD
+  def self.feature_flag = nil
+  def self.private_only? = false
+  def self.public_only? = false
+  def self.allowed_in_repetition? = true
+  def self.simple_routable? = false
 
   def self.category_for(type_champ)
     find_sti_class(type_champ).category
@@ -91,30 +83,6 @@ class TypeDeChamp < ApplicationRecord
   }
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
-
-  SIMPLE_ROUTABLE_TYPES = [
-    type_champs.fetch(:drop_down_list),
-    type_champs.fetch(:communes),
-    type_champs.fetch(:departements),
-    type_champs.fetch(:regions),
-    type_champs.fetch(:pays),
-    type_champs.fetch(:epci),
-    type_champs.fetch(:address),
-  ]
-
-  PRIVATE_ONLY_TYPES = [
-    type_champs.fetch(:engagement_juridique),
-  ]
-
-  API_PART_FC_TDC = [
-    type_champs.fetch(:quotient_familial),
-    type_champs.fetch(:etudiant_boursier),
-    type_champs.fetch(:aah),
-    type_champs.fetch(:aeeh),
-    type_champs.fetch(:ars),
-  ]
-
-  PUBLIC_ONLY_TYPES = API_PART_FC_TDC
 
   store_accessor :options,
                  :cadastres,
@@ -215,16 +183,11 @@ class TypeDeChamp < ApplicationRecord
 
   before_validation :check_mandatory
   before_validation :set_default_libelle, if: -> { type_champ_changed? }
-  before_validation :set_drop_down_list_options, if: -> { type_champ_changed? }
-  before_validation :reset_pj_format_options_if_forced_nature
-  before_validation :reset_repetition_limits_if_disabled
 
   normalizes :libelle, with: -> (value) { value.strip }
 
   before_save :remove_attachment, if: -> { type_champ_changed? }
   before_save :clean_referentiel
-  before_save :clear_conflicting_date_options, if: :birthdate?
-  before_save :clear_prefill_with_france_connect_information_if_not_birthdate
 
   def libelle_with_parent(revision)
     if child?(revision)
@@ -249,6 +212,10 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def libelle_optionnal? = false
+  def libelle_configurable? = true
+  def description_configurable? = true
+  def has_label? = true
+  def customizable? = false
 
   def safe_referentiel_mapping
     Hash(referentiel_mapping).with_indifferent_access
@@ -569,7 +536,7 @@ class TypeDeChamp < ApplicationRecord
   def refresh_after_update? = true
 
   def simple_routable?
-    type_champ.in?(SIMPLE_ROUTABLE_TYPES) && !drop_down_advanced?
+    self.class.simple_routable? && !drop_down_advanced?
   end
 
   def conditionable?
@@ -583,13 +550,13 @@ class TypeDeChamp < ApplicationRecord
 
   def self.humanized_simple_routable_types_by_category
     Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if _1.to_s.in?(SIMPLE_ROUTABLE_TYPES) } }
+      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if find_sti_class(_1).simple_routable? } }
       .reject(&:empty?)
   end
 
   def self.humanized_custom_routable_types_by_category
     Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !_1.to_s.in?(SIMPLE_ROUTABLE_TYPES) } }
+      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !find_sti_class(_1).simple_routable? } }
       .reject(&:empty?)
   end
 
@@ -832,7 +799,7 @@ class TypeDeChamp < ApplicationRecord
     [canonical_column(procedure_id:, displayable:, prefix:)].compact
   end
 
-  def personnalisation_column(procedure_id:)
+  def customization_column(procedure_id:)
     columns(procedure_id:).find(&:displayable)
   end
 
@@ -923,17 +890,6 @@ class TypeDeChamp < ApplicationRecord
     ]
   end
 
-  def clear_conflicting_date_options
-    self.date_in_past = nil
-    self.range_date = nil
-    self.start_date = nil
-    self.end_date = nil
-  end
-
-  def clear_prefill_with_france_connect_information_if_not_birthdate
-    self.prefill_with_france_connect_information = nil if !birthdate?
-  end
-
   def families_to_content_types(families)
     return AUTHORIZED_CONTENT_TYPES if families.blank?
 
@@ -963,28 +919,6 @@ class TypeDeChamp < ApplicationRecord
   def clean_referentiel
     return if !persisted? || !type_champ_changed? || !referentiel_id?
     self.referentiel_id = nil
-  end
-
-  def set_drop_down_list_options
-    if (drop_down_list? || multiple_drop_down_list?) && drop_down_options.empty?
-      self.drop_down_options = ['Fromage', 'Dessert']
-    elsif linked_drop_down_list? && drop_down_options.none?(/^--.*--$/)
-      self.drop_down_options = ['--Fromage--', 'bleu de sassenage', 'picodon', '--Dessert--', 'éclair', 'tarte aux pommes']
-    end
-  end
-
-  def reset_repetition_limits_if_disabled
-    return unless type_champ == TypeDeChamp.type_champs.fetch(:repetition)
-    return if limit_repetitions?
-    self.min_repetitions = nil
-    self.max_repetitions = nil
-  end
-
-  def reset_pj_format_options_if_forced_nature
-    if titre_identite? || rib?
-      self.pj_limit_formats = nil
-      self.pj_format_families = []
-    end
   end
 
   def normalize_drop_down_options(options)

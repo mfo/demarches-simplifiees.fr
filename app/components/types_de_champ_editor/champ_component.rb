@@ -13,21 +13,10 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   private
 
   delegate :type_de_champ, :revision, :procedure, to: :coordinate
+  delegate :libelle_configurable?, :description_configurable?, to: :type_de_champ
 
   def mandatory_configurable?
     type_de_champ.fillable? && !type_de_champ.must_be_mandatory? && !type_de_champ.cannot_be_mandatory?
-  end
-
-  def libelle_configurable?
-    !type_de_champ.type_champ.in?(TypeDeChamp::API_PART_FC_TDC)
-  end
-
-  def description_configurable?
-    !type_de_champ.type_champ.in?(
-      TypeDeChamp::API_PART_FC_TDC + [
-        TypeDeChamp.type_champs.fetch(:header_section),
-      ]
-    )
   end
 
   def type_de_champ_path
@@ -71,16 +60,17 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     cat_scope = "activerecord.attributes.type_de_champ.categorie"
     tdc_scope = "activerecord.attributes.type_de_champ.type_champs"
     TypeDeChamp.type_champs.keys
+      .map { TypeDeChamp.find_sti_class(_1) }
       .filter(&method(:filter_type_champ))
       .filter(&method(:filter_featured_type_champ))
       .filter(&method(:filter_block_type_champ))
       .filter(&method(:filter_public_or_private_only_type_champ))
-      .group_by { TypeDeChamp.category_for(_1) }
+      .group_by(&:category)
       .sort_by { |k, _v| TypeDeChamp::CATEGORIES.find_index(k) }
-      .to_h do |cat, tdc|
+      .to_h do |cat, klasses|
         [
           t(cat, scope: cat_scope),
-          tdc.map { [t(_1, scope: tdc_scope), _1, { disabled: !accepted_type_champs.include?(_1) }] },
+          klasses.map { [t(_1.sti_name, scope: tdc_scope), _1.sti_name, { disabled: !accepted_type_champs.include?(_1.sti_name) }] },
         ]
       end
   end
@@ -113,34 +103,20 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
     }
   end
 
-  EXCLUDE_FROM_BLOCK = TypeDeChamp::API_PART_FC_TDC + [
-    TypeDeChamp.type_champs.fetch(:repetition),
-  ]
-
-  def filter_block_type_champ(type_champ)
-    !coordinate.child? || !EXCLUDE_FROM_BLOCK.include?(type_champ)
+  def filter_block_type_champ(klass)
+    !coordinate.child? || klass.allowed_in_repetition?
   end
 
-  def filter_public_or_private_only_type_champ(type_champ)
-    if coordinate.private?
-      !TypeDeChamp::PUBLIC_ONLY_TYPES.include?(type_champ)
-    else
-      !TypeDeChamp::PRIVATE_ONLY_TYPES.include?(type_champ)
-    end
+  def filter_public_or_private_only_type_champ(klass)
+    coordinate.private? ? !klass.public_only? : !klass.private_only?
   end
 
-  def filter_featured_type_champ(type_champ)
-    feature_name = TypeDeChamp::FEATURE_FLAGS[type_champ.to_sym]
-    feature_name.blank? || procedure.feature_enabled?(feature_name)
+  def filter_featured_type_champ(klass)
+    klass.feature_flag.nil? || procedure.feature_enabled?(klass.feature_flag)
   end
 
-  def filter_type_champ(type_champ)
-    case type_champ
-    when TypeDeChamp.type_champs.fetch(:number)
-      has_legacy_number?
-    else
-      true
-    end
+  def filter_type_champ(klass)
+    klass != TypesDeChamp::NumberTypeDeChamp || has_legacy_number?
   end
 
   def has_legacy_number?

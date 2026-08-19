@@ -3,8 +3,12 @@
 class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
   def self.category = STRUCTURE
   def self.editable_option_keys = [:limit_repetitions, :min_repetitions, :max_repetitions]
+  def self.allowed_in_repetition? = false
 
   def prefillable? = true
+  def has_label? = false
+
+  before_validation :reset_limits_if_disabled
 
   def typed_champ_value_for_tag(champ, path = :value)
     return nil if path != :value
@@ -43,4 +47,13 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
   end
 
   def typed_champ_blank?(champ) = champ.dossier.repetition_row_ids(self).blank?
+
+  private
+
+  def reset_limits_if_disabled
+    return if limit_repetitions?
+
+    self.min_repetitions = nil
+    self.max_repetitions = nil
+  end
 end

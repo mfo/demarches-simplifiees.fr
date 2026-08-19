@@ -39,7 +39,7 @@ RSpec.describe DossiersListPersonnalisation, type: :model do
   describe 'stale displayed_columns' do
     it 'ignores a column that can no longer be resolved and keeps the others' do
       procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Pays' }])
-      pays_column = procedure.personnalisable_columns.find { _1.label == 'Pays' }
+      pays_column = procedure.customizable_columns.find { _1.label == 'Pays' }
       draft_only_tdc = procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'Ville')
       draft_only_column = draft_only_tdc.canonical_column(procedure_id: procedure.id)
       personnalisation = create(:dossiers_list_personnalisation, procedure:, displayed_columns: [draft_only_column, pays_column])
@@ -52,7 +52,7 @@ RSpec.describe DossiersListPersonnalisation, type: :model do
 
     it 'keeps a column whose champ was removed in a later published revision' do
       procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Ville' }, { type: :text, libelle: 'Pays' }])
-      ville_column = procedure.personnalisable_columns.find { _1.label == 'Ville' }
+      ville_column = procedure.customizable_columns.find { _1.label == 'Ville' }
       personnalisation = create(:dossiers_list_personnalisation, procedure:, displayed_columns: [ville_column])
 
       procedure.draft_revision.remove_type_de_champ(ville_column.stable_id)

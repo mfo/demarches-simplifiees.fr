@@ -20,6 +20,16 @@ describe TypesDeChampEditor::ChampComponent, type: :component do
       let(:tdc) { procedure.draft_revision.types_de_champ.first }
       let(:coordinate) { procedure.draft_revision.coordinate_for(tdc) }
 
+      context 'type behind a disabled feature flag' do
+        it { expect(page).not_to have_css('option[value="cojo"]') }
+      end
+
+      context 'type behind an enabled feature flag' do
+        let(:procedure) { create(:procedure, types_de_champ_public:).tap { Flipper.enable(:cojo_type_de_champ, _1) } }
+
+        it { expect(page).to have_css('option[value="cojo"]') }
+      end
+
       context 'drop down tdc not used for routing' do
         it do
           expect(page).not_to have_text(/utilisé pour\nle routage/)

@@ -6,4 +6,5 @@ class TypesDeChamp::CiviliteTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def options_for_select = Champs::CiviliteChamp.options
+  def customizable? = true
 end

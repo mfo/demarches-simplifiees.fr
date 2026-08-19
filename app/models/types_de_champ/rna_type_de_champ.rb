@@ -3,6 +3,8 @@
 class TypesDeChamp::RNATypeDeChamp < TypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
 
+  def customizable? = true
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)

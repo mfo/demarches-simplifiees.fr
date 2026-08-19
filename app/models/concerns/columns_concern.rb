@@ -131,21 +131,21 @@ module ColumnsConcern
     all_revisions_types_de_champ.private_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
   end
 
-  def personnalisable_columns
+  def customizable_columns
     current_revision = published_revision || active_revision
     current_revision.root_types_de_champ_public
-      .filter { _1.type_champ.in?(TypeDeChamp::PERSONNALISABLE_TYPE_CHAMPS) }
+      .filter(&:customizable?)
       .filter { _1.condition.nil? }
-      .filter_map { _1.personnalisation_column(procedure_id: id) }
+      .filter_map { _1.customization_column(procedure_id: id) }
       .uniq(&:stable_id)
   end
 
-  def personnalisable_columns_by_section
+  def customizable_columns_by_section
     current_revision = published_revision || active_revision
     tdcs_public = current_revision.root_types_de_champ_public
     auto_numbering = tdcs_public.none? { _1.header_section? && _1.libelle.match?(/^\d/) }
 
-    personnalisable_by_stable_id = personnalisable_columns.index_by(&:stable_id)
+    customizable_by_stable_id = customizable_columns.index_by(&:stable_id)
 
     current_section = [nil, nil]
     counters = []
@@ -164,7 +164,7 @@ module ColumnsConcern
         current_section = [type_de_champ.stable_id, label]
         next
       end
-      column = personnalisable_by_stable_id[type_de_champ.stable_id]
+      column = customizable_by_stable_id[type_de_champ.stable_id]
       next if column.nil?
 
       (grouped[current_section] ||= []) << column

@@ -18,7 +18,7 @@ describe 'Usager personnalise la liste des dossiers', js: true do
 
   it 'shows the chosen champ values on the dossier cards' do
     perso_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre de la publication' }])
-    column = perso_procedure.personnalisable_columns.first
+    column = perso_procedure.customizable_columns.first
     create(:dossiers_list_personnalisation, user:, procedure: perso_procedure, displayed_columns: [column])
     dossiers = create_list(:dossier, 6, :en_construction, user:, procedure: perso_procedure, populate_champs: true)
     champ = dossiers.first.champs.find { _1.stable_id == column.stable_id }

@@ -11,7 +11,7 @@ class Users::PersonnalisationComponent < ApplicationComponent
   attr_reader :procedure, :personnalisation
 
   def select_options
-    groups = procedure.personnalisable_columns_by_section
+    groups = procedure.customizable_columns_by_section
 
     if groups.size == 1 && groups.first.first.nil?
       { items: items_for(groups.first.last) }

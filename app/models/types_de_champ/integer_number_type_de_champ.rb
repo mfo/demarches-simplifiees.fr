@@ -5,6 +5,7 @@ class TypesDeChamp::IntegerNumberTypeDeChamp < TypeDeChamp
   def self.column_type = :integer
 
   def prefillable? = true
+  def customizable? = true
 
   def typed_champ_value_for_export(champ, path = :value)
     champ_formatted_value(champ)

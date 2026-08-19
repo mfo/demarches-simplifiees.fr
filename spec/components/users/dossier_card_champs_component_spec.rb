@@ -3,7 +3,7 @@
 RSpec.describe Users::DossierCardChampsComponent, type: :component do
   let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
   let(:dossier) { create(:dossier, :en_construction, procedure:, populate_champs: true) }
-  let(:column) { procedure.personnalisable_columns.first }
+  let(:column) { procedure.customizable_columns.first }
 
   it 'renders the formatted value with an info icon when the champ has a value' do
     champ = dossier.champs.find { _1.stable_id == column.stable_id }
