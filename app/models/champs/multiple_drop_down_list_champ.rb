@@ -94,6 +94,8 @@ class Champs::MultipleDropDownListChamp < ChampData
     headers.map { |header| [header, Referentiel.header_to_path(header)] }
   end
 
+  def condition_value = selected_options
+
   private
 
   def referentiels_from(value)

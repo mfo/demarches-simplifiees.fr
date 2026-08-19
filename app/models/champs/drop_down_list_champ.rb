@@ -91,6 +91,8 @@ class Champs::DropDownListChamp < ChampData
     headers.map { [_1, Referentiel.header_to_path(_1)] }
   end
 
+  def condition_value = selected
+
   private
 
   def referentiel_from(value)

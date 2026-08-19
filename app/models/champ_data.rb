@@ -221,6 +221,9 @@ class ChampData < ApplicationRecord
     type_de_champ.champ_value(self) || ''
   end
 
+  # The value a condition compares, nil when conditions do not manage the type.
+  def condition_value = nil
+
   def last_write_type_champ
     TypeDeChamp::CHAMP_TYPE_TO_TYPE_CHAMP.fetch(type)
   end
