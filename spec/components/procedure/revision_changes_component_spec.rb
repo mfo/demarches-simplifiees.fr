@@ -78,6 +78,41 @@ describe Procedure::RevisionChangesComponent, type: :component do
     end
   end
 
+  describe "carte layers changes" do
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :carte, libelle: 'La carte' }]) }
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.root_types_de_champ_public.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    # `cadastres` excluded: it is mutually exclusive with `rpg`
+    let(:known_layers) { TypesDeChamp::CarteTypeDeChamp.editable_option_keys }
+    let(:enabled_layers) { known_layers - [:cadastres] }
+
+    before do
+      updated_tdc = new_revision.find_and_ensure_exclusive_use(tdc.stable_id)
+      updated_tdc.update!(options: enabled_layers.index_with { true })
+    end
+
+    it "displays every added layer with its translated label" do
+      expect(subject).to have_text("Les référentiels cartographiques du champ")
+      expect(subject).not_to have_css(".translation_missing")
+
+      enabled_layers.each do |layer|
+        expect(subject).to have_text(I18n.t(layer, scope: [:administrateurs, :carte_layers]))
+      end
+    end
+
+    it "has a translation for every known layer" do
+      known_layers.each do |layer|
+        expect(I18n.exists?("administrateurs.carte_layers.#{layer}")).to be(true), "missing translation for carte layer #{layer}"
+      end
+    end
+  end
+
   describe "repetition limits changes" do
     let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :repetition, libelle: "Bloc" }]) }
     let(:new_revision) { procedure.create_new_revision }
