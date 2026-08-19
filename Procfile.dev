@@ -1,3 +1,2 @@
 web: bin/rails server -p 3000
-jobs: bin/rake jobs:work
 vite: bin/vite dev

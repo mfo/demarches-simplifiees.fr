@@ -15,11 +15,7 @@ class Cron::CronJob < ApplicationJob
       remove if cron_expression_changed?
 
       if !scheduled?
-        if queue_adapter_name == "sidekiq"
-          Sidekiq::Cron::Job.create(name: name, cron: cron_expression, class: name)
-        else
-          set(cron: cron_expression).perform_later
-        end
+        Sidekiq::Cron::Job.create(name: name, cron: cron_expression, class: name)
       end
     end
 
@@ -40,21 +36,7 @@ class Cron::CronJob < ApplicationJob
     end
 
     def enqueued_cron_job
-      if queue_adapter_name == "sidekiq"
-        sidekiq_cron_job
-      else
-        delayed_job
-      end
-    end
-
-    def sidekiq_cron_job
       Sidekiq::Cron::Job.find(name)
-    end
-
-    def delayed_job
-      Delayed::Job
-        .where('handler LIKE ?', "%job_class: #{name}%")
-        .first
     end
 
     def cron_expression

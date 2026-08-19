@@ -20,8 +20,7 @@ Vous souhaitez y apporter des changements ou des améliorations ? Lisez notre [
 - libvips-dev (traitement d’images et génération de filigranes)
 - gsfonts (polices pour le rendu du texte des filigranes)
 
-Nous sommes en cours de migration de `delayed_job` vers `sidekiq` pour le traitement des jobs asynchrones.
-Pour faire tourner sidekiq, vous aurez besoin de :
+Les jobs asynchrones sont traités par `sidekiq`. Pour le faire tourner, vous aurez besoin de :
 
 - redis
 
@@ -62,7 +61,10 @@ On lance le serveur d’application ainsi :
 
     bin/dev
 
-L’application tourne alors à l’adresse `http://localhost:3000` avec en parallèle un worker pour les jobs et le bundler vitejs.
+L’application tourne alors à l’adresse `http://localhost:3000` avec en parallèle le bundler vitejs.
+
+Les jobs asynchrones s’exécutent par défaut dans le process web (adapter `async`). Pour passer par sidekiq,
+poser `RAILS_QUEUE_ADAPTER=sidekiq` dans votre `.env` et lancer `bundle exec sidekiq` à côté de `bin/dev`.
 
 ### Utilisateurs de test
 

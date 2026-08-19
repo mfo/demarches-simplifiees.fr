@@ -20,11 +20,7 @@ gem 'browser'
 gem 'charlock_holmes'
 gem 'chartkick'
 gem 'clamav-client', require: 'clamav/client'
-gem 'daemons'
 gem 'deep_cloneable' # Enable deep clone of active record models
-gem 'delayed_cron_job', require: false # Cron jobs
-gem 'delayed_job_active_record'
-gem 'delayed_job_web'
 gem 'devise'
 gem 'devise-i18n'
 gem 'devise-two-factor'
@@ -91,7 +87,6 @@ gem 'rexml' # add missing gem due to ruby3 (https://github.com/Shopify/bootsnap/
 gem 'rqrcode'
 gem 'ruby-openai'
 gem 'sassc-rails' # Use SCSS for stylesheets
-gem 'sentry-delayed_job'
 gem 'sentry-rails'
 gem 'sentry-ruby'
 gem 'sentry-sidekiq'
@@ -108,7 +103,6 @@ gem 'smarter_csv'
 gem 'spreadsheet_architect'
 gem 'string-similarity'
 gem 'strong_migrations' # lint database migrations
-gem 'sys-proctable'
 gem 'ttfunk', '~> 1.7.0'
 gem 'turbo-rails'
 gem 'typhoeus'

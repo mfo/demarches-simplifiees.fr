@@ -71,7 +71,10 @@ Start the application server like this:
 
     bin/dev
 
-The application will then run at `http://localhost:3000` with a worker for jobs and the vitejs bundler running in parallel.
+The application will then run at `http://localhost:3000` with the vitejs bundler running in parallel.
+
+Async jobs run in the web process by default (the `async` adapter). To go through sidekiq instead,
+set `RAILS_QUEUE_ADAPTER=sidekiq` in your `.env` and run `bundle exec sidekiq` alongside `bin/dev`.
 
 ### Test users
 

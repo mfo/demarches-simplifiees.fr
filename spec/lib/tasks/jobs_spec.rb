@@ -4,7 +4,12 @@ describe 'jobs' do
   describe 'schedule' do
     subject { Rake::Task['jobs:schedule'].invoke }
 
-    after(:each) { Rake::Task['jobs:schedule'].reenable }
+    after(:each) do
+      Rake::Task['jobs:schedule'].reenable
+      # jobs:schedule now always writes to Redis, which is not rolled back with
+      # the example: drop every schedule it created.
+      Sidekiq::Cron::Job.destroy_all!
+    end
 
     it 'runs' do
       expect { subject }.not_to raise_error
@@ -17,11 +22,6 @@ describe 'jobs' do
       before do
         Sidekiq::Cron::Job.create(name: known_class, cron: '0 0 * * *', class: known_class)
         Sidekiq::Cron::Job.create(name: orphan_class, cron: '0 0 * * *', class: orphan_class)
-      end
-
-      after do
-        Sidekiq::Cron::Job.destroy(known_class)
-        Sidekiq::Cron::Job.destroy(orphan_class)
       end
 
       it 'destroys cron jobs whose class is no longer schedulable' do
