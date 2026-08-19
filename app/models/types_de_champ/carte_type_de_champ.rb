@@ -1,11 +1,50 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
+  LAYERS = [
+    :unesco,
+    :arretes_protection,
+    :conservatoire_littoral,
+    :reserves_chasse_faune_sauvage,
+    :reserves_biologiques,
+    :reserves_naturelles,
+    :natura_2000,
+    :zones_humides,
+    :znieff,
+    :cadastres,
+    :rpg,
+  ]
+
   def self.category = REFERENTIEL_EXTERNE
-  def self.editable_option_keys = CARTE_LAYERS
+  def self.editable_option_keys = LAYERS
   def self.column_type = :geojson
 
   def refresh_after_update? = false
+
+  def layer_enabled?(layer)
+    ActiveModel::Type::Boolean.new.cast(options&.dig(layer)) || false
+  end
+
+  def carte_optional_layers
+    LAYERS.filter_map do |layer|
+      layer_enabled?(layer) ? layer : nil
+    end.sort
+  end
+
+  def editable_options
+    layers = LAYERS.map do |layer|
+      disabled = case layer
+      when :cadastres
+        layer_enabled?(:rpg)
+      when :rpg
+        layer_enabled?(:cadastres)
+      else
+        false
+      end
+      [layer, layer_enabled?(layer), disabled]
+    end
+    layers.each_slice((layers.size / 2.0).round).to_a
+  end
 
   def estimated_fill_duration(revision)
     FILL_DURATION_LONG

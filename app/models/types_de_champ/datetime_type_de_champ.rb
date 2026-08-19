@@ -6,6 +6,8 @@ class TypesDeChamp::DatetimeTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def customizable? = true
+  def birthdate? = false
+  boolean_options :date_in_past, :range_date
 
   def typed_champ_value(champ)
     I18n.l(Time.zone.parse(champ.value))

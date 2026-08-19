@@ -6,6 +6,7 @@ class TypesDeChamp::DateTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def customizable? = true
+  boolean_options :birthdate, :date_in_past, :range_date, :prefill_with_france_connect_information
 
   before_save :clear_conflicting_options, if: :birthdate?
   before_save :clear_prefill_with_france_connect_information, if: -> { !birthdate? }

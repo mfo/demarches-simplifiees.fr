@@ -6,10 +6,16 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def self.column_type = :enum
   def self.simple_routable? = true
 
+  include TypesDeChamp::DropDownOptionsConcern
+
   def prefillable? = true
   def options_for_select = options_for_select_with_other
   def choice_type? = true
   def any_drop_down_list? = true
+  def drop_down_simple? = drop_down_mode != 'advanced'
+  def drop_down_advanced? = drop_down_mode == 'advanced'
+  boolean_options :drop_down_other
+  def value_is_in_options?(checked_value) = options_for_select.any? { _1.last == checked_value }
   def customizable? = true
 
   before_validation :set_default_drop_down_options, if: :type_champ_changed?
@@ -91,6 +97,14 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def set_default_drop_down_options
     if drop_down_options.empty?
       self.drop_down_options = ['Fromage', 'Dessert']
+    end
+  end
+
+  def champ_text_value(champ)
+    if champ.is_type?(TypeDeChamp.type_champs.fetch(:multiple_drop_down_list))
+      TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ).first
+    else
+      super
     end
   end
 end

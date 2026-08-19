@@ -51,4 +51,9 @@ class TypesDeChamp::SiretTypeDeChamp < TypeDeChamp
       )
     end
   end
+
+  # SIRET needs to be explicit in listings for better UI readability
+  def libelle_with_prefix(prefix)
+    libelle.upcase.include?("SIRET") ? super : [prefix, libelle, "SIRET"].compact.join(' – ')
+  end
 end

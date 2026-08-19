@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+module TypesDeChamp::DropDownOptionsConcern
+  def drop_down_options
+    if drop_down_advanced?
+      Array.wrap(referentiel&.drop_down_options)
+    else
+      Array.wrap(super)
+    end
+  end
+
+  def drop_down_options=(options)
+    super(Array.wrap(options).filter_map { _1.to_s.squish.presence })
+  end
+
+  def drop_down_options_from_text=(text)
+    self.drop_down_options = text.to_s.lines
+  end
+
+  def options_for_select_with_other
+    options = if drop_down_advanced?
+      Array.wrap(referentiel&.options_for_select)
+    else
+      drop_down_options.uniq.map { [it, it] }
+    end
+
+    if drop_down_other?
+      options << [I18n.t('shared.champs.drop_down_list.other'), Champs::DropDownListChamp::OTHER]
+    end
+
+    options
+  end
+end

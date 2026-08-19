@@ -10,9 +10,9 @@ RSpec.describe EditableChamp::ChampLabelContentComponent, type: :component do
       formatted?: true,
       formatted_simple?: true,
       formatted_advanced?: false,
-      letters_accepted: false,
-      numbers_accepted: false,
-      special_characters_accepted: false,
+      letters_accepted?: false,
+      numbers_accepted?: false,
+      special_characters_accepted?: false,
       min_character_length: nil,
       max_character_length: nil,
       date?: false,
@@ -84,7 +84,7 @@ RSpec.describe EditableChamp::ChampLabelContentComponent, type: :component do
       end
 
       context "with allowed letters" do
-        before { allow(champ).to receive(:letters_accepted).and_return(true) }
+        before { allow(champ).to receive(:letters_accepted?).and_return(true) }
 
         it "returns a character hint (without controller)" do
           expect(component.hints_for_champ).to eq([{ text: "Le champ ne peut contenir que des lettres.", controller: nil }])
@@ -93,8 +93,8 @@ RSpec.describe EditableChamp::ChampLabelContentComponent, type: :component do
 
       context "with letters and numbers allowed" do
         before do
-          allow(champ).to receive(:letters_accepted).and_return(true)
-          allow(champ).to receive(:numbers_accepted).and_return(true)
+          allow(champ).to receive(:letters_accepted?).and_return(true)
+          allow(champ).to receive(:numbers_accepted?).and_return(true)
         end
 
         it "returns a combined character hint (without controller)" do
@@ -126,7 +126,7 @@ RSpec.describe EditableChamp::ChampLabelContentComponent, type: :component do
 
       context "with letters allowed and min length" do
         before do
-          allow(champ).to receive(:letters_accepted).and_return(true)
+          allow(champ).to receive(:letters_accepted?).and_return(true)
           allow(champ).to receive(:min_character_length).and_return(5)
         end
 

@@ -6,7 +6,6 @@ class TypeDeChamp < ApplicationRecord
   self.inheritance_column = :type_champ
 
   FILE_MAX_SIZE = 200.megabytes
-  IDENTITY_FILE_MAX_SIZE = 20.megabytes
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
 
   FILL_DURATION_SHORT  = 10.seconds
@@ -81,8 +80,6 @@ class TypeDeChamp < ApplicationRecord
     aeeh: 'aeeh',
     ars: 'ars',
   }
-
-  enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
 
   store_accessor :options,
                  :cadastres,
@@ -164,13 +161,7 @@ class TypeDeChamp < ApplicationRecord
   }
 
   has_one_attached :piece_justificative_template
-  validates :piece_justificative_template, size: { less_than: FILE_MAX_SIZE }, on: :update
-  validates :piece_justificative_template, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, on: :update
-  validates :piece_justificative_template, empty_file: true, on: :update
-
   has_one_attached :notice_explicative
-  validates :notice_explicative, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, size: { less_than: 20.megabytes }, on: :update
-  validates :notice_explicative, empty_file: true, on: :update
 
   validates :type_champ, presence: true, allow_blank: false, allow_nil: false
   validates :character_limit, numericality: {
@@ -217,34 +208,6 @@ class TypeDeChamp < ApplicationRecord
   def has_label? = true
   def customizable? = false
 
-  def safe_referentiel_mapping
-    Hash(referentiel_mapping).with_indifferent_access
-  end
-
-  def referentiel_mapping_prefillable
-    safe_referentiel_mapping.filter { |_jsonpath, mapping_opts| mapping_opts[:prefill] == "1" }
-  end
-
-  def referentiel_mapping_prefillable_with_stable_id
-    referentiel_mapping_prefillable.filter { |_jsonpath, mapping_opts| mapping_opts[:prefill_stable_id].present? }
-  end
-
-  def referentiel_mapping_prefillable_stable_ids
-    referentiel_mapping_prefillable_with_stable_id.map { |_jsonpath, mapping_opts| mapping_opts[:prefill_stable_id] }
-  end
-
-  def referentiel_mapping_displayable
-    safe_referentiel_mapping.filter { |_jsonpath, mapping_opts| mapping_opts[:prefill] != "1" }
-  end
-
-  def referentiel_mapping_displayable_for_instructeur
-    referentiel_mapping_displayable.filter { |_jsonpath, mapping| mapping[:display_instructeur] == "1" }
-  end
-
-  def referentiel_mapping_displayable_for_usager
-    referentiel_mapping_displayable.filter { |_jsonpath, mapping| mapping[:display_usager] == "1" }
-  end
-
   def params_for_champ
     {
       type_de_champ: self,
@@ -281,68 +244,13 @@ class TypeDeChamp < ApplicationRecord
     revisions.one? && revisions.first.draft?
   end
 
-  def drop_down_other?
-    drop_down_list? && (drop_down_other == "1" || drop_down_other == true)
-  end
+  def drop_down_other? = false
 
-  def positive_number?
-    positive_number == "1"
-  end
-
-  def range_number?
-    range_number == "1"
-  end
-
-  def birthdate?
-    birthdate == "1"
-  end
-
-  def limit_repetitions?
-    limit_repetitions == "1"
-  end
-
-  def prefill_with_france_connect_information?
-    prefill_with_france_connect_information == "1"
-  end
-
-  def date_in_past?
-    date_in_past == "1"
-  end
-
-  def range_date?
-    range_date == "1"
-  end
-
-  def character_limit?
-    character_limit.present?
-  end
-
-  def collapsible_explanation_enabled?
-    collapsible_explanation_enabled == "1"
-  end
-
-  def procedures_limit?
-    procedures_limit == "1"
-  end
-
-  def dossier_link_procedure_ids = Array.wrap(super)
-
-  def dossier_link_procedure_ids=(value)
-    super(Array.wrap(value).map(&:to_i).reject(&:zero?).uniq)
-  end
+  def prefill_with_france_connect_information? = false
 
   def prefillable? = false
 
-  def pre_rempli_hidden?
-    pre_rempli? && pre_rempli_hidden == "1"
-  end
-
-  def referentiel_in_exact_match?
-    maybe_referentiel = type_champ == TypeDeChamp.type_champs.fetch(:referentiel)
-    maybe_exact_match = referentiel&.exact_match?
-
-    maybe_referentiel && maybe_exact_match
-  end
+  def pre_rempli_hidden? = false
 
   def fillable? = true
 
@@ -366,79 +274,11 @@ class TypeDeChamp < ApplicationRecord
     revision.coordinate_for(self)&.child?
   end
 
-  def filename_for_attachement(attachment_sym)
-    attachment = send(attachment_sym)
-    if attachment.attached?
-      attachment.filename
-    end
-  end
+  def formatted_advanced? = false
 
-  def checksum_for_attachment(attachment_sym)
-    attachment = send(attachment_sym)
-    if attachment.attached?
-      attachment.checksum
-    end
-  end
-
-  def formatted_simple?
-    formatted? && formatted_mode != 'advanced'
-  end
-
-  def formatted_advanced?
-    formatted? && formatted_mode == 'advanced'
-  end
-
-  def drop_down_simple?
-    (drop_down_list? || multiple_drop_down_list?) && drop_down_mode != 'advanced'
-  end
-
-  def drop_down_advanced?
-    (drop_down_list? || multiple_drop_down_list?) && drop_down_mode == 'advanced'
-  end
-
-  def drop_down_options
-    if drop_down_advanced?
-      Array.wrap(referentiel&.drop_down_options)
-    else
-      Array.wrap(super)
-    end
-  end
+  def drop_down_advanced? = false
 
   def options_for_select = nil
-
-  def options_for_select_with_other
-    options = if drop_down_advanced?
-      Array.wrap(referentiel&.options_for_select)
-    else
-      drop_down_options.uniq.map { [it, it] }
-    end
-
-    if drop_down_other?
-      options << [I18n.t('shared.champs.drop_down_list.other'), Champs::DropDownListChamp::OTHER]
-    end
-
-    options
-  end
-
-  def drop_down_options_from_text=(text)
-    self.drop_down_options = text.to_s.lines
-  end
-
-  def drop_down_options=(options)
-    super(normalize_drop_down_options(options))
-  end
-
-  def value_is_in_options?(checked_value)
-    options_for_select.any? { _1.last == checked_value }
-  end
-
-  def header_section_level_value
-    if header_section_level.presence
-      header_section_level.to_i
-    else
-      1
-    end
-  end
 
   def previous_section_level(upper_tdcs)
     previous_header_section = upper_tdcs.reverse.find(&:header_section?)
@@ -447,44 +287,10 @@ class TypeDeChamp < ApplicationRecord
     previous_header_section.header_section_level_value.to_i
   end
 
-  def check_coherent_header_level(upper_tdcs)
-    previous_level = previous_section_level(upper_tdcs)
-    current_level = header_section_level_value.to_i
-
-    difference = current_level - previous_level
-    if current_level > previous_level && difference != 1
-      I18n.t('activerecord.errors.type_de_champ.attributes.header_section_level.gap_error', level: current_level - previous_level - 1)
-    else
-      nil
-    end
-  end
-
   def current_section_level(revision)
     tdcs = private? ? revision.root_types_de_champ_private.to_a : revision.root_types_de_champ_public.to_a
 
     previous_section_level(tdcs.take(tdcs.find_index(self)))
-  end
-
-  def level_for_revision(revision)
-    parent_type_de_champ = revision.parent_of(self)
-
-    if parent_type_de_champ.present?
-      header_section_level_value.to_i + parent_type_de_champ.current_section_level(revision)
-    elsif header_section_level_value
-      header_section_level_value.to_i
-    else
-      0
-    end
-  end
-
-  def layer_enabled?(layer)
-    options && options[layer] && options[layer] != '0'
-  end
-
-  def carte_optional_layers
-    CARTE_LAYERS.filter_map do |layer|
-      layer_enabled?(layer) ? layer : nil
-    end.sort
   end
 
   def to_typed_id
@@ -493,21 +299,6 @@ class TypeDeChamp < ApplicationRecord
 
   def editable_options=(options)
     self.options.merge!(options)
-  end
-
-  def editable_options
-    layers = CARTE_LAYERS.map do |layer|
-      disabled = case layer
-      when :cadastres
-        layer_enabled?(:rpg)
-      when :rpg
-        layer_enabled?(:cadastres)
-      else
-        false
-      end
-      [layer, layer_enabled?(layer), disabled]
-    end
-    layers.each_slice((layers.size / 2.0).round).to_a
   end
 
   def read_attribute_for_serialization(name)
@@ -560,24 +351,6 @@ class TypeDeChamp < ApplicationRecord
       .reject(&:empty?)
   end
 
-  def invalid_regexp?
-    self.errors.delete(:expression_reguliere)
-    self.errors.delete(:expression_reguliere_exemple_text)
-
-    return false if expression_reguliere.blank?
-    return false if expression_reguliere_exemple_text.blank?
-    return false if expression_reguliere_exemple_text.match?(Regexp.new(expression_reguliere, timeout: ExpressionReguliereValidator::TIMEOUT))
-
-    self.errors.add(:expression_reguliere_exemple_text, I18n.t('errors.messages.mismatch_regexp'))
-    true
-  rescue Regexp::TimeoutError
-    self.errors.add(:expression_reguliere, I18n.t('errors.messages.evil_regexp'))
-    true
-  rescue RegexpError
-    self.errors.add(:expression_reguliere, I18n.t('errors.messages.syntax_error_regexp'))
-    true
-  end
-
   def public_id(row_id)
     self.class.public_id(stable_id, row_id)
   end
@@ -588,23 +361,6 @@ class TypeDeChamp < ApplicationRecord
       .parameterize
   end
 
-  # Kept here rather than on TypesDeChamp::CarteTypeDeChamp: that subclass now
-  # inherits from TypeDeChamp, so referencing it from this class body would close
-  # an autoload cycle.
-  CARTE_LAYERS = [
-    :unesco,
-    :arretes_protection,
-    :conservatoire_littoral,
-    :reserves_chasse_faune_sauvage,
-    :reserves_biologiques,
-    :reserves_naturelles,
-    :natura_2000,
-    :zones_humides,
-    :znieff,
-    :cadastres,
-    :rpg,
-  ]
-
   def self.editable_option_keys = []
   def self.column_type = :text
 
@@ -612,39 +368,14 @@ class TypeDeChamp < ApplicationRecord
     options.slice(*self.class.editable_option_keys.map(&:to_s))
   end
 
-  def pj_limit_formats?
-    [true, '1'].include?(options[:pj_limit_formats])
-  end
+  def titre_identite? = false
+  def rib? = false
+  def justificatif_domicile? = false
+  def avis_impot? = false
+  def ocr_compatible? = false
 
-  def pj_format_families
-    Array.wrap(options[:pj_format_families]).map(&:to_s)
-  end
-
-  def pj_auto_purge?
-    titre_identite? || [true, '1'].include?(options[:pj_auto_purge])
-  end
-
-  def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
-
-  def max_file_size_bytes
-    if titre_identite?
-      IDENTITY_FILE_MAX_SIZE
-    else
-      FILE_MAX_SIZE
-    end
-  end
-
-  def allowed_content_types
-    if titre_identite?
-      families_to_content_types(%w[image_scan])
-    elsif ocr_compatible?
-      families_to_content_types(%w[document_texte image_scan])
-    elsif pj_limit_formats? && pj_format_families.present?
-      families_to_content_types(pj_format_families)
-    else
-      AUTHORIZED_CONTENT_TYPES
-    end
-  end
+  def max_file_size_bytes = FILE_MAX_SIZE
+  def allowed_content_types = AUTHORIZED_CONTENT_TYPES
 
   def champ_value(champ)
     if champ_blank?(champ)
@@ -842,6 +573,14 @@ class TypeDeChamp < ApplicationRecord
     def model_name
       self == TypeDeChamp ? super : TypeDeChamp.model_name
     end
+
+    # Predicates over jsonb options read as booleans: the editor form writes
+    # "1"/"0", the defaults and the LLM improver write true/false.
+    def boolean_options(*keys)
+      keys.each do |key|
+        define_method(:"#{key}?") { ActiveModel::Type::Boolean.new.cast(public_send(key)) || false }
+      end
+    end
   end
 
   CHAMP_TYPE_TO_TYPE_CHAMP = type_champs.values.index_by { type_champ_to_champ_class_name(_1) }
@@ -849,35 +588,19 @@ class TypeDeChamp < ApplicationRecord
 
   def any_drop_down_list? = false
 
-  def allowed_extensions
-    allowed_content_types
-      .filter_map { |mime| MiniMime.lookup_by_content_type(mime)&.extension }
-      .uniq
-      .map { |ext| ".#{ext}" }
-  end
-
   private
 
+  # A value written by a multiple drop-down list, read after a type change.
   def champ_text_value(champ)
     if champ.is_type?(TypeDeChamp.type_champs.fetch(:multiple_drop_down_list))
-      values = TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ)
-      if drop_down_list?
-        values.first
-      else
-        values.join(', ')
-      end
+      TypesDeChamp::MultipleDropDownListTypeDeChamp.parse_selected_options(champ).join(', ')
     else
       champ.value
     end
   end
 
   def libelle_with_prefix(prefix)
-    # SIRET needs to be explicit in listings for better UI readability
-    if type_champ == "siret" && !libelle.upcase.include?("SIRET")
-      [prefix, libelle, "SIRET"].compact.join(' – ')
-    else
-      [prefix, libelle].compact.join(' – ')
-    end
+    [prefix, libelle].compact.join(' – ')
   end
 
   def paths
@@ -888,14 +611,6 @@ class TypeDeChamp < ApplicationRecord
         description:,
       },
     ]
-  end
-
-  def families_to_content_types(families)
-    return AUTHORIZED_CONTENT_TYPES if families.blank?
-
-    families
-      .flat_map { |f| FORMAT_FAMILIES[f.to_sym] || [] }
-      .presence || AUTHORIZED_CONTENT_TYPES
   end
 
   def castable_on_change?(from_type, to_type)
@@ -919,9 +634,5 @@ class TypeDeChamp < ApplicationRecord
   def clean_referentiel
     return if !persisted? || !type_champ_changed? || !referentiel_id?
     self.referentiel_id = nil
-  end
-
-  def normalize_drop_down_options(options)
-    Array.wrap(options).filter_map { _1.to_s.squish.presence }
   end
 end
