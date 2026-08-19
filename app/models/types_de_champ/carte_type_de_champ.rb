@@ -15,6 +15,12 @@ class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
     :rpg,
   ]
 
+  # `cadastres` and `rpg` are backed by the same map layer ids: enabling both
+  # breaks the map, so they are mutually exclusive.
+  PARCELLE_LAYERS = [:cadastres, :rpg]
+
+  before_validation :ensure_exclusive_parcelle_layer
+
   def self.category = REFERENTIEL_EXTERNE
   def self.editable_option_keys = LAYERS
   def self.column_type = :geojson
@@ -81,5 +87,23 @@ class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
 
   def columns(procedure_id:, displayable: true, prefix: nil)
     []
+  end
+
+  private
+
+  # The editor disables one parcelle checkbox as soon as the other is checked, but a
+  # stale form (or the API) can still send both: keep the layer that was just enabled
+  # and disable the other one, so the map keeps working.
+  def ensure_exclusive_parcelle_layer
+    return if PARCELLE_LAYERS.any? { !layer_enabled?(it) }
+
+    previously_enabled = PARCELLE_LAYERS.filter { layer_enabled_before_change?(it) }
+    kept = (PARCELLE_LAYERS - previously_enabled).first || PARCELLE_LAYERS.first
+
+    self.options = options.merge((PARCELLE_LAYERS - [kept]).index_with { false })
+  end
+
+  def layer_enabled_before_change?(layer)
+    options_was.present? && options_was[layer].present? && options_was[layer] != '0'
   end
 end
