@@ -5,10 +5,7 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
   include ApplicationHelper
 
   def possible_values
-    [
-      I18n.t("views.prefill_descriptions.edit.possible_values.#{type_champ}_html"),
-      subchamps_all_possible_values,
-    ].join("</br>").html_safe
+    safe_join([description, subchamps_all_possible_values].compact, tag.br)
   end
 
   def example_value
@@ -26,9 +23,9 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
   private
 
   def subchamps_all_possible_values
-    "<ul>" + prefillable_subchamps.map do |prefill_type_de_champ|
-      "<li>champ_#{prefill_type_de_champ.to_typed_id_for_query}: #{prefill_type_de_champ.possible_values}</li>"
-    end.join + "</ul>"
+    tag.ul(safe_join(prefillable_subchamps.map do |prefill_type_de_champ|
+      tag.li(safe_join(["champ_#{prefill_type_de_champ.to_typed_id_for_query}: ", prefill_type_de_champ.possible_values]))
+    end))
   end
 
   def row_values_format

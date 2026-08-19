@@ -56,13 +56,13 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
 
   def possible_values
     values = []
-    values << ERB::Util.html_escape(description) if description.present?
+    values << description if description.present?
     if too_many_possible_values?
       values << link_to_all_possible_values
     else
-      values << all_possible_values.map { ERB::Util.html_escape(_1) }.to_sentence
+      values << to_sentence(all_possible_values)
     end
-    values.compact.join('<br>').html_safe # rubocop:disable Rails/OutputSafety
+    safe_join(values.compact, tag.br)
   end
 
   def all_possible_values
