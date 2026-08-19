@@ -786,7 +786,7 @@ describe Instructeur, type: :model do
     end
 
     context 'when both instructeurs have the same notification on the same dossier' do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.en_construction }
       let!(:old_notification) { create(:dossier_notification, instructeur: old_instructeur, dossier:) }
       let!(:new_notification) { create(:dossier_notification, instructeur: new_instructeur, dossier:) }
 
@@ -810,7 +810,7 @@ describe Instructeur, type: :model do
     end
 
     context 'when both instructeurs have settings on the same procedure' do
-      let(:procedure) { create(:procedure) }
+      let(:procedure) { procedures.individual }
       let!(:old_settings) { create(:instructeurs_procedure, instructeur: old_instructeur, procedure:) }
       let!(:new_settings) { create(:instructeurs_procedure, instructeur: new_instructeur, procedure:) }
 
@@ -836,7 +836,7 @@ describe Instructeur, type: :model do
   end
 
   describe 'when an instructeur is destroyed' do
-    let(:instructeur) { create(:instructeur) }
+    let(:instructeur) { instructeurs.default }
     let!(:export) { create(:export, user_profile: instructeur) }
     let!(:archive) { create(:archive, user_profile: instructeur) }
 

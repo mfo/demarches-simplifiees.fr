@@ -304,7 +304,7 @@ describe Administrateur, type: :model do
   end
 
   describe 'when an administrateur is destroyed' do
-    let(:administrateur) { create(:administrateur) }
+    let(:administrateur) { administrateurs.blank }
     let!(:export) { create(:export, user_profile: administrateur) }
     let!(:archive) { create(:archive, user_profile: administrateur) }
 
