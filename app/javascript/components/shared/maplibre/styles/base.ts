@@ -137,9 +137,9 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
 
 // `cadastre` and `rpg` back the two parcelle layers, and nothing else. Declare
 // them only when their layer is enabled, instead of in the base style: a source
-// that never loads (the RPG pmtiles archive currently 404s) leaves the style
-// permanently "not loaded", which downgrades subsequent setStyle() calls to a
-// full reload — aborting and refetching every tile in flight.
+// that never loads leaves the style permanently "not loaded", which downgrades
+// subsequent setStyle() calls to a full reload — aborting and refetching every
+// tile in flight.
 export function buildOptionalSources(
   ids: string[]
 ): StyleSpecification['sources'] {
@@ -154,7 +154,7 @@ export function buildOptionalSources(
   if (ids.includes('rpg')) {
     sources.rpg = {
       type: 'vector',
-      url: 'pmtiles://https://object.data.gouv.fr/pmtiles/rpg_2023.pmtiles'
+      url: 'pmtiles://https://pmtiles-data.s3.rbx.io.cloud.ovh.net/rpg_2023.pmtiles'
     };
   }
 
