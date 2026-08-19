@@ -16,8 +16,4 @@ class ProcessStalledDeclarativeDossierJob < ApplicationJob
       end
     end
   end
-
-  def max_attempts
-    3 # this job is enqueued by a cron, so it's better to not retry too much
-  end
 end

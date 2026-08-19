@@ -10,7 +10,7 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 
 ### Setup & Maintenance
 - `bin/setup` - Initialize development environment (creates database, installs dependencies)
-- `bin/dev` - Start development server (runs web server on port 3000, job worker, and Vite bundler in parallel via Overmind)
+- `bin/dev` - Start development server (runs web server on port 3000 and Vite bundler in parallel via Overmind)
 
 ### Testing
 - `bundle exec rspec` - Run all tests
@@ -117,7 +117,7 @@ Note: A single user account can have multiple roles. Different security measures
 - Located in `app/components/`
 - Examples: `EditableChamp`, `Dossiers::*Component`, `Instructeurs::*Component`
 
-**Jobs** - Async processing with Sidekiq (migrating from delayed_job)
+**Jobs** - Async processing with Sidekiq
 - Located in `app/jobs/`
 - API Entreprise integrations in `app/jobs/api_entreprise/`
 - CRON jobs in `app/jobs/cron/`
@@ -218,7 +218,7 @@ Controllers are organized by user role:
 
 **Node/JavaScript:** Bun (package manager)
 **Database:** PostgreSQL 17
-**Job Queue:** Sidekiq (migrating from delayed_job)
+**Job Queue:** Sidekiq
 **Caching:** Redis
 **Locales:** French (default), English
 **Time Zone:** Paris

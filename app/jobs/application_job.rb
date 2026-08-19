@@ -31,14 +31,6 @@ class ApplicationJob < ActiveJob::Base
     Rails.logger.info("#{job.class.name} ended at #{Time.zone.now}")
   end
 
-  def max_attempts
-    ENV.fetch("MAX_ATTEMPTS_JOBS", 25).to_i
-  end
-
-  def max_run_time
-    4.hours # decrease run time by default
-  end
-
   def request_id
     @request_id ||= Current.request_id
   end

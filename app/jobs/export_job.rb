@@ -7,10 +7,6 @@ class ExportJob < ApplicationJob
 
   discard_on ActiveRecord::RecordNotFound
 
-  def max_run_time
-    Export::MAX_DUREE_GENERATION
-  end
-
   def perform(export)
     return if export.generated?
 

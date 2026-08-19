@@ -15,10 +15,7 @@ Application logs contain application warnings, exceptions and stacktraces. They 
 
 ## Asynchronous jobs
 
-The asynchronous jobs queues can be monitored by [super-admins](DEPLOYMENT.md), depending on the jobs backend used:
-
-- `sidekiq`: https://ds42.adullact.org/manager/sidekiq
-- `delayed_jobs`: https://ds42.adullact.org/manager/delayed_job
+The asynchronous jobs queues can be monitored by [super-admins](DEPLOYMENT.md) in Sidekiq's web UI: http://localhost:3000/manager/sidekiq
 
 Slow queues may impact:
 - The delivery of emails,
