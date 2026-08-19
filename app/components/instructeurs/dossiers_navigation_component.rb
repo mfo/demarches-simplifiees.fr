@@ -24,7 +24,7 @@ class Instructeurs::DossiersNavigationComponent < ApplicationComponent
       options = { class: "fr-link no-wrap fr-text--sm fr-ml-3w fr-text-mention--grey" }
     end
 
-    tag.send(html_tag, t('.next').html_safe, **options)
+    tag.send(html_tag, t('.next'), **options)
   end
 
   def link_previous

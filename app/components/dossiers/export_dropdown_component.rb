@@ -36,9 +36,9 @@ class Dossiers::ExportDropdownComponent < ApplicationComponent
 
   def include_archived_title
     if @archived_count > 1
-      t(".include_archived_plural", count: @archived_count)
+      t(".include_archived_plural_html", count: @archived_count)
     else
-      t(".include_archived_singular")
+      t(".include_archived_singular_html")
     end
   end
 
