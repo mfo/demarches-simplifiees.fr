@@ -7,6 +7,7 @@ class TypesDeChamp::YesNoTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def choice_type? = true
+  def condition_value_type = :boolean
 
   def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'

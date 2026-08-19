@@ -7,6 +7,7 @@ class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def customizable? = true
+  def condition_value_type = :commune_enum
 
   include AddressableColumnConcern
 

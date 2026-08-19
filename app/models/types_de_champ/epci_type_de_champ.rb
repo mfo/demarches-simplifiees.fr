@@ -5,6 +5,8 @@ class TypesDeChamp::EpciTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.simple_routable? = true
   def self.conditionable? = true
 
+  def condition_value_type = :epci_enum
+
   include AddressableColumnConcern
 
   def columns(procedure_id:, displayable: true, prefix: nil)

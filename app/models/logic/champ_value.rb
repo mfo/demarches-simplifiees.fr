@@ -78,29 +78,7 @@ class Logic::ChampValue < Logic::Term
   def to_s(type_de_champs) = type_de_champ(type_de_champs)&.libelle # TODO: gerer le cas ou un tdc est supprimé
 
   def type(type_de_champs)
-    case type_de_champ(type_de_champs)&.type_champ # TODO: gerer le cas ou un tdc est supprimé
-    when MANAGED_TYPE_DE_CHAMP.fetch(:yes_no),
-      MANAGED_TYPE_DE_CHAMP.fetch(:checkbox)
-      CHAMP_VALUE_TYPE.fetch(:boolean)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:integer_number), MANAGED_TYPE_DE_CHAMP.fetch(:decimal_number)
-      CHAMP_VALUE_TYPE.fetch(:number)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:drop_down_list),
-      MANAGED_TYPE_DE_CHAMP.fetch(:regions), MANAGED_TYPE_DE_CHAMP.fetch(:pays),
-      MANAGED_TYPE_DE_CHAMP.fetch(:pre_rempli)
-      CHAMP_VALUE_TYPE.fetch(:enum)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:communes)
-      CHAMP_VALUE_TYPE.fetch(:commune_enum)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:epci)
-      CHAMP_VALUE_TYPE.fetch(:epci_enum)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:departements)
-      CHAMP_VALUE_TYPE.fetch(:departement_enum)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:address)
-      CHAMP_VALUE_TYPE.fetch(:address)
-    when MANAGED_TYPE_DE_CHAMP.fetch(:multiple_drop_down_list)
-      CHAMP_VALUE_TYPE.fetch(:enums)
-    else
-      CHAMP_VALUE_TYPE.fetch(:unmanaged)
-    end
+    type_de_champ(type_de_champs)&.condition_value_type || CHAMP_VALUE_TYPE.fetch(:unmanaged)
   end
 
   def errors(type_de_champs)

@@ -5,6 +5,8 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.simple_routable? = true
   def self.conditionable? = true
 
+  def condition_value_type = :address
+
   include AddressableColumnConcern
 
   def libelles_for_export

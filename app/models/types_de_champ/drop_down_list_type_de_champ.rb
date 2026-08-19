@@ -7,6 +7,8 @@ class TypesDeChamp::DropDownListTypeDeChamp < TypeDeChamp
   def self.simple_routable? = true
   def self.conditionable? = true
 
+  def condition_value_type = :enum
+
   include TypesDeChamp::DropDownOptionsConcern
 
   def prefillable? = true

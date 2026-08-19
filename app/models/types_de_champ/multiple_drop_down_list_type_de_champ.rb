@@ -6,6 +6,8 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
   def self.column_type = :enums
   def self.conditionable? = true
 
+  def condition_value_type = :enums
+
   include TypesDeChamp::DropDownOptionsConcern
 
   def prefillable? = true

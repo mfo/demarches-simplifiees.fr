@@ -7,6 +7,7 @@ class TypesDeChamp::PaysTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.conditionable? = true
 
   def options_for_select = APIGeoService.country_options
+  def condition_value_type = :enum
 
   def typed_champ_value(champ)
     champ.name

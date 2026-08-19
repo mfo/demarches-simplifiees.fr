@@ -7,6 +7,7 @@ class TypesDeChamp::RegionTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.conditionable? = true
 
   def options_for_select = APIGeoService.region_options
+  def condition_value_type = :enum
 
   include AddressableColumnConcern
 

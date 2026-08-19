@@ -8,6 +8,7 @@ class TypesDeChamp::CheckboxTypeDeChamp < TypeDeChamp
   def prefillable? = true
   def options_for_select = Champs::CheckboxChamp.options
   def choice_type? = true
+  def condition_value_type = :boolean
 
   def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'

@@ -7,6 +7,8 @@ class TypesDeChamp::PreRempliTypeDeChamp < TypeDeChamp
   def self.column_type = :enum
   def self.conditionable? = true
 
+  def condition_value_type = :enum
+
   include TypesDeChamp::DropDownOptionsConcern
 
   def prefillable? = true
