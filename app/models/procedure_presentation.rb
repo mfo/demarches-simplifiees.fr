@@ -12,8 +12,6 @@ class ProcedurePresentation < ApplicationRecord
     :archives_filters,
   ]
 
-  self.ignored_columns += ["displayed_fields", "filters", "sort"]
-
   belongs_to :assign_to, optional: false
   has_many :exports, dependent: :destroy
 

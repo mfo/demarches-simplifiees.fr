@@ -56,7 +56,7 @@ class APIToken < ApplicationRecord
     administrateur
       .procedures
       .where.not(id: targeted_procedure_ids)
-      .select(:id, :libelle, :path)
+      .select(:id, :libelle)
       .order(:libelle)
   end
 

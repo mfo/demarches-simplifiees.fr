@@ -3,8 +3,6 @@
 class ExportTemplate < ApplicationRecord
   include TagsSubstitutionConcern
 
-  self.ignored_columns += ["content"]
-
   belongs_to :groupe_instructeur
   has_one :procedure, through: :groupe_instructeur
   has_many :exports, dependent: :nullify

@@ -3,7 +3,7 @@
 class Dossier < ApplicationRecord
   # The search columns are only ever read and written as raw SQL: loading them as
   # attributes would carry a full-text blob on every dossier instance.
-  self.ignored_columns += [:search_terms, :private_search_terms, :search_terms_tsvector, :all_search_terms_tsvector, :editing_fork_origin_id, :last_champ_piece_jointe_updated_at]
+  self.ignored_columns += [:search_terms, :private_search_terms, :search_terms_tsvector, :all_search_terms_tsvector]
 
   include DossierCloneConcern
   include DossierCorrectableConcern
