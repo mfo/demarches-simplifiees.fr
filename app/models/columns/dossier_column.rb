@@ -40,15 +40,19 @@ class Columns::DossierColumn < Column
   end
 
   def filtered_ids_before_value(dossiers, values)
-    return dossiers.ids if values.first.blank?
+    end_date = parse_datetime(values.first)
 
-    filtered_ids_for_date_range(dossiers, ..Time.zone.parse(values.first).beginning_of_day)
+    return dossiers.ids if end_date.nil?
+
+    filtered_ids_for_date_range(dossiers, ..end_date.beginning_of_day)
   end
 
   def filtered_ids_after_value(dossiers, values)
-    return dossiers.ids if values.first.blank?
+    start_date = parse_datetime(values.first)
 
-    filtered_ids_for_date_range(dossiers, (Time.zone.parse(values.first).end_of_day..))
+    return dossiers.ids if start_date.nil?
+
+    filtered_ids_for_date_range(dossiers, (start_date.end_of_day..))
   end
 
   def filtered_ids_for_date_range(dossiers, range)
@@ -62,7 +66,7 @@ class Columns::DossierColumn < Column
     when 'self'
       if type == :date || type == :datetime
         dates = values
-          .filter_map { |v| Time.zone.parse(v).beginning_of_day rescue nil }
+          .filter_map { parse_datetime(_1)&.beginning_of_day }
 
         dossiers.filter_by_datetimes(column, dates)
       elsif type == :integer

@@ -22,9 +22,9 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   def filtered_ids(dossiers, filter)
     case filter
     in { operator: 'before', value: [end_date, *_] }
-      filtered_ids_for_date_range(dossiers, ..end_date&.then { Time.zone.parse(_1) }&.beginning_of_day)
+      filtered_ids_for_date_range(dossiers, ..parse_datetime(end_date)&.beginning_of_day)
     in { operator: 'after', value: [start_date, *_] }
-      filtered_ids_for_date_range(dossiers, (start_date&.then { Time.zone.parse(_1) }&.end_of_day..))
+      filtered_ids_for_date_range(dossiers, (parse_datetime(start_date)&.end_of_day..))
     in { operator: 'this_week' }
       filtered_ids_for_date_range(dossiers, Time.current.all_week)
     in { operator: 'this_month' }
@@ -50,7 +50,7 @@ class Columns::JSONPathColumn < Columns::ChampColumn
     parts << %(@ >= "#{start_date}") if start_date
     parts << %(@ <= "#{end_date}") if end_date
 
-    condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{parts.join(' && ')})'})
+    condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{parts.join(' && ')})'}
 
     targeted_dossiers(dossiers, condition).ids
   end
@@ -65,21 +65,27 @@ class Columns::JSONPathColumn < Columns::ChampColumn
 
       return dossiers.ids if integers.empty?
 
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'})
+      condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'}
     else
-      value = quote_string(search_terms.join('|'))
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (@ like_regex "#{value}" flag "i")'})
+      # ["normal", "nom 'quote'", "un (terme)"] compiles to:
+      #
+      #   @ like_regex "normal" flag "iq"
+      #   || @ like_regex "nom ''quote''" flag "iq"  -- ' doubled by quote_string
+      #   || @ like_regex "un (terme)" flag "iq"     -- ( ) literal, thanks to q
+      #
+      # i keeps the match case-insensitive; q makes the pattern a literal
+      # substring, so a search term is matched rather than compiled as a regex,
+      # and none can be rejected any more. `|` being literal too, terms are
+      # OR-ed one at a time: a malformed one no longer takes the valid ones down.
+      #
+      # to_json writes the jsonpath string literal, quotes included: it escapes
+      # the `"` that would close it and the `\` that would escape inside it.
+      matches = search_terms.map { %{@ like_regex #{quote_string(it.to_json)} flag "iq"} }
+
+      condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{matches.join(' || ')})'}
     end
 
     targeted_dossiers(dossiers, condition).ids
-
-  rescue ActiveRecord::StatementInvalid => e
-    if e.cause.is_a?(PG::InvalidRegularExpression)
-      Rails.logger.warn("filtered_ids fallback: Invalid regex — #{e.message}")
-      []
-    else
-      raise
-    end
   end
 
   # PostgreSQL's jsonpath parser rejects bare numeric member accessors (e.g. `$.row.4`),
@@ -95,8 +101,6 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   end
 
   def quote_string(string) = ActiveRecord::Base.connection.quote_string(string)
-
-  def sanitize_sql(sql) = ActiveRecord::Base.sanitize_sql(sql)
 
   def targeted_dossiers(dossiers, condition)
     dossiers.with_type_de_champ(stable_id).where(condition)

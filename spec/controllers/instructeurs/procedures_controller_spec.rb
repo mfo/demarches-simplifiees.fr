@@ -609,16 +609,39 @@ describe Instructeurs::ProceduresController, type: :controller do
       end
 
       context 'when an error occurs in the DossierFilterService' do
-        before do
-          allow(DossierFilterService).to receive(:filtered_sorted_ids).and_raise(ActiveRecord::StatementInvalid.new('PG::UndefinedFunction'))
+        before { allow(DossierFilterService).to receive(:filtered_sorted_ids).and_raise(error) }
 
-          expect_any_instance_of(ProcedurePresentation).to receive(:destroy_filters_for!)
-          subject
+        shared_examples 'a filter the instructeur cannot get rid of' do
+          it 'resets the display instead of leaving the tab broken' do
+            expect_any_instance_of(ProcedurePresentation).to receive(:destroy_filters_for!)
+
+            subject
+
+            expect(response).to redirect_to(instructeur_procedure_path)
+            expect(flash.alert).to include('Votre affichage a dû être réinitialisé')
+          end
         end
 
-        it do
-          expect(response).to redirect_to(instructeur_procedure_path)
-          expect(flash.alert).to include('Votre affichage a dû être réinitialisé')
+        context 'because postgres rejects the filter' do
+          let(:error) { ActiveRecord::StatementInvalid.new('PG::UndefinedFunction') }
+
+          it_behaves_like 'a filter the instructeur cannot get rid of'
+        end
+
+        context 'because of anything else' do
+          let(:error) { NoMethodError.new("undefined method 'beginning_of_day' for nil") }
+
+          it_behaves_like 'a filter the instructeur cannot get rid of'
+        end
+
+        context 'because the query timed out, which says nothing about the filters' do
+          let(:error) { ActiveRecord::QueryCanceled.new('PG::QueryCanceled') }
+
+          it 'keeps them' do
+            expect_any_instance_of(ProcedurePresentation).not_to receive(:destroy_filters_for!)
+
+            expect { subject }.to raise_error(ActiveRecord::QueryCanceled)
+          end
         end
       end
 

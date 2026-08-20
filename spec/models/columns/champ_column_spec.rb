@@ -428,6 +428,26 @@ describe Columns::ChampColumn do
         end
       end
 
+      # update_filter neither whitelists the operator nor validates the date, so
+      # both of these reach the column.
+      context "when searching with a date the filter form let through" do
+        let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+        before { dossier.champ_data.first.update!(value: "2025-02-13") }
+
+        context "out of range" do
+          let(:filter) { { operator: 'before', value: ['2024-13-45'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
+        end
+
+        context "unparseable" do
+          let(:filter) { { operator: 'after', value: ['abc'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
+        end
+      end
+
       context "when searching with this_month operator" do
         let(:filter) { { operator: 'this_month' } }
 
@@ -532,6 +552,26 @@ describe Columns::ChampColumn do
 
         it "returns the correct ids" do
           expect(subject).to eq([dossier2.id])
+        end
+      end
+
+      # update_filter neither whitelists the operator nor validates the date, so
+      # both of these reach the column.
+      context "when searching with a date the filter form let through" do
+        let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+        before { dossier.champ_data.first.update!(value: "2025-02-13") }
+
+        context "out of range" do
+          let(:filter) { { operator: 'before', value: ['2024-13-45'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
+        end
+
+        context "unparseable" do
+          let(:filter) { { operator: 'after', value: ['abc'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
         end
       end
 

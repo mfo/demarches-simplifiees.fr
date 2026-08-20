@@ -71,4 +71,8 @@ class Column
   def self.not_filled_option = [I18n.t('activerecord.attributes.type_de_champ.not_filled'), NOT_FILLED_VALUE]
 
   def column_id = "#{table}/#{column}"
+
+  private
+
+  def parse_datetime(value) = Time.zone.parse(value) rescue nil
 end

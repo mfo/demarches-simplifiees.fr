@@ -17,9 +17,11 @@ class CarteController < ApplicationController
 
   def stats
     departements_sql = "select departement, count(procedures.id) as nb_demarches, sum(procedures.estimated_dossiers_count) as nb_dossiers from services inner join procedures on services.id = procedures.service_id where procedures.hidden_at is null and procedures.aasm_state in ('publiee', 'close', 'depubliee')"
-    departements_sql += " and procedures.published_at >= '#{@map_filter.year}-01-01' and procedures.published_at <= '#{@map_filter.year}-12-31'" if @map_filter.year.present?
+    if @map_filter.year.present?
+      departements_sql += ActiveRecord::Base.sanitize_sql([" and procedures.published_at between ? and ?", "#{@map_filter.year}-01-01", "#{@map_filter.year}-12-31"])
+    end
     departements_sql += " group by services.departement"
-    departements = ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql(departements_sql))
+    departements = ActiveRecord::Base.connection.execute(departements_sql)
     departements.to_a.reduce(Hash.new({ nb_demarches: 0, nb_dossiers: 0 })) do |h, v|
       h.merge(
         v["departement"] => {
