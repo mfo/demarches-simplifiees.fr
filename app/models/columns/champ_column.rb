@@ -249,6 +249,4 @@ class Columns::ChampColumn < Column
   end
 
   def parse_enums(value) = JSON.parse(value) rescue nil
-
-  def parse_datetime(value) = Time.zone.parse(value) rescue nil
 end
