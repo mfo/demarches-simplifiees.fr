@@ -77,7 +77,10 @@ class Columns::JSONPathColumn < Columns::ChampColumn
       # substring, so a search term is matched rather than compiled as a regex,
       # and none can be rejected any more. `|` being literal too, terms are
       # OR-ed one at a time: a malformed one no longer takes the valid ones down.
-      matches = search_terms.map { %{@ like_regex "#{quote_string(jsonpath_escape(it))}" flag "iq"} }
+      #
+      # to_json writes the jsonpath string literal, quotes included: it escapes
+      # the `"` that would close it and the `\` that would escape inside it.
+      matches = search_terms.map { %{@ like_regex #{quote_string(it.to_json)} flag "iq"} }
 
       condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{matches.join(' || ')})'}
     end
@@ -98,11 +101,6 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   end
 
   def quote_string(string) = ActiveRecord::Base.connection.quote_string(string)
-
-  # `"` delimits the like_regex literal and `\` escapes inside it, `q` flag or
-  # not: left as-is, a search term containing either one breaks out of the
-  # literal and postgres rejects the whole jsonpath expression.
-  def jsonpath_escape(string) = string.gsub(/["\\]/) { "\\#{it}" }
 
   def targeted_dossiers(dossiers, condition)
     dossiers.with_type_de_champ(stable_id).where(condition)
