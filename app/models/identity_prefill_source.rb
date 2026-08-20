@@ -55,9 +55,9 @@ class IdentityPrefillSource
   def france_connect_information = dossier.user&.france_connect_informations&.first
   def pro_connect_information = dossier.user&.last_pro_connect_information
 
-  # SIRET de l'organisation transmis par ProConnect (démarches personne morale).
-  # Volontairement indépendant de `resolved` : une identité ProConnect sans nom
-  # ni prénom porte quand même un SIRET exploitable.
+  # SIRET of the organisation provided by ProConnect (personne morale procedures).
+  # Deliberately independent from `resolved`: a ProConnect identity with no first
+  # or last name still carries a usable SIRET.
   def pro_connect_siret
     return if source != :pro_connect
 
