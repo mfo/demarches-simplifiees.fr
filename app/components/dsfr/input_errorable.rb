@@ -67,10 +67,14 @@ module Dsfr
       end
 
       def default_hint
-        if I18n.exists?("activerecord.attributes.#{object.class.name.underscore}.hints.#{@attribute}")
-          t("activerecord.attributes.#{object.class.name.underscore}.hints.#{@attribute}", application_name: APPLICATION_NAME)
-        elsif I18n.exists?("activerecord.attributes.#{object.class.name.underscore}.hints.#{@attribute}_html")
-          t("activerecord.attributes.#{object.class.name.underscore}.hints.#{@attribute}_html", application_name: APPLICATION_NAME)
+        # HtmlSafeTranslation honours the `_html` convention that `I18n.t` ignores.
+        # Not the view-context `t`: a slot reads this hint before any render.
+        key = "activerecord.attributes.#{object.class.name.underscore}.hints.#{@attribute}"
+
+        if I18n.exists?(key)
+          ActiveSupport::HtmlSafeTranslation.translate(key, application_name: APPLICATION_NAME)
+        elsif I18n.exists?("#{key}_html")
+          ActiveSupport::HtmlSafeTranslation.translate("#{key}_html", application_name: APPLICATION_NAME)
         end
       end
 

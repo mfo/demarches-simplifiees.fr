@@ -195,4 +195,18 @@ RSpec.describe EditableChamp::ChampLabelContentComponent, type: :component do
       end
     end
   end
+
+  describe "#default_hint" do
+    before_all { seed "cases/champs" }
+
+    # `default_hint` feeds a slot, so it runs outside of any render.
+    let(:champ) { dossiers.tous_champs.champ_data.find(&:rnf?) }
+
+    it "resolves the _html hint without a view context, and marks it html_safe" do
+      hint = component.default_hint
+
+      expect(hint).to be_html_safe
+      expect(hint).to include("<span aria-hidden='true'>075-FDD-00003-01</span>")
+    end
+  end
 end
