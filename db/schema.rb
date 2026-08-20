@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_19_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_20_081609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_stat_statements"
@@ -1151,7 +1151,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_19_120000) do
     t.boolean "pro_connect_for_moral_procedure", default: false, null: false
     t.boolean "pro_connect_restricted", default: false, null: false
     t.string "pro_connect_restriction", default: "none", null: false
-    t.boolean "procedure_expires_when_termine_enabled", default: true
     t.datetime "published_at", precision: nil
     t.bigint "published_revision_id"
     t.boolean "rdv_enabled", default: false, null: false
@@ -1177,7 +1176,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_19_120000) do
     t.index ["parent_procedure_id"], name: "index_procedures_on_parent_procedure_id"
     t.index ["path", "closed_at", "hidden_at", "unpublished_at"], name: "procedure_path_uniqueness", unique: true
     t.index ["path", "closed_at", "hidden_at"], name: "index_procedures_on_path_and_closed_at_and_hidden_at", unique: true
-    t.index ["procedure_expires_when_termine_enabled"], name: "index_procedures_on_procedure_expires_when_termine_enabled"
     t.index ["published_revision_id"], name: "index_procedures_on_published_revision_id"
     t.index ["service_id"], name: "index_procedures_on_service_id"
     t.index ["tags"], name: "index_procedures_on_tags", using: :gin
