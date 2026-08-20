@@ -103,6 +103,19 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       expect(morpheds).to eq([['updated', ['l1']], ['l3', ['l1', 'updated']]])
     end
 
+    context 'when the champ was already removed (replayed autosave)' do
+      let(:params) { default_params.merge(stable_id: @removed_stable_id) }
+
+      before do
+        @removed_stable_id = second_coordinate.stable_id
+        procedure.draft_revision.remove_type_de_champ(@removed_stable_id)
+      end
+
+      it 'raises RecordNotFound (rendered as 404) instead of a 500 (RAILS-JZE)' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
     context "validate" do
       let(:params) { default_params.deep_merge(type_de_champ: { libelle: '' }) }
 

@@ -105,6 +105,18 @@ describe ProcedureRevision do
     end
   end
 
+  describe '#find_and_ensure_exclusive_use' do
+    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+
+    it 'raises RecordNotFound when the stable_id is no longer in the revision (RAILS-JZE)' do
+      removed_stable_id = draft.root_types_de_champ_public.first.stable_id
+      draft.remove_type_de_champ(removed_stable_id)
+
+      expect { draft.find_and_ensure_exclusive_use(removed_stable_id) }
+        .to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
   describe '#move_type_de_champ' do
     let(:procedure) { create(:procedure, types_de_champ_public: Array.new(4) { { type: :text } }) }
     let(:last_type_de_champ) { draft.root_types_de_champ_public.last }
