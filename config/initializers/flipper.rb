@@ -38,6 +38,7 @@ features = [
   :llm_nightly_improve_procedure,
   :ami_notifications,
   :api_entreprise_tva_job,
+  :dossier_vide_weasyprint,
   :usager_dossiers_alert_filters,
   :s3_storage,
   # Enable only once T20260728BackfillSearchTermsTsvectorTask has completed.

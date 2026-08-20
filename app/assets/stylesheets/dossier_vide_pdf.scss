@@ -1,0 +1,176 @@
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-bold.ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marianne';
+  src: url('marianne-regular-italic.woff2');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@page {
+  size: A4;
+  margin: 17mm 17mm 24mm;
+
+  @bottom-center {
+    font-size: 8pt;
+    content: counter(page) ' / ' counter(pages);
+    margin-top: 10mm;
+    white-space: nowrap;
+  }
+}
+
+body {
+  font-family: 'Marianne', sans-serif;
+  font-size: 10pt;
+  color: #161616;
+}
+
+h1 {
+  font-size: 18pt;
+}
+h2 {
+  font-size: 14pt;
+  margin-top: 8mm;
+}
+h3 {
+  font-size: 12pt;
+}
+h4 {
+  font-size: 11pt;
+}
+h5 {
+  font-size: 10pt;
+}
+
+.logo {
+  display: block;
+  width: 100mm;
+  height: auto;
+  margin: 0 auto 8mm;
+}
+
+dl.header,
+dl.identity {
+  margin: 0 0 6mm;
+}
+
+.field-pair {
+  display: flex;
+  gap: 4mm;
+  margin-bottom: 2mm;
+
+  dt {
+    width: 45mm;
+    font-weight: bold;
+  }
+  dd {
+    flex: 1;
+  }
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 1.5mm;
+}
+// Keep a label (and any description/instruction that follows it) attached to the
+// field below it, so a page break never leaves the label stranded from its box.
+.label,
+.description,
+.explanation,
+.condition {
+  break-after: avoid;
+}
+// Champ descriptions stay italic to read as helper text; the procedure
+// presentation (.presentation) keeps the admin's own formatting instead.
+.description,
+.explanation,
+.condition,
+.mailing {
+  font-style: italic;
+}
+// Admin rich text is rendered as markdown (SimpleFormat), so each authored line
+// becomes a <p>: drop the browser default paragraph margins and keep tight,
+// even spacing between them.
+.presentation p,
+.description p,
+.explication p {
+  margin: 0;
+}
+.presentation p + p,
+.description p + p,
+.explication p + p {
+  margin-top: 1.5mm;
+}
+.explanation,
+.condition {
+  margin-top: 1mm;
+  margin-bottom: 1.5mm;
+}
+
+.champ {
+  margin-bottom: 7mm;
+}
+// Light shading grouping a conditional field (label + instruction + box).
+.champ--conditional {
+  padding: 3mm;
+  background-color: #f6f6f6;
+}
+
+.annexes {
+  page-break-before: always;
+}
+.annex {
+  margin-bottom: 6mm;
+}
+.annex h3 {
+  break-after: avoid;
+}
+
+.box {
+  border: 1px solid #161616;
+}
+.box--line {
+  height: 6mm;
+}
+.box--block {
+  height: 22mm;
+}
+
+ul.options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+ul.options li {
+  margin-bottom: 1mm;
+}
+ul.options li.secondary {
+  padding-left: 6mm;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 2mm;
+  // Centre the checkbox on the line instead of letting it hang above the
+  // baseline, which otherwise inflates the gap above and between checkboxes.
+  vertical-align: middle;
+}
+.checkbox {
+  display: inline-block;
+  width: 3mm;
+  height: 3mm;
+  border: 1px solid #161616;
+}
