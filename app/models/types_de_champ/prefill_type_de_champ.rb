@@ -121,6 +121,7 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
   end
 
   def description
-    @description ||= I18n.t("views.prefill_descriptions.edit.possible_values.#{type_champ}_html", default: nil)&.html_safe
+    # HtmlSafeTranslation honours the `_html` convention that `I18n.t` ignores.
+    @description ||= ActiveSupport::HtmlSafeTranslation.translate("views.prefill_descriptions.edit.possible_values.#{type_champ}_html", default: nil)
   end
 end
