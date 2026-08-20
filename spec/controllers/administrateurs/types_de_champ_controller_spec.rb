@@ -151,6 +151,23 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       end
     end
 
+    context 'changing the type to one without the previous type options' do
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          stable_id: third_coordinate.stable_id,
+          # the editor form submits the options of the previous type along the new type
+          type_de_champ: { type_champ: 'yes_no', drop_down_options_from_text: "a\nb" },
+        }
+      end
+
+      it 'ignores the options unknown to the new type (RAILS-MF9)' do
+        is_expected.to have_http_status(:ok)
+        expect(flash.alert).to be_nil
+        expect(TypeDeChamp.where(id: third_coordinate.type_de_champ.id).pick(:type_champ)).to eq('yes_no')
+      end
+    end
+
     context 'rejected if type changed and routing involved' do
       let(:params) do
         default_params.deep_merge(type_de_champ: { type_champ: 'text', stable_id: third_coordinate.stable_id })
