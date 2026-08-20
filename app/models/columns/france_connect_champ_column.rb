@@ -37,6 +37,21 @@ class Columns::FranceConnectChampColumn < Columns::JSONPathColumn
     ['Date de début de droit', '$.api_part.date_debut_droit', :date],
   ]
 
+  # The filter UI renders a boolean column as radio buttons built from
+  # options_for_select: without options there is nothing to pick.
+  def initialize(type: :text, **args)
+    options_for_select = if type == :boolean
+      [
+        [I18n.t('activerecord.attributes.type_de_champ.type_champs.yes_no_true'), true],
+        [I18n.t('activerecord.attributes.type_de_champ.type_champs.yes_no_false'), false],
+      ]
+    else
+      []
+    end
+
+    super(type:, options_for_select:, **args)
+  end
+
   def targeted_dossiers(dossiers, condition)
     super(dossiers, condition).where(champs: { value: 'true' })
   end
