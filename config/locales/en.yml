@@ -1056,9 +1056,9 @@ en:
         title: "File n° %{numero} has been moved to trash"
         explanation_html: "You can find this file from the <a href=\"%{trash_link}\" class=\"fr-link\">trash</a> tab of your account.<br>It is not currently viewable."
         consult_trash: "View trash"
-        user_request_info_without_if: "This file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
-        user_request_info: "If this file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
-        automatic_info: "If this file was moved to trash automatically because its maximum retention period has been reached:<br>We recommend <strong>downloading</strong> it as soon as possible before it is permanently deleted."
+        user_request_info_without_if_html: "This file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
+        user_request_info_html: "If this file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
+        automatic_info_html: "If this file was moved to trash automatically because its maximum retention period has been reached:<br>We recommend <strong>downloading</strong> it as soon as possible before it is permanently deleted."
       show_deleted:
         page_title: "File n° %{numero} - Permanently deleted"
         title: "File n° %{numero} has been deleted"

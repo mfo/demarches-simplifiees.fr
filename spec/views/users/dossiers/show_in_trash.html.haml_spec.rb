@@ -20,8 +20,12 @@ describe 'users/dossiers/show_in_trash', type: :view do
     end
 
     it 'displays the restore option' do
-      expect(rendered).to have_text('restaurer')
+      expect(rendered).to have_css('strong', text: 'restaurer')
       expect(rendered).not_to have_text('télécharger')
+    end
+
+    it 'renders the explanation markup' do
+      expect(rendered).to have_link('corbeille', href: trash_path)
     end
   end
 
@@ -39,8 +43,8 @@ describe 'users/dossiers/show_in_trash', type: :view do
     end
 
     it 'displays the restore and download options' do
-      expect(rendered).to have_text('restaurer')
-      expect(rendered).to have_text('télécharger')
+      expect(rendered).to have_css('strong', text: 'restaurer')
+      expect(rendered).to have_css('strong', text: 'télécharger')
     end
   end
 end
