@@ -100,6 +100,21 @@ describe Columns::DossierColumn do
   end
 
   describe '#filtered_ids' do
+    context 'for a boolean etablissement column (siege_social)' do
+      let(:procedure) { create(:procedure, for_individual: false) }
+      let(:column) { procedure.find_column(label: 'Établissement siège social') }
+      let!(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
+
+      before { dossier.etablissement.update!(siege_social: true) }
+
+      def filtering(value) = column.filtered_ids(procedure.dossiers, { operator: 'match', value: })
+
+      it 'filters on the boolean' do
+        expect(filtering(['true'])).to eq([dossier.id])
+        expect(filtering(['false'])).to eq([])
+      end
+    end
+
     context 'for an integer etablissement column' do
       let(:procedure) { create(:procedure, for_individual: false) }
       let!(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
