@@ -67,19 +67,22 @@ class Columns::JSONPathColumn < Columns::ChampColumn
 
       condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'})
     else
-      value = quote_string(jsonpath_escape(search_terms.join('|')))
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (@ like_regex "#{value}" flag "i")'})
+      # ["normal", "nom 'quote'", "un (terme)"] compiles to:
+      #
+      #   @ like_regex "normal" flag "iq"
+      #   || @ like_regex "nom ''quote''" flag "iq"  -- ' doubled by quote_string
+      #   || @ like_regex "un (terme)" flag "iq"     -- ( ) literal, thanks to q
+      #
+      # i keeps the match case-insensitive; q makes the pattern a literal
+      # substring, so a search term is matched rather than compiled as a regex,
+      # and none can be rejected any more. `|` being literal too, terms are
+      # OR-ed one at a time: a malformed one no longer takes the valid ones down.
+      matches = search_terms.map { %{@ like_regex "#{quote_string(jsonpath_escape(it))}" flag "iq"} }
+
+      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{matches.join(' || ')})'})
     end
 
     targeted_dossiers(dossiers, condition).ids
-
-  rescue ActiveRecord::StatementInvalid => e
-    if e.cause.is_a?(PG::InvalidRegularExpression)
-      Rails.logger.warn("filtered_ids fallback: Invalid regex — #{e.message}")
-      []
-    else
-      raise
-    end
   end
 
   # PostgreSQL's jsonpath parser rejects bare numeric member accessors (e.g. `$.row.4`),
@@ -96,9 +99,9 @@ class Columns::JSONPathColumn < Columns::ChampColumn
 
   def quote_string(string) = ActiveRecord::Base.connection.quote_string(string)
 
-  # `"` delimits the like_regex literal and `\` escapes inside it: left as-is, a
-  # search term containing either one breaks out of the literal and postgres
-  # rejects the whole jsonpath expression.
+  # `"` delimits the like_regex literal and `\` escapes inside it, `q` flag or
+  # not: left as-is, a search term containing either one breaks out of the
+  # literal and postgres rejects the whole jsonpath expression.
   def jsonpath_escape(string) = string.gsub(/["\\]/) { "\\#{it}" }
 
   def sanitize_sql(sql) = ActiveRecord::Base.sanitize_sql(sql)

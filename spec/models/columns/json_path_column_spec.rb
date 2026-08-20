@@ -59,19 +59,22 @@ describe Columns::JSONPathColumn do
       end
     end
 
-    context 'with avanced search using special characters' do
+    context 'with search terms containing regex metacharacters' do
       let(:jsonpath) { '$.city_name' }
+      let(:dossiers) { Dossier.where(id: dossier.id) }
 
-      subject { column.filtered_ids(Dossier.all, { operator: 'match', value: ['*reno*', 'Lyon'] }) }
+      before { champ.update(value_json: { city_name: 'SARL (LES TROIS CHENES)' }) }
 
-      context 'when champ has value_json we catch Invalid Regex error and return []' do
-        before { champ.update(value_json: { city_name: 'Grenoble' }) }
-
-        it { is_expected.to eq([]) }
+      it 'matches the metacharacters literally' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['SARL (LES TROIS CHENES)'] })).to eq([dossier.id])
       end
 
-      context 'when champ has no value_json we catch Invalid Regex error and return []' do
-        it { is_expected.to eq([]) }
+      it 'does not let a metacharacter stand for another character' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['SARL .LES.'] })).to eq([])
+      end
+
+      it 'keeps the other terms when one of them would be a malformed regex' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['*reno*', 'CHENES'] })).to eq([dossier.id])
       end
     end
 
