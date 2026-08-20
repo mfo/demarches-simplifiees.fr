@@ -1,0 +1,3 @@
+en:
+  max_file_size: "Maximum size: %{max_file_size}."
+  allowed_formats: "Supported formats: %{formats}."

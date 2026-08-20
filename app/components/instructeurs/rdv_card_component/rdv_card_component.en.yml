@@ -1,9 +1,5 @@
 ---
 en:
-  dossier_number: 'File no.'
-  applicant: 'Applicant'
-  submitted_on: 'Submitted on'
-  view_file: 'View file'
   appointment_on: 'On'
   info_and_cancellation: 'Info and cancellation:'
   you: 'You'

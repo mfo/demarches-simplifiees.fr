@@ -1,5 +1,4 @@
 en:
-  value: Value
   operator: Operator
   operators:
     match: On

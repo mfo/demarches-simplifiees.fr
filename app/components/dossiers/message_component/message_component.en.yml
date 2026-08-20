@@ -1,6 +1,5 @@
 ---
 en:
-  reply: Reply
   guest: Guest
   delete_button: Delete this message
   delete_with_response_button: Delete the pending response message
