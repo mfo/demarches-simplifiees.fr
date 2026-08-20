@@ -47,6 +47,4 @@ module DossierFilteringConcern
       where("unaccent(#{table_column}) ILIKE ANY (ARRAY((SELECT unaccent(unnest(ARRAY[?])))))", safe_quoted_terms)
     }
   end
-
-  def sanitize_sql_like(q) = ActiveRecord::Base.sanitize_sql_like(q)
 end
