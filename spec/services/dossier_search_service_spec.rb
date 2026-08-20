@@ -192,13 +192,17 @@ describe DossierSearchService do
   end
 
   describe '.to_tsquery' do
+    # `:*` makes each term a prefix match, `&` joins them.
     it 'builds a prefix matching query out of the terms' do
       expect(described_class.to_tsquery('Direction nicolas')).to eq('Direction:* & nicolas:*')
     end
 
-    # The quote would otherwise close the SQL literal the query is quoted into,
-    # the rest are tsquery operators postgres would parse rather than match.
-    it 'drops the characters postgres would not treat as text' do
+    # `& | ! ( ) : <` are tsquery operators and must go, or to_tsquery raises.
+    it 'drops the characters postgres would parse instead of matching' do
+      expect(described_class.to_tsquery('Dupont & Fils (13)')).to eq('Dupont:* & Fils:* & 13:*')
+    end
+
+    it 'drops quotes too, so an injection payload lands as plain terms' do
       expect(described_class.to_tsquery("Dupont') OR 1=1--")).to eq('Dupont:* & OR:* & 1=1--:*')
     end
   end
