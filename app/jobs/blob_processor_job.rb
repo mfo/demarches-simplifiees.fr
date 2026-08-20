@@ -94,7 +94,7 @@ class BlobProcessorJob < ApplicationJob
     load_opts = { access: :sequential }
     load_opts[:autorotate] = true if autorotate_needed
 
-    image = TrustedVipsLoader.new_from_file(tempfile.to_path, **load_opts)
+    image = Vips::Image.new_from_file(tempfile.to_path, **load_opts)
     image = WatermarkService.new.apply(image, format: blob.content_type) if watermark_needed
 
     write_opts = uninterlace_needed ? { interlace: false } : {}
@@ -131,14 +131,14 @@ class BlobProcessorJob < ApplicationJob
   end
 
   def autorotate_needed?(tempfile)
-    image = TrustedVipsLoader.new_from_file(tempfile.to_path)
+    image = Vips::Image.new_from_file(tempfile.to_path)
     image.get_fields.include?("orientation") && image.get("orientation") != 1
   rescue Vips::Error # unreadable metadata should not abort processing: skip the mutation instead
     false
   end
 
   def interlaced?(tempfile)
-    image = TrustedVipsLoader.new_from_file(tempfile.to_path)
+    image = Vips::Image.new_from_file(tempfile.to_path)
     image.get_fields.include?("interlaced") && image.get("interlaced") != 0
   rescue Vips::Error # unreadable metadata should not abort processing: skip the mutation instead
     false

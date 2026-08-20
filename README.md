@@ -20,7 +20,7 @@ Would you like to make changes or improvements? Read our [contribution guide](CO
 #### All environments
 
 - postgresql (version >= 15)
-- libvips-dev (image processing and watermark generation)
+- libvips-dev (version >= 8.13, image processing and watermark generation)
 - gsfonts (fonts for watermark text rendering)
 - zip (Info-ZIP 3.0 or later, used to build the export and archive files)
 

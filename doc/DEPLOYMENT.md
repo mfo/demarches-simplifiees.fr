@@ -82,6 +82,11 @@ The web application and the asynchronous jobs require some binary dependencies.
     apt install zip unzip libjemalloc-dev libpq-dev libicu-dev postgis libvips-dev gsfonts poppler-utils
     ```
 
+    > [!IMPORTANT]
+    > `libvips-dev` must be 8.13 or later — Ubuntu 24.04 ships 8.15. Older builds
+    > cannot disable libvips' unfuzzed loaders, and Active Storage refuses to boot
+    > rather than decode user-supplied files with them.
+
     > [!TIP]
     > At this stage you may also want to install the [compilation packages required for building Ruby and Ruby extensions](https://github.com/rbenv/ruby-build/wiki#ubuntudebianmint).
 - **Bun**. [Bun](https://bun.sh/) is the JavaScript execution environment that compiles and packages the assets. It is required to pre-build the assets before starting the application.
