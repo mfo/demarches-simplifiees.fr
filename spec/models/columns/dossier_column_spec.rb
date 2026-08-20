@@ -173,6 +173,24 @@ describe Columns::DossierColumn do
         end
       end
 
+      # update_filter neither whitelists the operator nor validates the date, so
+      # both of these reach the column.
+      context 'when searching with a date the filter form let through' do
+        let!(:dossier) { travel_to(DateTime.parse("12/02/2025 09:19")) { create(:dossier, :en_instruction, procedure:) } }
+
+        context 'out of range' do
+          let(:search_terms) { { operator: 'before', value: ['2024-13-45'] } }
+
+          it { is_expected.to contain_exactly(dossier.id) }
+        end
+
+        context 'unparseable' do
+          let(:search_terms) { { operator: 'after', value: ['abc'] } }
+
+          it { is_expected.to contain_exactly(dossier.id) }
+        end
+      end
+
       context 'when searching with this_week operator' do
         let(:search_terms) { { operator: 'this_week' } }
 

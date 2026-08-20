@@ -136,6 +136,18 @@ describe Columns::JSONPathColumn do
 
         it { is_expected.to include(dossier_in_range.id, dossier_out_range.id) }
       end
+
+      # update_filter does not validate the date, so this one reaches the column.
+      context 'with a date out of range' do
+        before do
+          dossier_in_range.champ_data.first.update(value_json: { issue_date: '2022-06-15' })
+          dossier_out_range.champ_data.first.update(value_json: { issue_date: '2020-06-15' })
+        end
+
+        subject { column.filtered_ids(Dossier.all, { operator: 'before', value: ['2024-13-45'] }) }
+
+        it { is_expected.to include(dossier_in_range.id, dossier_out_range.id) }
+      end
     end
 
     context 'with integer' do

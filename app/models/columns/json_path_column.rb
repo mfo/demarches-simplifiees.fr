@@ -22,9 +22,9 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   def filtered_ids(dossiers, filter)
     case filter
     in { operator: 'before', value: [end_date, *_] }
-      filtered_ids_for_date_range(dossiers, ..end_date&.then { Time.zone.parse(_1) }&.beginning_of_day)
+      filtered_ids_for_date_range(dossiers, ..parse_datetime(end_date)&.beginning_of_day)
     in { operator: 'after', value: [start_date, *_] }
-      filtered_ids_for_date_range(dossiers, (start_date&.then { Time.zone.parse(_1) }&.end_of_day..))
+      filtered_ids_for_date_range(dossiers, (parse_datetime(start_date)&.end_of_day..))
     in { operator: 'this_week' }
       filtered_ids_for_date_range(dossiers, Time.current.all_week)
     in { operator: 'this_month' }
