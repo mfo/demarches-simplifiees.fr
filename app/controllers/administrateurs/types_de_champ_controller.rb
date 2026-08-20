@@ -39,9 +39,16 @@ module Administrateurs
         @morphed = [champ_component_from(@coordinate, focused: false, errors:)]
         flash.alert = errors
       else
-        type_de_champ = type_de_champ.becomes_type(type_de_champ_update_params['type_champ']) if changing_of_type?(type_de_champ)
+        update_params = type_de_champ_update_params
 
-        if type_de_champ.update(type_de_champ_update_params)
+        if changing_of_type?(type_de_champ)
+          type_de_champ = type_de_champ.becomes_type(update_params['type_champ'])
+          # the editor form submits the previous type's options along the new type,
+          # and the new type may not define them (drop_down -> yes_no)
+          update_params = update_params.except(*update_params.keys.reject { type_de_champ.respond_to?("#{it}=") })
+        end
+
+        if type_de_champ.update(update_params)
           reload_procedure_with_includes
           @morphed = if was_prefill_with_fc_information != type_de_champ.prefill_with_france_connect_information?
             draft.revision_types_de_champ.map { |c| champ_component_from(c) }
