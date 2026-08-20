@@ -17,4 +17,8 @@ describe 'users/dossiers/show_deleted', type: :view do
     expect(rendered).to have_text('Il a été mis à la corbeille à votre demande')
     expect(rendered).to have_text('Il a été supprimé car son délai maximal')
   end
+
+  it 'links to the deleted dossiers history' do
+    expect(rendered).to have_link('Historique des dossiers supprimés', href: deleted_dossiers_path)
+  end
 end
