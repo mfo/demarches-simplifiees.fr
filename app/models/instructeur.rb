@@ -21,10 +21,11 @@ class Instructeur < ApplicationRecord
   has_many :previously_followed_dossiers, -> { distinct }, through: :previous_follows, source: :dossier
   has_many :trusted_device_tokens, dependent: :destroy
   has_many :bulk_messages, dependent: :destroy
-  has_many :exports, as: :user_profile
-  has_many :archives, as: :user_profile
+  has_many :exports, as: :user_profile, dependent: :destroy
+  has_many :archives, as: :user_profile, dependent: :destroy
   has_many :instructeurs_procedures, dependent: :destroy
   has_many :dossier_notifications, dependent: :destroy
+  has_many :rdvs
 
   has_one :rdv_connection, dependent: :destroy
 
@@ -257,6 +258,10 @@ class Instructeur < ApplicationRecord
       .where.not(dossier_id: follows.pluck(:dossier_id))
       .update_all(instructeur_id: id)
 
+    old_instructeur
+      .previous_follows
+      .update_all(instructeur_id: id)
+
     admin_with_new_instructeur, admin_without_new_instructeur = old_instructeur
       .administrateurs
       .partition { |admin| admin.instructeurs.exists?(id) }
@@ -269,8 +274,23 @@ class Instructeur < ApplicationRecord
     admin_with_new_instructeur.each do |admin|
       admin.instructeurs.delete(old_instructeur)
     end
+    old_instructeur
+      .instructeurs_procedures
+      .where.not(procedure_id: instructeurs_procedures.pluck(:procedure_id))
+      .update_all(instructeur_id: id)
+
+    old_instructeur.dossier_notifications.find_each do |notification|
+      unless dossier_notifications.exists?(dossier_id: notification.dossier_id, notification_type: notification.notification_type)
+        notification.update(instructeur_id: id)
+      end
+    end
+
     old_instructeur.commentaires.update_all(instructeur_id: id)
     old_instructeur.bulk_messages.update_all(instructeur_id: id)
+    old_instructeur.rdvs.update_all(instructeur_id: id)
+    # instructeur_id is a legacy column (exports are now owned through the
+    # polymorphic user_profile), but its foreign key would abort the merge
+    Export.where(instructeur: old_instructeur).update_all(instructeur_id: id)
 
     Avis
       .where(claimant_id: old_instructeur.id, claimant_type: Instructeur.name)

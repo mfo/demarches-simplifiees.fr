@@ -69,6 +69,33 @@ RSpec.describe Expert, type: :model do
       end
     end
 
+    context 'when both experts access a procedure and the old expert has an avis to give' do
+      let(:old_expert) { experts.default }
+      let(:new_expert) { experts.second }
+      let!(:old_experts_procedure) { experts_procedures.default }
+      let!(:new_experts_procedure) { experts_procedures.second }
+      let!(:pending_avis) { avis.pending }
+
+      before { subject }
+
+      it 'transfers the avis to the new expert and removes the old experts_procedure' do
+        expect(pending_avis.reload.experts_procedure).to eq(new_experts_procedure)
+        expect(ExpertsProcedure.exists?(old_experts_procedure.id)).to eq(false)
+      end
+    end
+
+    context 'when the old expert has an active access and the new expert a revoked one' do
+      let(:procedure) { procedures.individual }
+      let!(:old_experts_procedure) { create(:experts_procedure, expert: old_expert, procedure:) }
+      let!(:new_experts_procedure) { create(:experts_procedure, expert: new_expert, procedure:, revoked_at: 1.day.ago) }
+
+      before { subject }
+
+      it 'reactivates the surviving experts_procedure' do
+        expect(new_experts_procedure.reload.revoked_at).to eq(nil)
+      end
+    end
+
     context 'when an old expert has a commentaire' do
       let(:dossier) { create(:dossier) }
       let(:commentaire) { CommentaireService.create(old_expert, dossier, body: "Mon commentaire") }

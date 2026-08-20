@@ -25,6 +25,7 @@ class User < ApplicationRecord
   has_many :dossiers_invites, through: :invites, source: :dossier
   has_many :deleted_dossiers
   has_many :merge_logs, dependent: :destroy
+  has_many :contact_forms, dependent: :nullify
   has_many :requested_merge_from, class_name: 'User', dependent: :nullify, inverse_of: :requested_merge_into, foreign_key: :requested_merge_into_id
   has_many :france_connect_informations, dependent: :destroy
   has_many :pro_connect_informations, dependent: :destroy
@@ -294,6 +295,8 @@ class User < ApplicationRecord
       old_user.invites.update_all(user_id: id)
       old_user.merge_logs.update_all(user_id: id)
       old_user.targeted_user_links.update_all(user_id: id)
+      old_user.contact_forms.update_all(user_id: id)
+      old_user.deleted_dossiers.update_all(user_id: id)
 
       # Move or merge old user's roles to the user
       [
