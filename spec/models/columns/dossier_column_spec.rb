@@ -113,6 +113,10 @@ describe Columns::DossierColumn do
         expect(filtering(['true'])).to eq([dossier.id])
         expect(filtering(['false'])).to eq([])
       end
+
+      it 'offers the oui/non options the radio buttons are built from' do
+        expect(column.options_for_select).to eq(Champs::YesNoChamp.options)
+      end
     end
 
     context 'for an integer etablissement column' do

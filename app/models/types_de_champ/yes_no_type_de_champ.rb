@@ -5,7 +5,6 @@ class TypesDeChamp::YesNoTypeDeChamp < TypeDeChamp
   def self.column_type = :boolean
 
   def prefillable? = true
-  def options_for_select = Champs::YesNoChamp.options
   def choice_type? = true
 
   def typed_champ_value(champ)

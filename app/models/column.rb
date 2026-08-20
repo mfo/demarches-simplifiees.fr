@@ -20,7 +20,13 @@ class Column
     @type = type
     @filterable = filterable
     @displayable = displayable
-    @options_for_select = options_for_select
+    # A boolean column is rendered as radio buttons built from these options,
+    # so oui/non is the default; checkbox passes its own coché/non coché pair.
+    @options_for_select = if type == :boolean && options_for_select.blank?
+      Champs::YesNoChamp.options
+    else
+      options_for_select
+    end
     @mandatory = mandatory
   end
 
