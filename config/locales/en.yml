@@ -30,7 +30,6 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  insee_down: INSEE is unavailable, company information will arrive within a few hours.
   invisible_captcha:
     sentence_for_humans: 'If you are a human, ignore this field'
   clipboard:
@@ -579,31 +578,14 @@ en:
             open: "Search"
             panel_title: "Search"
           filter_panel:
-            open: "Filter files"
-            title: "Filter files"
-            close: "Close"
-            loading: "Loading filters…"
             groups:
-              procedure: "By procedure"
               shared_with_me: "Shared with me"
-              state: "Processing state"
-              alert: "File alert"
-            procedure_placeholder: "Select a procedure"
             alerts:
               nouveau_message: "New message"
               message_avec_attente_de_reponse: "Message pending response"
               a_corriger: "Needs correction"
               expire_bientot: "Expires soon"
-            from_created_at_date: "Created since"
-            from_depose_at_date: "Submitted since"
-            reset: "Reset"
-            apply:
-              zero: "No matching file"
-              one: "Show the file"
-              other: "Show %{count} files"
           active_filters:
-            reset: "Reset filters"
-            remove_tag: "Remove filter: %{label}"
             from_created_at_date_tag: "Created since %{date}"
             from_depose_at_date_tag: "Submitted since %{date}"
         dossiers_list:

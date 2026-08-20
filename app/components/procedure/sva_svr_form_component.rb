@@ -19,29 +19,25 @@ class Procedure::SVASVRFormComponent < ApplicationComponent
   end
 
   def decision_buttons
-    scope = ".decision_buttons"
-
     [
-      { label: t("disabled", scope:), value: "disabled", disabled: form_disabled? },
-      { label: t("sva", scope:), value: "sva", hint: t("sva_hint", scope:), disabled: form_disabled? },
-      { label: t("svr", scope:), value: "svr", hint: t("svr_hint", scope:), disabled: form_disabled? },
+      { label: t(".decision_buttons.disabled"), value: "disabled", disabled: form_disabled? },
+      { label: t(".decision_buttons.sva"), value: "sva", hint: t(".decision_buttons.sva_hint"), disabled: form_disabled? },
+      { label: t(".decision_buttons.svr"), value: "svr", hint: t(".decision_buttons.svr_hint"), disabled: form_disabled? },
     ]
   end
 
   def resume_buttons
-    scope = ".resume_buttons"
-
     [
       {
         value: "continue",
-        label: t("continue_label", scope: scope),
-        hint: t("continue_hint", scope: scope),
+        label: t(".resume_buttons.continue_label"),
+        hint: t(".resume_buttons.continue_hint"),
         disabled: form_disabled?,
       },
       {
         value: "reset",
-        label: t("reset_label", scope: scope),
-        hint: t("reset_hint", scope: scope),
+        label: t(".resume_buttons.reset_label"),
+        hint: t(".resume_buttons.reset_hint"),
         disabled: form_disabled?,
       },
     ]

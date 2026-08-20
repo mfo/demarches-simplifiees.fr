@@ -1,0 +1,3 @@
+fr:
+  reset: "Réinitialiser les filtres"
+  remove_tag: "Retirer le filtre : %{label}"
