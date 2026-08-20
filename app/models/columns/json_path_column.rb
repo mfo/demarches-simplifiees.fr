@@ -50,7 +50,7 @@ class Columns::JSONPathColumn < Columns::ChampColumn
     parts << %(@ >= "#{start_date}") if start_date
     parts << %(@ <= "#{end_date}") if end_date
 
-    condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{parts.join(' && ')})'})
+    condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{parts.join(' && ')})'}
 
     targeted_dossiers(dossiers, condition).ids
   end
@@ -65,7 +65,7 @@ class Columns::JSONPathColumn < Columns::ChampColumn
 
       return dossiers.ids if integers.empty?
 
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'})
+      condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'}
     else
       # ["normal", "nom 'quote'", "un (terme)"] compiles to:
       #
@@ -79,7 +79,7 @@ class Columns::JSONPathColumn < Columns::ChampColumn
       # OR-ed one at a time: a malformed one no longer takes the valid ones down.
       matches = search_terms.map { %{@ like_regex "#{quote_string(jsonpath_escape(it))}" flag "iq"} }
 
-      condition = sanitize_sql(%{champs.value_json @? '#{jsonpath_for_sql} ? (#{matches.join(' || ')})'})
+      condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{matches.join(' || ')})'}
     end
 
     targeted_dossiers(dossiers, condition).ids
@@ -103,8 +103,6 @@ class Columns::JSONPathColumn < Columns::ChampColumn
   # not: left as-is, a search term containing either one breaks out of the
   # literal and postgres rejects the whole jsonpath expression.
   def jsonpath_escape(string) = string.gsub(/["\\]/) { "\\#{it}" }
-
-  def sanitize_sql(sql) = ActiveRecord::Base.sanitize_sql(sql)
 
   def targeted_dossiers(dossiers, condition)
     dossiers.with_type_de_champ(stable_id).where(condition)
