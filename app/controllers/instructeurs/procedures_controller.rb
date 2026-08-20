@@ -164,9 +164,14 @@ module Instructeurs
         else
           0
         end
-      rescue ActiveRecord::StatementInvalid => e
-        raise e if !(e.message =~ /PG::UndefinedFunction/) # StatementInvalid is too generic, we'll add more cases if needed
-
+      # A timeout says nothing about the filters, and dropping them would cost the
+      # instructeur their whole setup over a transient hiccup.
+      rescue ActiveRecord::QueryCanceled
+        raise
+      # Filters are persisted before they are ever applied, so anything raised
+      # while applying them leaves the tab in a permanent 500 — with the button
+      # that would remove them on the very page that crashes.
+      rescue StandardError => e
         Sentry.capture_message(
           "Destroying invalid ProcedurePresentation",
           extra: {
