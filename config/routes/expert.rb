@@ -22,11 +22,6 @@ scope module: 'experts', as: 'expert', defaults: { nav_bar_profile: :expert } do
 
           get 'sign_up' => 'avis#sign_up'
           post 'sign_up' => 'avis#update_expert'
-
-          # This redirections are ephemeral, to ensure that emails sent to experts before are still valid
-          # TODO : remove these lines after September, 2021
-          get 'sign_up/email/:email' => 'avis#sign_up', constraints: { email: /.*/ }, as: 'sign_up_legacy'
-          post 'sign_up/email/:email' => 'avis#update_expert', constraints: { email: /.*/ }, as: 'update_expert_legacy'
         end
       end
     end
