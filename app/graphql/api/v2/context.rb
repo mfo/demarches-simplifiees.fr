@@ -44,6 +44,12 @@ class API::V2::Context < GraphQL::Query::Context
   end
 
   def authorized_demarche?(demarche, opendata: false)
+    # `Procedure` has a `default_scope -> { kept }`, so `label.procedure`,
+    # `dossier.revision.procedure`, … return nil once the démarche is hidden,
+    # while the child rows still exist. Nothing can be authorized without a
+    # démarche to authorize against.
+    return false if demarche.nil?
+
     if internal_use?
       return true
     end

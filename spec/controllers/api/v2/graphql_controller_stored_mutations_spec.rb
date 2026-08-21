@@ -755,6 +755,18 @@ describe API::V2::GraphqlController do
           expect(gql_data[:dossierAjouterLabel][:errors]).to eq([{ message: "Ce label est déjà associé au dossier" }])
         }
       end
+
+      context 'when the procedure of the label has been hidden' do
+        let(:label) { create(:label, procedure: create(:procedure)) }
+
+        before { label.procedure.update_column(:hidden_at, Time.current) }
+
+        it 'returns an unauthorized error instead of raising on a nil procedure' do
+          expect(gql_data[:dossierAjouterLabel]).to be_nil
+          expect(gql_errors.first[:message]).to eq('An object of type Label was hidden due to permissions')
+          expect(gql_errors.first[:extensions][:code]).to eq('unauthorized')
+        end
+      end
     end
 
     context 'dossierSupprimerLabel' do
