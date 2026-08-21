@@ -188,6 +188,34 @@ describe Procedure::RevisionChangesComponent, type: :component do
       expect(subject).to have_text("Le nouvel exemple est « 0100026 »", normalize_ws: true)
     end
   end
+  describe "private annotation changes" do
+    let(:procedure) do
+      create(:procedure, :published, private_type_de_champs: [
+        { type: :integer_number, libelle: "Montant", range_number: "1", min_number: "1" },
+        { type: :drop_down_list, libelle: "Avis", options: ["oui"] },
+      ])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdcs) { procedure.active_revision.private_root_type_de_champs }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      new_revision.find_and_ensure_exclusive_use(tdcs[0].stable_id).update!(min_number: "2")
+      new_revision.find_and_ensure_exclusive_use(tdcs[1].stable_id).update!(drop_down_mode: "advanced", referentiel: create(:csv_referentiel, :with_items))
+    end
+
+    it "displays every change with the annotation wording" do
+      expect(subject).to have_text("La valeur minimale pour l’annotation privée « Montant » a été modifié. Le minimum est désormais 2.", normalize_ws: true)
+      expect(subject).to have_text("Le type de liste de choix de l’annotation privée « Avis » a été modifié.", normalize_ws: true)
+      expect(subject).to have_text("Le référentiel de l’annotation privée « Avis » a été modifié.", normalize_ws: true)
+      expect(subject).not_to have_css(".translation_missing")
+    end
+  end
+
   describe "header section, birthdate and pre rempli changes" do
     let(:procedure) do
       create(:procedure, :published, public_type_de_champs: [
