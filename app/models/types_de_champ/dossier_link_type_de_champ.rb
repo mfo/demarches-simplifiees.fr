@@ -10,6 +10,16 @@ class TypesDeChamp::DossierLinkTypeDeChamp < TypeDeChamp
   boolean_options :procedures_limit
   def dossier_link_procedure_ids = Array.wrap(super)
 
+  def revision_diff_options
+    {
+      procedures_limit:,
+      dossier_link_procedure_ids: RevisionDiffValue.new(dossier_link_procedure_ids) do
+        libelles = Procedure.with_discarded.where(id: dossier_link_procedure_ids).pluck(:id, :libelle).to_h
+        dossier_link_procedure_ids.map { { id: it, libelle: libelles[it] } }
+      end,
+    }
+  end
+
   def dossier_link_procedure_ids=(value)
     super(Array.wrap(value).map(&:to_i).reject(&:zero?).uniq)
   end

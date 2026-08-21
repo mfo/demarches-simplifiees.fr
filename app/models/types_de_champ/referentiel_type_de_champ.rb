@@ -10,6 +10,16 @@ class TypesDeChamp::ReferentielTypeDeChamp < TypeDeChamp
 
   def referentiel_in_exact_match? = referentiel.present? && referentiel.exact_match?
 
+  def revision_diff_options
+    {
+      referentiel_url_tiptap: referentiel&.url_tiptap,
+      referentiel_mode: referentiel&.mode,
+      referentiel_hint: referentiel&.hint,
+      referentiel_test_data_tiptap: referentiel&.test_data_tiptap,
+      referentiel_mapping:,
+    }
+  end
+
   def safe_referentiel_mapping
     Hash(referentiel_mapping).with_indifferent_access
   end

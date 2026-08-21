@@ -27,6 +27,8 @@ class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
   def self.option_keys = LAYERS
   def self.column_type = :geojson
 
+  def revision_diff_options = { carte_layers: carte_optional_layers }
+
   def refresh_after_update? = false
 
   def layer_enabled?(layer)

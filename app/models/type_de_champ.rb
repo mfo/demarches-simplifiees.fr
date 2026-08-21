@@ -293,6 +293,27 @@ class TypeDeChamp < ApplicationRecord
   def self.option_keys = []
   def self.column_type = :text
 
+  # Attributes the revision diff compares between two versions of this type de
+  # champ (see RevisionComparisonConcern). Keys become
+  # ProcedureRevisionChange::UpdateChamp#attribute, values are compared with
+  # == and reported as-is, unless wrapped in a RevisionDiffValue. The keys of
+  # the new version drive the comparison, so a subclass omits a key when it
+  # does not apply to the current state of the type de champ.
+  def revision_diff_attributes(revision)
+    {
+      libelle:,
+      description:,
+      mandatory: mandatory?,
+      condition: RevisionDiffValue.new(condition) { condition&.to_s(revision.type_de_champs) },
+    }.merge(revision_diff_options)
+  end
+
+  # Defaults to the declared editable options. Override when an option needs
+  # a different comparison or report value, or is not meaningful to diff.
+  def revision_diff_options
+    self.class.option_keys.index_with { public_send(it) }
+  end
+
   def clean_options
     options.slice(*self.class.option_keys.map(&:to_s))
   end

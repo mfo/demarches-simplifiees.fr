@@ -66,6 +66,19 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
 
   def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
 
+  # titre d'identité, RIB, justificatif de domicile et avis d'impôt have
+  # fixed format rules (one file, scans only, auto purge): not worth diffing.
+  def forced_format_nature? = titre_identite? || rib? || justificatif_domicile? || avis_impot?
+
+  def revision_diff_options
+    values = {
+      piece_justificative_template: RevisionDiffValue.new(piece_justificative_template.blob&.checksum) { piece_justificative_template.blob&.filename },
+      nature:,
+    }
+    values.merge!(pj_limit_formats:, pj_format_families:, pj_auto_purge:) unless forced_format_nature?
+    values
+  end
+
   def max_file_size_bytes
     if titre_identite?
       IDENTITY_FILE_MAX_SIZE

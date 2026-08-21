@@ -7,6 +7,15 @@ class TypesDeChamp::DropDownBaseTypeDeChamp < TypeDeChamp
   def drop_down_advanced? = drop_down_mode == 'advanced'
   def drop_down_other? = false
 
+  def revision_diff_options
+    {
+      drop_down_mode:,
+      referentiel: drop_down_advanced? ? referentiel_id : nil,
+      drop_down_options: drop_down_advanced? ? [] : drop_down_options,
+      drop_down_other: drop_down_other?,
+    }
+  end
+
   def drop_down_options
     if drop_down_advanced?
       Array.wrap(referentiel&.drop_down_options)
