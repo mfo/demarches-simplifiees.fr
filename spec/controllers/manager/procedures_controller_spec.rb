@@ -117,6 +117,18 @@ describe Manager::ProceduresController, type: :controller do
           .to be < response.body.index("Procédure 2")
       end
     end
+
+    # Administrate construit une clause LIKE par attribut cherchable : un attribut
+    # qui n'est plus une colonne fait planter n'importe quelle recherche.
+    context 'search' do
+      let(:suffix) { SecureRandom.hex(4) }
+      let!(:procedure) { create(:procedure, administrateur:, libelle: "Demande de badge cachalot#{suffix}") }
+
+      before { get :index, params: { search: "cachalot#{suffix}" } }
+
+      # Une ligne du tableau Administrate porte un unique data-url vers la ressource.
+      it { expect(response.body.scan(%r{data-url=/manager/procedures/#{procedure.id}\b}).size).to eq(1) }
+    end
   end
 
   describe '#change_piece_justificative_template' do

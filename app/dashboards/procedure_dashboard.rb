@@ -12,7 +12,9 @@ class ProcedureDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     published_types_de_champ_public: TypesDeChampCollectionField,
     published_types_de_champ_private: TypesDeChampCollectionField,
-    path: ProcedureLinkField,
+    # `path` n'est plus une colonne mais une méthode (le path canonique de la
+    # dernière ProcedurePath) : Administrate ne peut pas le chercher en SQL.
+    path: ProcedureLinkField.with_options(searchable: false),
     procedure_paths: Field::HasMany,
     aasm_state: ProcedureStateField,
     dossiers: Field::HasMany,
