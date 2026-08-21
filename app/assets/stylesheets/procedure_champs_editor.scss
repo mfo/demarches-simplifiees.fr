@@ -103,22 +103,6 @@
       }
     }
   }
-
-  .buttons {
-    display: flex;
-    justify-content: space-between;
-    background-color: $white;
-    width: 100%;
-    border: 1px solid $border-grey;
-    padding: 30px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom: none;
-    padding-bottom: 15px;
-    padding-top: 15px;
-    z-index: 10; // above DSFR buttons
-  }
-
   .fill-duration {
     align-self: center;
     font-size: 14px;
