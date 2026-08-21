@@ -6,8 +6,6 @@ class TypesDeChamp::HeaderSectionTypeDeChamp < TypeDeChamp
 
   store_accessor :options, :header_section_level
 
-  def revision_diff_options = {}
-
   def fillable? = false
   def description_configurable? = false
   def has_label? = false

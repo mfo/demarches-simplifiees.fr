@@ -168,12 +168,14 @@ describe RevisionComparisonConcern do
       ])
     end
 
-    it 'does not diff header section, birthdate and pre rempli options yet' do
-      aggregate_failures do
-        expect(compare(:header_section, from: { level: '1' }, to: { header_section_level: '2' })).to be_empty
-        expect(compare(:date, from: { birthdate: '0' }, to: { birthdate: '1' })).to be_empty
-        expect(compare(:pre_rempli, to: { pre_rempli_hidden: '1' })).to be_empty
-      end
+    it 'diffs header section, birthdate and pre rempli options' do
+      expect_single_changes([
+        [:header_section, { level: '1' }, { header_section_level: '2' }, update(:header_section_level, '1', '2')],
+        [:date, { birthdate: '0' }, { birthdate: '1' }, update(:birthdate, '0', '1')],
+        [:date, { birthdate: '1', prefill_with_france_connect_information: '0' }, { prefill_with_france_connect_information: '1' }, update(:prefill_with_france_connect_information, '0', '1')],
+        [:pre_rempli, {}, { pre_rempli_hidden: '1' }, update(:pre_rempli_hidden, false, true)],
+        [:pre_rempli, {}, { drop_down_options: ['a'] }, update(:drop_down_options, [], ['a'])],
+      ])
     end
   end
 
@@ -183,9 +185,6 @@ describe RevisionComparisonConcern do
       {
         carte: TypesDeChamp::CarteTypeDeChamp::LAYERS, # aggregated as :carte_layers
         piece_justificative: [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation], # legacy, not editable
-        date: [:birthdate, :prefill_with_france_connect_information],
-        header_section: [:header_section_level],
-        pre_rempli: [:drop_down_options, :pre_rempli_hidden],
       }
     end
 

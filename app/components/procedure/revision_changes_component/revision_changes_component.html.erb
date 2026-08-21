@@ -231,6 +231,22 @@
             <%= t(".#{prefix}.update_end_date", label: change.label, to: change.to) %>
           <% end %>
         <% end %>
+      <% when :birthdate %>
+        <% list.with_item do %>
+          <%= t(".#{prefix}.update_birthdate", label: change.label, to: change.to == '0' ? t(".#{prefix}.remove_birthdate_constraint") : t(".#{prefix}.add_birthdate_constraint")) %>
+        <% end %>
+      <% when :prefill_with_france_connect_information %>
+        <% list.with_item do %>
+          <%= t(".#{prefix}.update_prefill_with_france_connect_information", label: change.label, to: change.to == '0' ? t(".#{prefix}.remove_prefill_with_france_connect_information") : t(".#{prefix}.add_prefill_with_france_connect_information")) %>
+        <% end %>
+      <% when :header_section_level %>
+        <% list.with_item do %>
+          <%= t(".#{prefix}.update_header_section_level", label: change.label, to: change.to) %>
+        <% end %>
+      <% when :pre_rempli_hidden %>
+        <% list.with_item do %>
+          <%= t(".#{prefix}.#{change.to ? 'enable' : 'disable'}_pre_rempli_hidden", label: change.label) %>
+        <% end %>
       <% when :character_limit %>
         <% if change.to.blank? %>
           <% list.with_item do %>

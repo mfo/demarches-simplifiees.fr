@@ -82,6 +82,15 @@ fr:
     update_range_date: "Le champ « %{label} » a été modifié.  %{to} "
     add_range_date_constraint: "La limite des valeurs a été activée."
     remove_range_date_constraint: "La limite des valeurs a été désactivée."
+    update_birthdate: "Le champ « %{label} » a été modifié. %{to}"
+    add_birthdate_constraint: "Il s’agit désormais d’une date de naissance."
+    remove_birthdate_constraint: "Il ne s’agit plus d’une date de naissance."
+    update_prefill_with_france_connect_information: "Le champ « %{label} » a été modifié. %{to}"
+    add_prefill_with_france_connect_information: "La date est désormais préremplie avec FranceConnect."
+    remove_prefill_with_france_connect_information: "La date n’est plus préremplie avec FranceConnect."
+    update_header_section_level: "Le niveau du titre de section « %{label} » a été modifié. Le nouveau niveau est %{to}."
+    enable_pre_rempli_hidden: "Le champ « %{label} » est désormais masqué pour l’usager."
+    disable_pre_rempli_hidden: "Le champ « %{label} » n’est plus masqué pour l’usager."
     remove_start_date: La date de début pour le champ « %{label} » a été supprimée.
     update_start_date: La date de début pour le champ « %{label} » a été modifiée. Le date est désormais %{to}.
     remove_end_date: La date de fin pour le champ « %{label} » a été supprimée.
@@ -133,6 +142,15 @@ fr:
     update_expression_reguliere_exemple_text: L’exemple d’expression régulière de l’annotation privée « %{label} » a été modifiée. Le nouvel exemple est « %{to} ».
     remove_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été supprimé.
     update_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été modifiée. Le nouveau message est « %{to} ».
+    update_birthdate: "L’annotation privée « %{label} » a été modifiée. %{to}"
+    add_birthdate_constraint: "Il s’agit désormais d’une date de naissance."
+    remove_birthdate_constraint: "Il ne s’agit plus d’une date de naissance."
+    update_prefill_with_france_connect_information: "L’annotation privée « %{label} » a été modifiée. %{to}"
+    add_prefill_with_france_connect_information: "La date est désormais préremplie avec FranceConnect."
+    remove_prefill_with_france_connect_information: "La date n’est plus préremplie avec FranceConnect."
+    update_header_section_level: "Le niveau du titre de section « %{label} » a été modifié. Le nouveau niveau est %{to}."
+    enable_pre_rempli_hidden: "L’annotation privée « %{label} » est désormais masquée pour l’usager."
+    disable_pre_rempli_hidden: "L’annotation privée « %{label} » n’est plus masquée pour l’usager."
 
   ineligibilite_rules:
     add: La condition d’inéligibilité « %{new_condition} » a été ajoutée.

@@ -4,8 +4,6 @@ class TypesDeChamp::DateTypeDeChamp < TypeDeChamp
   def self.option_keys = [:birthdate, :prefill_with_france_connect_information, :date_in_past, :start_date, :end_date, :range_date]
   def self.column_type = :date
 
-  def revision_diff_options = super.except(:birthdate, :prefill_with_france_connect_information)
-
   def prefillable? = true
   def customizable? = true
   store_accessor :options, :birthdate, :prefill_with_france_connect_information, :date_in_past, :range_date, :start_date, :end_date

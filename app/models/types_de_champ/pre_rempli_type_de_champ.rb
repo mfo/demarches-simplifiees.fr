@@ -12,7 +12,7 @@ class TypesDeChamp::PreRempliTypeDeChamp < TypeDeChamp
 
   def condition_value_type = :enum
   def condition_options = options_for_select
-  def revision_diff_options = {}
+  def revision_diff_options = { drop_down_options:, pre_rempli_hidden: pre_rempli_hidden? }
 
   def prefillable? = true
   def options_for_select = drop_down_options.uniq.map { [_1, _1] }

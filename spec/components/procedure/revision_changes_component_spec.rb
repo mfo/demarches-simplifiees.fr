@@ -167,9 +167,9 @@ describe Procedure::RevisionChangesComponent, type: :component do
 
   describe "referentiel changes" do
     let(:referentiel) { create(:api_referentiel, :exact_match, hint: "avant") }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :referentiel, libelle: "Le référentiel", referentiel: }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :referentiel, libelle: "Le référentiel", referentiel: }]) }
     let(:new_revision) { procedure.create_new_revision }
-    let(:tdc) { procedure.active_revision.root_types_de_champ_public.first }
+    let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
     subject do
       render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
@@ -186,6 +186,35 @@ describe Procedure::RevisionChangesComponent, type: :component do
       expect(subject).to have_text("Le nouveau mode est « autocomplete »", normalize_ws: true)
       expect(subject).to have_text("La nouvelle indication est « après »", normalize_ws: true)
       expect(subject).to have_text("Le nouvel exemple est « 0100026 »", normalize_ws: true)
+    end
+  end
+  describe "header section, birthdate and pre rempli changes" do
+    let(:procedure) do
+      create(:procedure, :published, public_type_de_champs: [
+        { type: :header_section, libelle: "Titre", level: "1" },
+        { type: :date, libelle: "Naissance", birthdate: "0" },
+        { type: :pre_rempli, libelle: "Prérempli" },
+      ])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdcs) { procedure.active_revision.public_root_type_de_champs }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      new_revision.find_and_ensure_exclusive_use(tdcs[0].stable_id).update!(header_section_level: "2")
+      new_revision.find_and_ensure_exclusive_use(tdcs[1].stable_id).update!(birthdate: "1", prefill_with_france_connect_information: "1")
+      new_revision.find_and_ensure_exclusive_use(tdcs[2].stable_id).update!(pre_rempli_hidden: "1")
+    end
+
+    it "displays every change" do
+      expect(subject).to have_text("Le niveau du titre de section « Titre » a été modifié. Le nouveau niveau est 2.", normalize_ws: true)
+      expect(subject).to have_text("Le champ « Naissance » a été modifié. Il s’agit désormais d’une date de naissance.", normalize_ws: true)
+      expect(subject).to have_text("Le champ « Naissance » a été modifié. La date est désormais préremplie avec FranceConnect.", normalize_ws: true)
+      expect(subject).to have_text("Le champ « Prérempli » est désormais masqué pour l’usager.", normalize_ws: true)
     end
   end
 end
