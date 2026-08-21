@@ -182,7 +182,7 @@ describe Procedure::RevisionChangesComponent, type: :component do
     end
 
     it "displays every changed referentiel field" do
-      expect(subject).to have_text("La nouvelle URL est « https://tabular-api.data.gouv.fr?finess__contains={query} »", normalize_ws: true)
+      expect(subject).to have_text("La nouvelle URL est « https://tabular-api.data.gouv.fr?finess__contains={Valeur saisie par l'usager} »", normalize_ws: true)
       expect(subject).to have_text("Le nouveau mode est « autocomplete »", normalize_ws: true)
       expect(subject).to have_text("La nouvelle indication est « après »", normalize_ws: true)
       expect(subject).to have_text("Le nouvel exemple est « 0100026 »", normalize_ws: true)

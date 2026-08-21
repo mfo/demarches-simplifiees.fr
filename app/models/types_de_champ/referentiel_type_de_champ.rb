@@ -24,9 +24,11 @@ class TypesDeChamp::ReferentielTypeDeChamp < TypeDeChamp
   def referentiel_url_as_text
     return if referentiel&.url_tiptap.blank?
 
-    # a non-empty substitutions hash makes the service render mentions as text
-    substitutions = referentiel.tiptap_mention_ids.index_with(&:itself)
-    TiptapService.new.to_texts_and_tags(referentiel.url_tiptap.deep_symbolize_keys, substitutions)
+    # mentions carry the libellé of the champ they stand for: render them as
+    # « {libellé} » rather than their stable_id, which means nothing to an admin
+    url_tiptap = referentiel.url_tiptap.deep_symbolize_keys
+    substitutions = TiptapService.used_tags_and_libelle_for(url_tiptap).to_h { |id, label| [id, "{#{label}}"] }
+    TiptapService.new.to_texts_and_tags(url_tiptap, substitutions)
   end
 
   def safe_referentiel_mapping

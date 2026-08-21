@@ -719,12 +719,12 @@ describe ProcedureRevision do
         it 'detects changes in referentiel fields' do
           is_expected.to include({
             :attribute => :referentiel_url_tiptap,
-            :from => "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{query}/",
+            :from => "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{Valeur saisie par l'usager}/",
             :label => "libelle",
             :op => :update,
             :private => false,
             :stable_id => 123,
-            :to => "https://tabular-api.data.gouv.fr?finess__contains={query}",
+            :to => "https://tabular-api.data.gouv.fr?finess__contains={Valeur saisie par l'usager}",
           })
           is_expected.to include({
             :attribute => :referentiel_mode,

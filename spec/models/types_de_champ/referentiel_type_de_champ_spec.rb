@@ -23,8 +23,8 @@ describe TypesDeChamp::ReferentielTypeDeChamp do
 
     let(:type_de_champ) { create(:type_de_champ_referentiel, referentiel:) }
 
-    it "renders every mention, not only {query}" do
-      expect(type_de_champ.referentiel_url_as_text).to eq("https://example.gouv.fr/?a=1234&q={query}")
+    it "renders every mention with its label" do
+      expect(type_de_champ.referentiel_url_as_text).to eq("https://example.gouv.fr/?a={Un autre champ}&q={Valeur saisie par l'usager}")
     end
   end
 end
