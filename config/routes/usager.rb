@@ -87,7 +87,6 @@ scope module: 'users', defaults: { nav_bar_profile: :user } do
     end
   end
 
-  get 'demarches' => 'demarches#index'
   get 'deleted_dossiers' => 'dossiers#deleted_dossiers'
   get 'corbeille', to: 'dossiers#trash', as: :trash
   get 'transferts' => 'dossiers#transfer_requests'
