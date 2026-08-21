@@ -58,8 +58,8 @@ describe RevisionComparisonConcern do
 
     it 'diffs number options' do
       expect_single_changes([
-        [:integer_number, { positive_number: '0' }, { positive_number: '1' }, update(:positive_number, '0', '1')],
-        [:integer_number, { range_number: '0' }, { range_number: '1' }, update(:range_number, '0', '1')],
+        [:integer_number, { positive_number: '0' }, { positive_number: '1' }, update(:positive_number, false, true)],
+        [:integer_number, { range_number: '0' }, { range_number: '1' }, update(:range_number, false, true)],
         [:integer_number, { range_number: '1', min_number: '1' }, { min_number: '2' }, update(:min_number, '1', '2')],
         [:decimal_number, { range_number: '1', max_number: '9' }, { max_number: '' }, update(:max_number, '9', '')],
       ])
@@ -67,8 +67,8 @@ describe RevisionComparisonConcern do
 
     it 'diffs date options' do
       expect_single_changes([
-        [:date, { range_date: '0' }, { range_date: '1' }, update(:range_date, '0', '1')],
-        [:date, { date_in_past: '0' }, { date_in_past: '1' }, update(:date_in_past, '0', '1')],
+        [:date, { range_date: '0' }, { range_date: '1' }, update(:range_date, false, true)],
+        [:date, { date_in_past: '0' }, { date_in_past: '1' }, update(:date_in_past, false, true)],
         [:date, { range_date: '1', start_date: '2024-01-01' }, { start_date: '2025-01-01' }, update(:start_date, '2024-01-01', '2025-01-01')],
         [:datetime, { range_date: '1', end_date: '2024-01-01' }, { end_date: '' }, update(:end_date, '2024-01-01', '')],
       ])
@@ -79,9 +79,9 @@ describe RevisionComparisonConcern do
       advanced = { formatted_mode: 'advanced', expression_reguliere: '[a-z]+', expression_reguliere_exemple_text: 'abc' }
 
       expect_single_changes([
-        [:formatted, simple, { letters_accepted: '0' }, update(:letters_accepted, '1', '0')],
-        [:formatted, simple, { numbers_accepted: '0' }, update(:numbers_accepted, '1', '0')],
-        [:formatted, simple, { special_characters_accepted: '0' }, update(:special_characters_accepted, '1', '0')],
+        [:formatted, simple, { letters_accepted: '0' }, update(:letters_accepted, true, false)],
+        [:formatted, simple, { numbers_accepted: '0' }, update(:numbers_accepted, true, false)],
+        [:formatted, simple, { special_characters_accepted: '0' }, update(:special_characters_accepted, true, false)],
         [:formatted, simple, { min_character_length: '2' }, update(:min_character_length, nil, '2')],
         [:formatted, simple, { max_character_length: '9' }, update(:max_character_length, nil, '9')],
         [:formatted, simple, { formatted_mode: 'advanced' }, update(:formatted_mode, 'simple', 'advanced')],
@@ -92,9 +92,15 @@ describe RevisionComparisonConcern do
       ])
     end
 
+    it 'reads boolean options through their predicate, whatever their stored shape' do
+      expect(compare(:formatted, from: { letters_accepted: true }, to: { letters_accepted: '1' })).to be_empty
+      expect(compare(:integer_number, from: { positive_number: '0' }, to: { positive_number: nil })).to be_empty
+      expect(compare(:date, from: { birthdate: '1' }, to: { birthdate: nil })).to contain_exactly(update(:birthdate, true, false))
+    end
+
     it 'diffs repetition options' do
       expect_single_changes([
-        [:repetition, { limit_repetitions: '0' }, { limit_repetitions: '1' }, update(:limit_repetitions, '0', '1')],
+        [:repetition, { limit_repetitions: '0' }, { limit_repetitions: '1' }, update(:limit_repetitions, false, true)],
         [:repetition, { limit_repetitions: '1', min_repetitions: '1' }, { min_repetitions: '2' }, update(:min_repetitions, '1', '2')],
         [:repetition, { limit_repetitions: '1', max_repetitions: '3' }, { max_repetitions: '4' }, update(:max_repetitions, '3', '4')],
       ])
@@ -132,9 +138,9 @@ describe RevisionComparisonConcern do
     it 'diffs piece justificative options' do
       expect_single_changes([
         [:piece_justificative, {}, { nature: 'rib' }, update(:nature, nil, 'rib')],
-        [:piece_justificative, { pj_limit_formats: '0' }, { pj_limit_formats: '1' }, update(:pj_limit_formats, '0', '1')],
+        [:piece_justificative, { pj_limit_formats: '0' }, { pj_limit_formats: '1' }, update(:pj_limit_formats, false, true)],
         [:piece_justificative, { pj_limit_formats: '1' }, { pj_format_families: ['image'] }, update(:pj_format_families, [], ['image'])],
-        [:piece_justificative, { pj_auto_purge: '0' }, { pj_auto_purge: '1' }, update(:pj_auto_purge, '0', '1')],
+        [:piece_justificative, { pj_auto_purge: '0' }, { pj_auto_purge: '1' }, update(:pj_auto_purge, false, true)],
       ])
     end
 
@@ -164,15 +170,15 @@ describe RevisionComparisonConcern do
 
       expect_single_changes([
         [:referentiel, { referentiel:, referentiel_mapping: { a: 1 } }, { referentiel_mapping: { a: 2 } }, update(:referentiel_mapping, { 'a' => 1 }, { 'a' => 2 })],
-        [:dossier_link, { procedures_limit: '0' }, { procedures_limit: '1' }, update(:procedures_limit, '0', '1')],
+        [:dossier_link, { procedures_limit: '0' }, { procedures_limit: '1' }, update(:procedures_limit, false, true)],
       ])
     end
 
     it 'diffs header section, birthdate and pre rempli options' do
       expect_single_changes([
         [:header_section, { level: '1' }, { header_section_level: '2' }, update(:header_section_level, '1', '2')],
-        [:date, { birthdate: '0' }, { birthdate: '1' }, update(:birthdate, '0', '1')],
-        [:date, { birthdate: '1', prefill_with_france_connect_information: '0' }, { prefill_with_france_connect_information: '1' }, update(:prefill_with_france_connect_information, '0', '1')],
+        [:date, { birthdate: '0' }, { birthdate: '1' }, update(:birthdate, false, true)],
+        [:date, { birthdate: '1', prefill_with_france_connect_information: '0' }, { prefill_with_france_connect_information: '1' }, update(:prefill_with_france_connect_information, false, true)],
         [:pre_rempli, {}, { pre_rempli_hidden: '1' }, update(:pre_rempli_hidden, false, true)],
         [:pre_rempli, {}, { drop_down_options: ['a'] }, update(:drop_down_options, [], ['a'])],
       ])

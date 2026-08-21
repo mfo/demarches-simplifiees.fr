@@ -4,6 +4,7 @@ class TypeDeChamp < ApplicationRecord
   # STI on the historical type_champ column: values are enum strings ('text'),
   # not class names, so find_sti_class/sti_name below translate both ways.
   self.inheritance_column = :type_champ
+  class_attribute :boolean_option_keys, default: [].freeze
 
   FILE_MAX_SIZE = 200.megabytes
   MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH = 400
@@ -308,10 +309,12 @@ class TypeDeChamp < ApplicationRecord
     }.merge(revision_diff_options)
   end
 
-  # Defaults to the declared editable options. Override when an option needs
-  # a different comparison or report value, or is not meaningful to diff.
+  # Defaults to the declared editable options, boolean options being read
+  # through their predicate so that "1", true and nil compare and report
+  # alike. Override when an option needs a different comparison or report
+  # value, or is not meaningful to diff.
   def revision_diff_options
-    self.class.option_keys.index_with { public_send(it) }
+    self.class.option_keys.index_with { self.class.boolean_option_keys.include?(it) ? public_send(:"#{it}?") : public_send(it) }
   end
 
   def clean_options
@@ -523,6 +526,7 @@ class TypeDeChamp < ApplicationRecord
     # Predicates over jsonb options read as booleans: the editor form writes
     # "1"/"0", the defaults and the LLM improver write true/false.
     def boolean_options(*keys)
+      self.boolean_option_keys += keys
       keys.each do |key|
         define_method(:"#{key}?") { ActiveModel::Type::Boolean.new.cast(public_send(key)) || false }
       end

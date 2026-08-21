@@ -782,8 +782,8 @@ describe ProcedureRevision do
                 label: "Dossier lié",
                 private: false,
                 stable_id: first_tdc.stable_id,
-                from: nil,
-                to: "1",
+                from: false,
+                to: true,
               },
             ])
           end
@@ -831,8 +831,8 @@ describe ProcedureRevision do
             attribute: :limit_repetitions,
             label: "bloc",
             private: false,
-            from: nil,
-            to: "1",
+            from: false,
+            to: true,
             stable_id: repetition_tdc.stable_id,
           },
           {

@@ -77,9 +77,9 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
     # valeurs normalisées des deux côtés, sinon quitter une nature forcée
     # rapporte un changement fantôme (nil vs []).
     if forced_format_nature?
-      values.merge!(pj_limit_formats: nil, pj_format_families: [], pj_auto_purge: nil)
+      values.merge!(pj_limit_formats: false, pj_format_families: [], pj_auto_purge: false)
     else
-      values.merge!(pj_limit_formats:, pj_format_families:, pj_auto_purge:)
+      values.merge!(pj_limit_formats: pj_limit_formats?, pj_format_families:, pj_auto_purge: pj_auto_purge?)
     end
     values
   end
