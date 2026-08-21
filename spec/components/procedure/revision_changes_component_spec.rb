@@ -164,4 +164,28 @@ describe Procedure::RevisionChangesComponent, type: :component do
       end
     end
   end
+
+  describe "referentiel changes" do
+    let(:referentiel) { create(:api_referentiel, :exact_match, hint: "avant") }
+    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :referentiel, libelle: "Le référentiel", referentiel: }]) }
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.root_types_de_champ_public.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      updated_tdc = new_revision.find_and_ensure_exclusive_use(tdc.stable_id)
+      updated_tdc.update!(referentiel: create(:api_referentiel, :autocomplete, hint: "après"))
+    end
+
+    it "displays every changed referentiel field" do
+      expect(subject).to have_text("La nouvelle URL est « https://tabular-api.data.gouv.fr?finess__contains={query} »", normalize_ws: true)
+      expect(subject).to have_text("Le nouveau mode est « autocomplete »", normalize_ws: true)
+      expect(subject).to have_text("La nouvelle indication est « après »", normalize_ws: true)
+      expect(subject).to have_text("Le nouvel exemple est « 0100026 »", normalize_ws: true)
+    end
+  end
 end

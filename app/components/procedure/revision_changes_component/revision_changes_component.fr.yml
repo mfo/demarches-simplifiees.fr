@@ -133,7 +133,6 @@ fr:
     update_expression_reguliere_exemple_text: L’exemple d’expression régulière de l’annotation privée « %{label} » a été modifiée. Le nouvel exemple est « %{to} ».
     remove_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été supprimé.
     update_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été modifiée. Le nouveau message est « %{to} ».
-    <<: *update_referentiel
 
   ineligibilite_rules:
     add: La condition d’inéligibilité « %{new_condition} » a été ajoutée.

@@ -12,12 +12,21 @@ class TypesDeChamp::ReferentielTypeDeChamp < TypeDeChamp
 
   def revision_diff_options
     {
-      referentiel_url_tiptap: referentiel&.url_tiptap,
+      referentiel_url_tiptap: RevisionDiffValue.new(referentiel&.url_tiptap) { referentiel_url_as_text },
       referentiel_mode: referentiel&.mode,
       referentiel_hint: referentiel&.hint,
-      referentiel_test_data_tiptap: referentiel&.test_data_tiptap,
+      referentiel_test_data_tiptap: RevisionDiffValue.new(referentiel&.test_data_tiptap) { referentiel&.test_data_tiptap&.values&.join(', ') },
       referentiel_mapping:,
     }
+  end
+
+  # The URL is a tiptap document whose mentions stand for query parameters.
+  def referentiel_url_as_text
+    return if referentiel&.url_tiptap.blank?
+
+    # a non-empty substitutions hash makes the service render mentions as text
+    substitutions = Hash.new { |_, id| id }.merge('{query}' => '{query}')
+    TiptapService.new.to_texts_and_tags(referentiel.url_tiptap.deep_symbolize_keys, substitutions)
   end
 
   def safe_referentiel_mapping
