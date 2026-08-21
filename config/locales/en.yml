@@ -715,17 +715,6 @@ en:
       shared:
         email_can_take_a_while_html: <strong>Please note</strong> that this email can take up to 15 minutes to arrive.
         contact_us_if_any_trouble_html: 'You can contact us <a href="%{href}">through this form</a> if a problem still exists.'
-  modal:
-    publish:
-      title:
-        publish: Publish the procedure
-        reopen: Reopen the procedure
-      body:
-        publish: You are about to publish the procedure to the public.
-        reopen: You are about to reopen the procedure.
-      submit:
-        publish: Publish
-        reopen: Reopen
   activerecord:
     models:
       user:
