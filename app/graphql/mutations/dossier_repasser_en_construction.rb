@@ -24,6 +24,9 @@ module Mutations
       if !dossier.en_instruction?
         return false, { errors: ["Le dossier est déjà #{dossier_display_state(dossier, lower: true)}"] }
       end
+      if !dossier.can_repasser_en_construction?
+        return false, { errors: ["Le dossier ne peut pas repasser en construction car la démarche est en décision implicite (SVA/SVR). Demandez une correction à l’usager à la place."] }
+      end
       dossier_authorized_for?(dossier, instructeur)
     end
   end

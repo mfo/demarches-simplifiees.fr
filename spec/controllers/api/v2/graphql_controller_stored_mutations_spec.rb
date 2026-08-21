@@ -169,6 +169,21 @@ describe API::V2::GraphqlController do
         expect(gql_data[:dossierRepasserEnConstruction][:dossier][:id]).to eq(dossier.to_typed_id)
         expect(gql_data[:dossierRepasserEnConstruction][:dossier][:state]).to eq('en_construction')
       }
+
+      context 'when the procedure is sva' do
+        before_all { seed "cases/sva" }
+
+        let(:procedure) { procedures.sva }
+        let(:dossier) { create(:dossier, :en_instruction, procedure: procedures.sva) }
+
+        it 'returns a validation error instead of raising an invalid transition' do
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossierRepasserEnConstruction][:dossier]).to be_nil
+          expect(gql_data[:dossierRepasserEnConstruction][:errors].first[:message])
+            .to eq('Le dossier ne peut pas repasser en construction car la démarche est en décision implicite (SVA/SVR). Demandez une correction à l’usager à la place.')
+          expect(dossier.reload).to be_en_instruction
+        end
+      end
     end
 
     context 'dossierRepasserEnInstruction' do
