@@ -3,17 +3,7 @@
 module RevisionComparisonConcern
   extend ActiveSupport::Concern
 
-  def compare_type_de_champs(revision)
-    compare_revision_type_de_champs(revision)
-  end
-
-  def compare_ineligibilite_rules(revision)
-    compare_revision_ineligibilite_rules(revision)
-  end
-
-  private
-
-  def compare_revision_type_de_champs(to_revision)
+  def compare_type_de_champs(to_revision)
     from_coordinates = revision_type_de_champs
     to_coordinates = to_revision.revision_type_de_champs
     return [] if from_coordinates == to_coordinates
@@ -41,7 +31,7 @@ module RevisionComparisonConcern
     (removed + added + moved + changed).sort_by { _1.op == :remove ? from_sids.index(_1.stable_id) : to_sids.index(_1.stable_id) }
   end
 
-  def compare_revision_ineligibilite_rules(new_revision)
+  def compare_ineligibilite_rules(new_revision)
     from_ineligibilite_rules = ineligibilite_rules
     to_ineligibilite_rules = new_revision.ineligibilite_rules
     changes = []
@@ -61,6 +51,8 @@ module RevisionComparisonConcern
     end
     changes.map { _1.new(self, new_revision) }
   end
+
+  private
 
   # Diffs two versions of a type de champ over the attributes it declares in
   # TypeDeChamp#revision_diff_attributes. The keys of the new version drive
