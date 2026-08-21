@@ -3,16 +3,6 @@
 module DossierHelper
   include EtablissementHelper
 
-  def button_or_label_class(dossier)
-    if dossier.accepte?
-      'accepted'
-    elsif dossier.sans_suite?
-      'without-continuation'
-    elsif dossier.refuse?
-      'refused'
-    end
-  end
-
   def highlight_if_unseen_class(seen_at, updated_at)
     if updated_at.present? && seen_at&.<(updated_at)
       "highlighted"

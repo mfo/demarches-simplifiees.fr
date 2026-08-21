@@ -725,17 +725,6 @@ fr:
       shared:
         email_can_take_a_while_html: "<strong>Attention</strong>, ce courriel peut mettre jusqu’à <strong>15 minutes</strong> pour arriver."
         contact_us_if_any_trouble_html: 'En cas de difficultés, nous restons joignables <a href="%{href}">via ce formulaire</a>.'
-  modal:
-    publish:
-      title:
-        publish: Publier la démarche
-        reopen: Réactiver la démarche
-      body:
-        publish: Vous vous apprêtez à publier votre démarche au public.
-        reopen: Vous vous apprêtez à réactiver votre démarche.
-      submit:
-        publish: Publier
-        reopen: Réactiver
   activerecord:
     models:
       user:
