@@ -1,8 +1,12 @@
 require:
   - './lib/linters/application_name_linter.rb'
+  - './lib/linters/output_safety_linter.rb'
 
 linters:
   ApplicationNameLinter:
+    enabled: true
+
+  OutputSafetyLinter:
     enabled: true
 
   AlignmentTabs:
