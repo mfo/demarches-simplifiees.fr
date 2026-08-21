@@ -11,6 +11,8 @@ class TypesDeChamp::HeaderSectionTypeDeChamp < TypeDeChamp
   def has_label? = false
   def tags_for_template = [].freeze
 
+  def revision_diff_options = super.merge(header_section_level: header_section_level_value.to_s)
+
   def header_section_level_value
     if header_section_level.presence
       header_section_level.to_i

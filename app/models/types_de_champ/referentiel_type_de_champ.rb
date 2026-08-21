@@ -25,7 +25,7 @@ class TypesDeChamp::ReferentielTypeDeChamp < TypeDeChamp
     return if referentiel&.url_tiptap.blank?
 
     # a non-empty substitutions hash makes the service render mentions as text
-    substitutions = Hash.new { |_, id| id }.merge('{query}' => '{query}')
+    substitutions = referentiel.tiptap_mention_ids.index_with(&:itself)
     TiptapService.new.to_texts_and_tags(referentiel.url_tiptap.deep_symbolize_keys, substitutions)
   end
 

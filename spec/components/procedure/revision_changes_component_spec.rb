@@ -245,4 +245,178 @@ describe Procedure::RevisionChangesComponent, type: :component do
       expect(subject).to have_text("Le champ « Prérempli » est désormais masqué pour l’usager.", normalize_ws: true)
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # Regressions found while reviewing PR #13705.
+  # Each example below is red on ba2b9d2962.
+  # ---------------------------------------------------------------------------
+
+  describe "options cleared by a before_save callback (nil, not '0')" do
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    context "when unchecking birthdate clears the FranceConnect prefill" do
+      let(:procedure) do
+        create(:procedure, :published, public_type_de_champs: [
+          { type: :date, libelle: "Naissance", birthdate: "1", prefill_with_france_connect_information: "1" },
+        ])
+      end
+
+      before do
+        new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(birthdate: "0")
+      end
+
+      it "reports the FranceConnect prefill as removed" do
+        expect(new_revision.reload.type_de_champs.first.prefill_with_france_connect_information).to be_nil
+
+        expect(subject).to have_text("La date n’est plus préremplie avec FranceConnect.")
+        expect(subject).not_to have_text("La date est désormais préremplie avec FranceConnect.")
+      end
+    end
+
+    context "when checking birthdate clears date_in_past and range_date" do
+      let(:procedure) do
+        create(:procedure, :published, public_type_de_champs: [
+          { type: :date, libelle: "Naissance", birthdate: "0", date_in_past: "1", range_date: "1" },
+        ])
+      end
+
+      before do
+        new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(birthdate: "1")
+      end
+
+      it "reports both constraints as removed" do
+        expect(subject).to have_text("Il s’agit désormais d’une date de naissance.")
+
+        expect(subject).not_to have_text("La date doit être dans le passé")
+        expect(subject).not_to have_text("La limite des valeurs a été activée.")
+        expect(subject).to have_text("La date n’est plus limitée à une date dans le passé.")
+        expect(subject).to have_text("La limite des valeurs a été désactivée.")
+      end
+    end
+  end
+
+  describe "piece justificative leaving a forced nature" do
+    let(:procedure) do
+      create(:procedure, :published, public_type_de_champs: [
+        { type: :piece_justificative, libelle: "Justificatif", nature: "rib" },
+      ])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(nature: "non_specifie")
+    end
+
+    it "reports the nature change only" do
+      expect(subject).to have_text("La nature de pièce justificative")
+
+      expect(subject).not_to have_text("Les familles de formats acceptés")
+    end
+  end
+
+  describe "legacy header section without an explicit level" do
+    let(:procedure) do
+      create(:procedure, :published, public_type_de_champs: [{ type: :header_section, libelle: "Titre" }])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      tdc.update!(header_section_level: nil)
+      procedure.active_revision.reload
+
+      # what the editor re-submits for a legacy section (header_section_level_value is 1)
+      new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(header_section_level: "1")
+    end
+
+    it "does not report a level change when the level is semantically identical" do
+      expect(subject).not_to have_text("Le niveau du titre de section")
+    end
+  end
+
+  describe "explication collapsible explanation" do
+    let(:procedure) do
+      create(:procedure, :published, public_type_de_champs: [
+        { type: :explication, libelle: "Explication", collapsible_explanation_enabled: "0", collapsible_explanation_text: "Un texte" },
+      ])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(collapsible_explanation_enabled: "1")
+    end
+
+    it "is translated" do
+      expect(subject).not_to have_css(".translation_missing")
+      expect(subject).to have_text("Le texte complémentaire affichable au clic du champ « Explication » a été ajouté.", normalize_ws: true)
+    end
+  end
+
+  describe "formatted champ expression reguliere indications" do
+    let(:procedure) do
+      create(:procedure, :published, public_type_de_champs: [
+        { type: :formatted, libelle: "Code", formatted_mode: "advanced", expression_reguliere: "\\d+", expression_reguliere_indications: "avant" },
+      ])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(expression_reguliere_indications: "après")
+    end
+
+    it "is translated" do
+      expect(subject).not_to have_css(".translation_missing")
+    end
+  end
+
+  describe "referentiel changes on a private annotation" do
+    let(:referentiel) { create(:api_referentiel, :exact_match, hint: "avant") }
+    let(:procedure) do
+      create(:procedure, :published, private_type_de_champs: [{ type: :referentiel, libelle: "Le référentiel", referentiel: }])
+    end
+    let(:new_revision) { procedure.create_new_revision }
+    let(:tdc) { procedure.active_revision.private_root_type_de_champs.first }
+
+    subject do
+      render_inline(described_class.new(new_revision: new_revision.reload, previous_revision: procedure.active_revision))
+      page
+    end
+
+    before do
+      new_revision.find_and_ensure_exclusive_use(tdc.stable_id).update!(referentiel: create(:api_referentiel, :autocomplete, hint: "après"))
+    end
+
+    it "uses the private annotation wording" do
+      expect(subject).not_to have_text("du champ")
+    end
+  end
 end
