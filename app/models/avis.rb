@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Avis < ApplicationRecord
-  self.ignored_columns += [:email]
-
   belongs_to :dossier, inverse_of: :avis, touch: true, optional: false
   belongs_to :experts_procedure, optional: false
   belongs_to :claimant, polymorphic: true, optional: false

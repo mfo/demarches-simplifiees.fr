@@ -9,7 +9,6 @@ class ChampData < ApplicationRecord
   include ChampPrefillTrackingConcern
 
   self.table_name = 'champs'
-  self.ignored_columns += [:type_de_champ_id, :parent_id]
 
   # Polymorphic references (active_storage_attachments.record_type) predate the
   # rename and store 'Champ'; keep writing the historical name so old and new
