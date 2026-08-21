@@ -86,6 +86,10 @@ class Columns::DossierColumn < Column
         dossiers
           .includes(:etablissement)
           .where(etablissements: { column => values.filter_map { Integer(_1) rescue nil } })
+      elsif type == :boolean
+        dossiers
+          .includes(:etablissement)
+          .where(etablissements: { column => values })
       else
         dossiers
           .includes(:etablissement)

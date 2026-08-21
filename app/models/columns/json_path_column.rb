@@ -66,6 +66,13 @@ class Columns::JSONPathColumn < Columns::ChampColumn
       return dossiers.ids if integers.empty?
 
       condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{integers.map { |i| "@ == #{i}" }.join(" || ")})'}
+    elsif type == :boolean
+      # value_json holds a JSON boolean, which like_regex can never match.
+      booleans = search_terms & ['true', 'false']
+
+      return dossiers.ids if booleans.empty?
+
+      condition = %{champs.value_json @? '#{jsonpath_for_sql} ? (#{booleans.map { "@ == #{it}" }.join(" || ")})'}
     else
       # ["normal", "nom 'quote'", "un (terme)"] compiles to:
       #

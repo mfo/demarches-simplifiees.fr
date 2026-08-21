@@ -88,6 +88,30 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
         expect(column_value('eb – Boursier')).to be(true)
         expect(column_value('eb – Radié')).to be(false)
       end
+
+      describe 'a boolean column' do
+        let(:column) { tdc_etudiant_boursier.columns(procedure_id: procedure.id).find { it.label == 'eb – Boursier' } }
+        let(:dossiers) { Dossier.where(id: dossier.id) }
+
+        def filtering(value) = column.filtered_ids(dossiers, { operator: 'match', value: })
+
+        # value_json stores a JSON boolean, which like_regex can never match:
+        # the filter needs a @ == true / @ == false comparison.
+        it 'filters on the stored boolean' do
+          expect(filtering(['true'])).to eq([dossier.id])
+          expect(filtering(['false'])).to eq([])
+        end
+
+        it 'ignores a value the radio buttons cannot produce' do
+          expect(filtering(['nimp'])).to eq([dossier.id])
+        end
+
+        # Radio buttons are built from options_for_select: without options the
+        # filter renders an empty radio list, no value can even be picked.
+        it 'offers oui/non options to build the radio buttons from' do
+          expect(column.options_for_select).to eq([['oui', true], ['non', false]])
+        end
+      end
     end
   end
 end
