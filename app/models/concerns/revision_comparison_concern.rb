@@ -48,11 +48,9 @@ module RevisionComparisonConcern
 
     if from_ineligibilite_rules.present? && to_ineligibilite_rules.blank?
       changes << ProcedureRevisionChange::RemoveEligibiliteRuleChange
-    end
-    if from_ineligibilite_rules.blank? && to_ineligibilite_rules.present?
+    elsif from_ineligibilite_rules.blank? && to_ineligibilite_rules.present?
       changes << ProcedureRevisionChange::AddEligibiliteRuleChange
-    end
-    if from_ineligibilite_rules != to_ineligibilite_rules
+    elsif from_ineligibilite_rules != to_ineligibilite_rules
       changes << ProcedureRevisionChange::UpdateEligibiliteRuleChange
     end
     if ineligibilite_message != new_revision.ineligibilite_message

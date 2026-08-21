@@ -877,7 +877,7 @@ describe ProcedureRevision do
           new_draft.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
         end
 
-        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::AddEligibiliteRuleChange)) }
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::AddEligibiliteRuleChange)) }
       end
 
       context 'when ineligibilite_rules removed' do
@@ -885,7 +885,7 @@ describe ProcedureRevision do
           procedure.published_revision.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
         end
 
-        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::RemoveEligibiliteRuleChange)) }
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::RemoveEligibiliteRuleChange)) }
       end
 
       context 'when ineligibilite_rules changed' do
@@ -897,7 +897,7 @@ describe ProcedureRevision do
           ]))
         end
 
-        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::UpdateEligibiliteRuleChange)) }
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::UpdateEligibiliteRuleChange)) }
       end
 
       context 'when when ineligibilite_enabled changes from false to true' do
