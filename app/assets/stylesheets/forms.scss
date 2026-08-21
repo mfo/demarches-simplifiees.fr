@@ -160,65 +160,6 @@
       scroll-margin: $default-spacer * 2;
     }
   }
-
-  .radios {
-    display: flex;
-
-    // Horizontal layout (default)
-    flex-direction: row;
-    align-items: flex-start;
-    flex-wrap: wrap;
-
-    label {
-      margin-right: $default-padding;
-    }
-
-    // Vertical layout
-    &.vertical {
-      flex-direction: column;
-      align-items: stretch;
-
-      label {
-        margin-right: 0;
-      }
-    }
-
-    label {
-      padding: $default-padding $default-padding $default-padding
-        $default-spacer;
-      border: 1px solid $border-grey;
-      border-radius: 4px;
-      font-weight: normal;
-      background: $white;
-      user-select: none;
-
-      &:last-of-type {
-        margin-bottom: 0;
-      }
-
-      &:hover {
-        background: $light-grey;
-        cursor: pointer;
-      }
-
-      &:active {
-        border-color: darken($border-grey, 10);
-      }
-
-      &:first-child {
-        margin-left: 0;
-      }
-
-      input[type='radio'] {
-        margin-bottom: 0;
-      }
-
-      .notice {
-        margin: 4px 0 0 27px;
-      }
-    }
-  }
-
   .drop_down_other {
     label {
       font-weight: normal;
