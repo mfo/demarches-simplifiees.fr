@@ -645,8 +645,6 @@ Performance/CompareWithBlock:
 
 Performance/Count:
   Enabled: true
-  Exclude:
-    - 'app/services/administrateur_usage_statistics_service.rb'
 
 Performance/Detect:
   Enabled: true
