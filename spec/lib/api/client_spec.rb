@@ -3,6 +3,18 @@
 require 'rails_helper'
 
 describe API::Client do
+  describe '#call' do
+    let(:response) { instance_double(Typhoeus::Response, success?: true, body: '{}', code: 200, headers: { 'content-type' => 'application/json' }) }
+
+    it 'sends a body on a PUT' do
+      allow(Typhoeus).to receive(:put).and_return(response)
+
+      described_class.new.call(url: URI("https://example.org/thing"), json: { a: 1 }, method: :put)
+
+      expect(Typhoeus).to have_received(:put).with(URI("https://example.org/thing"), hash_including(body: '{"a":1}'))
+    end
+  end
+
   describe '#handle_response' do
     let(:client) { described_class.new }
     let(:response) { instance_double(Typhoeus::Response, success?: success, body: body, code: code, headers: headers) }
