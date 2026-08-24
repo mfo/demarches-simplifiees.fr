@@ -9,6 +9,18 @@ class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
     ]
   end
 
+  store_accessor :options,
+                 :formatted_mode,
+                 :numbers_accepted,
+                 :letters_accepted,
+                 :special_characters_accepted,
+                 :min_character_length,
+                 :max_character_length,
+                 :expression_reguliere,
+                 :expression_reguliere_indications,
+                 :expression_reguliere_exemple_text,
+                 :expression_reguliere_error_message
+
   def prefillable? = true
   def customizable? = true
   def formatted_simple? = formatted_mode != 'advanced'

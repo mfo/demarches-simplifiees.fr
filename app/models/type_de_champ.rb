@@ -95,16 +95,6 @@ class TypeDeChamp < ApplicationRecord
                  :range_date,
                  :start_date,
                  :end_date,
-                 :formatted_mode,
-                 :numbers_accepted,
-                 :letters_accepted,
-                 :special_characters_accepted,
-                 :min_character_length,
-                 :max_character_length,
-                 :expression_reguliere,
-                 :expression_reguliere_indications,
-                 :expression_reguliere_exemple_text,
-                 :expression_reguliere_error_message,
                  :referentiel_mapping
 
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ

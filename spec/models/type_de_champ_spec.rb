@@ -176,7 +176,7 @@ describe TypeDeChamp do
       morphed.update!(type_champ: 'formatted')
 
       expect(morphed).to be_an_instance_of(TypesDeChamp::FormattedTypeDeChamp)
-      expect(morphed.reload.options['formatted_mode']).to eq('simple')
+      expect(morphed.reload.formatted_mode).to eq('simple')
     end
   end
 
