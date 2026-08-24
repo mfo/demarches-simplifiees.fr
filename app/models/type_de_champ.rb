@@ -111,7 +111,6 @@ class TypeDeChamp < ApplicationRecord
                  :expression_reguliere_error_message,
                  :collapsible_explanation_enabled,
                  :collapsible_explanation_text,
-                 :header_section_level,
                  :referentiel_mapping,
                  :pj_limit_formats,
                  :pj_format_families,
