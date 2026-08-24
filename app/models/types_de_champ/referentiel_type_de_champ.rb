@@ -4,6 +4,8 @@ class TypesDeChamp::ReferentielTypeDeChamp < TypeDeChamp
   def self.category = REFERENTIEL_EXTERNE
   def self.editable_option_keys = [:referentiel_mapping]
 
+  store_accessor :options, :referentiel_mapping
+
   def prefillable? = referentiel_in_exact_match?
 
   def referentiel_in_exact_match? = referentiel.present? && referentiel.exact_match?
