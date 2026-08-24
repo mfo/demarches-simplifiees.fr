@@ -112,9 +112,7 @@ class TypeDeChamp < ApplicationRecord
                  :referentiel_mapping,
                  :pj_limit_formats,
                  :pj_format_families,
-                 :pj_auto_purge,
-                 :procedures_limit,
-                 :dossier_link_procedure_ids
+                 :pj_auto_purge
 
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 

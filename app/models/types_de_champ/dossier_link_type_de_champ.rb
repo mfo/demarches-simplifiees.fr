@@ -6,6 +6,7 @@ class TypesDeChamp::DossierLinkTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def customizable? = true
+  store_accessor :options, :procedures_limit, :dossier_link_procedure_ids
   boolean_options :procedures_limit
   def dossier_link_procedure_ids = Array.wrap(super)
 
