@@ -95,7 +95,6 @@ class TypeDeChamp < ApplicationRecord
                  :range_date,
                  :start_date,
                  :end_date,
-                 :character_limit,
                  :formatted_mode,
                  :numbers_accepted,
                  :letters_accepted,
@@ -136,11 +135,6 @@ class TypeDeChamp < ApplicationRecord
   has_one_attached :notice_explicative
 
   validates :type_champ, presence: true, allow_blank: false, allow_nil: false
-  validates :character_limit, numericality: {
-    greater_than_or_equal_to: MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH,
-    only_integer: true,
-    allow_blank: true,
-  }
 
   after_create :populate_stable_id
 

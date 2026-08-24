@@ -3,6 +3,14 @@
 class TypesDeChamp::TextareaTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.editable_option_keys = [:character_limit]
 
+  store_accessor :options, :character_limit
+
+  validates :character_limit, numericality: {
+    greater_than_or_equal_to: MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH,
+    only_integer: true,
+    allow_blank: true,
+  }
+
   def customizable? = false
   def character_limit? = character_limit.present?
 

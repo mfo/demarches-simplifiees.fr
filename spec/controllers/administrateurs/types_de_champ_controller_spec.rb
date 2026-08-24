@@ -154,7 +154,6 @@ describe Administrateurs::TypesDeChampController, type: :controller do
 
         options = TypeDeChamp.where(id: first_coordinate.type_de_champ.id).pick(:options)
         expect(options).to eq({
-          'character_limit' => '',
           'formatted_mode' => 'simple',
           'letters_accepted' => true,
           'numbers_accepted' => true,
