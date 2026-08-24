@@ -180,7 +180,7 @@ describe API::V2::GraphqlController do
           expect(gql_errors).to be_nil
           expect(gql_data[:dossierRepasserEnConstruction][:dossier]).to be_nil
           expect(gql_data[:dossierRepasserEnConstruction][:errors].first[:message])
-            .to eq('Le dossier ne peut pas repasser en construction car la démarche est en décision implicite (SVA/SVR). Demandez une correction à l’usager à la place.')
+            .to eq('Le dossier ne peut pas repasser en construction car la démarche est en décision implicite (SVA/SVR). Utilisez la mutation `dossierEnvoyerMessage` avec l’argument `correction` pour demander une correction à l’usager.')
           expect(dossier.reload).to be_en_instruction
         end
       end
