@@ -43,10 +43,11 @@ module Administrateurs
 
         if changing_of_type?(type_de_champ)
           type_de_champ = type_de_champ.becomes_type(update_params['type_champ'])
-          # the editor form submits the previous type's options along the new type,
-          # and the new type may not define them (drop_down -> yes_no)
-          update_params = update_params.except(*update_params.keys.reject { type_de_champ.respond_to?("#{it}=") })
         end
+
+        # the editor form can submit options of another type (type change, or a
+        # stale tab autosaving after one): drop the ones the type does not define
+        update_params = update_params.except(*update_params.keys.reject { type_de_champ.respond_to?("#{it}=") })
 
         if type_de_champ.update(update_params)
           reload_procedure_with_includes

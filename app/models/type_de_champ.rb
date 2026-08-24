@@ -120,8 +120,7 @@ class TypeDeChamp < ApplicationRecord
                  :dossier_link_procedure_ids,
                  :limit_repetitions,
                  :min_repetitions,
-                 :max_repetitions,
-                 :pre_rempli_hidden
+                 :max_repetitions
 
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
@@ -244,8 +243,6 @@ class TypeDeChamp < ApplicationRecord
   def prefill_with_france_connect_information? = false
 
   def prefillable? = false
-
-  def pre_rempli_hidden? = false
 
   def fillable? = true
 

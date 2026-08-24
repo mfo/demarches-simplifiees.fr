@@ -15,5 +15,6 @@ class TypesDeChamp::PreRempliTypeDeChamp < TypeDeChamp
   def prefillable? = true
   def options_for_select = drop_down_options.uniq.map { [_1, _1] }
   def cannot_be_mandatory? = true
+  store_accessor :options, :pre_rempli_hidden
   boolean_options :pre_rempli_hidden
 end
