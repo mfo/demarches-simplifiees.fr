@@ -98,7 +98,10 @@ $landing-breakpoint: 1040px;
   display: inline-block;
   max-width: 500px;
   width: 100%;
-  background-color: #ffffff;
+  // Same colour as the page in both themes: the card is lifted by its shadow,
+  // not by a contrasting fill. Hardcoding #ffffff left the DSFR text colour
+  // (#cecece in the dark theme) on a white card.
+  background-color: var(--background-default-grey);
   box-shadow: 0 4px 16px 0 rgba(153, 153, 153, 0.2);
   padding: 24px;
   display: flex;

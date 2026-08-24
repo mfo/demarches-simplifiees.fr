@@ -160,70 +160,6 @@
       scroll-margin: $default-spacer * 2;
     }
   }
-
-  .radios {
-    display: flex;
-
-    // Horizontal layout (default)
-    flex-direction: row;
-    align-items: flex-start;
-    flex-wrap: wrap;
-
-    label {
-      margin-right: $default-padding;
-    }
-
-    // Vertical layout
-    &.vertical {
-      flex-direction: column;
-      align-items: stretch;
-
-      label {
-        margin-right: 0;
-      }
-    }
-
-    label {
-      padding: $default-padding $default-padding $default-padding
-        $default-spacer;
-      border: 1px solid $border-grey;
-      border-radius: 4px;
-      font-weight: normal;
-      background: $white;
-      user-select: none;
-
-      &:last-of-type {
-        margin-bottom: 0;
-      }
-
-      &:hover {
-        background: $light-grey;
-        cursor: pointer;
-      }
-
-      &:active {
-        border-color: darken($border-grey, 10);
-      }
-
-      &:first-child {
-        margin-left: 0;
-      }
-
-      &.blank-radio {
-        color: $dark-grey;
-        font-style: italic;
-      }
-
-      input[type='radio'] {
-        margin-bottom: 0;
-      }
-
-      .notice {
-        margin: 4px 0 0 27px;
-      }
-    }
-  }
-
   .drop_down_other {
     label {
       font-weight: normal;
@@ -414,10 +350,6 @@
   }
 
   .editable-champ {
-    &:not(.editable-champ-carte) .algolia-autocomplete {
-      margin-bottom: 2 * $default-padding;
-    }
-
     .geo-areas {
       margin-bottom: 2 * $default-padding;
     }
@@ -501,17 +433,6 @@
     .address-ban .fr-ds-combobox .fr-autocomplete {
       opacity: 0.5; // Réduit l’opacité de l’icône droite en background. L’input étant autant disabled, cette opacité s’ajoute à celle du disabled
     }
-  }
-
-  input.aa-input,
-  input.aa-hint {
-    border-radius: 4px;
-    border: solid 1px $border-grey;
-    padding: $default-padding;
-  }
-
-  input.aa-hint {
-    color: $dark-grey;
   }
 
   .header-subsection {

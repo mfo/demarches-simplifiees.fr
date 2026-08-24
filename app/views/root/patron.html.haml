@@ -39,17 +39,6 @@
           %label Mot de passe
           %input{ type: "password", value: "12345678" }
 
-        %h3.fr-h5 Bouton radio verticaux
-        .radios.vertical
-          = f.label :archived, value: true do
-            = f.radio_button :archived, true
-            Option A
-            %p.notice Une option tout à fait valable.
-          = f.label :archived, value: false do
-            = f.radio_button :archived, false
-            Option B
-            %p.notice Une autre option, pas mal non plus.
-
         %h3.fr-h5 Interrupteur
         %label.toggle-switch
           = f.check_box :archived, class: 'toggle-switch-checkbox'
