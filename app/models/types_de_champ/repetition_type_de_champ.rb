@@ -7,6 +7,7 @@ class TypesDeChamp::RepetitionTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def has_label? = false
+  store_accessor :options, :limit_repetitions, :min_repetitions, :max_repetitions
   boolean_options :limit_repetitions
 
   before_validation :reset_limits_if_disabled
