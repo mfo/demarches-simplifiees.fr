@@ -38,9 +38,47 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
     end
   end
 
+  # Past this volume a list is not a hand-written enumeration any more but a whole dataset
+  # pasted in (every commune, every school): printing it would run to hundreds of pages and
+  # blow up the PDF renderer, so we point to the online form instead — like a commune champ,
+  # which already prints none of its values. Calibrated above the p99 of production lists.
+  MAX_PRINTABLE_OPTIONS = 5_000
+
+  CHOICE_LIST_TYPES = [
+    TypeDeChamp.type_champs.fetch(:drop_down_list),
+    TypeDeChamp.type_champs.fetch(:multiple_drop_down_list),
+    TypeDeChamp.type_champs.fetch(:linked_drop_down_list),
+  ].freeze
+
+  # Second threshold above too_many_options?: past 20 options the list moves to an annex,
+  # past MAX_PRINTABLE_OPTIONS it is not printed at all.
+  def too_many_options_to_print?(type_de_champ)
+    return false if !type_de_champ.type_champ.in?(CHOICE_LIST_TYPES) || type_de_champ.drop_down_advanced?
+
+    type_de_champ.drop_down_options.size >= MAX_PRINTABLE_OPTIONS
+  end
+
+  # Write-in box referencing the online form: the applicant fills the box from the
+  # searchable list on the website rather than from an unprintable annex.
+  def online_reference_field(type_de_champ)
+    url = commencer_url(procedure.path)
+    reference = tag.p(class: 'explanation') do
+      safe_join([
+        "Cette liste comporte #{number_with_delimiter(type_de_champ.drop_down_options.size)} valeurs : " \
+        "elle n’est pas reproduite ici. Renseignez votre réponse en vous aidant du formulaire " \
+        "en ligne : ",
+        # The URL is its own link text so it stays usable once the form is printed.
+        tag.a(url, href: url),
+      ])
+    end
+    safe_join([libelle(type_de_champ), description(type_de_champ), reference, fillable_box(height: :block)].compact)
+  end
+
   REPETITION_OCCURRENCES = 3
 
   def render_champ(type_de_champ)
+    return online_reference_field(type_de_champ) if too_many_options_to_print?(type_de_champ)
+
     case type_de_champ.type_champ
     when TypeDeChamp.type_champs.fetch(:header_section)
       safe_join([header_section_heading(type_de_champ), description(type_de_champ)].compact)
@@ -229,7 +267,8 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
   end
 
   # A plain reference list (no checkboxes): the applicant reads it to fill in the
-  # form and can skip printing it when it is long.
+  # form and can skip printing it when it is long. Laid out in two columns (see the
+  # stylesheet), which halves the page count without giving up one option per line.
   def render_annex(type_de_champ, number)
     items = type_de_champ.drop_down_options.map { |option| tag.li(option_label(option)) }
     safe_join([

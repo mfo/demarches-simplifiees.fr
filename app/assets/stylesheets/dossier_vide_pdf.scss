@@ -143,6 +143,31 @@ body#dossier-vide-pdf {
   .annex h3 {
     break-after: avoid;
   }
+  // Links are clickable in the PDF; underlined and in the État blue so they read as
+  // links on screen and stay legible once printed in black and white.
+  a {
+    color: #000091;
+    text-decoration: underline;
+  }
+  // Our own instructions are italic, but a spelled-out URL is not: slashes and hyphens
+  // are hard to read slanted. Admin rich text (.description) keeps its own styling.
+  .explanation a {
+    font-style: normal;
+  }
+
+  // A reference list to read, not a form to fill in: two columns in a smaller type keep
+  // one option per line while halving the page count and the renderer's memory. Column
+  // balancing degrades badly past a few thousand items, which MAX_PRINTABLE_OPTIONS
+  // already rules out.
+  .annex-options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 8.5pt;
+    line-height: 1.25;
+    column-count: 2;
+    column-gap: 6mm;
+  }
 
   .box {
     border: 1px solid #161616;

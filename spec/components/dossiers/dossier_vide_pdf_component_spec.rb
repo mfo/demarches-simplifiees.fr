@@ -222,7 +222,7 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
       it 'lists every option as a plain list without checkboxes in an Annexes page' do
         expect(subject).to have_selector('section.annexes h2', text: 'Annexes')
         expect(subject).to have_selector('.annexes h3', text: 'Annexe 1 : Choix')
-        expect(subject).to have_selector('.annexes ul li', count: options.size)
+        expect(subject).to have_selector('.annexes ul.annex-options li', count: options.size)
         expect(subject).not_to have_selector('.annexes .checkbox')
       end
     end
@@ -257,8 +257,56 @@ RSpec.describe Dossiers::DossierVidePdfComponent, type: :component do
 
       it 'lists every option as a plain list without checkboxes' do
         expect(subject).to have_selector('.annexes h3', text: 'Annexe 1 : Choix')
-        expect(subject).to have_selector('.annexes ul li', count: options.size)
+        expect(subject).to have_selector('.annexes ul.annex-options li', count: options.size)
         expect(subject).not_to have_selector('.annexes .checkbox')
+      end
+    end
+
+    context 'list too large to print' do
+      let(:online_url) { Rails.application.routes.url_helpers.commencer_url(procedure.path) }
+
+      before { stub_const("#{described_class}::MAX_PRINTABLE_OPTIONS", 3) }
+
+      context 'drop_down_list' do
+        let(:types_de_champ_public) do
+          [{ type: :drop_down_list, libelle: 'Commune', options: ['Lyon', 'Paris', 'Rennes', 'Toulouse'] }]
+        end
+
+        it 'refers to the online form instead of printing the list' do
+          expect(subject).to have_selector('.champ .box')
+          expect(subject).to have_content('4 valeurs')
+          expect(subject).to have_selector("a[href='#{online_url}']", text: online_url)
+        end
+
+        it 'does not render an annex' do
+          expect(subject).not_to have_selector('section.annexes')
+          expect(subject).not_to have_content('Lyon')
+        end
+      end
+
+      context 'linked_drop_down_list' do
+        let(:types_de_champ_public) do
+          [{ type: :linked_drop_down_list, libelle: 'Lieu', options: ['--Rhône--', 'Lyon', 'Villeurbanne', '--Ille-et-Vilaine--', 'Rennes'] }]
+        end
+
+        it 'prints neither the primary nor the secondary options' do
+          expect(subject).to have_selector('.champ .box')
+          expect(subject).to have_content(online_url)
+          expect(subject).not_to have_content('Rhône')
+          expect(subject).not_to have_content('Lyon')
+        end
+      end
+    end
+
+    context 'linked_drop_down_list small enough to print' do
+      let(:types_de_champ_public) do
+        [{ type: :linked_drop_down_list, libelle: 'Lieu', options: ['--Rhône--', 'Lyon', 'Villeurbanne'] }]
+      end
+
+      it 'lists every level inline, as today' do
+        expect(subject).to have_content('Rhône')
+        expect(subject).to have_content('Lyon')
+        expect(subject).to have_selector('li.secondary', count: 2)
       end
     end
 
