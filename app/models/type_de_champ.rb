@@ -85,12 +85,6 @@ class TypeDeChamp < ApplicationRecord
                  :drop_down_secondary_libelle,
                  :drop_down_secondary_description,
                  :drop_down_other,
-                 :birthdate,
-                 :prefill_with_france_connect_information,
-                 :date_in_past,
-                 :range_date,
-                 :start_date,
-                 :end_date,
                  :referentiel_mapping
 
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
@@ -195,8 +189,6 @@ class TypeDeChamp < ApplicationRecord
   def only_present_on_draft?
     revisions.one? && revisions.first.draft?
   end
-
-  def prefill_with_france_connect_information? = false
 
   def prefillable? = false
 

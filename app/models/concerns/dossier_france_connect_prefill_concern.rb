@@ -50,7 +50,7 @@ module DossierFranceConnectPrefillConcern
   def reset_champs_from_france_connect(updated_by:)
     return if !for_tiers?
 
-    revision.public_root_type_de_champs.filter(&:prefill_with_france_connect_information?).each do |tdc|
+    revision.public_root_type_de_champs.filter { it.date? && it.prefill_with_france_connect_information? }.each do |tdc|
       champ = champ_for_update(tdc, updated_by:)
       next if !champ.prefilled_from_france_connect_information?
 

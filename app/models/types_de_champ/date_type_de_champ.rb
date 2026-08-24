@@ -6,6 +6,7 @@ class TypesDeChamp::DateTypeDeChamp < TypeDeChamp
 
   def prefillable? = true
   def customizable? = true
+  store_accessor :options, :birthdate, :prefill_with_france_connect_information, :date_in_past, :range_date, :start_date, :end_date
   boolean_options :birthdate, :date_in_past, :range_date, :prefill_with_france_connect_information
 
   before_save :clear_conflicting_options, if: :birthdate?
