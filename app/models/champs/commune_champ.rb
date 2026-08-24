@@ -85,6 +85,8 @@ class Champs::CommuneChamp < Champs::TextChamp
     end
   end
 
+  def condition_value = { department_code: code_departement, region_code: code_region }
+
   private
 
   def safe_to_s

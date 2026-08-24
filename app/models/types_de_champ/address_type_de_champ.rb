@@ -3,6 +3,10 @@
 class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
   def self.simple_routable? = true
+  def self.conditionable? = true
+
+  def condition_value_type = :address
+  def condition_options = APIGeoService.departement_options
 
   include AddressableColumnConcern
 

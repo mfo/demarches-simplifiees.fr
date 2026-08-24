@@ -25,6 +25,8 @@ class Champs::RegionChamp < Champs::TextChamp
     super(resolution&.name)
   end
 
+  def condition_value = code
+
   private
 
   def value_in_region_names

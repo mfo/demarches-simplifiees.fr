@@ -31,10 +31,7 @@ class TypeDeChamp < ApplicationRecord
   def self.public_only? = false
   def self.allowed_in_repetition? = true
   def self.simple_routable? = false
-
-  def self.category_for(type_champ)
-    find_sti_class(type_champ).category
-  end
+  def self.conditionable? = false
 
   enum :type_champ, {
     engagement_juridique: 'engagement_juridique',
@@ -244,8 +241,6 @@ class TypeDeChamp < ApplicationRecord
     revisions.one? && revisions.first.draft?
   end
 
-  def drop_down_other? = false
-
   def prefill_with_france_connect_information? = false
 
   def prefillable? = false
@@ -275,8 +270,6 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def formatted_advanced? = false
-
-  def drop_down_advanced? = false
 
   def options_for_select = nil
 
@@ -326,29 +319,29 @@ class TypeDeChamp < ApplicationRecord
   # custom refresh logic (RNA, SIRET, etc.)
   def refresh_after_update? = true
 
-  def simple_routable?
-    self.class.simple_routable? && !drop_down_advanced?
-  end
+  def simple_routable? = self.class.simple_routable?
 
-  def conditionable?
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP.values.include?(type_champ) && !drop_down_advanced?
-  end
+  def conditionable? = self.class.conditionable?
+
+  def condition_value_type = :unmanaged
+  def condition_options = []
 
   def self.humanized_conditionable_types_by_category
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" } }
+    humanized_types_by_category(type_champ_classes.filter(&:conditionable?))
   end
 
   def self.humanized_simple_routable_types_by_category
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if find_sti_class(_1).simple_routable? } }
-      .reject(&:empty?)
+    humanized_types_by_category(type_champ_classes.filter { _1.conditionable? && _1.simple_routable? })
   end
 
   def self.humanized_custom_routable_types_by_category
-    Logic::ChampValue::MANAGED_TYPE_DE_CHAMP_BY_CATEGORY
-      .map { |_, v| v.filter_map { "« #{I18n.t(_1, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" if !find_sti_class(_1).simple_routable? } }
-      .reject(&:empty?)
+    humanized_types_by_category(type_champ_classes.filter { _1.conditionable? && !_1.simple_routable? })
+  end
+
+  def self.humanized_types_by_category(klasses)
+    klasses.group_by(&:category)
+      .sort_by { |category, _| CATEGORIES.find_index(category) }
+      .map { |_, group| group.map { "« #{I18n.t(_1.sti_name, scope: [:activerecord, :attributes, :type_de_champ, :type_champs])} »" } }
   end
 
   def public_id(row_id)
@@ -566,6 +559,8 @@ class TypeDeChamp < ApplicationRecord
     end
 
     def find_sti_class(type_name) = type_champ_to_class_name(type_name.to_s).constantize
+
+    def type_champ_classes = type_champs.values.map { find_sti_class(_1) }
 
     def sti_name = CLASS_NAME_TO_TYPE_CHAMP[name]
 

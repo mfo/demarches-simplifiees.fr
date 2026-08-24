@@ -91,6 +91,11 @@ class Champs::DropDownListChamp < ChampData
     headers.map { [_1, Referentiel.header_to_path(_1)] }
   end
 
+  def condition_value = selected
+
+  # an « Autre » selection with no text is still a value
+  def blank_for_condition? = blank? && !other?
+
   private
 
   def referentiel_from(value)

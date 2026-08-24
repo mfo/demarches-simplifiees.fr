@@ -4,6 +4,7 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
   def self.category = CHOICE
   def self.editable_option_keys = [:drop_down_options, :drop_down_mode]
   def self.column_type = :enums
+  def self.conditionable? = true
 
   include TypesDeChamp::DropDownOptionsConcern
 
@@ -13,6 +14,9 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypeDeChamp
   def any_drop_down_list? = true
   def drop_down_simple? = drop_down_mode != 'advanced'
   def drop_down_advanced? = drop_down_mode == 'advanced'
+  def conditionable? = !drop_down_advanced?
+  def condition_value_type = :enums
+  def condition_options = options_for_select_with_other
   def customizable? = true
 
   before_validation :set_default_drop_down_options, if: :type_champ_changed?

@@ -4,8 +4,11 @@ class TypesDeChamp::PaysTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = LOCALISATION
   def self.column_type = :enum
   def self.simple_routable? = true
+  def self.conditionable? = true
 
   def options_for_select = APIGeoService.country_options
+  def condition_value_type = :enum
+  def condition_options = APIGeoService.countries.map { ["#{_1[:name]} – #{_1[:code]}", _1[:code]] }
 
   def typed_champ_value(champ)
     champ.name

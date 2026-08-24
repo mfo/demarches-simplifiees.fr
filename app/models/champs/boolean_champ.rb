@@ -19,6 +19,8 @@ class Champs::BooleanChamp < ChampData
     end
   end
 
+  def condition_value = true?
+
   private
 
   def set_value_to_nil

@@ -27,4 +27,6 @@ class Champs::PaysChamp < Champs::TextChamp
       value.present? ? value.to_s : ''
     end
   end
+
+  def condition_value = code
 end
