@@ -114,17 +114,7 @@ class TypeDeChamp < ApplicationRecord
 
   belongs_to :referentiel, optional: true, inverse_of: :type_de_champs
 
-  class WithIndifferentAccess
-    def self.load(options)
-      options&.with_indifferent_access
-    end
-
-    def self.dump(options)
-      options
-    end
-  end
-
-  serialize :options, coder: WithIndifferentAccess
+  attribute :options, IndifferentJsonbType.new
 
   serialize :condition, coder: LogicSerializer
 
