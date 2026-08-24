@@ -79,7 +79,6 @@ class TypeDeChamp < ApplicationRecord
   }
 
   store_accessor :options,
-                 :cadastres,
                  :drop_down_options,
                  :drop_down_mode,
                  :drop_down_secondary_libelle,
