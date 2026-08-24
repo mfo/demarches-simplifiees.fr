@@ -109,8 +109,6 @@ class TypeDeChamp < ApplicationRecord
                  :expression_reguliere_indications,
                  :expression_reguliere_exemple_text,
                  :expression_reguliere_error_message,
-                 :collapsible_explanation_enabled,
-                 :collapsible_explanation_text,
                  :referentiel_mapping,
                  :pj_limit_formats,
                  :pj_format_families,
