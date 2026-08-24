@@ -19,7 +19,7 @@ class Attachment::HintsComponent < ApplicationComponent
   end
 
   def show_identity_hint?
-    @champ&.titre_identite?
+    pj_champ? && @champ.titre_identite?
   end
 
   def render?
@@ -27,7 +27,7 @@ class Attachment::HintsComponent < ApplicationComponent
   end
 
   def format_families_info
-    @format_families_info ||= if champ.nil? || !champ.piece_justificative?
+    @format_families_info ||= if !pj_champ?
       []
     else
       tdc = champ.type_de_champ
@@ -52,7 +52,7 @@ class Attachment::HintsComponent < ApplicationComponent
   end
 
   def show_exhaustive_formats?
-    return false if champ.nil? || !champ.piece_justificative?
+    return false if !pj_champ?
 
     tdc = champ.type_de_champ
     tdc.titre_identite? || tdc.rib?
@@ -74,4 +74,8 @@ class Attachment::HintsComponent < ApplicationComponent
 
     "#{champ.focusable_input_id}-formats-tooltip"
   end
+
+  private
+
+  def pj_champ? = @champ&.piece_justificative?
 end
