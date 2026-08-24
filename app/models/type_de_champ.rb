@@ -361,12 +361,6 @@ class TypeDeChamp < ApplicationRecord
     options.slice(*self.class.editable_option_keys.map(&:to_s))
   end
 
-  def titre_identite? = false
-  def rib? = false
-  def justificatif_domicile? = false
-  def avis_impot? = false
-  def ocr_compatible? = false
-
   def max_file_size_bytes = FILE_MAX_SIZE
   def allowed_content_types = AUTHORIZED_CONTENT_TYPES
 

@@ -50,7 +50,10 @@ module Dsfr
     end
 
     def pjs_statut?
-      (@champ.rib? || @champ.justificatif_domicile? || @champ.avis_impot?) && !@champ.idle?
+      return false if !@champ.piece_justificative?
+      return false if @champ.idle?
+
+      @champ.ocr_compatible?
     end
 
     def address_support_statut?
