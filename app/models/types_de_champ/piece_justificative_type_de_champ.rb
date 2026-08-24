@@ -8,6 +8,14 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
 
+  store_accessor :options,
+                 :old_pj,
+                 :skip_pj_validation,
+                 :skip_content_type_pj_validation,
+                 :pj_limit_formats,
+                 :pj_format_families,
+                 :pj_auto_purge
+
   validates :piece_justificative_template, size: { less_than: FILE_MAX_SIZE }, on: :update
   validates :piece_justificative_template, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, on: :update
   validates :piece_justificative_template, empty_file: true, on: :update

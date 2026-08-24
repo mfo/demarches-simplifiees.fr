@@ -80,11 +80,8 @@ class TypeDeChamp < ApplicationRecord
 
   store_accessor :options,
                  :cadastres,
-                 :old_pj,
                  :drop_down_options,
                  :drop_down_mode,
-                 :skip_pj_validation,
-                 :skip_content_type_pj_validation,
                  :drop_down_secondary_libelle,
                  :drop_down_secondary_description,
                  :drop_down_other,
@@ -109,10 +106,7 @@ class TypeDeChamp < ApplicationRecord
                  :expression_reguliere_indications,
                  :expression_reguliere_exemple_text,
                  :expression_reguliere_error_message,
-                 :referentiel_mapping,
-                 :pj_limit_formats,
-                 :pj_format_families,
-                 :pj_auto_purge
+                 :referentiel_mapping
 
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 

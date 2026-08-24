@@ -64,7 +64,7 @@ class PiecesJustificativesService
   end
 
   def self.serialize_type_de_champs_as_type_pj(revision)
-    tdcs = revision.public_root_type_de_champs.filter { |type_champ| type_champ.old_pj.present? }
+    tdcs = revision.public_root_type_de_champs.filter { |type_champ| type_champ.piece_justificative? && type_champ.old_pj.present? }
     tdcs.map.with_index do |type_champ, order_place|
       description = type_champ.description
       if /^(?<original_description>.*?)(?:[\r\n]+)Récupérer le formulaire vierge pour mon dossier : (?<lien_demarche>http.*)$/m =~ description

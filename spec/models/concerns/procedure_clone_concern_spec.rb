@@ -192,7 +192,7 @@ describe ProcedureCloneConcern, type: :model do
 
       it 'should discard old pj information' do
         subject.draft_revision.public_root_type_de_champs.each do |stc|
-          expect(stc.old_pj).to be_nil
+          expect(stc.options[:old_pj]).to be_nil
         end
       end
 
@@ -244,7 +244,7 @@ describe ProcedureCloneConcern, type: :model do
 
       it 'should discard old pj information' do
         subject.draft_revision.public_root_type_de_champs.each do |stc|
-          expect(stc.old_pj).to be_nil
+          expect(stc.options[:old_pj]).to be_nil
         end
       end
 
