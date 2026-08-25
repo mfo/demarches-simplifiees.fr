@@ -1,0 +1,11 @@
+---
+en:
+  read_write_prefix: "read and write on"
+  read_only_prefix: "read only on"
+  all_procedures: "All procedures"
+  network_filtering: "filtering: %{networks}"
+  pending_ip: "Awaiting IP detection (1st call)"
+  no_filtering: "No network filtering"
+  used_ago: "used %{time} ago - "
+  valid_until: "valid until %{date}"
+  valid_indefinitely: "Valid indefinitely"
