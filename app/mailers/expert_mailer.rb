@@ -3,17 +3,6 @@
 class ExpertMailer < ApplicationMailer
   layout 'mailers/layout'
 
-  # TODO: replace with v2 after MEP
-  def send_dossier_decision(avis_id)
-    @avis = Avis.eager_load(:dossier).find(avis_id)
-    @dossier = @avis.dossier
-    email = @avis.expert.email
-    @decision = decision_dossier(@dossier)
-    subject = t('.subject', dossier_id: @dossier.id, decision: @decision, libelle: @dossier.procedure.libelle)
-
-    mail(to: email, subject: subject)
-  end
-
   def send_dossier_decision_v2(avis)
     @avis = avis
     @dossier = @avis.dossier
