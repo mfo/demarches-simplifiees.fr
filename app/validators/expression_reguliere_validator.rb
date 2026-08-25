@@ -6,7 +6,7 @@ class ExpressionReguliereValidator < ActiveModel::Validator
   def validate(record)
     return if record.value.blank?
 
-    expression_reguliere = record.expression_reguliere.presence || options[:expression_reguliere]
+    expression_reguliere = record.expression_reguliere.presence
     expression_reguliere_error_message = record.expression_reguliere_error_message.presence || options[:expression_reguliere_error_message]
 
     return if expression_reguliere.blank? # an admin may not yet filled regex on preview dossier
