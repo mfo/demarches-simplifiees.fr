@@ -36,6 +36,6 @@ class Procedure::Card::EmailsComponent < ApplicationComponent
       @procedure.email_refuse,
       @procedure.email_classe_sans_suite,
       @procedure.email_repasse_en_instruction,
-    ].map { |mail| mail&.updated_at }.compact.size
+    ].compact.size
   end
 end

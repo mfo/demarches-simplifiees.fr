@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe 'As an administrateur i can edit a mail template with the tiptap editor', js: true do
-  let(:administrateur) { create(:administrateur, user: create(:user)) }
-  let(:procedure) { create(:procedure, :with_type_de_champ, administrateurs: [administrateur]) }
+  let(:administrateur) { administrateurs.default }
+  let(:procedure) { procedures.individual }
 
   before { login_as administrateur.user, scope: :user }
 

@@ -246,12 +246,7 @@ module ProcedureCloneConcern
     end
 
     if options[:clone_email_templates]
-      procedure.email_depose = email_depose&.dup
-      procedure.email_passe_en_instruction = email_passe_en_instruction&.dup
-      procedure.email_accepte = email_accepte&.dup
-      procedure.email_refuse = email_refuse&.dup
-      procedure.email_repasse_en_instruction = email_repasse_en_instruction&.dup
-      procedure.email_classe_sans_suite = email_classe_sans_suite&.dup
+      procedure.custom_email_templates = custom_email_templates.map(&:dup)
     end
 
     if !same_admin?(admin)

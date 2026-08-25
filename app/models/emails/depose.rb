@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 module Emails
-  class Depose < ApplicationRecord
-    include EmailTemplateConcern
-    self.table_name = "initiated_mails" # legacy table, gone at the STI switch
-
-    belongs_to :procedure, optional: false
-
+  class Depose < EmailTemplate
     SLUG = "depose"
     DEFAULT_TEMPLATE_NAME = "notification_mailer/default_templates/depose"
     DISPLAYED_NAME = I18n.t('activerecord.models.email.depose.proof_of_receipt')

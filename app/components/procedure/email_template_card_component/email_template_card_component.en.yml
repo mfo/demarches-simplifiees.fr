@@ -10,7 +10,7 @@ en:
         The user can still make changes to their file.
     passe_en_instruction:
       default: |-
-        This email is sent to the user **when the instructor starts processing** their file.
+        This email is sent to the user when **the instructor starts processing their file**, or when the procedure closes automatically (if you have set a submission deadline).
 
         The user can no longer make changes to their file.
     accepte:
