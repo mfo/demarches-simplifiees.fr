@@ -1,0 +1,6 @@
+---
+en:
+  private_annotations_contain_errors: "Private annotations contain errors"
+  form_fields_contain_errors: "Form fields contain errors"
+  problems_block_publishing_modifications: "Problems prevent publishing changes"
+  problems_block_publishing_procedure: "Problems prevent publishing the procedure"

@@ -1,0 +1,6 @@
+---
+fr:
+  private_annotations_contain_errors: "Les annotations privées contiennent des erreurs"
+  form_fields_contain_errors: "Les champs du formulaire contiennent des erreurs"
+  problems_block_publishing_modifications: "Des problèmes empêchent la publication des modifications"
+  problems_block_publishing_procedure: "Des problèmes empêchent la publication de la démarche"

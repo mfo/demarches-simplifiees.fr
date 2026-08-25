@@ -13,14 +13,14 @@ class Procedure::ErrorsSummary < ApplicationComponent
   def title
     case @validation_context
     when :private_type_de_champs_editor
-      "Les annotations privées contiennent des erreurs"
+      t(".private_annotations_contain_errors")
     when :public_type_de_champs_editor
-      "Les champs du formulaire contiennent des erreurs"
+      t(".form_fields_contain_errors")
     when :publication
       if @procedure.publiee?
-        "Des problèmes empêchent la publication des modifications"
+        t(".problems_block_publishing_modifications")
       else
-        "Des problèmes empêchent la publication de la démarche"
+        t(".problems_block_publishing_procedure")
       end
     end
   end
