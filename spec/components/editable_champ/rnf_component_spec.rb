@@ -28,4 +28,12 @@ describe EditableChamp::RNFComponent, type: :component do
       expect(page).to have_no_text('Aucune fondation trouvée')
     end
   end
+
+  context 'when the hint translation is an _html key' do
+    it 'renders the hint markup instead of escaping it' do
+      render_full_champ
+
+      expect(page).to have_css("span[aria-hidden='true']", text: '075-FDD-00003-01')
+    end
+  end
 end
