@@ -22,20 +22,19 @@
         <button
           class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-link"
           type="button"
-          title="Ajouter un lien sur le texte sélectionné"
+          title="<%= t('.link_button_title') %>"
           aria-controls="tiptap-link-modal"
           data-fr-opened="false"
           data-action="click->tiptap#menuButton"
           data-tiptap-target="button"
           data-tiptap-action="link"
         >
-          Lien
+          <%= t('.link_button') %>
         </button>
       <% end %>
     </div>
     <p class="fr-hint-text">
-      Utilisez les boutons ci-dessus pour mettre en forme votre message ou
-      ajouter un lien.
+      <%= t('.hint_formatting') %>
     </p>
   <% end %>
 
@@ -50,9 +49,7 @@
 
   <% if tags? %>
     <p class="fr-hint-text fr-mt-1w">
-      Tapez le caractère <strong class="fr-text-title--grey">@</strong> suivi du
-      nom de la
-      balise<%= collapsed_tags? ? ' pour insérer une donnée.' : ', ou cliquez sur les boutons ci-dessous.' %>
+      <%= t('.hint_tags_html') %><%= collapsed_tags? ? t('.hint_tags_insert') : t('.hint_tags_or_buttons') %>
     </p>
     <% if collapsed_tags? %>
       <div class="tiptap-tags-collapse fr-mt-1w">
@@ -65,7 +62,7 @@
           aria-controls="<%= tags_collapse_id %>"
           aria-expanded="false"
         >
-          Balises disponibles
+          <%= t('.tags_available') %>
         </button>
 
         <div class="fr-collapse" id="<%= tags_collapse_id %>">
@@ -75,7 +72,7 @@
         </div>
       </div>
     <% else %>
-      <p class="fr-h6 fr-mt-2w fr-mb-1w">Balises disponibles</p>
+      <p class="fr-h6 fr-mt-2w fr-mb-1w"><%= t('.tags_available') %></p>
       <div class="tags-buttons-panel">
         <%= render TagsButtonListComponent.new(tags: tags) %>
       </div>
@@ -119,12 +116,12 @@
               <div class="fr-modal__content">
                 <h1 id="tiptap-link-modal-title" class="fr-modal__title">
                   <span class="fr-icon-link fr-mr-1v" aria-hidden="true"></span>
-                  Insérer un lien
+                  <%= t('.insert_link') %>
                 </h1>
 
                 <div data-tiptap-target="linkFormContent">
                   <p class="fr-text--sm fr-mb-2w">
-                    Intitulé du lien :
+                    <%= t('.link_label') %>
                     <strong data-tiptap-target="linkSelectedText"></strong>
                   </p>
 
@@ -133,8 +130,11 @@
                     data-tiptap-target="linkInputGroup"
                   >
                     <label class="fr-label" for="tiptap-link-url-input">
-                      Adresse du lien
-                      <span class="fr-hint-text">Indiquer l’url cible du lien. Exemple : https://jeunes.gouv.fr</span>
+                      <%= t('.link_url_label') %>
+
+                      <span class="fr-hint-text">
+                        <%= t('.link_url_hint') %>
+                      </span>
                     </label>
 
                     <input
@@ -150,7 +150,7 @@
                       class="fr-error-text fr-hidden"
                       data-tiptap-target="linkErrorText"
                     >
-                      L’adresse du lien doit commencer par https://
+                      <%= t('.link_url_error') %>
                     </p>
                   </div>
                 </div>
@@ -168,7 +168,7 @@
                     data-action="click->tiptap#clearLinkInput"
                     data-tiptap-target="removeLinkButton"
                   >
-                    Supprimer le lien
+                    <%= t('.remove_link') %>
                   </button>
 
                   <div class="fr-btns-group fr-btns-group--inline fr-btns-group--inline-lg">
@@ -177,7 +177,7 @@
                       type="button"
                       data-action="click->tiptap#closeLinkModal"
                     >
-                      Annuler
+                      <%= t('.cancel') %>
                     </button>
 
                     <button
@@ -186,7 +186,7 @@
                       data-action="click->tiptap#confirmLink"
                       data-tiptap-target="linkConfirmButton"
                     >
-                      Créer le lien
+                      <%= t('.create_link') %>
                     </button>
                   </div>
                 </div>

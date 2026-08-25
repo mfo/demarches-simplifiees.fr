@@ -1,0 +1,41 @@
+en:
+  buttons:
+    bold:
+      label: "Bold"
+      title: "Bold"
+    italic:
+      label: "Italic"
+      title: "Italic"
+    heading2:
+      label: "Heading"
+      title: "Heading"
+    heading3:
+      label: "Sub-heading"
+      title: "Sub-heading"
+    bulletList:
+      label: "List"
+      title: "Bullet list"
+    orderedList:
+      label: "Numbered"
+      title: "Numbered list"
+    hardBreak:
+      label: "Line break"
+      title: "Line break"
+    paragraph:
+      label: "Paragraph"
+      title: "Paragraph"
+  link_button: "Link"
+  link_button_title: "Add a link to the selected text"
+  hint_formatting: "Use the buttons above to format your message or add a link."
+  hint_tags_html: "Type the <strong class=\"fr-text-title--grey\">@</strong> character followed by the tag name"
+  hint_tags_insert: " to insert data."
+  hint_tags_or_buttons: ", or click the buttons below."
+  tags_available: "Available tags"
+  insert_link: "Insert a link"
+  link_label: "Link label:"
+  link_url_label: "Link URL"
+  link_url_hint: "Enter the target URL of the link. Example: https://example.com"
+  link_url_error: "The link URL must start with https://"
+  remove_link: "Remove link"
+  cancel: "Cancel"
+  create_link: "Create link"
