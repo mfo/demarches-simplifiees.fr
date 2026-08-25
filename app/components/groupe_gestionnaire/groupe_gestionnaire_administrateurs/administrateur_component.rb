@@ -11,7 +11,7 @@ class GroupeGestionnaire::GroupeGestionnaireAdministrateurs::AdministrateurCompo
 
   def email
     if @administrateur == current_gestionnaire
-      "#{@administrateur.email} (C’est vous !)"
+      t(".c_est_vous", email: @administrateur.email)
     else
       @administrateur.email
     end
@@ -26,20 +26,20 @@ class GroupeGestionnaire::GroupeGestionnaireAdministrateurs::AdministrateurCompo
   end
 
   def remove_button
-    button_to "Retirer du groupe",
+    button_to t(".remove_from_group"),
       remove_gestionnaire_groupe_gestionnaire_administrateur_path(@groupe_gestionnaire, @administrateur),
       method: :delete,
       class: 'fr-btn fr-btn--sm fr-btn--tertiary',
-      form: { data: { turbo: true, turbo_confirm: "Retirer « #{@administrateur.email} » des administrateurs de « #{@groupe_gestionnaire.name} » ?" } }
+      form: { data: { turbo: true, turbo_confirm: t(".remove_confirm", email: @administrateur.email, group_name: @groupe_gestionnaire.name) } }
   end
 
   def destroy_button
-    button_to "Révoquer l’accès administrateur",
+    button_to t(".revoke_admin_access"),
       gestionnaire_groupe_gestionnaire_administrateur_path(@groupe_gestionnaire, @administrateur),
       method: :delete,
       disabled: !@administrateur.can_be_deleted?,
       class: 'fr-btn fr-btn--sm fr-btn--tertiary',
-      title: @administrateur.can_be_deleted? ? "Supprimer" : "Cet administrateur a des démarches dont il est le seul admin et ne peut être supprimé",
-      form: { data: { turbo: true, turbo_confirm: "Supprimer « #{@administrateur.email} » en tant qu’administrateur ?" } }
+      title: @administrateur.can_be_deleted? ? t(".delete") : t(".cannot_delete_admin"),
+      form: { data: { turbo: true, turbo_confirm: t(".delete_confirm", email: @administrateur.email) } }
   end
 end
