@@ -56,6 +56,11 @@ describe ProcedureCloneConcern, type: :model do
       }
     end
 
+    def tag_source_pj_with_old_pj
+      pj_tdc = procedure.draft_revision.public_root_type_de_champs.find(&:piece_justificative?)
+      pj_tdc.update!(options: pj_tdc.options.merge(old_pj: { stable_id: 1234 }))
+    end
+
     subject do
       @procedure = procedure.clone(options:, admin: administrateur)
       @procedure.save
@@ -63,6 +68,12 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     it { expect(subject.parent_procedure).to eq(procedure) }
+
+    it 'keeps the old pj information when cloning for the same admin' do
+      tag_source_pj_with_old_pj
+      pj_tdc = subject.draft_revision.public_root_type_de_champs.find(&:piece_justificative?)
+      expect(pj_tdc.reload.options[:old_pj]).to be_present
+    end
 
     it 'the cloned procedure should not be a template anymore' do
       expect(subject.template).to be_falsey
@@ -191,8 +202,10 @@ describe ProcedureCloneConcern, type: :model do
       end
 
       it 'should discard old pj information' do
+        tag_source_pj_with_old_pj
+
         subject.draft_revision.public_root_type_de_champs.each do |stc|
-          expect(stc.options[:old_pj]).to be_nil
+          expect(stc.reload.options[:old_pj]).to be_nil
         end
       end
 
@@ -243,8 +256,10 @@ describe ProcedureCloneConcern, type: :model do
       end
 
       it 'should discard old pj information' do
+        tag_source_pj_with_old_pj
+
         subject.draft_revision.public_root_type_de_champs.each do |stc|
-          expect(stc.options[:old_pj]).to be_nil
+          expect(stc.reload.options[:old_pj]).to be_nil
         end
       end
 
