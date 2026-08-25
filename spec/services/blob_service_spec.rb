@@ -3,13 +3,13 @@
 RSpec.describe BlobService do
   describe '.purge_blobs_with_variants' do
     # Blobs are created against the real (disk) service, then flipped to openstack
-    # and purged against a mocked openstack service — installed by the subject,
-    # once every blob exists.
-    subject(:purge_blobs_with_variants) do
+    # and purged against a mocked openstack service — installed here, once every
+    # blob exists.
+    def purge_blobs_with_variants(&block)
       service = double('openstack service', container: 'bucket', name: :openstack)
       allow(service).to receive(:client).and_return(client) # reached via service.send(:client)
       allow(ActiveStorage::Blob).to receive(:service).and_return(service)
-      BlobService.purge_blobs_with_variants([blob.id])
+      BlobService.purge_blobs_with_variants([blob.id], &block)
     end
 
     let(:client) { double('openstack client') }
@@ -55,13 +55,49 @@ RSpec.describe BlobService do
         expect(ActiveStorage::Attachment.where(id: image_attachment.id)).not_to exist
       end
 
-      it 'reports per-object bulk delete errors to Sentry' do
+      it 'drops a variant record left without attachment (it would block the parent blob delete)' do
+        orphan_variant_record = ActiveStorage::VariantRecord.create!(blob:, variation_digest: "orphan-digest")
+
+        purge_blobs_with_variants
+
+        expect(ActiveStorage::VariantRecord.where(id: orphan_variant_record.id)).not_to exist
+      end
+
+      it 'purges both attachments when two variant records share the same variant blob' do
+        second_variant_record = ActiveStorage::VariantRecord.create!(blob:, variation_digest: "digest-2")
+        second_attachment = ActiveStorage::Attachment.create!(name: "image", record: second_variant_record, blob: variant_blob)
+
+        purge_blobs_with_variants
+
+        expect(ActiveStorage::Attachment.where(id: [image_attachment.id, second_attachment.id])).not_to exist
+        expect(ActiveStorage::Blob.where(id: variant_blob.id)).not_to exist
+      end
+
+      it 'returns an audit of the parent and its variant blob' do
+        expect(purge_blobs_with_variants).to match_array([
+          { id: blob.id, key: blob.key, file_deleted: true, variant: false, parent_id: nil },
+          { id: variant_blob.id, key: variant_blob.key, file_deleted: true, variant: true, parent_id: blob.id },
+        ])
+      end
+
+      it 'yields the audit entries even when dropping the rows fails' do
+        allow(ActiveStorage::Blob).to receive(:transaction).and_raise(ActiveRecord::Deadlocked)
+
+        yielded = []
+        expect { purge_blobs_with_variants { yielded << it } }.to raise_error(ActiveRecord::Deadlocked)
+
+        expect(yielded.map { it[:id] }).to match_array([blob.id, variant_blob.id])
+      end
+
+      it 'reports per-object bulk delete errors to Sentry and marks the file as not deleted' do
         errors = [["bucket/#{variant_blob.key}", "409 Conflict"]]
         allow(client).to receive(:delete_multiple_objects).and_return(double(body: { 'Errors' => errors }))
 
         expect(Sentry).to receive(:capture_message).with("Bulk delete errors", extra: { errors: })
 
-        purge_blobs_with_variants
+        audit = purge_blobs_with_variants
+        expect(audit.find { it[:id] == variant_blob.id }).to include(file_deleted: false)
+        expect(audit.find { it[:id] == blob.id }).to include(file_deleted: true)
       end
     end
 
