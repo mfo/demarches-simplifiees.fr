@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TypesDeChamp::DropDownOptionsConcern
+class TypesDeChamp::DropDownBaseTypeDeChamp < TypeDeChamp
   def drop_down_advanced? = false
   def drop_down_other? = false
 
