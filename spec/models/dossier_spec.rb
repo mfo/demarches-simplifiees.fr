@@ -3035,7 +3035,7 @@ describe Dossier, type: :model do
     end
 
     context 'when there is titre identite' do
-      let(:changed_champs) { dossier.champ_data.filter(&:titre_identite?) }
+      let(:changed_champs) { dossier.champ_data.filter { it.piece_justificative? && it.titre_identite? } }
 
       it do
         is_expected.to change(dossier, :last_champ_updated_at)

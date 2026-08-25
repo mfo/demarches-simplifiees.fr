@@ -7,10 +7,9 @@ class Attachment::HintsComponent < ApplicationComponent
 
   delegate :max_file_size, :allowed_extensions, to: :validation
 
-  def initialize(champ:, attached_file: nil, show_identity_hint: false, html_id: nil, max: nil)
+  def initialize(champ:, attached_file: nil, html_id: nil, max: nil)
     @champ = champ
     @attached_file = attached_file
-    @show_identity_hint = show_identity_hint
     @html_id = html_id
     @max = max
   end
@@ -20,7 +19,7 @@ class Attachment::HintsComponent < ApplicationComponent
   end
 
   def show_identity_hint?
-    @champ&.titre_identite?
+    pj_champ? && @champ.titre_identite?
   end
 
   def render?
@@ -28,7 +27,7 @@ class Attachment::HintsComponent < ApplicationComponent
   end
 
   def format_families_info
-    @format_families_info ||= if champ.nil? || !champ.piece_justificative?
+    @format_families_info ||= if !pj_champ?
       []
     else
       tdc = champ.type_de_champ
@@ -53,7 +52,7 @@ class Attachment::HintsComponent < ApplicationComponent
   end
 
   def show_exhaustive_formats?
-    return false if champ.nil? || !champ.piece_justificative?
+    return false if !pj_champ?
 
     tdc = champ.type_de_champ
     tdc.titre_identite? || tdc.rib?
@@ -75,4 +74,8 @@ class Attachment::HintsComponent < ApplicationComponent
 
     "#{champ.focusable_input_id}-formats-tooltip"
   end
+
+  private
+
+  def pj_champ? = @champ&.piece_justificative?
 end
