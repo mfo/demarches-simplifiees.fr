@@ -3,10 +3,10 @@
 RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
   let(:component) { described_class.new(referentiel:, type_de_champ:, procedure:) }
   let(:base_stable_id) { ActiveRecord::Base.connection.select_value("SELECT last_value FROM types_de_champ_id_seq").to_i }
-  let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
-  let(:types_de_champ_private) { [{ type: :text, libelle: "private text" }] }
-  let(:type_de_champ) { procedure.draft_revision.types_de_champ.find(&:referentiel?) }
+  let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
+  let(:private_type_de_champs) { [{ type: :text, libelle: "private text" }] }
+  let(:type_de_champ) { procedure.draft_revision.type_de_champs.find(&:referentiel?) }
   let(:referentiel) { create(:api_referentiel, :exact_match) }
 
   subject { render_inline(component) }
@@ -53,7 +53,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
     context 'when referentiel is public' do
       context 'with mapping type :string' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:string] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { stable_id: base_stable_id + 101, type: :text, libelle: 'before, not selectable' },
             { type: :referentiel, referentiel: }, # exclu (champ courant)
@@ -82,7 +82,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
 
       context 'with mapping type :float' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:decimal_number] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
             { stable_id: base_stable_id + 101, type: :text, libelle: 'text' }, # exclu (type non compatible)
@@ -96,7 +96,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
 
       context 'with mapping type :integer' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:integer_number] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
             { stable_id: base_stable_id + 103, type: :decimal_number, libelle: 'decimal' }, # exclu (type non compatible)
@@ -111,7 +111,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
 
       context 'with mapping type :boolean' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:boolean] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
             { stable_id: base_stable_id + 101, type: :text, libelle: 'text' }, # exclu (type non compatible)
@@ -126,7 +126,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
 
       context 'with mapping type :date' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:date] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
             { stable_id: base_stable_id + 107, type: :date, libelle: 'date' },
@@ -140,7 +140,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
 
       context 'with mapping type :datetime' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:datetime] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
             { stable_id: base_stable_id + 109, type: :datetime, libelle: 'datetime' },
@@ -154,7 +154,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
 
       context 'with mapping type :array' do
         let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:array] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel: }, # exclu (champ courant)
             { stable_id: base_stable_id + 110, type: :multiple_drop_down_list, libelle: 'multiple' },
@@ -168,8 +168,8 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
     end
 
     context 'when referentiel is private' do
-      let(:types_de_champ_public) { [{ type: :text, libelle: "public text" }] }
-      let(:types_de_champ_private) { [{ type: :referentiel, referentiel: }, { type: :text, libelle: "private text" }] }
+      let(:public_type_de_champs) { [{ type: :text, libelle: "public text" }] }
+      let(:private_type_de_champs) { [{ type: :referentiel, referentiel: }, { type: :text, libelle: "private text" }] }
       let(:referentiel) { create(:api_referentiel, :exact_match) }
       let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:string] }
 
@@ -184,12 +184,12 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
   end
 
   describe '#source_tdcs' do
-    let(:types_de_champ_private) { [] }
+    let(:private_type_de_champs) { [] }
     let(:referentiel_mapping_type) { Referentiels::MappingFormComponent::TYPES[:string] }
     subject { component.source_tdcs.map { |tdc| tdc[:libelle] } }
 
     context 'when referentiel is not in repetition' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :repetition, libelle: 'la repetition', children: [
@@ -210,7 +210,7 @@ RSpec.describe Referentiels::ReferentielPrefillComponent, type: :component do
     end
 
     context 'when referentiel is in repetition' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :text, libelle: 'before repetition' },
           {

@@ -82,8 +82,8 @@ describe 'users/dossiers/demande', type: :view do
   end
 
   context 'when there is a dropdown list from a referentiel' do
-    let!(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let!(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :drop_down_list, drop_down_mode: 'advanced', drop_down_other: '1', referentiel: },
       ]
@@ -118,8 +118,8 @@ describe 'users/dossiers/demande', type: :view do
   end
 
   context 'when there is a multiple dropdown list from a referentiel' do
-    let!(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let!(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :multiple_drop_down_list, drop_down_mode: 'advanced', referentiel: },
       ]
@@ -143,8 +143,8 @@ describe 'users/dossiers/demande', type: :view do
   end
 
   context 'when value contains html values' do
-    let(:types_de_champ_public) { [{ type: :textarea }] }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :textarea }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
     let(:champ) { dossier.root_champs_public.first }
 

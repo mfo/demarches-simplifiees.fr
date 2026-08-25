@@ -74,10 +74,10 @@ module Administrateurs
           :published_dossier_submitted_message,
           :draft_dossier_submitted_message,
           published_revision: {
-            revision_types_de_champ: { type_de_champ: { piece_justificative_template_attachment: :blob } },
+            revision_type_de_champs: { type_de_champ: { piece_justificative_template_attachment: :blob } },
           },
           draft_revision: {
-            revision_types_de_champ: { type_de_champ: { piece_justificative_template_attachment: :blob } },
+            revision_type_de_champs: { type_de_champ: { piece_justificative_template_attachment: :blob } },
           },
           attestation_acceptation_template: [],
           attestation_refus_template: [],

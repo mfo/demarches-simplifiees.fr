@@ -15,7 +15,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
 
   describe 'nested hierarchy (level 1/2/3)' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :header_section, libelle: 'Identité', level: 1 },
         { type: :header_section, libelle: 'État civil', level: 2 },
         { type: :text, libelle: 'Nom' },
@@ -58,8 +58,8 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
     let(:instructeur) { create(:instructeur) }
     let(:procedure) do
       create(:procedure, :published,
-        types_de_champ_public: [{ type: :text, libelle: 'Question publique' }],
-        types_de_champ_private: [
+        public_type_de_champs: [{ type: :text, libelle: 'Question publique' }],
+        private_type_de_champs: [
           { type: :header_section, libelle: 'Notes', level: 1 },
           { type: :header_section, libelle: 'Vérifications', level: 2 },
           { type: :text, libelle: 'Statut' },
@@ -84,7 +84,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
 
   describe 'no header sections' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :text, libelle: 'Nom complet' },
         { type: :text, libelle: 'Téléphone' },
       ])
@@ -100,7 +100,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
 
   describe 'manually numbered libellés (opt-out)' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :header_section, libelle: '1 - Manuellement numéroté', level: 1 },
         { type: :header_section, libelle: '1.a Sous-section', level: 2 },
         { type: :text, libelle: 'Champ' },
@@ -120,7 +120,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
     include Logic
     let(:stable_id_number) { 99 }
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :header_section, libelle: 'Parent', level: 1 },
         { type: :integer_number, libelle: 'Critère', stable_id: stable_id_number },
         { type: :header_section, libelle: 'Caché', level: 2, condition: ds_eq(champ_value(stable_id_number), constant(5)) },
@@ -146,7 +146,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
 
   describe 'diverse champ types under indented headers' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :header_section, libelle: 'Coordonnées', level: 1 },
         { type: :header_section, libelle: 'Adresse', level: 2 },
         { type: :address, libelle: 'Adresse postale' },
@@ -162,7 +162,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
   end
 
   describe 'france connect champ whose data is not rendered yet' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :aah, libelle: 'AAH' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :aah, libelle: 'AAH' }]) }
     let(:dossier) do
       d = create(:dossier, :en_construction, procedure:)
       d.root_champs_public.first.update(external_state: 'fetched', value: 'true', value_json: { api_part: { est_beneficiaire: true } })
@@ -177,7 +177,7 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
   end
 
   describe 'carte champ' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte, libelle: 'Emprise' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte, libelle: 'Emprise' }]) }
     let(:dossier) { create(:dossier, :en_construction, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 

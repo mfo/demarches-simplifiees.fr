@@ -2,8 +2,8 @@
 
 describe Champs::EngagementJuridiqueChamp do
   describe 'validation' do
-    let(:types_de_champ_public) { [{ type: :engagement_juridique }] }
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :engagement_juridique }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.root_champs_public.first.tap { _1.update(value:) } }
     let(:value) { nil }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe BackfillVariantsForDossierJob, type: :job do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
   describe '#perform' do

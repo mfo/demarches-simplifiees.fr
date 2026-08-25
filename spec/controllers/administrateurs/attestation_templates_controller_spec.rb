@@ -186,7 +186,7 @@ describe Administrateurs::AttestationTemplatesController, type: :controller do
     end
 
     context 'when procedure is published' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }, { type: :text }, { type: :text }], administrateur: admin, attestation_acceptation_template: attestation_template) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }, { type: :text }, { type: :text }], administrateur: admin, attestation_acceptation_template: attestation_template) }
       let(:dossier) {}
       let(:attestation_template) { build(:attestation_template, title: 'a') }
       let(:attestation_params) do
@@ -197,11 +197,11 @@ describe Administrateurs::AttestationTemplatesController, type: :controller do
           activated: true,
         }
       end
-      let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public[0] }
-      let(:removed_type_de_champ) { procedure.draft_revision.root_types_de_champ_public[1] }
-      let(:removed_and_published_type_de_champ) { procedure.draft_revision.root_types_de_champ_public[2] }
-      let(:new_type_de_champ) { procedure.draft_revision.root_types_de_champ_public.find { _1.libelle == 'new type de champ' } }
-      let(:draft_type_de_champ) { procedure.draft_revision.root_types_de_champ_public.find { _1.libelle == 'draft type de champ' } }
+      let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs[0] }
+      let(:removed_type_de_champ) { procedure.draft_revision.public_root_type_de_champs[1] }
+      let(:removed_and_published_type_de_champ) { procedure.draft_revision.public_root_type_de_champs[2] }
+      let(:new_type_de_champ) { procedure.draft_revision.public_root_type_de_champs.find { _1.libelle == 'new type de champ' } }
+      let(:draft_type_de_champ) { procedure.draft_revision.public_root_type_de_champs.find { _1.libelle == 'draft type de champ' } }
       let(:title) { 'title --numéro du dossier--' }
       let(:body) { "body --#{type_de_champ.libelle}-- et --#{new_type_de_champ.libelle}--" }
 
@@ -209,12 +209,12 @@ describe Administrateurs::AttestationTemplatesController, type: :controller do
         procedure.publish!(procedure.administrateurs.first)
         procedure.reload
         procedure.draft_revision.remove_type_de_champ(removed_and_published_type_de_champ.stable_id)
-        procedure.draft_revision.add_type_de_champ(libelle: 'new type de champ', type_champ: 'text', after_stable_id: procedure.draft_revision.root_types_de_champ_public.last.stable_id)
+        procedure.draft_revision.add_type_de_champ(libelle: 'new type de champ', type_champ: 'text', after_stable_id: procedure.draft_revision.public_root_type_de_champs.last.stable_id)
         procedure.publish_revision!(admin)
         procedure.reload
         procedure.draft_revision.remove_type_de_champ(removed_type_de_champ.stable_id)
         procedure.draft_revision.reload
-        procedure.draft_revision.add_type_de_champ(libelle: 'draft type de champ', type_champ: 'text', after_stable_id: procedure.draft_revision.root_types_de_champ_public.last.stable_id)
+        procedure.draft_revision.add_type_de_champ(libelle: 'draft type de champ', type_champ: 'text', after_stable_id: procedure.draft_revision.public_root_type_de_champs.last.stable_id)
 
         dossier
 

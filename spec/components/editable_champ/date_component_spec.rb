@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe EditableChamp::DateComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :date, stable_id: 99 }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :date, stable_id: 99 }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champs.first }
 

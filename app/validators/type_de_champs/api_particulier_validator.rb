@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::APIParticulierValidator < ActiveModel::EachValidator
+class TypeDeChamps::APIParticulierValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ.filter(&:api_particulier?).each do |api_part_tdc|
       validate_api_particulier_token_presence(procedure, attribute, api_part_tdc)

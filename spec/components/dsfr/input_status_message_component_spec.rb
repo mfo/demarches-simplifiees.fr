@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Dsfr::InputStatusMessageComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'rib' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'rib' }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
 

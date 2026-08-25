@@ -19,7 +19,7 @@ describe DossierSearchService do
     context 'with a dossier not in brouillon' do
       let(:user) { create(:user, email: 'nicolas@email.com') }
       let(:etablissement) { create(:etablissement, entreprise_raison_sociale: 'Direction Interministerielle Du Numérique', siret: '13002526500013') }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }], types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }], private_type_de_champs: [{ type: :text }]) }
       let(:dossier) do
         create(:dossier, procedure:, state: :en_construction, user:, etablissement:).tap do |dossier|
           dossier.root_champs_public.first.update!(value: 'Hélène mange des pommes')
@@ -105,7 +105,7 @@ describe DossierSearchService do
     # return the same thing.
     describe 'with the stored tsvector columns' do
       let(:user) { create(:user, email: 'nicolas@email.com') }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }], types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }], private_type_de_champs: [{ type: :text }]) }
       let(:dossier) do
         create(:dossier, procedure:, state: :en_construction, user:).tap do |dossier|
           dossier.root_champs_public.first.update!(value: 'Hélène mange des pommes')
@@ -146,7 +146,7 @@ describe DossierSearchService do
     def searching(terms, user) = described_class.matching_dossiers_for_user(terms, user)
 
     context 'when the dossier is brouillon' do
-      let(:procedure) { create(:procedure, types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, private_type_de_champs: [{ type: :text }]) }
       let(:dossier) do
         create(:dossier, procedure:, state: :brouillon, user:).tap do |dossier|
           dossier.root_champs_private.first.update!(value: 'annotations')
@@ -174,7 +174,7 @@ describe DossierSearchService do
     end
 
     context 'when the full-text result is merged into a query that joins dossiers twice' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
       let!(:dossier) do
         create(:dossier, procedure:, state: :en_construction, user:).tap do |dossier|
           dossier.root_champs_public.first.update!(value: 'pommes')

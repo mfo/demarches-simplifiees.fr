@@ -2,8 +2,8 @@
 
 describe "procedure exports zip", js: true do
   let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:, instructeurs: [instructeur]) }
-  let(:types_de_champ_public) { [{ type: :text }] }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:, instructeurs: [instructeur]) }
+  let(:public_type_de_champs) { [{ type: :text }] }
 
   before do
     login_as(instructeur.user, scope: :user)

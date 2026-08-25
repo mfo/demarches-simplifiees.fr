@@ -234,8 +234,8 @@ describe 'instructeurs/dossiers/show', type: :view do
   end
 
   describe 'when header_sections are present' do
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :header_section, level: 1, libelle: 'l1' },
       ]

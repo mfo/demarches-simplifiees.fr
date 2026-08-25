@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Message::DossierModifierParInstructeurComponent, type: :component do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: "Texte", stable_id: 99 }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: "Texte", stable_id: 99 }]) }
   let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
 
   subject { render_inline(described_class.new(dossier:, changed_columns:, motivation:)) }

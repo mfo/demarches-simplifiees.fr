@@ -3,7 +3,7 @@
 describe Champs::RepetitionChamp do
   let(:procedure) {
     create(:procedure,
-      types_de_champ_public: [
+      public_type_de_champs: [
         {
           type: :repetition,
           children: [{ type: :text, libelle: "Ext" }], libelle: "Languages",
@@ -23,7 +23,7 @@ describe Champs::RepetitionChamp do
     context "with multiple children (multichamp)" do
       let(:procedure) {
         create(:procedure,
-          types_de_champ_public: [
+          public_type_de_champs: [
             {
               type: :repetition,
               children: [
@@ -44,7 +44,7 @@ describe Champs::RepetitionChamp do
   describe "#max_reached?" do
     let(:procedure) do
       create(:procedure,
-        types_de_champ_public: [
+        public_type_de_champs: [
           {
             type: :repetition,
             children: [{ type: :text }],
@@ -57,7 +57,7 @@ describe Champs::RepetitionChamp do
 
     context "when limits are disabled" do
       before do
-        tdc = dossier.revision.types_de_champ.find(&:repetition?)
+        tdc = dossier.revision.type_de_champs.find(&:repetition?)
         tdc.update!(limit_repetitions: '0')
       end
 
@@ -68,7 +68,7 @@ describe Champs::RepetitionChamp do
 
     context "after a cycle of disabling/enabling toggle without new max value" do
       before do
-        tdc = dossier.revision.types_de_champ.find(&:repetition?)
+        tdc = dossier.revision.type_de_champs.find(&:repetition?)
         tdc.update!(limit_repetitions: '0')
         tdc.update!(limit_repetitions: '1')
       end
@@ -82,7 +82,7 @@ describe Champs::RepetitionChamp do
   describe "#validate_repetition_limits" do
     let(:procedure) do
       create(:procedure,
-        types_de_champ_public: [
+        public_type_de_champs: [
           {
             type: :repetition,
             children: [{ type: :text }],

@@ -2,9 +2,9 @@
 
 describe 'Recovery::Revision::LifeCycle' do
   describe '.load_export_destroy_and_import' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no, libelle: 'YES!!!' }, {}]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no, libelle: 'YES!!!' }, {}]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-    let(:yes_no_type_de_champ) { procedure.published_revision.types_de_champ.first }
+    let(:yes_no_type_de_champ) { procedure.published_revision.type_de_champs.first }
     let(:file_path) { Rails.root.join('spec', 'fixtures', 'revision_export.dump') }
     let(:exporter) { Recovery::RevisionExporter.new(revision_ids: [procedure.published_revision.id], file_path:) }
     let(:importer) { Recovery::RevisionImporter.new(file_path:) }

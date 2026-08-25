@@ -3,8 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Dossiers::ChampPrefilledBadgeComponent, type: :component do
-  let(:types_de_champ_public) { [{ type: :text }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :text }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
 

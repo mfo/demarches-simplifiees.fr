@@ -3,7 +3,7 @@
 describe 'Prefilling a dossier (with a GET request):', js: true do
   let(:password) { SECURE_PASSWORD }
 
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text },
       { type: :phone },
@@ -17,21 +17,21 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
       { type: :repetition, children: [{ type: :text }, { type: :decimal_number }] },
     ]
   end
-  let(:procedure) { create(:procedure, :for_individual, :published, opendata: true, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :for_individual, :published, opendata: true, public_type_de_champs:) }
   let(:dossier) { procedure.dossiers.last }
   let(:linked_dossier) { create(:dossier, :en_construction, procedure:) }
-  let(:types_de_champ) { procedure.active_revision.root_types_de_champ_public }
+  let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }
 
-  let(:type_de_champ_text) { types_de_champ[0] }
-  let(:type_de_champ_phone) { types_de_champ[1] }
-  let(:type_de_champ_siret) { types_de_champ[2] }
-  let(:type_de_champ_datetime) { types_de_champ[3] }
-  let(:type_de_champ_multiple_drop_down_list) { types_de_champ[4] }
-  let(:type_de_champ_epci) { types_de_champ[5] }
-  let(:type_de_champ_dossier_link) { types_de_champ[6] }
-  let(:type_de_champ_commune) { types_de_champ[7] }
-  let(:type_de_champ_address) { types_de_champ[8] }
-  let(:type_de_champ_repetition) { types_de_champ[9] }
+  let(:type_de_champ_text) { type_de_champs[0] }
+  let(:type_de_champ_phone) { type_de_champs[1] }
+  let(:type_de_champ_siret) { type_de_champs[2] }
+  let(:type_de_champ_datetime) { type_de_champs[3] }
+  let(:type_de_champ_multiple_drop_down_list) { type_de_champs[4] }
+  let(:type_de_champ_epci) { type_de_champs[5] }
+  let(:type_de_champ_dossier_link) { type_de_champs[6] }
+  let(:type_de_champ_commune) { type_de_champs[7] }
+  let(:type_de_champ_address) { type_de_champs[8] }
+  let(:type_de_champ_repetition) { type_de_champs[9] }
 
   let(:text_value) { "My Neighbor Totoro is the best movie ever" }
   let(:phone_value) { "invalid phone value" }
@@ -48,9 +48,9 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
   let(:commune_value) { ['01540', '01457'] }
   let(:commune_libelle) { 'Vonnas (01540)' }
   let(:address_value) { "20 Avenue de Ségur 75007 Paris" }
-  let(:sub_types_de_champ_repetition) { procedure.active_revision.children_of(type_de_champ_repetition) }
-  let(:text_repetition_libelle) { sub_types_de_champ_repetition.first.libelle }
-  let(:integer_repetition_libelle) { sub_types_de_champ_repetition.second.libelle }
+  let(:sub_type_de_champs_repetition) { procedure.active_revision.children_of(type_de_champ_repetition) }
+  let(:text_repetition_libelle) { sub_type_de_champs_repetition.first.libelle }
+  let(:integer_repetition_libelle) { sub_type_de_champs_repetition.second.libelle }
   let(:text_repetition_value) { "First repetition text" }
   let(:integer_repetition_value) { "42" }
   let(:prenom_value) { 'Jean' }
@@ -71,8 +71,8 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
       "champ_#{type_de_champ_siret.to_typed_id_for_query}" => siret_value,
       "champ_#{type_de_champ_repetition.to_typed_id_for_query}" => [
         {
-          "champ_#{sub_types_de_champ_repetition.first.to_typed_id_for_query}": text_repetition_value,
-          "champ_#{sub_types_de_champ_repetition.second.to_typed_id_for_query}": integer_repetition_value,
+          "champ_#{sub_type_de_champs_repetition.first.to_typed_id_for_query}": text_repetition_value,
+          "champ_#{sub_type_de_champs_repetition.second.to_typed_id_for_query}": integer_repetition_value,
         },
       ],
       "identite_prenom" => prenom_value,
@@ -103,7 +103,7 @@ describe 'Prefilling a dossier (with a GET request):', js: true do
   context 'when authenticated with existing dossier and session params (ie: reload the page)' do
     let(:user) { create(:user, password: password) }
     let(:dossier) { create(:dossier, :prefilled, procedure:, prefill_token: "token", user: nil) }
-    let(:types_de_champ_public) { [{}] }
+    let(:public_type_de_champs) { [{}] }
 
     before do
       dossier.champ_data.first.update(value: text_value)

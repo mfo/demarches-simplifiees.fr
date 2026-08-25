@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe CreatePreviewsForPjOfLatestDossiersTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, stable_id: 3, libelle: 'Justificatif de domicile' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, stable_id: 3, libelle: 'Justificatif de domicile' }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ_pj) { dossier.champ_data.first }
 

@@ -6,9 +6,9 @@ module Maintenance
   RSpec.describe T20250605fixConflictualRowIdDuringMepTask do
     describe "#process" do
       subject(:process) { described_class.process(dossier) }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{}]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{}]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:type_de_champ) { dossier.revision.root_types_de_champ_public.first }
+      let(:type_de_champ) { dossier.revision.public_root_type_de_champs.first }
 
       before {
         dossier.champ_data.create(**type_de_champ.params_for_champ.merge(row_id: 'N'))

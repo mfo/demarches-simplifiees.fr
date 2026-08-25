@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::NumberValidator do
+RSpec.describe TypeDeChamps::NumberValidator do
   shared_examples "number range validation" do |scope:, type:|
     let(:attribute) do
-      scope == :types_de_champ_public ? :draft_types_de_champ_public : :draft_types_de_champ_private
+      scope == :public_type_de_champs ? :public_draft_type_de_champs : :private_draft_type_de_champs
     end
 
     let(:validation_context) do
-      scope == :types_de_champ_public ? :types_de_champ_public_editor : :types_de_champ_private_editor
+      scope == :public_type_de_champs ? :public_type_de_champs_editor : :private_type_de_champs_editor
     end
 
     let(:procedure) do
@@ -91,23 +91,23 @@ RSpec.describe TypesDeChamp::NumberValidator do
     end
   end
 
-  describe "public types_de_champ" do
+  describe "public type_de_champs" do
     include_examples "number range validation",
-      scope: :types_de_champ_public,
+      scope: :public_type_de_champs,
       type: :decimal_number
 
     include_examples "number range validation",
-      scope: :types_de_champ_public,
+      scope: :public_type_de_champs,
       type: :integer_number
   end
 
-  describe "private types_de_champ" do
+  describe "private type_de_champs" do
     include_examples "number range validation",
-      scope: :types_de_champ_private,
+      scope: :private_type_de_champs,
       type: :decimal_number
 
     include_examples "number range validation",
-      scope: :types_de_champ_private,
+      scope: :private_type_de_champs,
       type: :integer_number
   end
 end

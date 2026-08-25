@@ -4,7 +4,7 @@ describe 'dropdown list with other option activated', js: true do
   let(:password) { SECURE_PASSWORD }
   let!(:user) { create(:user, password: password) }
 
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :drop_down_list, libelle: 'simple dropdown other', options: options + [:other] }]) }
+  let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :drop_down_list, libelle: 'simple dropdown other', options: options + [:other] }]) }
 
   let(:user_dossier) { user.dossiers.first }
 
@@ -87,7 +87,7 @@ describe 'multiple dropdown tag removal', js: true do
   let(:user) { create(:user) }
   let(:options) { (1..7).map { "Option #{_1}" } }
   let(:procedure) do
-    create(:procedure, :published, :for_individual, types_de_champ_public: [
+    create(:procedure, :published, :for_individual, public_type_de_champs: [
       { type: :multiple_drop_down_list, libelle: 'Multi choix', drop_down_options: options },
     ])
   end

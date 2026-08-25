@@ -4,8 +4,8 @@ describe RechercheController, type: :controller do
   let(:procedure) {
     create(:procedure, :published,
                        :for_individual,
-                       types_de_champ_public: [{ type: :text }, { type: :text }],
-                       types_de_champ_private: [{ type: :text }, { type: :text }])
+                       public_type_de_champs: [{ type: :text }, { type: :text }],
+                       private_type_de_champs: [{ type: :text }, { type: :text }])
   }
   let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
   let(:instructeur) { create(:instructeur) }

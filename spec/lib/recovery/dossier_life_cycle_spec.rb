@@ -4,7 +4,7 @@ describe 'Dossier::Recovery::LifeCycle' do
   describe '.load_export_destroy_and_import' do
     let(:procedure) do
       create(:procedure,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :repetition, children: [{ type: :piece_justificative }], mandatory: false },
                { type: :carte },
                { type: :siret },

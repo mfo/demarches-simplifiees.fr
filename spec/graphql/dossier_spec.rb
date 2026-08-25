@@ -71,7 +71,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with champs' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :communes }, { type: :address }, { type: :siret }, { type: :rna }, { type: :header_section }, { type: :explication }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :communes }, { type: :address }, { type: :siret }, { type: :rna }, { type: :header_section }, { type: :explication }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
     let(:query) { DOSSIER_WITH_CHAMPS_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -216,7 +216,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with annotations' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_private: [{ type: :engagement_juridique }]) }
+    let(:procedure) { create(:procedure, :published, private_type_de_champs: [{ type: :engagement_juridique }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
     let(:query) { DOSSIER_WITH_ANNOTATIONS_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -227,7 +227,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with selected champ' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ libelle: 'yolo' }, { libelle: 'toto' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ libelle: 'yolo' }, { libelle: 'toto' }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
     let(:query) { DOSSIER_WITH_SELECTED_CHAMP_QUERY }
     let(:variables) { { number: dossier.id, id: champ.to_typed_id } }
@@ -251,7 +251,7 @@ RSpec.describe Types::DossierType, type: :graphql do
     include Logic
     let(:stable_id) { generate(:stable_id) }
     let(:condition) { ds_eq(champ_value(stable_id), constant(true)) }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :checkbox, stable_id: stable_id }, { type: :text, condition: condition }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :checkbox, stable_id: stable_id }, { type: :text, condition: condition }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
     let(:query) { DOSSIER_WITH_CHAMPS_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -304,7 +304,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with linked dossier' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :dossier_link }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :dossier_link }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let(:linked_dossier) { create(:dossier, :en_construction) }
     let(:query) { DOSSIER_WITH_LINKED_DOSIER_QUERY }
@@ -333,7 +333,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with repetition' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :repetition, children: [{ libelle: 'Nom' }, { libelle: 'Age' }] }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :repetition, children: [{ libelle: 'Nom' }, { libelle: 'Age' }] }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let(:linked_dossier) { create(:dossier, :en_construction) }
     let(:query) { DOSSIER_WITH_REPETITION_QUERY }
@@ -354,7 +354,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with large integer in columns' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ libelle: 'Montant', type: :integer_number }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ libelle: 'Montant', type: :integer_number }]) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let(:query) { DOSSIER_WITH_INTEGER_COLUMNS_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -381,7 +381,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with piece justificative nature=titre_identite filled' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
 
     let(:query) { DOSSIER_WITH_TITRE_IDENTITE_QUERY }
@@ -394,7 +394,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with piece justificative nature=titre_identite does not expose sensitive data' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }
     let(:query) { DOSSIER_WITH_PIECE_JUSTIFICATIVE_COLUMNS_AND_FILES_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -409,7 +409,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with piece justificative nature=titre_identite not filled' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
     let(:dossier) { create(:dossier, :accepte, procedure: procedure) }
 
     let(:query) { DOSSIER_WITH_TITRE_IDENTITE_QUERY }
@@ -503,7 +503,7 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with date and datetime champs' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :date }, { type: :datetime }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :date }, { type: :datetime }]) }
     let(:dossier) { create(:dossier, :en_construction, procedure:) }
     let(:query) { DOSSIER_WITH_DATE_CHAMPS_QUERY }
     let(:variables) { { number: dossier.id } }
@@ -551,8 +551,8 @@ RSpec.describe Types::DossierType, type: :graphql do
   GRAPHQL
 
   describe 'dossier with traitement changed columns' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :text, libelle: "Texte", stable_id: 99 },
         { type: :text, libelle: "Autre texte", stable_id: 991 },
@@ -644,8 +644,8 @@ RSpec.describe Types::DossierType, type: :graphql do
   end
 
   describe 'dossier with traitement changed columns of type geojson and attachments' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :carte, libelle: "Carte", stable_id: 996 },
         { type: :piece_justificative, libelle: "Pièce", stable_id: 997 },

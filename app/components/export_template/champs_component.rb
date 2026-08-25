@@ -3,10 +3,10 @@
 class ExportTemplate::ChampsComponent < ApplicationComponent
   attr_reader :export_template, :title
 
-  def initialize(title, export_template, types_de_champ)
+  def initialize(title, export_template, type_de_champs)
     @title = title
     @export_template = export_template
-    @types_de_champ = types_de_champ
+    @type_de_champs = type_de_champs
   end
 
   def historical_libelle(column)
@@ -19,7 +19,7 @@ class ExportTemplate::ChampsComponent < ApplicationComponent
   end
 
   def sections
-    @types_de_champ
+    @type_de_champs
       .reject { _1.header_section? && _1.header_section_level_value > 1 }
       .slice_before(&:header_section?)
       .filter_map do |(head, *rest)|

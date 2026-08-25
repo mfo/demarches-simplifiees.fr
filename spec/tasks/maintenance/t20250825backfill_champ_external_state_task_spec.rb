@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe T20250825backfillChampExternalStateTask do
       xdescribe "#process" do
         subject(:process) { described_class.process(champ) }
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :referentiel }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :referentiel }]) }
         let(:dossier) { create(:dossier, procedure:) }
         let(:champ) { dossier.root_champs_public.first }
 

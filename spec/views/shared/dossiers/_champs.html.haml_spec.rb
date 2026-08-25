@@ -4,9 +4,9 @@ describe 'shared/dossiers/champs', type: :view do
   let(:instructeur) { create(:instructeur) }
   let(:demande_seen_at) { nil }
   let(:profile) { "instructeur" }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-  let(:types_de_champ) { dossier.revision.root_types_de_champ_public }
+  let(:type_de_champs) { dossier.revision.public_root_type_de_champs }
 
   before do
     view.extend DossierHelper
@@ -17,10 +17,10 @@ describe 'shared/dossiers/champs', type: :view do
     end
   end
 
-  subject { render ViewableChamp::SectionComponent.new(types_de_champ:, dossier:, demande_seen_at:, profile:) }
+  subject { render ViewableChamp::SectionComponent.new(type_de_champs:, dossier:, demande_seen_at:, profile:) }
 
   context "there are some champs" do
-    let(:types_de_champ_public) { [{ type: :checkbox }, { type: :header_section }, { type: :explication }, { type: :dossier_link }, { type: :textarea }, { type: :integer_number }] }
+    let(:public_type_de_champs) { [{ type: :checkbox }, { type: :header_section }, { type: :explication }, { type: :dossier_link }, { type: :textarea }, { type: :integer_number }] }
     let(:champ1) { dossier.root_champs_public[0] }
     let(:champ2) { dossier.root_champs_public[1] }
     let(:champ3) { dossier.root_champs_public[2] }
@@ -56,7 +56,7 @@ describe 'shared/dossiers/champs', type: :view do
   end
 
   context "with auto-link" do
-    let(:types_de_champ_public) { [{ type: :text }, { type: :textarea }] }
+    let(:public_type_de_champs) { [{ type: :text }, { type: :textarea }] }
     let(:champ1) { dossier.root_champs_public.first }
     let(:champ2) { dossier.root_champs_public.second }
 
@@ -75,7 +75,7 @@ describe 'shared/dossiers/champs', type: :view do
   end
 
   context "with a dossier champ, but we are not authorized to acces the dossier" do
-    let(:types_de_champ_public) { [{ type: :dossier_link }] }
+    let(:public_type_de_champs) { [{ type: :dossier_link }] }
 
     before do
       dossier.champ_data.first.update(value: dossier.id)
@@ -95,7 +95,7 @@ describe 'shared/dossiers/champs', type: :view do
   end
 
   context "with a dossier_link champ but without value" do
-    let(:types_de_champ_public) { [{ type: :dossier_link, mandatory: false }] }
+    let(:public_type_de_champs) { [{ type: :dossier_link, mandatory: false }] }
 
     before do
       dossier.champ_data.first.update(value: nil)
@@ -110,7 +110,7 @@ describe 'shared/dossiers/champs', type: :view do
   end
 
   context "with a piece justificative without value" do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, mandatory: false }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, mandatory: false }] }
 
     before do
       dossier.champ_data.first.piece_justificative_file.purge
@@ -125,7 +125,7 @@ describe 'shared/dossiers/champs', type: :view do
   end
 
   context "with seen_at" do
-    let(:types_de_champ_public) { [{ type: :checkbox }] }
+    let(:public_type_de_champs) { [{ type: :checkbox }] }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, depose_at: 1.day.ago.change(usec: 0)) }
     let(:champ1) { dossier.champ_data.first }
 

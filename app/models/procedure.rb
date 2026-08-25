@@ -33,10 +33,10 @@ class Procedure < ApplicationRecord
   has_many :deleted_dossiers, dependent: :destroy
   has_many :llm_rule_suggestions, through: :revisions
 
-  def draft_types_de_champ_public = draft_revision&.flat_types_de_champ_public || []
-  def draft_types_de_champ_private = draft_revision&.flat_types_de_champ_private || []
-  def published_types_de_champ_public = published_revision&.flat_types_de_champ_public || []
-  def published_types_de_champ_private = published_revision&.flat_types_de_champ_private || []
+  def public_draft_type_de_champs = draft_revision&.public_flat_type_de_champs || []
+  def private_draft_type_de_champs = draft_revision&.private_flat_type_de_champs || []
+  def public_published_type_de_champs = published_revision&.public_flat_type_de_champs || []
+  def private_published_type_de_champs = published_revision&.private_flat_type_de_champs || []
 
   has_one :published_dossier_submitted_message, dependent: :destroy, through: :published_revision, source: :dossier_submitted_message
   has_one :draft_dossier_submitted_message, dependent: :destroy, through: :draft_revision, source: :dossier_submitted_message
@@ -87,12 +87,12 @@ class Procedure < ApplicationRecord
     brouillon? ? draft_revision : published_revision
   end
 
-  def all_revisions_types_de_champ(parent: nil, with_header_section: false)
+  def all_revisions_type_de_champs(parent: nil, with_header_section: false)
     if brouillon?
       if parent.nil?
         (with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable)
-          .joins(:revision_types_de_champ)
-          .where(revision_types_de_champ: { revision_id: draft_revision_id, parent_id: nil })
+          .joins(:revision_type_de_champs)
+          .where(revision_type_de_champs: { revision_id: draft_revision_id, parent_id: nil })
           .order(:private, :position)
       else
         draft_revision.children_of(parent)
@@ -100,13 +100,13 @@ class Procedure < ApplicationRecord
     else
       # 'sti': entries marshalled before the TypeDeChamp STI deserialize as the
       # base class, without the typed behavior.
-      cache_key = ['all_revisions_types_de_champ', 'sti', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
-      Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_types_de_champ(parent:, with_header_section:) }
+      cache_key = ['all_revisions_type_de_champs', 'sti', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
+      Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_type_de_champs(parent:, with_header_section:) }
     end
   end
 
-  def types_de_champ_for_procedure_export
-    all_revisions_types_de_champ.not_repetition
+  def type_de_champs_for_procedure_export
+    all_revisions_type_de_champs.not_repetition
   end
 
   # The template tag parser's vocabulary (mail templates, attestations,
@@ -120,22 +120,22 @@ class Procedure < ApplicationRecord
   #   older revisions must keep matching.
   # Both are pinned in tags_substitution_concern_spec ('replace_tags' with
   # revisions and with a draft-only champ).
-  def types_de_champ_for_tags
+  def type_de_champs_for_tags
     TypeDeChamp
       .fillable
       .joins(:revisions)
       .where(procedure_revisions: brouillon? ? { id: draft_revision_id } : { procedure_id: id })
-      .where(revision_types_de_champ: { parent_id: nil })
+      .where(revision_type_de_champs: { parent_id: nil })
       .order(:created_at)
       .distinct(:id)
   end
 
-  def types_de_champ_public_for_tags
-    types_de_champ_for_tags.public_only
+  def public_type_de_champs_for_tags
+    type_de_champs_for_tags.public_only
   end
 
-  def types_de_champ_private_for_tags
-    types_de_champ_for_tags.private_only
+  def private_type_de_champs_for_tags
+    type_de_champs_for_tags.private_only
   end
 
   def revisions_with_pending_dossiers
@@ -145,7 +145,7 @@ class Procedure < ApplicationRecord
         .state_en_construction_ou_instruction
         .distinct(:revision_id)
         .pluck(:revision_id)
-      ProcedureRevision.includes(:revision_types_de_champ).where(id: ids)
+      ProcedureRevision.includes(:revision_type_de_champs).where(id: ids)
     end
   end
 
@@ -211,7 +211,7 @@ class Procedure < ApplicationRecord
 
   scope :for_api, -> { with_active_revision.includes(:administrateurs, :module_api_carto) }
   scope :for_api_v2, -> { with_active_revision.includes(administrateurs: :user) }
-  scope :with_active_revision, -> { includes(draft_revision: :revision_types_de_champ, published_revision: :revision_types_de_champ) }
+  scope :with_active_revision, -> { includes(draft_revision: :revision_type_de_champs, published_revision: :revision_type_de_champs) }
 
   scope :order_by_position_for, -> (instructeur) {
     joins(:instructeurs_procedures)
@@ -253,32 +253,32 @@ class Procedure < ApplicationRecord
   validates :web_hook_url, url: { no_local: true, allow_blank: true }
   validates :web_hook_url, no_private_ip_url: true, allow_blank: true
 
-  validates :draft_types_de_champ_public,
-    'types_de_champ/condition': true,
-    'types_de_champ/header_section_consistency': true,
-    'types_de_champ/no_empty_block': true,
-    'types_de_champ/no_empty_drop_down': true,
-    'types_de_champ/formatted': true,
-    'types_de_champ/referentiel_ready': true,
-    'types_de_champ/libelle': true,
-    'types_de_champ/number': true,
-    'types_de_champ/date': true,
-    'types_de_champ/repetition': true,
-    'types_de_champ/api_particulier': true,
-    on: [:types_de_champ_public_editor, :publication]
+  validates :public_draft_type_de_champs,
+    'type_de_champs/condition': true,
+    'type_de_champs/header_section_consistency': true,
+    'type_de_champs/no_empty_block': true,
+    'type_de_champs/no_empty_drop_down': true,
+    'type_de_champs/formatted': true,
+    'type_de_champs/referentiel_ready': true,
+    'type_de_champs/libelle': true,
+    'type_de_champs/number': true,
+    'type_de_champs/date': true,
+    'type_de_champs/repetition': true,
+    'type_de_champs/api_particulier': true,
+    on: [:public_type_de_champs_editor, :publication]
 
-  validates :draft_types_de_champ_private,
-    'types_de_champ/condition': true,
-    'types_de_champ/header_section_consistency': true,
-    'types_de_champ/no_empty_block': true,
-    'types_de_champ/no_empty_drop_down': true,
-    'types_de_champ/formatted': true,
-    'types_de_champ/referentiel_ready': true,
-    'types_de_champ/libelle': true,
-    'types_de_champ/number': true,
-    'types_de_champ/date': true,
-    'types_de_champ/repetition': true,
-    on: [:types_de_champ_private_editor, :publication]
+  validates :private_draft_type_de_champs,
+    'type_de_champs/condition': true,
+    'type_de_champs/header_section_consistency': true,
+    'type_de_champs/no_empty_block': true,
+    'type_de_champs/no_empty_drop_down': true,
+    'type_de_champs/formatted': true,
+    'type_de_champs/referentiel_ready': true,
+    'type_de_champs/libelle': true,
+    'type_de_champs/number': true,
+    'type_de_champs/date': true,
+    'type_de_champs/repetition': true,
+    on: [:private_type_de_champs_editor, :publication]
 
   validate :check_juridique, on: [:create, :publication]
 
@@ -399,11 +399,11 @@ class Procedure < ApplicationRecord
 
   def draft_changed?
     preload_draft_and_published_revisions
-    !brouillon? && (types_de_champ_revision_changes.present? || ineligibilite_rules_revision_changes.present?)
+    !brouillon? && (type_de_champs_revision_changes.present? || ineligibilite_rules_revision_changes.present?)
   end
 
-  def types_de_champ_revision_changes
-    published_revision.compare_types_de_champ(draft_revision)
+  def type_de_champs_revision_changes
+    published_revision.compare_type_de_champs(draft_revision)
   end
 
   def ineligibilite_rules_revision_changes
@@ -620,7 +620,7 @@ class Procedure < ApplicationRecord
   end
 
   def routing_champs
-    active_revision.revision_types_de_champ_public.filter(&:used_by_routing_rules?).map(&:libelle)
+    active_revision.public_revision_type_de_champs.filter(&:used_by_routing_rules?).map(&:libelle)
   end
 
   def champ_value_in_condition?
@@ -867,14 +867,14 @@ class Procedure < ApplicationRecord
 
   def stable_ids_used_by_referentiel_urls
     @stable_ids_used_by_referentiel_urls ||= draft_revision
-      .types_de_champ
+      .type_de_champs
       .filter_map(&:referentiel)
       .filter { it.is_a?(Referentiels::APIReferentiel) }
       .flat_map(&:tiptap_mention_stable_ids)
       .uniq
   end
 
-  def published_revisions_types_de_champ(parent: nil, with_header_section: false)
+  def published_revisions_type_de_champs(parent: nil, with_header_section: false)
     # all published revisions
     revision_ids = revisions.ids - [draft_revision_id]
     # fetch all parent types de champ
@@ -888,10 +888,10 @@ class Procedure < ApplicationRecord
 
     # fetch all type_de_champ.stable_id for all the revisions expect draft
     # and for each stable_id take the bigger (more recent) type_de_champ.id
-    types_de_champ_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
-    recent_ids = types_de_champ_scope
-      .joins(:revision_types_de_champ)
-      .where(revision_types_de_champ: { revision_id: revision_ids, parent_id: parent_ids })
+    type_de_champs_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
+    recent_ids = type_de_champs_scope
+      .joins(:revision_type_de_champs)
+      .where(revision_type_de_champs: { revision_id: revision_ids, parent_id: parent_ids })
       .group(:stable_id).pluck('MAX(types_de_champ.id)')
 
     # fetch the more recent procedure_revision_types_de_champ
@@ -904,12 +904,12 @@ class Procedure < ApplicationRecord
       .pluck('MAX(id)')
 
     TypeDeChamp
-      .joins(:revision_types_de_champ)
-      .where(revision_types_de_champ: { id: recents_prtdc }).then do |relation|
+      .joins(:revision_type_de_champs)
+      .where(revision_type_de_champs: { id: recents_prtdc }).then do |relation|
         if feature_enabled?(:export_order_by_revision) # Fonds Verts, en attente d’exports personnalisables
-          relation.order(:private, 'revision_types_de_champ.revision_id': :desc, position: :asc)
+          relation.order(:private, 'revision_type_de_champs.revision_id': :desc, position: :asc)
         else
-          relation.order(:private, :position, 'revision_types_de_champ.revision_id': :desc)
+          relation.order(:private, :position, 'revision_type_de_champs.revision_id': :desc)
         end
       end
   end

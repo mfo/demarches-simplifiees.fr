@@ -556,58 +556,58 @@ describe Procedure do
       end
     end
 
-    describe 'draft_types_de_champ validations' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
+    describe 'draft type_de_champs validations' do
+      let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
 
       context 'on a draft procedure' do
-        let(:types_de_champ_private) { [] }
-        let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Enfants', children: [] }] }
+        let(:private_type_de_champs) { [] }
+        let(:public_type_de_champs) { [{ type: :repetition, libelle: 'Enfants', children: [] }] }
 
         it 'doesn’t validate the types de champs' do
           procedure.validate
-          expect(procedure.errors[:draft_types_de_champ_public]).not_to be_present
+          expect(procedure.errors[:public_draft_type_de_champs]).not_to be_present
         end
       end
 
       context 'when validating for publication' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :repetition, libelle: 'Enfants', children: [] },
             { type: :drop_down_list, libelle: 'Civilité', options: [] },
           ]
         end
-        let(:types_de_champ_private) { [] }
+        let(:private_type_de_champs) { [] }
         let(:invalid_repetition_error_message) { "doit comporter au moins un champ répétable" }
         let(:invalid_drop_down_error_message) { "doit comporter au moins un choix sélectionnable" }
 
         it 'validates that no repetition type de champ is empty' do
           procedure.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(invalid_repetition_error_message)
+          expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(invalid_repetition_error_message)
 
           new_draft = procedure.draft_revision
-          repetition = new_draft.root_types_de_champ_public.find(&:repetition?)
+          repetition = new_draft.public_root_type_de_champs.find(&:repetition?)
           new_draft.add_type_de_champ(type_champ: :text, libelle: 'Nom', parent_stable_id: repetition.stable_id)
 
           procedure.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(invalid_repetition_error_message)
+          expect(procedure.errors.messages_for(:public_draft_type_de_champs)).not_to include(invalid_repetition_error_message)
         end
 
         it 'validates that no drop-down type de champ is empty' do
-          drop_down = procedure.draft_revision.root_types_de_champ_public.find(&:any_drop_down_list?)
+          drop_down = procedure.draft_revision.public_root_type_de_champs.find(&:any_drop_down_list?)
 
           drop_down.update!(drop_down_options: [])
           procedure.reload.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(invalid_drop_down_error_message)
+          expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(invalid_drop_down_error_message)
 
           drop_down.update!(drop_down_options: ["--title--", "some value"])
           procedure.reload.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(invalid_drop_down_error_message)
+          expect(procedure.errors.messages_for(:public_draft_type_de_champs)).not_to include(invalid_drop_down_error_message)
         end
 
         context 'validates fields nested in a repetition' do
-          let(:types_de_champ_public) { [{ type: :repetition, libelle: 'Bloc', children: }] }
-          let(:types_de_champ_private) { [] }
-          let(:repetition) { procedure.draft_revision.types_de_champ.find(&:repetition?) }
+          let(:public_type_de_champs) { [{ type: :repetition, libelle: 'Bloc', children: }] }
+          let(:private_type_de_champs) { [] }
+          let(:repetition) { procedure.draft_revision.type_de_champs.find(&:repetition?) }
           let(:nested_tdc) { procedure.draft_revision.children_of(repetition).first }
 
           context 'with invalid dropdown' do
@@ -616,23 +616,23 @@ describe Procedure do
 
             it 'validates that no drop-down nested in a repetition is empty' do
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including(invalid_drop_down_error_message))
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(a_string_including(invalid_drop_down_error_message))
 
               nested_tdc.update!(drop_down_options: ["un", "deux"])
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).not_to include(a_string_including(invalid_drop_down_error_message))
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs)).not_to include(a_string_including(invalid_drop_down_error_message))
             end
           end
 
           context 'with invalid private dropdown' do
             let(:children) { [{ type: :drop_down_list, libelle: 'Choix imbriqué privé' }] }
-            let(:types_de_champ_public) { [] }
-            let(:types_de_champ_private) { [{ type: :repetition, libelle: 'Bloc', children: }] }
+            let(:public_type_de_champs) { [] }
+            let(:private_type_de_champs) { [{ type: :repetition, libelle: 'Bloc', children: }] }
             before { nested_tdc.update!(drop_down_options: []) }
 
             it 'validates that no private drop-down nested in a repetition is empty' do
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_private)).to include(a_string_including(invalid_drop_down_error_message))
+              expect(procedure.errors.messages_for(:private_draft_type_de_champs)).to include(a_string_including(invalid_drop_down_error_message))
             end
           end
 
@@ -642,7 +642,7 @@ describe Procedure do
 
             it 'reports the error' do
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("La date de début doit être antérieure"))
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(a_string_including("La date de début doit être antérieure"))
             end
           end
 
@@ -652,7 +652,7 @@ describe Procedure do
 
             it 'reports the error' do
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("La valeur minimale doit être inférieure"))
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(a_string_including("La valeur minimale doit être inférieure"))
             end
           end
 
@@ -662,7 +662,7 @@ describe Procedure do
 
             it 'reports the error' do
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("est pas configuré"))
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(a_string_including("est pas configuré"))
             end
           end
 
@@ -672,18 +672,18 @@ describe Procedure do
 
             it 'reports the error' do
               procedure.reload.validate(:publication)
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public)).to include(a_string_including("Le libellé du champ en position"))
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs)).to include(a_string_including("Le libellé du champ en position"))
             end
           end
         end
 
         context 'validates formatted champ character rules' do
-          let(:types_de_champ_private) { [] }
+          let(:private_type_de_champs) { [] }
           let(:formatted_mode) { "simple" }
           let(:letters_accepted) { "1" }
           let(:numbers_accepted) { "0" }
           let(:special_characters_accepted) { "0" }
-          let(:types_de_champ_public) do
+          let(:public_type_de_champs) do
             [
               { type: :formatted, formatted_mode:, letters_accepted:, numbers_accepted:, special_characters_accepted: },
             ]
@@ -698,17 +698,17 @@ describe Procedure do
             it 'publication is invalid' do
               expect(procedure.invalid?(:publication)).to be_truthy
 
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public).first).to include("au moins un type de caractère")
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs).first).to include("au moins un type de caractère")
             end
           end
         end
 
         context 'validates formatted champ character length' do
-          let(:types_de_champ_private) { [] }
+          let(:private_type_de_champs) { [] }
           let(:formatted_mode) { "simple" }
           let(:min_character_length) { "3" }
           let(:max_character_length) { "10" }
-          let(:types_de_champ_public) do
+          let(:public_type_de_champs) do
             [
               { type: :formatted, formatted_mode:, min_character_length:, max_character_length: },
             ]
@@ -723,7 +723,7 @@ describe Procedure do
 
             it 'publication is invalid' do
               expect(procedure.invalid?(:publication)).to be_truthy
-              expect(procedure.errors.messages_for(:draft_types_de_champ_public).first).to include("inférieur au nombre maximum de caractères")
+              expect(procedure.errors.messages_for(:public_draft_type_de_champs).first).to include("inférieur au nombre maximum de caractères")
             end
           end
 
@@ -737,61 +737,61 @@ describe Procedure do
       end
 
       context 'when the champ is private' do
-        let(:types_de_champ_private) do
+        let(:private_type_de_champs) do
           [
             { type: :repetition, libelle: 'Enfants', children: [] },
             { type: :drop_down_list, libelle: 'Civilité', options: [] },
           ]
         end
-        let(:types_de_champ_public) { [] }
+        let(:public_type_de_champs) { [] }
 
         let(:invalid_repetition_error_message) { "doit comporter au moins un champ répétable" }
         let(:invalid_drop_down_error_message) { "doit comporter au moins un choix sélectionnable" }
 
         it 'validates that no repetition type de champ is empty' do
           procedure.validate(:publication)
-          expect(procedure.errors.messages_for(:draft_types_de_champ_private)).to include(invalid_repetition_error_message)
+          expect(procedure.errors.messages_for(:private_draft_type_de_champs)).to include(invalid_repetition_error_message)
 
-          repetition = procedure.draft_revision.root_types_de_champ_private.find(&:repetition?)
+          repetition = procedure.draft_revision.private_root_type_de_champs.find(&:repetition?)
           expect(procedure.errors.to_enum.to_a.map { _1.options[:type_de_champ] }).to include(repetition)
         end
 
         it 'validates that no drop-down type de champ is empty' do
-          drop_down = procedure.draft_revision.root_types_de_champ_private.find(&:any_drop_down_list?)
+          drop_down = procedure.draft_revision.private_root_type_de_champs.find(&:any_drop_down_list?)
           drop_down.update!(drop_down_options: [])
           procedure.reload.validate(:publication)
 
-          expect(procedure.errors.messages_for(:draft_types_de_champ_private)).to include(invalid_drop_down_error_message)
+          expect(procedure.errors.messages_for(:private_draft_type_de_champs)).to include(invalid_drop_down_error_message)
           expect(procedure.errors.to_enum.to_a.map { _1.options[:type_de_champ] }).to include(drop_down)
         end
       end
 
       context 'when condition on champ private use public champ' do
         include Logic
-        let(:types_de_champ_public) { [{ type: :decimal_number, stable_id: 1 }] }
-        let(:types_de_champ_private) { [{ type: :text, condition: ds_eq(champ_value(1), constant(2)), stable_id: 2 }] }
+        let(:public_type_de_champs) { [{ type: :decimal_number, stable_id: 1 }] }
+        let(:private_type_de_champs) { [{ type: :text, condition: ds_eq(champ_value(1), constant(2)), stable_id: 2 }] }
         it 'validate without context' do
           procedure.validate
-          expect(procedure.errors.full_messages_for(:draft_types_de_champ_private)).to be_empty
+          expect(procedure.errors.full_messages_for(:private_draft_type_de_champs)).to be_empty
         end
 
         it 'validate allows condition' do
-          procedure.validate(:types_de_champ_private_editor)
-          expect(procedure.errors.full_messages_for(:draft_types_de_champ_private)).to be_empty
+          procedure.validate(:private_type_de_champs_editor)
+          expect(procedure.errors.full_messages_for(:private_draft_type_de_champs)).to be_empty
         end
       end
 
       context 'when condition on champ private use public champ having a position higher than the champ private' do
         include Logic
 
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :decimal_number, stable_id: 1 },
             { type: :decimal_number, stable_id: 2 },
           ]
         end
 
-        let(:types_de_champ_private) do
+        let(:private_type_de_champs) do
           [
             { type: :text, condition: ds_eq(champ_value(2), constant(2)), stable_id: 3 },
           ]
@@ -799,29 +799,29 @@ describe Procedure do
 
         it 'validate without context' do
           procedure.validate
-          expect(procedure.errors.full_messages_for(:draft_types_de_champ_private)).to be_empty
+          expect(procedure.errors.full_messages_for(:private_draft_type_de_champs)).to be_empty
         end
 
         it 'validate allows condition' do
-          procedure.validate(:types_de_champ_private_editor)
-          expect(procedure.errors.full_messages_for(:draft_types_de_champ_private)).to be_empty
+          procedure.validate(:private_type_de_champs_editor)
+          expect(procedure.errors.full_messages_for(:private_draft_type_de_champs)).to be_empty
         end
       end
 
       context 'when condition on champ public use private champ' do
         include Logic
-        let(:types_de_champ_public) { [{ type: :text, libelle: 'condition', condition: ds_eq(champ_value(1), constant(2)), stable_id: 2 }] }
-        let(:types_de_champ_private) { [{ type: :decimal_number, stable_id: 1 }] }
+        let(:public_type_de_champs) { [{ type: :text, libelle: 'condition', condition: ds_eq(champ_value(1), constant(2)), stable_id: 2 }] }
+        let(:private_type_de_champs) { [{ type: :decimal_number, stable_id: 1 }] }
         let(:error_on_condition) { "Le champ a une logique conditionnelle invalide" }
 
         it 'validate without context' do
           procedure.validate
-          expect(procedure.errors.full_messages_for(:draft_types_de_champ_public)).to be_empty
+          expect(procedure.errors.full_messages_for(:public_draft_type_de_champs)).to be_empty
         end
 
         it 'validate prevent condition' do
-          procedure.validate(:types_de_champ_public_editor)
-          expect(procedure.errors.full_messages_for(:draft_types_de_champ_public)).to include(error_on_condition)
+          procedure.validate(:public_type_de_champs_editor)
+          expect(procedure.errors.full_messages_for(:public_draft_type_de_champs)).to include(error_on_condition)
         end
       end
     end
@@ -1133,15 +1133,15 @@ describe Procedure do
       subject
       expect(procedure.published_revision).to be_present
       expect(procedure.published_revision.published_at).to eq(publication_date)
-      expect(procedure.published_revision.root_types_de_champ_public.first.libelle).to eq('libelle 1')
+      expect(procedure.published_revision.public_root_type_de_champs.first.libelle).to eq('libelle 1')
     end
 
     it 'creates a new draft revision' do
       expect { subject }.to change(ProcedureRevision, :count).by(1)
       expect(procedure.draft_revision).to be_present
-      expect(procedure.draft_revision.revision_types_de_champ_public).to be_present
-      expect(procedure.draft_revision.root_types_de_champ_public).to be_present
-      expect(procedure.draft_revision.root_types_de_champ_public.first.libelle).to eq('libelle 1')
+      expect(procedure.draft_revision.public_revision_type_de_champs).to be_present
+      expect(procedure.draft_revision.public_root_type_de_champs).to be_present
+      expect(procedure.draft_revision.public_root_type_de_champs.first.libelle).to eq('libelle 1')
     end
 
     it 'records the publishing administrateur' do
@@ -1167,17 +1167,17 @@ describe Procedure do
     end
 
     context 'when a type de champ is transformed from a drop_down_list with referentiel to a textarea' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
       let(:referentiel) { create(:csv_referentiel, :with_items) }
-      let(:tdc) { procedure.draft_revision.root_types_de_champ_public.last }
+      let(:tdc) { procedure.draft_revision.public_root_type_de_champs.last }
 
       before do
-        procedure.draft_revision.root_types_de_champ_public.last.update(type_champ: :textarea, options: { "character_limit" => "" })
+        procedure.draft_revision.public_root_type_de_champs.last.update(type_champ: :textarea, options: { "character_limit" => "" })
       end
 
       it 'nullifies the referentiel' do
-        expect(procedure.draft_revision.root_types_de_champ_public.first.referentiel).to be_nil
+        expect(procedure.draft_revision.public_root_type_de_champs.first.referentiel).to be_nil
       end
     end
   end
@@ -1204,7 +1204,7 @@ describe Procedure do
           :published,
           attestation_acceptation_template: build(:attestation_template),
           dossier_submitted_message: create(:dossier_submitted_message),
-          types_de_champ_public: [{ type: :text, libelle: 'published tdc' }]
+          public_type_de_champs: [{ type: :text, libelle: 'published tdc' }]
         )
       end
 
@@ -1224,7 +1224,7 @@ describe Procedure do
       end
 
       it "should erase orphan tdc" do
-        published_tdc = procedure.published_revision.types_de_champ.first
+        published_tdc = procedure.published_revision.type_de_champs.first
         draft_tdc = procedure.draft_revision.add_type_de_champ(tdc_attributes)
 
         procedure.reset_draft_revision!
@@ -1619,7 +1619,7 @@ describe Procedure do
   end
 
   describe '#average_dossier_weight' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }]) }
 
     before do
       [4, 5, 6].each do |byte_size|
@@ -1648,56 +1648,56 @@ describe Procedure do
   end
 
   describe 'factory' do
-    let(:types_de_champ) { [{ type: :yes_no }, { type: :integer_number }] }
+    let(:type_de_champs) { [{ type: :yes_no }, { type: :integer_number }] }
 
     context 'create' do
-      let(:types_de_champ) { [{ type: :yes_no }, { type: :repetition, children: [{ type: :integer_number }] }] }
-      let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+      let(:type_de_champs) { [{ type: :yes_no }, { type: :repetition, children: [{ type: :integer_number }] }] }
+      let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
 
       context 'with brouillon procedure' do
         it do
-          expect(procedure.draft_revision.root_types_de_champ_public.count).to eq(2)
-          expect(procedure.draft_revision.types_de_champ.count).to eq(3)
+          expect(procedure.draft_revision.public_root_type_de_champs.count).to eq(2)
+          expect(procedure.draft_revision.type_de_champs.count).to eq(3)
         end
       end
 
       context 'with published procedure' do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: types_de_champ) }
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: type_de_champs) }
 
         it do
-          expect(procedure.draft_revision.root_types_de_champ_public.count).to eq(2)
-          expect(procedure.draft_revision.types_de_champ.count).to eq(3)
-          expect(procedure.published_revision.root_types_de_champ_public.count).to eq(2)
-          expect(procedure.published_revision.types_de_champ.count).to eq(3)
+          expect(procedure.draft_revision.public_root_type_de_champs.count).to eq(2)
+          expect(procedure.draft_revision.type_de_champs.count).to eq(3)
+          expect(procedure.published_revision.public_root_type_de_champs.count).to eq(2)
+          expect(procedure.published_revision.type_de_champs.count).to eq(3)
         end
       end
     end
 
     context 'with bouillon procedure' do
-      let(:procedure) { build(:procedure, types_de_champ_public: types_de_champ, types_de_champ_private: types_de_champ) }
+      let(:procedure) { build(:procedure, public_type_de_champs: type_de_champs, private_type_de_champs: type_de_champs) }
 
       it do
         expect(procedure.revisions.size).to eq(1)
-        expect(procedure.draft_revision.types_de_champ.size).to eq(4)
-        expect(procedure.draft_revision.root_types_de_champ_public.size).to eq(2)
+        expect(procedure.draft_revision.type_de_champs.size).to eq(4)
+        expect(procedure.draft_revision.public_root_type_de_champs.size).to eq(2)
         expect(procedure.published_revision).to be_nil
       end
     end
 
     context 'with published procedure' do
-      let(:procedure) { build(:procedure, :published, types_de_champ_public: types_de_champ, types_de_champ_private: types_de_champ) }
+      let(:procedure) { build(:procedure, :published, public_type_de_champs: type_de_champs, private_type_de_champs: type_de_champs) }
 
       it do
         expect(procedure.revisions.size).to eq(2)
-        expect(procedure.draft_revision.types_de_champ.size).to eq(4)
-        expect(procedure.draft_revision.root_types_de_champ_public.size).to eq(2)
-        expect(procedure.published_revision.types_de_champ.size).to eq(4)
-        expect(procedure.published_revision.root_types_de_champ_public.size).to eq(2)
+        expect(procedure.draft_revision.type_de_champs.size).to eq(4)
+        expect(procedure.draft_revision.public_root_type_de_champs.size).to eq(2)
+        expect(procedure.published_revision.type_de_champs.size).to eq(4)
+        expect(procedure.published_revision.public_root_type_de_champs.size).to eq(2)
       end
     end
 
     context 'repetition' do
-      let(:types_de_champ) do
+      let(:type_de_champs) do
         [
           { type: :yes_no },
           {
@@ -1711,32 +1711,32 @@ describe Procedure do
         ]
       end
       let(:revision) { procedure.draft_revision }
-      let(:repetition) { revision.revision_types_de_champ_public.last }
+      let(:repetition) { revision.public_revision_type_de_champs.last }
 
       context 'with bouillon procedure' do
-        let(:procedure) { build(:procedure, types_de_champ_public: types_de_champ) }
+        let(:procedure) { build(:procedure, public_type_de_champs: type_de_champs) }
 
         it do
-          expect(revision.types_de_champ.size).to eq(5)
-          expect(revision.root_types_de_champ_public.size).to eq(2)
-          expect(revision.root_types_de_champ_public.map(&:type_champ)).to eq(['yes_no', 'repetition'])
-          expect(repetition.revision_types_de_champ.size).to eq(3)
-          expect(repetition.revision_types_de_champ.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
-          expect(repetition.revision_types_de_champ.map(&:mandatory?)).to eq([true, true, false])
+          expect(revision.type_de_champs.size).to eq(5)
+          expect(revision.public_root_type_de_champs.size).to eq(2)
+          expect(revision.public_root_type_de_champs.map(&:type_champ)).to eq(['yes_no', 'repetition'])
+          expect(repetition.revision_type_de_champs.size).to eq(3)
+          expect(repetition.revision_type_de_champs.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
+          expect(repetition.revision_type_de_champs.map(&:mandatory?)).to eq([true, true, false])
         end
       end
 
       context 'with published procedure' do
-        let(:procedure) { build(:procedure, :published, types_de_champ_public: types_de_champ) }
+        let(:procedure) { build(:procedure, :published, public_type_de_champs: type_de_champs) }
 
         context 'draft revision' do
           it do
-            expect(revision.types_de_champ.size).to eq(5)
-            expect(revision.root_types_de_champ_public.size).to eq(2)
-            expect(revision.root_types_de_champ_public.map(&:type_champ)).to eq(['yes_no', 'repetition'])
-            expect(repetition.revision_types_de_champ.size).to eq(3)
-            expect(repetition.revision_types_de_champ.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
-            expect(repetition.revision_types_de_champ.map(&:mandatory?)).to eq([true, true, false])
+            expect(revision.type_de_champs.size).to eq(5)
+            expect(revision.public_root_type_de_champs.size).to eq(2)
+            expect(revision.public_root_type_de_champs.map(&:type_champ)).to eq(['yes_no', 'repetition'])
+            expect(repetition.revision_type_de_champs.size).to eq(3)
+            expect(repetition.revision_type_de_champs.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
+            expect(repetition.revision_type_de_champs.map(&:mandatory?)).to eq([true, true, false])
           end
         end
 
@@ -1744,12 +1744,12 @@ describe Procedure do
           let(:revision) { procedure.published_revision }
 
           it do
-            expect(revision.types_de_champ.size).to eq(5)
-            expect(revision.root_types_de_champ_public.size).to eq(2)
-            expect(revision.root_types_de_champ_public.map(&:type_champ)).to eq(['yes_no', 'repetition'])
-            expect(repetition.revision_types_de_champ.size).to eq(3)
-            expect(repetition.revision_types_de_champ.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
-            expect(repetition.revision_types_de_champ.map(&:mandatory?)).to eq([true, true, false])
+            expect(revision.type_de_champs.size).to eq(5)
+            expect(revision.public_root_type_de_champs.size).to eq(2)
+            expect(revision.public_root_type_de_champs.map(&:type_champ)).to eq(['yes_no', 'repetition'])
+            expect(repetition.revision_type_de_champs.size).to eq(3)
+            expect(repetition.revision_type_de_champs.map(&:type_champ)).to eq(['text', 'text', 'integer_number'])
+            expect(repetition.revision_type_de_champs.map(&:mandatory?)).to eq([true, true, false])
           end
         end
       end
@@ -1931,8 +1931,8 @@ describe Procedure do
     end
   end
 
-  describe '#all_revisions_types_de_champ' do
-    let(:types_de_champ_public) do
+  describe '#all_revisions_type_de_champs' do
+    let(:public_type_de_champs) do
       [
         { type: :text },
         { type: :header_section },
@@ -1940,36 +1940,36 @@ describe Procedure do
     end
 
     context 'when procedure brouillon' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
 
       it 'returns one type de champ' do
-        expect(procedure.all_revisions_types_de_champ.size).to eq 1
+        expect(procedure.all_revisions_type_de_champs.size).to eq 1
       end
 
       it 'returns also section type de champ' do
-        expect(procedure.all_revisions_types_de_champ(with_header_section: true).size).to eq 2
+        expect(procedure.all_revisions_type_de_champs(with_header_section: true).size).to eq 2
       end
 
       it "returns types de champ on draft revision" do
         procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'onemorechamp')
-        expect(procedure.reload.all_revisions_types_de_champ.size).to eq 2
+        expect(procedure.reload.all_revisions_type_de_champs.size).to eq 2
       end
     end
 
     context 'when procedure is published' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
 
       it 'returns one type de champ' do
-        expect(procedure.all_revisions_types_de_champ.size).to eq 1
+        expect(procedure.all_revisions_type_de_champs.size).to eq 1
       end
 
       it 'returns also section type de champ' do
-        expect(procedure.all_revisions_types_de_champ(with_header_section: true).size).to eq 2
+        expect(procedure.all_revisions_type_de_champs(with_header_section: true).size).to eq 2
       end
 
       it "doesn't return types de champ on draft revision" do
         procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'onemorechamp')
-        expect(procedure.reload.all_revisions_types_de_champ.size).to eq 1
+        expect(procedure.reload.all_revisions_type_de_champs.size).to eq 1
       end
     end
   end
@@ -2058,7 +2058,7 @@ describe Procedure do
 
     let(:admin) { create :administrateur }
     let(:procedure) { create(:procedure, :published, routing_enabled: true, administrateur: admin) }
-    let(:stable_id) { procedure.published_revision.root_types_de_champ_public.last.stable_id }
+    let(:stable_id) { procedure.published_revision.public_root_type_de_champs.last.stable_id }
 
     before do
       procedure.draft_revision.add_type_de_champ(
@@ -2075,7 +2075,7 @@ describe Procedure do
                procedure: procedure,
                routing_rule: ds_eq(champ_value(stable_id), constant('Paris')))
       end
-      let(:unknown_stable_id) { procedure.published_revision.types_de_champ.map(&:stable_id).max + 1 }
+      let(:unknown_stable_id) { procedure.published_revision.type_de_champs.map(&:stable_id).max + 1 }
       let!(:gi_invalid) do
         create(:groupe_instructeur,
                procedure: procedure,
@@ -2150,14 +2150,14 @@ describe Procedure do
   describe '#champ_value_in_condition?' do
     include Logic
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :yes_no, libelle: 'gate' },
         { type: :integer_number, libelle: 'value' },
       ])
     end
     let(:revision) { procedure.draft_revision }
-    let(:gate_tdc) { revision.root_types_de_champ_public.first }
-    let(:value_tdc) { revision.root_types_de_champ_public.second }
+    let(:gate_tdc) { revision.public_root_type_de_champs.first }
+    let(:value_tdc) { revision.public_root_type_de_champs.second }
     let(:gate_column) { procedure.find_column(label: 'gate') }
 
     subject { procedure.reload.champ_value_in_condition? }
@@ -2209,9 +2209,9 @@ describe Procedure do
   end
 
   describe '#used_by_referentiel_urls?' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, stable_id: 100 }, { type: :referentiel, stable_id: 200 }]) }
-    let(:text_tdc) { procedure.draft_revision.types_de_champ.find { _1.stable_id == 100 } }
-    let(:ref_tdc) { procedure.draft_revision.types_de_champ.find { _1.stable_id == 200 } }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, stable_id: 100 }, { type: :referentiel, stable_id: 200 }]) }
+    let(:text_tdc) { procedure.draft_revision.type_de_champs.find { _1.stable_id == 100 } }
+    let(:ref_tdc) { procedure.draft_revision.type_de_champs.find { _1.stable_id == 200 } }
 
     context 'when referentiel url_tiptap references the text field' do
       before do
@@ -2240,7 +2240,7 @@ describe Procedure do
 
     context 'when a drop_down_list type de champ has a CsvReferentiel' do
       let(:referentiel) { create(:csv_referentiel) }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, stable_id: 100 }, { type: :drop_down_list, stable_id: 200, referentiel:, drop_down_mode: 'advanced' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, stable_id: 100 }, { type: :drop_down_list, stable_id: 200, referentiel:, drop_down_mode: 'advanced' }]) }
 
       it 'returns false without raising' do
         expect(procedure.used_by_referentiel_urls?(text_tdc)).to be false
@@ -2280,7 +2280,7 @@ describe Procedure do
 
     let(:procedure) do
       create(:procedure, :published,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :text, libelle: 'Ville', mandatory: true },
                { type: :date, libelle: 'Date arrivée' },
                { type: :textarea, libelle: 'Description' },
@@ -2288,7 +2288,7 @@ describe Procedure do
                { type: :yes_no, libelle: 'Accord' },
                { type: :header_section, libelle: 'Section A' },
              ],
-             types_de_champ_private: [
+             private_type_de_champs: [
                { type: :text, libelle: 'Note interne' },
              ])
     end
@@ -2313,14 +2313,14 @@ describe Procedure do
     end
 
     it 'returns a single entry for a multi-column champ like address' do
-      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :address, libelle: 'Domicile' }])
+      procedure = create(:procedure, :published, public_type_de_champs: [{ type: :address, libelle: 'Domicile' }])
       columns = procedure.customizable_columns.filter { _1.label.include?('Domicile') }
       expect(columns.size).to eq(1)
       expect(columns.first.tdc_type).to eq('address')
     end
 
     it 'offers the commune name column for a commune champ' do
-      procedure = create(:procedure, :published, types_de_champ_public: [{ type: :communes, libelle: 'Ville de naissance' }])
+      procedure = create(:procedure, :published, public_type_de_champs: [{ type: :communes, libelle: 'Ville de naissance' }])
       dossier = create(:dossier, :with_populated_champs, procedure:)
 
       column = procedure.customizable_columns.sole
@@ -2334,7 +2334,7 @@ describe Procedure do
     end
 
     it 'excludes champs that carry a condition' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :yes_no, libelle: 'Gate', stable_id: 1 },
         { type: :text, libelle: 'Toujours visible' },
         { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
@@ -2344,7 +2344,7 @@ describe Procedure do
     end
 
     it 'excludes a champ conditioned in the published revision even if unconditioned in an older revision' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :yes_no, libelle: 'Gate', stable_id: 1 },
         { type: :text, libelle: 'Cible', stable_id: 2 },
       ])
@@ -2357,7 +2357,7 @@ describe Procedure do
     end
 
     it 'excludes a champ removed from the published revision even if present in an older revision' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :text, libelle: 'Conservé', stable_id: 1 },
         { type: :text, libelle: 'Supprimé', stable_id: 2 },
       ])
@@ -2374,7 +2374,7 @@ describe Procedure do
 
     let(:procedure) do
       create(:procedure, :published,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :text, libelle: 'Avant section' },
                { type: :header_section, libelle: 'Identité' },
                { type: :text, libelle: 'Nom' },
@@ -2396,7 +2396,7 @@ describe Procedure do
     end
 
     it 'omits sections that contain no personnalisable column but counts them for numbering' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :header_section, libelle: 'Vide' },
         { type: :textarea, libelle: 'Long' },
         { type: :header_section, libelle: 'Pleine' },
@@ -2408,7 +2408,7 @@ describe Procedure do
     end
 
     it 'numbers sub-sections with dotted notation' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :header_section, libelle: 'Parent', level: 1 },
         { type: :text, libelle: 'Champ parent' },
         { type: :header_section, libelle: 'Enfant', level: 2 },
@@ -2420,7 +2420,7 @@ describe Procedure do
     end
 
     it 'does not auto-number when the admin already numbered at least one section' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :header_section, libelle: '1. Identité' },
         { type: :text, libelle: 'Nom' },
         { type: :header_section, libelle: 'Représentant légal' },
@@ -2433,13 +2433,13 @@ describe Procedure do
 
     it 'returns the section header stable_id as a stable key' do
       stable_ids = procedure.customizable_columns_by_section.map(&:first)
-      header_stable_ids = procedure.published_revision.root_types_de_champ_public.filter(&:header_section?).map(&:stable_id)
+      header_stable_ids = procedure.published_revision.public_root_type_de_champs.filter(&:header_section?).map(&:stable_id)
 
       expect(stable_ids).to eq([nil, *header_stable_ids])
     end
 
     it 'does not query procedure_revisions or type_de_champs on each call (no N+1)' do
-      p = Procedure.includes(published_revision: { revision_types_de_champ: :type_de_champ }).find(procedure.id)
+      p = Procedure.includes(published_revision: { revision_type_de_champs: :type_de_champ }).find(procedure.id)
 
       revision_query_count = 0
       tdc_query_count = 0
@@ -2457,7 +2457,7 @@ describe Procedure do
     end
 
     it 'excludes champs that carry a condition' do
-      procedure = create(:procedure, :published, types_de_champ_public: [
+      procedure = create(:procedure, :published, public_type_de_champs: [
         { type: :yes_no, libelle: 'Gate', stable_id: 1 },
         { type: :text, libelle: 'Toujours visible' },
         { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },

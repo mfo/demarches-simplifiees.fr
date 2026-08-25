@@ -21,8 +21,8 @@ describe 'instructeurs/dossiers/annotations_privees', type: :view do
   subject { render }
 
   describe 'when header_sections are present' do
-    let(:procedure) { create(:procedure, types_de_champ_private:) }
-    let(:types_de_champ_private) do
+    let(:procedure) { create(:procedure, private_type_de_champs:) }
+    let(:private_type_de_champs) do
       [
         { type: :header_section, level: 1, libelle: 'l1' },
       ]

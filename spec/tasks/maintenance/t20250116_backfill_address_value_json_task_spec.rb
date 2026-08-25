@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe T20250116BackfillAddressValueJSONTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address, libelle: 'address' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address, libelle: 'address' }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:address_champ) { dossier.root_champs_public.first }
       let(:address_data) { { 'address' => 'address', 'country_code' => 'FR' } }

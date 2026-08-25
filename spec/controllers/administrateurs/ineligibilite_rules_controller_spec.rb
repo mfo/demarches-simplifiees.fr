@@ -4,8 +4,8 @@ describe Administrateurs::IneligibiliteRulesController, type: :controller do
   include Logic
   let(:user) { create(:user) }
   let(:admin) { create(:administrateur, user: create(:user)) }
-  let(:procedure) { create(:procedure, administrateurs: [admin], types_de_champ_public:) }
-  let(:types_de_champ_public) { [] }
+  let(:procedure) { create(:procedure, administrateurs: [admin], public_type_de_champs:) }
+  let(:public_type_de_champs) { [] }
 
   describe 'condition management' do
     before { sign_in(admin.user) }
@@ -82,8 +82,8 @@ describe Administrateurs::IneligibiliteRulesController, type: :controller do
     end
 
     context 'simple tdc' do
-      let(:types_de_champ_public) { [{ type: :yes_no }] }
-      let(:yes_no_tdc) { procedure.draft_revision.types_de_champ_for(scope: :public).first }
+      let(:public_type_de_champs) { [{ type: :yes_no }] }
+      let(:yes_no_tdc) { procedure.draft_revision.type_de_champs_for(scope: :public).first }
       let(:targeted_champ) { champ_value(yes_no_tdc.stable_id).to_json }
 
       describe '#change_targeted_champ' do
@@ -130,8 +130,8 @@ describe Administrateurs::IneligibiliteRulesController, type: :controller do
     end
 
     context 'repetition tdc' do
-      let(:types_de_champ_public) { [{ type: :repetition, children: [{ type: :yes_no }] }] }
-      let(:yes_no_tdc) { procedure.draft_revision.types_de_champ_for(scope: :public).find { _1.type_champ == 'yes_no' } }
+      let(:public_type_de_champs) { [{ type: :repetition, children: [{ type: :yes_no }] }] }
+      let(:yes_no_tdc) { procedure.draft_revision.type_de_champs_for(scope: :public).find { _1.type_champ == 'yes_no' } }
       let(:targeted_champ) { champ_value(yes_no_tdc.stable_id).to_json }
       let(:condition_form) do
         {
@@ -196,14 +196,14 @@ describe Administrateurs::IneligibiliteRulesController, type: :controller do
       it { is_expected.to have_http_status(200) }
 
       context 'rendered without tdc' do
-        let(:types_de_champ_public) { [] }
+        let(:public_type_de_champs) { [] }
         render_views
 
         it { expect(response.body).to have_link("Ajouter un champ supportant les conditions d’inéligibilité") }
       end
 
       context 'rendered with tdc' do
-        let(:types_de_champ_public) { [{ type: :yes_no }] }
+        let(:public_type_de_champs) { [{ type: :yes_no }] }
         render_views
 
         it { expect(response.body).not_to have_link("Ajouter un champ supportant les conditions d’inéligibilité") }
@@ -233,7 +233,7 @@ describe Administrateurs::IneligibiliteRulesController, type: :controller do
     end
 
     context 'when ineligibilite rules is present' do
-      let(:types_de_champ_public) { [{ type: :drop_down_list, stable_id: 1, options: ['opt'] }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, stable_id: 1, options: ['opt'] }] }
       before do
         procedure.draft_revision.update(ineligibilite_rules: ds_eq(champ_value(1), constant('opt')))
       end

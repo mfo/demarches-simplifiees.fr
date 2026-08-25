@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe TypesDeChamp::ReferentielReadyValidator do
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+RSpec.describe TypeDeChamps::ReferentielReadyValidator do
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:referentiel) { create(:api_referentiel, :exact_match) }
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
 
-  subject { procedure.validate(:types_de_champ_public_editor) }
+  subject { procedure.validate(:public_type_de_champs_editor) }
 
   context 'when all referentiel is ready' do
     before { expect_any_instance_of(Referentiels::APIReferentiel).to receive(:ready?).and_return(true) }

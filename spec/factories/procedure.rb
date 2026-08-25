@@ -30,8 +30,8 @@ FactoryBot.define do
     transient do
       administrateur { Administrateur.find_by(user: { email: "admin@exemple.fr" }) }
       instructeurs { [] }
-      types_de_champ_public { [] }
-      types_de_champ_private { [] }
+      public_type_de_champs { [] }
+      private_type_de_champs { [] }
       updated_at { nil }
       dossier_submitted_message { nil }
       path { nil }
@@ -41,23 +41,23 @@ FactoryBot.define do
       procedure.defaut_groupe_instructeur = procedure.groupe_instructeurs.first
       initial_revision = build(:procedure_revision, procedure: procedure, dossier_submitted_message: evaluator.dossier_submitted_message)
 
-      revision_types_de_champ = []
+      revision_type_de_champs = []
 
-      if evaluator.types_de_champ_public.present?
-        if !evaluator.types_de_champ_public.first.is_a?(Hash)
-          raise "types_de_champ_public must be an array of hashes"
+      if evaluator.public_type_de_champs.present?
+        if !evaluator.public_type_de_champs.first.is_a?(Hash)
+          raise "public_type_de_champs must be an array of hashes"
         end
-        revision_types_de_champ += build_types_de_champ(evaluator.types_de_champ_public, revision: initial_revision, scope: :public)
+        revision_type_de_champs += build_type_de_champs(evaluator.public_type_de_champs, revision: initial_revision, scope: :public)
       end
 
-      if evaluator.types_de_champ_private.present?
-        if !evaluator.types_de_champ_private.first.is_a?(Hash)
-          raise "types_de_champ_private must be an array of hashes"
+      if evaluator.private_type_de_champs.present?
+        if !evaluator.private_type_de_champs.first.is_a?(Hash)
+          raise "private_type_de_champs must be an array of hashes"
         end
-        revision_types_de_champ += build_types_de_champ(evaluator.types_de_champ_private, revision: initial_revision, scope: :private)
+        revision_type_de_champs += build_type_de_champs(evaluator.private_type_de_champs, revision: initial_revision, scope: :private)
       end
 
-      initial_revision.association(:revision_types_de_champ).target = revision_types_de_champ
+      initial_revision.association(:revision_type_de_champs).target = revision_type_de_champs
 
       if procedure.brouillon?
         procedure.draft_revision = initial_revision
@@ -94,7 +94,7 @@ FactoryBot.define do
       published
 
       for_individual { true }
-      types_de_champ_public { [{ type: :text, libelle: 'Texte obligatoire', mandatory: true }] }
+      public_type_de_champs { [{ type: :text, libelle: 'Texte obligatoire', mandatory: true }] }
     end
 
     trait :with_bulk_message do
@@ -142,19 +142,19 @@ FactoryBot.define do
     end
 
     trait :with_type_de_champ do
-      types_de_champ_public { [{ type: :text }] }
+      public_type_de_champs { [{ type: :text }] }
     end
 
     trait :with_type_de_champ_private do
-      types_de_champ_private { [{ type: :text }] }
+      private_type_de_champs { [{ type: :text }] }
     end
 
     trait :with_decimal_number_public do
-      types_de_champ_public { [{ type: :decimal_number }] }
+      public_type_de_champs { [{ type: :decimal_number }] }
     end
 
     trait :with_decimal_number_private do
-      types_de_champ_private { [{ type: :decimal_number }] }
+      private_type_de_champs { [{ type: :decimal_number }] }
     end
 
     trait :draft do
@@ -228,7 +228,7 @@ FactoryBot.define do
             libelle = 'simple_drop_down_list'
           end
           if type_champ == 'repetition'
-            build(:type_de_champ_repetition, :with_types_de_champ, procedure: procedure, mandatory: true, libelle: libelle, position: index)
+            build(:type_de_champ_repetition, :with_type_de_champs, procedure: procedure, mandatory: true, libelle: libelle, position: index)
           elsif type_champ == 'referentiel'
             referentiel = build(:api_referentiel, :exact_match)
 
@@ -250,7 +250,7 @@ FactoryBot.define do
             libelle = 'simple_drop_down_list'
           end
           if type_champ == 'repetition'
-            build(:type_de_champ_repetition, :with_types_de_champ, procedure: procedure, libelle: libelle, position: index)
+            build(:type_de_champ_repetition, :with_type_de_champs, procedure: procedure, libelle: libelle, position: index)
           elsif type_champ == 'referentiel'
             referentiel = build(:api_referentiel, :exact_match)
 
@@ -262,7 +262,7 @@ FactoryBot.define do
       end
     end
 
-    # TODO: rewrite with types_de_champ_private
+    # TODO: rewrite with private_type_de_champs
     trait :with_all_annotations do
       after(:build) do |procedure, _evaluator|
         TypeDeChamp.type_champs.map.with_index do |(libelle, type_champ), index|
@@ -320,8 +320,8 @@ FactoryBot.define do
   end
 end
 
-def build_types_de_champ(types_de_champ, revision:, scope: :public, parent: nil)
-  types_de_champ.map do |type_de_champ_attributes|
+def build_type_de_champs(type_de_champs, revision:, scope: :public, parent: nil)
+  type_de_champs.map do |type_de_champ_attributes|
     referentiel = type_de_champ_attributes.delete(:referentiel)
     if referentiel.present?
       type_de_champ_attributes[:referentiel_id] = referentiel.id
@@ -369,7 +369,7 @@ def build_types_de_champ(types_de_champ, revision:, scope: :public, parent: nil)
       parent:)
 
     if type_de_champ.repetition? && children.present?
-      [coordinate] + build_types_de_champ(children, revision:, scope:, parent: coordinate)
+      [coordinate] + build_type_de_champs(children, revision:, scope:, parent: coordinate)
     else
       coordinate
     end

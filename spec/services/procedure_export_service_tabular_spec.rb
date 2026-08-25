@@ -4,10 +4,10 @@ require 'csv'
 
 describe ProcedureExportService do
   let(:instructeur) { create(:instructeur) }
-  let(:procedure) { create(:procedure, types_de_champ_public:, for_individual:, ask_birthday: true, instructeurs: [instructeur]) }
+  let(:procedure) { create(:procedure, public_type_de_champs:, for_individual:, ask_birthday: true, instructeurs: [instructeur]) }
   let(:service) { ProcedureExportService.new(procedure, procedure.dossiers, instructeur, export_template) }
   let(:for_individual) { true }
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: "first champ", mandatory: true, stable_id: 1 },
       { type: :communes, libelle: "Commune", mandatory: true, stable_id: 17 },
@@ -79,7 +79,7 @@ describe ProcedureExportService do
 
       context 'with multiple groupe instructeur' do
         let(:exported_columns) { [ExportedColumn.new(libelle: 'Groupe instructeur', column: procedure.find_column(label: 'Groupe instructeur'))] }
-        let(:types_de_champ_public) { [] }
+        let(:public_type_de_champs) { [] }
 
         before do
           create(:groupe_instructeur, label: '2', procedure:)
@@ -93,7 +93,7 @@ describe ProcedureExportService do
       end
 
       context 'with multiple pjs' do
-        let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "PJ" }] }
+        let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: "PJ" }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'PJ', column: procedure.find_column(label: 'PJ'))] }
         before do
           dossier = create(:dossier, :en_instruction, :with_populated_champs, procedure:)
@@ -106,56 +106,56 @@ describe ProcedureExportService do
       end
 
       context 'with TypeDeChamp::PieceJustificativeTypeDeChamp (titre_identite)' do
-        let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Titre d'identité", nature: :titre_identite }] }
+        let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: "Titre d'identité", nature: :titre_identite }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: "Titre d'identité – filled", column: procedure.find_column(label: "Titre d'identité – filled"))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq 'présent' }
       end
 
       context 'with TypeDeChamp::MutlipleDropDownListTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :multiple_drop_down_list, libelle: "multiple_drop_down_list", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :multiple_drop_down_list, libelle: "multiple_drop_down_list", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'Date du dernier évènement', column: procedure.find_column(label: 'multiple_drop_down_list'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq "val1, val2" }
       end
 
       context 'with TypeDeChamp:YesNoTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :yes_no, libelle: "yes_no", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :yes_no, libelle: "yes_no", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'yes_no', column: procedure.find_column(label: 'yes_no'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq true }
       end
 
       context 'with TypeDeChamp:CheckboxTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :checkbox, libelle: "checkbox", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :checkbox, libelle: "checkbox", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'checkbox', column: procedure.find_column(label: 'checkbox'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq true }
       end
 
       context 'with TypeDeChamp:DecimalNumberTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :decimal_number, libelle: "decimal", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :decimal_number, libelle: "decimal", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'decimal', column: procedure.find_column(label: 'decimal'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq 42.1 }
       end
 
       context 'with TypeDeChamp:IntegerNumberTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :integer_number, libelle: "integer", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :integer_number, libelle: "integer", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'integer', column: procedure.find_column(label: 'integer'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq 42.0 }
       end
 
       context 'with TypesDeChamp::LinkedDropDownListTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :linked_drop_down_list, libelle: "linked_drop_down_list", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :linked_drop_down_list, libelle: "linked_drop_down_list", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'linked_drop_down_list', column: procedure.find_column(label: 'linked_drop_down_list'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to eq "primary / secondary" }
       end
 
       context 'with TypesDeChamp::DateTimeTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :datetime, libelle: "datetime", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :datetime, libelle: "datetime", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'datetime', column: procedure.find_column(label: 'datetime'))] }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         before { dossier }
@@ -168,7 +168,7 @@ describe ProcedureExportService do
       end
 
       context 'with TypesDeChamp::TextAreaTypeDeChamp' do
-        let(:types_de_champ_public) { [{ type: :textarea, libelle: "textarea", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :textarea, libelle: "textarea", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'textarea', column: procedure.find_column(label: 'textarea'))] }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         before do
@@ -183,14 +183,14 @@ describe ProcedureExportService do
       end
 
       context 'with TypesDeChamp::Date' do
-        let(:types_de_champ_public) { [{ type: :date, libelle: "date", mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :date, libelle: "date", mandatory: true }] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'date', column: procedure.find_column(label: 'date'))] }
         before { create(:dossier, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to be_an_instance_of(Date) }
       end
 
       context 'with DossierColumn as datetime' do
-        let(:types_de_champ_public) { [] }
+        let(:public_type_de_champs) { [] }
         let(:exported_columns) { [ExportedColumn.new(libelle: 'Date de passage en instruction', column: procedure.find_column(label: 'Date de passage en instruction'))] }
         before { create(:dossier, :en_instruction, :with_populated_champs, procedure:) }
         it { expect(dossiers_sheet.data.last.last).to be_an_instance_of(Time) }
@@ -198,7 +198,7 @@ describe ProcedureExportService do
     end
 
     describe 'Etablissement sheet' do
-      let(:types_de_champ_public) { [{ type: :siret, libelle: 'siret', stable_id: 40 }] }
+      let(:public_type_de_champs) { [{ type: :siret, libelle: 'siret', stable_id: 40 }] }
       let(:exported_columns) do
         [
           ExportedColumn.new(libelle: "N° dossier", column: procedure.find_column(label: "N° dossier")),
@@ -206,7 +206,7 @@ describe ProcedureExportService do
           ExportedColumn.new(libelle: "siret", column: procedure.find_column(label: "siret")),
         ]
       end
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
       let!(:dossier) { create(:dossier, :en_instruction, :with_populated_champs, :with_entreprise, procedure: procedure) }
 
       let(:dossier_etablissement) { etablissements_sheet.data[1] }

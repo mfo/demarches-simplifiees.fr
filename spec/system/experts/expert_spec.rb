@@ -8,8 +8,8 @@ describe 'Inviting an expert:', js: true do
   context 'as an invited Expert' do
     let(:expert) { create(:expert) }
     let(:instructeur) { create(:instructeur) }
-    let(:types_de_champ_private) { [] }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }, { type: :dossier_link }], types_de_champ_private:, instructeurs: [instructeur]) }
+    let(:private_type_de_champs) { [] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }, { type: :dossier_link }], private_type_de_champs:, instructeurs: [instructeur]) }
     let(:experts_procedure) { create(:experts_procedure, expert: expert, procedure:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, :with_populated_annotations, procedure:) }
     let(:champ) { dossier.champ_data.first }
@@ -141,7 +141,7 @@ describe 'Inviting an expert:', js: true do
     context 'with dossiers having attached files', js: true do
       let(:path) { 'spec/fixtures/files/piece_justificative_0.pdf' }
       let(:commentaire) { create(:commentaire, instructeur: instructeur, dossier: dossier) }
-      let(:types_de_champ_private) { [{ type: :piece_justificative }] }
+      let(:private_type_de_champs) { [{ type: :piece_justificative }] }
 
       scenario 'An Expert can download an archive containing attachments without any private champ, bill signature and operations logs' do
         avis # create avis
@@ -175,7 +175,7 @@ describe 'Inviting an expert:', js: true do
     let(:expert_1) { create(:expert) }
     let(:expert_2) { create(:expert) }
     let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], types_de_champ_public: [{ type: :dossier_link }]) }
+    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], public_type_de_champs: [{ type: :dossier_link }]) }
     let(:experts_procedure_1) { create(:experts_procedure, expert: expert_1, procedure:) }
     let(:experts_procedure_2) { create(:experts_procedure, expert: expert_2, procedure:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }

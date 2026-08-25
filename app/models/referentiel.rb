@@ -2,7 +2,7 @@
 
 class Referentiel < ApplicationRecord
   has_many :items, -> { order(:id) }, class_name: 'ReferentielItem', dependent: :destroy, inverse_of: :referentiel
-  has_many :types_de_champ, inverse_of: :referentiel, dependent: :nullify
+  has_many :type_de_champs, inverse_of: :referentiel, dependent: :nullify
 
   # only an API referentiel can serve the autocompletion
   def autocomplete_ready?

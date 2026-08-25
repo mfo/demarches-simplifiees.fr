@@ -506,12 +506,12 @@ describe API::V2::GraphqlController do
 
         context 'with api hack' do
           include Logic
-          let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{ type: :drop_down_list }]) }
+          let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], public_type_de_champs: [{ type: :drop_down_list }]) }
           # created eagerly so the dossier belongs to the original defaut groupe,
           # not to defaut_groupe_instructeur which becomes the defaut below
           let!(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:) }
           let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
-          let(:routing_champ) { procedure.active_revision.types_de_champ.first }
+          let(:routing_champ) { procedure.active_revision.type_de_champs.first }
           let!(:defaut_groupe_instructeur) { create(:groupe_instructeur, procedure: procedure) }
 
           before do
@@ -581,9 +581,9 @@ describe API::V2::GraphqlController do
 
       context 'with api hack' do
         include Logic
-        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{ type: :drop_down_list }]) }
+        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], public_type_de_champs: [{ type: :drop_down_list }]) }
         let(:groupe_instructeur) { procedure.groupe_instructeurs.first }
-        let(:routing_champ) { procedure.active_revision.types_de_champ.first }
+        let(:routing_champ) { procedure.active_revision.type_de_champs.first }
 
         before do
           groupe_instructeur.update(routing_rule: ds_eq(champ_value(routing_champ.stable_id), constant(groupe_instructeur.label)))
@@ -972,8 +972,8 @@ describe API::V2::GraphqlController do
     end
 
     context 'dossierModifierAnnotations' do
-      let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_private:) }
-      let(:types_de_champ_private) { [{ type: :text }, { type: :checkbox }, { type: :integer_number }, { type: :decimal_number }, { type: :date }] }
+      let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], private_type_de_champs:) }
+      let(:private_type_de_champs) { [{ type: :text }, { type: :checkbox }, { type: :integer_number }, { type: :decimal_number }, { type: :date }] }
       let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
       let(:annotations) { dossier.root_champs_private }
       let(:date) { 1.day.from_now.to_date.iso8601 }

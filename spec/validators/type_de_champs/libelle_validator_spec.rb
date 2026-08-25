@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 
-RSpec.describe TypesDeChamp::LibelleValidator do
-  let(:procedure) { create(:procedure, types_de_champ_public: types) }
-  let(:type_de_champ) { procedure.active_revision.root_types_de_champ_public.first }
+RSpec.describe TypeDeChamps::LibelleValidator do
+  let(:procedure) { create(:procedure, public_type_de_champs: types) }
+  let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
 
-  subject { procedure.validate(:types_de_champ_public_editor) }
+  subject { procedure.validate(:public_type_de_champs_editor) }
 
   context 'with a text type de champ' do
     let(:types) { [type: :text] }
@@ -36,7 +36,7 @@ RSpec.describe TypesDeChamp::LibelleValidator do
 
   context 'with a champ inside a repetition' do
     let(:types) { [{ type: :repetition, children: [{ type: :text }] }] }
-    let(:repetition) { procedure.active_revision.root_types_de_champ_public.find(&:repetition?) }
+    let(:repetition) { procedure.active_revision.public_root_type_de_champs.find(&:repetition?) }
     let(:child) { procedure.draft_revision.children_of(repetition).first }
 
     context 'when the child libelle is empty' do
@@ -45,12 +45,12 @@ RSpec.describe TypesDeChamp::LibelleValidator do
       it 'adds an error mentioning both the child position and the parent repetition position' do
         subject
 
-        expect(procedure.errors.messages_for(:draft_types_de_champ_public))
+        expect(procedure.errors.messages_for(:public_draft_type_de_champs))
           .to include(
             I18n.t(
-              'activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.missing_libelle_in_repetition',
-              position: child.revision_types_de_champ.last.position + 1,
-              parent_position: repetition.revision_types_de_champ.last.position + 1
+              'activerecord.errors.models.procedure.attributes.public_draft_type_de_champs.missing_libelle_in_repetition',
+              position: child.revision_type_de_champs.last.position + 1,
+              parent_position: repetition.revision_type_de_champs.last.position + 1
             )
           )
       end

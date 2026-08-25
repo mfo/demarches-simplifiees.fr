@@ -4,8 +4,8 @@ describe DossierProjectionService do
   describe '#project' do
     subject { described_class.project(dossiers_ids, columns) }
 
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :text, libelle: 'texte' },
         { type: :integer_number, libelle: 'nombre entier' },

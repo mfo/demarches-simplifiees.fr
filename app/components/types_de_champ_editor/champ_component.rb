@@ -88,7 +88,7 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   end
 
   def published_type_champ
-    @published_type_champ ||= procedure.published_revision&.types_de_champ&.find { _1.stable_id == type_de_champ.stable_id }&.type_champ
+    @published_type_champ ||= procedure.published_revision&.type_de_champs&.find { _1.stable_id == type_de_champ.stable_id }&.type_champ
   end
 
   def disabled_type_de_champ_select?
@@ -120,7 +120,7 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   end
 
   def has_legacy_number?
-    revision.types_de_champ.any?(&:number?)
+    revision.type_de_champs.any?(&:number?)
   end
 
   def options_for_character_limit
@@ -136,7 +136,7 @@ class TypesDeChampEditor::ChampComponent < ApplicationComponent
   def prefill_with_france_connect_information_locked_by_sibling?
     return false if type_de_champ.prefill_with_france_connect_information?
 
-    coordinate.revision.types_de_champ.any? do |tdc|
+    coordinate.revision.type_de_champs.any? do |tdc|
       tdc.date? && tdc.prefill_with_france_connect_information? && tdc.id != type_de_champ.id
     end
   end

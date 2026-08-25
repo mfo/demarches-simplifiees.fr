@@ -63,9 +63,9 @@ describe DossierFilterService do
   end
 
   describe '#sorted_ids' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private: [{}]) }
-    let(:types_de_champ_public) { [{}] }
-    let(:first_type_de_champ) { assign_to.procedure.active_revision.root_types_de_champ_public.first }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:, private_type_de_champs: [{}]) }
+    let(:public_type_de_champs) { [{}] }
+    let(:first_type_de_champ) { assign_to.procedure.active_revision.public_root_type_de_champs.first }
     let(:dossiers) { procedure.dossiers }
     let(:instructeur) { create(:instructeur) }
     let(:assign_to) { create(:assign_to, procedure:, instructeur:) }
@@ -192,7 +192,7 @@ describe DossierFilterService do
 
     context 'for type_de_champ_private table' do
       context 'with no revisions' do
-        let(:column) { procedure.find_column(label: procedure.active_revision.root_types_de_champ_private.first.libelle) }
+        let(:column) { procedure.find_column(label: procedure.active_revision.private_root_type_de_champs.first.libelle) }
 
         let(:biere_dossier) { create(:dossier, procedure:) }
         let(:vin_dossier) { create(:dossier, procedure:) }
@@ -328,9 +328,9 @@ describe DossierFilterService do
   end
 
   describe '#filtered_ids' do
-    let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-    let(:types_de_champ_public) { [{}] }
-    let(:types_de_champ_private) { [{}] }
+    let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+    let(:public_type_de_champs) { [{}] }
+    let(:private_type_de_champs) { [{}] }
     let(:dossiers) { procedure.dossiers }
     let(:filtered_columns) { filters.map { to_filter(_1) } }
     let(:filters) { [filter] }
@@ -409,7 +409,7 @@ describe DossierFilterService do
           travel_to Time.zone.local(2023, 6, 10, 10)
         end
 
-        let(:procedure) { create(:procedure, :published, :sva, types_de_champ_public: [{}], types_de_champ_private: [{}]) }
+        let(:procedure) { create(:procedure, :published, :sva, public_type_de_champs: [{}], private_type_de_champs: [{}]) }
         let(:filter) { ['Date décision SVA avant', '15/06/2023'] }
 
         let!(:kept_dossier) { create(:dossier, :en_instruction, procedure:, sva_svr_decision_on: Date.current) }
@@ -485,7 +485,7 @@ describe DossierFilterService do
 
       let(:kept_dossier) { create(:dossier, procedure:) }
       let(:discarded_dossier) { create(:dossier, procedure:) }
-      let(:type_de_champ) { procedure.active_revision.root_types_de_champ_public.first }
+      let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
 
       context 'with single value' do
         before do
@@ -513,7 +513,7 @@ describe DossierFilterService do
 
       context 'with yes_no type_de_champ' do
         let(:filter) { [type_de_champ.libelle, 'true'] }
-        let(:types_de_champ_public) { [{ type: :yes_no }] }
+        let(:public_type_de_champs) { [{ type: :yes_no }] }
 
         before do
           kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'true')
@@ -525,7 +525,7 @@ describe DossierFilterService do
 
       context 'with departement type_de_champ' do
         let(:filter) { [type_de_champ.libelle, '13'] }
-        let(:types_de_champ_public) { [{ type: :departements }] }
+        let(:public_type_de_champs) { [{ type: :departements }] }
 
         before do
           kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(external_id: '13')
@@ -537,7 +537,7 @@ describe DossierFilterService do
 
       context 'with enum type_de_champ' do
         let(:filter) { [type_de_champ.libelle, 'Favorable'] }
-        let(:types_de_champ_public) { [{ type: :drop_down_list, options: ['Favorable', 'Defavorable'] }] }
+        let(:public_type_de_champs) { [{ type: :drop_down_list, options: ['Favorable', 'Defavorable'] }] }
 
         before do
           kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id).update(value: 'Favorable')
@@ -552,15 +552,15 @@ describe DossierFilterService do
         let(:filter_resto) { [type_de_champ_resto.libelle, 'pizzeria'] }
         let(:filter_a_emporter) { [type_de_champ_a_emporter.libelle, 'true'] }
 
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :drop_down_list, options: ['pizzeria', 'gastronomique'] },
             { type: :yes_no },
           ]
         end
-        let(:types_de_champ) { procedure.active_revision.root_types_de_champ_public }
-        let(:type_de_champ_resto) { types_de_champ[0] }
-        let(:type_de_champ_a_emporter) { types_de_champ[1] }
+        let(:type_de_champs) { procedure.active_revision.public_root_type_de_champs }
+        let(:type_de_champ_resto) { type_de_champs[0] }
+        let(:type_de_champ_a_emporter) { type_de_champs[1] }
 
         let(:another_discarded_dossier) { create(:dossier, procedure:) }
 
@@ -593,7 +593,7 @@ describe DossierFilterService do
 
       context 'with enums type_de_champ' do
         let(:filter) { [type_de_champ.libelle, search_term] }
-        let(:types_de_champ_public) { [{ type: :multiple_drop_down_list, options: ['champ', 'champignon'] }] }
+        let(:public_type_de_champs) { [{ type: :multiple_drop_down_list, options: ['champ', 'champignon'] }] }
 
         before do
           kept_champ = kept_dossier.champ_data.find_by(stable_id: type_de_champ.stable_id)
@@ -634,7 +634,7 @@ describe DossierFilterService do
         let(:filtered_columns) { filters.map { to_filter(_1) } }
         let(:filters) { [['drop_down_list', { operator: 'match', value: ['Dessert', 'Fromage'] }]] }
 
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :drop_down_list, libelle: 'drop_down_list', options: ['Fromage', 'Dessert', 'Chocolat'] },
           ]
@@ -659,7 +659,7 @@ describe DossierFilterService do
 
       let(:kept_dossier) { create(:dossier, procedure:) }
       let(:discarded_dossier) { create(:dossier, procedure:) }
-      let(:type_de_champ_private) { procedure.active_revision.root_types_de_champ_private.first }
+      let(:type_de_champ_private) { procedure.active_revision.private_root_type_de_champs.first }
 
       before do
         kept_dossier.champ_data.find_by(stable_id: type_de_champ_private.stable_id).update(value: 'keep me')
@@ -671,8 +671,8 @@ describe DossierFilterService do
 
     context 'for type_de_champ using AddressableColumnConcern' do
       let(:column) { filtered_columns.first.column }
-      let(:types_de_champ_public) { [{ type: :rna, stable_id: 1, libelle: 'rna' }] }
-      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+      let(:public_type_de_champs) { [{ type: :rna, stable_id: 1, libelle: 'rna' }] }
+      let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
       let(:kept_dossier) { create(:dossier, procedure:) }
 
       context "when searching by postal_code (text)" do
@@ -912,7 +912,7 @@ describe DossierFilterService do
 
     context 'with a json structured filter' do
       context 'with a single value' do
-        let(:types_de_champ_public) { [{ type: :yes_no, libelle: 'yes_no' }] }
+        let(:public_type_de_champs) { [{ type: :yes_no, libelle: 'yes_no' }] }
         let(:filter) { ['yes_no', { operator: 'match', value: ['true'] }] }
 
         let(:kept_dossier) { create(:dossier, procedure:) }

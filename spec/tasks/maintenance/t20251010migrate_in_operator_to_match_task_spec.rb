@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe T20251010migrateInOperatorToMatchTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
       let(:instructeur) { create(:instructeur) }
       let(:assign_to) { create(:assign_to, procedure: procedure, instructeur: instructeur) }
       let(:procedure_presentation) { create(:procedure_presentation, assign_to: assign_to) }

@@ -9,17 +9,17 @@ class ProcedureRevision < ApplicationRecord
   belongs_to :dossier_submitted_message, inverse_of: :revisions, optional: true, dependent: :destroy
   has_many :llm_rule_suggestions, dependent: :destroy, inverse_of: :procedure_revision
   has_many :dossiers, inverse_of: :revision, foreign_key: :revision_id
-  has_many :revision_types_de_champ, -> { order(:position, :id) }, class_name: 'ProcedureRevisionTypeDeChamp', foreign_key: :revision_id, dependent: :destroy, inverse_of: :revision
+  has_many :revision_type_de_champs, -> { order(:position, :id) }, class_name: 'ProcedureRevisionTypeDeChamp', foreign_key: :revision_id, dependent: :destroy, inverse_of: :revision
 
-  def revision_types_de_champ_public = revision_types_de_champ.filter { _1.root? && _1.public? }.sort_by(&:position)
-  def revision_types_de_champ_private = revision_types_de_champ.filter { _1.root? && _1.private? }.sort_by(&:position)
-  def types_de_champ = revision_types_de_champ.map(&:type_de_champ)
-  def root_types_de_champ_public = revision_types_de_champ_public.map(&:type_de_champ)
-  def root_types_de_champ_private = revision_types_de_champ_private.map(&:type_de_champ)
+  def public_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.public? }.sort_by(&:position)
+  def private_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.private? }.sort_by(&:position)
+  def type_de_champs = revision_type_de_champs.map(&:type_de_champ)
+  def public_root_type_de_champs = public_revision_type_de_champs.map(&:type_de_champ)
+  def private_root_type_de_champs = private_revision_type_de_champs.map(&:type_de_champ)
 
   # All types de champ in document order, repetition children inlined after their repetition.
-  def flat_types_de_champ_public = revision_types_de_champ_public.flat_map { [it, *it.revision_types_de_champ] }.map(&:type_de_champ)
-  def flat_types_de_champ_private = revision_types_de_champ_private.flat_map { [it, *it.revision_types_de_champ] }.map(&:type_de_champ)
+  def public_flat_type_de_champs = public_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
+  def private_flat_type_de_champs = private_revision_type_de_champs.flat_map { [it, *it.revision_type_de_champs] }.map(&:type_de_champ)
 
   has_one :draft_procedure, -> { with_discarded }, class_name: 'Procedure', foreign_key: :draft_revision_id, dependent: :nullify, inverse_of: :draft_revision
   has_one :published_procedure, -> { with_discarded }, class_name: 'Procedure', foreign_key: :published_revision_id, dependent: :nullify, inverse_of: :published_revision
@@ -66,10 +66,10 @@ class ProcedureRevision < ApplicationRecord
         ProcedureRevisionTypeDeChamp.where(id: siblings, position: position..).update_all("position = position + 1")
 
         # insertion of the new tdc
-        revision_types_de_champ.create!(type_de_champ:, parent_id:, position:)
+        revision_type_de_champs.create!(type_de_champ:, parent_id:, position:)
       end
 
-      revision_types_de_champ.reset
+      revision_type_de_champs.reset
     end
 
     type_de_champ
@@ -104,7 +104,7 @@ class ProcedureRevision < ApplicationRecord
       coordinate.update_column(:position, position)
     end
 
-    revision_types_de_champ.reset
+    revision_type_de_champs.reset
     coordinate.reload
     coordinate
   end
@@ -123,7 +123,7 @@ class ProcedureRevision < ApplicationRecord
       end
     end
 
-    revision_types_de_champ.reset
+    revision_type_de_champs.reset
     coordinate.reload
     coordinate
   end
@@ -145,7 +145,7 @@ class ProcedureRevision < ApplicationRecord
       ProcedureRevisionTypeDeChamp.where(id: coordinate.siblings, position: coordinate.position..).update_all("position = position - 1")
     end
 
-    revision_types_de_champ.reset
+    revision_type_de_champs.reset
     coordinate
   end
 
@@ -173,9 +173,9 @@ class ProcedureRevision < ApplicationRecord
     !draft?
   end
 
-  def compare_types_de_champ(revision)
+  def compare_type_de_champs(revision)
     changes = []
-    changes += compare_revision_types_de_champ(revision_types_de_champ, revision.revision_types_de_champ)
+    changes += compare_revision_type_de_champs(revision_type_de_champs, revision.revision_type_de_champs)
     changes
   end
 
@@ -198,32 +198,32 @@ class ProcedureRevision < ApplicationRecord
     dossier
   end
 
-  def types_de_champ_for(scope: nil)
+  def type_de_champs_for(scope: nil)
     case scope
     when :public
-      types_de_champ.filter(&:public?)
+      type_de_champs.filter(&:public?)
     when :private
-      types_de_champ.filter(&:private?)
+      type_de_champs.filter(&:private?)
     else
-      types_de_champ
+      type_de_champs
     end
   end
 
   def children_of(tdc)
-    coordinate_for(tdc).types_de_champ
+    coordinate_for(tdc).type_de_champs
   end
 
   def parent_of(tdc)
     coordinate = coordinate_for(tdc)
     if coordinate&.child?
-      revision_types_de_champ.find { _1.id == coordinate.parent_id }&.type_de_champ
+      revision_type_de_champs.find { _1.id == coordinate.parent_id }&.type_de_champ
     end
   end
 
   def dependent_conditions(tdc)
     stable_id = tdc.stable_id
 
-    (tdc.public? ? root_types_de_champ_public : root_types_de_champ_private).filter do |other_tdc|
+    (tdc.public? ? public_root_type_de_champs : private_root_type_de_champs).filter do |other_tdc|
       next if !other_tdc.condition?
 
       other_tdc.condition.sources.include?(stable_id)
@@ -240,37 +240,37 @@ class ProcedureRevision < ApplicationRecord
   end
 
   def coordinate_for(tdc)
-    revision_types_de_champ.find { _1.stable_id == tdc.stable_id }
+    revision_type_de_champs.find { _1.stable_id == tdc.stable_id }
   end
 
   def carte?
-    root_types_de_champ_public.any?(&:carte?)
+    public_root_type_de_champs.any?(&:carte?)
   end
 
   def has_france_connect_type_de_champ?
-    root_types_de_champ_public.any?(&:france_connect?)
+    public_root_type_de_champs.any?(&:france_connect?)
   end
 
   def coordinate_and_tdc(stable_id)
     return [nil, nil] if stable_id.blank?
 
-    coordinate = revision_types_de_champ
+    coordinate = revision_type_de_champs
       .joins(:type_de_champ)
       .find_by(type_de_champ: { stable_id: stable_id })
 
     [coordinate, coordinate&.type_de_champ]
   end
 
-  def simple_routable_types_de_champ
-    root_types_de_champ_public.filter(&:simple_routable?)
+  def simple_routable_type_de_champs
+    public_root_type_de_champs.filter(&:simple_routable?)
   end
 
-  def conditionable_types_de_champ
-    types_de_champ_for(scope: :public).filter(&:conditionable?)
+  def conditionable_type_de_champs
+    type_de_champs_for(scope: :public).filter(&:conditionable?)
   end
 
   def champ_value_in_condition?
-    conditions = types_de_champ.filter_map(&:condition) + [ineligibilite_rules].compact
+    conditions = type_de_champs.filter_map(&:condition) + [ineligibilite_rules].compact
 
     conditions
       .flat_map(&:terms)
@@ -343,7 +343,7 @@ class ProcedureRevision < ApplicationRecord
   private
 
   def compute_estimated_fill_duration
-    root_types_de_champ_public.sum do |tdc|
+    public_root_type_de_champs.sum do |tdc|
       next tdc.estimated_read_duration unless tdc.fillable?
 
       duration = tdc.estimated_read_duration + tdc.estimated_fill_duration(self)
@@ -355,11 +355,11 @@ class ProcedureRevision < ApplicationRecord
 
   def siblings_for(type_de_champ:, parent_coordinate: nil)
     if parent_coordinate
-      parent_coordinate.revision_types_de_champ
+      parent_coordinate.revision_type_de_champs
     elsif type_de_champ.private?
-      revision_types_de_champ_private
+      private_revision_type_de_champs
     else
-      revision_types_de_champ_public
+      public_revision_type_de_champs
     end
   end
 
@@ -372,7 +372,7 @@ class ProcedureRevision < ApplicationRecord
     end
   end
 
-  def compare_revision_types_de_champ(from_coordinates, to_coordinates)
+  def compare_revision_type_de_champs(from_coordinates, to_coordinates)
     if from_coordinates == to_coordinates
       []
     else
@@ -755,7 +755,7 @@ class ProcedureRevision < ApplicationRecord
   def ineligibilite_rules_are_valid?
     return unless ineligibilite_rules
 
-    rules_errors = ineligibilite_rules.errors(types_de_champ_for(scope: :public).to_a)
+    rules_errors = ineligibilite_rules.errors(type_de_champs_for(scope: :public).to_a)
 
     if rules_errors.any? || ineligibilite_rules.type == :empty
       errors.add(:ineligibilite_rules, :invalid)

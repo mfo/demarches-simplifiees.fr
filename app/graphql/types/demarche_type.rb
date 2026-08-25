@@ -88,7 +88,7 @@ module Types
     end
 
     def revisions
-      dataloader.with(Sources::Association, revisions: :revision_types_de_champ).load(object)
+      dataloader.with(Sources::Association, revisions: :revision_type_de_champs).load(object)
     end
 
     def dossiers(updated_since: nil, created_since: nil, state: nil, archived: nil, revision: nil, max_revision: nil, min_revision: nil, order:, lookahead:)
@@ -153,11 +153,11 @@ module Types
     end
 
     def champ_descriptors
-      object.active_revision.revision_types_de_champ_public
+      object.active_revision.public_revision_type_de_champs
     end
 
     def annotation_descriptors
-      object.active_revision.revision_types_de_champ_private
+      object.active_revision.private_revision_type_de_champs
     end
 
     def self.authorized?(object, context)

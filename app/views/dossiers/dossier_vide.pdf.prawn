@@ -132,10 +132,10 @@ def render_single_champ(pdf, revision, type_de_champ)
   case type_de_champ.type_champ
   when TypeDeChamp.type_champs.fetch(:repetition)
     add_libelle(pdf, type_de_champ)
-    types_de_champ = revision.children_of(type_de_champ)
+    type_de_champs = revision.children_of(type_de_champ)
 
     3.times do
-      types_de_champ.each do |type_de_champ|
+      type_de_champs.each do |type_de_champ|
         render_single_champ(pdf, revision, type_de_champ)
       end
     end
@@ -203,8 +203,8 @@ def render_single_champ(pdf, revision, type_de_champ)
   end
 end
 
-def empty_add_champs(pdf, revision, types_de_champ)
-  types_de_champ.each do |type_de_champ|
+def empty_add_champs(pdf, revision, type_de_champs)
+  type_de_champs.each do |type_de_champ|
     render_single_champ(pdf, revision, type_de_champ)
   end
 end
@@ -237,7 +237,7 @@ prawn_document(page_size: "A4") do |pdf|
 
   empty_add_title(pdf, 'Formulaire')
   add_single_line(pdf, @procedure.description + "\n", 9, :italic) if @procedure.description.present?
-  empty_add_champs(pdf, @revision, @revision.root_types_de_champ_public)
+  empty_add_champs(pdf, @revision, @revision.public_root_type_de_champs)
   add_page_numbering(pdf)
   add_procedure(pdf, @procedure)
 end

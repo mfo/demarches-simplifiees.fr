@@ -105,7 +105,7 @@ class Instructeurs::BulkMessageFormComponent < ApplicationComponent
         aria: { describedby: "tooltip-#{groupe_instructeur.id}" }
       ),
       tag.span(
-        groupe_instructeur.routing_rule.to_s(procedure.active_revision.types_de_champ),
+        groupe_instructeur.routing_rule.to_s(procedure.active_revision.type_de_champs),
         class: 'fr-tooltip fr-placement',
         id: "tooltip-#{groupe_instructeur.id}",
         role: "tooltip",

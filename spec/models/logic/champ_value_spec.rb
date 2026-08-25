@@ -4,10 +4,10 @@ describe Logic::ChampValue do
   include Logic
 
   describe '#compute' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: tdc_type, drop_down_other: }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: tdc_type, drop_down_other: }]) }
     let(:drop_down_other) { nil }
     let(:tdc_type) { :text }
-    let(:tdc) { procedure.active_revision.types_de_champ.first }
+    let(:tdc) { procedure.active_revision.type_de_champs.first }
     let(:dossier) { create(:dossier, procedure:) }
 
     subject { champ_value(champ.stable_id).compute([champ]) }
@@ -106,7 +106,7 @@ describe Logic::ChampValue do
       end
 
       context 'with drop_down_options' do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pre_rempli, drop_down_options_from_text: "En cours\r\nIdée\r\nFait" }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :pre_rempli, drop_down_options_from_text: "En cours\r\nIdée\r\nFait" }]) }
 
         it 'returns options from drop_down_options' do
           expect(champ_value(champ.stable_id).options([champ.type_de_champ])).to match_array([["En cours", "En cours"], ["Idée", "Idée"], ["Fait", "Fait"]])
@@ -201,15 +201,15 @@ describe Logic::ChampValue do
     context 'with multiple revision' do
       let(:options) { ['revision_1'] }
       let(:procedure) do
-        create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :drop_down_list, libelle: 'dropdown', options: options }])
+        create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :drop_down_list, libelle: 'dropdown', options: options }])
       end
-      let(:drop_down_r1) { procedure.published_revision.root_types_de_champ_public.first }
+      let(:drop_down_r1) { procedure.published_revision.public_root_type_de_champs.first }
       let(:stable_id) { drop_down_r1.stable_id }
 
       it { expect(champ_value(stable_id).options([drop_down_r1])).to match_array([["revision_1", "revision_1"]]) }
 
       context 'with a new revision' do
-        let(:drop_down_r2) { procedure.draft_revision.root_types_de_champ_public.first }
+        let(:drop_down_r2) { procedure.draft_revision.public_root_type_de_champs.first }
 
         before do
           tdc = procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)

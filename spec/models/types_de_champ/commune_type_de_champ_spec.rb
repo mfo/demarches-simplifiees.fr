@@ -5,8 +5,8 @@ describe TypesDeChamp::CommuneTypeDeChamp do
   it { expect(tdc_commune.libelles_for_export).to match_array([['Ma commune', :value], ['Ma commune (Code INSEE)', :code], ['Ma commune (Département)', :departement]]) }
 
   describe '#columns' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes, libelle: 'Ma commune' }]) }
-    let(:tdc) { procedure.active_revision.types_de_champ.first }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :communes, libelle: 'Ma commune' }]) }
+    let(:tdc) { procedure.active_revision.type_de_champs.first }
     let(:jsonpath_columns) { tdc.columns(procedure_id: procedure.id).grep(Columns::JSONPathColumn) }
 
     it 'exposes the addressable columns as displayable and filterable' do

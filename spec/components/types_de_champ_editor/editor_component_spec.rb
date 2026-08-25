@@ -2,14 +2,14 @@
 
 describe TypesDeChampEditor::EditorComponent, type: :component do
   let(:revision) { procedure.draft_revision }
-  let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
-  let(:types_de_champ_private) { [{ type: :repetition, children: [], libelle: 'private' }] }
-  let(:types_de_champ_public) { [{ type: :repetition, children: [], libelle: 'public' }] }
+  let(:procedure) { create(:procedure, private_type_de_champs:, public_type_de_champs:) }
+  let(:private_type_de_champs) { [{ type: :repetition, children: [], libelle: 'private' }] }
+  let(:public_type_de_champs) { [{ type: :repetition, children: [], libelle: 'public' }] }
 
   describe 'render' do
     subject { render_inline(described_class.new(revision:, is_annotation:)) }
 
-    context 'types_de_champ_public' do
+    context 'public_type_de_champs' do
       let(:is_annotation) { false }
 
       it 'does not render private champs errors' do
@@ -19,7 +19,7 @@ describe TypesDeChampEditor::EditorComponent, type: :component do
       end
     end
 
-    context 'types_de_champ_private' do
+    context 'private_type_de_champs' do
       let(:is_annotation) { true }
 
       it 'does not render public champs errors' do

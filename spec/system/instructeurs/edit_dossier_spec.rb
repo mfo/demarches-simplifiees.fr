@@ -24,7 +24,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
     create(:procedure, :published,
       instructeurs: [instructeur],
       instructeurs_can_edit_dossiers: true,
-      types_de_champ_public: [{ type: 'text', libelle: 'Texte', stable_id: 99 }])
+      public_type_de_champs: [{ type: 'text', libelle: 'Texte', stable_id: 99 }])
   end
 
   context 'when the instructeur is not the owner of the dossier' do
@@ -116,7 +116,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
       create(:procedure, :published,
         instructeurs: [instructeur],
         instructeurs_can_edit_dossiers: true,
-        types_de_champ_public: [{ type: :piece_justificative, libelle: 'Justificatif', stable_id: 88 }])
+        public_type_de_champs: [{ type: :piece_justificative, libelle: 'Justificatif', stable_id: 88 }])
     end
     let!(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 
@@ -157,7 +157,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
       create(:procedure, :published,
         instructeurs: [instructeur],
         instructeurs_can_edit_dossiers: true,
-        types_de_champ_public: [{ type: 'text', libelle: 'Texte', stable_id: 99, mandatory: true }])
+        public_type_de_champs: [{ type: 'text', libelle: 'Texte', stable_id: 99, mandatory: true }])
     end
     let!(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 
@@ -213,7 +213,7 @@ describe 'Editing a dossier as an instructeur:', js: true do
       create(:procedure, :published,
         instructeurs: [instructeur],
         instructeurs_can_edit_dossiers: false,
-        types_de_champ_public: [{ type: 'text', libelle: 'Texte', stable_id: 99 }])
+        public_type_de_champs: [{ type: 'text', libelle: 'Texte', stable_id: 99 }])
     end
     let!(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 

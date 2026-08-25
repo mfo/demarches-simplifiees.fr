@@ -2,7 +2,7 @@
 
 RSpec.describe Connections::DossiersConnection, type: :graphql do
   let_it_be(:admin) { administrateurs.default }
-  let_it_be(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public: [{}, {}]) }
+  let_it_be(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], public_type_de_champs: [{}, {}]) }
 
   before_all { create(:dossier, :en_construction, :with_individual, :with_populated_champs, procedure:) }
 

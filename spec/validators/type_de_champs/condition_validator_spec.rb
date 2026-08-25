@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::ConditionValidator do
+RSpec.describe TypeDeChamps::ConditionValidator do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
 
   subject do
-    procedure.validate(:types_de_champ_public_editor)
-    procedure.errors.messages_for(:draft_types_de_champ_public)
+    procedure.validate(:public_type_de_champs_editor)
+    procedure.errors.messages_for(:public_draft_type_de_champs)
   end
 
   let(:invalid_condition_message) do
-    I18n.t('activerecord.errors.models.procedure.attributes.draft_types_de_champ_public.invalid_condition')
+    I18n.t('activerecord.errors.models.procedure.attributes.public_draft_type_de_champs.invalid_condition')
   end
 
   context 'when a child references an upper sibling in the same repetition' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         {
           type: :repetition, libelle: 'Bloc', stable_id: 1, children: [
@@ -32,7 +32,7 @@ RSpec.describe TypesDeChamp::ConditionValidator do
   end
 
   context 'when a repetition itself has an invalid condition' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         {
           type: :repetition, libelle: 'Bloc', stable_id: 1,

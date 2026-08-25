@@ -13,14 +13,14 @@ RSpec.describe LLM::TypesImprover do
   let(:rule) { 'improve_types' }
   let(:usage) { double() }
   let(:procedure) { double('procedure', libelle: 'Test Procedure', description: 'Test description', for_individual: false) }
-  let(:types_de_champ) do
+  let(:type_de_champs) do
     [
       double('tdc1', stable_id: 1, type_champ: 'text'),
       double('tdc2', stable_id: 2, type_champ: 'text'),
       double('tdc3', stable_id: 3, type_champ: 'text'),
     ]
   end
-  let(:revision) { double('revision', schema_to_llm: schema, procedure_id: 1, types_de_champ:, procedure:) }
+  let(:revision) { double('revision', schema_to_llm: schema, procedure_id: 1, type_de_champs:, procedure:) }
   let(:suggestion) { double('suggestion', procedure_revision: revision, rule:) }
 
   before do

@@ -42,7 +42,7 @@ describe Manager::ProceduresController, type: :controller do
   describe '#show' do
     render_views
 
-    let(:procedure) { create(:procedure, :published, email_depose: build(:email_depose), types_de_champ_public: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }] }]) }
+    let(:procedure) { create(:procedure, :published, email_depose: build(:email_depose), public_type_de_champs: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }] }]) }
 
     before do
       get :show, params: { id: procedure.id }
@@ -132,9 +132,9 @@ describe Manager::ProceduresController, type: :controller do
   end
 
   describe '#change_piece_justificative_template' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:other_type_de_champ) { other_procedure.draft_revision.types_de_champ.first }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
+    let(:other_procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
+    let(:other_type_de_champ) { other_procedure.draft_revision.type_de_champs.first }
     let(:upload) do
       Rack::Test::UploadedFile.new(
         Rails.root.join("spec/fixtures/files/RIB.pdf"),

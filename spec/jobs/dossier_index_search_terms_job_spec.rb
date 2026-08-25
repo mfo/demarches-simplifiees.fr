@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe DossierIndexSearchTermsJob, type: :job do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_public) { [{ type: :text }] }
-  let(:types_de_champ_private) { [{ type: :text }] }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:, private_type_de_champs:) }
+  let(:public_type_de_champs) { [{ type: :text }] }
+  let(:private_type_de_champs) { [{ type: :text }] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ_siret) { dossier.champ_data.first }
 

@@ -25,7 +25,7 @@ FactoryBot.define do
         revision = evaluator.procedure&.active_revision || build(:procedure_revision)
         evaluator.procedure&.save
 
-        revision.revision_types_de_champ << build(:procedure_revision_type_de_champ,
+        revision.revision_type_de_champs << build(:procedure_revision_type_de_champ,
           position: evaluator.position || 0,
           revision: revision,
           type_de_champ: type_de_champ,
@@ -226,18 +226,18 @@ FactoryBot.define do
       type_champ { TypeDeChamp.type_champs.fetch(:repetition) }
 
       transient do
-        types_de_champ { [] }
+        type_de_champs { [] }
       end
 
       after(:build) do |type_de_champ_repetition, evaluator|
         evaluator.procedure&.save!
         revision = evaluator.procedure&.active_revision || build(:procedure_revision)
-        parent = revision.revision_types_de_champ.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
-        types_de_champ = revision.revision_types_de_champ.filter { |rtdc| rtdc.parent == parent }
-        position = types_de_champ.size
+        parent = revision.revision_type_de_champs.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
+        type_de_champs = revision.revision_type_de_champs.filter { |rtdc| rtdc.parent == parent }
+        position = type_de_champs.size
 
-        evaluator.types_de_champ.each.with_index(position) do |type_de_champ, position|
-          revision.revision_types_de_champ << build(:procedure_revision_type_de_champ,
+        evaluator.type_de_champs.each.with_index(position) do |type_de_champ, position|
+          revision.revision_type_de_champs << build(:procedure_revision_type_de_champ,
             revision: revision,
             type_de_champ: type_de_champ,
             parent: parent,
@@ -248,20 +248,20 @@ FactoryBot.define do
       end
 
       # TODO: drop
-      trait :with_types_de_champ do
+      trait :with_type_de_champs do
         after(:build) do |type_de_champ_repetition, evaluator|
           revision = evaluator.procedure.active_revision
-          parent = revision.revision_types_de_champ.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
+          parent = revision.revision_type_de_champs.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
 
           build(:type_de_champ, procedure: evaluator.procedure, libelle: 'sub type de champ', parent: parent, position: 0)
           build(:type_de_champ, type_champ: TypeDeChamp.type_champs.fetch(:integer_number), procedure: evaluator.procedure, libelle: 'sub type de champ2', parent: parent, position: 1)
         end
       end
 
-      trait :with_region_types_de_champ do
+      trait :with_region_type_de_champs do
         after(:build) do |type_de_champ_repetition, evaluator|
           revision = evaluator.procedure.active_revision
-          parent = revision.revision_types_de_champ.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
+          parent = revision.revision_type_de_champs.find { |rtdc| rtdc.type_de_champ == type_de_champ_repetition }
 
           build(:type_de_champ, type_champ: TypeDeChamp.type_champs.fetch(:regions), procedure: evaluator.procedure, libelle: 'region sub_champ', parent: parent, position: 10)
         end

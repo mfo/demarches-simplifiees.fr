@@ -14,7 +14,7 @@ describe TypeDeChamp do
       let(:dossier) { dossiers.tous_champs }
 
       it do
-        dossier.revision.root_types_de_champ_public.each do |type_de_champ|
+        dossier.revision.public_root_type_de_champs.each do |type_de_champ|
           champ = dossier.project_champ(type_de_champ)
           expect(type_de_champ.class.name).to match(/^TypesDeChamp::/)
           expect(champ.class.name).to match(/^Champs::/)
@@ -312,8 +312,8 @@ describe TypeDeChamp do
     let(:procedure) { create(:procedure, :with_type_de_champ, :with_type_de_champ_private) }
 
     it 'partition public and private' do
-      expect(procedure.active_revision.root_types_de_champ_public.count).to eq(1)
-      expect(procedure.active_revision.root_types_de_champ_private.count).to eq(1)
+      expect(procedure.active_revision.public_root_type_de_champs.count).to eq(1)
+      expect(procedure.active_revision.private_root_type_de_champs.count).to eq(1)
     end
   end
 
@@ -420,7 +420,7 @@ describe TypeDeChamp do
   end
 
   describe '#clean_options' do
-    subject { procedure.published_revision.types_de_champ.first.options }
+    subject { procedure.published_revision.type_de_champs.first.options }
 
     let(:procedure) { create(:procedure) }
 
@@ -594,10 +594,10 @@ describe TypeDeChamp do
     end
 
     context 'Champ referentiel' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
       before do
         type_de_champ.update!(options: { 'referentiel_mapping' => { 'kikoo' => 'lol' } })
@@ -624,13 +624,13 @@ describe TypeDeChamp do
   end
 
   describe 'champ_value with cast' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: type_champ }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: type_champ }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:type_champ) { :text }
     let(:last_write_type_champ) { :text }
     let(:champ_value) { 'hello' }
     let(:champ_type) { TypeDeChamp.type_champ_to_champ_class_name(last_write_type_champ.to_s) }
-    let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:champ) { dossier.champ_data.first }
 
     subject { champ.update_columns(type: champ_type, value: champ_value); type_de_champ.champ_value(champ) }

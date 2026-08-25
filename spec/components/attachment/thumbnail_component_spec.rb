@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Attachment::ThumbnailComponent, type: :component do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, :en_construction, procedure:) }
   let(:champ_pj) { dossier.champ_data.first }
   let(:attachment) do

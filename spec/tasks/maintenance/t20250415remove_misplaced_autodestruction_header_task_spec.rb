@@ -61,7 +61,7 @@ module Maintenance
       end
 
       context "when the blob belongs to a champ" do
-        let(:procedure) { create(:procedure_with_dossiers, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Justificatif de domicile', stable_id: 3 }]) }
+        let(:procedure) { create(:procedure_with_dossiers, public_type_de_champs: [{ type: :piece_justificative, libelle: 'Justificatif de domicile', stable_id: 3 }]) }
         let(:dossier) { procedure.dossiers.first }
         let(:champ_pj) { dossier.champ_data.first }
         let(:attachment) { champ_pj.piece_justificative_file.attachments.first }

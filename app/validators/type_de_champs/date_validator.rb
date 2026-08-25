@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::DateValidator < ActiveModel::EachValidator
+class TypeDeChamps::DateValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     date_tdcs = types_de_champ.filter { |tdc| tdc.date? || tdc.datetime? }
     date_tdcs.each do |tdc|

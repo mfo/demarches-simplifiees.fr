@@ -217,7 +217,7 @@ describe API::V2::GraphqlController do
       end
 
       context 'annotations' do
-        let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_private: [{ libelle: 'un commentaire' }], administrateurs: [admin]) }
+        let(:procedure) { create(:procedure, :published, :for_individual, private_type_de_champs: [{ libelle: 'un commentaire' }], administrateurs: [admin]) }
         let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
 
         it 'are included by default' do
@@ -288,8 +288,8 @@ describe API::V2::GraphqlController do
       end
 
       context 'columns' do
-        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], types_de_champ_public:) }
-        let(:types_de_champ_public) do
+        let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], public_type_de_champs:) }
+        let(:public_type_de_champs) do
           [
             { libelle: 'label text' },
             { type: :integer_number, libelle: 'label integer_number' },

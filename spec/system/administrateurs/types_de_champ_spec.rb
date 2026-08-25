@@ -54,7 +54,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     expect(page).to have_text('file.pdf')
 
     # Verify attachment is persisted in database
-    tdc = procedure.active_revision.root_types_de_champ_public.first
+    tdc = procedure.active_revision.public_root_type_de_champs.first
     wait_until { tdc.reload.piece_justificative_template.attached? }
     expect(tdc.piece_justificative_template).to be_attached
     expect(tdc.piece_justificative_template.filename.to_s).to eq('file.pdf')
@@ -67,7 +67,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context "with an explication champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :explication }]) }
 
     scenario "adding a notice explicative" do
       expect(page).to have_text('Notice explicative')
@@ -76,7 +76,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
       expect(page).to have_text('file.pdf')
 
-      tdc = procedure.active_revision.root_types_de_champ_public.first
+      tdc = procedure.active_revision.public_root_type_de_champs.first
       wait_until { tdc.reload.notice_explicative.attached? }
       expect(tdc.notice_explicative).to be_attached
 
@@ -89,7 +89,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context "with a drop_down_list champ" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: 'Choix de dessert' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'Choix de dessert' }]) }
 
     scenario "importing a CSV referentiel" do
       expect(page).to have_text('Choix de dessert')
@@ -99,7 +99,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
       expect(page).to have_text('Fichier de référentiel à importer (CSV)')
 
       # Upload CSV file
-      tdc = procedure.active_revision.root_types_de_champ_public.first
+      tdc = procedure.active_revision.public_root_type_de_champs.first
       file_input = find("##{dom_id(tdc, :import_referentiel)}", visible: :all)
       file_input.attach_file(Rails.root.join('spec/fixtures/files/modele-import-referentiel.csv'))
 
@@ -201,7 +201,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     # The notice alone is not a reliable sync point; poll the DB so the
     # refresh can't race the in-flight saves.
     wait_until do
-      tdc = procedure.active_revision.reload.root_types_de_champ_public.first
+      tdc = procedure.active_revision.reload.public_root_type_de_champs.first
       tdc&.repetition? && tdc.libelle == 'libellé de champ'
     end
     page.refresh
@@ -243,7 +243,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     # Autosaves are serialized and coalesced client-side, so the last save
     # carries the whole form; poll for it before refreshing away.
     wait_until do
-      tdc = procedure.active_revision.reload.root_types_de_champ_public.first
+      tdc = procedure.active_revision.reload.public_root_type_de_champs.first
       tdc&.libelle == 'Libellé de champ carte' && tdc.layer_enabled?(:cadastres)
     end
 
@@ -272,7 +272,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
     # Autosaves are serialized and coalesced client-side, so the last save
     # carries the whole form; poll for it before refreshing away.
     wait_until do
-      tdc = procedure.active_revision.reload.root_types_de_champ_public.first
+      tdc = procedure.active_revision.reload.public_root_type_de_champs.first
       tdc&.drop_down_options == ['Un menu'] && tdc.drop_down_other == "1"
     end
 
@@ -321,18 +321,18 @@ describe 'As an administrateur I can edit types de champ', js: true do
     scenario 'with public tdc, having invalid order, it pops up errors summary' do
       add_champ
       select('Titre de section', from: 'Type de champ')
-      wait_until { procedure.reload.active_revision.root_types_de_champ_public.first&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
-      first_header = procedure.active_revision.root_types_de_champ_public.first
+      wait_until { procedure.reload.active_revision.public_root_type_de_champs.first&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
+      first_header = procedure.active_revision.public_root_type_de_champs.first
       select('Titre de niveau 1', from: dom_id(first_header, :header_section_level))
 
       within(find('.type-de-champ-add-button', match: :first)) {
         add_champ
       }
 
-      wait_until { procedure.reload.active_revision.root_types_de_champ_public.count == 2 }
-      second_header = procedure.active_revision.root_types_de_champ_public.last
+      wait_until { procedure.reload.active_revision.public_root_type_de_champs.count == 2 }
+      second_header = procedure.active_revision.public_root_type_de_champs.last
       select('Titre de section', from: dom_id(second_header, :type_champ))
-      wait_until { procedure.reload.active_revision.root_types_de_champ_public.last&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
+      wait_until { procedure.reload.active_revision.public_root_type_de_champs.last&.type_champ == TypeDeChamp.type_champs.fetch(:header_section) }
       select('Titre de niveau 2', from: dom_id(second_header, :header_section_level))
 
       within(".types-de-champ-block li:first-child") do
@@ -343,17 +343,17 @@ describe 'As an administrateur I can edit types de champ', js: true do
       expect(page).to have_content("devrait être précédé d’un titre de niveau 1")
 
       # check summary refresh
-      procedure.reload.active_revision.root_types_de_champ_private.each do |header_section|
+      procedure.reload.active_revision.private_root_type_de_champs.each do |header_section|
         expect(page).to have_link(header_section.libelle)
       end
     end
   end
 
   context 'move and morph' do
-    let(:procedure) { create(:procedure, types_de_champ_public: tdcs) }
-    let!(:initial_first_coordinate) { procedure.draft_revision.revision_types_de_champ_public[0] }
-    let!(:initial_second_coordinate) { procedure.draft_revision.revision_types_de_champ_public[1] }
-    let!(:initial_third_coordinate) { procedure.draft_revision.revision_types_de_champ_public[2] }
+    let(:procedure) { create(:procedure, public_type_de_champs: tdcs) }
+    let!(:initial_first_coordinate) { procedure.draft_revision.public_revision_type_de_champs[0] }
+    let!(:initial_second_coordinate) { procedure.draft_revision.public_revision_type_de_champs[1] }
+    let!(:initial_third_coordinate) { procedure.draft_revision.public_revision_type_de_champs[2] }
 
     context 'with root champs' do
       let(:tdcs) do
@@ -394,14 +394,14 @@ describe 'As an administrateur I can edit types de champ', js: true do
         page.find(initial_first_coordinate_selector).click # seeds
         page.find(initial_first_coordinate_selector).select(initial_third_coordinate.libelle)
         wait_until do
-          procedure.reload.draft_revision.revision_types_de_champ.last.type_de_champ.libelle == initial_first_coordinate.type_de_champ.libelle
+          procedure.reload.draft_revision.revision_type_de_champs.last.type_de_champ.libelle == initial_first_coordinate.type_de_champ.libelle
         end
         # wait until turbo response
         expect(page).to have_text('Formulaire enregistré')
 
         # check reorder worked on backend
         reordered_coordinates = [initial_second_coordinate, initial_third_coordinate, initial_first_coordinate]
-        expect(procedure.reload.draft_revision.revision_types_de_champ.map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
+        expect(procedure.reload.draft_revision.revision_type_de_champs.map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
 
         # check reorder rerendered champ component between target->destination
         reordered_coordinates.map(&:reload).map do |coordinate|
@@ -425,7 +425,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
           { type: :text, libelle: 'root_thrid_tdc' },
         ]
       end
-      let(:children_coordinates) { procedure.draft_revision.revision_types_de_champ.filter { _1.parent.present? } }
+      let(:children_coordinates) { procedure.draft_revision.revision_type_de_champs.filter { _1.parent.present? } }
       let(:first_child_coordinate_selector) { "##{ActionView::RecordIdentifier.dom_id(children_coordinates.first, :move_and_morph)}" }
 
       scenario 'first child of repetition select is empty by default' do
@@ -454,7 +454,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
         # check reorder worked on backend
         reordered_coordinates = children_coordinates.reverse
-        expect(procedure.reload.draft_revision.revision_types_de_champ.filter { _1.parent.present? }.sort_by(&:position).map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
+        expect(procedure.reload.draft_revision.revision_type_de_champs.filter { _1.parent.present? }.sort_by(&:position).map(&:stable_id)).to eq(reordered_coordinates.map(&:stable_id))
 
         # check reorder rerendered champ component between target->destination
         reordered_coordinates.map(&:reload).map do |coordinate|
@@ -544,7 +544,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
   end
 
   context "SIRET field modal" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret, libelle: "SIRET de test" }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret, libelle: "SIRET de test" }]) }
 
     scenario "loads modal content only when clicked" do
       visit champs_admin_procedure_path(procedure)
@@ -572,7 +572,7 @@ describe 'As an administrateur I can edit types de champ', js: true do
 
   context "Commune and Address field modals" do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :communes, libelle: "Commune de résidence" },
         { type: :address, libelle: "Adresse du domicile" },
       ])

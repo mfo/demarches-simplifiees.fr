@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::NumberValidator < ActiveModel::EachValidator
+class TypeDeChamps::NumberValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ
       .filter { |tdc| tdc.decimal_number? || tdc.integer_number? }.each do |tdc|

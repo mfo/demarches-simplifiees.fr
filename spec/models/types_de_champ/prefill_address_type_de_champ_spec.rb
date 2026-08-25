@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe TypesDeChamp::PrefillAddressTypeDeChamp do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address }]) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+  let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
 
   describe 'ancestors' do
     subject { described_class.new(type_de_champ, procedure.active_revision) }

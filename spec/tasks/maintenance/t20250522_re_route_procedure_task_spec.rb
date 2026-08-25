@@ -8,7 +8,7 @@ module Maintenance
 
     describe "#process" do
       let(:admin) { administrateurs.default }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :departements, libelle: 'Votre département' }], administrateurs: [admin]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :departements, libelle: 'Votre département' }], administrateurs: [admin]) }
       let(:dossier1) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
       let!(:dossier2) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 
@@ -17,7 +17,7 @@ module Maintenance
 
         dossier2.champ_data.last.update(value: 'Allier')
 
-        tdc = procedure.active_revision.simple_routable_types_de_champ.first
+        tdc = procedure.active_revision.simple_routable_type_de_champs.first
 
         tdc_options = APIGeoService.departement_options
 

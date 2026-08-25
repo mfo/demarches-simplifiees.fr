@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 describe Champs::DecimalNumberChamp do
-  let(:types_de_champ_public) { [{ type: :decimal_number }] }
-  let(:types_de_champ_private) { [] }
-  let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
+  let(:public_type_de_champs) { [{ type: :decimal_number }] }
+  let(:private_type_de_champs) { [] }
+  let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.root_champs_public.first.tap { _1.update(value:) } }
   let(:value) { nil }
@@ -125,8 +125,8 @@ describe Champs::DecimalNumberChamp do
     end
 
     context 'when the champ is private and the value is invalid' do
-      let(:types_de_champ_public) { [] }
-      let(:types_de_champ_private) { [{ type: :decimal_number }] }
+      let(:public_type_de_champs) { [] }
+      let(:private_type_de_champs) { [{ type: :decimal_number }] }
       let(:champ) { dossier.root_champs_private.first.tap { _1.update(value:) } }
       let(:value) { '2.6666' }
 

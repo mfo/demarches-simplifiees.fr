@@ -144,13 +144,13 @@ class GroupeInstructeur < ApplicationRecord
   end
 
   def humanized_routing_rule
-    routing_rule&.to_s(procedure.active_revision.types_de_champ)
+    routing_rule&.to_s(procedure.active_revision.type_de_champs)
   end
 
   private
 
   def routing_rule_matches_tdc?(rule)
-    tdcs = procedure.active_revision.root_types_de_champ_public
+    tdcs = procedure.active_revision.public_root_type_de_champs
     rule.errors(tdcs).blank?
   end
 

@@ -39,9 +39,9 @@ RSpec.describe Instructeurs::InstructionButtonComponent, type: :component do
   end
 
   context 'when dossier is en_instruction with invalid mandatory private annotations' do
-    let(:procedure) { create(:procedure, types_de_champ_private:) }
+    let(:procedure) { create(:procedure, private_type_de_champs:) }
     let(:dossier) { create(:dossier, :en_instruction, procedure:) }
-    let(:types_de_champ_private) { [{ type: :text, libelle: 'Appréciation globale', mandatory: true }] }
+    let(:private_type_de_champs) { [{ type: :text, libelle: 'Appréciation globale', mandatory: true }] }
 
     subject(:rendered) do
       render_inline(described_class.new(dossier:, procedure:))

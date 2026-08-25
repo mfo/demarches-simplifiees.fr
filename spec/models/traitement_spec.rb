@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe Traitement do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-  let(:types_de_champ_public) do
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: "Texte", stable_id: 99 },
       { type: :text, libelle: "Autre texte", stable_id: 991 },

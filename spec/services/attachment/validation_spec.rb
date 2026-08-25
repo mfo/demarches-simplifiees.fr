@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Attachment::Validation do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:attached_file) { champ.piece_justificative_file }
@@ -9,7 +9,7 @@ RSpec.describe Attachment::Validation do
 
   describe '#allowed_extensions' do
     context 'with RIB nature (multiple specific formats)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }] }
 
       it 'returns extensions sorted according to EXTENSIONS_ORDER first, then alphabetically' do
         extensions = validation.allowed_extensions
@@ -24,7 +24,7 @@ RSpec.describe Attachment::Validation do
     end
 
     context 'with piece_justificative standard (many formats, > 5)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Document' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Document' }] }
 
       it 'truncates to first 5 extensions and adds ellipsis' do
         extensions = validation.allowed_extensions
@@ -38,7 +38,7 @@ RSpec.describe Attachment::Validation do
 
   describe '#accept_attribute' do
     context 'with titre_identite nature (image formats only)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'titre_identite' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'titre_identite' }] }
 
       it 'returns only image mime types' do
         accept = validation.accept_attribute
@@ -50,7 +50,7 @@ RSpec.describe Attachment::Validation do
     end
 
     context 'with donnees format family (KML, GPX)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Données géo', pj_limit_formats: '1', pj_format_families: ['donnees'] }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Données géo', pj_limit_formats: '1', pj_format_families: ['donnees'] }] }
 
       it 'includes both mime types and file extensions for browser compatibility' do
         accept = validation.accept_attribute
@@ -63,7 +63,7 @@ RSpec.describe Attachment::Validation do
     end
 
     context 'with standard piece_justificative (all formats)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Document' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Document' }] }
 
       it 'includes file extensions alongside mime types' do
         accept = validation.accept_attribute
@@ -77,7 +77,7 @@ RSpec.describe Attachment::Validation do
 
   describe '#max_file_size' do
     context 'with titre_identite nature' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'titre_identite' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Titre identité', nature: 'titre_identite' }] }
 
       it 'returns 20 megabytes' do
         expect(validation.max_file_size).to eq(20.megabytes)
@@ -85,7 +85,7 @@ RSpec.describe Attachment::Validation do
     end
 
     context 'with standard piece_justificative' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Document' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Document' }] }
 
       it 'returns 200 megabytes' do
         expect(validation.max_file_size).to eq(200.megabytes)

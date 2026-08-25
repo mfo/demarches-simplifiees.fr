@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Champs::EpciChamp, type: :model do
-  let(:types_de_champ_public) { [{ type: :epci }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :epci }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.root_champs_public.first.tap { _1.code_departement = code_departement } }
   let(:code_departement) { nil }

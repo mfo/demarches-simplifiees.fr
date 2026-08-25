@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-RSpec.describe TypesDeChamp::DateValidator do
+RSpec.describe TypeDeChamps::DateValidator do
   shared_examples "date range validation" do |scope:, type:|
     let(:attribute) do
-      scope == :types_de_champ_public ? :draft_types_de_champ_public : :draft_types_de_champ_private
+      scope == :public_type_de_champs ? :public_draft_type_de_champs : :private_draft_type_de_champs
     end
 
     let(:validation_context) do
-      scope == :types_de_champ_public ? :types_de_champ_public_editor : :types_de_champ_private_editor
+      scope == :public_type_de_champs ? :public_type_de_champs_editor : :private_type_de_champs_editor
     end
 
     let(:procedure) do
@@ -79,21 +79,21 @@ RSpec.describe TypesDeChamp::DateValidator do
     end
   end
 
-  describe "public types_de_champ" do
-    include_examples "date range validation", scope: :types_de_champ_public, type: :date
-    include_examples "date range validation", scope: :types_de_champ_public, type: :datetime
+  describe "public type_de_champs" do
+    include_examples "date range validation", scope: :public_type_de_champs, type: :date
+    include_examples "date range validation", scope: :public_type_de_champs, type: :datetime
   end
 
-  describe "private types_de_champ" do
-    include_examples "date range validation", scope: :types_de_champ_private, type: :date
-    include_examples "date range validation", scope: :types_de_champ_private, type: :datetime
+  describe "private type_de_champs" do
+    include_examples "date range validation", scope: :private_type_de_champs, type: :date
+    include_examples "date range validation", scope: :private_type_de_champs, type: :datetime
   end
 
   describe "prefill_with_france_connect_information uniqueness" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :date }, { type: :date }, { type: :text }]) }
-    let(:tdcs) { procedure.active_revision.root_types_de_champ_public }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :date }, { type: :date }, { type: :text }]) }
+    let(:tdcs) { procedure.active_revision.public_root_type_de_champs }
 
-    subject { procedure.validate(:types_de_champ_public_editor) }
+    subject { procedure.validate(:public_type_de_champs_editor) }
 
     context "when no date field has the option enabled" do
       it "does not add errors" do
@@ -117,7 +117,7 @@ RSpec.describe TypesDeChamp::DateValidator do
 
       it "adds an error for each conflicting field" do
         subject
-        conflicting_errors = procedure.errors.where(:draft_types_de_champ_public, :prefill_with_france_connect_information_taken)
+        conflicting_errors = procedure.errors.where(:public_draft_type_de_champs, :prefill_with_france_connect_information_taken)
         expect(conflicting_errors.size).to eq(2)
         expect(conflicting_errors.map { it.options[:type_de_champ] }).to match_array([tdcs[0], tdcs[1]])
       end

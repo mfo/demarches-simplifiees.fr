@@ -3,7 +3,7 @@
 describe AttachmentsController, type: :controller do
   let(:user) { create(:user) }
   let(:attachment) { champ.piece_justificative_file.attachments.first }
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, :with_populated_champs, user:, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:user_buffer_champ) { dossier.champ_data.reload.find(&:user_buffer_stream?) }
@@ -61,7 +61,7 @@ describe AttachmentsController, type: :controller do
 
     context 'when instructeur belongs to the procedure (private champ)' do
       let(:instructeur) { create(:instructeur) }
-      let(:procedure) { create(:procedure, instructeurs: [instructeur], types_de_champ_private: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, instructeurs: [instructeur], private_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_annotations, procedure:) }
       let(:champ) { dossier.champ_data.private_only.first }
 
@@ -73,7 +73,7 @@ describe AttachmentsController, type: :controller do
     context 'when instructeur does not belong to the procedure (private champ)' do
       let(:other_instructeur) { create(:instructeur) }
       let(:instructeur) { create(:instructeur) }
-      let(:procedure) { create(:procedure, instructeurs: [instructeur], types_de_champ_private: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, instructeurs: [instructeur], private_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_annotations, procedure:) }
       let(:champ) { dossier.champ_data.private_only.first }
 
@@ -165,7 +165,7 @@ describe AttachmentsController, type: :controller do
         end
 
         context 'when it is a france connect champ, with its replacement attachment' do
-          let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
+          let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :quotient_familial }]) }
           let(:dossier) { create(:dossier, user:, procedure:) }
           let(:data) {
             {
@@ -257,8 +257,8 @@ describe AttachmentsController, type: :controller do
         end
 
         context 'can remove a type de champ notice explicative' do
-          let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
-          let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+          let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
+          let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
           let(:attachment) { type_de_champ.notice_explicative.attachments.first }
           let(:signed_id) { attachment.blob.signed_id }
 
@@ -341,7 +341,7 @@ describe AttachmentsController, type: :controller do
       before { sign_in(instructeur.user) }
 
       context 'when the instructeur belongs to the procedure' do
-        let(:procedure) { create(:procedure, instructeurs: [instructeur], types_de_champ_private: [{ type: :piece_justificative }]) }
+        let(:procedure) { create(:procedure, instructeurs: [instructeur], private_type_de_champs: [{ type: :piece_justificative }]) }
         let(:dossier) { create(:dossier, procedure:) }
         let(:champ) do
           dossier.champ_data.private_only.first.tap do |c|
@@ -408,7 +408,7 @@ describe AttachmentsController, type: :controller do
       end
 
       context 'when trying to delete an attachment which is not a champ' do
-        let(:procedure) { create(:procedure, :with_logo, types_de_champ_public: [{ type: :text }]) }
+        let(:procedure) { create(:procedure, :with_logo, public_type_de_champs: [{ type: :text }]) }
         let(:attachment) { procedure.logo.attachments.first }
         let(:signed_id) { attachment.blob.signed_id }
 

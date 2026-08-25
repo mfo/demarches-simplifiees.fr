@@ -9,8 +9,8 @@ describe Instructeurs::DossiersController, type: :controller do
     include Logic
 
     let(:nb_champ) { 100 }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:, instructeurs: [instructeur]) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:, instructeurs: [instructeur]) }
+    let(:public_type_de_champs) do
       (0...nb_champ).map { |i| { type: :yes_no, libelle: "c_#{i}" } } +
         (0...nb_champ).map { |i| { type: :piece_justificative, libelle: "pj_#{i}" } }
     end
@@ -19,7 +19,7 @@ describe Instructeurs::DossiersController, type: :controller do
     let(:last_yes_no_champ) { dossier.root_champs_public[99] }
 
     before do
-      tdcs = procedure.active_revision.types_de_champ.to_a
+      tdcs = procedure.active_revision.type_de_champs.to_a
 
       # one champ is visible if the previous champ is true
       (nb_champ - 1).times do |i|

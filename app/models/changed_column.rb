@@ -16,12 +16,12 @@ class ChangedColumn
     def columns(revision, champs, reference_champs)
       row_ids = champs.values.map(&:row_id).compact.uniq.sort
 
-      revision.root_types_de_champ_public.flat_map do |type_de_champ|
+      revision.public_root_type_de_champs.flat_map do |type_de_champ|
         if type_de_champ.repetition?
           prefix = type_de_champ.libelle
-          types_de_champ = revision.children_of(type_de_champ)
+          type_de_champs = revision.children_of(type_de_champ)
           row_ids.flat_map do |row_id|
-            types_de_champ.filter_map do |type_de_champ|
+            type_de_champs.filter_map do |type_de_champ|
               public_id = type_de_champ.public_id(row_id)
               column = type_de_champ.canonical_column(procedure_id: revision.procedure_id, prefix:)
               diff_column(column, champs[public_id], reference_champs[public_id])

@@ -3,12 +3,12 @@
 describe ProcedureRevisionPreloader do
   let(:procedure) do
     create(:procedure, :published,
-           types_de_champ_public: [
+           public_type_de_champs: [
              { type: :piece_justificative },
              { type: :integer_number },
              { type: :decimal_number },
            ],
-           types_de_champ_private: [
+           private_type_de_champs: [
              { type: :text },
              { type: :textarea },
            ])
@@ -20,9 +20,9 @@ describe ProcedureRevisionPreloader do
 
     it 'assigns stuffs correctly' do
       # check it changes loaded from false to true
-      expect { subject }.to change { procedure.draft_revision.association(:revision_types_de_champ).loaded? }.from(false).to(true)
+      expect { subject }.to change { procedure.draft_revision.association(:revision_type_de_champs).loaded? }.from(false).to(true)
 
-      pj_coordinate = revision.revision_types_de_champ.first
+      pj_coordinate = revision.revision_type_de_champs.first
 
       # check nested relationship
       expect(pj_coordinate.association(:revision).loaded?).to eq(true)
@@ -38,12 +38,12 @@ describe ProcedureRevisionPreloader do
 
       # check order
       original = Procedure.find(procedure.id)
-      expect_relation_is_preloaded_sorted(original, procedure, :revision_types_de_champ)
-      expect_relation_is_preloaded_sorted(original, procedure, :revision_types_de_champ_public)
-      expect_relation_is_preloaded_sorted(original, procedure, :revision_types_de_champ_private)
-      expect_relation_is_preloaded_sorted(original, procedure, :types_de_champ)
-      expect_relation_is_preloaded_sorted(original, procedure, :root_types_de_champ_public)
-      expect_relation_is_preloaded_sorted(original, procedure, :root_types_de_champ_private)
+      expect_relation_is_preloaded_sorted(original, procedure, :revision_type_de_champs)
+      expect_relation_is_preloaded_sorted(original, procedure, :public_revision_type_de_champs)
+      expect_relation_is_preloaded_sorted(original, procedure, :private_revision_type_de_champs)
+      expect_relation_is_preloaded_sorted(original, procedure, :type_de_champs)
+      expect_relation_is_preloaded_sorted(original, procedure, :public_root_type_de_champs)
+      expect_relation_is_preloaded_sorted(original, procedure, :private_root_type_de_champs)
     end
 
     def expect_relation_is_preloaded_sorted(original, preloaded, association)

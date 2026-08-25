@@ -211,7 +211,7 @@ RSpec.describe GeoArea, type: :model do
   # The map render is not triggered by geo_areas: it is triggered on dépôt and
   # on submissions of changes (cf. dossier_state_concern_spec).
   describe 'static map rendering' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :carte }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
 

@@ -4,9 +4,9 @@ describe Procedure::ErrorsSummary, type: :component do
   subject { render_inline(described_class.new(procedure:, validation_context:)) }
 
   describe 'validations context' do
-    let(:procedure) { create(:procedure, types_de_champ_private:, types_de_champ_public:) }
-    let(:types_de_champ_private) { [{ type: :repetition, children: [], libelle: 'private' }] }
-    let(:types_de_champ_public) { [{ type: :repetition, children: [], libelle: 'public' }] }
+    let(:procedure) { create(:procedure, private_type_de_champs:, public_type_de_champs:) }
+    let(:private_type_de_champs) { [{ type: :repetition, children: [], libelle: 'private' }] }
+    let(:public_type_de_champs) { [{ type: :repetition, children: [], libelle: 'public' }] }
 
     before { subject }
 
@@ -21,8 +21,8 @@ describe Procedure::ErrorsSummary, type: :component do
       end
     end
 
-    context 'when :types_de_champ_public_editor' do
-      let(:validation_context) { :types_de_champ_public_editor }
+    context 'when :public_type_de_champs_editor' do
+      let(:validation_context) { :public_type_de_champs_editor }
 
       it 'shows errors and links for public only tdc' do
         expect(page).to have_text("Erreur : Les champs du formulaire contiennent des erreurs")
@@ -32,8 +32,8 @@ describe Procedure::ErrorsSummary, type: :component do
       end
     end
 
-    context 'when :types_de_champ_private_editor' do
-      let(:validation_context) { :types_de_champ_private_editor }
+    context 'when :private_type_de_champs_editor' do
+      let(:validation_context) { :private_type_de_champs_editor }
 
       it 'shows errors and links for private only tdc' do
         expect(page).to have_text("Erreur : Les annotations privées contiennent des erreurs")
@@ -48,7 +48,7 @@ describe Procedure::ErrorsSummary, type: :component do
     include Logic
 
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { libelle: 'repetition requires children', type: :repetition, children: [] },
         { libelle: 'drop down list requires options', type: :drop_down_list, options: [] },
         { libelle: 'invalid condition', type: :text, condition: ds_eq(constant(true), constant(1)) },
@@ -57,10 +57,10 @@ describe Procedure::ErrorsSummary, type: :component do
       ])
     end
 
-    let(:validation_context) { :types_de_champ_public_editor }
+    let(:validation_context) { :public_type_de_champs_editor }
 
     before do
-      drop_down_public = procedure.draft_revision.root_types_de_champ_public.find(&:any_drop_down_list?)
+      drop_down_public = procedure.draft_revision.public_root_type_de_champs.find(&:any_drop_down_list?)
       drop_down_public.update!(drop_down_options: [])
       subject
     end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe RenderCarteChampJob, type: :job do
-  let(:types_de_champ_public) { [{ type: :carte }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :carte }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:geo_areas) { [build(:geo_area, :selection_utilisateur, :polygon)] }
   let(:champ) { dossier.champ_data.first.tap { it.update(geo_areas:) } }

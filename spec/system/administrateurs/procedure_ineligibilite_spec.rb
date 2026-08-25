@@ -26,7 +26,7 @@ describe 'Administrateurs can edit procedures', js: true do
     fill_in "Libellé du champ", with: "Un champ oui non"
     click_on "Revenir à l’écran de gestion"
     procedure.reload
-    first_tdc = procedure.draft_revision.types_de_champ.first
+    first_tdc = procedure.draft_revision.type_de_champs.first
     # back to procedure dashboard, explain you can set it up now
     expect(page).to have_content('À configurer')
     visit edit_admin_procedure_ineligibilite_rules_path(procedure)

@@ -18,7 +18,7 @@
             Les dossiers répondant à vos conditions d’inéligibilité ne pourront pas être déposés. Plus d’informations sur l’inéligibilité des dossiers dans la
             = link_to('doc', ELIGIBILITE_URL, title: "Document sur l’inéligibilité des dossiers", **external_link_attributes)
 
-      - if !@procedure.draft_revision.conditionable_types_de_champ.present?
+      - if !@procedure.draft_revision.conditionable_type_de_champs.present?
         %p.fr-mt-2w.fr-mb-2w
           Pour configurer l’inéligibilité des dossiers, votre formulaire doit comporter au moins un champ supportant les conditions d’inéligibilité. Il vous faut donc ajouter au moins un des champs suivant à votre formulaire :
           %ul

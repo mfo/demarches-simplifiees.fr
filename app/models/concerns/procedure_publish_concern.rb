@@ -46,7 +46,7 @@ module ProcedurePublishConcern
     if published_revision.present? && draft_changed?
       reset!
       transaction do
-        draft_revision.types_de_champ.filter(&:only_present_on_draft?).each(&:destroy)
+        draft_revision.type_de_champs.filter(&:only_present_on_draft?).each(&:destroy)
         draft_revision.update(dossier_submitted_message: nil)
         draft_revision.destroy
         update!(draft_revision: create_new_revision(published_revision))
@@ -90,7 +90,7 @@ module ProcedurePublishConcern
   def create_new_revision(revision = nil)
     transaction do
       new_revision = (revision || draft_revision)
-        .deep_clone(include: [:revision_types_de_champ])
+        .deep_clone(include: [:revision_type_de_champs])
         .tap { |revision| revision.published_at = nil }
         .tap { |revision| revision.administrateur_id = nil }
         .tap(&:save!)
@@ -104,8 +104,8 @@ module ProcedurePublishConcern
   private
 
   def publish_new_revision(administrateur)
-    cleanup_types_de_champ_options!
-    cleanup_types_de_champ_children!
+    cleanup_type_de_champs_options!
+    cleanup_type_de_champs_children!
     nullify_unused_referentiels
     self.published_revision = draft_revision
     self.draft_revision = create_new_revision
@@ -114,10 +114,10 @@ module ProcedurePublishConcern
   end
 
   def move_new_children_to_new_parent_coordinate(new_draft)
-    children = new_draft.revision_types_de_champ
+    children = new_draft.revision_type_de_champs
       .includes(parent: :type_de_champ)
       .where.not(parent_id: nil)
-    coordinates_by_stable_id = new_draft.revision_types_de_champ
+    coordinates_by_stable_id = new_draft.revision_type_de_champs
       .includes(:type_de_champ)
       .index_by(&:stable_id)
 
@@ -127,20 +127,20 @@ module ProcedurePublishConcern
     new_draft.reload
   end
 
-  def cleanup_types_de_champ_options!
-    draft_revision.types_de_champ.each do |type_de_champ|
+  def cleanup_type_de_champs_options!
+    draft_revision.type_de_champs.each do |type_de_champ|
       type_de_champ.update!(options: type_de_champ.clean_options)
     end
   end
 
-  def cleanup_types_de_champ_children!
-    draft_revision.revision_types_de_champ
+  def cleanup_type_de_champs_children!
+    draft_revision.revision_type_de_champs
       .filter(&:orphan?)
       .each { draft_revision.remove_type_de_champ(_1.stable_id) }
   end
 
   def nullify_unused_referentiels
-    draft_revision.types_de_champ
+    draft_revision.type_de_champs
       .reject { _1.drop_down_list? || _1.multiple_drop_down_list? || _1.referentiel? }
       .each do |type_de_champ|
         type_de_champ.update!(referentiel_id: nil)

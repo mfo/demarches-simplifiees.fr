@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe LLM::CleanerItemComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: "Commune", stable_id: 10 }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: "Commune", stable_id: 10 }]) }
   let(:revision) { procedure.draft_revision }
   let(:schema_hash) { Digest::SHA256.hexdigest(revision.schema_to_llm.to_json) }
   let(:llm_rule_suggestion) { create(:llm_rule_suggestion, procedure_revision: revision, rule: 'cleaner', schema_hash:, state: 'completed') }

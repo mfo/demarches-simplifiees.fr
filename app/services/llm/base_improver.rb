@@ -132,7 +132,7 @@ module LLM
     end
 
     def propose_messages_with_schema(procedure_revision, schema)
-      unique_types = procedure_revision.types_de_champ.map(&:type_champ).uniq
+      unique_types = procedure_revision.type_de_champs.map(&:type_champ).uniq
       field_types_description = format_field_types(unique_types)
 
       [
@@ -152,7 +152,7 @@ module LLM
     end
 
     def aggregate_calls(tool_calls, suggestion)
-      tdc_index = suggestion.procedure_revision.types_de_champ.index_by(&:stable_id)
+      tdc_index = suggestion.procedure_revision.type_de_champs.index_by(&:stable_id)
 
       tool_calls
         .filter { |call| call[:name] == suggestion.rule }

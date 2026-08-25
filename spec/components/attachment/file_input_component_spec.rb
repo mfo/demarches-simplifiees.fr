@@ -3,8 +3,8 @@
 RSpec.describe Attachment::FileInputComponent, type: :component do
   include ChampAriaLabelledbyHelper
 
-  let_it_be(:types_de_champ_public) { [{ type: :piece_justificative }] }
-  let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+  let_it_be(:public_type_de_champs) { [{ type: :piece_justificative }] }
+  let_it_be(:procedure) { create(:procedure, :published, public_type_de_champs:) }
   let_it_be(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.reload.first }
   let(:attached_file) { champ.piece_justificative_file }
@@ -95,9 +95,9 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
   end
 
   context 'piece justificative nature titre_identite' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'titre_identite' }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'titre_identite' }] }
 
     it 'sets accept to jpg/jpeg/png only' do
       expect(subject).to have_selector("input[accept*='image/jpeg']")
@@ -112,9 +112,9 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
   end
 
   context 'piece justificative limited to document_texte' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure:) }
-    let(:types_de_champ_public) { [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, pj_limit_formats: '1', pj_format_families: ['document_texte'] }] }
 
     it 'accept includes .pdf but not .zip' do
       expect(subject).to have_selector("input[accept*='application/pdf']")
@@ -123,7 +123,7 @@ RSpec.describe Attachment::FileInputComponent, type: :component do
   end
 
   context 'piece justificative standard' do
-    let(:types_de_champ_public) { [{ type: :piece_justificative }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative }] }
 
     it 'has a non empty accept' do
       subject

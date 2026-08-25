@@ -63,7 +63,7 @@ class DossierPreloader
 
   def revisions(pj_template: false)
     @revisions ||= ProcedureRevision.where(id: @dossiers.pluck(:revision_id, :submitted_revision_id).flatten.compact.uniq)
-      .includes(procedure: [], revision_types_de_champ: { type_de_champ: pj_template ? { piece_justificative_template_attachment: :blob, notice_explicative_attachment: :blob } : [] })
+      .includes(procedure: [], revision_type_de_champs: { type_de_champ: pj_template ? { piece_justificative_template_attachment: :blob, notice_explicative_attachment: :blob } : [] })
       .index_by(&:id)
   end
 
@@ -163,7 +163,7 @@ class DossierPreloader
 
     # Prend un ordre de grandeur de la taille de la démarche
     sample_revision = @dossiers.first.procedure.active_revision
-    champs_per_dossier = sample_revision&.types_de_champ&.count.to_i + 1
+    champs_per_dossier = sample_revision&.type_de_champs&.count.to_i + 1
 
     # Reste sur un multiple de 100
     ideal_batch_size = (MAX_CHAMPS_PER_BATCH / champs_per_dossier).round(-2)

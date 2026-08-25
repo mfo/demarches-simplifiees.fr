@@ -2,7 +2,7 @@
 
 describe Champs::CarteController, type: :controller do
   let(:user) { create(:user) }
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :carte, options: { cadastres: true } }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :carte, options: { cadastres: true } }]) }
   let(:dossier) { create(:dossier, user: user, procedure: procedure) }
   let(:params) do
     {
@@ -26,7 +26,7 @@ describe Champs::CarteController, type: :controller do
     end
 
     context 'when the champ is not a carte' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text }]) }
       let(:champ) { dossier.root_champs_public.first }
 
       it 'returns not found' do

@@ -3,7 +3,7 @@
 RSpec.describe DossierChampsConcern do
   # Defined as methods (not `let`) so `let_it_be` can call them from its
   # before_all context, while nested contexts can still shadow them with `let`.
-  def default_types_de_champ_public
+  def public_default_type_de_champs
     [
       { type: :text, libelle: "Un champ text", stable_id: 99 },
       { type: :text, libelle: "Un autre champ text", stable_id: 991 },
@@ -12,7 +12,7 @@ RSpec.describe DossierChampsConcern do
     ]
   end
 
-  def default_types_de_champ_private
+  def private_default_type_de_champs
     [
       { type: :text, libelle: "Une annotation", stable_id: 995 },
     ]
@@ -25,20 +25,20 @@ RSpec.describe DossierChampsConcern do
   # without a block pins @stream, and champ_data association targets are
   # reassigned in place.
   let_it_be(:default_procedure, refind: true) do
-    create(:procedure, types_de_champ_public: default_types_de_champ_public, types_de_champ_private: default_types_de_champ_private)
+    create(:procedure, public_type_de_champs: public_default_type_de_champs, private_type_de_champs: private_default_type_de_champs)
   end
   let_it_be(:default_dossier, refind: true) { create(:dossier, procedure: default_procedure) }
 
-  let(:types_de_champ_public) { default_types_de_champ_public }
-  let(:types_de_champ_private) { default_types_de_champ_private }
+  let(:public_type_de_champs) { public_default_type_de_champs }
+  let(:private_type_de_champs) { private_default_type_de_champs }
 
   # Contexts that override the champ lists (or `procedure`/`dossier`
   # themselves) build their own records; everyone else shares the default.
   let(:procedure) do
-    if [types_de_champ_public, types_de_champ_private] == [default_types_de_champ_public, default_types_de_champ_private]
+    if [public_type_de_champs, private_type_de_champs] == [public_default_type_de_champs, private_default_type_de_champs]
       default_procedure
     else
-      create(:procedure, types_de_champ_public:, types_de_champ_private:)
+      create(:procedure, public_type_de_champs:, private_type_de_champs:)
     end
   end
   let(:dossier) { procedure == default_procedure ? default_dossier : create(:dossier, procedure:) }
@@ -246,7 +246,7 @@ RSpec.describe DossierChampsConcern do
   end
 
   describe '#filled_champs_public' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :header_section, stable_id: 9001 },
         { type: :text, libelle: "Un champ text", stable_id: 9002 },
@@ -266,7 +266,7 @@ RSpec.describe DossierChampsConcern do
   end
 
   describe '#filled_champs_private' do
-    let(:types_de_champ_private) do
+    let(:private_type_de_champs) do
       [
         { type: :header_section, stable_id: 9011 },
         { type: :text, libelle: "Une annotation", stable_id: 9012 },
@@ -356,7 +356,7 @@ RSpec.describe DossierChampsConcern do
   end
 
   describe "#champ_values_for_export" do
-    subject { dossier.champ_values_for_export(dossier.revision.root_types_de_champ_public, format: :xlsx) }
+    subject { dossier.champ_values_for_export(dossier.revision.public_root_type_de_champs, format: :xlsx) }
 
     # An empty yes_no exports as "" where the other types export nil.
     it "returns one [libelle, value] pair per root champ" do
@@ -485,7 +485,7 @@ RSpec.describe DossierChampsConcern do
       end
 
       context "champ with type change" do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: "Un champ text", stable_id: 99 }]) }
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: "Un champ text", stable_id: 99 }]) }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         let(:project_champ) { dossier.project_champ(type_de_champ_public) }
 
@@ -529,7 +529,7 @@ RSpec.describe DossierChampsConcern do
         type, legacy_value = row.values_at(:type, :legacy_value)
 
         context "#{type} champ with a legacy non-ISO value" do
-          let(:types_de_champ_public) { [{ type:, libelle: "Un champ #{type}", stable_id: 99 }] }
+          let(:public_type_de_champs) { [{ type:, libelle: "Un champ #{type}", stable_id: 99 }] }
 
           before do
             dossier.champ_for_update(type_de_champ_public, updated_by: dossier.user.email)
@@ -548,7 +548,7 @@ RSpec.describe DossierChampsConcern do
       end
 
       context "champ carte" do
-        let(:types_de_champ_public) { [{ type: :carte, libelle: "Un champ carte", stable_id: 996 }] }
+        let(:public_type_de_champs) { [{ type: :carte, libelle: "Un champ carte", stable_id: 996 }] }
         let(:type_de_champ_public) { dossier.find_type_de_champ_by_stable_id(996) }
 
         it {
@@ -652,7 +652,7 @@ RSpec.describe DossierChampsConcern do
       to_params = row.fetch(:to_params, {})
 
       context "champ with type change #{from} -> #{to}" do
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: from, libelle: "Un champ #{from}", stable_id: 99 }]) }
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: from, libelle: "Un champ #{from}", stable_id: 99 }]) }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         let(:attributes) { { "99" => assign } }
 
@@ -853,7 +853,7 @@ RSpec.describe DossierChampsConcern do
 
       context "piece_justificative or titre_identite nature" do
         let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :piece_justificative, libelle: "Un champ pj", stable_id: 98 },
             { type: :piece_justificative, nature: 'titre_identite', libelle: "Un champ titre identite", stable_id: 99 },
@@ -1149,10 +1149,10 @@ RSpec.describe DossierChampsConcern do
   end
 
   describe '#set_default_value_for_france_connect_champs' do
-    let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, types_de_champ_public:, for_individual: true) }
-    let(:types_de_champ_public) { [{ type: :quotient_familial }] }
+    let!(:procedure) { create(:procedure, :published, :with_api_particulier_token, public_type_de_champs:, for_individual: true) }
+    let(:public_type_de_champs) { [{ type: :quotient_familial }] }
     # Memoized before any context publishes a second quotient_familial tdc.
-    let(:qf_stable_id) { procedure.published_revision.types_de_champ.sole.stable_id }
+    let(:qf_stable_id) { procedure.published_revision.type_de_champs.sole.stable_id }
     # Enumerable#find over the loaded association, not find_by: the examples
     # stub this instance, so it has to be the same object the concern reuses.
     let(:champ_qf) { dossier.champ_data.find { it.stable_id == qf_stable_id } }
@@ -1313,7 +1313,7 @@ RSpec.describe DossierChampsConcern do
     end
 
     context "when the user buffer stream adds geometry to a carte (geojson) champ" do
-      let(:types_de_champ_public) { [{ type: :carte, libelle: "Une carte", stable_id: 996 }] }
+      let(:public_type_de_champs) { [{ type: :carte, libelle: "Une carte", stable_id: 996 }] }
       let(:dossier) { create(:dossier, :en_construction, procedure:) }
       let(:geo_area) { build(:geo_area, :selection_utilisateur, :polygon) }
 
@@ -1339,7 +1339,7 @@ RSpec.describe DossierChampsConcern do
     end
 
     context "when the user buffer stream attaches a file to a piece justificative (attachments) champ" do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Une pièce", stable_id: 997 }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: "Une pièce", stable_id: 997 }] }
       let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
       before do
@@ -1392,7 +1392,7 @@ RSpec.describe DossierChampsConcern do
     end
 
     context "when the instructeur buffer stream attaches a file to a piece justificative (attachments) champ" do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: "Une pièce", stable_id: 997 }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: "Une pièce", stable_id: 997 }] }
       let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
       before do

@@ -40,7 +40,7 @@
   <p class="mailing"><%= mailing_instruction %></p>
 <% end %>
 
-<% types_de_champ_public.each do |type_de_champ| %>
+<% public_type_de_champs.each do |type_de_champ| %>
   <section class="<%= champ_css_class(type_de_champ) %>">
     <%= render_champ(type_de_champ) %>
   </section>

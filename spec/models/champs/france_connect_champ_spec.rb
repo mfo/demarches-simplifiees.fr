@@ -2,8 +2,8 @@
 
 describe Champs::FranceConnectChamp, type: :model do
   describe "quotient familial champ" do
-    let(:types_de_champ_public) { [{ type: :quotient_familial }] }
-    let(:procedure) { create(:procedure, types_de_champ_public:, for_individual: true) }
+    let(:public_type_de_champs) { [{ type: :quotient_familial }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:, for_individual: true) }
     let(:dossier) { create(:dossier, procedure:, for_tiers: false, for_procedure_preview: false) }
     let(:champ) { dossier.champ_data.first }
     let!(:fci) { create(:france_connect_information, user: dossier.user) }
@@ -53,7 +53,7 @@ describe Champs::FranceConnectChamp, type: :model do
   end
 
   describe '#libelle' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :aah }], for_individual: true) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :aah }], for_individual: true) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
 

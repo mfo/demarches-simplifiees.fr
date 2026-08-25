@@ -61,7 +61,7 @@ class ProcedureExportService::XlsxExport
       .in_batches(includes: DossierPreloader::SHEET_EXPORT_INCLUDES) do |batch|
       rows = batch.map do |dossier|
         @current_dossier_id = dossier.id
-        columns = dossier.spreadsheet_columns_xlsx(types_de_champ:, export_template: @export_template)
+        columns = dossier.spreadsheet_columns_xlsx(type_de_champs:, export_template: @export_template)
         # En-têtes dérivés du 1er dossier streamé : mêmes `columns` que ses
         # valeurs, donc cohérence libellé ↔ valeur garantie par construction.
         headers ||= columns.map(&:first)
@@ -113,8 +113,8 @@ class ProcedureExportService::XlsxExport
     end
   end
 
-  def types_de_champ
-    @types_de_champ ||= @procedure.types_de_champ_for_procedure_export.to_a
+  def type_de_champs
+    @type_de_champs ||= @procedure.type_de_champs_for_procedure_export.to_a
   end
 
   # Accumulates rows for the Etablissements, Avis and Repetition sheets while we
@@ -195,12 +195,12 @@ class ProcedureExportService::XlsxExport
     end
 
     def repetition_tdcs
-      @repetition_tdcs ||= @procedure.all_revisions_types_de_champ.repetition.to_a
+      @repetition_tdcs ||= @procedure.all_revisions_type_de_champs.repetition.to_a
     end
 
     def repetition_children_tdcs
       @repetition_children_tdcs ||= repetition_tdcs.to_h do |tdc|
-        [tdc.stable_id, @procedure.all_revisions_types_de_champ(parent: tdc).to_a]
+        [tdc.stable_id, @procedure.all_revisions_type_de_champs(parent: tdc).to_a]
       end
     end
 

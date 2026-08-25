@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Users::DossierCardChampsComponent, type: :component do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre' }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Titre' }]) }
   let(:dossier) { create(:dossier, :en_construction, procedure:, populate_champs: true) }
   let(:column) { procedure.customizable_columns.first }
 

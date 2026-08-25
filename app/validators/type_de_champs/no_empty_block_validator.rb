@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::NoEmptyBlockValidator < ActiveModel::EachValidator
+class TypeDeChamps::NoEmptyBlockValidator < ActiveModel::EachValidator
   def validate_each(procedure, attribute, types_de_champ)
     types_de_champ.filter(&:repetition?).each do |repetition|
       validate_block_not_empty(procedure, attribute, repetition)

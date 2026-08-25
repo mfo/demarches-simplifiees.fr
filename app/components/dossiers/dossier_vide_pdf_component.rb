@@ -11,7 +11,7 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
 
   private
 
-  def types_de_champ_public = revision.root_types_de_champ_public
+  def public_type_de_champs = revision.public_root_type_de_champs
 
   # Populated while rendering champs (see boxed_field_with_annex); read by the
   # template after the form to append the "Annexes" pages.
@@ -178,7 +178,7 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
     term.right.to_s(condition_type_de_champs)
   end
 
-  def condition_type_de_champs = revision.flat_types_de_champ_public
+  def condition_type_de_champs = revision.public_flat_type_de_champs
 
   def description(type_de_champ)
     return if type_de_champ.description.blank?

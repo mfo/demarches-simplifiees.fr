@@ -141,7 +141,7 @@ class Referentiels::ReferentielPrefillComponent < Referentiels::MappingFormBase
 
   def collect_public_coordinates
     if type_de_champ.public?
-      tdcs_after_current(draft_revision.revision_types_de_champ.filter(&:public?))
+      tdcs_after_current(draft_revision.revision_type_de_champs.filter(&:public?))
     else
       []
     end
@@ -149,9 +149,9 @@ class Referentiels::ReferentielPrefillComponent < Referentiels::MappingFormBase
 
   def collect_private_coordinates
     if type_de_champ.public?
-      draft_revision.revision_types_de_champ.filter(&:private?)
+      draft_revision.revision_type_de_champs.filter(&:private?)
     else
-      tdcs_after_current(draft_revision.revision_types_de_champ.filter(&:private?))
+      tdcs_after_current(draft_revision.revision_type_de_champs.filter(&:private?))
     end
   end
 

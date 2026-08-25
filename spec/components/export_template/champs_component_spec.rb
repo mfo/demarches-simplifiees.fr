@@ -3,9 +3,9 @@
 describe ExportTemplate::ChampsComponent, type: :component do
   let(:groupe_instructeur) { create(:groupe_instructeur, procedure:) }
   let(:export_template) { build(:export_template, kind: 'csv', groupe_instructeur:) }
-  let(:procedure) { create(:procedure_with_dossiers, :published, types_de_champ_public:, for_individual:) }
+  let(:procedure) { create(:procedure_with_dossiers, :published, public_type_de_champs:, for_individual:) }
   let(:for_individual) { true }
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: "Ca va ?", mandatory: true, stable_id: 1 },
       { type: :communes, libelle: "Commune", mandatory: true, stable_id: 17 },
@@ -13,7 +13,7 @@ describe ExportTemplate::ChampsComponent, type: :component do
       { type: :repetition, mandatory: true, stable_id: 7, libelle: "Amis", children: [{ type: 'text', libelle: 'Prénom', stable_id: 8 }] },
     ]
   end
-  let(:component) { described_class.new("Champs publics", export_template, procedure.all_revisions_types_de_champ(parent: nil, with_header_section: true)) }
+  let(:component) { described_class.new("Champs publics", export_template, procedure.all_revisions_type_de_champs(parent: nil, with_header_section: true)) }
   before { render_inline(component).to_html }
 
   it 'renders champs within fieldset' do

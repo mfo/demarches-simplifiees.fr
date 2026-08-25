@@ -10,7 +10,7 @@ describe EmptyFileValidator do
   end
 
   describe "on a has_many_attached association" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 
@@ -63,7 +63,7 @@ describe EmptyFileValidator do
   # its record unsaveable, otherwise the dossier holding it can no longer be
   # submitted. The purge task cleans those up, and is not a deploy prerequisite.
   describe "with an empty attachment already in database" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 

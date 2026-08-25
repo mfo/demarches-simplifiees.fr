@@ -51,7 +51,7 @@ module Administrateurs
         if type_de_champ.update(update_params)
           reload_procedure_with_includes
           @morphed = if was_prefill_with_fc_information != type_de_champ.prefill_with_france_connect_information?
-            draft.revision_types_de_champ.map { |c| champ_component_from(c) }
+            draft.revision_type_de_champs.map { |c| champ_component_from(c) }
           else
             champ_components_starting_at(@coordinate)
           end
@@ -112,7 +112,7 @@ module Administrateurs
     def move_up
       @coordinate = draft.move_up_type_de_champ(params[:stable_id])
       reload_procedure_with_includes
-      @coordinate = draft.revision_types_de_champ.find { _1.id == @coordinate.id }
+      @coordinate = draft.revision_type_de_champs.find { _1.id == @coordinate.id }
       @destroyed = @coordinate
       @created = champ_component_from(@coordinate)
       # update the one component below
@@ -122,7 +122,7 @@ module Administrateurs
     def move_down
       @coordinate = draft.move_down_type_de_champ(params[:stable_id])
       reload_procedure_with_includes
-      @coordinate = draft.revision_types_de_champ.find { _1.id == @coordinate.id }
+      @coordinate = draft.revision_type_de_champs.find { _1.id == @coordinate.id }
       @destroyed = @coordinate
       @created = champ_component_from(@coordinate)
       # update the one component above

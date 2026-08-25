@@ -5,8 +5,8 @@ require "rails_helper"
 module Maintenance
   RSpec.describe BackfillClonedChampsPrivatePieceJustificativesTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_private:) }
-      let(:types_de_champ_private) { [{ type: :piece_justificative }, { type: :text }] }
+      let(:procedure) { create(:procedure, private_type_de_champs:) }
+      let(:private_type_de_champs) { [{ type: :piece_justificative }, { type: :text }] }
 
       let(:parent_dossier) { create(:dossier, procedure:) }
       let(:cloned_dossier) { create(:dossier, procedure:) }

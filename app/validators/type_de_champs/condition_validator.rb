@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
+class TypeDeChamps::ConditionValidator < ActiveModel::EachValidator
   # condition are valid when
   #   tdc.condition.left is present in upper tdcs
-  #   in case of types_de_champ_private, we should include types_de_champ_publics too
+  #   in case of private type_de_champs, we should include public type_de_champs too
   def validate_each(procedure, collection, tdcs)
     return if tdcs.empty?
 
@@ -11,8 +11,8 @@ class TypesDeChamp::ConditionValidator < ActiveModel::EachValidator
       next unless tdc.condition?
 
       upper_tdcs = []
-      if collection == :draft_types_de_champ_private # in case of private tdc validation, we must include public tdcs
-        upper_tdcs += procedure.draft_types_de_champ_public
+      if collection == :private_draft_type_de_champs # in case of private tdc validation, we must include public tdcs
+        upper_tdcs += procedure.public_draft_type_de_champs
       end
       upper_tdcs += tdcs.take(tdc_index) # we take all upper_tdcs of current tdcs
 

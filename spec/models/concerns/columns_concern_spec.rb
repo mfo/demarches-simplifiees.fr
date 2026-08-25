@@ -4,13 +4,13 @@ describe ColumnsConcern do
   let(:procedure_id) { procedure.id }
 
   describe '#find_column' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :linked_drop_down_list, libelle: 'linked' },
         { type: :address, libelle: 'address' },
       ]
     end
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
     let(:procedure_id) { procedure.id }
     let(:notifications_column) { procedure.notifications_column }
 
@@ -27,7 +27,7 @@ describe ColumnsConcern do
 
     context 'when the column_id is a old linked drop down list id' do
       let(:linked_drop_down_column) { procedure.find_column(label: 'linked') }
-      let(:linked_tdc) { procedure.active_revision.types_de_champ.find { _1.type_champ == 'linked_drop_down_list' } }
+      let(:linked_tdc) { procedure.active_revision.type_de_champs.find { _1.type_champ == 'linked_drop_down_list' } }
 
       it do
         column_id = "type_de_champ/#{linked_tdc.stable_id}->value"
@@ -39,7 +39,7 @@ describe ColumnsConcern do
 
     context 'when the colum_id is an old department column id' do
       let(:department_column) { procedure.find_column(label: "address – Département") }
-      let(:address_tdc) { procedure.active_revision.types_de_champ.find { _1.type_champ == 'address' } }
+      let(:address_tdc) { procedure.active_revision.type_de_champs.find { _1.type_champ == 'address' } }
 
       it do
         column_id = "type_de_champ/#{address_tdc.stable_id}-$.departement_code"
@@ -61,9 +61,9 @@ describe ColumnsConcern do
     end
 
     xcontext 'when the column lives only in the draft revision' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :integer_number }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :integer_number }]) }
       let(:referentiel) { create(:csv_referentiel, :with_items) }
-      let(:integer_tdc) { procedure.draft_revision.types_de_champ.first }
+      let(:integer_tdc) { procedure.draft_revision.type_de_champs.first }
       let(:draft_tdc) do
         procedure.draft_revision.add_type_de_champ(
           type_champ: 'drop_down_list',
@@ -85,11 +85,11 @@ describe ColumnsConcern do
     subject { procedure.columns }
 
     context 'when the procedure can have a SIRET number' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-      let(:tdc_1) { procedure.active_revision.root_types_de_champ_public[0] }
-      let(:tdc_2) { procedure.active_revision.root_types_de_champ_public[1] }
-      let(:tdc_private_1) { procedure.active_revision.root_types_de_champ_private[0] }
-      let(:tdc_private_2) { procedure.active_revision.root_types_de_champ_private[1] }
+      let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+      let(:tdc_1) { procedure.active_revision.public_root_type_de_champs[0] }
+      let(:tdc_2) { procedure.active_revision.public_root_type_de_champs[1] }
+      let(:tdc_private_1) { procedure.active_revision.private_root_type_de_champs[0] }
+      let(:tdc_private_2) { procedure.active_revision.private_root_type_de_champs[1] }
       let(:expected) {
         [
           { label: 'Dossier ID', table: 'self', column: 'id', displayable: true, type: :number, filterable: true },
@@ -134,13 +134,13 @@ describe ColumnsConcern do
       }
 
       context 'with explication/header_sections' do
-        let(:types_de_champ_public) { Array.new(4) { { type: :text } } }
-        let(:types_de_champ_private) { Array.new(4) { { type: :text } } }
+        let(:public_type_de_champs) { Array.new(4) { { type: :text } } }
+        let(:private_type_de_champs) { Array.new(4) { { type: :text } } }
         before do
-          procedure.active_revision.root_types_de_champ_public[2].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:header_section))
-          procedure.active_revision.root_types_de_champ_public[3].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:explication))
-          procedure.active_revision.root_types_de_champ_private[2].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:header_section))
-          procedure.active_revision.root_types_de_champ_private[3].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:explication))
+          procedure.active_revision.public_root_type_de_champs[2].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:header_section))
+          procedure.active_revision.public_root_type_de_champs[3].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:explication))
+          procedure.active_revision.private_root_type_de_champs[2].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:header_section))
+          procedure.active_revision.private_root_type_de_champs[3].update_attribute(:type_champ, TypeDeChamp.type_champs.fetch(:explication))
         end
 
         it {
@@ -151,14 +151,14 @@ describe ColumnsConcern do
       end
 
       context 'with rna' do
-        let(:types_de_champ_public) { [{ type: :rna, libelle: 'RNA' }] }
-        let(:types_de_champ_private) { [] }
+        let(:public_type_de_champs) { [{ type: :rna, libelle: 'RNA' }] }
+        let(:private_type_de_champs) { [] }
         it { expect(subject.map(&:label)).to include('RNA – Commune') }
       end
 
       context 'with linked drop down list' do
-        let(:types_de_champ_public) { [{ type: :linked_drop_down_list, libelle: 'linked' }] }
-        let(:types_de_champ_private) { [] }
+        let(:public_type_de_champs) { [{ type: :linked_drop_down_list, libelle: 'linked' }] }
+        let(:private_type_de_champs) { [] }
         it {
           expect(subject.map(&:label)).to include('linked (Primaire)')
           expect(subject.map(&:label)).to include('linked (Secondaire)')
@@ -166,9 +166,9 @@ describe ColumnsConcern do
       end
 
       context 'with drop down list with csv referentiel' do
-        let(:types_de_champ_public) { [{ type: :drop_down_list, libelle: 'liste csv', drop_down_mode: 'advanced', referentiel: }] }
+        let(:public_type_de_champs) { [{ type: :drop_down_list, libelle: 'liste csv', drop_down_mode: 'advanced', referentiel: }] }
         let(:referentiel) { create(:csv_referentiel, :with_items) }
-        let(:types_de_champ_private) { [] }
+        let(:private_type_de_champs) { [] }
         it {
           expect(subject.map(&:label)).to include('liste csv')
           expect(subject.map(&:label)).to include('liste csv – Référentiel calorie (kcal)')
@@ -231,9 +231,9 @@ describe ColumnsConcern do
   end
 
   describe 'export' do
-    let(:procedure) { create(:procedure_with_dossiers, :published, types_de_champ_public:, for_individual:) }
+    let(:procedure) { create(:procedure_with_dossiers, :published, public_type_de_champs:, for_individual:) }
     let(:for_individual) { true }
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :text, libelle: "Ca va ?", mandatory: true, stable_id: 1 },
         { type: :communes, libelle: "Commune", mandatory: true, stable_id: 17 },
@@ -304,7 +304,7 @@ describe ColumnsConcern do
       end
 
       context 'when procedure chorusable' do
-        let(:procedure) { create(:procedure_with_dossiers, :filled_chorus, types_de_champ_public:) }
+        let(:procedure) { create(:procedure_with_dossiers, :filled_chorus, public_type_de_champs:) }
         it 'returns specific chorus columns' do
           allow_any_instance_of(Procedure).to receive(:chorusable?).and_return(true)
           expected = [
@@ -321,7 +321,7 @@ describe ColumnsConcern do
     end
 
     describe '#dossier_columns_for_export' do
-      let(:procedure) { create(:procedure_with_dossiers, :routee, :published, types_de_champ_public:, for_individual:) }
+      let(:procedure) { create(:procedure_with_dossiers, :routee, :published, public_type_de_champs:, for_individual:) }
 
       it "returns all dossier columns" do
         expected = [

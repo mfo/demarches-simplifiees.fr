@@ -12,8 +12,8 @@ RSpec.describe APIEntreprise::Job, type: :job do
     let(:dossier) { create(:dossier, :with_entreprise) }
 
     context 'when error with an etablissement on a champ' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :siret }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :siret }] }
       let(:dossier) { create(:dossier, procedure:) }
 
       it "re-raises so sidekiq can retry" do

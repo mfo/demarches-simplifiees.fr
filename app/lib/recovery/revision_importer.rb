@@ -13,7 +13,7 @@ module Recovery
     def load
       @revisions.each do |revision|
         ProcedureRevisionTypeDeChamp.transaction do
-          revision.revision_types_de_champ.each do |coordinate|
+          revision.revision_type_de_champs.each do |coordinate|
             ProcedureRevisionTypeDeChamp.upsert(coordinate.attributes)
             TypeDeChamp.upsert(coordinate.type_de_champ.attributes.except('type_champs'))
           end

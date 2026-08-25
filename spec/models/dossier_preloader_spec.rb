@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 describe DossierPreloader do
-  let(:types_de_champ) do
+  let(:type_de_champs) do
     [
       { type: :text },
       { type: :repetition, mandatory: true, children: [{ type: :text }] },
       { type: :repetition, mandatory: false, children: [{ type: :text }] },
     ]
   end
-  let(:procedure) { create(:procedure, types_de_champ_public: types_de_champ) }
+  let(:procedure) { create(:procedure, public_type_de_champs: type_de_champs) }
   let(:dossier) { create(:dossier, procedure: procedure) }
   let(:repetition) { subject.root_champs_public.second }
   let(:repetition_optional) { subject.root_champs_public.third }
@@ -25,7 +25,7 @@ describe DossierPreloader do
       callback = lambda { |*_args| count += 1 }
       ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
         expect(subject.id).to eq(dossier.id)
-        expect(subject.root_champs_public.size).to eq(types_de_champ.size)
+        expect(subject.root_champs_public.size).to eq(type_de_champs.size)
         expect(subject.changed?).to be false
 
         expect(first_child.type).to eq('Champs::TextChamp')

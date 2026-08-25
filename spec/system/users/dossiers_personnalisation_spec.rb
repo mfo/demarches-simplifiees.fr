@@ -3,7 +3,7 @@
 describe 'Usager personnalise la liste des dossiers', js: true do
   let(:user) { create(:user) }
   let(:procedure) do
-    create(:procedure, :published, types_de_champ_public: [
+    create(:procedure, :published, public_type_de_champs: [
       { type: :header_section, libelle: 'Identité' },
       { type: :text, libelle: 'Nom du titre', mandatory: true },
       { type: :text, libelle: 'Numéro CPPAP' },
@@ -17,7 +17,7 @@ describe 'Usager personnalise la liste des dossiers', js: true do
   end
 
   it 'shows the chosen champ values on the dossier cards' do
-    perso_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Titre de la publication' }])
+    perso_procedure = create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Titre de la publication' }])
     column = perso_procedure.customizable_columns.first
     create(:dossiers_list_personnalisation, user:, procedure: perso_procedure, displayed_columns: [column])
     dossiers = create_list(:dossier, 6, :en_construction, user:, procedure: perso_procedure, populate_champs: true)

@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe PopulateRNFJSONValueTask do
     describe "#process" do
       include Dry::Monads[:result]
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:element) { dossier.champ_data.first }
       let(:data) do

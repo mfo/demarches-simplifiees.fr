@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Champs::DepartementChamp, type: :model do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :departements }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :departements }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.root_champs_public.first.tap { _1.update_columns(value:, external_id:) } }
   let(:value) { nil }

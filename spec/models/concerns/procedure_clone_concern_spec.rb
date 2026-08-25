@@ -14,16 +14,16 @@ describe ProcedureCloneConcern, type: :model do
         max_duree_conservation_dossiers_dans_ds: Procedure::OLD_MAX_DUREE_CONSERVATION,
         attestation_acceptation_template: build(:attestation_template, logo: logo, signature: signature),
         attestation_refus_template: build(:attestation_template, kind: 'refus'),
-        types_de_champ_public:,
-        types_de_champ_private:,
+        public_type_de_champs:,
+        private_type_de_champs:,
         api_particulier_token: '123456789012345',
         estimated_dossiers_count: 4,
         template: true)
     end
-    let(:types_de_champ_public) { [{}, {}, { type: :drop_down_list }, { type: :piece_justificative }, { type: :repetition, children: [{}] }] }
-    let(:types_de_champ_private) { [{}, {}, { type: :drop_down_list }, { type: :repetition, children: [{}] }] }
-    let(:type_de_champ_repetition) { procedure.draft_revision.root_types_de_champ_public.last }
-    let(:type_de_champ_private_repetition) { procedure.draft_revision.root_types_de_champ_private.last }
+    let(:public_type_de_champs) { [{}, {}, { type: :drop_down_list }, { type: :piece_justificative }, { type: :repetition, children: [{}] }] }
+    let(:private_type_de_champs) { [{}, {}, { type: :drop_down_list }, { type: :repetition, children: [{}] }] }
+    let(:type_de_champ_repetition) { procedure.draft_revision.public_root_type_de_champs.last }
+    let(:type_de_champ_private_repetition) { procedure.draft_revision.private_root_type_de_champs.last }
     let(:email_passe_en_instruction) { build(:email_passe_en_instruction) }
     let(:from_library) { false }
     let(:opendata) { true }
@@ -100,28 +100,28 @@ describe ProcedureCloneConcern, type: :model do
     it 'should duplicate specific objects with different id' do
       expect(subject.id).not_to eq(procedure.id)
 
-      expect(subject.draft_revision.root_types_de_champ_public.size).to eq(procedure.draft_revision.root_types_de_champ_public.size)
-      expect(subject.draft_revision.root_types_de_champ_private.size).to eq(procedure.draft_revision.root_types_de_champ_private.size)
+      expect(subject.draft_revision.public_root_type_de_champs.size).to eq(procedure.draft_revision.public_root_type_de_champs.size)
+      expect(subject.draft_revision.private_root_type_de_champs.size).to eq(procedure.draft_revision.private_root_type_de_champs.size)
 
-      procedure.draft_revision.root_types_de_champ_public.zip(subject.draft_revision.root_types_de_champ_public).each do |ptc, stc|
+      procedure.draft_revision.public_root_type_de_champs.zip(subject.draft_revision.public_root_type_de_champs).each do |ptc, stc|
         expect(stc).to have_same_attributes_as(ptc)
         expect(stc.revisions).to include(subject.draft_revision)
       end
 
       public_repetition = type_de_champ_repetition
-      cloned_public_repetition = subject.draft_revision.root_types_de_champ_public.find(&:repetition?)
+      cloned_public_repetition = subject.draft_revision.public_root_type_de_champs.find(&:repetition?)
       procedure.draft_revision.children_of(public_repetition).zip(subject.draft_revision.children_of(cloned_public_repetition)).each do |ptc, stc|
         expect(stc).to have_same_attributes_as(ptc)
         expect(stc.revisions).to include(subject.draft_revision)
       end
 
-      procedure.draft_revision.root_types_de_champ_private.zip(subject.draft_revision.root_types_de_champ_private).each do |ptc, stc|
+      procedure.draft_revision.private_root_type_de_champs.zip(subject.draft_revision.private_root_type_de_champs).each do |ptc, stc|
         expect(stc).to have_same_attributes_as(ptc)
         expect(stc.revisions).to include(subject.draft_revision)
       end
 
       private_repetition = type_de_champ_private_repetition
-      cloned_private_repetition = subject.draft_revision.root_types_de_champ_private.find(&:repetition?)
+      cloned_private_repetition = subject.draft_revision.private_root_type_de_champs.find(&:repetition?)
       procedure.draft_revision.children_of(private_repetition).zip(subject.draft_revision.children_of(cloned_private_repetition)).each do |ptc, stc|
         expect(stc).to have_same_attributes_as(ptc)
         expect(stc.revisions).to include(subject.draft_revision)
@@ -141,10 +141,10 @@ describe ProcedureCloneConcern, type: :model do
       ])
     end
 
-    context 'when types_de_champ_public contains a referentiel' do
+    context 'when public_type_de_champs contains a referentiel' do
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, :with_authentication_data) }
       let(:stable_id) { 1337 }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: referentiel, stable_id: }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: referentiel, stable_id: }] }
 
       context 'when cloned by the same administrateur' do
         let(:administrateur) { procedure.administrateurs.first }
@@ -154,8 +154,8 @@ describe ProcedureCloneConcern, type: :model do
         end
 
         it 'keeps API keys' do
-          expect(subject.draft_revision.root_types_de_champ_public.first.referentiel.authentication_method).to eq(referentiel.authentication_method)
-          expect(subject.draft_revision.root_types_de_champ_public.first.referentiel.authentication_data).to eq(referentiel.authentication_data)
+          expect(subject.draft_revision.public_root_type_de_champs.first.referentiel.authentication_method).to eq(referentiel.authentication_method)
+          expect(subject.draft_revision.public_root_type_de_champs.first.referentiel.authentication_data).to eq(referentiel.authentication_data)
         end
       end
 
@@ -167,7 +167,7 @@ describe ProcedureCloneConcern, type: :model do
         end
 
         it 'discards API keys' do
-          expect(subject.draft_revision.root_types_de_champ_public.first.referentiel.authentication_data).to eq(nil)
+          expect(subject.draft_revision.public_root_type_de_champs.first.referentiel.authentication_data).to eq(nil)
         end
       end
     end
@@ -191,7 +191,7 @@ describe ProcedureCloneConcern, type: :model do
       end
 
       it 'should discard old pj information' do
-        subject.draft_revision.root_types_de_champ_public.each do |stc|
+        subject.draft_revision.public_root_type_de_champs.each do |stc|
           expect(stc.old_pj).to be_nil
         end
       end
@@ -243,7 +243,7 @@ describe ProcedureCloneConcern, type: :model do
       end
 
       it 'should discard old pj information' do
-        subject.draft_revision.root_types_de_champ_public.each do |stc|
+        subject.draft_revision.public_root_type_de_champs.each do |stc|
           expect(stc.old_pj).to be_nil
         end
       end
@@ -333,13 +333,13 @@ describe ProcedureCloneConcern, type: :model do
       end
     end
 
-    it 'should keep types_de_champ ids stable' do
-      expect(subject.draft_revision.root_types_de_champ_public.first.id).not_to eq(procedure.draft_revision.root_types_de_champ_public.first.id)
-      expect(subject.draft_revision.root_types_de_champ_public.first.stable_id).to eq(procedure.draft_revision.root_types_de_champ_public.first.id)
+    it 'should keep type_de_champs ids stable' do
+      expect(subject.draft_revision.public_root_type_de_champs.first.id).not_to eq(procedure.draft_revision.public_root_type_de_champs.first.id)
+      expect(subject.draft_revision.public_root_type_de_champs.first.stable_id).to eq(procedure.draft_revision.public_root_type_de_champs.first.id)
     end
 
     it 'should duplicate piece_justificative_template on a type_de_champ' do
-      expect(subject.draft_revision.root_types_de_champ_public.find(&:piece_justificative?).piece_justificative_template.attached?).to be_truthy
+      expect(subject.draft_revision.public_root_type_de_champs.find(&:piece_justificative?).piece_justificative_template.attached?).to be_truthy
     end
 
     context 'with a notice attached' do
@@ -402,11 +402,11 @@ describe ProcedureCloneConcern, type: :model do
     end
 
     context 'with a drop_down_list referentiel' do
-      let(:procedure) { create(:procedure, types_de_champ_public:, service:) }
-      let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:, service:) }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced' }] }
       let(:referentiel) { create(:csv_referentiel, :with_items) }
-      let(:drop_down_list) { procedure.draft_revision.root_types_de_champ_public.first }
-      let(:cloned_drop_down_list) { subject.draft_revision.root_types_de_champ_public.first }
+      let(:drop_down_list) { procedure.draft_revision.public_root_type_de_champs.first }
+      let(:cloned_drop_down_list) { subject.draft_revision.public_root_type_de_champs.first }
 
       it {
         expect(cloned_drop_down_list.drop_down_mode).to eq('advanced')
