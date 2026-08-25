@@ -3,15 +3,20 @@
 class ExpertMailer < ApplicationMailer
   layout 'mailers/layout'
 
-  def send_dossier_decision_v2(avis)
+  def send_dossier_decision(avis)
     @avis = avis
     @dossier = @avis.dossier
     email = @avis.expert.email
     @decision = decision_dossier(@dossier)
-    subject = t('expert_mailer.send_dossier_decision.subject', dossier_id: @dossier.id, decision: @decision, libelle: @dossier.procedure.libelle)
+    subject = t('.subject', dossier_id: @dossier.id, decision: @decision, libelle: @dossier.procedure.libelle)
 
-    mail(template_name: 'send_dossier_decision', to: email, subject: subject)
+    mail(to: email, subject:)
   end
+
+  # Compat shim consuming the delivery jobs enqueued under the old action name
+  # before this rename was deployed. Remove once the Sidekiq retry set has
+  # drained (~3 weeks, the default 25 retries of PriorizedMailDeliveryJob).
+  def self.send_dossier_decision_v2(avis) = send_dossier_decision(avis)
 
   def self.critical_email?(action_name)
     false
