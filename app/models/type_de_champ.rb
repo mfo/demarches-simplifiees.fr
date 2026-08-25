@@ -78,13 +78,6 @@ class TypeDeChamp < ApplicationRecord
     ars: 'ars',
   }
 
-  store_accessor :options,
-                 :drop_down_options,
-                 :drop_down_mode,
-                 :drop_down_secondary_libelle,
-                 :drop_down_secondary_description,
-                 :drop_down_other
-
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
   has_many :revisions, -> { ordered }, through: :revision_type_de_champs

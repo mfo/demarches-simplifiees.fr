@@ -4,8 +4,8 @@ describe Logic::ChampValue do
   include Logic
 
   describe '#compute' do
-    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: tdc_type, drop_down_other: }]) }
-    let(:drop_down_other) { nil }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: tdc_type, **tdc_options }]) }
+    let(:tdc_options) { {} }
     let(:tdc_type) { :text }
     let(:tdc) { procedure.active_revision.type_de_champs.first }
     let(:dossier) { create(:dossier, procedure:) }
@@ -80,7 +80,7 @@ describe Logic::ChampValue do
 
       context 'with other enabled' do
         let(:tdc_type) { :drop_down_list }
-        let(:drop_down_other) { true }
+        let(:tdc_options) { { drop_down_other: true } }
 
         it do
           is_expected.to eq('val1')

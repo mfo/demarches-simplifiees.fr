@@ -124,8 +124,8 @@ describe TypeDeChamp do
         let(:target_type_champ) { TypeDeChamp.type_champs.fetch(:text) }
 
         it do
-          expect(tdc.drop_down_options).to be_present
-          expect(tdc.drop_down_options).to eq(["val1", "val2", "val3"])
+          expect(tdc.options['drop_down_options']).to be_present
+          expect(tdc.options['drop_down_options']).to eq(["val1", "val2", "val3"])
         end
       end
 

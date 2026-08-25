@@ -657,7 +657,7 @@ RSpec.describe DossierChampsConcern do
         let(:attributes) { { "99" => assign } }
 
         before do
-          tdc = dossier.procedure.draft_revision.find_and_ensure_exclusive_use(99)
+          tdc = dossier.procedure.draft_revision.find_and_ensure_exclusive_use(99).becomes_type(to)
           tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(to), **to_params)
           dossier.procedure.publish_revision!(procedure.administrateurs.first)
           perform_enqueued_jobs
