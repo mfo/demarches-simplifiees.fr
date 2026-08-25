@@ -180,7 +180,7 @@ describe API::V2::GraphqlController do
           expect(gql_errors).to be_nil
           expect(gql_data[:dossierRepasserEnConstruction][:dossier]).to be_nil
           expect(gql_data[:dossierRepasserEnConstruction][:errors].first[:message])
-            .to eq('Le dossier ne peut pas repasser en construction car la démarche est en décision implicite (SVA/SVR). Demandez une correction à l’usager à la place.')
+            .to eq('Le dossier ne peut pas repasser en construction car la démarche est en décision implicite (SVA/SVR). Utilisez la mutation `dossierEnvoyerMessage` avec l’argument `correction` pour demander une correction à l’usager.')
           expect(dossier.reload).to be_en_instruction
         end
       end
@@ -845,6 +845,30 @@ describe API::V2::GraphqlController do
           expect(dossier).to be_pending_correction
           expect(dossier.pending_correction).to be_dossier_incorrect
           expect(dossier.pending_correction.commentaire.body).to eq('Hello World!')
+        end
+
+        context 'when a correction is already pending' do
+          let!(:dossier_correction) { create(:dossier_correction, dossier:) }
+
+          it 'returns a validation error instead of silently sending a plain message' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossierEnvoyerMessage][:message]).to be_nil
+            expect(gql_data[:dossierEnvoyerMessage][:errors])
+              .to eq([{ message: 'Une demande de correction est déjà en attente sur ce dossier' }])
+            expect(dossier.commentaires.where(body: 'Hello World!')).to be_empty
+          end
+        end
+
+        context 'when the dossier is terminated' do
+          let(:dossier) { dossiers.accepte }
+
+          it 'returns a validation error instead of silently sending a plain message' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossierEnvoyerMessage][:message]).to be_nil
+            expect(gql_data[:dossierEnvoyerMessage][:errors])
+              .to eq([{ message: 'Le dossier ne peut pas faire l’objet d’une demande de correction car il est accepté' }])
+            expect(dossier.commentaires.where(body: 'Hello World!')).to be_empty
+          end
         end
       end
 
