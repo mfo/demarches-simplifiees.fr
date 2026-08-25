@@ -570,6 +570,100 @@ describe Users::CommencerController, type: :controller do
     end
   end
 
+  # Kept out of '#dossier_vide_pdf' on purpose: that group downloads the PDF in a
+  # `before` hook, which would count as an extra WeasyPrint call here.
+  describe '#dossier_vide_pdf caching' do
+    render_views
+
+    let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+
+    before do
+      Flipper.enable(:dossier_vide_weasyprint, procedure)
+      allow(WeasyprintService).to receive(:generate_pdf).and_return('%PDF-fake')
+    end
+
+    def download = get(:dossier_vide_pdf, params: { path: procedure.path })
+
+    it 'generates and stores the PDF on the first download' do
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).once
+      expect(procedure.reload.dossier_vide_pdf).to be_attached
+      expect(response.body).to eq('%PDF-fake')
+    end
+
+    it 'serves the stored PDF on the next download, without rendering it again' do
+      download
+      allow(Dossiers::DossierVidePdfComponent).to receive(:new).and_call_original
+
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).once
+      expect(Dossiers::DossierVidePdfComponent).not_to have_received(:new)
+      expect(response.body).to eq('%PDF-fake')
+    end
+
+    it 'regenerates once the cached PDF has expired' do
+      download
+      procedure.reload.dossier_vide_pdf.blob.update_column(:created_at, 8.days.ago)
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'regenerates when the presentation changes' do
+      download
+      procedure.update!(description: 'Une nouvelle présentation')
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'regenerates when the service changes' do
+      download
+      procedure.service.update!(adresse: '2 rue de la Paix, 75002 Paris')
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'regenerates when a new revision is published' do
+      download
+      procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'Un champ de plus')
+      procedure.publish_revision!(procedure.administrateurs.first)
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'does not cache anything when WeasyPrint fails' do
+      allow(WeasyprintService).to receive(:generate_pdf).and_raise(WeasyprintService::Error)
+
+      download
+
+      expect(response).to have_http_status(:success)
+      expect(procedure.reload.dossier_vide_pdf).not_to be_attached
+    end
+  end
+
+  describe '#dossier_vide_pdf_test caching' do
+    render_views
+
+    let(:procedure) { create(:procedure, :with_service, :with_path) }
+
+    before do
+      Flipper.enable(:dossier_vide_weasyprint, procedure)
+      allow(WeasyprintService).to receive(:generate_pdf).and_return('%PDF-fake')
+      get :dossier_vide_pdf_test, params: { path: procedure.path }
+      get :dossier_vide_pdf_test, params: { path: procedure.path }
+    end
+
+    it 'never caches the draft PDF: it is content being edited' do
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+      expect(procedure.reload.dossier_vide_pdf).not_to be_attached
+    end
+  end
+
   describe '#commencer for moral procedure with pro_connect_for_moral_procedure flag' do
     render_views
     subject { get :commencer, params: { path: procedure.path } }
