@@ -1202,6 +1202,7 @@ class Dossier < ApplicationRecord
   end
 
   def geo_areas
+    ActiveRecord::Associations::Preloader.new(records: filled_champs, associations: :geo_areas).call
     filled_champs.flat_map(&:geo_areas)
   end
 
