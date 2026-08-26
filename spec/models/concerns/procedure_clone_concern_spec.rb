@@ -312,6 +312,31 @@ describe ProcedureCloneConcern, type: :model do
       expect(subject.email_depose_or_default.attributes).to eq Emails::Depose.default_for_procedure(subject).attributes
     end
 
+    context 'when an email template references a champ' do
+      let(:public_type_de_champs) { [{ libelle: 'Mon champ' }] }
+      let(:email_passe_en_instruction) { build(:email_passe_en_instruction, body: 'Bonjour --Mon champ--') }
+
+      it 'should duplicate it' do
+        expect(subject.email_passe_en_instruction.body).to eq('Bonjour --Mon champ--')
+      end
+
+      context 'and the champ has been removed since' do
+        before { procedure.email_passe_en_instruction.update_column(:body, 'Bonjour --Champ supprimé--') }
+
+        it 'should duplicate it anyway' do
+          expect(subject.email_passe_en_instruction.body).to eq('Bonjour --Champ supprimé--')
+        end
+      end
+    end
+
+    context 'when email templates are not cloned' do
+      let(:options) { super().merge(clone_email_templates: false) }
+
+      it 'should not duplicate email templates' do
+        expect(subject.custom_email_templates).to be_empty
+      end
+    end
+
     it 'should not duplicate specific related objects' do
       expect(subject.dossiers).to eq([])
     end
