@@ -90,15 +90,33 @@ RSpec.describe APIEntreprise::HealthChecker do
       end
     end
 
-    context 'when a provider returns invalid JSON' do
+    context 'when a provider returns an HTML error page' do
       before do
         stub_request(:get, "#{described_class::PING_BASE_URL}/insee/sirene")
-          .to_return(status: 200, body: 'not json')
+          .to_return(status: 500, body: '<!DOCTYPE html><html><body>500</body></html>')
       end
 
-      it 'captures exception in Sentry' do
-        expect(Sentry).to receive(:capture_exception)
+      it 'marks the provider as down without reporting to Sentry' do
+        expect(Sentry).not_to receive(:capture_exception)
+
         described_class.refresh_all!
+
+        expect(described_class.cached_status('insee/sirene')).to eq('http_500')
+        expect(described_class.provider_up?('insee/sirene')).to be false
+      end
+    end
+
+    context 'when a provider returns JSON without a status' do
+      before do
+        stub_request(:get, "#{described_class::PING_BASE_URL}/insee/sirene")
+          .to_return(status: 404, body: '{}')
+      end
+
+      it 'marks the provider as down' do
+        described_class.refresh_all!
+
+        expect(described_class.cached_status('insee/sirene')).to eq('http_404')
+        expect(described_class.provider_up?('insee/sirene')).to be false
       end
     end
   end
