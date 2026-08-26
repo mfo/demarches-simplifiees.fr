@@ -118,7 +118,7 @@ RSpec.describe APIEntreprise::Job, type: :job do
     it 'returns the correct ping key for each job class' do
       expect(APIEntreprise::EtablissementJob.new.ping_key_for_job).to eq('insee/sirene')
       expect(APIEntreprise::ExtraitKbisJob.new.ping_key_for_job).to eq('infogreffe/rcs')
-      expect(APIEntreprise::TvaJob.new.ping_key_for_job).to eq('european_commission/numero_tva')
+      expect(APIEntreprise::TvaJob.new.ping_key_for_job).to eq('dgfip/numero_tva')
       expect(APIEntreprise::AssociationJob.new.ping_key_for_job).to eq('djepva/api-association')
       expect(APIEntreprise::ExercicesJob.new.ping_key_for_job).to eq('dgfip/chiffre_affaires')
       expect(APIEntreprise::EffectifsJob.new.ping_key_for_job).to eq('gip_mds/effectifs')

@@ -25,7 +25,7 @@ class APIEntreprise::Job < ApplicationJob
   PING_KEY_BY_JOB = {
     'EtablissementJob' => APIEntreprise::HealthChecker::PROVIDERS[:insee_sirene],
     'ExtraitKbisJob' => APIEntreprise::HealthChecker::PROVIDERS[:infogreffe_rcs],
-    'TvaJob' => APIEntreprise::HealthChecker::PROVIDERS[:european_commission_tva],
+    'TvaJob' => APIEntreprise::HealthChecker::PROVIDERS[:dgfip_numero_tva],
     'AssociationJob' => APIEntreprise::HealthChecker::PROVIDERS[:djepva_association],
     'ExercicesJob' => APIEntreprise::HealthChecker::PROVIDERS[:dgfip_chiffre_affaires],
     'EffectifsJob' => APIEntreprise::HealthChecker::PROVIDERS[:gip_mds_effectifs],

@@ -8,7 +8,7 @@ module APIEntreprise::HealthChecker
   PROVIDERS = {
     insee_sirene: 'insee/sirene',
     infogreffe_rcs: 'infogreffe/rcs',
-    european_commission_tva: 'european_commission/numero_tva',
+    dgfip_numero_tva: 'dgfip/numero_tva',
     djepva_association: 'djepva/api-association',
     dgfip_chiffre_affaires: 'dgfip/chiffre_affaires',
     dgfip_attestation_fiscale: 'dgfip/attestation_fiscale',
