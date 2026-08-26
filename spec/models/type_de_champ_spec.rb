@@ -124,8 +124,8 @@ describe TypeDeChamp do
         let(:target_type_champ) { TypeDeChamp.type_champs.fetch(:text) }
 
         it do
-          expect(tdc.drop_down_options).to be_present
-          expect(tdc.drop_down_options).to eq(["val1", "val2", "val3"])
+          expect(tdc.options['drop_down_options']).to be_present
+          expect(tdc.options['drop_down_options']).to eq(["val1", "val2", "val3"])
         end
       end
 
@@ -176,7 +176,7 @@ describe TypeDeChamp do
       morphed.update!(type_champ: 'formatted')
 
       expect(morphed).to be_an_instance_of(TypesDeChamp::FormattedTypeDeChamp)
-      expect(morphed.reload.options['formatted_mode']).to eq('simple')
+      expect(morphed.reload.formatted_mode).to eq('simple')
     end
   end
 

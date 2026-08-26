@@ -78,68 +78,13 @@ class TypeDeChamp < ApplicationRecord
     ars: 'ars',
   }
 
-  store_accessor :options,
-                 :cadastres,
-                 :old_pj,
-                 :drop_down_options,
-                 :drop_down_mode,
-                 :skip_pj_validation,
-                 :skip_content_type_pj_validation,
-                 :drop_down_secondary_libelle,
-                 :drop_down_secondary_description,
-                 :drop_down_other,
-                 :positive_number,
-                 :min_number,
-                 :max_number,
-                 :range_number,
-                 :birthdate,
-                 :prefill_with_france_connect_information,
-                 :date_in_past,
-                 :range_date,
-                 :start_date,
-                 :end_date,
-                 :character_limit,
-                 :formatted_mode,
-                 :numbers_accepted,
-                 :letters_accepted,
-                 :special_characters_accepted,
-                 :min_character_length,
-                 :max_character_length,
-                 :expression_reguliere,
-                 :expression_reguliere_indications,
-                 :expression_reguliere_exemple_text,
-                 :expression_reguliere_error_message,
-                 :collapsible_explanation_enabled,
-                 :collapsible_explanation_text,
-                 :header_section_level,
-                 :referentiel_mapping,
-                 :pj_limit_formats,
-                 :pj_format_families,
-                 :pj_auto_purge,
-                 :procedures_limit,
-                 :dossier_link_procedure_ids,
-                 :limit_repetitions,
-                 :min_repetitions,
-                 :max_repetitions,
-                 :pre_rempli_hidden
-
   has_many :revision_type_de_champs, -> { revision_ordered }, class_name: 'ProcedureRevisionTypeDeChamp', dependent: :destroy, inverse_of: :type_de_champ
 
   has_many :revisions, -> { ordered }, through: :revision_type_de_champs
 
   belongs_to :referentiel, optional: true, inverse_of: :type_de_champs
 
-  class WithIndifferentAccess
-    def self.load(options)
-      options&.with_indifferent_access
-    end
-
-    def self.dump(options)
-      options
-    end
-  end
-
-  serialize :options, coder: WithIndifferentAccess
+  attribute :options, IndifferentJsonbType.new
 
   serialize :condition, coder: LogicSerializer
 
@@ -161,11 +106,6 @@ class TypeDeChamp < ApplicationRecord
   has_one_attached :notice_explicative
 
   validates :type_champ, presence: true, allow_blank: false, allow_nil: false
-  validates :character_limit, numericality: {
-    greater_than_or_equal_to: MINIMUM_TEXTAREA_CHARACTER_LIMIT_LENGTH,
-    only_integer: true,
-    allow_blank: true,
-  }
 
   after_create :populate_stable_id
 
@@ -241,11 +181,7 @@ class TypeDeChamp < ApplicationRecord
     revisions.one? && revisions.first.draft?
   end
 
-  def prefill_with_france_connect_information? = false
-
   def prefillable? = false
-
-  def pre_rempli_hidden? = false
 
   def fillable? = true
 
@@ -354,11 +290,11 @@ class TypeDeChamp < ApplicationRecord
       .parameterize
   end
 
-  def self.editable_option_keys = []
+  def self.option_keys = []
   def self.column_type = :text
 
   def clean_options
-    options.slice(*self.class.editable_option_keys.map(&:to_s))
+    options.slice(*self.class.option_keys.map(&:to_s))
   end
 
   def max_file_size_bytes = FILE_MAX_SIZE

@@ -12,7 +12,7 @@ class TypeDeChamps::DateValidator < ActiveModel::EachValidator
   private
 
   def validate_prefill_with_france_connect_information_uniqueness(procedure, attribute, date_tdcs)
-    with_option = date_tdcs.filter(&:prefill_with_france_connect_information?)
+    with_option = date_tdcs.filter { it.date? && it.prefill_with_france_connect_information? }
     return if with_option.size <= 1
 
     with_option.each do |tdc|

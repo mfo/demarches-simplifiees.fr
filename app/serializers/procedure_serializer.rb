@@ -46,7 +46,7 @@ class ProcedureSerializer < ActiveModel::Serializer
   end
 
   def types_de_champ
-    object.active_revision.public_root_type_de_champs.reject { |c| c.old_pj.present? }
+    object.active_revision.public_root_type_de_champs.reject { |c| c.piece_justificative? && c.old_pj.present? }
   end
 
   def types_de_champ_private

@@ -1,12 +1,20 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
-  def self.editable_option_keys = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :pj_limit_formats, :pj_format_families, :pj_auto_purge]
+  def self.option_keys = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :pj_limit_formats, :pj_format_families, :pj_auto_purge]
   def self.column_type = :attachments
 
   IDENTITY_FILE_MAX_SIZE = 20.megabytes
 
   enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
+
+  store_accessor :options,
+                 :old_pj,
+                 :skip_pj_validation,
+                 :skip_content_type_pj_validation,
+                 :pj_limit_formats,
+                 :pj_format_families,
+                 :pj_auto_purge
 
   validates :piece_justificative_template, size: { less_than: FILE_MAX_SIZE }, on: :update
   validates :piece_justificative_template, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, on: :update

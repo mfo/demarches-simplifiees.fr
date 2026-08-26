@@ -2,7 +2,9 @@
 
 class TypesDeChamp::HeaderSectionTypeDeChamp < TypeDeChamp
   def self.category = STRUCTURE
-  def self.editable_option_keys = [:header_section_level]
+  def self.option_keys = [:header_section_level]
+
+  store_accessor :options, :header_section_level
 
   def fillable? = false
   def description_configurable? = false

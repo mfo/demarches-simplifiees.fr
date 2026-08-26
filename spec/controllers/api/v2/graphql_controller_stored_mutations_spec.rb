@@ -597,6 +597,16 @@ describe API::V2::GraphqlController do
           expect(routing_champ.reload.drop_down_options).to match_array(procedure.groupe_instructeurs.map(&:label))
           expect(procedure.groupe_instructeurs.map(&:routing_rule)).to match_array(procedure.groupe_instructeurs.map { ds_eq(champ_value(routing_champ.stable_id), constant(_1.label)) })
         }
+
+        context 'routed on a champ without drop-down options' do
+          let(:procedure) { create(:procedure, :published, :for_individual, administrateurs: [admin], public_type_de_champs: [{ type: :regions }]) }
+
+          it 'fails loudly instead of rewriting the routing rules' do
+            is_expected.to have_http_status(:internal_server_error)
+            expect(gql_errors).to be_present
+            expect(groupe_instructeur.reload.routing_rule).to eq(ds_eq(champ_value(routing_champ.stable_id), constant(groupe_instructeur.label)))
+          end
+        end
       end
     end
 

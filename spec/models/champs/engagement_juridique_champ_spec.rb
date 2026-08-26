@@ -40,12 +40,22 @@ describe Champs::EngagementJuridiqueChamp do
       it { is_expected.to be_truthy }
     end
 
+    context 'with a mix of allowed characters' do
+      let(:value) { "AB-12_3+4/5" }
+      it { is_expected.to be_truthy }
+    end
+
     context 'with *' do
       let(:value) { "*" }
       it do
         is_expected.to be_falsey
         expect(champ.errors.full_messages_for(:value).first.starts_with?("Le numéro d'EJ")).to be_truthy
       end
+    end
+
+    context 'with a forbidden character among allowed ones' do
+      let(:value) { "Facture n°12" }
+      it { is_expected.to be_falsey }
     end
   end
 end

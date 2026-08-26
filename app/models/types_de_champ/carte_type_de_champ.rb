@@ -21,8 +21,10 @@ class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
 
   before_validation :ensure_exclusive_parcelle_layer
 
+  store_accessor :options, :cadastres
+
   def self.category = REFERENTIEL_EXTERNE
-  def self.editable_option_keys = LAYERS
+  def self.option_keys = LAYERS
   def self.column_type = :geojson
 
   def refresh_after_update? = false

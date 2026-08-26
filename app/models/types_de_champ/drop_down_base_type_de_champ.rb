@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
-module TypesDeChamp::DropDownOptionsConcern
-  def drop_down_advanced? = false
+class TypesDeChamp::DropDownBaseTypeDeChamp < TypeDeChamp
+  store_accessor :options, :drop_down_options, :drop_down_mode
+
+  def drop_down_simple? = drop_down_mode != 'advanced'
+  def drop_down_advanced? = drop_down_mode == 'advanced'
   def drop_down_other? = false
 
   def drop_down_options

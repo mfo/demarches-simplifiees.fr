@@ -126,6 +126,18 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       end
     end
 
+    context 'keeping the type but submitting an option of another type' do
+      # a stale tab can autosave the options of the previous type after a type change
+      let(:params) { default_params.deep_merge(type_de_champ: { pre_rempli_hidden: '1' }) }
+
+      it 'ignores the unknown option' do
+        is_expected.to have_http_status(:ok)
+        type_de_champ = second_coordinate.type_de_champ.reload
+        expect(type_de_champ.libelle).to eq('updated')
+        expect(type_de_champ.options['pre_rempli_hidden']).to be_nil
+      end
+    end
+
     context 'changing the type to formatted' do
       let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :textarea, libelle: 'l1' }]) }
       let(:params) do
@@ -142,7 +154,6 @@ describe Administrateurs::TypesDeChampController, type: :controller do
 
         options = TypeDeChamp.where(id: first_coordinate.type_de_champ.id).pick(:options)
         expect(options).to eq({
-          'character_limit' => '',
           'formatted_mode' => 'simple',
           'letters_accepted' => true,
           'numbers_accepted' => true,
