@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::TextareaTypeDeChamp < TypesDeChamp::TextTypeDeChamp
-  def self.editable_option_keys = [:character_limit]
+  def self.option_keys = [:character_limit]
 
   store_accessor :options, :character_limit
 

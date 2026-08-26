@@ -2,7 +2,7 @@
 
 class TypesDeChamp::ExplicationTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def self.category = STRUCTURE
-  def self.editable_option_keys = [:collapsible_explanation_enabled, :collapsible_explanation_text]
+  def self.option_keys = [:collapsible_explanation_enabled, :collapsible_explanation_text]
 
   validates :notice_explicative, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, size: { less_than: 20.megabytes }, on: :update
   validates :notice_explicative, empty_file: true, on: :update

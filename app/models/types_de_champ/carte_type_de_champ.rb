@@ -24,7 +24,7 @@ class TypesDeChamp::CarteTypeDeChamp < TypeDeChamp
   store_accessor :options, :cadastres
 
   def self.category = REFERENTIEL_EXTERNE
-  def self.editable_option_keys = LAYERS
+  def self.option_keys = LAYERS
   def self.column_type = :geojson
 
   def refresh_after_update? = false

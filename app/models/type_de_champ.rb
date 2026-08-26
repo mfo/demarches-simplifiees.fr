@@ -290,11 +290,11 @@ class TypeDeChamp < ApplicationRecord
       .parameterize
   end
 
-  def self.editable_option_keys = []
+  def self.option_keys = []
   def self.column_type = :text
 
   def clean_options
-    options.slice(*self.class.editable_option_keys.map(&:to_s))
+    options.slice(*self.class.option_keys.map(&:to_s))
   end
 
   def max_file_size_bytes = FILE_MAX_SIZE

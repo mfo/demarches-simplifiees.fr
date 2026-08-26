@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
-  def self.editable_option_keys
+  def self.option_keys
     [
       :formatted_mode, :numbers_accepted, :letters_accepted, :special_characters_accepted,
       :min_character_length, :max_character_length,
