@@ -115,6 +115,7 @@ module ProcedureCloneConcern
 
     transaction do
       procedure.save!
+      clone_email_templates(procedure) if options[:clone_email_templates]
       move_new_children_to_new_parent_coordinate(procedure.draft_revision)
     end
 
@@ -247,16 +248,23 @@ module ProcedureCloneConcern
       procedure.draft_revision.ineligibilite_message = nil
     end
 
-    if options[:clone_email_templates]
-      procedure.custom_email_templates = custom_email_templates.map(&:dup)
-    end
-
     if !same_admin?(admin)
       procedure.api_particulier_token = nil
       procedure.opendata = true
     end
 
     procedure
+  end
+
+  # Copied once the clone is persisted: the tags validator resolves tags against
+  # revisions in database, which don't exist before the save. Validation is
+  # skipped so a template referencing a since-removed champ is cloned as is.
+  def clone_email_templates(procedure)
+    custom_email_templates.each do |email_template|
+      copy = email_template.dup
+      copy.procedure = procedure
+      copy.save!(validate: false)
+    end
   end
 
   def cloneable_associations(options, admin)
