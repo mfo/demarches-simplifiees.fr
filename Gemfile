@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'rails', '~> 8.0.5' # allows update to security fixes at any time
+gem 'rails', '~> 8.1.3' # allows update to security fixes at any time
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -97,7 +97,7 @@ gem 'sib-api-v3-sdk'
 gem 'connection_pool', '< 3'
 gem 'sidekiq', '< 7.3' # 7.3 needs to migrate to sidekiq-cron 2.0
 gem 'sidekiq-cron', '< 2.0' # wait for a release without "keys command"
-gem 'siret_validator', github: "CodeursenLiberte/siret_validator", ref: "ba421bb"
+gem 'siret_validator'
 gem 'skylight'
 gem 'smarter_csv'
 gem 'spreadsheet_architect'
@@ -159,7 +159,6 @@ group :development do
 end
 
 group :development, :test do
-  gem 'drb' # strange dep required by rspec, should try to be removed after rails 7.2.x
   gem 'graphql-schema_comparator'
   gem 'irb'
   gem 'mina', require: false # Deploy

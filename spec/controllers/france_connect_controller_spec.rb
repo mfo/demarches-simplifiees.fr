@@ -21,7 +21,7 @@ describe FranceConnectController, type: :controller do
   describe '#auth' do
     subject { get :login }
 
-    before { allow(FranceConnectService).to receive(:authorization_uri).and_return(['uri', 'state', 'nonce']) }
+    before { allow(FranceConnectService).to receive(:authorization_uri).and_return(['https://fc.example.com/authorize', 'state', 'nonce']) }
 
     it do
       is_expected.to have_http_status(:redirect)
