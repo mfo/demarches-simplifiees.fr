@@ -8,7 +8,7 @@ RSpec.describe APIEntreprise::HealthChecker do
   end
 
   describe '.provider_up?' do
-    let(:ping_key) { 'european_commission/numero_tva' }
+    let(:ping_key) { 'dgfip/numero_tva' }
 
     context 'when status is ok' do
       before { cache_status(ping_key, 'ok') }

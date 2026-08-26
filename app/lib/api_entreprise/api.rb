@@ -5,7 +5,7 @@ class APIEntreprise::API
 
   ETABLISSEMENT_RESOURCE_NAME = "v4/insee/sirene/etablissements/%{id}"
   EXTRAIT_KBIS_NAME = "v3/infogreffe/rcs/unites_legales/%{id}/extrait_kbis"
-  TVA_NAME = "v3/european_commission/unites_legales/%{id}/numero_tva"
+  TVA_NAME = "v3/dgfip/unites_legales/%{id}/numero_tva"
   EXERCICES_RESOURCE_NAME = "v3/dgfip/etablissements/%{id}/chiffres_affaires"
   RNA_RESOURCE_NAME = "v4/djepva/api-association/associations/open_data/%{id}"
   EFFECTIFS_RESOURCE_NAME = "v3/gip_mds/etablissements/%{id}/effectifs_mensuels"
