@@ -226,6 +226,12 @@ describe Commentaire do
 
       it { expect(commentaire.soft_deletable?(instructeur)).to be false }
     end
+
+    context 'when the message is not deletable' do
+      before { commentaire.update!(deletable: false) }
+
+      it { expect(commentaire.soft_deletable?(instructeur)).to be false }
+    end
   end
 
   describe '#can_cancel_correction?' do

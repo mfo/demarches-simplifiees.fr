@@ -99,7 +99,8 @@ class Commentaire < ApplicationRecord
   end
 
   def soft_deletable?(connected_user, cancel_correction: true)
-    sent_by?(connected_user) &&
+    deletable? &&
+      sent_by?(connected_user) &&
       (sent_by_instructeur? || sent_by_expert?) &&
       !discarded? &&
       (cancel_correction || !dossier_correction&.pending?)

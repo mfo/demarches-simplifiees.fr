@@ -3,7 +3,7 @@ fr:
     commentaires:
       destroy:
         notice: Votre message a été supprimé
-        alert_acl: Impossible de supprimer le message, celui-ci ne vous appartient pas
+        alert_not_deletable: Ce message ne peut pas être supprimé
         alert_already_discarded: Ce message a déjà été supprimé
       cancel_correction:
         notice: La demande de correction a été annulée
