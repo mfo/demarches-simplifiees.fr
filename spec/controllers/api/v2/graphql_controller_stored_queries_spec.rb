@@ -207,6 +207,21 @@ describe API::V2::GraphqlController do
         }
       end
 
+      context 'include Assignments' do
+        let(:variables) { { dossierNumber: dossier.id, includeAssignments: true } }
+        let(:groupe_instructeur) { create(:groupe_instructeur, procedure:) }
+
+        before { dossier.assign_to_groupe_instructeur(groupe_instructeur, DossierAssignment.modes.fetch(:manual)) }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(gql_data[:dossier][:assignments].last).to include(
+            mode: 'manual',
+            groupeInstructeurLabel: groupe_instructeur.label
+          )
+        }
+      end
+
       context 'not found' do
         let(:variables) { { dossierNumber: 0 } }
 
