@@ -11,6 +11,7 @@ class TiptapEditorComponent < ApplicationComponent
     'bulletList' => { label: 'Liste', title: 'Liste à puces', icon: 'fr-icon-list-unordered' },
     'orderedList' => { label: 'Numérotée', title: 'Liste numérotée', icon: 'fr-icon-list-ordered' },
     'hardBreak' => { label: 'Saut de ligne', title: 'Saut de ligne', icon: 'fr-icon-corner-down-left-line' },
+    'paragraph' => { label: 'Paragraphe', title: 'Paragraphe', icon: 'fr-icon-paragraph' },
   }.freeze
 
   attr_reader :form, :field_name, :preview_url, :actions, :tags, :label, :error_attribute
