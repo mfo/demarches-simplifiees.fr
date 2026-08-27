@@ -223,6 +223,16 @@ describe Users::DossiersController, type: :controller do
         expect(dossier.identity_updated_at).to eq(now)
       end
     end
+
+    context 'when the dossier is already deposited' do
+      let(:dossier) { create(:dossier, :en_construction, :with_individual, user:, procedure:) }
+      let(:for_tiers_value) { 'true' }
+
+      it 'does not persist the choice: it must change with the mandataire identity (RAILS-M9G)' do
+        subject
+        expect(dossier.reload.for_tiers).to be false
+      end
+    end
   end
 
   describe 'update_identite' do

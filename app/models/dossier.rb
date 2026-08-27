@@ -481,8 +481,12 @@ class Dossier < ApplicationRecord
 
   validates :user, presence: true, if: -> { deleted_user_email_never_send.nil? }, unless: -> { prefilled }
   validates :individual, presence: true, if: -> { revision.procedure.for_individual? }
-  validates :mandataire_first_name, presence: true, if: :for_tiers?
-  validates :mandataire_last_name, presence: true, if: :for_tiers?
+  # A brouillon may transiently be for_tiers without mandataire identity: the
+  # persona choice is persisted as soon as it is made on the identity step,
+  # before the names are submitted. Deposit still enforces presence (the state
+  # is already en_construction when the transition saves).
+  validates :mandataire_first_name, presence: true, if: -> { for_tiers? && !brouillon? }
+  validates :mandataire_last_name, presence: true, if: -> { for_tiers? && !brouillon? }
   validates :for_tiers, inclusion: { in: [true, false] }, if: -> { revision&.procedure&.for_individual? }
 
   # csv/ods construisent tout le classeur en mémoire d'un coup (spreadsheet_architect) :

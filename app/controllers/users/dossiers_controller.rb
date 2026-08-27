@@ -140,9 +140,13 @@ module Users
         format.turbo_stream do
           @dossier.assign_for_tiers(params.dig(:dossier, :for_tiers) == 'true')
 
-          # Persist the persona choice so the identity form survives a page reload:
-          # `identity_updated_at` is what makes the form visible on the next GET.
-          @dossier.update_columns(for_tiers: @dossier.for_tiers, identity_updated_at: Time.zone.now)
+          if @dossier.brouillon?
+            # Persist the persona choice so the identity form survives a page reload:
+            # `identity_updated_at` is what makes the form visible on the next GET.
+            # Only for brouillons: on a deposited dossier the persona must change
+            # atomically with the mandataire identity, in update_identite.
+            @dossier.update_columns(for_tiers: @dossier.for_tiers, identity_updated_at: Time.zone.now)
+          end
         end
       end
     end
