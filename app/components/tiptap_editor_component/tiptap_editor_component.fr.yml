@@ -1,0 +1,41 @@
+fr:
+  buttons:
+    bold:
+      label: "Gras"
+      title: "Gras"
+    italic:
+      label: "Italique"
+      title: "Italique"
+    heading2:
+      label: "Titre"
+      title: "Titre"
+    heading3:
+      label: "Sous-titre"
+      title: "Sous-titre"
+    bulletList:
+      label: "Liste"
+      title: "Liste à puces"
+    orderedList:
+      label: "Numérotée"
+      title: "Liste numérotée"
+    hardBreak:
+      label: "Saut de ligne"
+      title: "Saut de ligne"
+    paragraph:
+      label: "Paragraphe"
+      title: "Paragraphe"
+  link_button: "Lien"
+  link_button_title: "Ajouter un lien sur le texte sélectionné"
+  hint_formatting: "Utilisez les boutons ci-dessus pour mettre en forme votre message ou ajouter un lien."
+  hint_tags_html: "Tapez le caractère <strong class=\"fr-text-title--grey\">@</strong> suivi du nom de la balise"
+  hint_tags_insert: " pour insérer une donnée."
+  hint_tags_or_buttons: ", ou cliquez sur les boutons ci-dessous."
+  tags_available: "Balises disponibles"
+  insert_link: "Insérer un lien"
+  link_label: "Intitulé du lien :"
+  link_url_label: "Adresse du lien"
+  link_url_hint: "Indiquer l’url cible du lien. Exemple : https://jeunes.gouv.fr"
+  link_url_error: "L’adresse du lien doit commencer par https://"
+  remove_link: "Supprimer le lien"
+  cancel: "Annuler"
+  create_link: "Créer le lien"
