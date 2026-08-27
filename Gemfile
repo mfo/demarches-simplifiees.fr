@@ -66,7 +66,7 @@ gem 'net-smtp', require: false # same
 gem 'oauth2'
 gem 'omniauth'
 gem "omniauth-rails_csrf_protection"
-gem "omniauth-rdv-service-public", git: "https://github.com/betagouv/rdv-service-public.git", branch: "production", glob: "lib/omniauth-rdv-service-public/omniauth-rdv-service-public.gemspec"
+gem "omniauth-rdv-service-public"
 gem 'openid_connect'
 gem 'parsby'
 gem 'pg'
