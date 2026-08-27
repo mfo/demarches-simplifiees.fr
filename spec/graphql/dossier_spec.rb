@@ -705,6 +705,58 @@ RSpec.describe Types::DossierType, type: :graphql do
     end
   end
 
+  describe 'dossier with several carte champs' do
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) do
+      [
+        { type: :carte, libelle: "Carte 1" },
+        { type: :carte, libelle: "Carte 2" },
+        { type: :carte, libelle: "Carte 3" },
+      ]
+    end
+    let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
+    let(:query) { DOSSIER_WITH_GEOJSON_COLUMNS_QUERY }
+    let(:variables) { { number: dossier.id } }
+
+    before do
+      dossier.champ_data.each { _1.update(geo_areas: [build(:geo_area, :selection_utilisateur, :polygon)]) }
+    end
+
+    it 'loads every geo_area in a single query' do
+      dossier # create before counting
+
+      count = 0
+      callback = lambda { |*args| count += 1 if args.last[:sql].include?('geo_areas') }
+
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+
+      expect(errors).to be_nil
+      geo_columns = data[:dossier][:champs].flat_map { _1[:columns] }.filter { _1[:__typename] == 'GeoJSONColumn' }
+      expect(geo_columns.map { _1[:value].size }).to eq([1, 1, 1])
+      expect(count).to eq(1)
+    end
+  end
+
+  DOSSIER_WITH_GEOJSON_COLUMNS_QUERY = <<-GRAPHQL
+  query($number: Int!) {
+    dossier(number: $number) {
+      champs {
+        label
+        columns {
+          __typename
+          ... on GeoJSONColumn {
+            value {
+              geometry {
+                type
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  GRAPHQL
+
   DOSSIER_QUERY = <<-GRAPHQL
   query($number: Int!) {
     dossier(number: $number) {
