@@ -125,8 +125,11 @@ export class AutoUpload {
           );
           errorZone?.classList.add('hidden');
 
-          // Restart the upload
-          this.start();
+          // Restart the upload. `start()` re-throws so its caller can react,
+          // but here there is no caller: `failed()` already displayed the
+          // error, and an uncaught rejection would be reported to Sentry as if
+          // nothing had handled it.
+          this.start().catch(() => null);
         },
         { once: true }
       );

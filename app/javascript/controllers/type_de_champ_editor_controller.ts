@@ -59,7 +59,9 @@ export class TypeDeChampEditorController extends ApplicationController {
       file: (target) => {
         if (target.files?.length && target.name != 'referentiel_file') {
           const autoupload = new AutoUpload(target, target.files[0]);
-          autoupload.start();
+          // The error is already displayed above the input by `AutoUpload`;
+          // swallow the rejection so it is not reported as unhandled.
+          autoupload.start().catch(() => null);
         }
         if (target.files?.length && target.name == 'referentiel_file') {
           this.requestSubmitForm(target.form);
