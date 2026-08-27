@@ -35,6 +35,20 @@ RSpec.describe Message::DossierModifierParInstructeurComponent, type: :component
     end
   end
 
+  describe '.create_commentaire' do
+    let(:instructeur) { create(:instructeur) }
+
+    subject do
+      dossier.instructeur_submit_en_construction!(instructeur:)
+      dossier.commentaires.last
+    end
+
+    it 'creates a commentaire the instructeur cannot delete' do
+      expect(subject.instructeur).to eq(instructeur)
+      expect(subject.deletable).to be false
+    end
+  end
+
   describe '.render' do
     let(:changed_columns) { [] }
 

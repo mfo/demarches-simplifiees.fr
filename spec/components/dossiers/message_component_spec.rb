@@ -212,6 +212,12 @@ RSpec.describe Dossiers::MessageComponent, type: :component do
           it { is_expected.not_to have_selector("form[action=\"#{form_url}\"]") }
         end
 
+        context 'when commentaire is not deletable' do
+          let(:commentaire) { create(:commentaire, instructeur:, deletable: false) }
+
+          it { is_expected.not_to have_button(component.t('.delete_button')) }
+        end
+
         context 'when commentaire is a pending correction' do
           let(:commentaire) { create(:commentaire, instructeur:, body: 'Please fix this') }
           before { create(:dossier_correction, commentaire:, dossier:) }
