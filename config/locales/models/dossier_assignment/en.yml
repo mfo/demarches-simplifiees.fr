@@ -1,0 +1,9 @@
+en:
+  activerecord:
+    attributes:
+      dossier_assignment:
+        modes:
+          auto: "Assigned by the procedure automatic routing"
+          manual: "Manually reassigned by an instructeur or an administrateur"
+          tech: "Technical assignment performed by the platform"
+          bulk_routing: "Bulk reassignment following a routing change"

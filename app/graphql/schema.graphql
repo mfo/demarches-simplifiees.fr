@@ -1952,6 +1952,16 @@ type Dossier {
   archived: Boolean!
 
   """
+  Historique des affectations du dossier à un groupe instructeur.
+  """
+  assignments(
+    """
+    Ne retourne que les affectations de ce type.
+    """
+    mode: DossierAssignmentMode
+  ): [DossierAssignment!]!
+
+  """
   L’URL de l’attestation au format PDF.
   """
   attestation: File
@@ -2203,6 +2213,68 @@ type DossierArchiverPayload {
   clientMutationId: String
   dossier: Dossier
   errors: [ValidationError!]
+}
+
+"""
+Une affectation d’un dossier à un groupe instructeur
+"""
+type DossierAssignment {
+  """
+  Date de l’affectation.
+  """
+  assignedAt: ISO8601DateTime!
+
+  """
+  Email de l’agent à l’origine de l’affectation.
+  """
+  assignedBy: String
+
+  """
+  Libellé du groupe instructeur affecté, au moment de l’affectation.
+  """
+  groupeInstructeurLabel: String!
+
+  """
+  Numéro du groupe instructeur affecté. Null si le groupe a depuis été supprimé.
+  """
+  groupeInstructeurNumber: Int
+
+  """
+  Origine de l’affectation.
+  """
+  mode: DossierAssignmentMode!
+
+  """
+  Libellé du groupe instructeur précédent, au moment de l’affectation.
+  """
+  previousGroupeInstructeurLabel: String
+
+  """
+  Numéro du groupe instructeur précédent. Null s’il s’agit de la première affectation ou si le groupe a depuis été supprimé.
+  """
+  previousGroupeInstructeurNumber: Int
+}
+
+enum DossierAssignmentMode {
+  """
+  Affectation par le routage automatique de la démarche
+  """
+  auto
+
+  """
+  Réaffectation en masse suite à une modification du routage
+  """
+  bulk_routing
+
+  """
+  Réaffectation manuelle par un instructeur ou un administrateur
+  """
+  manual
+
+  """
+  Affectation technique effectuée par la plateforme
+  """
+  tech
 }
 
 """
