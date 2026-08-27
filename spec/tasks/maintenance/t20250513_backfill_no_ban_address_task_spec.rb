@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe T20250513BackfillNoBanAddressTask do
     describe "#process" do
       subject(:process) { described_class.process(champ) }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:address_champ) { dossier.champ_data.first }
 

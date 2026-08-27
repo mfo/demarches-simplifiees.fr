@@ -3,7 +3,7 @@
 describe Logic::ChampColumnValue do
   include Logic
 
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no, libelle: 'yes' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no, libelle: 'yes' }]) }
   let(:column) { procedure.find_column(label: 'yes') }
   let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
@@ -42,7 +42,7 @@ describe Logic::ChampColumnValue do
   # surfaced by ChampColumn#value in the dashboard.
   describe '#compute with a drop_down_list with other enabled' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :drop_down_list, libelle: 'menu', drop_down_other: true },
       ])
     end
@@ -73,26 +73,26 @@ describe Logic::ChampColumnValue do
 
   describe '#errors' do
     it do
-      expect(champ_column_value.errors(procedure.active_revision.types_de_champ)).to eq([])
+      expect(champ_column_value.errors(procedure.active_revision.type_de_champs)).to eq([])
       expect(champ_column_value.errors([])).to eq([{ type: :not_available }])
     end
   end
 
   describe '#type' do
-    let(:draft_tdcs) { procedure.draft_revision.types_de_champ }
+    let(:draft_tdcs) { procedure.draft_revision.type_de_champs }
     let(:column) { draft_tdcs.first.columns(procedure_id: procedure.id).first }
 
     subject { Logic::ChampColumnValue.new(column.stable_id, column.column_id).type(draft_tdcs) }
 
     context 'integer column' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :integer_number, libelle: 'n' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :integer_number, libelle: 'n' }]) }
       let(:label) { 'n' }
 
       it { is_expected.to eq(:number) }
     end
 
     context 'decimal column' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :decimal_number, libelle: 'd' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :decimal_number, libelle: 'd' }]) }
       let(:label) { 'd' }
 
       it { is_expected.to eq(:number) }
@@ -105,13 +105,13 @@ describe Logic::ChampColumnValue do
     end
 
     context 'drop_down_list column' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :drop_down_list, libelle: 'menu' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :drop_down_list, libelle: 'menu' }]) }
       let(:label) { 'menu' }
 
       it { is_expected.to eq(:enum) }
 
       context 'when a tdc has changed between revision' do
-        let(:stable_id) { procedure.active_revision.types_de_champ.first.stable_id }
+        let(:stable_id) { procedure.active_revision.type_de_champs.first.stable_id }
 
         before do
           procedure.draft_revision
@@ -126,13 +126,13 @@ describe Logic::ChampColumnValue do
 
   describe '#options' do
     describe 'when there are different revision' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [linked_drop_down]) }
-      let(:draft_tdcs) { procedure.draft_revision.types_de_champ }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [linked_drop_down]) }
+      let(:draft_tdcs) { procedure.draft_revision.type_de_champs }
       let(:linked_drop_down) do
         { type: :linked_drop_down_list, libelle: 'linked', drop_down_options: }
       end
       let(:drop_down_options) { ['--1--', 'A', '--2--', 'B'] }
-      let(:linked_drop_down_stable_id) { procedure.active_revision.types_de_champ.first.stable_id }
+      let(:linked_drop_down_stable_id) { procedure.active_revision.type_de_champs.first.stable_id }
       let(:column) { procedure.find_column(label: 'linked (Secondaire)') }
       let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
@@ -148,7 +148,7 @@ describe Logic::ChampColumnValue do
   end
 
   describe '#to_s' do
-    it { expect(champ_column_value.to_s(procedure.active_revision.types_de_champ)).to eq(column.label) }
+    it { expect(champ_column_value.to_s(procedure.active_revision.type_de_champs)).to eq(column.label) }
   end
 
   describe 'serialization round-trip' do
@@ -168,7 +168,7 @@ describe Logic::ChampColumnValue do
 
   describe '#==' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :yes_no, libelle: 'yes' },
         { type: :integer_number, libelle: 'n' },
       ])
@@ -207,7 +207,7 @@ describe Logic::ChampColumnValue do
 
     it 'errors always returns :not_available, regardless of the tdcs passed' do
       expect(broken.errors([])).to eq([{ type: :not_available }])
-      expect(broken.errors(procedure.active_revision.types_de_champ)).to eq([{ type: :not_available }])
+      expect(broken.errors(procedure.active_revision.type_de_champs)).to eq([{ type: :not_available }])
     end
 
     it 'to_h preserves the original h_id (no nesting / no wrapping leak)' do

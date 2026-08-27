@@ -13,7 +13,7 @@ class TypesDeChampEditor::ChampPieceJustificativeComponent < TypesDeChampEditor:
   def nature_dom_id = dom_id(type_de_champ, :nature)
 
   def natures_for_select
-    TypeDeChamp.natures.keys
+    TypesDeChamp::PieceJustificativeTypeDeChamp.natures.keys
       .map { |k| [t("activerecord.attributes.type_de_champ.natures.#{k}"), k] }
   end
 
@@ -29,7 +29,7 @@ class TypesDeChampEditor::ChampPieceJustificativeComponent < TypesDeChampEditor:
     FORMAT_FAMILIES.keys.map do |key|
       [
         key,
-        I18n.t("activerecord.attributes.type_de_champ.format_families.#{key}"),
+        t("activerecord.attributes.type_de_champ.format_families.#{key}"),
         key.to_s.in?(type_de_champ.pj_format_families),
         FORMAT_FAMILY_EXAMPLES[key],
       ]

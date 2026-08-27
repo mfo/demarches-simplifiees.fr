@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 describe Champs::LinkedDropDownListChamp do
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     if options.nil?
       [{ type: :linked_drop_down_list, mandatory: }]
     else
       [{ type: :linked_drop_down_list, mandatory:, options: }]
     end
   end
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first.tap { _1.update(value:) } }
   let(:value) { nil }
@@ -141,7 +141,7 @@ describe Champs::LinkedDropDownListChamp do
 
       context 'with a custom secondary libelle' do
         let(:procedure) do
-          create(:procedure, types_de_champ_public: [
+          create(:procedure, public_type_de_champs: [
             { type: :linked_drop_down_list, libelle: 'Ville', options:, secondary_libelle: 'Quartier', mandatory: true },
           ])
         end

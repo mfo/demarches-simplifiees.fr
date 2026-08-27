@@ -1,9 +1,9 @@
 fr:
-  caption: "Indiquez les champs du formulaire usager qui doivent être préremplis avec les données issues du référentiel"
+  caption: "Indiquez les champs ou annotations privées qui doivent être préremplis avec les données issues du référentiel"
   property: "Propriété"
   example_data: "Exemple de donnée"
   data_type: "Type de Donnée"
-  prefill_field: "Champ du formulaire usager à préremplir"
+  prefill_field: "Champ ou annotation à préremplir"
   confirm_reset_prefill: "Êtes-vous sûr de vouloir réinitialiser le préremplissage ?"
   reset_prefill: "Réinitialiser le préremplissage"
   public_fields_group: "Champs"

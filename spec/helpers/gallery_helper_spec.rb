@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe GalleryHelper, type: :helper do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-  let(:types_de_champ_public) { [{ type: :piece_justificative, stable_id: 3, libelle: 'Justificatif de domicile' }] }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+  let(:public_type_de_champs) { [{ type: :piece_justificative, stable_id: 3, libelle: 'Justificatif de domicile' }] }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ_pj) { dossier.champ_data.first }
 
@@ -14,6 +14,21 @@ RSpec.describe GalleryHelper, type: :helper do
       metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE }
     )
     champ_pj.piece_justificative_file.attachments.first
+  end
+
+  describe ".record_libelle" do
+    it "returns the champ libelle" do
+      expect(helper.record_libelle(champ_pj)).to eq('Justificatif de domicile')
+    end
+
+    context "when the type_de_champ is no longer in the dossier revision" do
+      it "falls back to a generic libelle instead of raising (RAILS-M73)" do
+        fresh_champ = dossier.champ_data.find(champ_pj.id)
+        allow(fresh_champ).to receive(:stable_id).and_return(-1)
+
+        expect(helper.record_libelle(fresh_champ)).to eq('Pièce jointe')
+      end
+    end
   end
 
   describe ".image_variant_url_for" do

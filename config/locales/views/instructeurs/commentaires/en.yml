@@ -3,7 +3,7 @@ en:
     commentaires:
       destroy:
         notice: Your message had been deleted
-        alert_acl: "Can not destroy message: it does not belong to you"
+        alert_not_deletable: This message can not be destroyed
         alert_already_discarded: "Can not destroy message: it was already destroyed"
       cancel_correction:
         notice: The correction request has been cancelled

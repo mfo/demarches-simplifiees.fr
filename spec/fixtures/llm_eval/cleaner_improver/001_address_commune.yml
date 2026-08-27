@@ -1,7 +1,7 @@
 description: "Le champ Adresse fournit déjà la commune et le code postal via autocomplete"
 
 procedure_params:
-  types_de_champ_public:
+  public_type_de_champs:
     - type: address
       libelle: "Adresse postale"
       stable_id: 100

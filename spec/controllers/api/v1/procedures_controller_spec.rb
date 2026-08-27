@@ -54,7 +54,7 @@ describe API::V1::ProceduresController, type: :controller do
         describe 'type_de_champ' do
           subject { super()[:types_de_champ][0] }
 
-          let(:champ) { procedure.active_revision.root_types_de_champ_public.first }
+          let(:champ) { procedure.active_revision.public_root_type_de_champs.first }
 
           it do
             expect(subject[:id]).to eq(champ.id)

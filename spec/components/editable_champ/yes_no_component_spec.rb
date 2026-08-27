@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 describe EditableChamp::YesNoComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }]) }
   let(:dossier) { create(:dossier, procedure:) }
-  let(:tdc) { procedure.active_revision.types_de_champ.first }
+  let(:tdc) { procedure.active_revision.type_de_champs.first }
   let(:champ) { dossier.champ_data.first }
 
   subject(:render) do

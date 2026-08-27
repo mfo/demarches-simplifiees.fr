@@ -20,7 +20,7 @@ module Administrateurs
     end
 
     def create
-      handle_referentiel_save(@type_de_champ.build_referentiel(referentiel_params_with_carried_credentials))
+      handle_referentiel_save(@type_de_champ.build_referentiel(referentiel_params_with_carried_attributes))
     end
 
     def update
@@ -154,10 +154,11 @@ module Administrateurs
       {}
     end
 
-    # When cloning an existing referentiel, the auth inputs are rendered as `disabled`
-    # to hide the secret, so the browser does not submit them. We carry the existing
-    # authentication_data over from the source so credentials are not lost on save.
-    def referentiel_params_with_carried_credentials
+    # When cloning an existing referentiel, some attributes are not submitted by the
+    # form and would be lost on save: the auth inputs are rendered as `disabled` to
+    # hide the secret, and the autocomplete configuration belongs to a later step of
+    # the wizard. We carry them over from the source.
+    def referentiel_params_with_carried_attributes
       attrs = referentiel_params.to_h
       source_id = params.dig(:referentiel, :referentiel_id).presence
       return attrs if source_id.blank?
@@ -168,6 +169,7 @@ module Administrateurs
       if attrs[:authentication_method] == 'header_token' && attrs[:authentication_data].blank?
         attrs[:authentication_data] = source.authentication_data
       end
+      attrs[:autocomplete_configuration] = source.autocomplete_configuration if source.autocomplete_configuration.present?
       attrs
     end
 

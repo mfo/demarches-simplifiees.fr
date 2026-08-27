@@ -69,12 +69,11 @@
     }
 
     .fr-ds-combobox__section-header {
-      padding: 4px 8px;
-      font-size: 0.75rem;
+      margin-top: 8px;
+      padding: 6px 8px;
+      font-size: 1rem;
       font-weight: bold;
-      color: var(--text-mention-grey);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      color: var(--text-title-grey);
     }
 
     .fr-menu__item {

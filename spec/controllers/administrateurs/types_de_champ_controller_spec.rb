@@ -3,19 +3,19 @@
 describe Administrateurs::TypesDeChampController, type: :controller do
   let(:procedure) do
     create(:procedure,
-           types_de_champ_public: [
+           public_type_de_champs: [
              { type: :integer_number, libelle: 'l1' },
              { type: :integer_number, libelle: 'l2' },
              { type: :drop_down_list, libelle: 'l3' },
            ],
-           types_de_champ_private: [
+           private_type_de_champs: [
              { type: :yes_no, libelle: 'bon dossier', private: true },
            ])
   end
 
-  def first_coordinate = procedure.draft_revision.revision_types_de_champ_public.first
-  def second_coordinate = procedure.draft_revision.reload.revision_types_de_champ_public.second
-  def third_coordinate = procedure.draft_revision.revision_types_de_champ_public.third
+  def first_coordinate = procedure.draft_revision.public_revision_type_de_champs.first
+  def second_coordinate = procedure.draft_revision.reload.public_revision_type_de_champs.second
+  def third_coordinate = procedure.draft_revision.public_revision_type_de_champs.third
 
   def extract_libelle(champ_component) = [champ_component.coordinate.libelle, champ_component.upper_coordinates.map(&:libelle)]
 
@@ -103,6 +103,19 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       expect(morpheds).to eq([['updated', ['l1']], ['l3', ['l1', 'updated']]])
     end
 
+    context 'when the champ was already removed (replayed autosave)' do
+      let(:params) { default_params.merge(stable_id: @removed_stable_id) }
+
+      before do
+        @removed_stable_id = second_coordinate.stable_id
+        procedure.draft_revision.remove_type_de_champ(@removed_stable_id)
+      end
+
+      it 'raises RecordNotFound (rendered as 404) instead of a 500 (RAILS-JZE)' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
     context "validate" do
       let(:params) { default_params.deep_merge(type_de_champ: { libelle: '' }) }
 
@@ -110,6 +123,59 @@ describe Administrateurs::TypesDeChampController, type: :controller do
         is_expected.to have_http_status(:ok)
         expect(assigns(:coordinate)).to eq(second_coordinate)
         expect(flash.alert).to be_nil
+      end
+    end
+
+    context 'keeping the type but submitting an option of another type' do
+      # a stale tab can autosave the options of the previous type after a type change
+      let(:params) { default_params.deep_merge(type_de_champ: { pre_rempli_hidden: '1' }) }
+
+      it 'ignores the unknown option' do
+        is_expected.to have_http_status(:ok)
+        type_de_champ = second_coordinate.type_de_champ.reload
+        expect(type_de_champ.libelle).to eq('updated')
+        expect(type_de_champ.options['pre_rempli_hidden']).to be_nil
+      end
+    end
+
+    context 'changing the type to formatted' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :textarea, libelle: 'l1' }]) }
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          stable_id: first_coordinate.stable_id,
+          # the editor form submits the options of the previous type along the new type
+          type_de_champ: { type_champ: 'formatted', character_limit: '' },
+        }
+      end
+
+      it 'persists the formatted default options' do
+        is_expected.to have_http_status(:ok)
+
+        options = TypeDeChamp.where(id: first_coordinate.type_de_champ.id).pick(:options)
+        expect(options).to eq({
+          'formatted_mode' => 'simple',
+          'letters_accepted' => true,
+          'numbers_accepted' => true,
+          'special_characters_accepted' => true,
+        })
+      end
+    end
+
+    context 'changing the type to one without the previous type options' do
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          stable_id: third_coordinate.stable_id,
+          # the editor form submits the options of the previous type along the new type
+          type_de_champ: { type_champ: 'yes_no', drop_down_options_from_text: "a\nb" },
+        }
+      end
+
+      it 'ignores the options unknown to the new type (RAILS-MF9)' do
+        is_expected.to have_http_status(:ok)
+        expect(flash.alert).to be_nil
+        expect(TypeDeChamp.where(id: third_coordinate.type_de_champ.id).pick(:type_champ)).to eq('yes_no')
       end
     end
 
@@ -146,7 +212,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
     context 'with a dropdown list with a referentiel' do
       let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/modele-import-referentiel.csv', 'text/csv') }
       let(:drop_down_list_type_de_champ) do
-        procedure.draft_revision.root_types_de_champ_public.third
+        procedure.draft_revision.public_root_type_de_champs.third
       end
 
       let(:params) do
@@ -165,7 +231,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
         it 'creates a valid referentiel' do
           expect { subject }.to change(Referentiel, :count).by(1).and change(ReferentielItem, :count).by(3)
           expect(drop_down_list_type_de_champ.reload.referentiel).to eq Referentiel.last
-          expect(Referentiel.last.types_de_champ).to eq [drop_down_list_type_de_champ]
+          expect(Referentiel.last.type_de_champs).to eq [drop_down_list_type_de_champ]
           expect(Referentiel.last.name).to eq referentiel_file.original_filename
           expect(Referentiel.last.type).to eq 'Referentiels::CsvReferentiel'
           expect(ReferentielItem.first.data).to eq({ "row" => { "calorie_kcal" => "145", "dessert" => "Éclair au café", "poids_g" => "60" } })
@@ -270,15 +336,15 @@ describe Administrateurs::TypesDeChampController, type: :controller do
     context 'with a multiple dropdown list with a referentiel' do
       let(:procedure) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :multiple_drop_down_list, libelle: 'l1' },
                ])
       end
       let(:referentiel_file) { fixture_file_upload('spec/fixtures/files/modele-import-referentiel.csv', 'text/csv') }
       let(:multiple_drop_down_list_type_de_champ) do
-        procedure.draft_revision.root_types_de_champ_public.first
+        procedure.draft_revision.public_root_type_de_champs.first
       end
-      let(:coordinate) { procedure.draft_revision.revision_types_de_champ_public.first }
+      let(:coordinate) { procedure.draft_revision.public_revision_type_de_champs.first }
 
       let(:params) do
         {
@@ -296,7 +362,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
         it 'creates a valid referentiel' do
           expect { subject }.to change(Referentiel, :count).by(1).and change(ReferentielItem, :count).by(3)
           expect(multiple_drop_down_list_type_de_champ.reload.referentiel).to eq Referentiel.last
-          expect(Referentiel.last.types_de_champ).to eq [multiple_drop_down_list_type_de_champ]
+          expect(Referentiel.last.type_de_champs).to eq [multiple_drop_down_list_type_de_champ]
           expect(Referentiel.last.name).to eq referentiel_file.original_filename
           expect(Referentiel.last.type).to eq 'Referentiels::CsvReferentiel'
           expect(ReferentielItem.first.data).to eq({ "row" => { "calorie_kcal" => "145", "dessert" => "Éclair au café", "poids_g" => "60" } })
@@ -402,6 +468,20 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       expect(morpheds).to eq([['l3', ['l1']]])
     end
 
+    context 'when the champ was already removed (replayed double click)' do
+      let(:params) { { procedure_id: procedure.id, stable_id: @removed_stable_id } }
+
+      before do
+        @removed_stable_id = second_coordinate.stable_id
+        procedure.draft_revision.remove_type_de_champ(@removed_stable_id)
+      end
+
+      it 'is a no-op instead of failing (RAILS-JYT)' do
+        is_expected.to have_http_status(:ok)
+        expect(assigns(:destroyed)).to be_nil
+      end
+    end
+
     context 'rejected if type changed and routing involved' do
       let(:params) do
         { procedure_id: procedure.id, stable_id: third_coordinate.stable_id }
@@ -434,10 +514,10 @@ describe Administrateurs::TypesDeChampController, type: :controller do
   end
 
   describe '#notice_explicative' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :explication }]) }
-    let(:coordinate) { procedure.draft_revision.types_de_champ.first }
-    let(:file) { Tempfile.new }
-    let(:blob) { ActiveStorage::Blob.create_before_direct_upload!(filename: File.basename(file.path), byte_size: file.size, checksum: Digest::SHA256.file(file.path), content_type: 'text/plain') }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :explication }]) }
+    let(:coordinate) { procedure.draft_revision.type_de_champs.first }
+    let(:content) { 'notice' }
+    let(:blob) { ActiveStorage::Blob.create_and_upload!(io: StringIO.new(content), filename: 'notice.txt', content_type: 'text/plain') }
 
     context 'when sending a valid blob' do
       it 'attaches the blob and responds with 200' do
@@ -445,6 +525,17 @@ describe Administrateurs::TypesDeChampController, type: :controller do
           .to change { coordinate.reload.notice_explicative.attached? }
           .from(false).to(true)
         expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'when sending an empty blob' do
+      let(:content) { '' }
+
+      it 'rejects it and responds with 422' do
+        expect { put :notice_explicative, format: :turbo_stream, params: { stable_id: coordinate.stable_id, procedure_id: procedure.id, blob_signed_id: blob.signed_id } }
+          .not_to change { coordinate.reload.notice_explicative.attached? }
+        expect(response).to have_http_status(422)
+        expect(response.parsed_body['errors'].join).to include('vide')
       end
     end
   end
@@ -471,8 +562,8 @@ describe Administrateurs::TypesDeChampController, type: :controller do
   end
 
   describe '#simplify' do
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :text, libelle: 'Ancien', stable_id: 123 }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :text, libelle: 'Ancien', stable_id: 123 }] }
     let(:rule) { LLMRuleSuggestion.rules.fetch('improve_label') }
     let(:tunnel_id) { SecureRandom.hex(3) }
     let(:procedure_revision) { procedure.draft_revision }
@@ -597,8 +688,8 @@ describe Administrateurs::TypesDeChampController, type: :controller do
   end
 
   describe '#accept_simplification' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) do
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) do
       [
         { type: :text, libelle: 'A', stable_id: 123 },
         { type: :text, libelle: 'B' },
@@ -628,7 +719,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
       expect { subject }.to change { suggestion.reload.state }.from('completed').to('accepted')
       expect(response).to redirect_to(simplify_admin_procedure_types_de_champ_path(procedure, tunnel_id:, rule: 'improve_structure'))
 
-      libelles = procedure.draft_revision.reload.root_types_de_champ_public.map(&:libelle)
+      libelles = procedure.draft_revision.reload.public_root_type_de_champs.map(&:libelle)
       expect(libelles).to include('Nouveau')
       expect(libelles).not_to include('A')
 
@@ -686,7 +777,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
   end
 
   describe 'Simpliscore tunnel flow' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ A', stable_id: 100 }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ A', stable_id: 100 }]) }
     let(:draft) { procedure.draft_revision }
     let(:initial_schema_hash) { Digest::SHA256.hexdigest(draft.schema_to_llm.to_json) }
     let(:tunnel_id) { SecureRandom.hex(3) }
@@ -837,7 +928,7 @@ describe Administrateurs::TypesDeChampController, type: :controller do
   end
 
   describe 'Simpliscore tunnel flow' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: 'Champ A', stable_id: 100 }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ A', stable_id: 100 }]) }
     let(:draft) { procedure.draft_revision }
     let(:initial_schema_hash) { Digest::SHA256.hexdigest(draft.schema_to_llm.to_json) }
     let(:tunnel_id) { SecureRandom.hex(3) }

@@ -3,8 +3,8 @@
 require "rails_helper"
 
 RSpec.describe EditableChamp::RevertPrefilledButtonComponent, type: :component do
-  let(:types_de_champ_public) { [{ type: :text }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :text }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
 
@@ -37,8 +37,8 @@ RSpec.describe EditableChamp::RevertPrefilledButtonComponent, type: :component d
   end
 
   context 'when champ is private (annotation)' do
-    let(:types_de_champ_private) { [{ type: :text }] }
-    let(:procedure) { create(:procedure, types_de_champ_private:) }
+    let(:private_type_de_champs) { [{ type: :text }] }
+    let(:procedure) { create(:procedure, private_type_de_champs:) }
     let(:champ) { dossier.champ_data.find(&:private?) }
 
     before do

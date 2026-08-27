@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RegionTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = LOCALISATION
+  def self.column_type = :enum
+  def self.simple_routable? = true
+  def self.conditionable? = true
+
+  def options_for_select = APIGeoService.region_options
+  def condition_value_type = :enum
+  def condition_options = APIGeoService.region_options
+
   include AddressableColumnConcern
 
   def columns(procedure_id:, displayable: true, prefix: nil)
@@ -8,27 +17,23 @@ class TypesDeChamp::RegionTypeDeChamp < TypesDeChamp::TextTypeDeChamp
       .concat(legacy_columns(procedure_id:, prefix:))
   end
 
-  def filter_to_human(filter_value)
-    APIGeoService.region_name(filter_value).presence || filter_value
-  end
-
-  def champ_value(champ)
+  def typed_champ_value(champ)
     champ.name
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :code
       champ.code
     end
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :code
       champ.code
     end

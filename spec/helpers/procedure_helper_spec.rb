@@ -12,31 +12,11 @@ RSpec.describe ProcedureHelper, type: :helper do
     end
   end
 
-  describe 'can_send_groupe_message?' do
-    let(:procedure) { create(:procedure, groupe_instructeurs: [gi1, gi2]) }
-    let(:current_instructeur) { create(:instructeur) }
-    subject { can_send_groupe_message?(procedure) }
-
-    context 'when current_instructeur is in all procedure.groupes_instructeur' do
-      let(:gi1) { create(:groupe_instructeur, instructeurs: [current_instructeur]) }
-      let(:gi2) { create(:groupe_instructeur, instructeurs: [current_instructeur]) }
-      it { is_expected.to be_truthy }
-    end
-
-    context 'when current_instructeur is in all procedure.groupes_instructeur' do
-      let(:instructeur2) { create(:instructeur) }
-      let(:gi1) { create(:groupe_instructeur, instructeurs: [current_instructeur]) }
-      let(:gi2) { create(:groupe_instructeur, instructeurs: [instructeur2]) }
-
-      it { is_expected.to be_falsy }
-    end
-  end
-
   describe '#estimated_fill_duration_minutes' do
     subject { estimated_fill_duration_minutes(procedure.reload) }
 
     context 'with champs' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }, { type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }, { type: :piece_justificative }]) }
 
       it 'rounds up the duration to the minute' do
         expect(subject).to eq(3)

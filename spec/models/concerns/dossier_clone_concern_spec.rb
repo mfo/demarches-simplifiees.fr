@@ -2,9 +2,9 @@
 
 RSpec.describe DossierCloneConcern do
   let(:procedure) do
-    create(:procedure, types_de_champ_public:, types_de_champ_private:).tap { |it| it.publish!(it.administrateurs.first) }
+    create(:procedure, public_type_de_champs:, private_type_de_champs:).tap { |it| it.publish!(it.administrateurs.first) }
   end
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: "Un champ text", stable_id: 99 },
       { type: :text, libelle: "Un autre champ text", stable_id: 991 },
@@ -12,13 +12,13 @@ RSpec.describe DossierCloneConcern do
       { type: :repetition, libelle: "Un champ répétable", stable_id: 993, mandatory: true, children: [{ type: :text, libelle: 'Nom', stable_id: 994 }] },
     ]
   end
-  let(:types_de_champ_private) { [] }
+  let(:private_type_de_champs) { [] }
   let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
   describe '#clone' do
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
-    let(:types_de_champ_public) { [{}] }
-    let(:types_de_champ_private) { [] }
+    let(:public_type_de_champs) { [{}] }
+    let(:private_type_de_champs) { [] }
     subject(:new_dossier) { dossier.clone }
 
     it 'resets most of the attributes for the cloned dossier' do
@@ -123,7 +123,7 @@ RSpec.describe DossierCloneConcern do
         end
 
         context 'for Champs::Repetition with rows, original_champ.repetition and rows are duped' do
-          let(:types_de_champ_public) { [{ type: :repetition, children: [{}, {}] }] }
+          let(:public_type_de_champs) { [{ type: :repetition, children: [{}, {}] }] }
           let(:champ_repetition) { dossier.root_champs_public.find(&:repetition?) }
           let(:cloned_champ_repetition) { new_dossier.root_champs_public.find(&:repetition?) }
 
@@ -135,7 +135,7 @@ RSpec.describe DossierCloneConcern do
         end
 
         context 'for Champs::CarteChamp with geo areas, original_champ.geo_areas are duped' do
-          let(:types_de_champ_public) { [{ type: :carte }] }
+          let(:public_type_de_champs) { [{ type: :carte }] }
           let(:champ_carte) { dossier.champ_data.first }
           let(:cloned_champ_carte) { new_dossier.champ_data.first }
 
@@ -146,7 +146,7 @@ RSpec.describe DossierCloneConcern do
         end
 
         context 'for Champs::SiretChamp, original_champ.etablissement is duped' do
-          let(:types_de_champ_public) { [{ type: :siret }] }
+          let(:public_type_de_champs) { [{ type: :siret }] }
           let(:champ_siret) { dossier.champ_data.first }
           let(:cloned_champ_siret) { new_dossier.champ_data.first }
 
@@ -157,7 +157,7 @@ RSpec.describe DossierCloneConcern do
         end
 
         context 'for Champs::PieceJustificative, original_champ.piece_justificative_file is duped' do
-          let(:types_de_champ_public) { [{ type: :piece_justificative }] }
+          let(:public_type_de_champs) { [{ type: :piece_justificative }] }
           let(:champ_piece_justificative) { dossier.champ_data.first }
           let(:cloned_champ_piece_justificative) { new_dossier.champ_data.first }
 
@@ -165,7 +165,7 @@ RSpec.describe DossierCloneConcern do
         end
 
         context 'for Champs::AddressChamp, original_champ.data is duped' do
-          let(:types_de_champ_public) { [{ type: :address }] }
+          let(:public_type_de_champs) { [{ type: :address }] }
           let(:champ_address) { dossier.champ_data.first }
           let(:cloned_champ_address) { new_dossier.champ_data.first }
 
@@ -181,7 +181,7 @@ RSpec.describe DossierCloneConcern do
       end
 
       context 'private are renewd' do
-        let(:types_de_champ_private) { [{}] }
+        let(:private_type_de_champs) { [{}] }
 
         it 'reset champs private values' do
           expect(new_dossier.root_champs_private.count).to eq(dossier.root_champs_private.count)

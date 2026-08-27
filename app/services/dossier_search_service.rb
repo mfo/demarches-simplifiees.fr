@@ -42,10 +42,44 @@ class DossierSearchService
   end
 
   def self.dossier_by_full_text(dossiers, search_terms, with_annotations: false)
-    columns = with_annotations ? 'dossiers.search_terms || \' \' || dossiers.private_search_terms' : 'dossiers.search_terms'
+    if Flipper.enabled?(:search_terms_tsvector)
+      dossier_by_stored_tsvector(dossiers, search_terms, with_annotations)
+    else
+      dossier_by_tsvector_expression(dossiers, search_terms, with_annotations)
+    end
+  end
 
-    ts_vector = "to_tsvector('french_unaccent', #{columns})"
+  # The tsquery is rebuilt in each branch rather than passed in: Brakeman only
+  # tracks the quoting within a method, and flags the interpolation otherwise.
+  #
+  # Ranking reads a precomputed column, so it is cheap enough to order the whole
+  # match set: the cap now keeps the *best* MAX_RESULTS rather than an arbitrary
+  # slice. Sorting also removes the early-exit plan a bare LIMIT invited, where
+  # the planner walked the instructeur scope hoping to fill the limit instead of
+  # using the GIN index — which is what made the capped query time out (RAILS-MC2).
+  def self.dossier_by_stored_tsvector(dossiers, search_terms, with_annotations)
     ts_query = "to_tsquery('french_unaccent', #{Dossier.connection.quote(to_tsquery(search_terms))})"
+    ts_vector = with_annotations ? 'dossiers.all_search_terms_tsvector' : 'dossiers.search_terms_tsvector'
+    rank = Arel.sql("COALESCE(ts_rank(#{ts_vector}, #{ts_query}), 0) DESC")
+
+    matching_ids = dossiers
+      .where("#{ts_vector} @@ #{ts_query}")
+      .order(rank)
+      .limit(MAX_RESULTS)
+      .ids
+
+    dossiers
+      .where(id: matching_ids)
+      .order(rank)
+  end
+
+  # Legacy path: ts_rank recomputes the tsvector for every row, so the match set
+  # has to be capped *before* ranking (RAILS-K81). Dropped, along with the two
+  # expression indexes, once :search_terms_tsvector is permanently on.
+  def self.dossier_by_tsvector_expression(dossiers, search_terms, with_annotations)
+    ts_query = "to_tsquery('french_unaccent', #{Dossier.connection.quote(to_tsquery(search_terms))})"
+    columns = with_annotations ? "dossiers.search_terms || ' ' || dossiers.private_search_terms" : 'dossiers.search_terms'
+    ts_vector = "to_tsvector('french_unaccent', #{columns})"
 
     matching_ids = dossiers
       .where("#{ts_vector} @@ #{ts_query}")

@@ -41,8 +41,16 @@ class Referentiels::APIReferentiel < Referentiel
     end
   end
 
+  # the autocompletion needs both halves of the configuration: where to read the
+  # objects in the API response, and how to render each of them as a label
+  def autocomplete_ready?
+    datasource.present? && json_template.present?
+  end
+
   def tiptap_template=(value)
     self.json_template = JSON.parse(value)
+  rescue JSON::ParserError
+    self.json_template = {}
   end
 
   def tiptap_template

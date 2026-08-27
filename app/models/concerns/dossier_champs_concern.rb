@@ -18,11 +18,11 @@ module DossierChampsConcern
   end
 
   def root_champs_public
-    @root_champs_public ||= revision.root_types_de_champ_public.map { project_champ(_1) }
+    @root_champs_public ||= revision.public_root_type_de_champs.map { project_champ(_1) }
   end
 
   def root_champs_private
-    @root_champs_private ||= revision.root_types_de_champ_private.map { project_champ(_1) }
+    @root_champs_private ||= revision.private_root_type_de_champs.map { project_champ(_1) }
   end
 
   def champs
@@ -58,7 +58,7 @@ module DossierChampsConcern
   end
 
   def flat_champs_public
-    @flat_champs_public ||= revision.root_types_de_champ_public.flat_map do |type_de_champ|
+    @flat_champs_public ||= revision.public_root_type_de_champs.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -69,7 +69,7 @@ module DossierChampsConcern
   end
 
   def flat_champs_private
-    @flat_champs_private ||= revision.root_types_de_champ_private.flat_map do |type_de_champ|
+    @flat_champs_private ||= revision.private_root_type_de_champs.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
       if type_de_champ.repetition?
         [champ] + project_rows_for(type_de_champ).flatten
@@ -93,25 +93,25 @@ module DossierChampsConcern
   def find_type_de_champ_by_stable_id(stable_id, scope = nil)
     case scope
     when :public
-      types_de_champ_public_all
+      public_type_de_champs_all
     when :private
-      types_de_champ_private_all
+      private_type_de_champs_all
     else
-      revision.types_de_champ
+      revision.type_de_champs
     end.find { _1.stable_id == stable_id.to_i }
   end
 
-  def types_de_champ_public_all
-    revision.types_de_champ.filter(&:public?)
+  def public_type_de_champs_all
+    revision.type_de_champs.filter(&:public?)
   end
 
-  def types_de_champ_private_all
-    revision.types_de_champ.filter(&:private?)
+  def private_type_de_champs_all
+    revision.type_de_champs.filter(&:private?)
   end
 
   def champs_for_prefill(stable_ids)
     revision
-      .types_de_champ
+      .type_de_champs
       .filter { _1.stable_id.in?(stable_ids) }
       .filter { !_1.child?(revision) }
       .map { _1.repetition? ? project_champ(_1) : champ_for_update(_1, updated_by: nil) }
@@ -229,7 +229,7 @@ module DossierChampsConcern
   end
 
   def set_default_value_for_france_connect_champs(user_email)
-    revision.root_types_de_champ_public.filter(&:france_connect?).each do |type_de_champ|
+    revision.public_root_type_de_champs.filter(&:france_connect?).each do |type_de_champ|
       existing_champ_data_on_main_stream = champ_data_on_main_stream.any? { _1.stable_id == type_de_champ.stable_id }
 
       next if existing_champ_data_on_main_stream && en_construction?
@@ -304,7 +304,7 @@ module DossierChampsConcern
       # move champ_data with changes from "main" to "history" stream
       champ_data.where(id: changed_ids, stream: Dossier::MAIN_STREAM).update_all(stream: history_stream)
       # move champ_data from "buffer" to "main"
-      champ_data.where(id: buffer_ids, stream:).update_all(stream: Dossier::MAIN_STREAM, updated_at: now, checkpoint: history_stream)
+      champ_data.where(id: buffer_ids, stream:).update_all(stream: Dossier::MAIN_STREAM, updated_at: now, value_updated_at: now, checkpoint: history_stream)
       update_champs_timestamps(buffer_champ_data, stream)
     end
 
@@ -321,7 +321,7 @@ module DossierChampsConcern
     reset_champs_cache
 
     with_main_stream do
-      prefill_and_enqueue_fetch_external_data_jobs(buffer_champ_data.filter(&:referentiel?), types_de_champ_private_all)
+      prefill_and_enqueue_fetch_external_data_jobs(buffer_champ_data.filter(&:referentiel?), private_type_de_champs_all)
     end
 
     history_stream
@@ -356,7 +356,7 @@ module DossierChampsConcern
   end
 
   def revision_stable_ids
-    @revision_stable_ids ||= revision.types_de_champ.map(&:stable_id).to_set
+    @revision_stable_ids ||= revision.type_de_champs.map(&:stable_id).to_set
   end
 
   def champ_data_in_revision
@@ -402,7 +402,9 @@ module DossierChampsConcern
     check_valid_stream_on_write?(type_de_champ)
     check_valid_row_id_on_write?(type_de_champ, row_id)
 
-    # FIXME: Try to find the champ data in memory before querying the database
+    # Memory-first lookup: champ_data is (almost) always loaded here, and going
+    # through create_or_find_by for an existing champ costs a savepoint plus an
+    # insert/conflict roundtrip per call.
     data = champ_data.find { _1.stream == stream && _1.public_id == type_de_champ.public_id(row_id) }
 
     if data.nil?
@@ -416,7 +418,9 @@ module DossierChampsConcern
     # Needed when a revision change the champ type in this case, we reset the champ data
     if data.class != type_de_champ.champ_class
       data = data.becomes!(type_de_champ.champ_class)
-      data.assign_attributes(value: nil, value_json: nil, external_id: nil, data: nil)
+      # external_state must be reset too: a champ left "fetched" with nil data
+      # crashes the components rendering the fetched external data
+      data.assign_attributes(value: nil, value_json: nil, external_id: nil, data: nil, external_state: nil, fetch_external_data_exceptions: [])
     elsif !main_stream? && data.previously_new_record?
       main_stream_data = champ_data.find_by(stable_id: type_de_champ.stable_id, row_id:, stream: Dossier::MAIN_STREAM)
       data.clone_value_from(main_stream_data) if main_stream_data.present?

@@ -29,23 +29,23 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'demarche with clone' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
     let(:procedure_clone) { procedure.clone(admin:) }
     let(:query) { DEMARCHE_WITH_CHAMP_DESCRIPTORS_QUERY }
     let(:variables) { { number: procedure_clone.id } }
-    let(:champ_descriptor_id) { procedure.draft_revision.root_types_de_champ_public.first.to_typed_id }
+    let(:champ_descriptor_id) { procedure.draft_revision.public_root_type_de_champs.first.to_typed_id }
 
     it {
       expect(data[:demarche][:champDescriptors]).to eq(data[:demarche][:draftRevision][:champDescriptors])
       expect(data[:demarche][:champDescriptors][0][:id]).to eq(champ_descriptor_id)
       expect(data[:demarche][:draftRevision][:champDescriptors][0][:id]).to eq(champ_descriptor_id)
-      expect(procedure.draft_revision.root_types_de_champ_public.first.id).not_to eq(procedure_clone.draft_revision.root_types_de_champ_public.first.id)
-      expect(procedure.draft_revision.root_types_de_champ_public.first.stable_id).to eq(procedure_clone.draft_revision.root_types_de_champ_public.first.stable_id)
+      expect(procedure.draft_revision.public_root_type_de_champs.first.id).not_to eq(procedure_clone.draft_revision.public_root_type_de_champs.first.id)
+      expect(procedure.draft_revision.public_root_type_de_champs.first.stable_id).to eq(procedure_clone.draft_revision.public_root_type_de_champs.first.stable_id)
     }
   end
 
   describe 'add administrateur' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
     let(:query) { ADD_ADMINISTRATEUR_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, email: admin_2.email } }
 
@@ -61,7 +61,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'add administrateur missing right' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
     let(:query) { ADD_ADMINISTRATEUR_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, email: admin_2.email } }
     let(:context) { { administrateur_id: admin_2.id, procedure_ids: admin_2.procedure_ids, write_access: true } }
@@ -76,7 +76,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'add new administrateur without right ip' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
     let(:query) { ADD_ADMINISTRATEUR_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, email: "no-admin@admin.com" } }
 
@@ -93,7 +93,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'add new administrateur with right ip' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
     let(:query) { ADD_ADMINISTRATEUR_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, email: "no-admin@admin.com" } }
 
@@ -111,7 +111,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'remove administrateur' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
 
     let(:query) { REMOVE_ADMINISTRATEUR_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, email: admin_2.email } }
@@ -132,7 +132,7 @@ RSpec.describe Types::DemarcheType, type: :graphql do
   end
 
   describe 'remove administrateur missing right' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }], administrateurs: [admin]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }], administrateurs: [admin]) }
     let(:query) { REMOVE_ADMINISTRATEUR_DEMARCHE_QUERY }
     let(:variables) { { demarcheNumber: procedure.id, email: admin_2.email } }
     let(:context) { { administrateur_id: admin_2.id, procedure_ids: admin_2.procedure_ids, write_access: true } }

@@ -22,6 +22,11 @@
       display: none;
     }
   }
+
+  .select-empty-hint {
+    white-space: normal;
+    font-style: italic;
+  }
 }
 
 .select-popover[data-trigger='Select'] {

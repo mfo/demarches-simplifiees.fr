@@ -1,0 +1,13 @@
+fr:
+  groups:
+    procedure: "Par démarche"
+    state: "État de traitement"
+    alert: "Alerte sur le dossier"
+  procedure_placeholder: "Sélectionnez une démarche"
+  from_created_at_date: "Créé depuis le"
+  from_depose_at_date: "Déposé depuis le"
+  reset: "Réinitialiser"
+  apply:
+    zero: "Aucun dossier ne correspond"
+    one: "Afficher le dossier"
+    other: "Afficher les %{count} dossiers"

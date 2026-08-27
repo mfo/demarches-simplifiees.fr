@@ -4,9 +4,9 @@ class ViewableChamp::SectionComponent < ApplicationComponent
   include ApplicationHelper
   include TreeableConcern
 
-  def initialize(dossier:, nodes: nil, types_de_champ: nil, row_id: nil, demande_seen_at:, profile:)
+  def initialize(dossier:, nodes: nil, type_de_champs: nil, row_id: nil, demande_seen_at:, profile:)
     @dossier, @demande_seen_at, @profile, @row_id = dossier, demande_seen_at, profile, row_id
-    nodes ||= to_tree(types_de_champ:)
+    nodes ||= to_tree(type_de_champs:)
     @nodes = to_sections(nodes:)
   end
 

@@ -56,13 +56,13 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
 
   def possible_values
     values = []
-    values << ERB::Util.html_escape(description) if description.present?
+    values << description if description.present?
     if too_many_possible_values?
       values << link_to_all_possible_values
     else
-      values << all_possible_values.map { ERB::Util.html_escape(_1) }.to_sentence
+      values << to_sentence(all_possible_values)
     end
-    values.compact.join('<br>').html_safe # rubocop:disable Rails/OutputSafety
+    safe_join(values.compact, tag.br)
   end
 
   def all_possible_values
@@ -121,6 +121,7 @@ class TypesDeChamp::PrefillTypeDeChamp < SimpleDelegator
   end
 
   def description
-    @description ||= I18n.t("views.prefill_descriptions.edit.possible_values.#{type_champ}_html", default: nil)&.html_safe
+    # HtmlSafeTranslation honours the `_html` convention that `I18n.t` ignores.
+    @description ||= ActiveSupport::HtmlSafeTranslation.translate("views.prefill_descriptions.edit.possible_values.#{type_champ}_html", default: nil)
   end
 end

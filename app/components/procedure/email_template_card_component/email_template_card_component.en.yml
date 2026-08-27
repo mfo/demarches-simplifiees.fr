@@ -1,27 +1,27 @@
 ---
 en:
   descriptions:
-    initiated_mail:
+    depose:
       default: |-
         This email is sent to the user **after they submit their file**.
 
         A deposit receipt is attached to this email.
 
         The user can still make changes to their file.
-    received_mail:
+    passe_en_instruction:
       default: |-
-        This email is sent to the user **when the instructor starts processing** their file.
+        This email is sent to the user when **the instructor starts processing their file**, or when the procedure closes automatically (if you have set a submission deadline).
 
         The user can no longer make changes to their file.
-    closed_mail:
+    accepte:
       default: |-
         This email is sent to the user **when the instructor accepts** their file.
-    refused_mail:
+    refuse:
       default: |-
         This email is sent to the user **when the instructor refuses** their file.
-    without_continuation:
+    classe_sans_suite:
       default: |-
         This email is sent to the user **when the instructor closes their file without follow-up**.
-    re_instructed_mail:
+    repasse_en_instruction:
       default: |-
         This email is sent to the user **when the instructor re-examines** their file, **after a decision has already been made**.

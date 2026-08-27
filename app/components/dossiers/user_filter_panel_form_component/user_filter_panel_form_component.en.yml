@@ -1,0 +1,13 @@
+en:
+  groups:
+    procedure: "By procedure"
+    state: "Processing state"
+    alert: "File alert"
+  procedure_placeholder: "Select a procedure"
+  from_created_at_date: "Created since"
+  from_depose_at_date: "Submitted since"
+  reset: "Reset"
+  apply:
+    zero: "No matching file"
+    one: "Show the file"
+    other: "Show %{count} files"

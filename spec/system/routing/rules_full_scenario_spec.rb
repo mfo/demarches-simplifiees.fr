@@ -4,7 +4,7 @@ describe 'The routing with rules', js: true do
   let(:password) { SECURE_PASSWORD }
 
   let(:procedure) do
-    create(:procedure, :with_service, :for_individual, :with_zone, types_de_champ_public: [
+    create(:procedure, :with_service, :for_individual, :with_zone, public_type_de_champs: [
       { type: :text, libelle: 'un premier champ text', mandatory: false },
       { type: :drop_down_list, libelle: 'Spécialité', options: ["littéraire", "scientifique", "artistique"], mandatory: false },
     ])
@@ -300,7 +300,9 @@ describe 'The routing with rules', js: true do
     choose(groupe, allow_label_click: true)
     wait_for_autosave
 
-    expect(dossier.reload.groupe_instructeur_id).not_to be_nil
+    # wait_for_autosave only waits for the save request to be dispatched, not
+    # for its response: poll the DB for the routing computed by the server.
+    wait_until { dossier.reload.groupe_instructeur_id.present? }
     expect(page).to have_text(dossier.service_or_contact_information.nom)
     expect(page).not_to have_text(procedure.service.nom)
 

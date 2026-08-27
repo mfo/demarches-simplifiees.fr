@@ -7,7 +7,7 @@ module Maintenance
     describe "#collection" do
       subject(:collection) { described_class.collection }
 
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pays }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :pays }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ_pays) { dossier.champ_data.first }
 
@@ -21,7 +21,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { described_class.new.process(champ_pays) }
 
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pays }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :pays }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champ_pays) { dossier.champ_data.first }
 

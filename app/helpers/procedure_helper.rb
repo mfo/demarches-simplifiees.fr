@@ -23,17 +23,6 @@ module ProcedureHelper
     end
   end
 
-  def procedure_publish_label(procedure, key)
-    # i18n-tasks-use t('modal.publish.body.publish')
-    # i18n-tasks-use t('modal.publish.body.reopen')
-    # i18n-tasks-use t('modal.publish.submit.publish')
-    # i18n-tasks-use t('modal.publish.submit.reopen')
-    # i18n-tasks-use t('modal.publish.title.publish')
-    # i18n-tasks-use t('modal.publish.title.reopen')
-    action = procedure.close? ? :reopen : :publish
-    t(action, scope: [:modal, :publish, key])
-  end
-
   def procedure_auto_archive_date(procedure)
     I18n.l(procedure.auto_archive_on - 1.day, format: :long)
   end
@@ -44,13 +33,6 @@ module ProcedureHelper
 
   def procedure_auto_archive_datetime(procedure)
     procedure_auto_archive_date(procedure) + ' ' + procedure_auto_archive_time(procedure)
-  end
-
-  def can_send_groupe_message?(procedure)
-    groupe_instructeur_on_procedure_ids = procedure.groupe_instructeurs.active.ids.sort
-    groupe_instructeur_on_instructeur_ids = current_instructeur.groupe_instructeurs.active.where(procedure: procedure).ids.sort
-
-    groupe_instructeur_on_procedure_ids == groupe_instructeur_on_instructeur_ids
   end
 
   def url_or_email_to_lien_dpo(procedure)

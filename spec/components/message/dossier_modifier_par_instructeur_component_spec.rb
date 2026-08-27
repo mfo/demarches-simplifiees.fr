@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Message::DossierModifierParInstructeurComponent, type: :component do
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text, libelle: "Texte", stable_id: 99 }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: "Texte", stable_id: 99 }]) }
   let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:) }
 
   subject { render_inline(described_class.new(dossier:, changed_columns:, motivation:)) }
@@ -32,6 +32,20 @@ RSpec.describe Message::DossierModifierParInstructeurComponent, type: :component
     it 'renders the generic message' do
       expect(subject).to have_text('a apporté des modifications')
       expect(subject).not_to have_text('a apporté les modifications suivantes')
+    end
+  end
+
+  describe '.create_commentaire' do
+    let(:instructeur) { create(:instructeur) }
+
+    subject do
+      dossier.instructeur_submit_en_construction!(instructeur:)
+      dossier.commentaires.last
+    end
+
+    it 'creates a commentaire the instructeur cannot delete' do
+      expect(subject.instructeur).to eq(instructeur)
+      expect(subject.deletable).to be false
     end
   end
 

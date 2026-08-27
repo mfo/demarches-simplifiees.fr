@@ -74,7 +74,7 @@ RSpec.describe Ami::CreateNotificationService do
         recipient_fc_hash: kind_of(String),
         content_title: kind_of(String),
         content_body: kind_of(String),
-        item_type: "dossier",
+        item_type: dossier.procedure.id.to_s,
         item_id: dossier.id.to_s,
         item_status_label: "En\u00a0instruction",
         item_generic_status: "wip",

@@ -31,7 +31,7 @@ To run demarche-numerique, you will need the following services:
 - **Redis** (version >= 7.0). Redis is used as an application-wide cache, as a shared lock mechanism, and as the backend for asynchronous job processing.
 	
 	> [!NOTE]
-	> Technically, demarche-numerique can run without Redis (by using the local filesystem as a cache, and `delayed_job` as the async jobs backend.)
+	> Technically, demarche-numerique can run without Redis for caching (by using the local filesystem), but Redis is required by Sidekiq, the async jobs backend.
 	>
 	> This is strongly discouraged in production, as it prevents some important performance optimizations[^1].
 - **An email provider**. Emails are sent for enrolement, account management, notifications, etc.
@@ -81,6 +81,11 @@ The web application and the asynchronous jobs require some binary dependencies.
 	```shell
     apt install zip unzip libjemalloc-dev libpq-dev libicu-dev postgis libvips-dev gsfonts poppler-utils
     ```
+
+    > [!IMPORTANT]
+    > `libvips-dev` must be 8.13 or later — Ubuntu 24.04 ships 8.15. Older builds
+    > cannot disable libvips' unfuzzed loaders, and Active Storage refuses to boot
+    > rather than decode user-supplied files with them.
 
     > [!TIP]
     > At this stage you may also want to install the [compilation packages required for building Ruby and Ruby extensions](https://github.com/rbenv/ruby-build/wiki#ubuntudebianmint).

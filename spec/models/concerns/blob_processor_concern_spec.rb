@@ -25,7 +25,7 @@ describe BlobProcessorConcern do
 
   describe '#watermark_pending?' do
     context 'with PieceJustificativeChamp with nature=titre_identite' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
       let(:champ) { dossier.champ_data.first }
 
@@ -43,7 +43,7 @@ describe BlobProcessorConcern do
     end
 
     context 'with PieceJustificativeChamp with nature=titre_identite' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
       let(:champ) { dossier.champ_data.first }
 
@@ -61,7 +61,7 @@ describe BlobProcessorConcern do
     end
 
     context 'with regular PieceJustificativeChamp (no nature)' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, :en_construction, procedure:) }
       let(:champ) { dossier.champ_data.first }
 

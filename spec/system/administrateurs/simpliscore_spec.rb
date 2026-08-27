@@ -2,7 +2,7 @@
 
 describe 'As an administrateur I can use Simpliscore to improve my procedure', js: true do
   let(:administrateur) { procedure.administrateurs.first }
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'NOM' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'NOM' }]) }
   let(:rule) { 'improve_label' }
 
   before do
@@ -32,8 +32,8 @@ describe 'As an administrateur I can use Simpliscore to improve my procedure', j
 
       create(:llm_rule_suggestion_item,
         llm_rule_suggestion: llm_rule_suggestion,
-        stable_id: procedure.draft_revision.revision_types_de_champ_public.first.stable_id,
-        payload: { 'stable_id' => procedure.draft_revision.revision_types_de_champ_public.first.stable_id, 'libelle' => 'Nom' })
+        stable_id: procedure.draft_revision.public_revision_type_de_champs.first.stable_id,
+        payload: { 'stable_id' => procedure.draft_revision.public_revision_type_de_champs.first.stable_id, 'libelle' => 'Nom' })
 
       visit simplify_admin_procedure_types_de_champ_path(procedure, tunnel_id:, rule: 'improve_label')
 
@@ -79,8 +79,8 @@ describe 'As an administrateur I can use Simpliscore to improve my procedure', j
         tunnel_id:, rule: "cleaner", state: "completed", schema_hash: post_step1_hash)
       create(:llm_rule_suggestion_item,
         llm_rule_suggestion: cleaner_suggestion,
-        stable_id: procedure.draft_revision.revision_types_de_champ_public.first.stable_id,
-        payload: { "stable_id" => procedure.draft_revision.revision_types_de_champ_public.first.stable_id, "action" => "delete" })
+        stable_id: procedure.draft_revision.public_revision_type_de_champs.first.stable_id,
+        payload: { "stable_id" => procedure.draft_revision.public_revision_type_de_champs.first.stable_id, "action" => "delete" })
 
       # Stub job to prevent overwriting pre-created completed suggestions
       allow(LLM::ImproveProcedureJob).to receive(:perform_now)

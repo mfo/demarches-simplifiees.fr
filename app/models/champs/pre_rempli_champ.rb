@@ -4,4 +4,6 @@ class Champs::PreRempliChamp < ChampData
   def selected
     value
   end
+
+  def condition_value = selected
 end

@@ -4,8 +4,8 @@ require 'rails_helper'
 
 describe EditableChamp::ReferentielDisplayComponent, type: :component do
   let(:referentiel) { create(:api_referentiel, :exact_match) }
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel:, referentiel_mapping: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel:, referentiel_mapping: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { (dossier.root_champs_public).first }
 

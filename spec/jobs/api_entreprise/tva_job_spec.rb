@@ -11,7 +11,7 @@ describe APIEntreprise::TvaJob, type: :job do
   subject { APIEntreprise::TvaJob.new.perform(etablissement.id, procedure_id) }
 
   before do
-    stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/european_commission\/unites_legales\/#{siren}\/numero_tva/)
+    stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v3\/dgfip\/unites_legales\/#{siren}\/numero_tva/)
       .to_return(body: body, status: status)
     allow_any_instance_of(APIEntrepriseToken).to receive(:expired?).and_return(false)
   end

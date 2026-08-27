@@ -3,16 +3,6 @@
 module DossierHelper
   include EtablissementHelper
 
-  def button_or_label_class(dossier)
-    if dossier.accepte?
-      'accepted'
-    elsif dossier.sans_suite?
-      'without-continuation'
-    elsif dossier.refuse?
-      'refused'
-    end
-  end
-
   def highlight_if_unseen_class(seen_at, updated_at)
     if updated_at.present? && seen_at&.<(updated_at)
       "highlighted"
@@ -102,10 +92,10 @@ module DossierHelper
 
   def deletion_reason_badge(reason)
     if reason.present?
-      status_text = I18n.t(reason, scope: 'activerecord.attributes.deleted_dossier.reason')
+      status_text = t(reason, scope: 'activerecord.attributes.deleted_dossier.reason')
       status_class = reason.tr('_', '-')
     else
-      status_text = I18n.t('activerecord.attributes.deleted_dossier.reason.unknown')
+      status_text = t('activerecord.attributes.deleted_dossier.reason.unknown')
       status_class = 'unknown'
     end
 
@@ -264,7 +254,7 @@ module DossierHelper
     case type
     when DossierNotification.notification_types.fetch(:dossier_modifie),
       DossierNotification.notification_types.fetch(:message),
-      DossierNotification.notification_types.fetch(:annotation_instructeur)
+      DossierNotification.notification_types.fetch(:annotation_instructeur),
       DossierNotification.notification_types.fetch(:avis_externe)
       if summary
         t("activerecord.attributes.notification.a11y.news.for_summary")

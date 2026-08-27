@@ -2,10 +2,10 @@
 
 describe TypesDeChamp::DropDownListTypeDeChamp do
   describe '#columns' do
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :drop_down_list, referentiel:, drop_down_mode: }] }
     let(:referentiel) { create(:csv_referentiel, :with_items) }
-    let(:dropdown_list_tdc) { procedure.active_revision.types_de_champ.first }
+    let(:dropdown_list_tdc) { procedure.active_revision.type_de_champs.first }
     let(:column) { dropdown_list_tdc.columns(procedure_id: procedure.id).first }
 
     subject { dropdown_list_tdc.columns(procedure_id: procedure.id) }
@@ -39,7 +39,7 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
       end
 
       context 'with other on' do
-        let(:types_de_champ_public) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced', drop_down_other: true }] }
+        let(:public_type_de_champs) { [{ type: :drop_down_list, referentiel:, drop_down_mode: 'advanced', drop_down_other: true }] }
 
         it 'exposes other as a choice in the enum' do
           option_labels = column.options_for_select.map(&:first)
@@ -61,7 +61,7 @@ describe TypesDeChamp::DropDownListTypeDeChamp do
     end
 
     context 'other true and referentiel off' do
-      let(:types_de_champ_public) { [{ type: :drop_down_list, drop_down_options: ['1', '2'], drop_down_other: true }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, drop_down_options: ['1', '2'], drop_down_other: true }] }
       let(:champ_column_value) { Logic::ChampColumnValue.new(column.stable_id, column.column_id) }
 
       it 'exposes other as a choice in the enum' do

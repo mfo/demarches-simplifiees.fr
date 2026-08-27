@@ -17,7 +17,7 @@ on:
 
 jobs:
   warm-cache:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgis/postgis:17-3.5

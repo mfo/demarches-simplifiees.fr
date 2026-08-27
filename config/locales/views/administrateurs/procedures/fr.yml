@@ -32,8 +32,8 @@ fr:
           cancel: Retour
       closing_notification:
         page_title: Alerter les usagers
-        page_subtitle: Votre démarche est close. Le lien de votre démarche redirige désormais vers cette <a href="%{closing_path}" target="_blank" rel="noopener noreferrer">page de fermeture</a>.
-        page_subtitle_with_redirection: Votre démarche est close. Le lien public redirige désormais vers cette <a href="%{redirection_path}" target="_blank" rel="noopener noreferrer">démarche</a>.
+        page_subtitle_html: Votre démarche est close. Le lien de votre démarche redirige désormais vers cette <a href="%{closing_path}" target="_blank" rel="noopener noreferrer">page de fermeture</a>.
+        page_subtitle_with_redirection_html: Votre démarche est close. Le lien public redirige désormais vers cette <a href="%{redirection_path}" target="_blank" rel="noopener noreferrer">démarche</a>.
         callout_content: Vous avez la possibilité de continuer à instruire les dossiers déposés. Si vous n’avez pas l’intention d’instruire ces dossiers, nous vous invitons à en informer les usagers.
         email_toggle_brouillon:
           one: Souhaitez-vous envoyer un email à l’utilisateur avec un dossier en brouillon ?
@@ -137,8 +137,8 @@ fr:
         accuse_lecture_hint: Activé
         api_entreprise_token: Jeton API entreprise
         api_entreprise_token_hint: Jeton configuré
-        mail_templates: Modèles d’email
-        mail_templates_hint: Contenu des emails automatiques
+        email_templates: Modèles d’email
+        email_templates_hint: Contenu des emails automatiques
         sva_svr: Silence Vaut Accord ou Rejet
         sva_svr_hint:
           sva: SVA activé

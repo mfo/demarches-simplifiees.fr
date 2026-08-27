@@ -2,12 +2,12 @@
 
 describe Champs::PieceJustificativeController, type: :controller do
   let(:user) { create(:user) }
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], types_de_champ_private: [{ type: :piece_justificative }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }], private_type_de_champs: [{ type: :piece_justificative }]) }
   let(:dossier) { create(:dossier, user: user, procedure: procedure) }
   let(:champ) { dossier.root_champs_public.first }
 
   describe 'ensure_legitimate_access' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :text }]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text }]) }
     let(:dossier) { create(:dossier, user: user, procedure: procedure) }
     let(:champ) { dossier.root_champs_public.first }
 
@@ -157,7 +157,7 @@ describe Champs::PieceJustificativeController, type: :controller do
     end
 
     context 'when the champ is a RIB whose content analysis is pending (#13104)' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'rib' }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'rib' }]) }
       let(:dossier) { create(:dossier, user: user, procedure: procedure) }
       let(:champ) { dossier.root_champs_public.first }
       let(:file) { fixture_file_upload('spec/fixtures/files/piece_justificative_0.pdf', 'application/pdf') }

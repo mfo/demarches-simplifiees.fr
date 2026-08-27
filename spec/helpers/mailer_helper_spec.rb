@@ -21,4 +21,17 @@ RSpec.describe MailerHelper, type: :helper do
       expect(result).to include('color: #000091')
     end
   end
+
+  describe '#application_name_without_link' do
+    subject { helper.application_name_without_link }
+
+    it 'inserts a WORD JOINER before each dot, so mail clients do not auto-link the name' do
+      expect(subject).to eq(APPLICATION_NAME.gsub('.', "\u2060."))
+      expect(subject.delete("\u2060")).to eq(APPLICATION_NAME)
+    end
+
+    it 'carries no markup, so ERB escaping leaves it untouched' do
+      expect(ERB::Util.html_escape(subject)).to eq(subject)
+    end
+  end
 end

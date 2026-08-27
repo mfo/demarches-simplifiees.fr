@@ -30,7 +30,7 @@
           = f.number_field :period, class: 'fr-input', disabled: form_disabled?
       .fr-fieldset__element.fr-fieldset__element--inline
         .fr-select-group
-          = f.select :unit, options_for_select(SVASVRConfiguration.unit_options.map { [t(_1, scope: ".unit_labels"), _1] }, selected: configuration.unit), {}, class: 'fr-select', disabled: form_disabled?
+          = f.select :unit, options_for_select(SVASVRConfiguration.unit_options.map { [t(".unit_labels.#{_1}"), _1] }, selected: configuration.unit), {}, class: 'fr-select', disabled: form_disabled?
 
     %fieldset.fr-fieldset
       %legend.fr-fieldset__legend

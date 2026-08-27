@@ -23,6 +23,14 @@ RSpec.describe GeoArea, type: :model do
     let(:geo_area) { build(:geo_area, :point, champ_data: nil) }
 
     it { expect(geo_area.location).to eq("46°32'19\"N 2°25'42\"E") }
+
+    context 'with out of range coordinates (RAILS-M8G)' do
+      let(:geo_area) { build(:geo_area, :point_invalid, champ_data: nil) }
+
+      it 'falls back to the raw coordinates instead of failing' do
+        expect(geo_area.location).to eq('200, 100')
+      end
+    end
   end
 
   describe 'validations' do
@@ -197,6 +205,19 @@ RSpec.describe GeoArea, type: :model do
           expect(geo_area.label).to eq("Parcelle n°  - Feuille   -  m² – commune ")
         end
       end
+    end
+  end
+
+  # The map render is not triggered by geo_areas: it is triggered on dépôt and
+  # on submissions of changes (cf. dossier_state_concern_spec).
+  describe 'static map rendering' do
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte }]) }
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:champ) { dossier.champ_data.first }
+
+    it 'is not scheduled while the usager is drawing' do
+      expect { create(:geo_area, :selection_utilisateur, :polygon, champ_data: champ) }
+        .not_to have_enqueued_job(RenderCarteChampJob)
     end
   end
 end

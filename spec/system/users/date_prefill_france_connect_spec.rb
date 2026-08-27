@@ -2,8 +2,8 @@
 
 describe 'Prefill date champ from FranceConnect:', js: true do
   let(:user) { create(:user, france_connect_informations: [build(:france_connect_information)]) }
-  let(:procedure) { create(:procedure, :published, :for_individual, :with_service, types_de_champ_public: [{ type: :date, libelle: 'Votre date de naissance' }]) }
-  let(:tdc) { procedure.active_revision.root_types_de_champ_public.first }
+  let(:procedure) { create(:procedure, :published, :for_individual, :with_service, public_type_de_champs: [{ type: :date, libelle: 'Votre date de naissance' }]) }
+  let(:tdc) { procedure.active_revision.public_root_type_de_champs.first }
 
   before do
     tdc.update!(options: { 'birthdate' => '1', 'prefill_with_france_connect_information' => '1' })

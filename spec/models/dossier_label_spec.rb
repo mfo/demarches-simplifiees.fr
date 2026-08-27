@@ -21,4 +21,23 @@ describe DossierLabel do
       end
     end
   end
+
+  describe 'touching the dossier' do
+    let(:label) { procedure.labels.first }
+
+    it 'bumps dossier.updated_at when a label is added' do
+      dossier.update_column(:updated_at, 1.day.ago)
+
+      expect { DossierLabel.create!(dossier:, label:) }
+        .to(change { dossier.reload.updated_at })
+    end
+
+    it 'bumps dossier.updated_at when a label is removed' do
+      dossier_label = DossierLabel.create!(dossier:, label:)
+      dossier.update_column(:updated_at, 1.day.ago)
+
+      expect { dossier_label.destroy }
+        .to(change { dossier.reload.updated_at })
+    end
+  end
 end

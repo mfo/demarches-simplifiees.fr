@@ -128,7 +128,7 @@ describe 'The user', js: true do
   end
 
   let(:procedure_with_repetition) do
-    create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :repetition, mandatory: true, children: [{ libelle: 'sub type de champ' }] }])
+    create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :repetition, mandatory: true, children: [{ libelle: 'sub type de champ' }] }])
   end
 
   scenario 'fill a dossier with repetition' do
@@ -165,8 +165,8 @@ describe 'The user', js: true do
   end
 
   let(:procedure_with_repetition_limited) do
-    procedure = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :repetition, libelle: 'bloc', children: [{ libelle: 'sous champ' }] }])
-    tdc = procedure.draft_revision.root_types_de_champ_public.first
+    procedure = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :repetition, libelle: 'bloc', children: [{ libelle: 'sous champ' }] }])
+    tdc = procedure.draft_revision.public_root_type_de_champs.first
     tdc.update!(limit_repetitions: '1', max_repetitions: '2')
     procedure
   end
@@ -184,7 +184,7 @@ describe 'The user', js: true do
   end
 
   let(:procedure_with_repetition_2) do
-    create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :text, mandatory: true, libelle: 'texte obligatoire' }, { type: :repetition, mandatory: true, libelle: 'repetition', children: [{ libelle: 'sub type de champ' }] }])
+    create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :text, mandatory: true, libelle: 'texte obligatoire' }, { type: :repetition, mandatory: true, libelle: 'repetition', children: [{ libelle: 'sub type de champ' }] }])
   end
 
   scenario 'do not fill a dossier with repetition and check errors on champs' do
@@ -201,7 +201,7 @@ describe 'The user', js: true do
   end
 
   let(:simple_procedure) {
-    create(:procedure, :published, :for_individual, types_de_champ_public: [
+    create(:procedure, :published, :for_individual, public_type_de_champs: [
       { mandatory: true, libelle: 'texte obligatoire' }, { mandatory: false, libelle: 'texte optionnel' },
       { mandatory: false, libelle: "nombre entier", type: :integer_number },
       { mandatory: false, libelle: "nombre décimal", type: :decimal_number },
@@ -391,7 +391,7 @@ describe 'The user', js: true do
     end
   end
 
-  let(:procedure_with_pjs) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }, { type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 2' }]) }
+  let(:procedure_with_pjs) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }, { type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 2' }]) }
 
   scenario 'add an attachment' do
     log_in_fast(user, procedure_with_pjs)
@@ -425,7 +425,7 @@ describe 'The user', js: true do
       let(:repetition_mandatory) { false }
       let(:procedure) do
         create(:procedure, :published, :for_individual,
-          types_de_champ_public: [
+          public_type_de_champs: [
             { type: :integer_number, libelle: 'UNIQ_LABEL', mandatory: false, stable_id: },
             {
               type: :repetition, libelle: 'repetition', mandatory: repetition_mandatory, condition:, children: [
@@ -493,7 +493,7 @@ describe 'The user', js: true do
       let(:condition) { ds_or([a_condition, b_condition]) }
       let(:procedure) do
         create(:procedure, :published, :for_individual,
-          types_de_champ_public: [
+          public_type_de_champs: [
             { type: :checkbox, libelle: 'champ_a', mandatory: false, stable_id: a_stable_id },
             {
               type: :repetition, libelle: 'repetition', mandatory: true, children: [
@@ -528,7 +528,7 @@ describe 'The user', js: true do
       let(:condition) { greater_than_eq(champ_value(stable_id), constant(18)) }
       let(:procedure) do
         create(:procedure, :published, :for_individual,
-          types_de_champ_public: [
+          public_type_de_champs: [
             { type: :integer_number, libelle: 'UNIQ_LABEL', mandatory: false, stable_id: },
             { type: :text, libelle: 'nom', mandatory: true, condition: },
           ])
@@ -562,7 +562,7 @@ describe 'The user', js: true do
 
       let(:procedure) do
         create(:procedure, :published, :for_individual,
-          types_de_champ_public: [
+          public_type_de_champs: [
             { type: :integer_number, libelle: 'age du candidat', stable_id: age_stable_id, mandatory: false },
             { type: :yes_no, libelle: 'permis de conduire', stable_id: permis_stable_id, condition: permis_condition, mandatory: false },
             { type: :header_section, libelle: 'info voiture', condition: permis_condition, mandatory: false },

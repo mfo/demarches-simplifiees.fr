@@ -13,16 +13,30 @@ describe 'Transfer dossier flow', js: true do
 
     it 'shows the new sender banner format on the dossier card' do
       visit dossiers_path
-      expect(page).to have_content('Demande de transfert en cours')
-      expect(page).to have_content('Vous avez envoyé une demande de transfert de ce dossier à destinataire@example.com.')
-      expect(page).to have_link('Révoquer cette demande')
+      expect(page).to have_content('Proposition de transfert en cours')
+      expect(page).to have_content('Vous avez envoyé une proposition de transfert de ce dossier à destinataire@example.com.')
+      expect(page).to have_link('Annuler cette proposition')
     end
 
     it 'allows revoking a sent transfer' do
       visit dossiers_path
-      click_link 'Révoquer cette demande'
+      click_link 'Annuler cette proposition'
       expect(page).to have_current_path(dossiers_path)
       expect(dossier.reload.dossier_transfer_id).to be_nil
+    end
+  end
+
+  describe 'transfer screen' do
+    let(:procedure) { create(:procedure, :published, :accuse_lecture) }
+    let!(:dossier) { create(:dossier, :accepte, procedure:, user: expediteur) }
+
+    before { login_as expediteur, scope: :user }
+
+    it 'does not reveal the decision while the reading acknowledgment is pending' do
+      visit transferer_dossier_path(dossier)
+
+      expect(page).to have_content("transférer le dossier n° #{dossier.id}")
+      expect(page).not_to have_content('le dossier accepté')
     end
   end
 
@@ -34,15 +48,15 @@ describe 'Transfer dossier flow', js: true do
 
     it 'shows the pending transfers banner on the dossiers index' do
       visit dossiers_path
-      expect(page).to have_content('Demandes de transfert de dossier')
-      expect(page).to have_link('Voir la demande en attente (1)')
+      expect(page).to have_content('Propositions de transfert de dossier')
+      expect(page).to have_link('Voir la proposition en attente (1)')
     end
 
     it 'navigates to the transfer requests page' do
       visit dossiers_path
-      click_link 'Voir la demande en attente (1)'
+      click_link 'Voir la proposition en attente (1)'
       expect(page).to have_current_path(transferts_path)
-      expect(page).to have_content('Demandes de transfert')
+      expect(page).to have_content('Propositions de transfert')
       expect(page).to have_content('1 dossier en attente de transfert')
     end
 

@@ -1,7 +1,7 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  pool: <%= ENV.fetch("DB_POOL") { 5 } %>
+  max_connections: <%= ENV["DB_POOL"].presence || 5 %>
   # sql queries will be killed after 60s
   # we should reduce this number
   # A bigger timeout can be set for jobs
@@ -20,7 +20,7 @@ development:
 
 test:
   <<: *default
-  database: <%= ENV.fetch("DB_DATABASE_TEST", "tps_test") %>
+  database: <%= ENV.fetch("DB_DATABASE_TEST", "tps_test") %><%= ENV["TEST_ENV_NUMBER"] %>
   host: <%= ENV.fetch("DB_HOST_TEST", "localhost") %>
   username: <%= ENV.fetch("DB_USERNAME_TEST", "tps_test") %>
   password: <%= ENV.fetch("DB_PASSWORD_TEST", "tps_test") %>

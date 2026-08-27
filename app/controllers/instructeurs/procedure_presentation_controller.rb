@@ -6,7 +6,9 @@ module Instructeurs
 
     # updates the value of a filter
     def update_filter
-      @procedure_presentation.update_filter_for_statut!(params[:statut], params[:filter_key], filtered_column_from_params)
+      if !@procedure_presentation.update_filter_for_statut(params[:statut], params[:filter_key], filtered_column_from_params)
+        flash.alert = filters_error_messages
+      end
 
       render turbo_stream: turbo_stream.refresh
     end
@@ -36,9 +38,7 @@ module Instructeurs
         toggle_admin_default = params.dig(:procedure_presentation, :admin_default_procedure_presentation_active_virtual)
         set_admin_pp_default if toggle_admin_default.present? && current_instructeur_administrates_procedure?
       else
-        # complicated way to display inner error messages
-        flash.alert = @procedure_presentation.errors
-          .flat_map { _1.detail[:value].flat_map { |c| c.errors.full_messages } }
+        flash.alert = filters_error_messages
       end
 
       redirect_back_or_to([:instructeur, procedure])
@@ -76,6 +76,12 @@ module Instructeurs
 
     def filters_columns_from_params
       Array(params[:filters_columns]).uniq.map { ColumnType.new.cast(it) }
+    end
+
+    # complicated way to display inner error messages
+    def filters_error_messages
+      @procedure_presentation.errors
+        .flat_map { _1.detail[:value].flat_map { |c| c.errors.full_messages } }
     end
 
     def filtered_column_from_params

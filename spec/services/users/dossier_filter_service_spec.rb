@@ -3,15 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe Users::DossierFilterService do
-  let(:user) { create(:user) }
-  let!(:own_dossier) { create(:dossier, :en_construction, user: user) }
-  let!(:invited_dossier) do
-    d = create(:dossier, :en_construction)
+  let_it_be(:user) { create(:user) }
+  let_it_be(:own_dossier) { create(:dossier, :en_construction, user: user, procedure: procedures.individual) }
+  let_it_be(:invited_dossier) do
+    d = create(:dossier, :en_construction, procedure: procedures.individual)
     create(:invite, dossier: d, user: user)
     d
   end
-  let!(:other_dossier) { create(:dossier, :en_construction) }
-  let!(:hidden_dossier) { create(:dossier, :en_construction, user: user, hidden_by_user_at: Time.current) }
+  let_it_be(:other_dossier) { create(:dossier, :en_construction, procedure: procedures.individual) }
+  let_it_be(:hidden_dossier) { create(:dossier, :en_construction, user: user, hidden_by_user_at: Time.current, procedure: procedures.individual) }
 
   subject(:service) { described_class.new(user: user, params: ActionController::Parameters.new) }
 
@@ -44,8 +44,8 @@ RSpec.describe Users::DossierFilterService do
   end
 
   describe '#dossiers with procedure_id filter' do
-    let(:procedure_a) { create(:procedure) }
-    let(:procedure_b) { create(:procedure) }
+    let(:procedure_a) { procedures.individual }
+    let(:procedure_b) { procedures.entreprise }
     let!(:dossier_a) { create(:dossier, :en_construction, user: user, procedure: procedure_a) }
     let!(:dossier_b) { create(:dossier, :en_construction, user: user, procedure: procedure_b) }
 
@@ -67,10 +67,10 @@ RSpec.describe Users::DossierFilterService do
   end
 
   describe '#dossiers with state filter' do
-    let!(:brouillon) { create(:dossier, user: user) }
-    let!(:en_construction) { create(:dossier, :en_construction, user: user) }
-    let!(:en_instruction) { create(:dossier, :en_instruction, user: user) }
-    let!(:accepte) { create(:dossier, :accepte, user: user) }
+    let!(:brouillon) { create(:dossier, user: user, procedure: procedures.individual) }
+    let!(:en_construction) { create(:dossier, :en_construction, user: user, procedure: procedures.individual) }
+    let!(:en_instruction) { create(:dossier, :en_instruction, user: user, procedure: procedures.individual) }
+    let!(:accepte) { create(:dossier, :accepte, user: user, procedure: procedures.individual) }
 
     it 'filters by a single UI state' do
       service = described_class.new(user: user, params: ActionController::Parameters.new(state: ['en_construction']))
@@ -86,8 +86,8 @@ RSpec.describe Users::DossierFilterService do
   end
 
   describe '#dossiers with date filters' do
-    let!(:old_dossier) { create(:dossier, :en_construction, user: user, created_at: 30.days.ago, depose_at: 25.days.ago) }
-    let!(:recent_dossier) { create(:dossier, :en_construction, user: user, created_at: 1.day.ago, depose_at: 1.hour.ago) }
+    let!(:old_dossier) { create(:dossier, :en_construction, user: user, created_at: 30.days.ago, depose_at: 25.days.ago, procedure: procedures.individual) }
+    let!(:recent_dossier) { create(:dossier, :en_construction, user: user, created_at: 1.day.ago, depose_at: 1.hour.ago, procedure: procedures.individual) }
 
     it 'filters by from_created_at_date' do
       date = 7.days.ago.to_date.iso8601
@@ -141,9 +141,9 @@ RSpec.describe Users::DossierFilterService do
   end
 
   describe '#counts' do
-    let!(:dossier_depose_corriger) { create(:dossier, :en_construction, user: user) }
-    let!(:dossier_depose_nothing) { create(:dossier, :en_construction, user: user) }
-    let!(:dossier_accepte) { create(:dossier, :accepte, user: user) }
+    let!(:dossier_depose_corriger) { create(:dossier, :en_construction, user: user, procedure: procedures.individual) }
+    let!(:dossier_depose_nothing) { create(:dossier, :en_construction, user: user, procedure: procedures.individual) }
+    let!(:dossier_accepte) { create(:dossier, :accepte, user: user, procedure: procedures.individual) }
 
     before do
       create(:dossier_correction, dossier: dossier_depose_corriger)
@@ -222,7 +222,7 @@ RSpec.describe Users::DossierFilterService do
     it 'runs a constant number of queries regardless of dossier volume (no N+1)' do
       queries_for = lambda do |volume|
         owner = create(:user)
-        create_list(:dossier, volume, :en_construction, user: owner)
+        create_list(:dossier, volume, :en_construction, user: owner, procedure: procedures.individual)
         service = described_class.new(user: owner, params: ActionController::Parameters.new)
         count = 0
         counter = lambda do |_name, _started, _finished, _id, payload|

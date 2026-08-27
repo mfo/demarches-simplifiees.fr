@@ -19,6 +19,7 @@ describe 'users/dossiers/index', type: :view do
     assign(:corbeille_count, 0)
     assign(:pending_transfers_count, 0)
     assign(:counts, { procedure_ids: {}, states: {}, alerts: {}, shared_with_me: 0 })
+    assign(:dossier_ids_with_user_buffer_changes, Set.new)
 
     render
   end

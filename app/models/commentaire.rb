@@ -21,7 +21,8 @@ class Commentaire < ApplicationRecord
 
   validates :piece_jointe,
     content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
-    size: { less_than: FILE_MAX_SIZE }
+    size: { less_than: FILE_MAX_SIZE },
+    empty_file: true
 
   scope :chronological, -> { order(created_at: :asc) }
   scope :updated_since?, -> (date) { where('commentaires.updated_at > ?', date) }
@@ -98,7 +99,8 @@ class Commentaire < ApplicationRecord
   end
 
   def soft_deletable?(connected_user, cancel_correction: true)
-    sent_by?(connected_user) &&
+    deletable? &&
+      sent_by?(connected_user) &&
       (sent_by_instructeur? || sent_by_expert?) &&
       !discarded? &&
       (cancel_correction || !dossier_correction&.pending?)

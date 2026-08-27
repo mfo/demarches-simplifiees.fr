@@ -30,7 +30,6 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  insee_down: INSEE is unavailable, company information will arrive within a few hours.
   invisible_captcha:
     sentence_for_humans: 'If you are a human, ignore this field'
   clipboard:
@@ -407,7 +406,7 @@ en:
         edit:
           autosave: Your file is automatically saved after each modification. You can close the window at any time and pick up where you left off later.
           autosave_submit: Your file is automatically saved. Submit it when you are finished.
-          invite_notice: You are invited to make amendments to this file but <strong>only the owner themselves can submit it</strong>.
+          invite_notice_html: You are invited to make amendments to this file but <strong>only the owner themselves can submit it</strong>.
         messages:
           form:
             send_message: "Send message"
@@ -566,6 +565,9 @@ en:
             label:
               one: "Trash (%{count})"
               other: "Trash (%{count})"
+          personnalisation_link:
+            label: Customize the dossier list
+            tooltip: Customize the dossier list
           search:
             back_to_list: "My files"
             result_title: "Search results for \"%{search_terms}\""
@@ -576,31 +578,14 @@ en:
             open: "Search"
             panel_title: "Search"
           filter_panel:
-            open: "Filter files"
-            title: "Filter files"
-            close: "Close"
-            loading: "Loading filters…"
             groups:
-              procedure: "By procedure"
               shared_with_me: "Shared with me"
-              state: "Processing state"
-              alert: "File alert"
-            procedure_placeholder: "Select a procedure"
             alerts:
               nouveau_message: "New message"
               message_avec_attente_de_reponse: "Message pending response"
               a_corriger: "Needs correction"
               expire_bientot: "Expires soon"
-            from_created_at_date: "Created since"
-            from_depose_at_date: "Submitted since"
-            reset: "Reset"
-            apply:
-              zero: "No matching file"
-              one: "Show the file"
-              other: "Show %{count} files"
           active_filters:
-            reset: "Reset filters"
-            remove_tag: "Remove filter: %{label}"
             from_created_at_date_tag: "Created since %{date}"
             from_depose_at_date_tag: "Submitted since %{date}"
         dossiers_list:
@@ -655,36 +640,51 @@ en:
             one: "1 file"
             other: "%{count} files"
         transfer_requests:
-          title: "Transfer requests"
+          title: "Transfer offers"
           count:
             one: "1 file pending transfer"
             other: "%{count} files pending transfer"
-          received_from: "Transfer request sent by %{email}"
+          received_from: "Transfer offer sent by %{email}"
           accept: "Accept"
           refuse: "Refuse"
-          refuse_confirm: "Are you sure you want to refuse this transfer request?"
+          refuse_confirm: "Are you sure you want to refuse this transfer offer?"
           close: "Close"
         transfers:
           sender_from_support: Technical support
-          sender_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">A transfer request from technical support is pending on file Nº %{id} to %{email}</h4>'
-          revoke_html: 'Revoke this <span class="fr-sr-only">transfer</span> request'
-          sender_title: "Transfer request in progress"
-          sender_body: "You sent a transfer request for this file to %{email}."
-          sender_body_from_support: "The support team initiated a transfer request for this file to %{email}."
-          revoke: "Revoke this request"
+          sender_pending_from_support_html: '<h4 class="card-title fr-mb-1v">A transfer offer from technical support is pending on file Nº %{id} to %{email}</h4>'
+          cancel_html: 'Cancel this <span class="fr-sr-only">transfer</span> offer'
+          sender_title: "Transfer offer in progress"
+          sender_body: "You sent a transfer offer for this file to %{email}."
+          sender_body_from_support: "The support team initiated a transfer offer for this file to %{email}."
+          revoke: "Cancel this offer"
         dossier_action:
           edit_dossier: "Edit the file"
           start_other_dossier: "Start another empty file"
           clone: "Duplicate the file"
           delete_dossier: "Move file to trash"
           delete_dossier_confirm: "Do you really want to move this file to the trash?"
-          delete_dossier_with_transfer_confirm: "If you continue, you will delete this file, the information it contains and its transfer request to %{email}. Any deletion will result in the cancellation of the current procedure.\n\nConfirm deletion?"
+          delete_dossier_with_transfer_confirm: "If you continue, you will delete this file, the information it contains and its transfer offer to %{email}. Any deletion will result in the cancellation of the current procedure.\n\nConfirm deletion?"
           transfer_dossier: "Transfer the file"
           edit_draft: "Keep filling"
           restore: "Restore"
           restore_and_extend_conservation_html: 'Restore and extend conservation <span class="fr-sr-only">of file number %{id}</span> (%{duree_conservation_dossiers_dans_ds} month)'
           actions: "Actions"
           other_actions: "Other actions"
+        personnalisation:
+          title: Customize the dossier list
+          back: My dossiers
+          why_title: Why customize the list?
+          why_intro: "For each dossier, the following information is always displayed:"
+          why_field_number_html: "<strong>Dossier number</strong>"
+          why_field_applicant_html: "<strong>Applicant identity</strong>"
+          why_field_date_html: "<strong>Submission date</strong> (or creation / modification)"
+          why_explanation_html: "To make it easier to tell your dossiers apart in the list (especially if you submit several dossiers on the same procedure), you can define <strong>one or more additional pieces of information</strong> to display, taken from the data entered in the form fields."
+          fields_title: "Additional information to display in the dossier list view:"
+          cancel: Cancel
+          save_button: Save
+          saved: "The dossier list has been customized."
+          error: "The customization could not be saved."
+          empty_state: "None of your procedures has a field that can be displayed in the dossier list."
       sessions:
         new:
           sign_in: Sign in on %{application_name}
@@ -715,17 +715,6 @@ en:
       shared:
         email_can_take_a_while_html: <strong>Please note</strong> that this email can take up to 15 minutes to arrive.
         contact_us_if_any_trouble_html: 'You can contact us <a href="%{href}">through this form</a> if a problem still exists.'
-  modal:
-    publish:
-      title:
-        publish: Publish the procedure
-        reopen: Reopen the procedure
-      body:
-        publish: You are about to publish the procedure to the public.
-        reopen: You are about to reopen the procedure.
-      submit:
-        publish: Publish
-        reopen: Reopen
   activerecord:
     models:
       user:
@@ -755,19 +744,19 @@ en:
         ineligibilite_rules: "Eligibility rules"
       champs:
         value: Value
-      default_mail_attributes: &default_mail_attributes
+      default_email_attributes: &default_email_attributes
         hints:
           subject: The generated subject will be truncated if it exceeds 100 characters.
-      mails/closed_mail:
-        << : *default_mail_attributes
-      mails/initiated_mail:
-        << : *default_mail_attributes
-      mails/received_mail:
-        << : *default_mail_attributes
-      mails/refused_mail:
-        << : *default_mail_attributes
-      mails/without_continuation_mail:
-        << : *default_mail_attributes
+      emails/accepte:
+        << : *default_email_attributes
+      emails/depose:
+        << : *default_email_attributes
+      emails/passe_en_instruction:
+        << : *default_email_attributes
+      emails/refuse:
+        << : *default_email_attributes
+      emails/classe_sans_suite:
+        << : *default_email_attributes
 
     errors:
       messages:
@@ -972,8 +961,8 @@ en:
       one: '<span class="fr-sr-only">in the </span>trash'
       other: '<span class="fr-sr-only">in the </span>trash'
     dossiers_transferes:
-      one: transfer request
-      other: transfer requests
+      one: transfer offer
+      other: transfer offers
     dossiers_close_to_expiration:
       one: expiring
       other: expiring
@@ -1038,9 +1027,9 @@ en:
         title: "File n° %{numero} has been moved to trash"
         explanation_html: "You can find this file from the <a href=\"%{trash_link}\" class=\"fr-link\">trash</a> tab of your account.<br>It is not currently viewable."
         consult_trash: "View trash"
-        user_request_info_without_if: "This file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
-        user_request_info: "If this file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
-        automatic_info: "If this file was moved to trash automatically because its maximum retention period has been reached:<br>We recommend <strong>downloading</strong> it as soon as possible before it is permanently deleted."
+        user_request_info_without_if_html: "This file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
+        user_request_info_html: "If this file was moved to trash at your request:<br>You can still <strong>restore</strong> it."
+        automatic_info_html: "If this file was moved to trash automatically because its maximum retention period has been reached:<br>We recommend <strong>downloading</strong> it as soon as possible before it is permanently deleted."
       show_deleted:
         page_title: "File n° %{numero} - Permanently deleted"
         title: "File n° %{numero} has been deleted"
@@ -1142,34 +1131,34 @@ en:
     default_templates:
       greeting: Hello,
       your_file_number: "Your file n° %{id}"
-      closed_mail:
+      accepte:
         accepted: "has been accepted on %{date}"
         consultation_info: "At any time, you can view your file and any messages from the administration at this address : %{link}"
-      closed_mail_with_attestation:
+      accepte_avec_attestation:
         accepted: "has been accepted on %{date}"
         download_attestation: "You can download your certificate at the following address : %{link}"
-      initiated_mail:
+      depose:
         deposited: has been successfully submitted
         can_modify: If needed, you can still make changes to it.
-      received_mail:
+      passe_en_instruction:
         received: has been received and
         processed: taken into consideration
         examination: It will now be examined by the service.
-      re_instructed_mail:
+      repasse_en_instruction:
         reexamined: will be re-examined, the previous decision on this file is void.
         procedure_link: "You can find the file you created for the procedure %{procedure} at the following address : %{link}"
         contact_service: "For details on this decision modification, you can contact the service: %{service}."
-      refused_mail:
+      refuse:
         refused: "has been refused on %{date}"
         reason_title: "The reason for refusal is as follows :"
         reason_content: "%{motivation}"
         more_info: "To learn more about the reason for refusal, you can view your file and any messages from the administration at this address : %{link}"
-      refused_mail_with_attestation:
+      refuse_avec_attestation:
         refused: "has been refused on %{date}"
         reason_title: "The reason for refusal is as follows :"
         reason_content: "%{motivation}"
         download_attestation: "You can download your certificate at the following address : %{link}"
-      without_continuation_mail:
+      classe_sans_suite:
         closed_without_continuation: "has been closed without follow-up on %{date}"
         reason_title: "The reason is as follows :"
         reason_content: "%{motivation}"

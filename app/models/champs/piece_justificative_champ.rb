@@ -13,6 +13,8 @@ class Champs::PieceJustificativeChamp < ChampData
     content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
     if: -> { should_validate_in_current_context? && !type_de_champ.skip_content_type_pj_validation }
 
+  validates :piece_justificative_file, empty_file: true, if: -> { should_validate_in_current_context? }
+
   validate :validate_dynamic_piece_justificative_rules,
     if: -> { should_validate_in_current_context? && piece_justificative_file.attached? }
 

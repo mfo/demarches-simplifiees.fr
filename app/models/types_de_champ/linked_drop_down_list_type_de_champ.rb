@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::DropDownBaseTypeDeChamp
+  def self.category = CHOICE
+  def self.option_keys = [:drop_down_options, :drop_down_secondary_libelle, :drop_down_secondary_description]
+
+  store_accessor :options, :drop_down_secondary_libelle, :drop_down_secondary_description
+
+  def options_for_select = options_for_select_with_other
+  def any_drop_down_list? = true
+  def has_label? = false
+  def customizable? = true
+
+  before_validation :set_default_drop_down_options, if: :type_champ_changed?
+
   PRIMARY_PATTERN = /^--(.*)--$/
 
   validate :check_presence_of_primary_options
@@ -22,22 +34,22 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
     unpack_options.to_h
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     [primary_value(champ), secondary_value(champ)].compact_blank.join(' / ')
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :primary
       primary_value(champ)
     when :secondary
       secondary_value(champ)
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :primary
       primary_value(champ)
@@ -48,7 +60,7 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
     end
   end
 
-  def champ_value_for_api(champ, version: 2)
+  def typed_champ_value_for_api(champ, version: 2)
     case version
     when 1
       { primary: primary_value(champ), secondary: secondary_value(champ) }
@@ -57,11 +69,11 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
     end
   end
 
-  def champ_blank?(champ)
+  def typed_champ_blank?(champ)
     primary_value(champ).blank? && secondary_value(champ).blank?
   end
 
-  def champ_blank_or_invalid?(champ)
+  def typed_champ_blank_or_invalid?(champ)
     primary_value(champ).blank? ||
       (has_secondary_options_for_primary?(champ) && secondary_value(champ).blank?)
   end
@@ -153,6 +165,12 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBas
   def check_presence_of_primary_options
     if !PRIMARY_PATTERN.match?(drop_down_options.first)
       errors.add(libelle.presence || "La liste", "doit commencer par une entrée de menu primaire de la forme <code style='white-space: pre-wrap;'>--texte--</code>")
+    end
+  end
+
+  def set_default_drop_down_options
+    if drop_down_options.none?(PRIMARY_PATTERN)
+      self.drop_down_options = ['--Fromage--', 'bleu de sassenage', 'picodon', '--Dessert--', 'éclair', 'tarte aux pommes']
     end
   end
 end

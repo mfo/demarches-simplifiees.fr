@@ -5,8 +5,8 @@ describe 'Piece justificative drag and drop', js: true do
   let!(:user) { create(:user, password: password) }
 
   context 'drag and drop UI and accessibility' do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Document' }] }
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Document' }] }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
     let(:dossier) { user.dossiers.last }
 
     before do
@@ -58,7 +58,7 @@ describe 'Piece justificative drag and drop', js: true do
 
   context 'file size and format constraints display' do
     scenario 'shows 200 Mo limit for regular PJ' do
-      procedure_pj = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Document' }])
+      procedure_pj = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, libelle: 'Document' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_pj.path)
       click_on 'Commencer la démarche'
@@ -70,7 +70,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'shows 20 Mo limit and formats for titre identite' do
-      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
+      procedure_ti = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_ti.path)
       click_on 'Commencer la démarche'
@@ -84,7 +84,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'shows formats for RIB' do
-      procedure_rib = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }])
+      procedure_rib = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_rib.path)
       click_on 'Commencer la démarche'
@@ -96,7 +96,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'announces the RIB analysis status in the persistent live region after upload (#13104)' do
-      procedure_rib = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }])
+      procedure_rib = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, libelle: 'RIB', nature: 'rib' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_rib.path)
       click_on 'Commencer la démarche'
@@ -122,8 +122,8 @@ describe 'Piece justificative drag and drop', js: true do
   end
 
   context 'client-side validation and error handling' do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'Documents' }] }
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'Documents' }] }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
     let(:dossier) { user.dossiers.last }
 
     before do
@@ -171,6 +171,26 @@ describe 'Piece justificative drag and drop', js: true do
       end
     end
 
+    scenario 'rejects an empty file' do
+      empty_file_path = Rails.root.join('tmp', 'empty_document.pdf')
+      File.write(empty_file_path, '')
+
+      begin
+        within find('.editable-champ', text: 'Documents') do
+          attach_file('Documents', empty_file_path)
+
+          within('[data-attachment-error]') do
+            expect(page).to have_selector('.fr-message--error', text: /est\s+vide/i)
+          end
+
+          # Le fichier ne doit pas être envoyé
+          expect(page).not_to have_selector('.direct-upload')
+        end
+      ensure
+        File.delete(empty_file_path) if File.exist?(empty_file_path)
+      end
+    end
+
     scenario 'validates file size using titre_identite nature (20 Mo limit)' do
       # Créer un fichier légèrement au-dessus de 20 Mo
       large_content = 'x' * (21 * 1024 * 1024) # 21 Mo
@@ -178,7 +198,7 @@ describe 'Piece justificative drag and drop', js: true do
       File.write(large_file_path, large_content)
 
       # Créer une procédure avec titre_identite (limite 20 Mo)
-      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
+      procedure_ti = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
       visit commencer_path(path: procedure_ti.path)
       click_on 'Commencer la démarche'
       fill_individual
@@ -209,7 +229,7 @@ describe 'Piece justificative drag and drop', js: true do
       File.write(invalid_file_path, 'test content')
 
       # Créer une procédure avec titre_identite (accepte seulement JPEG/PNG)
-      procedure_ti = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
+      procedure_ti = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, libelle: 'Pièce d\'identité', nature: 'titre_identite' }])
       visit commencer_path(path: procedure_ti.path)
       click_on 'Commencer la démarche'
       fill_individual
@@ -245,8 +265,8 @@ describe 'Piece justificative drag and drop', js: true do
   end
 
   context 'multiple files management' do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, libelle: 'All types' }, { type: :piece_justificative, libelle: 'Données géo', pj_limit_formats: '1', pj_format_families: ['donnees'] }] }
-    let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, libelle: 'All types' }, { type: :piece_justificative, libelle: 'Données géo', pj_limit_formats: '1', pj_format_families: ['donnees'] }] }
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
     let(:dossier) { user.dossiers.last }
 
     before do
@@ -311,7 +331,7 @@ describe 'Piece justificative drag and drop', js: true do
 
   context 'advanced features' do
     scenario 'retries failed upload and recovers gracefully' do
-      procedure_pjs = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }])
+      procedure_pjs = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_pjs.path)
       click_on 'Commencer la démarche'
@@ -341,7 +361,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'uploads multiple files on same champ with antivirus processing' do
-      procedure_pjs = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }])
+      procedure_pjs = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1' }])
       login_as(user, scope: :user)
       visit commencer_path(path: procedure_pjs.path)
       click_on 'Commencer la démarche'
@@ -390,7 +410,7 @@ describe 'Piece justificative drag and drop', js: true do
     end
 
     scenario 'handles old procedures with disabled PJ validation' do
-      old_procedure_with_disabled_pj_validation = create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1', skip_pj_validation: true }])
+      old_procedure_with_disabled_pj_validation = create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :piece_justificative, mandatory: true, libelle: 'Pièce justificative 1', skip_pj_validation: true }])
       login_as(user, scope: :user)
       visit commencer_path(path: old_procedure_with_disabled_pj_validation.path)
       click_on 'Commencer la démarche'

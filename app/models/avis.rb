@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Avis < ApplicationRecord
-  self.ignored_columns += [:email]
-
   belongs_to :dossier, inverse_of: :avis, touch: true, optional: false
   belongs_to :experts_procedure, optional: false
   belongs_to :claimant, polymorphic: true, optional: false
@@ -17,11 +15,13 @@ class Avis < ApplicationRecord
   FILE_MAX_SIZE = 20.megabytes
   validates :piece_justificative_file,
     content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
-    size: { less_than: FILE_MAX_SIZE }
+    size: { less_than: FILE_MAX_SIZE },
+    empty_file: true
 
   validates :introduction_file,
     content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES },
-    size: { less_than: FILE_MAX_SIZE }
+    size: { less_than: FILE_MAX_SIZE },
+    empty_file: true
 
   validates :question_answer, inclusion: { in: [true, false] }, on: :update, if: -> { question_label.present? }
   validates :piece_justificative_file, size: { less_than: FILE_MAX_SIZE }

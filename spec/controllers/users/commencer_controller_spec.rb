@@ -2,8 +2,8 @@
 
 describe Users::CommencerController, type: :controller do
   let(:user) { create(:user) }
-  let(:published_procedure) { create(:procedure, :for_individual, :published, types_de_champ_public:, robots_indexable:) }
-  let(:types_de_champ_public) { [] }
+  let(:published_procedure) { create(:procedure, :for_individual, :published, public_type_de_champs:, robots_indexable:) }
+  let(:public_type_de_champs) { [] }
   let(:draft_procedure) { create(:procedure, :with_path) }
   let(:robots_indexable) { true }
 
@@ -224,8 +224,8 @@ describe Users::CommencerController, type: :controller do
     end
 
     context 'when a dossier is being prefilled by GET' do
-      let(:types_de_champ_public) { [{}] }
-      let(:type_de_champ_text) { published_procedure.published_revision.types_de_champ.first }
+      let(:public_type_de_champs) { [{}] }
+      let(:type_de_champ_text) { published_procedure.published_revision.type_de_champs.first }
       let(:path) { published_procedure.path }
       let(:user) { create(:user) }
 
@@ -271,7 +271,7 @@ describe Users::CommencerController, type: :controller do
         subject { get :commencer, params: { path: path, prefill_token: "token", "champ_#{type_de_champ_text.to_typed_id}" => "blabla" } }
 
         context "when the associated dossier exists" do
-          let(:procedure) { create(:procedure, types_de_champ_public: [{}]) }
+          let(:procedure) { create(:procedure, public_type_de_champs: [{}]) }
           let!(:dossier) { create(:dossier, :prefilled, procedure:, prefill_token: "token") }
 
           it "does not create a new dossier" do
@@ -494,6 +494,59 @@ describe Users::CommencerController, type: :controller do
         expect(response).to have_http_status(:success)
       end
     end
+
+    context 'with the :dossier_vide_weasyprint flag enabled' do
+      render_views
+      let(:procedure) { create(:procedure, :published, :with_service, :with_path, libelle: 'Ma démarche') }
+
+      before do
+        Flipper.enable(:dossier_vide_weasyprint, procedure)
+        allow(WeasyprintService).to receive(:generate_pdf).and_return('%PDF-fake')
+        get :dossier_vide_pdf, params: { path: procedure.path }
+      end
+
+      it 'generates the PDF via WeasyPrint' do
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(anything, hash_including(procedure_id: procedure.id))
+        expect(response).to have_http_status(:success)
+        expect(response.body).to eq('%PDF-fake')
+      end
+
+      it 'titles the document with the procedure libelle (PDF/UA metadata)' do
+        expect(WeasyprintService).to have_received(:generate_pdf)
+          .with(a_string_matching(%r{<title>Ma démarche</title>}), anything)
+      end
+    end
+
+    context 'with the flag enabled but WeasyPrint failing' do
+      let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+
+      before do
+        Flipper.enable(:dossier_vide_weasyprint, procedure)
+        allow(WeasyprintService).to receive(:generate_pdf).and_raise(WeasyprintService::Error)
+        get :dossier_vide_pdf, params: { path: procedure.path }
+      end
+
+      it 'falls back to the Prawn rendering without failing' do
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'with the flag enabled but the PDF rendering raising unexpectedly' do
+      let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+
+      before do
+        Flipper.enable(:dossier_vide_weasyprint, procedure)
+        allow(Sentry).to receive(:capture_exception)
+        allow(WeasyprintService).to receive(:generate_pdf).and_raise(StandardError, 'boom')
+        get :dossier_vide_pdf, params: { path: procedure.path }
+      end
+
+      it 'falls back to the Prawn rendering and reports to Sentry' do
+        expect(response).to have_http_status(:success)
+        expect(Sentry).to have_received(:capture_exception)
+      end
+    end
   end
 
   describe '#dossier_vide_test_pdf' do
@@ -514,6 +567,100 @@ describe Users::CommencerController, type: :controller do
       it 'works' do
         expect(response).to have_http_status(:success)
       end
+    end
+  end
+
+  # Kept out of '#dossier_vide_pdf' on purpose: that group downloads the PDF in a
+  # `before` hook, which would count as an extra WeasyPrint call here.
+  describe '#dossier_vide_pdf caching' do
+    render_views
+
+    let(:procedure) { create(:procedure, :published, :with_service, :with_path) }
+
+    before do
+      Flipper.enable(:dossier_vide_weasyprint, procedure)
+      allow(WeasyprintService).to receive(:generate_pdf).and_return('%PDF-fake')
+    end
+
+    def download = get(:dossier_vide_pdf, params: { path: procedure.path })
+
+    it 'generates and stores the PDF on the first download' do
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).once
+      expect(procedure.reload.dossier_vide_pdf).to be_attached
+      expect(response.body).to eq('%PDF-fake')
+    end
+
+    it 'serves the stored PDF on the next download, without rendering it again' do
+      download
+      allow(Dossiers::DossierVidePdfComponent).to receive(:new).and_call_original
+
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).once
+      expect(Dossiers::DossierVidePdfComponent).not_to have_received(:new)
+      expect(response.body).to eq('%PDF-fake')
+    end
+
+    it 'regenerates once the cached PDF has expired' do
+      download
+      procedure.reload.dossier_vide_pdf.blob.update_column(:created_at, 8.days.ago)
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'regenerates when the presentation changes' do
+      download
+      procedure.update!(description: 'Une nouvelle présentation')
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'regenerates when the service changes' do
+      download
+      procedure.service.update!(adresse: '2 rue de la Paix, 75002 Paris')
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'regenerates when a new revision is published' do
+      download
+      procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'Un champ de plus')
+      procedure.publish_revision!(procedure.administrateurs.first)
+      download
+
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+    end
+
+    it 'does not cache anything when WeasyPrint fails' do
+      allow(WeasyprintService).to receive(:generate_pdf).and_raise(WeasyprintService::Error)
+
+      download
+
+      expect(response).to have_http_status(:success)
+      expect(procedure.reload.dossier_vide_pdf).not_to be_attached
+    end
+  end
+
+  describe '#dossier_vide_pdf_test caching' do
+    render_views
+
+    let(:procedure) { create(:procedure, :with_service, :with_path) }
+
+    before do
+      Flipper.enable(:dossier_vide_weasyprint, procedure)
+      allow(WeasyprintService).to receive(:generate_pdf).and_return('%PDF-fake')
+      get :dossier_vide_pdf_test, params: { path: procedure.path }
+      get :dossier_vide_pdf_test, params: { path: procedure.path }
+    end
+
+    it 'never caches the draft PDF: it is content being edited' do
+      expect(WeasyprintService).to have_received(:generate_pdf).twice
+      expect(procedure.reload.dossier_vide_pdf).not_to be_attached
     end
   end
 

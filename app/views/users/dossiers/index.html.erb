@@ -16,7 +16,7 @@
             <%= t('views.users.dossiers.index.search.result_title', search_terms: params[:search]) %>
           </h1>
         <% else %>
-          <%= render partial: 'index_header', locals: { corbeille_count: @corbeille_count } %>
+          <%= render partial: 'index_header', locals: { corbeille_count: @corbeille_count, show_personnalisation_link: @show_personnalisation_link } %>
           <% if @pending_transfers_count.positive? %>
             <div class="fr-my-3w">
               <%= render Dossiers::PendingTransfersBannerComponent.new(count: @pending_transfers_count) %>

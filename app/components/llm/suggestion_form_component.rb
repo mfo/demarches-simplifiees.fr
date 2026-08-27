@@ -20,7 +20,7 @@ class LLM::SuggestionFormComponent < ApplicationComponent
   end
 
   def prtdcs
-    procedure_revision.types_de_champ.index_by(&:stable_id)
+    procedure_revision.type_de_champs.index_by(&:stable_id)
   end
 
   def restart_link

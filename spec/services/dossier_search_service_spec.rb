@@ -19,7 +19,7 @@ describe DossierSearchService do
     context 'with a dossier not in brouillon' do
       let(:user) { create(:user, email: 'nicolas@email.com') }
       let(:etablissement) { create(:etablissement, entreprise_raison_sociale: 'Direction Interministerielle Du Numérique', siret: '13002526500013') }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }], types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }], private_type_de_champs: [{ type: :text }]) }
       let(:dossier) do
         create(:dossier, procedure:, state: :en_construction, user:, etablissement:).tap do |dossier|
           dossier.root_champs_public.first.update!(value: 'Hélène mange des pommes')
@@ -37,6 +37,9 @@ describe DossierSearchService do
         expect(searching('annotations')).to eq([])
         # but can be searched with the with_annotations option
         expect(searching('annotations', with_annotations: true)).to eq([dossier.id])
+        # terms are ANDed across the public and private parts, which only works
+        # if both are indexed as a single document
+        expect(searching('pommes annotations', with_annotations: true)).to eq([dossier.id])
 
         # by email
         expect(searching('nicolas@email.com')).to eq([dossier.id])
@@ -96,6 +99,42 @@ describe DossierSearchService do
 
       it { expect(searching('martin').size).to eq(1) }
     end
+
+    # The stored columns replace the to_tsvector(...) expression indexes; the two
+    # paths coexist behind the flag until the backfill is done, so they have to
+    # return the same thing.
+    describe 'with the stored tsvector columns' do
+      let(:user) { create(:user, email: 'nicolas@email.com') }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }], private_type_de_champs: [{ type: :text }]) }
+      let(:dossier) do
+        create(:dossier, procedure:, state: :en_construction, user:).tap do |dossier|
+          dossier.root_champs_public.first.update!(value: 'Hélène mange des pommes')
+          dossier.root_champs_private.first.update!(value: 'annotations')
+        end
+      end
+
+      before { Flipper.enable(:search_terms_tsvector) }
+      after { Flipper.disable(:search_terms_tsvector) }
+
+      it do
+        expect(searching('')).to eq([])
+
+        expect(searching('nicolas')).to eq([dossier.id])
+        expect(searching('helene')).to eq([dossier.id])
+        expect(searching('la pomme')).to eq([dossier.id])
+
+        expect(searching('annotations')).to eq([])
+        expect(searching('annotations', with_annotations: true)).to eq([dossier.id])
+        expect(searching('pommes annotations', with_annotations: true)).to eq([dossier.id])
+      end
+
+      it 'ignores dossiers whose tsvector has not been backfilled yet' do
+        dossier
+        Dossier.where(id: dossier.id).update_all(search_terms_tsvector: nil, all_search_terms_tsvector: nil)
+
+        expect(searching('nicolas')).to eq([])
+      end
+    end
   end
 
   describe '#matching_dossiers_for_user' do
@@ -107,7 +146,7 @@ describe DossierSearchService do
     def searching(terms, user) = described_class.matching_dossiers_for_user(terms, user)
 
     context 'when the dossier is brouillon' do
-      let(:procedure) { create(:procedure, types_de_champ_private: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, private_type_de_champs: [{ type: :text }]) }
       let(:dossier) do
         create(:dossier, procedure:, state: :brouillon, user:).tap do |dossier|
           dossier.root_champs_private.first.update!(value: 'annotations')
@@ -135,7 +174,7 @@ describe DossierSearchService do
     end
 
     context 'when the full-text result is merged into a query that joins dossiers twice' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
       let!(:dossier) do
         create(:dossier, procedure:, state: :en_construction, user:).tap do |dossier|
           dossier.root_champs_public.first.update!(value: 'pommes')
@@ -149,6 +188,22 @@ describe DossierSearchService do
 
         expect { self_joined.to_a }.not_to raise_error
       end
+    end
+  end
+
+  describe '.to_tsquery' do
+    # `:*` makes each term a prefix match, `&` joins them.
+    it 'builds a prefix matching query out of the terms' do
+      expect(described_class.to_tsquery('Direction nicolas')).to eq('Direction:* & nicolas:*')
+    end
+
+    # `& | ! ( ) : <` are tsquery operators and must go, or to_tsquery raises.
+    it 'drops the characters postgres would parse instead of matching' do
+      expect(described_class.to_tsquery('Dupont & Fils (13)')).to eq('Dupont:* & Fils:* & 13:*')
+    end
+
+    it 'drops quotes too, so an injection payload lands as plain terms' do
+      expect(described_class.to_tsquery("Dupont') OR 1=1--")).to eq('Dupont:* & OR:* & 1=1--:*')
     end
   end
 end

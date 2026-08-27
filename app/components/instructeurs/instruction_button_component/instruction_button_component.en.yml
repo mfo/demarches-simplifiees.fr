@@ -1,4 +1,3 @@
-fr:
-  instruct: Instruct file
+en:
   labels:
     instruction: Instruct file

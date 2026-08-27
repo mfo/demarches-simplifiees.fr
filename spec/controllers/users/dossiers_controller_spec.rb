@@ -152,7 +152,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe 'identite with FranceConnect' do
-    let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
+    let(:procedure) { procedures.individual }
     let(:dossier) { create(:dossier, user:, procedure:) }
 
     before { sign_in(user) }
@@ -191,8 +191,8 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe 'identite turbo_stream persists the persona choice' do
-    let(:procedure) { create(:procedure, :for_individual, for_tiers_enabled: true) }
-    let(:dossier) { create(:dossier, user:, procedure:) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.brouillon }
     let(:now) { Time.zone.parse('01/01/2100') }
 
     before { sign_in(user) }
@@ -236,8 +236,8 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe 'update_identite' do
-    let(:procedure) { create(:procedure, :for_individual) }
-    let(:dossier) { create(:dossier, user: user, procedure: procedure) }
+    let(:procedure) { procedures.individual }
+    let(:dossier) { dossiers.brouillon }
 
     subject { post :update_identite, params: { id: dossier.id, dossier: dossier_params } }
 
@@ -289,7 +289,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the identite cannot be updated by the user' do
-      let(:dossier) { create(:dossier, :with_individual, :en_instruction, user: user, procedure: procedure) }
+      let(:dossier) { dossiers.en_instruction }
       let(:dossier_params) { { individual_attributes: { gender: 'M', nom: 'Mouse', prenom: 'Mickey' } } }
       before { subject }
 
@@ -465,7 +465,7 @@ describe Users::DossiersController, type: :controller do
 
   describe '#siret' do
     before { sign_in(user) }
-    let!(:dossier) { create(:dossier, user: user) }
+    let!(:dossier) { create(:dossier, user: user, procedure: procedures.entreprise) }
 
     subject { get :siret, params: { id: dossier.id } }
 
@@ -473,7 +473,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#update_siret' do
-    let(:dossier) { create(:dossier, user: user) }
+    let(:dossier) { create(:dossier, user: user, procedure: procedures.entreprise) }
     let(:siret) { params_siret.delete(' ') }
     let(:siren) { siret[0..8] }
     let(:api_etablissement_status) { 200 }
@@ -483,6 +483,8 @@ describe Users::DossiersController, type: :controller do
 
     before do
       sign_in(user)
+      # the procedure factory sets a dummy token; the seeded procedure has none
+      procedures.entreprise.update!(api_entreprise_token: JWT.encode({ exp: 2.months.from_now.to_i }, nil, 'none'))
       stub_request(:get, /https:\/\/entreprise.api.gouv.fr\/v4\/insee\/sirene\/etablissements\/#{siret}/)
         .to_return(status: api_etablissement_status, body: api_etablissement_body)
       allow_any_instance_of(APIEntrepriseToken).to receive(:roles)
@@ -589,7 +591,7 @@ describe Users::DossiersController, type: :controller do
 
   describe '#brouillon' do
     before { sign_in(user) }
-    let!(:dossier) { create(:dossier, user: user, autorisation_donnees: true) }
+    let!(:dossier) { create(:dossier, user: user, autorisation_donnees: true, procedure: procedures.entreprise) }
 
     subject { get :brouillon, params: { id: dossier.id } }
 
@@ -612,14 +614,14 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier is en_construction' do
-      let!(:dossier) { create(:dossier, :en_construction, user: user, autorisation_donnees: true) }
+      let!(:dossier) { dossiers.en_construction }
       it { is_expected.to redirect_to(modifier_dossier_path(dossier)) }
     end
   end
 
   describe '#edit' do
     before { sign_in(user) }
-    let!(:dossier) { create(:dossier, user: user) }
+    let!(:dossier) { create(:dossier, user: user, procedure: procedures.entreprise) }
 
     it 'returns the edit page' do
       get :brouillon, params: { id: dossier.id }
@@ -629,8 +631,8 @@ describe Users::DossiersController, type: :controller do
 
   describe '#submit_brouillon' do
     before { sign_in(user) }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :text, mandatory: false }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :text, mandatory: false }] }
     let!(:dossier) { create(:dossier, user:, procedure:) }
     let(:first_champ) { dossier.root_champs_public.first }
     let(:value) { 'beautiful value' }
@@ -695,7 +697,7 @@ describe Users::DossiersController, type: :controller do
       render_views
 
       let(:value) { nil }
-      let(:types_de_champ_public) { [{ type: :text, mandatory: true, libelle: 'l' }] }
+      let(:public_type_de_champs) { [{ type: :text, mandatory: true, libelle: 'l' }] }
       before { subject }
 
       it do
@@ -793,8 +795,8 @@ describe Users::DossiersController, type: :controller do
     let(:owner) { create(:user) }
     let(:procedure_traits) { [] }
     let(:dossier_traits) { [] }
-    let(:procedure) { create(:procedure, :for_individual, :published, *procedure_traits, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{ type: :text, mandatory: false }] }
+    let(:procedure) { create(:procedure, :for_individual, :published, *procedure_traits, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{ type: :text, mandatory: false }] }
     let(:dossier) { create(:dossier, :en_construction, :with_individual, *dossier_traits, procedure:, user: owner).tap { _1.with_update_stream(_1.user) } }
     let(:now) { Time.zone.parse('01/01/2100') }
     let(:params) { { id: dossier.id } }
@@ -861,7 +863,7 @@ describe Users::DossiersController, type: :controller do
 
       context 'when a mandatory champ is missing' do
         render_views
-        let(:types_de_champ_public) { [{}, { type: :text, mandatory: true, libelle: 'l' }] }
+        let(:public_type_de_champs) { [{}, { type: :text, mandatory: true, libelle: 'l' }] }
         let(:empty_champ) { champs.second }
 
         before { subject }
@@ -875,7 +877,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when dossier repetition had been removed in newer version' do
-        let(:types_de_champ_public) { [{}, { type: :repetition, libelle: 'repetition', children: [{ type: :text, libelle: 'child' }] }] }
+        let(:public_type_de_champs) { [{}, { type: :repetition, libelle: 'repetition', children: [{ type: :text, libelle: 'child' }] }] }
         let(:dossier_traits) { [:with_populated_champs] }
         let(:champ_repetition) { champs.find(&:repetition?) }
 
@@ -986,8 +988,8 @@ describe Users::DossiersController, type: :controller do
   describe '#update brouillon' do
     before { sign_in(user) }
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
-    let(:types_de_champ_public) { [{}, { type: :piece_justificative, mandatory: false }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+    let(:public_type_de_champs) { [{}, { type: :piece_justificative, mandatory: false }] }
     let(:dossier) { create(:dossier, user:, procedure:, brouillon_close_to_expiration_notice_sent_at: 10.days.ago) }
     let(:first_champ) { dossier.root_champs_public.first }
     let(:piece_justificative_champ) { dossier.root_champs_public.last }
@@ -1015,7 +1017,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is a drop_down_list with referentiel' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :drop_down_list }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :drop_down_list }]) }
 
       let(:referentiel) { create(:csv_referentiel, :with_items) }
 
@@ -1035,7 +1037,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'with a valid value sent as string' do
-        before { procedure.active_revision.root_types_de_champ_public.first.update!(drop_down_mode: 'advanced', referentiel:) }
+        before { procedure.active_revision.public_root_type_de_champs.first.update!(drop_down_mode: 'advanced', referentiel:) }
 
         it 'updates the value' do
           subject
@@ -1046,7 +1048,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is a multiple_drop_down_list with referentiel' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :multiple_drop_down_list }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :multiple_drop_down_list }]) }
 
       let(:referentiel) { create(:csv_referentiel, :with_items) }
 
@@ -1067,7 +1069,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'with a valid value sent as string' do
-        before { procedure.active_revision.root_types_de_champ_public.first.update!(drop_down_mode: 'advanced', referentiel:) }
+        before { procedure.active_revision.public_root_type_de_champs.first.update!(drop_down_mode: 'advanced', referentiel:) }
 
         it 'updates the value' do
           subject
@@ -1079,7 +1081,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is an address' do
-      let(:types_de_champ_public) { [{ type: :address }] }
+      let(:public_type_de_champs) { [{ type: :address }] }
       let(:address_champ) { dossier.champ_data.first }
       let(:initial_value_json) do
         {
@@ -1196,7 +1198,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'when the champ is a siret champ' do
-        let(:types_de_champ_public) { [{ type: :siret }] }
+        let(:public_type_de_champs) { [{ type: :siret }] }
         let(:champs_public_attributes) do
           {
             first_champ.public_id => { external_id: },
@@ -1233,7 +1235,7 @@ describe Users::DossiersController, type: :controller do
         end
       end
       context 'when the champ is an external champ in fetched state' do
-        let(:types_de_champ_public) { [{ type: :rnf }] }
+        let(:public_type_de_champs) { [{ type: :rnf }] }
         let(:champs_public_attributes) do
           {
             first_champ.public_id => { external_id: '075-FDD-00003-01' },
@@ -1267,7 +1269,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'decimal number champ separator' do
-      let (:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :decimal_number }]) }
+      let (:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :decimal_number }]) }
       let (:submit_payload) do
         {
           id: dossier.id,
@@ -1300,7 +1302,7 @@ describe Users::DossiersController, type: :controller do
       include Logic
       render_views
 
-      let(:types_de_champ_public) { [{ type: :text }, { type: :integer_number }] }
+      let(:public_type_de_champs) { [{ type: :text }, { type: :integer_number }] }
       let(:text_champ) { dossier.root_champs_public.first }
       let(:number_champ) { dossier.root_champs_public.last }
       let(:validate) { "true" }
@@ -1366,7 +1368,7 @@ describe Users::DossiersController, type: :controller do
       let(:datasource) { '$.data' }
       let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, datasource:) }
       let(:referentiel_stable_id) { 1 }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -1428,7 +1430,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is quotient familial' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :quotient_familial }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :quotient_familial }]) }
 
       context "when the champ has already been fetched, and user wants to refresh it" do
         let(:submit_payload) do
@@ -1504,8 +1506,8 @@ describe Users::DossiersController, type: :controller do
   describe '#update en_construction (stream)' do
     before { sign_in(user) }
 
-    let(:types_de_champ_public) { [{}, { type: :piece_justificative }] }
-    let(:procedure) { create(:procedure, :published, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{}, { type: :piece_justificative }] }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
     let!(:dossier) { create(:dossier, :en_construction, user:, procedure:) }
     let(:first_champ) { dossier.root_champs_public.first }
     let(:first_champ_user_buffer) { dossier.with_update_stream(dossier.user) { dossier.root_champs_public.first } }
@@ -1545,7 +1547,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when champ is pre_rempli (read-only guard)' do
-      let(:types_de_champ_public) { [{ type: :pre_rempli }] }
+      let(:public_type_de_champs) { [{ type: :pre_rempli }] }
       let(:pre_rempli_champ) { dossier.root_champs_public.first }
 
       before { pre_rempli_champ.update_column(:value, 'original') }
@@ -1648,7 +1650,7 @@ describe Users::DossiersController, type: :controller do
       end
 
       context 'iban error' do
-        let(:types_de_champ_public) { [{ type: :iban }] }
+        let(:public_type_de_champs) { [{ type: :iban }] }
         let(:value) { 'abc' }
 
         before { subject }
@@ -1676,7 +1678,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is a phone number' do
-      let(:types_de_champ_public) { [{ type: :phone }] }
+      let(:public_type_de_champs) { [{ type: :phone }] }
       let(:now) { Time.zone.parse('01/01/2100') }
 
       let(:submit_payload) do
@@ -1716,7 +1718,7 @@ describe Users::DossiersController, type: :controller do
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
       let(:referentiel_stable_id) { 1 }
       let(:external_id) { "PG46YY6YWCX8" }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -1748,7 +1750,7 @@ describe Users::DossiersController, type: :controller do
       let(:datasource) { '$.data' }
       let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, datasource:) }
       let(:referentiel_stable_id) { 1 }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -1760,7 +1762,7 @@ describe Users::DossiersController, type: :controller do
           },
         ]
       end
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           {
             type: :text,
@@ -1768,7 +1770,7 @@ describe Users::DossiersController, type: :controller do
           },
         ]
       end
-      let(:procedure) { create(:procedure, :published, types_de_champ_public:, types_de_champ_private:) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:, private_type_de_champs:) }
       let(:suggestion_value) { 'osf' }
       let(:suggestion_data) { { finess: "123" } }
       let(:message_encryptor_service) { MessageEncryptorService.new }
@@ -1807,7 +1809,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the champ is quotient familial' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :quotient_familial }]) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :quotient_familial }]) }
 
       context "when the champ has already been fetched, and user wants to refresh it" do
         let(:submit_payload) do
@@ -1908,6 +1910,26 @@ describe Users::DossiersController, type: :controller do
       expect(assigns(:pending_transfers_count)).to be_a(Integer)
     end
 
+    context 'user buffer changes prefilter' do
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: [{}]) }
+      let!(:dossier_with_changes) { create(:dossier, :en_construction, user:, procedure:) }
+      let!(:dossier_without_changes) { create(:dossier, :en_construction, user:, procedure:) }
+      let!(:dossier_brouillon) { create(:dossier, user:, procedure:) }
+
+      before do
+        dossier_with_changes.with_update_stream(user) do
+          dossier_with_changes
+            .champ_for_update(dossier_with_changes.revision.public_root_type_de_champs.first, updated_by: user.email)
+            .update!(value: 'nouvelle valeur')
+        end
+      end
+
+      it 'flags only en_construction dossiers with unsubmitted user changes' do
+        get :index
+        expect(assigns(:dossier_ids_with_user_buffer_changes)).to eq(Set[dossier_with_changes.id])
+      end
+    end
+
     context 'filter panel-only request' do
       before { create_list(:dossier, 6, :en_construction, user: user) }
 
@@ -1936,6 +1958,18 @@ describe Users::DossiersController, type: :controller do
         create_list(:dossier, 6, :en_construction, user: user)
         get :index
         expect(assigns(:show_simple_list)).to be(false)
+      end
+    end
+
+    context 'personnalisation link' do
+      before { Flipper.enable(:dossiers_list_personnalisation, user) }
+
+      it 'shows the link for a user above the threshold through invitations only' do
+        create_list(:dossier, 6, :en_construction).each do |dossier|
+          create(:invite, dossier:, user:)
+        end
+        get :index
+        expect(assigns(:show_personnalisation_link)).to be(true)
       end
     end
 
@@ -2007,12 +2041,12 @@ describe Users::DossiersController, type: :controller do
       subject! { get(:show, params: { id: dossier.id }) }
 
       context 'when the dossier is a brouillon' do
-        let(:dossier) { create(:dossier, user: user) }
+        let(:dossier) { dossiers.brouillon }
         it { is_expected.to redirect_to(brouillon_dossier_path(dossier)) }
       end
 
       context 'when the dossier has been submitted' do
-        let(:dossier) { create(:dossier, :en_construction, user: user) }
+        let(:dossier) { dossiers.en_construction }
         it do
           expect(assigns(:dossier)).to eq(dossier)
           is_expected.to render_template(:show)
@@ -2035,7 +2069,7 @@ describe Users::DossiersController, type: :controller do
       subject! { get(:show, params: { id: dossier.id, format: :pdf }) }
 
       context 'when the dossier is a brouillon' do
-        let(:dossier) { create(:dossier, user: user) }
+        let(:dossier) { dossiers.brouillon }
         it { is_expected.to redirect_to(brouillon_dossier_path(dossier)) }
       end
 
@@ -2049,7 +2083,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#formulaire' do
-    let(:dossier) { create(:dossier, :en_construction, user: user) }
+    let(:dossier) { dossiers.en_construction }
 
     before do
       sign_in(user)
@@ -2066,7 +2100,8 @@ describe Users::DossiersController, type: :controller do
   describe "#create_commentaire" do
     let(:instructeur_with_instant_message) { create(:instructeur) }
     let(:instructeur_without_instant_message) { create(:instructeur) }
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.individual }
+    # fresh dossier (not the seeded one): saved_commentaire below picks the first commentaire
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure, user: user) }
     let(:saved_commentaire) { dossier.commentaires.first }
     let(:body) { "avant\napres" }
@@ -2239,7 +2274,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier has been submitted' do
-      let(:dossier) { create(:dossier, :en_construction, :with_individual, user: user) }
+      let(:dossier) { dossiers.en_construction }
 
       before do
         allow(WeasyprintService).to receive(:generate_pdf).and_return("%PDF-1.4 fake")
@@ -2264,7 +2299,7 @@ describe Users::DossiersController, type: :controller do
     end
 
     context 'when the dossier is still a draft' do
-      let(:dossier) { create(:dossier, :brouillon, user: user) }
+      let(:dossier) { dossiers.brouillon }
 
       it 'raises an error' do
         expect { subject }.to raise_error(ActionController::BadRequest)
@@ -2323,7 +2358,7 @@ describe Users::DossiersController, type: :controller do
       it { is_expected.to redirect_to(dossiers_path) }
 
       context "and the instruction has started" do
-        let(:dossier) { create(:dossier, :en_instruction, user: user, autorisation_donnees: true) }
+        let(:dossier) { dossiers.en_instruction }
 
         it_behaves_like "the dossier can not be deleted"
         it { is_expected.to redirect_to(dossiers_path) }
@@ -2332,7 +2367,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when dossier is not owned by signed in user' do
       let(:user2) { create(:user) }
-      let(:dossier) { create(:dossier, user: user2, autorisation_donnees: true) }
+      let(:dossier) { create(:dossier, user: user2, autorisation_donnees: true, procedure: procedures.individual) }
 
       it_behaves_like "the dossier can not be deleted"
       it { is_expected.to redirect_to(root_path) }
@@ -2356,27 +2391,13 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#set_accuse_lecture_agreement_at' do
-    let(:dossier) { create(:dossier, :en_instruction, :with_individual, user: user) }
+    let(:dossier) { dossiers.en_instruction }
 
     before { sign_in(user) }
 
-    context 'on a state-changing verb (POST)' do
-      it 'updates accuse_lecture_agreement_at' do
-        expect { post :set_accuse_lecture_agreement_at, params: { id: dossier.id } }
-          .to change { dossier.reload.accuse_lecture_agreement_at }.from(nil)
-      end
-    end
-
-    context 'on a safe HTTP verb (GET)' do
-      # Pending: the legacy GET route is intentionally kept during the deploy
-      # transition so in-flight pages rendering the old form keep working.
-      # Once the GET route is removed in the follow-up, un-pend this example
-      # — it should pass without further changes.
-      it 'does not update accuse_lecture_agreement_at via a GET request' do
-        pending 'GET route is kept during deploy transition; remove route then un-pend'
-        expect { get :set_accuse_lecture_agreement_at, params: { id: dossier.id } }
-          .not_to change { dossier.reload.accuse_lecture_agreement_at }
-      end
+    it 'updates accuse_lecture_agreement_at' do
+      expect { post :set_accuse_lecture_agreement_at, params: { id: dossier.id } }
+        .to change { dossier.reload.accuse_lecture_agreement_at }.from(nil)
     end
   end
 
@@ -2385,7 +2406,7 @@ describe Users::DossiersController, type: :controller do
     subject { patch :restore, params: { id: dossier.id } }
 
     context 'when the user want to restore his dossier' do
-      let!(:dossier) { create(:dossier, :accepte, :with_individual, en_construction_at: Time.zone.yesterday.beginning_of_day.utc, hidden_by_user_at: Time.zone.yesterday.beginning_of_day.utc, user: user, autorisation_donnees: true) }
+      let!(:dossier) { create(:dossier, :accepte, :with_individual, en_construction_at: Time.zone.yesterday.beginning_of_day.utc, hidden_by_user_at: Time.zone.yesterday.beginning_of_day.utc, user: user, autorisation_donnees: true, procedure: procedures.individual) }
 
       before { subject }
 
@@ -2396,7 +2417,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#new' do
-    let(:procedure) { create(:procedure, :published) }
+    let(:procedure) { procedures.entreprise }
     let(:procedure_id) { procedure.id }
     let(:params) { { procedure_id: procedure_id } }
 
@@ -2422,7 +2443,7 @@ describe Users::DossiersController, type: :controller do
           end
 
           context 'when procedure is for particulier' do
-            let(:procedure) { create(:procedure, :published, :for_individual) }
+            let(:procedure) { procedures.individual }
             it { is_expected.to redirect_to identite_dossier_path(id: Dossier.last) }
           end
 
@@ -2486,7 +2507,7 @@ describe Users::DossiersController, type: :controller do
     subject { controller.dossier_for_help }
 
     context 'when the id matches a dossier owned by the current user' do
-      let(:dossier) { create(:dossier, user:) }
+      let(:dossier) { dossiers.brouillon }
       let(:dossier_id) { dossier.id }
 
       it { is_expected.to eq dossier }
@@ -2520,7 +2541,7 @@ describe Users::DossiersController, type: :controller do
   end
 
   describe '#extend_conservation' do
-    let(:procedure) { create(:procedure, duree_conservation_dossiers_dans_ds: 3) }
+    let(:procedure) { procedures.individual }
     let(:dossier) { create(:dossier, procedure:, user:) }
     subject { post :extend_conservation, params: { dossier_id: dossier.id } }
     context 'when user logged in' do
@@ -2585,8 +2606,8 @@ describe Users::DossiersController, type: :controller do
 
   describe '#champ' do
     let(:stable_id) { generate(:stable_id) }
-    let(:types_de_champ_public) { [{ type: :text, stable_id: }] }
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :text, stable_id: }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
     let(:dossier) { create(:dossier, :en_construction, :with_populated_champs, procedure:, user:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -2617,7 +2638,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'live announcement of a RIB status (polling anti-spam)' do
       render_views
-      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib', stable_id: }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'rib', stable_id: }] }
       let(:champ) { dossier.root_champs_public.first }
       let(:region_id) { "#{champ.focusable_input_id}-aria-live" }
 
@@ -2646,7 +2667,7 @@ describe Users::DossiersController, type: :controller do
 
     context 'when champ is pollable' do
       let(:referentiel) { create(:api_referentiel, :exact_match) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel:, stable_id: }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel:, stable_id: }] }
 
       context 'when the requested external_id had not been fetched' do
         before { dossier.champ_data.first.update_columns(external_id: 'kthxbye') }
@@ -2668,7 +2689,7 @@ describe Users::DossiersController, type: :controller do
           render_views
           let(:referentiel) { create(:api_referentiel, :exact_match) }
           let(:referentiel_stable_id) { 1 }
-          let(:types_de_champ_public) do
+          let(:public_type_de_champs) do
             [
               {
                 type: :referentiel,
@@ -2721,7 +2742,7 @@ describe Users::DossiersController, type: :controller do
         let(:checkbox_stable_id) { 20 }
         let(:explication_stable_id) { 30 }
         let(:condition) { ds_eq(champ_value(checkbox_stable_id), constant(true)) }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             { type: :referentiel, referentiel:, stable_id: async_stable_id },
             { type: :checkbox, stable_id: checkbox_stable_id },
@@ -2888,7 +2909,7 @@ describe Users::DossiersController, type: :controller do
   describe '#revert_prefill' do
     before { sign_in(user) }
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{}]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{}]) }
     let(:dossier) { create(:dossier, user:, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 
@@ -2941,6 +2962,376 @@ describe Users::DossiersController, type: :controller do
       it 'redirects' do
         subject
         expect(response).to redirect_to(dossier_path(dossier))
+      end
+    end
+  end
+
+  describe 'GET #personnalisation' do
+    let(:user) { create(:user) }
+    before { sign_in(user) }
+
+    context 'when feature disabled' do
+      it 'redirects to dossiers' do
+        get :personnalisation
+        expect(response).to redirect_to(dossiers_path)
+      end
+    end
+
+    context 'when feature enabled' do
+      before { Flipper.enable(:dossiers_list_personnalisation, user) }
+
+      context 'with 5 or fewer dossiers' do
+        before { create_list(:dossier, 5, user:) }
+
+        it 'redirects to dossiers' do
+          get :personnalisation
+          expect(response).to redirect_to(dossiers_path)
+        end
+      end
+
+      context 'with more than 5 dossiers' do
+        before { create_list(:dossier, 6, user:) }
+
+        it 'renders the personnalisation screen' do
+          get :personnalisation
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'with dossiers received by invitation only' do
+        let(:invited_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }]) }
+
+        before do
+          create_list(:dossier, 6, :en_construction, procedure: invited_procedure).each do |dossier|
+            create(:invite, dossier:, user:)
+          end
+        end
+
+        it 'renders the screen and exposes procedures seen through invitation' do
+          get :personnalisation
+          expect(response).to have_http_status(:ok)
+          expect(assigns(:personnalisable_procedures)).to eq([invited_procedure])
+        end
+      end
+
+      context 'with a procedure without personnalisable champ' do
+        let(:eligible_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }]) }
+        let(:non_eligible_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :textarea, libelle: 'Description' }]) }
+
+        before do
+          create_list(:dossier, 3, user:, procedure: eligible_procedure)
+          create_list(:dossier, 3, user:, procedure: non_eligible_procedure)
+        end
+
+        it 'only exposes procedures with personnalisable champs' do
+          get :personnalisation
+          expect(assigns(:personnalisable_procedures)).to eq([eligible_procedure])
+        end
+      end
+
+      context 'when no procedure has personnalisable champs' do
+        render_views
+
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :textarea, libelle: 'Description' }]) }
+
+        before { create_list(:dossier, 6, user:, procedure:) }
+
+        it 'renders an empty state instead of the form' do
+          get :personnalisation
+          expect(response.body).to include(I18n.t('views.users.dossiers.personnalisation.empty_state'))
+          expect(response.body).not_to include('personnalisation-form')
+        end
+      end
+
+      context 'query count does not grow with number of procedures' do
+        render_views
+
+        let(:procedure1) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ A' }]) }
+        let(:procedure2) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ B' }]) }
+        let(:procedure3) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Champ C' }]) }
+
+        before do
+          create_list(:dossier, 3, user:, procedure: procedure1)
+          create_list(:dossier, 3, user:, procedure: procedure2)
+          get :personnalisation # warmup: populate schema cache and Flipper cache
+        end
+
+        it 'issues the same number of queries for 2 vs 3 procedures' do
+          count_2_procedures = 0
+          ActiveSupport::Notifications.subscribed(lambda { |*_args| count_2_procedures += 1 }, "sql.active_record") do
+            get :personnalisation
+          end
+
+          create_list(:dossier, 3, user:, procedure: procedure3)
+
+          count_3_procedures = 0
+          ActiveSupport::Notifications.subscribed(lambda { |*_args| count_3_procedures += 1 }, "sql.active_record") do
+            get :personnalisation
+          end
+
+          expect(count_3_procedures).to eq(count_2_procedures)
+        end
+      end
+    end
+  end
+
+  describe 'PATCH #update_personnalisation' do
+    let(:user) { create(:user) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }]) }
+    let(:column) { procedure.customizable_columns.first }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      create_list(:dossier, 6, user:, procedure:)
+      sign_in(user)
+    end
+
+    it 'persists the chosen columns for the procedure and redirects with a notice' do
+      patch :update_personnalisation, params: {
+        personnalisations: { procedure.id.to_s => { displayed_columns: [column.id] } },
+      }
+
+      expect(response).to redirect_to(dossiers_path)
+      perso = DossiersListPersonnalisation.find_by(user:, procedure:)
+      expect(perso.displayed_columns.map(&:id)).to eq([column.id])
+    end
+
+    it 'persists the personnalisation for a procedure seen through invitation' do
+      invited_procedure = create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Région' }])
+      invited_dossier = create(:dossier, :en_construction, procedure: invited_procedure)
+      create(:invite, dossier: invited_dossier, user:)
+      invited_column = invited_procedure.customizable_columns.first
+
+      patch :update_personnalisation, params: {
+        personnalisations: { invited_procedure.id.to_s => { displayed_columns: [invited_column.id] } },
+      }
+
+      perso = DossiersListPersonnalisation.find_by(user:, procedure: invited_procedure)
+      expect(perso.displayed_columns.map(&:id)).to eq([invited_column.id])
+    end
+
+    it 'ignores empty selections sent by the React combobox' do
+      patch :update_personnalisation, params: {
+        personnalisations: { procedure.id.to_s => { displayed_columns: [''] } },
+      }
+
+      perso = DossiersListPersonnalisation.find_by(user:, procedure:)
+      expect(perso&.displayed_columns || []).to eq([])
+    end
+
+    it 'alerts instead of confirming when the personnalisation cannot be saved' do
+      allow_any_instance_of(DossiersListPersonnalisation).to receive(:update).and_return(false)
+
+      patch :update_personnalisation, params: {
+        personnalisations: { procedure.id.to_s => { displayed_columns: [column.id] } },
+      }
+
+      expect(flash[:notice]).to be_nil
+      expect(flash[:alert]).to eq(I18n.t('views.users.dossiers.personnalisation.error'))
+    end
+
+    context 'with forged column ids' do
+      include Logic
+
+      it 'does not persist a private annotation column' do
+        procedure_with_private = create(:procedure, :published,
+          public_type_de_champs: [{ type: :text, libelle: 'Ville' }],
+          private_type_de_champs: [{ type: :text, libelle: 'Note instructeur' }])
+        create(:dossier, user:, procedure: procedure_with_private)
+        private_column = procedure_with_private.columns.find { _1.label == 'Note instructeur' }
+
+        patch :update_personnalisation, params: {
+          personnalisations: { procedure_with_private.id.to_s => { displayed_columns: [private_column.id] } },
+        }
+
+        perso = DossiersListPersonnalisation.find_by(user:, procedure: procedure_with_private)
+        expect(perso&.displayed_columns || []).to eq([])
+      end
+
+      it 'does not persist a conditional champ column' do
+        procedure_with_condition = create(:procedure, :published, public_type_de_champs: [
+          { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+          { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+        ])
+        create(:dossier, user:, procedure: procedure_with_condition)
+        conditional_column = procedure_with_condition.columns.find { _1.label == 'Conditionné' }
+
+        patch :update_personnalisation, params: {
+          personnalisations: { procedure_with_condition.id.to_s => { displayed_columns: [conditional_column.id] } },
+        }
+
+        perso = DossiersListPersonnalisation.find_by(user:, procedure: procedure_with_condition)
+        expect(perso&.displayed_columns || []).to eq([])
+      end
+
+      it 'ignores a column id that is not valid JSON' do
+        patch :update_personnalisation, params: {
+          personnalisations: { procedure.id.to_s => { displayed_columns: ['garbage'] } },
+        }
+
+        expect(response).to redirect_to(dossiers_path)
+        perso = DossiersListPersonnalisation.find_by(user:, procedure:)
+        expect(perso&.displayed_columns || []).to eq([])
+      end
+    end
+  end
+
+  describe 'GET #index with personnalisation values' do
+    render_views
+
+    let(:user) { create(:user) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Titre' }]) }
+    let(:column) { procedure.customizable_columns.first }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [column])
+      sign_in(user)
+    end
+
+    def query_count
+      count = 0
+      callback = -> (*) { count += 1 }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get :index }
+      count
+    end
+
+    it 'does not issue more queries as more dossiers are added (no N+1)' do
+      create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+      baseline = query_count
+
+      create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+      expect(query_count).to be <= baseline + 3
+    end
+  end
+
+  describe 'GET #index with personnalisation values – multi-procedure N+1 guard' do
+    render_views
+
+    let(:user) { create(:user) }
+    let(:procedure1) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Titre' }]) }
+    let(:procedure2) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Intitulé' }]) }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      create(:dossiers_list_personnalisation, user:, procedure: procedure1, displayed_columns: [procedure1.customizable_columns.first])
+      create(:dossiers_list_personnalisation, user:, procedure: procedure2, displayed_columns: [procedure2.customizable_columns.first])
+      sign_in(user)
+    end
+
+    def query_count
+      count = 0
+      callback = -> (*) { count += 1 }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get :index }
+      count
+    end
+
+    it 'does not issue more queries per dossier with multiple procedures (no N+1 on Column.find)' do
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure1, populate_champs: true)
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure2, populate_champs: true)
+      baseline = query_count
+
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure1, populate_champs: true)
+      create_list(:dossier, 3, :en_construction, user:, procedure: procedure2, populate_champs: true)
+      expect(query_count).to be <= baseline + 3
+    end
+  end
+
+  describe 'GET #index with personnalisation values – query cost per personnalised procedure' do
+    render_views
+
+    let(:user) { create(:user) }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      sign_in(user)
+    end
+
+    def add_personnalised_procedure(libelle)
+      procedure = create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: }])
+      create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [procedure.customizable_columns.first])
+      create_list(:dossier, 3, :en_construction, user:, procedure:, populate_champs: true)
+    end
+
+    def query_count
+      Current.reset
+      count = 0
+      callback = -> (*) { count += 1 }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get :index }
+      count
+    end
+
+    it 'adds a bounded number of queries per additional personnalised procedure' do
+      add_personnalised_procedure('Titre A')
+      add_personnalised_procedure('Titre B')
+      query_count
+      baseline = query_count
+
+      add_personnalised_procedure('Titre C')
+
+      # 11 mesurées (4 pour le listing de la démarche, 7 pour résoudre les colonnes persistées) + marge
+      expect(query_count - baseline).to be <= 13
+    end
+  end
+
+  describe 'stale personnalisation columns' do
+    render_views
+
+    let(:user) { create(:user) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Ville' }, { type: :text, libelle: 'Pays' }]) }
+
+    before do
+      Flipper.enable(:dossiers_list_personnalisation, user)
+      sign_in(user)
+    end
+
+    context 'when a persisted column can no longer be resolved' do
+      before do
+        pays_column = procedure.customizable_columns.find { _1.label == 'Pays' }
+        draft_only_tdc = procedure.draft_revision.add_type_de_champ(type_champ: :text, libelle: 'Futur champ')
+        draft_only_column = draft_only_tdc.canonical_column(procedure_id: procedure.id)
+        create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [draft_only_column, pays_column])
+        dossiers = create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+        dossiers.first.champs.find { _1.stable_id == pays_column.stable_id }.update(value: 'France')
+        Current.reset
+      end
+
+      it 'renders the dossiers list with the remaining columns' do
+        get :index
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('France')
+      end
+
+      it 'renders the personnalisation screen' do
+        get :personnalisation
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when the personnalised champ is removed in a later published revision' do
+      before do
+        ville_column = procedure.customizable_columns.find { _1.label == 'Ville' }
+        create(:dossiers_list_personnalisation, user:, procedure:, displayed_columns: [ville_column])
+        dossiers = create_list(:dossier, 6, :en_construction, user:, procedure:, populate_champs: true)
+        dossiers.first.champs.find { _1.stable_id == ville_column.stable_id }.update(value: 'Nantes')
+        procedure.draft_revision.remove_type_de_champ(ville_column.stable_id)
+        procedure.publish_revision!(procedure.administrateurs.first)
+        Current.reset
+      end
+
+      it 'still renders the dossiers list with the removed champ value' do
+        get :index
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('Nantes')
+      end
+
+      it 'renders the personnalisation screen' do
+        get :personnalisation
+
+        expect(response).to have_http_status(:ok)
       end
     end
   end

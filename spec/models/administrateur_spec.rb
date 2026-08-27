@@ -302,4 +302,17 @@ describe Administrateur, type: :model do
 
     it { expect(administrateur.commentaire_seen_at).to eq now }
   end
+
+  describe 'when an administrateur is destroyed' do
+    let(:administrateur) { administrateurs.blank }
+    let!(:export) { create(:export, user_profile: administrateur) }
+    let!(:archive) { create(:archive, user_profile: administrateur) }
+
+    it 'destroys its exports and archives' do
+      administrateur.destroy!
+
+      expect(Export.exists?(export.id)).to eq(false)
+      expect(Archive.exists?(archive.id)).to eq(false)
+    end
+  end
 end

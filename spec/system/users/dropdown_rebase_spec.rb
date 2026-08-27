@@ -7,12 +7,12 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
   # >5 options so it renders as React MultipleSelect, not checkboxes
   let(:options) { ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"] }
   let(:procedure) do
-    create(:procedure, :published, :for_individual, types_de_champ_public: [
+    create(:procedure, :published, :for_individual, public_type_de_champs: [
       { type: :multiple_drop_down_list, libelle: 'Zonage(s)', drop_down_options: options, mandatory: true },
     ])
   end
   let(:dossier) { create(:dossier, :en_construction, :with_individual, user:, procedure:) }
-  let(:stable_id) { procedure.active_revision.root_types_de_champ_public.first.stable_id }
+  let(:stable_id) { procedure.active_revision.public_root_type_de_champs.first.stable_id }
 
   before do
     # User had selected "Bravo" and "Charlie" before submitting
@@ -20,7 +20,7 @@ describe 'Multiple dropdown after rebase removes an option', js: true do
     champ.update_columns(value: '["Bravo","Charlie"]')
 
     # Admin removes "Bravo" from options and publishes
-    tdc = procedure.draft_revision.types_de_champ.find { _1.stable_id == stable_id }
+    tdc = procedure.draft_revision.type_de_champs.find { _1.stable_id == stable_id }
     tdc_to_update = procedure.draft_revision.find_and_ensure_exclusive_use(tdc)
     tdc_to_update.update(drop_down_options: ["Alpha", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"])
     procedure.publish_revision!(procedure.administrateurs.first)

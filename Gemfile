@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'rails', '~> 8.0.3' # allows update to security fixes at any time
+gem 'rails', '~> 8.1.3' # allows update to security fixes at any time
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -10,7 +10,7 @@ gem 'activestorage-openstack'
 gem 'active_storage_validations'
 gem 'addressable'
 gem 'administrate'
-gem 'after_commit_everywhere'
+gem 'after_commit_everywhere' # soft dependency of aasm, loaded via require: makes :after_commit callbacks run after the DB commit (grep won't find it)
 gem 'ancestry'
 gem 'anchored'
 gem 'aws-sdk-s3'
@@ -20,11 +20,7 @@ gem 'browser'
 gem 'charlock_holmes'
 gem 'chartkick'
 gem 'clamav-client', require: 'clamav/client'
-gem 'daemons'
 gem 'deep_cloneable' # Enable deep clone of active record models
-gem 'delayed_cron_job', require: false # Cron jobs
-gem 'delayed_job_active_record'
-gem 'delayed_job_web'
 gem 'devise'
 gem 'devise-i18n'
 gem 'devise-two-factor'
@@ -91,7 +87,6 @@ gem 'rexml' # add missing gem due to ruby3 (https://github.com/Shopify/bootsnap/
 gem 'rqrcode'
 gem 'ruby-openai'
 gem 'sassc-rails' # Use SCSS for stylesheets
-gem 'sentry-delayed_job'
 gem 'sentry-rails'
 gem 'sentry-ruby'
 gem 'sentry-sidekiq'
@@ -102,13 +97,12 @@ gem 'sib-api-v3-sdk'
 gem 'connection_pool', '< 3'
 gem 'sidekiq', '< 7.3' # 7.3 needs to migrate to sidekiq-cron 2.0
 gem 'sidekiq-cron', '< 2.0' # wait for a release without "keys command"
-gem 'siret_validator', github: "CodeursenLiberte/siret_validator", ref: "ba421bb"
+gem 'siret_validator'
 gem 'skylight'
 gem 'smarter_csv'
 gem 'spreadsheet_architect'
 gem 'string-similarity'
 gem 'strong_migrations' # lint database migrations
-gem 'sys-proctable'
 gem 'ttfunk', '~> 1.7.0'
 gem 'turbo-rails'
 gem 'typhoeus'
@@ -131,6 +125,7 @@ group :test do
   gem 'capybara-screenshot' # Save a dump of the page when an integration test fails
   gem 'factory_bot'
   gem 'launchy'
+  gem 'parallel_tests'
   gem 'rack_session_access'
   gem 'rails-controller-testing'
   gem 'rspec_junit_formatter'
@@ -164,7 +159,6 @@ group :development do
 end
 
 group :development, :test do
-  gem 'drb' # strange dep required by rspec, should try to be removed after rails 7.2.x
   gem 'graphql-schema_comparator'
   gem 'irb'
   gem 'mina', require: false # Deploy

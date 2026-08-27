@@ -7,5 +7,6 @@ en:
     type_champ:
       quotient_familial: family quotient
       etudiant_boursier: scholarship student status
-      aah: adult disability allowance status (AAH)
-      aeeh: disabled child education allowance status (AEEH)
+      aah: adult disability allowance status
+      aeeh: disabled child education allowance status
+      ars: back to school allowance status

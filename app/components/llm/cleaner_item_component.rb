@@ -2,7 +2,7 @@
 
 class LLM::CleanerItemComponent < LLM::SuggestionItemComponent
   def self.step_title
-    "Demande unique d’information"
+    t(".step_title")
   end
 
   def render?

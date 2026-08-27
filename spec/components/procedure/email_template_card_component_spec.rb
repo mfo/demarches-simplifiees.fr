@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
-  let(:procedure) { create(:procedure) }
+  let(:procedure) { procedures.individual }
 
   subject(:rendered) { render_inline(described_class.new(email_template:)) }
 
   context 'when the email is edited with tiptap content (json_subject)' do
     let(:email_template) do
-      create(:initiated_mail, procedure:, json_subject: {
+      create(:email_depose, procedure:, json_subject: {
         "type" => "doc",
         "content" => [
           {
@@ -28,7 +28,7 @@ RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
   end
 
   context 'when the email is edited but not yet migrated (legacy subject only)' do
-    let(:email_template) { create(:initiated_mail, procedure:) }
+    let(:email_template) { create(:email_depose, procedure:) }
 
     it 'converts the legacy subject tags to styled chips' do
       expect(rendered).to have_text('Accusé de réception')
@@ -37,7 +37,7 @@ RSpec.describe Procedure::EmailTemplateCardComponent, type: :component do
   end
 
   context 'when the email is a standard (unedited) template' do
-    let(:email_template) { Mails::InitiatedMail.default_for_procedure(procedure) }
+    let(:email_template) { Emails::Depose.default_for_procedure(procedure) }
 
     it 'renders the default subject with tags as chips and the standard-model tag' do
       expect(rendered).to have_text('a bien été déposé')

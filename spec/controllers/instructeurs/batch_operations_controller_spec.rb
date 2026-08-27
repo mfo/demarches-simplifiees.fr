@@ -58,6 +58,40 @@ describe Instructeurs::BatchOperationsController, type: :controller do
         expect(flash.alert).to eq("Le traitement de masse n’a pas été lancé. Vérifiez que l’action demandée est possible pour les dossiers sélectionnés")
       end
     end
+
+    context 'when no dossier is selected' do
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          batch_operation: { operation: BatchOperation.operations.fetch(:archiver) },
+          statut: 'a-suivre',
+        }
+      end
+
+      it 'does not create a batch operation and warns the instructeur' do
+        expect { subject }.not_to change { instructeur.batch_operations.count }
+        expect(flash.alert).to eq("Le traitement de masse n’a pas été lancé. Vérifiez que l’action demandée est possible pour les dossiers sélectionnés")
+      end
+    end
+
+    context 'when dossier_ids are sent as comma-joined strings' do
+      let(:other_dossier) { create(:dossier, :accepte, :with_individual, procedure: procedure) }
+      let(:params) do
+        {
+          procedure_id: procedure.id,
+          batch_operation: {
+            operation: BatchOperation.operations.fetch(:archiver),
+            dossier_ids: ["#{dossier.id},#{other_dossier.id}", dossier.id.to_s],
+          },
+          statut: 'a-suivre',
+        }
+      end
+
+      it 'splits and deduplicates them' do
+        expect { subject }.to change { instructeur.batch_operations.count }.by(1)
+        expect(BatchOperation.first.dossiers).to contain_exactly(dossier, other_dossier)
+      end
+    end
   end
 
   describe '#POST create_batch_commentaire' do

@@ -4,13 +4,14 @@ class TiptapEditorComponent < ApplicationComponent
   DEFAULT_ACTIONS = %w[bold italic bulletList orderedList link].freeze
 
   BUTTONS = {
-    'bold' => { label: 'Gras', title: 'Gras', icon: 'fr-icon-bold' },
-    'italic' => { label: 'Italique', title: 'Italique', icon: 'fr-icon-italic' },
-    'heading2' => { label: 'Titre', title: 'Titre', icon: 'fr-icon-h-1' },
-    'heading3' => { label: 'Sous-titre', title: 'Sous-titre', icon: 'fr-icon-h-2' },
-    'bulletList' => { label: 'Liste', title: 'Liste à puces', icon: 'fr-icon-list-unordered' },
-    'orderedList' => { label: 'Numérotée', title: 'Liste numérotée', icon: 'fr-icon-list-ordered' },
-    'hardBreak' => { label: 'Saut de ligne', title: 'Saut de ligne', icon: 'fr-icon-corner-down-left-line' },
+    'bold' => { icon: 'fr-icon-bold' },
+    'italic' => { icon: 'fr-icon-italic' },
+    'heading2' => { icon: 'fr-icon-h-1' },
+    'heading3' => { icon: 'fr-icon-h-2' },
+    'bulletList' => { icon: 'fr-icon-list-unordered' },
+    'orderedList' => { icon: 'fr-icon-list-ordered' },
+    'hardBreak' => { icon: 'fr-icon-corner-down-left-line' },
+    'paragraph' => { icon: 'fr-icon-paragraph' },
   }.freeze
 
   attr_reader :form, :field_name, :preview_url, :actions, :tags, :label, :error_attribute
@@ -35,7 +36,13 @@ class TiptapEditorComponent < ApplicationComponent
   end
 
   def simple_buttons
-    actions.filter_map { |action| BUTTONS[action]&.merge(action: action) }
+    actions.filter_map do |action|
+      if (button = BUTTONS[action])
+        label = t(".buttons.#{action}.label")
+        title = t(".buttons.#{action}.title")
+        button.merge(action: action, label: label, title: title)
+      end
+    end
   end
 
   def link?

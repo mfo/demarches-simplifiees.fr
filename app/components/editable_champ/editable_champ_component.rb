@@ -8,9 +8,7 @@ class EditableChamp::EditableChampComponent < ApplicationComponent
     @attribute = :value
   end
 
-  def render?
-    !@champ.pre_rempli_hidden?
-  end
+  def render? = !hidden_pre_rempli?
 
   def champ_component
     @champ_component ||= component_class.new(form: @form, champ: @champ, seen_at: @seen_at, aria_labelledby_prefix: aria_labelledby_prefix, row_number: row_number_if_in_repetition)
@@ -48,15 +46,7 @@ class EditableChamp::EditableChampComponent < ApplicationComponent
 
   private
 
-  def has_label?(champ)
-    types_without_label = TypeDeChamp::API_PART_FC_TDC + [
-      TypeDeChamp.type_champs.fetch(:header_section),
-      TypeDeChamp.type_champs.fetch(:explication),
-      TypeDeChamp.type_champs.fetch(:repetition),
-      TypeDeChamp.type_champs.fetch(:linked_drop_down_list),
-    ]
-    !types_without_label.include?(@champ.type_champ)
-  end
+  def hidden_pre_rempli? = @champ.pre_rempli? && @champ.pre_rempli_hidden?
 
   def component_class
     if @champ.france_connect?

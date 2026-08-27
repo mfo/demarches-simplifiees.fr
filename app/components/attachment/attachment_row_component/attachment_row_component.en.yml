@@ -1,8 +1,9 @@
 ---
 en:
-  delete_file: Delete file %{filename}
+  delete_file: Delete
   file_name: "the file %{filename}"
   open_file: Open file %{filename}
+  unnamed_file: "Attachment"
   delete_file_title: "Delete the file %{filename}"
   errors:
     virus_infected: "Virus detected, please send another file."

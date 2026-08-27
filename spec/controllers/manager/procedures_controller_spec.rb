@@ -42,7 +42,7 @@ describe Manager::ProceduresController, type: :controller do
   describe '#show' do
     render_views
 
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }] }]) }
+    let(:procedure) { create(:procedure, :published, email_depose: build(:email_depose), public_type_de_champs: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }] }]) }
 
     before do
       get :show, params: { id: procedure.id }
@@ -50,6 +50,7 @@ describe Manager::ProceduresController, type: :controller do
 
     it do
       expect(response.body).to include('sub type de champ')
+      expect(response.body).to include('bonne réception de votre dossier')
       expect(response.body).to include('Hidden At As Template')
       expect(response.body).to include('Pro Connect Restriction')
       expect(response.body).to include('Pro Connect For Moral Procedure')
@@ -104,20 +105,36 @@ describe Manager::ProceduresController, type: :controller do
     render_views
 
     context 'sort by dossiers' do
-      let!(:dossier) { create(:dossier) }
+      let!(:procedure_1) { create(:procedure, libelle: 'Procédure 1', estimated_dossiers_count: 111) }
+      let!(:procedure_2) { create(:procedure, libelle: 'Procédure 2', estimated_dossiers_count: 222) }
 
       before do
-        get :index, params: { procedure: { direction: :asc, order: :dossiers } }
+        get :index, params: { procedure: { direction: :asc, order: :estimated_dossiers_count } }
       end
 
-      it { expect(response.body).to include('1 Dossier') }
+      it "orders procedures by estimated_dossiers_count" do
+        expect(response.body.index("Procédure 1"))
+          .to be < response.body.index("Procédure 2")
+      end
+    end
+
+    # Administrate construit une clause LIKE par attribut cherchable : un attribut
+    # qui n'est plus une colonne fait planter n'importe quelle recherche.
+    context 'search' do
+      let(:suffix) { SecureRandom.hex(4) }
+      let!(:procedure) { create(:procedure, administrateur:, libelle: "Demande de badge cachalot#{suffix}") }
+
+      before { get :index, params: { search: "cachalot#{suffix}" } }
+
+      # Une ligne du tableau Administrate porte un unique data-url vers la ressource.
+      it { expect(response.body.scan(%r{data-url=/manager/procedures/#{procedure.id}\b}).size).to eq(1) }
     end
   end
 
   describe '#change_piece_justificative_template' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
-    let(:other_type_de_champ) { other_procedure.draft_revision.types_de_champ.first }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
+    let(:other_procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
+    let(:other_type_de_champ) { other_procedure.draft_revision.type_de_champs.first }
     let(:upload) do
       Rack::Test::UploadedFile.new(
         Rails.root.join("spec/fixtures/files/RIB.pdf"),

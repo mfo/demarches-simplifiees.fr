@@ -6,9 +6,9 @@ describe DataSources::ReferentielController, type: :controller do
   include Dry::Monads[:result]
   describe 'GET #search' do
       let(:user) { create(:user) }
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
       let(:dossier) { create(:dossier, procedure:, user:) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
       let(:referentiel) do
         create(:api_referentiel,
                :autocomplete,
@@ -108,7 +108,7 @@ describe DataSources::ReferentielController, type: :controller do
 
         context 'when signed in as instructeur (annotation privée)' do
           let(:instructeur) { create(:instructeur) }
-          let(:procedure) { create(:procedure, types_de_champ_public:, instructeurs: [instructeur]) }
+          let(:procedure) { create(:procedure, public_type_de_champs:, instructeurs: [instructeur]) }
           let(:dossier) { create(:dossier, :en_construction, procedure:) }
 
           before { sign_in(instructeur.user) }
@@ -137,7 +137,7 @@ describe DataSources::ReferentielController, type: :controller do
         let!(:owned_procedure) do
           create(:procedure,
                  administrateurs: [owner_administrateur],
-                 types_de_champ_public: [{ type: :referentiel, referentiel: }])
+                 public_type_de_champs: [{ type: :referentiel, referentiel: }])
         end
         let(:referentiel) do
           create(:api_referentiel,
@@ -162,7 +162,7 @@ describe DataSources::ReferentielController, type: :controller do
         end
 
         context 'when a dossier_id of the unrelated user is provided' do
-          let(:other_procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+          let(:other_procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
           let(:unrelated_dossier) { create(:dossier, procedure: other_procedure, user: unrelated_user) }
 
           subject(:cross_tenant_request) do
@@ -174,6 +174,16 @@ describe DataSources::ReferentielController, type: :controller do
             cross_tenant_request
             expect(response.parsed_body).to eq([])
           end
+        end
+      end
+
+      context 'when the referentiel has no rendering template' do
+        before { referentiel.update_column(:autocomplete_configuration, { 'datasource' => '$.data' }) }
+
+        it 'returns an empty array without calling the API' do
+          expect_any_instance_of(ReferentielService).not_to receive(:call)
+          expect(subject).to have_http_status(:ok)
+          expect(response.parsed_body).to eq([])
         end
       end
 

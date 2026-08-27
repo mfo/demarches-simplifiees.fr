@@ -6,6 +6,7 @@ fr:
   communes_warning_desc_html: "ne pas utiliser ce champ pour les <strong>communes de naissance</strong>."
   communes_info_link: "Comment fonctionne ce champ ?"
   libelle_label: "Libellé du champ"
+  libelle_label_optionnal: "Libellé du champ (optionnel)"
   mandatory_label: "Champ obligatoire"
   description_label: "Description du champ (optionnel)"
   header_section_hint: "Nous numérotons automatiquement les titres lorsqu’aucun de vos titres ne commence par un chiffre."
@@ -78,3 +79,4 @@ fr:
     etudiant_boursier: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut et de l’échelon boursier d’un étudiant connecté via FranceConnect"
     aah: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation adulte handicapé (AAH) de l’usager connecté via FranceConnect"
     aeeh: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation d’éducation de l’enfant handicapé (AEEH) de l’usager connecté via FranceConnect"
+    ars: "Ce champ permet de récupérer automatiquement et de façon fiable les données du statut de bénéficiaire de l’allocation de rentrée scolaire (ARS) de l’usager connecté via FranceConnect"

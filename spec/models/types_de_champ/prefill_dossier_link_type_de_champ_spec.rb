@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe TypesDeChamp::PrefillDossierLinkTypeDeChamp do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :dossier_link }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :dossier_link }]) }
   let(:dossier) { create(:dossier, :brouillon, procedure:) }
-  let(:type_de_champ) { procedure.active_revision.root_types_de_champ_public.first }
+  let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
   let(:champ) { dossier.champ_data.first }
 
   describe 'ancestors' do

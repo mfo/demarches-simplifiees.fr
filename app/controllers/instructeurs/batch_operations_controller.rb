@@ -29,11 +29,11 @@ module Instructeurs
       email_label = User.human_attribute_name(:email)
 
       if emails.empty?
-        avis.errors.add(:base, format(I18n.t('errors.format'), attribute: email_label, message: I18n.t('errors.messages.blank')))
+        avis.errors.add(:base, format(t('errors.format'), attribute: email_label, message: t('errors.messages.blank')))
       end
 
       invalid_emails.each do |email|
-        avis.errors.add(:base, format(I18n.t('errors.format'), attribute: email_label, message: "est invalide : #{email}"))
+        avis.errors.add(:base, format(t('errors.format'), attribute: email_label, message: "est invalide : #{email}"))
       end
 
       batch = avis.errors.empty? ? BatchOperation.safe_create!(batch_operation_avis_params) : nil
@@ -41,9 +41,7 @@ module Instructeurs
       respond_to do |format|
         format.turbo_stream do
           if batch.nil?
-            @ids = Array(params.dig(:batch_operation, :dossier_ids)).flat_map do |value|
-              value.is_a?(String) ? value.split(',') : value
-            end.compact_blank
+            @ids = submitted_dossier_ids
 
             render turbo_stream: turbo_stream.replace("modal-avis-batch-form", partial: "shared/avis/form_wrapper",
               locals: {
@@ -115,8 +113,16 @@ module Instructeurs
     def batch_operation_params
       params.require(:batch_operation)
         .permit(:operation, :motivation, :justificatif_motivation, dossier_ids: [])
-        .merge(dossier_ids: params['batch_operation']['dossier_ids'].join(',').split(',').uniq)
+        .merge(dossier_ids: submitted_dossier_ids)
         .merge(instructeur: current_instructeur)
+    end
+
+    # The form sends either a list of ids, or a list of comma-joined ids — and
+    # nothing at all when no dossier is selected.
+    def submitted_dossier_ids
+      Array(params.dig(:batch_operation, :dossier_ids)).flat_map do |value|
+        value.is_a?(String) ? value.split(',') : value
+      end.compact_blank.uniq
     end
 
     def batch_operation_avis_params
@@ -174,9 +180,7 @@ module Instructeurs
     end
 
     def render_commentaire_form_with_errors(commentaire)
-      @ids = Array(params.dig(:batch_operation, :dossier_ids)).flat_map do |value|
-        value.is_a?(String) ? value.split(',') : value
-      end.compact_blank
+      @ids = submitted_dossier_ids
 
       render turbo_stream: turbo_stream.replace("modal-commentaire-batch-form",
         partial: "instructeurs/batch_operations/commentaire_form",

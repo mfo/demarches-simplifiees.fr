@@ -6,10 +6,10 @@ describe Administrateurs::ConditionsController, type: :controller do
   before { sign_in(procedure.administrateurs.first.user) }
 
   context 'without bloc repetition' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :integer_number }] * 3) }
-    let(:first_tdc) { procedure.draft_revision.types_de_champ.first }
-    let(:second_tdc) { procedure.draft_revision.types_de_champ.second }
-    let(:third_tdc) { procedure.draft_revision.types_de_champ.third }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :integer_number }] * 3) }
+    let(:first_tdc) { procedure.draft_revision.type_de_champs.first }
+    let(:second_tdc) { procedure.draft_revision.type_de_champs.second }
+    let(:third_tdc) { procedure.draft_revision.type_de_champs.third }
 
     before { sign_in(procedure.administrateurs.first.user) }
 
@@ -49,7 +49,7 @@ describe Administrateurs::ConditionsController, type: :controller do
       context 'when procedure is published' do
         render_views
 
-        let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :integer_number }] * 3) }
+        let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :integer_number }] * 3) }
 
         it 'renders the unpublished changes banner' do
           expect(response.body).to include('sticky-header-warning')
@@ -132,7 +132,7 @@ describe Administrateurs::ConditionsController, type: :controller do
     end
 
     describe '#change_targeted_champ on a draft-only referentiel column' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: []) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: []) }
       let(:draft) { procedure.draft_revision }
 
       let!(:dropdown_tdc) { draft.add_type_de_champ(type_champ: 'integer_number') }
@@ -163,7 +163,7 @@ describe Administrateurs::ConditionsController, type: :controller do
       end
 
       it 'binds the column from the draft revision so the rendered component sees a typed left operand' do
-        draft_tdcs = procedure.draft_revision.types_de_champ
+        draft_tdcs = procedure.draft_revision.type_de_champs
         condition = assigns(:tdc).condition
         expect(condition).to be_a(Logic::Eq)
         expect(condition.left).to be_a(Logic::ChampColumnValue)
@@ -174,7 +174,7 @@ describe Administrateurs::ConditionsController, type: :controller do
 
   context 'with a repetiton bloc' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [
+      create(:procedure, public_type_de_champs: [
         { type: :integer_number, libelle: 'top_1' },
         {
           type: :repetition,
@@ -186,7 +186,7 @@ describe Administrateurs::ConditionsController, type: :controller do
         },
       ])
     end
-    let(:tdcs) { procedure.draft_revision.types_de_champ }
+    let(:tdcs) { procedure.draft_revision.type_de_champs }
     let(:top) { tdcs.find { _1.libelle == 'top_1' } }
     let(:repetition) { tdcs.find { _1.libelle == 'repetition' } }
     let(:child_1) { tdcs.find { _1.libelle == 'child_1' } }

@@ -7,7 +7,7 @@ module Maintenance
     describe "#process" do
       subject(:process) { described_class.process }
 
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rna }, { type: :rna }, { type: :rna }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rna }, { type: :rna }, { type: :rna }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
       let!(:legacy_champ) { dossier.champ_data[0].tap { it.update_columns(value: 'W173847273', external_id: nil) } }

@@ -7,6 +7,8 @@ module Types::Columns
     field :value, [Types::GeoJSON::FeatureType], null: false, extras: [:parent]
 
     def value(parent:)
+      dataloader.with(Sources::Association, :geo_areas).load(parent) if parent.is_a?(ChampData)
+
       feature_collection = object.value(parent)
       return [] if feature_collection.blank?
       feature_collection[:features]

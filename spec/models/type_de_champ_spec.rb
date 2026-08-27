@@ -14,9 +14,9 @@ describe TypeDeChamp do
       let(:dossier) { dossiers.tous_champs }
 
       it do
-        dossier.revision.root_types_de_champ_public.each do |type_de_champ|
+        dossier.revision.public_root_type_de_champs.each do |type_de_champ|
           champ = dossier.project_champ(type_de_champ)
-          expect(type_de_champ.dynamic_type.class.name).to match(/^TypesDeChamp::/)
+          expect(type_de_champ.class.name).to match(/^TypesDeChamp::/)
           expect(champ.class.name).to match(/^Champs::/)
         end
       end
@@ -114,7 +114,7 @@ describe TypeDeChamp do
     end
 
     describe 'changing the type_champ from a drop_down_list' do
-      let(:tdc) { create(:type_de_champ_drop_down_list) }
+      let(:tdc) { create(:type_de_champ_drop_down_list).becomes_type(target_type_champ) }
 
       before do
         tdc.update(type_champ: target_type_champ)
@@ -124,8 +124,8 @@ describe TypeDeChamp do
         let(:target_type_champ) { TypeDeChamp.type_champs.fetch(:text) }
 
         it do
-          expect(tdc.drop_down_options).to be_present
-          expect(tdc.drop_down_options).to eq(["val1", "val2", "val3"])
+          expect(tdc.options['drop_down_options']).to be_present
+          expect(tdc.options['drop_down_options']).to eq(["val1", "val2", "val3"])
         end
       end
 
@@ -148,24 +148,35 @@ describe TypeDeChamp do
       end
     end
 
-    context 'delegate validation to dynamic type' do
-      subject { build(:type_de_champ_text) }
-      let(:dynamic_type) do
-        Class.new(TypesDeChamp::TypeDeChampBase) do
-          validate :never_valid
-
-          def never_valid
-            errors.add(:troll, 'always invalid')
-          end
-        end.new(subject)
-      end
-
-      before { subject.instance_variable_set(:@dynamic_type, dynamic_type) }
+    context "runs the STI subclass validations" do
+      subject { create(:type_de_champ_linked_drop_down_list).tap { _1.drop_down_options = ["pas de primaire"] } }
 
       it do
+        is_expected.to be_an_instance_of(TypesDeChamp::LinkedDropDownListTypeDeChamp)
         is_expected.to be_invalid
-        expect(subject.errors.full_messages.to_sentence).to eq("Le champ « Troll » always invalid")
+        expect(subject.errors.full_messages.to_sentence).to include("doit commencer par une entrée de menu primaire")
       end
+    end
+  end
+
+  describe '#becomes_type' do
+    it 'runs the target type validations instead of the source ones' do
+      tdc = create(:type_de_champ_linked_drop_down_list)
+      tdc.update_column(:options, { 'drop_down_options' => ['pas de primaire'] })
+      tdc = TypeDeChamp.find(tdc.id)
+
+      expect(tdc).to be_invalid
+      expect(tdc.becomes_type('text').update(type_champ: 'text')).to be true
+    end
+
+    it 'runs the target type callbacks, persisting the formatted default options' do
+      tdc = create(:type_de_champ_text)
+
+      morphed = tdc.becomes_type('formatted')
+      morphed.update!(type_champ: 'formatted')
+
+      expect(morphed).to be_an_instance_of(TypesDeChamp::FormattedTypeDeChamp)
+      expect(morphed.reload.formatted_mode).to eq('simple')
     end
   end
 
@@ -297,60 +308,12 @@ describe TypeDeChamp do
     end
   end
 
-  describe '#column' do
-    context 'with a fillable type de champ' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'Mon texte' }]) }
-      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
-
-      it 'returns the column matching the given column_id' do
-        column = type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}")
-
-        expect(column).to be_a(Columns::ChampColumn)
-        expect(column.label).to eq('Mon texte')
-        expect(column.h_id[:column_id]).to eq("type_de_champ/#{type_de_champ.stable_id}")
-      end
-
-      it 'returns nil when no column matches' do
-        expect(type_de_champ.column('type_de_champ/unknown')).to be_nil
-      end
-    end
-
-    context 'with an addressable type de champ exposing several columns' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes, libelle: 'Ma commune' }]) }
-      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
-
-      it 'returns the jsonpath column matching the given column_id' do
-        column = type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}-$.postal_code")
-
-        expect(column).to be_a(Columns::JSONPathColumn)
-        expect(column.jsonpath).to eq('$.postal_code')
-      end
-
-      it 'resolves legacy (non displayable) columns too' do
-        column = type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}-$.code_postal")
-
-        expect(column).to be_a(Columns::JSONPathColumn)
-        expect(column.jsonpath).to eq('$.code_postal')
-        expect(column.displayable).to be(false)
-      end
-    end
-
-    context 'with a non fillable type de champ' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :header_section, libelle: 'Titre' }]) }
-      let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
-
-      it 'returns nil since it exposes no column' do
-        expect(type_de_champ.column("type_de_champ/#{type_de_champ.stable_id}")).to be_nil
-      end
-    end
-  end
-
   describe '#public_only' do
     let(:procedure) { create(:procedure, :with_type_de_champ, :with_type_de_champ_private) }
 
     it 'partition public and private' do
-      expect(procedure.active_revision.root_types_de_champ_public.count).to eq(1)
-      expect(procedure.active_revision.root_types_de_champ_private.count).to eq(1)
+      expect(procedure.active_revision.public_root_type_de_champs.count).to eq(1)
+      expect(procedure.active_revision.private_root_type_de_champs.count).to eq(1)
     end
   end
 
@@ -457,7 +420,7 @@ describe TypeDeChamp do
   end
 
   describe '#clean_options' do
-    subject { procedure.published_revision.types_de_champ.first.options }
+    subject { procedure.published_revision.type_de_champs.first.options }
 
     let(:procedure) { create(:procedure) }
 
@@ -631,10 +594,10 @@ describe TypeDeChamp do
     end
 
     context 'Champ referentiel' do
-      let(:procedure) { create(:procedure, types_de_champ_public:) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+      let(:procedure) { create(:procedure, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
       let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response) }
-      let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+      let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
       before do
         type_de_champ.update!(options: { 'referentiel_mapping' => { 'kikoo' => 'lol' } })
@@ -661,13 +624,13 @@ describe TypeDeChamp do
   end
 
   describe 'champ_value with cast' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: type_champ }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: type_champ }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:type_champ) { :text }
     let(:last_write_type_champ) { :text }
     let(:champ_value) { 'hello' }
     let(:champ_type) { TypeDeChamp.type_champ_to_champ_class_name(last_write_type_champ.to_s) }
-    let(:type_de_champ) { procedure.active_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.active_revision.type_de_champs.first }
     let(:champ) { dossier.champ_data.first }
 
     subject { champ.update_columns(type: champ_type, value: champ_value); type_de_champ.champ_value(champ) }
@@ -816,43 +779,35 @@ describe TypeDeChamp do
   describe '#humanized_conditionable_types_by_category' do
     subject { TypeDeChamp.humanized_conditionable_types_by_category }
 
-    it {
-  is_expected.to eq([
-    ["« Oui/Non »", "« Case à cocher seule »", "« Choix simple »", "« Choix multiple »"],
-    ["« Nombre entier »", "« Nombre décimal »"],
-    ["« Adresse »", "« Commune française actuelle »", "« EPCI »", "« Département »", "« Région »", "« Pays »"],
-    ["« Champ pré-rempli »"],
-  ])
-}
+    it 'groups the conditionable types by category, in the editor order' do
+      is_expected.to eq([
+        ["« Adresse »", "« Commune française actuelle »", "« Département »", "« Région »", "« Pays »", "« EPCI »"],
+        ["« Nombre décimal »", "« Nombre entier »"],
+        ["« Case à cocher seule »", "« Choix simple »", "« Choix multiple »", "« Oui/Non »"],
+        ["« Champ pré-rempli »"],
+      ])
+    end
   end
 
   describe '#ocr_compatible?' do
     subject { type_de_champ.ocr_compatible? }
 
-    context 'with a piece justificative' do
-      let(:type_de_champ) { build(:type_de_champ_piece_justificative, nature:) }
+    let(:type_de_champ) { build(:type_de_champ_piece_justificative, nature:) }
 
-      ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
-        context "when nature is #{ocr_nature}" do
-          let(:nature) { ocr_nature }
+    ['rib', 'justificatif_domicile', 'avis_impot'].each do |ocr_nature|
+      context "when nature is #{ocr_nature}" do
+        let(:nature) { ocr_nature }
 
-          it { is_expected.to be(true) }
-        end
-      end
-
-      ['titre_identite', 'non_specifie'].each do |other_nature|
-        context "when nature is #{other_nature}" do
-          let(:nature) { other_nature }
-
-          it { is_expected.to be(false) }
-        end
+        it { is_expected.to be(true) }
       end
     end
 
-    context 'when the type de champ is not a piece justificative' do
-      let(:type_de_champ) { build(:type_de_champ_text) }
+    ['titre_identite', 'non_specifie'].each do |other_nature|
+      context "when nature is #{other_nature}" do
+        let(:nature) { other_nature }
 
-      it { is_expected.to be(false) }
+        it { is_expected.to be(false) }
+      end
     end
   end
 end

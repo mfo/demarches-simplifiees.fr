@@ -20,8 +20,17 @@ Would you like to make changes or improvements? Read our [contribution guide](CO
 #### All environments
 
 - postgresql (version >= 15)
-- libvips-dev (image processing and watermark generation)
+- libvips-dev (version >= 8.13, image processing and watermark generation)
 - gsfonts (fonts for watermark text rendering)
+- zip (Info-ZIP 3.0 or later, used to build the export and archive files)
+
+  On macOS the system `/usr/bin/zip` is an Apple build that dropped support for
+  the `-UN=UTF8` flag, which we pass to keep accented filenames intact. Export
+  and archive specs then fail with `zip error: Invalid command arguments (short
+  option 'N' not supported)`. Install Info-ZIP and put it first in your `PATH`:
+
+      brew install zip
+      echo 'export PATH="/opt/homebrew/opt/zip/bin:$PATH"' >> ~/.zshrc
 
 - redis
 
@@ -62,7 +71,10 @@ Start the application server like this:
 
     bin/dev
 
-The application will then run at `http://localhost:3000` with a worker for jobs and the vitejs bundler running in parallel.
+The application will then run at `http://localhost:3000` with the vitejs bundler running in parallel.
+
+Async jobs run in the web process by default (the `async` adapter). To go through sidekiq instead,
+set `RAILS_QUEUE_ADAPTER=sidekiq` in your `.env` and run `bundle exec sidekiq` alongside `bin/dev`.
 
 ### Test users
 

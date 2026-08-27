@@ -24,7 +24,7 @@ module Types
       Procedure.publiques.includes(
         :procedure_paths,
         published_revision: {
-          revision_types_de_champ: :type_de_champ,
+          revision_type_de_champs: :type_de_champ,
         }
       )
     end

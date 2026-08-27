@@ -8,7 +8,7 @@ describe 'Instructing a dossier:', js: true do
   let(:password) { SECURE_PASSWORD }
   let!(:instructeur) { create(:instructeur, password: password) }
 
-  let!(:procedure) { create(:procedure, :published, instructeurs: [instructeur], types_de_champ_private: [{ type: 'checkbox', libelle: 'Yes/No', stable_id: 99 }, { libelle: 'Nom', condition: ds_eq(champ_value(99), constant(true)) }]) }
+  let!(:procedure) { create(:procedure, :published, instructeurs: [instructeur], private_type_de_champs: [{ type: 'checkbox', libelle: 'Yes/No', stable_id: 99 }, { libelle: 'Nom', condition: ds_eq(champ_value(99), constant(true)) }]) }
   let!(:dossier) { create(:dossier, :en_construction, :with_entreprise, procedure: procedure) }
 
   scenario 'A instructeur can signin by email' do
@@ -232,7 +232,7 @@ describe 'Instructing a dossier:', js: true do
   end
 
   scenario 'A instructeur can ask for an Archive' do
-    archivable_procedure = create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs: [instructeur])
+    archivable_procedure = create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }], instructeurs: [instructeur])
     create(:dossier, :accepte, procedure: archivable_procedure)
 
     login_as(instructeur.user, scope: :user)
@@ -246,7 +246,7 @@ describe 'Instructing a dossier:', js: true do
   end
 
   context 'with dossiers having attached files' do
-    let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative }], instructeurs: [instructeur]) }
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative }], instructeurs: [instructeur]) }
     let(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
     let(:champ) { dossier.root_champs_public.first }
     let(:path) { 'spec/fixtures/files/piece_justificative_0.pdf' }
@@ -344,14 +344,14 @@ describe 'Instructing a dossier:', js: true do
   end
 
   context 'An instructeur can see original dossier' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: 'header_section', libelle: 'Header Section', stable_id: 99 },
         { stable_id: 999, libelle: 'Nom' },
         { type: 'checkbox', stable_id: 9999, libelle: 'Checkbox' },
       ]
     end
-    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], types_de_champ_public:) }
+    let(:procedure) { create(:procedure, :published, instructeurs: [instructeur], public_type_de_champs:) }
     let!(:dossier) { create(:dossier, :brouillon, :with_entreprise, :with_populated_champs, procedure:) }
 
     before do

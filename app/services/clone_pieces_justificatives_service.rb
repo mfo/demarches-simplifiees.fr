@@ -23,8 +23,20 @@ class ClonePiecesJustificativesService
   end
 
   def self.clone_many_attachments(original, kopy, attachments_name)
+    kopy_attachments = kopy.public_send(attachments_name)
+    # Concurrent requests can both clone onto the same champ (e.g. parallel
+    # multi-file uploads upserting the same buffer stream champ): skip blobs
+    # already attached instead of violating the attachments unique index.
+    already_attached_blob_ids = kopy_attachments.attachments.map(&:blob_id)
+
     original.public_send(attachments_name).attachments.each do |attachment|
-      kopy.public_send(attachments_name).attach(attachment.blob)
+      next if attachment.blob_id.in?(already_attached_blob_ids)
+
+      begin
+        kopy_attachments.attach(attachment.blob)
+      rescue ActiveRecord::RecordNotUnique
+        kopy.reload
+      end
     end
   end
 

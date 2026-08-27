@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe TypesDeChamp::PreRempliTypeDeChamp do
-  let(:types_de_champ_public) { [{ type: :pre_rempli }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :pre_rempli }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:type_de_champ) { champ.type_de_champ }
@@ -28,6 +28,17 @@ describe TypesDeChamp::PreRempliTypeDeChamp do
       it 'returns empty array' do
         expect(type_de_champ.options_for_select).to eq([])
       end
+    end
+  end
+
+  describe '#columns' do
+    before { type_de_champ.update!(drop_down_options_from_text: "En cours\r\nIdée\r\nFait") }
+
+    it 'exposes an enum column, so the champ can be used as a condition source' do
+      column = type_de_champ.columns(procedure_id: procedure.id).sole
+
+      expect(column.type).to eq(:enum)
+      expect(column.options_for_select).to eq([["En cours", "En cours"], ["Idée", "Idée"], ["Fait", "Fait"]])
     end
   end
 

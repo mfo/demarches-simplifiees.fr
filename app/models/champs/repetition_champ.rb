@@ -86,11 +86,11 @@ class Champs::RepetitionChamp < ChampData
       self[attribute]
     end
 
-    def spreadsheet_columns(types_de_champ, export_template: nil, format:)
+    def spreadsheet_columns(type_de_champs, export_template: nil, format:)
       [
         ['Dossier ID', :dossier_id],
         ['Ligne', :index],
-      ] + dossier.champ_values_for_export(types_de_champ, row_id:, export_template:, format:)
+      ] + dossier.champ_values_for_export(type_de_champs, row_id:, export_template:, format:)
     end
   end
 end

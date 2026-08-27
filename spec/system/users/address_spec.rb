@@ -3,7 +3,7 @@
 describe 'address champ', js: true do
   let(:password) { SECURE_PASSWORD }
   let!(:user) { create(:user, password: password) }
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :address, libelle: 'Adresse du domicile' }]) }
+  let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :address, libelle: 'Adresse du domicile' }]) }
   let(:user_dossier) { user.dossiers.first }
 
   before do

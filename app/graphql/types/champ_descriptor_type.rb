@@ -107,13 +107,15 @@ module Types
           Types::Champs::Descriptor::AAHChampDescriptorType
         when TypeDeChamp.type_champs.fetch(:aeeh)
           Types::Champs::Descriptor::AEEHChampDescriptorType
+        when TypeDeChamp.type_champs.fetch(:ars)
+          Types::Champs::Descriptor::ARSChampDescriptorType
         end
       end
     end
 
     def champ_descriptors
       if type_de_champ.repetition?
-        object.revision_types_de_champ
+        object.revision_type_de_champs
       end
     end
 

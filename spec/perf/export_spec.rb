@@ -2,7 +2,7 @@
 
 describe 'Export performance' do
   let(:instructeur) { create(:instructeur) }
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: 'Nom' },
       { type: :textarea, libelle: 'Description' },
@@ -11,12 +11,12 @@ describe 'Export performance' do
       { type: :piece_justificative, libelle: 'Justificatif' },
     ]
   end
-  let(:types_de_champ_private) do
+  let(:private_type_de_champs) do
     [
       { type: :text, libelle: 'Note interne' },
     ]
   end
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:, types_de_champ_private:, instructeurs: [instructeur]) }
+  let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:, private_type_de_champs:, instructeurs: [instructeur]) }
   let(:expert) { create(:expert) }
   let(:experts_procedure) { create(:experts_procedure, expert:, procedure:) }
 

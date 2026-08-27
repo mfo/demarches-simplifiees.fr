@@ -61,7 +61,7 @@ describe 'shared/dossiers/demande', type: :view do
     end
 
     it 'renders without error' do
-      procedure.active_revision.types_de_champ.each do |tdc|
+      procedure.active_revision.type_de_champs.each do |tdc|
         expect(subject).to include(tdc.libelle)
       end
     end

@@ -4,7 +4,7 @@ module RevisionDescribableToLLMConcern
   TYPES_WITH_OPTIONS = %w[formatted integer_number decimal_number date datetime].freeze
 
   def schema_to_llm(reject: [])
-    revision_types_de_champ.includes(:parent, :type_de_champ)
+    revision_type_de_champs.includes(:parent, :type_de_champ)
       .filter(&:public?).map do |rtdc|
         {
           stable_id: rtdc.stable_id,
@@ -12,8 +12,8 @@ module RevisionDescribableToLLMConcern
           libelle: rtdc.libelle,
           mandatory: rtdc.mandatory?,
           description: rtdc.description,
-          total_choices: (rtdc.type_de_champ.drop_down_options&.size if rtdc.type_de_champ.choice_type?),
-          sample_choices: (rtdc.type_de_champ.drop_down_options.take(5) if rtdc.type_de_champ.choice_type?),
+          total_choices: (rtdc.type_de_champ.drop_down_options.size if rtdc.type_de_champ.any_drop_down_list?),
+          sample_choices: (rtdc.type_de_champ.drop_down_options.take(5) if rtdc.type_de_champ.any_drop_down_list?),
           choices_dynamic: (rtdc.type_de_champ.referentiel.present? ? true : nil),
           position: rtdc.position,
           parent_id: rtdc.parent&.stable_id,
@@ -30,6 +30,6 @@ module RevisionDescribableToLLMConcern
     return nil unless TYPES_WITH_OPTIONS.include?(tdc.type_champ)
     return nil if tdc.options.blank?
 
-    tdc.options.slice(*TypeDeChamp::OPTS_BY_TYPE.fetch(tdc.type_champ, []).map(&:to_s)).presence
+    tdc.options.slice(*tdc.class.option_keys.map(&:to_s)).presence
   end
 end

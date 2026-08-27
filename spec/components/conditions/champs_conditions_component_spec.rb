@@ -37,6 +37,20 @@ describe Conditions::ChampsConditionsComponent, type: :component do
       end
     end
 
+    context 'when the upper tdc is a pre_rempli' do
+      let(:upper_tdcs) { [create(:type_de_champ_pre_rempli, drop_down_options: ['a', 'b'])] }
+
+      context 'in champ_value mode' do
+        it { expect(page).to have_text('Logique conditionnelle') }
+      end
+
+      context 'in column_value mode' do
+        let(:column_mode) { true }
+
+        it { expect(page).to have_text('Logique conditionnelle') }
+      end
+    end
+
     context 'when there are upper tdc and a condition' do
       let(:upper_tdc) { create(:type_de_champ_number) }
       let(:upper_tdcs) { [upper_tdc] }
@@ -105,9 +119,9 @@ describe Conditions::ChampsConditionsComponent, type: :component do
         # Le upper_tdc doit être attaché à la procedure pour que la
         # désérialisation de la condition (Column.find) retrouve la colonne.
         let(:procedure) do
-          create(:procedure, types_de_champ_public: [{ type: upper_tdc_type, libelle: 'col' }])
+          create(:procedure, public_type_de_champs: [{ type: upper_tdc_type, libelle: 'col' }])
         end
-        let(:upper_tdc) { procedure.draft_revision.types_de_champ.first }
+        let(:upper_tdc) { procedure.draft_revision.type_de_champs.first }
         let(:target) { champ_column_value(upper_tdc.columns(procedure_id: procedure.id).first) }
 
         include_examples 'targeted condition rendering'

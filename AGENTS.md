@@ -10,10 +10,11 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 
 ### Setup & Maintenance
 - `bin/setup` - Initialize development environment (creates database, installs dependencies)
-- `bin/dev` - Start development server (runs web server on port 3000, job worker, and Vite bundler in parallel via Overmind)
+- `bin/dev` - Start development server (runs web server on port 3000 and Vite bundler in parallel via Overmind)
 
 ### Testing
 - `bundle exec rspec` - Run all tests
+- `bin/parallel-rspec` - Run the suite across 8 processes (~4× faster; run `bin/parallel-rspec --setup` once to create the per-process databases)
 - `bundle exec rspec file_path/file_name_spec.rb:line_number` - Run specific test
 - `bundle exec rspec --only-failures` - Re-run only failed tests
 - `NO_HEADLESS=1 bundle exec rspec spec/system` - Run system tests with visible browser
@@ -23,6 +24,8 @@ demarche.numerique.gouv.fr (formerly demarches-simplifiees.fr) is a French gover
 
 ### Linting & Code Quality
 - `bin/rake lint` - Run all linters (Rubocop, haml-lint, herb linter/formatter, i18n-tasks, Brakeman, ESLint, TypeScript, CSS)
+- `bin/rake lint:ruby` / `lint:js` / `lint:security` - Run one group only (CI runs the three in parallel jobs; `lint:security` is Brakeman, by far the slowest)
+- Brakeman options live in `config/brakeman.yml` (auto-loaded, so a bare `brakeman` matches CI). Every entry in `config/brakeman.ignore` must carry a note saying why the warning is not exploitable, and entries that no longer match any code must be deleted — `lint:security` fails on either.
 - `bundle exec rubocop --parallel` - Ruby linting
 - `bun lint:js` - JavaScript linting
 - `bun lint:types` - TypeScript type checking
@@ -114,7 +117,7 @@ Note: A single user account can have multiple roles. Different security measures
 - Located in `app/components/`
 - Examples: `EditableChamp`, `Dossiers::*Component`, `Instructeurs::*Component`
 
-**Jobs** - Async processing with Sidekiq (migrating from delayed_job)
+**Jobs** - Async processing with Sidekiq
 - Located in `app/jobs/`
 - API Entreprise integrations in `app/jobs/api_entreprise/`
 - CRON jobs in `app/jobs/cron/`
@@ -215,7 +218,7 @@ Controllers are organized by user role:
 
 **Node/JavaScript:** Bun (package manager)
 **Database:** PostgreSQL 17
-**Job Queue:** Sidekiq (migrating from delayed_job)
+**Job Queue:** Sidekiq
 **Caching:** Redis
 **Locales:** French (default), English
 **Time Zone:** Paris

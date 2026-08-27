@@ -4,8 +4,6 @@ module Ami
   class CreateNotificationService
     SOURCE = ApplicationHelper::APP_HOST
 
-    ITEM_TYPE = "dossier"
-
     ITEM_GENERIC_STATUS_BY_STATE = {
       brouillon: "new",
       en_construction: "wip",
@@ -47,7 +45,7 @@ module Ami
         recipient_fc_hash: RecipientFcHash.call(dossier.user),
         content_title:,
         content_body:,
-        item_type: ITEM_TYPE,
+        item_type: dossier.procedure.id.to_s,
         item_id: dossier.id.to_s,
         item_status_label:,
         item_generic_status:,

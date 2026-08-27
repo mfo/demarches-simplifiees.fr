@@ -11,8 +11,8 @@ class Administrateur < ApplicationRecord
   has_many :api_tokens, inverse_of: :administrateur, dependent: :destroy
   has_many :commentaire_groupe_gestionnaires, as: :sender
   has_and_belongs_to_many :default_zones, class_name: 'Zone', join_table: 'default_zones_administrateurs'
-  has_many :archives, as: :user_profile
-  has_many :exports, as: :user_profile
+  has_many :archives, as: :user_profile, dependent: :destroy
+  has_many :exports, as: :user_profile, dependent: :destroy
   belongs_to :user
   belongs_to :groupe_gestionnaire, optional: true
 
@@ -113,6 +113,8 @@ class Administrateur < ApplicationRecord
       i.administrateurs.delete(old_admin)
     end
 
+    # v1/v2 tokens are deliberately left behind (and destroyed with the old
+    # admin): we want their owners to migrate to v3 tokens.
     old_admin.api_tokens.where(version: 3..).find_each do |token|
       self.api_tokens << token
     end

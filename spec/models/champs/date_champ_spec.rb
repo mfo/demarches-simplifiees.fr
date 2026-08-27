@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Champs::DateChamp do
-  let(:types_de_champ_public) { [{ type: :date }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :date }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:date_champ) { dossier.champ_data.first }
 
@@ -19,6 +19,47 @@ describe Champs::DateChamp do
 
     it 'preserves nil' do
       expect(champ_with_value(nil).value).to be_nil
+    end
+  end
+
+  describe 'iso_8601 validation' do
+    it 'reports an error whose message can be generated (RAILS-MAQ)' do
+      allow(date_champ).to receive(:value).and_return("2023-30-01")
+
+      expect(date_champ.validate(:champ_value)).to be(false)
+      expect(date_champ.errors.first.attribute).to eq(:value)
+      expect { date_champ.errors.map(&:message) }.not_to raise_error
+      expect(date_champ.errors.first.message).to eq('doit être une date correctement formatée')
+    end
+  end
+
+  # Rows written before the current parsing rules are never re-normalized on
+  # load; saving must drop them instead of failing the iso_8601 validation
+  # before the caller assigns anything (RAILS-MC5).
+  describe 'legacy value self-heal' do
+    before do
+      # Raw SQL fragment: a hash through update_all would run the normalizer.
+      dossier.champ_data.where(id: date_champ.id).update_all(["value = ?", "2021-06-31T00:00:00"])
+      date_champ.reload
+    end
+
+    it 'drops an unparsable stored value on save instead of failing validation' do
+      expect(Sentry).to receive(:capture_message)
+      expect(date_champ.save).to be(true)
+      expect(date_champ.reload.value).to be_nil
+    end
+
+    it 'lets a freshly assigned value win over the heal' do
+      date_champ.value = "31/12/2017"
+      expect(date_champ.save).to be(true)
+      expect(date_champ.reload.value).to eq("2017-12-31")
+    end
+
+    it 'leaves a parsable stored value alone' do
+      date_champ.update!(value: "2020-06-20")
+      expect(Sentry).not_to receive(:capture_message)
+      expect(date_champ.save).to be(true)
+      expect(date_champ.reload.value).to eq("2020-06-20")
     end
   end
 

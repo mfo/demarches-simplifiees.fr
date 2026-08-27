@@ -39,6 +39,8 @@ class Champs::DepartementChamp < Champs::TextChamp
     super(resolution&.name)
   end
 
+  def condition_value = { value: code, region_code: code_region }
+
   private
 
   def value_in_departement_names

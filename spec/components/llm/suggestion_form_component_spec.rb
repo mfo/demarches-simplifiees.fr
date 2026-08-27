@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe LLM::SuggestionFormComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'Nom' }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'Nom' }]) }
   let(:rule) { LLMRuleSuggestion.rules.fetch('improve_label') }
   let(:schema_hash) { 'schema-hash' }
   let(:llm_rule_suggestion) { create(:llm_rule_suggestion, procedure_revision: procedure.draft_revision, rule:, schema_hash:, state:) }
@@ -39,7 +39,7 @@ RSpec.describe LLM::SuggestionFormComponent, type: :component do
 
       context 'when there are suggestions' do
         before do
-          revision_coordinate = procedure.draft_revision.revision_types_de_champ_public.first
+          revision_coordinate = procedure.draft_revision.public_revision_type_de_champs.first
 
           create(:llm_rule_suggestion_item,
             llm_rule_suggestion:,

@@ -5,8 +5,8 @@ require 'rails_helper'
 describe Champs::ReferentielChamp, type: :model do
   let(:referentiel) { create(:api_referentiel, :exact_match) }
   let(:base_stable_id) { ActiveRecord::Base.connection.select_value("SELECT last_value FROM types_de_champ_id_seq").to_i }
-  let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:referentiel_champ) { dossier.champ_data.find(&:referentiel?) }
 
@@ -16,7 +16,7 @@ describe Champs::ReferentielChamp, type: :model do
     context 'when prefill/mapping is configured' do
       let(:prefillable_stable_id) { base_stable_id + 102 }
       let(:prefilled_type_de_champ_options) { {} }
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           {
             type: :referentiel,
@@ -588,7 +588,7 @@ describe Champs::ReferentielChamp, type: :model do
       end
 
       context 'when data is mapped to repetition from root' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             {
               type: :referentiel,
@@ -635,7 +635,7 @@ describe Champs::ReferentielChamp, type: :model do
       end
 
       context 'when data is mapped from repetition to other elements' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             {
               type: :repetition,
@@ -685,7 +685,7 @@ describe Champs::ReferentielChamp, type: :model do
       end
 
       context 'when data is an array of values' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             {
               type: :referentiel,
@@ -710,7 +710,7 @@ describe Champs::ReferentielChamp, type: :model do
       end
 
       context 'when data is an array of nested objects (grist like)' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             {
               type: :referentiel,
@@ -745,7 +745,7 @@ describe Champs::ReferentielChamp, type: :model do
       end
 
       context 'when data is an nested array of values' do
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [
             {
               type: :referentiel,

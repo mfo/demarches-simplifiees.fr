@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Run the spec suite across several processes.
+#
+#   bin/parallel-rspec --setup            # create the per-process databases (first run only)
+#   bin/parallel-rspec                    # run the whole suite
+#   bin/parallel-rspec spec/models        # run a subset
+#
+# Each process gets its own PostgreSQL database (tps_test, tps_test2, …) and
+# its own Redis logical database, both derived from TEST_ENV_NUMBER. Oaken
+# seeds are replanted per process by rails_helper's before(:suite); pending
+# migrations are applied per database by maintain_test_schema!.
+#
+# Processes default to 8; override with PARALLEL_TEST_PROCESSORS.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+export RAILS_ENV=test
+processes="${PARALLEL_TEST_PROCESSORS:-8}"
+
+if [ "${1:-}" = "--setup" ]; then
+  shift
+  bin/rake "parallel:create[$processes]" "parallel:load_schema[$processes]"
+  [ $# -eq 0 ] && exit 0
+fi
+
+# Build assets once up front; otherwise every process would race to autobuild.
+# assets:precompile covers both pipelines: vite_ruby enhances it with
+# vite:build_all, and config.assets.compile is false in test so the Sprockets
+# bundle must be precompiled too — otherwise system specs run against a stale
+# application.css. Same step as .github/actions/ci-setup-assets in CI.
+# Both halves skip on a content digest, so an unchanged tree costs ~2.5s —
+# about 1s more than the vite build alone that this replaces.
+bin/rails assets:precompile
+
+# Processes are balanced with the runtimes recorded in
+# tmp/parallel_runtime_rspec.log by previous runs (parallel_tests' default
+# grouping falls back to file sizes while the log lacks data — don't pass
+# --group-by runtime, which aborts in that case).
+# llm_eval specs need a live LLM endpoint and are also excluded in CI.
+exec bin/bundle exec parallel_rspec -n "$processes" \
+  -o "--tag ~llm_eval" "${@:-spec}"

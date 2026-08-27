@@ -8,7 +8,7 @@ module APIEntreprise::HealthChecker
   PROVIDERS = {
     insee_sirene: 'insee/sirene',
     infogreffe_rcs: 'infogreffe/rcs',
-    european_commission_tva: 'european_commission/numero_tva',
+    dgfip_numero_tva: 'dgfip/numero_tva',
     djepva_association: 'djepva/api-association',
     dgfip_chiffre_affaires: 'dgfip/chiffre_affaires',
     dgfip_attestation_fiscale: 'dgfip/attestation_fiscale',
@@ -47,26 +47,32 @@ module APIEntreprise::HealthChecker
   end
 
   def self.store_response(ping_key, response)
-    status =
-      if response.timed_out? || response.code.zero? || response.body.blank?
-        # No usable response (timeout, connection error): on_complete is still
-        # invoked by Typhoeus with an empty body. Treat the provider as down (the
-        # same outage shows up sometimes as a 502 bad_gateway, sometimes as a
-        # timeout) so the circuit breaker reschedules jobs. Fail-safe: jobs only retry.
-        'no_response'
-      else
-        JSON.parse(response.body)['status']
-      end
+    status = parse_status(response)
 
     Kredis.redis.set(cache_key(ping_key), status, ex: CACHE_TTL.to_i)
     status
-  rescue JSON::ParserError => e
-    Rails.logger.error("HealthChecker: JSON parse error for #{ping_key}: #{e.message}")
-    Sentry.capture_exception(e)
-    nil
   rescue => e
     Rails.logger.error("HealthChecker: refresh failed for #{ping_key}: #{e.class} #{e.message}")
     Sentry.capture_exception(e)
     nil
+  end
+
+  # Anything outside UP_STATUSES marks the provider as down, so an unusable
+  # response falls back to a synthetic down status rather than raising: the
+  # circuit breaker reschedules the jobs. Fail-safe: jobs only retry.
+  def self.parse_status(response)
+    if response.timed_out? || response.code.zero? || response.body.blank?
+      # No usable response (timeout, connection error): on_complete is still
+      # invoked by Typhoeus with an empty body. The same outage shows up
+      # sometimes as a 502 bad_gateway, sometimes as a timeout.
+      'no_response'
+    else
+      # An outage is usually reported as JSON ({"status": "bad_gateway"}), but
+      # /ping also serves plain HTML error pages, and JSON without any status
+      # ({} on a 404). Both must read as down instead of flooding Sentry.
+      JSON.parse(response.body)['status'] || "http_#{response.code}"
+    end
+  rescue JSON::ParserError
+    "http_#{response.code}"
   end
 end

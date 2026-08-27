@@ -3,9 +3,18 @@
 class API::V2::Schema < GraphQL::Schema
   default_max_page_size 100
   default_page_size 100
-  # Disable max_complexity for now because of what looks like a bug in graphql gem.
-  # After some internal changes complexity for our avarage query went from < 300 to 25 000.
-  max_complexity nil
+  # Connection fields multiply their child complexity by the requested page size, so a
+  # full page (first: 100) of our richest query is expensive by design:
+  #   - getDossier (single dossier, all includes): ~430
+  #   - getDemarche dossiers(first: 100), all includes on: ~37 600  <- legitimate ceiling
+  # The budget is set to ~1.6x that ceiling: enough headroom for schema growth and the
+  # heaviest legitimate query, while rejecting the real abuse vector (aliasing several
+  # full-page connections into one request, e.g. 2x the canonical query ~= 75 000).
+  # GRAPHQL_MAX_COMPLEXITY overrides it without a release if a legitimate integration
+  # ever trips it: raise it, or set it to 0 to lift the limit entirely.
+  DEFAULT_MAX_COMPLEXITY = 60_000
+  MAX_COMPLEXITY = ENV['GRAPHQL_MAX_COMPLEXITY'].presence&.to_i || DEFAULT_MAX_COMPLEXITY
+  max_complexity MAX_COMPLEXITY.nonzero?
   max_depth 15
 
   query Types::QueryType
@@ -132,6 +141,7 @@ class API::V2::Schema < GraphQL::Schema
     Types::Champs::Descriptor::EtudiantBoursierChampDescriptorType,
     Types::Champs::Descriptor::AAHChampDescriptorType,
     Types::Champs::Descriptor::AEEHChampDescriptorType,
+    Types::Champs::Descriptor::ARSChampDescriptorType,
     Types::Columns::AttachmentsColumnType,
     Types::Columns::BooleanColumnType,
     Types::Columns::DateColumnType,
@@ -155,15 +165,25 @@ class API::V2::Schema < GraphQL::Schema
       raise GraphQL::ExecutionError.new(error.message, extensions: { code: :bad_request })
     end
 
+    # An unparsable Date argument (e.g. free text sent to an annotation date) is a client
+    # input error too, and the default handler already turns it into a proper validation
+    # error for the client. Only the Sentry report is wrong: the message embeds the
+    # offending value, so one defect was split into a new issue per distinct bad date.
+    return super if error.is_a?(GraphQL::DateEncodingError)
+
     # Capture type errors in Sentry. Thouse errors are our responsability and usually linked to
     # instances of "bad data".
-    Sentry.capture_exception(error, extra: ctx.query_info)
-
     if error.is_a?(GraphQL::InvalidNullError)
+      # Relay mutation payload classes are anonymous, so the error class name
+      # (#<Class:0x...>::InvalidNullError) varies per process and Sentry splits one
+      # defect into many issues; group by message instead.
+      Sentry.capture_exception(error, extra: ctx.query_info, fingerprint: ['GraphQL::InvalidNullError', error.message])
+
       execution_error = GraphQL::ExecutionError.new(error.message, ast_node: error.ast_node, extensions: { code: :invalid_null })
       execution_error.path = ctx[:current_path]
       ctx.errors << execution_error
     else
+      Sentry.capture_exception(error, extra: ctx.query_info)
       super
     end
   end
@@ -173,6 +193,17 @@ class API::V2::Schema < GraphQL::Schema
   end
 
   class Timeout < GraphQL::Schema::Timeout
+    # The ceiling below bounds an interactive HTTP request. SerializerService runs this
+    # same schema from cron jobs — notably the datagouv export, which paginates over every
+    # public procedure — where interrupting a page only yields a truncated export. Give
+    # those a batch-sized budget instead, while keeping the interactive ceiling for the
+    # public API.
+    INTERNAL_MAX_SECONDS = 5.minutes.to_i
+
+    def max_seconds(query)
+      query.context[:internal_use] ? INTERNAL_MAX_SECONDS : super
+    end
+
     def handle_timeout(error, query)
       error.extensions = { code: :timeout }
 

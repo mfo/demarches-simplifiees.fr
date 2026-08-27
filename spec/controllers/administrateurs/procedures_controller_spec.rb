@@ -746,12 +746,12 @@ describe Administrateurs::ProceduresController, type: :controller do
         attestation_refus_template: build(:attestation_template, kind: 'refus'),
         accuse_lecture: true,
         api_entreprise_token:,
-        initiated_mail:,
-        received_mail:,
-        closed_mail:,
-        refused_mail:,
-        without_continuation_mail:,
-        re_instructed_mail:,
+        email_depose:,
+        email_passe_en_instruction:,
+        email_accepte:,
+        email_refuse:,
+        email_classe_sans_suite:,
+        email_repasse_en_instruction:,
         experts_require_administrateur_invitation:,
         instructeurs_self_management_enabled:
       )
@@ -762,12 +762,12 @@ describe Administrateurs::ProceduresController, type: :controller do
     let(:ineligibilite_enabled) { true }
     let(:ineligibilite_rules) { ds_eq(constant(true), constant(true)) }
     let(:api_entreprise_token) { JWT.encode({ exp: 2.days.ago.to_i }, nil, "none") }
-    let(:initiated_mail) { build(:initiated_mail) }
-    let(:received_mail) { build(:received_mail) }
-    let(:closed_mail) { build(:closed_mail) }
-    let(:refused_mail) { build(:refused_mail) }
-    let(:without_continuation_mail) { build(:without_continuation_mail) }
-    let(:re_instructed_mail) { build(:re_instructed_mail) }
+    let(:email_depose) { build(:email_depose) }
+    let(:email_passe_en_instruction) { build(:email_passe_en_instruction) }
+    let(:email_accepte) { build(:email_accepte) }
+    let(:email_refuse) { build(:email_refuse) }
+    let(:email_classe_sans_suite) { build(:email_classe_sans_suite) }
+    let(:email_repasse_en_instruction) { build(:email_repasse_en_instruction) }
     let(:experts_require_administrateur_invitation) { true }
     let(:expert) { create(:expert) }
     let!(:experts_procedure) { create(:experts_procedure, expert: expert, procedure: procedure) }
@@ -850,7 +850,7 @@ describe Administrateurs::ProceduresController, type: :controller do
                 accuse_lecture: '1',
                 api_entreprise_token: '1',
                 sva_svr: '1',
-                mail_templates: '1',
+                email_templates: '1',
                 ineligibilite: '1',
                 avis: '1',
                 labels: '1',
@@ -866,8 +866,8 @@ describe Administrateurs::ProceduresController, type: :controller do
           expect(Procedure.last.administrateurs).to include(administrateur_2)
           expect(Procedure.last.defaut_groupe_instructeur.instructeurs).to match_array([admin.instructeur, instructeur_2])
           expect(Procedure.last.instructeurs_self_management_enabled).to be_truthy
-          expect(Procedure.last.draft_revision.root_types_de_champ_public.count).to eq 1
-          expect(Procedure.last.draft_revision.root_types_de_champ_private.count).to eq 1
+          expect(Procedure.last.draft_revision.public_root_type_de_champs.count).to eq 1
+          expect(Procedure.last.draft_revision.private_root_type_de_champs.count).to eq 1
           expect(Procedure.last.attestation_acceptation_template).not_to be_nil
           expect(Procedure.last.attestation_refus_template).not_to be_nil
           expect(Procedure.last.zones).not_to be_blank
@@ -877,12 +877,12 @@ describe Administrateurs::ProceduresController, type: :controller do
           expect(Procedure.last.accuse_lecture).to be_truthy
           expect(Procedure.last[:api_entreprise_token]).not_to be_nil
           expect(Procedure.last.sva_svr_configuration.decision).to eq('sva')
-          expect(Procedure.last.initiated_mail).not_to be_nil
-          expect(Procedure.last.received_mail).not_to be_nil
-          expect(Procedure.last.closed_mail).not_to be_nil
-          expect(Procedure.last.refused_mail).not_to be_nil
-          expect(Procedure.last.without_continuation_mail).not_to be_nil
-          expect(Procedure.last.re_instructed_mail).not_to be_nil
+          expect(Procedure.last.email_depose).not_to be_nil
+          expect(Procedure.last.email_passe_en_instruction).not_to be_nil
+          expect(Procedure.last.email_accepte).not_to be_nil
+          expect(Procedure.last.email_refuse).not_to be_nil
+          expect(Procedure.last.email_classe_sans_suite).not_to be_nil
+          expect(Procedure.last.email_repasse_en_instruction).not_to be_nil
           expect(Procedure.last.draft_revision.ineligibilite_rules).not_to be_nil
           expect(Procedure.last.draft_revision.ineligibilite_enabled).to be_truthy
           expect(Procedure.last.draft_revision.ineligibilite_message).to eq('Votre demande est inéligible')
@@ -892,6 +892,22 @@ describe Administrateurs::ProceduresController, type: :controller do
           expect(Procedure.last.labels.first.procedure_id).to eq(Procedure.last.id)
           expect(Procedure.last.libelle).to eq 'Démarche avec un nouveau nom'
           expect(Procedure.last.defaut_groupe_instructeur.signature.attached?).to be_truthy
+        end
+      end
+
+      context 'when the form was rendered before the rename' do
+        let(:params) do
+          {
+            procedure_id: procedure.id,
+            procedure: {
+              libelle: procedure.libelle,
+              clone_options: { mail_templates: '1' },
+            },
+          }
+        end
+
+        it 'still clones the email templates' do
+          expect(Procedure.last.email_depose).not_to be_nil
         end
       end
 
@@ -915,7 +931,7 @@ describe Administrateurs::ProceduresController, type: :controller do
                 accuse_lecture: '0',
                 api_entreprise_token: '0',
                 sva_svr: '0',
-                mail_templates: '0',
+                email_templates: '0',
                 ineligibilite: '0',
                 avis: '0',
                 labels: '0',
@@ -935,8 +951,8 @@ describe Administrateurs::ProceduresController, type: :controller do
           expect(Procedure.last.routing_enabled).to be_falsey
           expect(Procedure.last.defaut_groupe_instructeur.contact_information).to be_nil
           expect(Procedure.last.instructeurs_self_management_enabled).to be_falsey
-          expect(Procedure.last.draft_revision.root_types_de_champ_public.count).to eq 0
-          expect(Procedure.last.draft_revision.root_types_de_champ_private.count).to eq 0
+          expect(Procedure.last.draft_revision.public_root_type_de_champs.count).to eq 0
+          expect(Procedure.last.draft_revision.private_root_type_de_champs.count).to eq 0
           expect(Procedure.last.attestation_acceptation_template).to be_nil
           expect(Procedure.last.attestation_refus_template).to be_nil
           expect(Procedure.last.zones).to be_blank
@@ -946,12 +962,12 @@ describe Administrateurs::ProceduresController, type: :controller do
           expect(Procedure.last.accuse_lecture).to be_falsey
           expect(Procedure.last[:api_entreprise_token]).to be_nil
           expect(Procedure.last.sva_svr_configuration.decision).to eq('disabled')
-          expect(Procedure.last.initiated_mail).to be_nil
-          expect(Procedure.last.received_mail).to be_nil
-          expect(Procedure.last.closed_mail).to be_nil
-          expect(Procedure.last.refused_mail).to be_nil
-          expect(Procedure.last.without_continuation_mail).to be_nil
-          expect(Procedure.last.re_instructed_mail).to be_nil
+          expect(Procedure.last.email_depose).to be_nil
+          expect(Procedure.last.email_passe_en_instruction).to be_nil
+          expect(Procedure.last.email_accepte).to be_nil
+          expect(Procedure.last.email_refuse).to be_nil
+          expect(Procedure.last.email_classe_sans_suite).to be_nil
+          expect(Procedure.last.email_repasse_en_instruction).to be_nil
           expect(Procedure.last.draft_revision.ineligibilite_rules).to be_nil
           expect(Procedure.last.draft_revision.ineligibilite_enabled).to be_falsey
           expect(Procedure.last.draft_revision.ineligibilite_message).to be_nil
@@ -1507,7 +1523,7 @@ describe Administrateurs::ProceduresController, type: :controller do
           expect(procedure.replaced_by_procedure_id).to be_nil
           expect(procedure.closing_notification_brouillon).to be_falsy
           expect(procedure.closing_notification_en_cours).to be_falsy
-          expect(procedure.published_revision.root_types_de_champ_public.first.libelle).to eq('libelle 1')
+          expect(procedure.published_revision.public_root_type_de_champs.first.libelle).to eq('libelle 1')
         end
       end
 
@@ -1549,7 +1565,7 @@ describe Administrateurs::ProceduresController, type: :controller do
           create(:procedure,
                  administrateur: admin,
                  lien_site_web: lien_site_web,
-                 types_de_champ_public: [{ type: :repetition, children: [] }])
+                 public_type_de_champs: [{ type: :repetition, children: [] }])
         end
 
         it {

@@ -2,7 +2,7 @@
 
 describe 'Quotient familial piece justificative upload', js: true do
   let(:user) { create(:user) }
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :quotient_familial }]) }
+  let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :quotient_familial }]) }
 
   before do
     login_as user, scope: :user

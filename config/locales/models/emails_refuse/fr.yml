@@ -1,0 +1,18 @@
+fr:
+  activerecord:
+    attributes:
+      emails/refuse:
+        subject: Objet de l’email
+        rich_body: Corps de l’email
+    errors:
+      models:
+        emails/refuse:
+          attributes:
+            subject:
+              format: Le champ « Objet de l’email » %{message}
+            body:
+              format: Le champ « Corps de l’email » %{message}
+            json_subject:
+              format: Le champ « Objet de l’email » %{message}
+            json_body:
+              format: Le champ « Corps de l’email » %{message}

@@ -10,6 +10,7 @@
       one: Demain
       other: dans %{count} jours
     remaining_days_after_correction:
+      one: "%{count} j. après correction"
       other: "%{count} j. après correction"
     dossier_terminated_x_days_after_correction:
       one: "Le dossier sera automatiquement traité %{count} jour après que le demandeur a re-déposé son dossier"

@@ -2,8 +2,8 @@
 
 RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
   let(:admin) { administrateurs.default }
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_private:, administrateurs: [admin]) }
-  let(:types_de_champ_private) do
+  let(:procedure) { create(:procedure, :published, :for_individual, private_type_de_champs:, administrateurs: [admin]) }
+  let(:private_type_de_champs) do
     [
       {
         type: :repetition,
@@ -274,7 +274,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with dossier_link annotation and invalid dossier id' do
-      let(:types_de_champ_private) { [{ type: :dossier_link }] }
+      let(:private_type_de_champs) { [{ type: :dossier_link }] }
       let(:dossier_link_annotation) { champs_private.find(&:dossier_link?) }
       let(:annotations) { [{ id: dossier_link_annotation.to_typed_id, value: { dossierLink: '999999' } }] }
 
@@ -287,7 +287,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with dossier_link annotation and valid dossier id' do
-      let(:types_de_champ_private) { [{ type: :dossier_link }] }
+      let(:private_type_de_champs) { [{ type: :dossier_link }] }
       let(:linked_dossier) { create(:dossier, :en_construction, procedure: procedure) }
       let(:dossier_link_annotation) { champs_private.find(&:dossier_link?) }
       let(:annotations) { [{ id: dossier_link_annotation.to_typed_id, value: { dossierLink: linked_dossier.id.to_s } }] }
@@ -302,7 +302,7 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
     end
 
     context 'with multiple annotations' do
-      let(:types_de_champ_private) do
+      let(:private_type_de_champs) do
         [
           {},
           { type: :integer_number },
@@ -346,6 +346,103 @@ RSpec.describe Mutations::DossierModifierAnnotations, type: :graphql do
           errors: nil,
         })
         expect(annotations.map { _1.reload.value }).to eq(values.map { _1.class == Array ? _1.to_json : _1.to_s })
+      end
+    end
+
+    context 'with etat civil and localisation annotations' do
+      let(:private_type_de_champs) do
+        [
+          { type: :phone },
+          { type: :iban },
+          { type: :formatted },
+          { type: :civilite },
+          { type: :pays },
+          { type: :regions },
+          { type: :departements },
+        ]
+      end
+
+      let(:phone_annotation) { champs_private.find(&:phone?) }
+      let(:iban_annotation) { champs_private.find(&:iban?) }
+      let(:formatted_annotation) { champs_private.find(&:formatted?) }
+      let(:civilite_annotation) { champs_private.find(&:civilite?) }
+      let(:pays_annotation) { champs_private.find(&:pays?) }
+      let(:regions_annotation) { champs_private.find(&:regions?) }
+      let(:departements_annotation) { champs_private.find(&:departements?) }
+
+      let(:annotations) do
+        [
+          { id: phone_annotation.to_typed_id, value: { phone: '0612345678' } },
+          { id: iban_annotation.to_typed_id, value: { iban: 'FR7630006000011234567890189' } },
+          { id: formatted_annotation.to_typed_id, value: { formatted: 'ABC-123' } },
+          { id: civilite_annotation.to_typed_id, value: { civilite: 'M' } },
+          { id: pays_annotation.to_typed_id, value: { pays: 'FR' } },
+          { id: regions_annotation.to_typed_id, value: { regions: '11' } },
+          { id: departements_annotation.to_typed_id, value: { departements: '75' } },
+        ]
+      end
+
+      it 'update annotations' do
+        expect(data).to eq(dossierModifierAnnotations: {
+          annotations: annotations.map { { id: _1[:id] } },
+          errors: nil,
+        })
+        expect(phone_annotation.reload.value).to eq('0612345678')
+        expect(iban_annotation.reload.value).to eq('FR76 3000 6000 0112 3456 7890 189')
+        expect(formatted_annotation.reload.value).to eq('ABC-123')
+        expect(civilite_annotation.reload.value).to eq('M.')
+        expect(pays_annotation.reload.value).to eq('France')
+        expect(pays_annotation.external_id).to eq('FR')
+        expect(regions_annotation.reload.value).to eq('Île-de-France')
+        expect(regions_annotation.external_id).to eq('11')
+        expect(departements_annotation.reload.value).to eq('Paris')
+        expect(departements_annotation.external_id).to eq('75')
+      end
+
+      context 'with an invalid pays code' do
+        let(:annotations) { [{ id: pays_annotation.to_typed_id, value: { pays: 'ZZ' } }] }
+
+        it 'returns error' do
+          expect(data[:dossierModifierAnnotations][:annotations]).to eq([])
+          expect(data[:dossierModifierAnnotations][:errors]).to be_present
+        end
+      end
+    end
+
+    context 'with piece justificative annotation' do
+      let(:private_type_de_champs) { [{ type: :piece_justificative }] }
+      let(:piece_justificative_annotation) { champs_private.find(&:piece_justificative?) }
+
+      let(:blobs) do
+        Array.new(2) do
+          ActiveStorage::Blob.create_and_upload!(
+            io: Rails.root.join('spec/fixtures/files/logo_test_procedure.png').open,
+            filename: 'logo_test_procedure.png',
+            content_type: 'image/png',
+            metadata: { virus_scan_result: ActiveStorage::VirusScanner::SAFE }
+          )
+        end
+      end
+      let(:annotations) { [{ id: piece_justificative_annotation.to_typed_id, value: { pieceJustificative: blobs.map(&:signed_id) } }] }
+
+      it 'attach files' do
+        expect { subject }.to change { piece_justificative_annotation.reload.piece_justificative_file.count }.by(2)
+        expect(data).to eq(dossierModifierAnnotations: {
+          annotations: [{ id: piece_justificative_annotation.to_typed_id }],
+          errors: nil,
+        })
+        expect(piece_justificative_annotation.piece_justificative_file.blobs).to include(*blobs)
+      end
+
+      context 'with invalid signed blob id' do
+        let(:annotations) { [{ id: piece_justificative_annotation.to_typed_id, value: { pieceJustificative: ['fake'] } }] }
+
+        it 'returns error' do
+          expect(data).to eq(dossierModifierAnnotations: {
+            annotations: nil,
+            errors: [{ message: 'L’identifiant du fichier téléversé est invalide' }],
+          })
+        end
       end
     end
   end

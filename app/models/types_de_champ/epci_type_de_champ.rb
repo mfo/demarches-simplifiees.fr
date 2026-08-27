@@ -1,16 +1,23 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::EpciTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = LOCALISATION
+  def self.simple_routable? = true
+  def self.conditionable? = true
+
+  def condition_value_type = :epci_enum
+  def condition_options = APIGeoService.departement_options
+
   include AddressableColumnConcern
 
   def columns(procedure_id:, displayable: true, prefix: nil)
     super.concat(addressable_columns(procedure_id:, displayable:, prefix:, only: [:department_code, :region_code]))
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :code
       champ.code
     when :departement
@@ -18,10 +25,10 @@ class TypesDeChamp::EpciTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :code
       champ.code
     when :departement

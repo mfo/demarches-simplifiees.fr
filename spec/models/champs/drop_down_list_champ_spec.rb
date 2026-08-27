@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Champs::DropDownListChamp do
-  let(:types_de_champ_public) { [{ type: :drop_down_list, drop_down_other: other, referentiel:, drop_down_mode: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :drop_down_list, drop_down_other: other, referentiel:, drop_down_mode: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:referentiel) { nil }
   let(:drop_down_mode) { nil }
@@ -101,7 +101,7 @@ describe Champs::DropDownListChamp do
     end
 
     context "when value is a value from simple mode" do
-      let(:types_de_champ_public) { [{ type: :drop_down_list, drop_down_mode: "simple" }] }
+      let(:public_type_de_champs) { [{ type: :drop_down_list, drop_down_mode: "simple" }] }
       let(:value) { "fromage" }
 
       before do

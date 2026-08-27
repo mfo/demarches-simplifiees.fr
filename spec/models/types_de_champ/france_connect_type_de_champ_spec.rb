@@ -3,8 +3,8 @@
 describe TypesDeChamp::FranceConnectTypeDeChamp do
   context "when type de champ is quotient_famiilial" do
     describe '#champ_blank?' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
-      let(:tdc_quotient_familial) { procedure.active_revision.types_de_champ.first }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :quotient_familial }]) }
+      let(:tdc_quotient_familial) { procedure.active_revision.type_de_champs.first }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
 
@@ -46,8 +46,8 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
     end
 
     describe '#columns' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial, libelle: 'qf' }]) }
-      let(:tdc_quotient_familial) { procedure.active_revision.types_de_champ.first }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :quotient_familial, libelle: 'qf' }]) }
+      let(:tdc_quotient_familial) { procedure.active_revision.type_de_champs.first }
       let(:columns) { tdc_quotient_familial.columns(procedure_id: procedure.id) }
 
       it 'adds QF columns' do
@@ -67,8 +67,8 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
 
   context "when type de champ is etudiant_boursier" do
     describe '#columns' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :etudiant_boursier, libelle: 'eb' }]) }
-      let(:tdc_etudiant_boursier) { procedure.active_revision.types_de_champ.first }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :etudiant_boursier, libelle: 'eb' }]) }
+      let(:tdc_etudiant_boursier) { procedure.active_revision.type_de_champs.first }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
 
@@ -87,6 +87,30 @@ describe TypesDeChamp::FranceConnectTypeDeChamp do
       it 'extracts values nested under statut_boursier' do
         expect(column_value('eb – Boursier')).to be(true)
         expect(column_value('eb – Radié')).to be(false)
+      end
+
+      describe 'a boolean column' do
+        let(:column) { tdc_etudiant_boursier.columns(procedure_id: procedure.id).find { it.label == 'eb – Boursier' } }
+        let(:dossiers) { Dossier.where(id: dossier.id) }
+
+        def filtering(value) = column.filtered_ids(dossiers, { operator: 'match', value: })
+
+        # value_json stores a JSON boolean, which like_regex can never match:
+        # the filter needs a @ == true / @ == false comparison.
+        it 'filters on the stored boolean' do
+          expect(filtering(['true'])).to eq([dossier.id])
+          expect(filtering(['false'])).to eq([])
+        end
+
+        it 'ignores a value the radio buttons cannot produce' do
+          expect(filtering(['nimp'])).to eq([dossier.id])
+        end
+
+        # Radio buttons are built from options_for_select: without options the
+        # filter renders an empty radio list, no value can even be picked.
+        it 'offers oui/non options to build the radio buttons from' do
+          expect(column.options_for_select).to eq([['oui', true], ['non', false]])
+        end
       end
     end
   end

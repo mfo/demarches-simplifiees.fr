@@ -102,7 +102,7 @@ class NotificationMailer < ApplicationMailer
     else
       I18n.with_locale(@dossier.user_locale) do
         email_template = @dossier.email_template_for(params[:state])
-        email_template_presenter = MailTemplatePresenterService.new(@dossier, params[:state])
+        email_template_presenter = EmailTemplatePresenterService.new(@dossier, params[:state])
 
         @email = @dossier.user_email_for(:notification)
         @rendered_template = email_template_presenter.safe_body

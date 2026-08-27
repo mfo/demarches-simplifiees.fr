@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 describe ProcedurePresentation do
-  describe "#types_de_champ_for_procedure_export" do
-    subject { procedure.types_de_champ_for_procedure_export.pluck(:libelle) }
+  describe "#type_de_champs_for_procedure_export" do
+    subject { procedure.type_de_champs_for_procedure_export.pluck(:libelle) }
 
     context 'for a draft procedure' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :number, libelle: 'libelle 1' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :number, libelle: 'libelle 1' }]) }
 
       context 'when there are one tdc on a draft revision' do
         it { is_expected.to match(['libelle 1']) }
@@ -13,7 +13,7 @@ describe ProcedurePresentation do
     end
 
     context 'for a published procedure' do
-      let(:procedure) { create(:procedure, :published, types_de_champ_public: []) }
+      let(:procedure) { create(:procedure, :published, public_type_de_champs: []) }
       let!(:tdc) { procedure.draft_revision.add_type_de_champ({ type_champ: :number, libelle: 'libelle 1' }) }
 
       before do
@@ -45,7 +45,7 @@ describe ProcedurePresentation do
         it { is_expected.to match(['libelle 0', 'libelle 1']) }
 
         context 'and finally, when this tdc is removed' do
-          let!(:previous_tdc0) { procedure.published_revision.root_types_de_champ_public.find { _1.libelle == 'libelle 0' } }
+          let!(:previous_tdc0) { procedure.published_revision.public_root_type_de_champs.find { _1.libelle == 'libelle 0' } }
 
           before do
             procedure.draft_revision.remove_type_de_champ(previous_tdc0.stable_id)
@@ -58,7 +58,7 @@ describe ProcedurePresentation do
       end
 
       context 'when there is another published revision with a renamed tdc' do
-        let!(:previous_tdc) { procedure.published_revision.root_types_de_champ_public.first }
+        let!(:previous_tdc) { procedure.published_revision.public_root_type_de_champs.first }
         let!(:changed_tdc) { { type_champ: :number, libelle: 'changed libelle 1' } }
 
         before do

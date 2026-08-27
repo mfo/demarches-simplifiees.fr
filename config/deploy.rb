@@ -5,7 +5,6 @@ require 'mina/git'
 require 'mina/rails'
 require 'mina/rbenv'
 
-SHARED_WORKER_FILE_NAME = 'i_am_a_worker'
 SHARED_WEBSERVER_FILE_NAME = 'i_am_a_webserver'
 # Basic settings:
 #   domain        - The hostname to SSH to.
@@ -90,18 +89,6 @@ namespace :service do
       #{echo_cmd %[test -f #{webserver_file_path} && sudo systemctl reload nginx]}
     }
   end
-
-  desc "Restart delayed_job"
-  task :restart_delayed_job do
-    worker_file_path = File.join(deploy_to, 'shared', SHARED_WORKER_FILE_NAME)
-
-    command %{
-        echo "-----> Restarting delayed_job service"
-        #{echo_cmd %[test -f #{worker_file_path} && echo 'it is a worker marchine, restarting delayed_job']}
-        #{echo_cmd %[test -f #{worker_file_path} && sudo systemctl restart delayed_job]}
-        #{echo_cmd %[test -f #{worker_file_path} || echo "it is not a worker marchine, #{worker_file_path} is absent"]}
-    }
-  end
 end
 
 desc "Deploys the current version to the server."
@@ -125,7 +112,6 @@ task :deploy do
     on :launch do
       invoke :'service:restart_puma'
       invoke :'service:reload_nginx'
-      invoke :'service:restart_delayed_job'
       invoke :'deploy:cleanup'
     end
   end

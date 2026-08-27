@@ -26,8 +26,8 @@ class AttestationTemplate < ApplicationRecord
   validates :kind, presence: true
 
   FILE_MAX_SIZE = 1.megabyte
-  validates :logo, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }
-  validates :signature, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }
+  validates :logo, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }, empty_file: true
+  validates :signature, content_type: ['image/png', 'image/jpeg'], size: { less_than: FILE_MAX_SIZE }, empty_file: true
 
   DOSSIER_STATE = Dossier.states.fetch(:accepte)
 
@@ -105,10 +105,10 @@ class AttestationTemplate < ApplicationRecord
   end
 
   def unspecified_champs_for_dossier(dossier)
-    types_de_champ_by_tag_id = dossier.revision.types_de_champ.index_by { "tdc#{_1.stable_id}" }
+    type_de_champs_by_tag_id = dossier.revision.type_de_champs.index_by { "tdc#{_1.stable_id}" }
 
     used_tags.filter_map do |used_tag|
-      corresponding_type_de_champ = types_de_champ_by_tag_id[used_tag]
+      corresponding_type_de_champ = type_de_champs_by_tag_id[used_tag]
 
       if corresponding_type_de_champ && dossier.project_champ(corresponding_type_de_champ).blank?
         corresponding_type_de_champ

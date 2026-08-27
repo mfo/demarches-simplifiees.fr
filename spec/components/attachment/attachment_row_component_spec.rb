@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Attachment::AttachmentRowComponent, type: :component do
-  let_it_be(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+  let_it_be(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:attached_file) { champ.piece_justificative_file }
@@ -25,6 +25,16 @@ RSpec.describe Attachment::AttachmentRowComponent, type: :component do
 
   it 'shows the Delete button by default' do
     expect(subject).to have_selector('[title^="Supprimer le fichier"]')
+  end
+
+  context 'when the blob has an empty filename' do
+    before { attachment.blob.update_column(:filename, "") }
+
+    it 'renders a placeholder without a blob link instead of raising (RAILS-M31)' do
+      expect(subject).not_to have_selector('.attachment-filename a')
+      expect(subject).to have_selector('.attachment-filename', text: 'Pièce jointe')
+      expect(subject).to have_selector('[title="Supprimer le fichier Pièce jointe"]')
+    end
   end
 
   context 'when the user cannot destroy the attachment' do

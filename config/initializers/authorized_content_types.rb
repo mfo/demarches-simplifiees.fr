@@ -11,7 +11,6 @@ AUTHORIZED_IMAGE_TYPES = [
   'image/jpeg', # multimedia x 1467465
   'image/png', # multimedia x 126662
   'image/tiff', # multimedia x 3985
-  'image/bmp', # multimedia x 3656
   'image/webp', # multimedia x 529
   'image/gif', # multimedia x 463
   'image/vnd.dwg', # multimedia x 137 auto desk
@@ -22,6 +21,13 @@ RARE_IMAGE_TYPES = [
 ]
 
 PROCESSABLE_TYPES = AUTHORIZED_IMAGE_TYPES + AUTHORIZED_PDF_TYPES
+
+# Rails' default list also covers formats we never accept (BMP, ICO, PSD, HEIC).
+# Narrowing it to the types we authorize keeps those blobs away from the image
+# library entirely, whatever their bytes turn out to be. Read in an after_initialize
+# hook, so setting it from an initializer is in time.
+Rails.application.config.active_storage.variable_content_types =
+  AUTHORIZED_IMAGE_TYPES & %w[image/jpeg image/png image/tiff image/webp image/gif]
 
 AUTHORIZED_SPREADSHEET_TYPES = [
   'application/vnd.ms-excel',

@@ -5,12 +5,11 @@
 
       %h1.fr-h2= t(".title")
       %p= t(".detail", number: @dossier.id,
-        state: dossier_display_state(@dossier.state, lower: true),
         demandeur: demandeur_dossier(@dossier),
         created_at: try_format_date(@dossier.created_at))
 
       .fr-highlight
-        %p= t(".irrevocable_html").html_safe
+        %p= t(".irrevocable_html")
 
       = form_for @transfer, url: transfer_dossier_path(@dossier), class: "fr-mt-4w" do |f|
         .fr-input-group

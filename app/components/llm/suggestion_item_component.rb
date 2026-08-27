@@ -30,6 +30,6 @@ class LLM::SuggestionItemComponent < ApplicationComponent
   end
 
   def prtdc_index
-    @prtdc_index ||= procedure_revision.revision_types_de_champ.index_by(&:stable_id)
+    @prtdc_index ||= procedure_revision.revision_type_de_champs.index_by(&:stable_id)
   end
 end

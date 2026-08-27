@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 describe DemarchesPubliquesExportService do
-  let(:procedure) { create(:procedure, :published, :with_service, :with_type_de_champ, estimated_dossiers_count: 4) }
-  let!(:dossier) { create(:dossier, :en_construction, procedure: procedure) }
+  let(:procedure) { create(:procedure, :published, :with_zone, :with_service, :with_type_de_champ, estimated_dossiers_count: 4) }
   let(:gzip_filename) { "demarches.json.gz" }
 
   after { FileUtils.rm(gzip_filename) }
@@ -19,6 +18,7 @@ describe DemarchesPubliquesExportService do
           nom: procedure.service.nom,
           organisme: "organisme",
           typeOrganisme: "association",
+          departement: nil,
         },
         cadreJuridiqueUrl: "un cadre juridique important",
         demarcheUrl: Rails.application.routes.url_helpers.commencer_url(path: procedure.path),
@@ -29,14 +29,14 @@ describe DemarchesPubliquesExportService do
         notice: nil,
         deliberation: nil,
         datePublication: procedure.published_at.iso8601,
-        zones: ["Ministère de l’Education Populaire"],
+        zones: ["Ministère 1"],
         tags: [],
-        dossiersCount: 1,
+        dossiersCount: 4,
         revision: {
           champDescriptors: [
             {
-              description: procedure.active_revision.root_types_de_champ_public.first.description,
-              label: procedure.active_revision.root_types_de_champ_public.first.libelle,
+              description: procedure.active_revision.public_root_type_de_champs.first.description,
+              label: procedure.active_revision.public_root_type_de_champs.first.libelle,
               required: true,
               __typename: "TextChampDescriptor",
             },

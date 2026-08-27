@@ -1,6 +1,12 @@
 name: 'Setup Rails app'
 description: 'Setup the environment for running the Rails app'
 
+inputs:
+  database:
+    description: 'Setup the test database. Disable it for jobs that only read the source code (linters, static analysis).'
+    required: false
+    default: 'true'
+
 runs:
   using: composite
   steps:
@@ -14,12 +20,14 @@ runs:
       shell: bash
 
     - name: Restore cached test database schema
+      if: inputs.database == 'true'
       uses: actions/cache@v4
       with:
         path: tmp/schema_cache.sql
         key: db-schema-v1-${{ hashFiles('db/schema.rb', 'db/migrate/**') }}
 
     - name: Setup test database
+      if: inputs.database == 'true'
       env:
         RAILS_ENV: test
         DATABASE_URL: 'postgres://tps_test:tps_test@localhost:5432/tps_test'
@@ -27,14 +35,16 @@ runs:
       # bin/rails db:schema:load. pg_dump runs inside the postgres service
       # container because its client version must match the server.
       run: |
+        # The postgis image pre-installs postgis/tiger schemas into the
+        # default database, which clash with the CREATE SCHEMA statements
+        # in the dump, and (since the Rails 8.1 dumper) make db:migrate
+        # re-dump db/schema.rb with schema-qualified table names, breaking
+        # rubocop's schema-aware cops. Always start from a pristine database
+        # built from template0 (which the image never touches).
+        psql "postgres://tps_test:tps_test@localhost:5432/postgres" --quiet -v ON_ERROR_STOP=1 \
+          -c 'DROP DATABASE IF EXISTS tps_test' \
+          -c 'CREATE DATABASE tps_test TEMPLATE template0'
         if [ -f tmp/schema_cache.sql ]; then
-          # The postgis image pre-installs postgis/tiger schemas into the
-          # default database, which clash with the CREATE SCHEMA statements
-          # in the dump. Restore into a pristine database built from
-          # template0 (which the image never touches).
-          psql "postgres://tps_test:tps_test@localhost:5432/postgres" --quiet -v ON_ERROR_STOP=1 \
-            -c 'DROP DATABASE IF EXISTS tps_test' \
-            -c 'CREATE DATABASE tps_test TEMPLATE template0'
           psql "$DATABASE_URL" --quiet -v ON_ERROR_STOP=1 -f tmp/schema_cache.sql > /dev/null
         else
           bin/rails db:schema:load db:migrate

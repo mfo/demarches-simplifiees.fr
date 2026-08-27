@@ -2,7 +2,7 @@
 
 RSpec.describe Dossiers::ChampsRowsShowComponent, type: :component do
   let(:procedure) do
-    create(:procedure, :published, types_de_champ_public: [
+    create(:procedure, :published, public_type_de_champs: [
       { type: :repetition, libelle: "Titre bloc répétable", children: [{ type: :text, libelle: "Texte court" }] },
     ])
   end
@@ -30,6 +30,47 @@ RSpec.describe Dossiers::ChampsRowsShowComponent, type: :component do
 
       it "renders repeatable block titles as h4" do
         expect(page).to have_selector("h4.fr-h6.fr-text--bold", text: /Titre bloc répétable 1 :/)
+      end
+    end
+  end
+
+  describe "modified badge" do
+    let(:procedure) do
+      create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: "Texte" }])
+    end
+    let(:dossier) do
+      create(:dossier, :en_instruction, :with_populated_champs, procedure:).tap do |dossier|
+        dossier.update_columns(depose_at: 2.weeks.ago, last_champ_updated_at: nil)
+      end.reload
+    end
+    let(:champs) do
+      dossier.root_champs_public.tap { it.first.update_columns(champ_attributes) }
+    end
+    let(:component) { described_class.new(champs:, profile: "instructeur", seen_at: nil) }
+
+    context "when the champ was not modified since the dossier was deposited" do
+      let(:champ_attributes) { { updated_at: 3.weeks.ago, value_updated_at: 3.weeks.ago } }
+
+      it { expect(page).not_to have_text("Modifié le") }
+    end
+
+    context "when only machinery bumped updated_at after deposit (attachment purge, external data fetch…)" do
+      let(:champ_attributes) { { updated_at: 1.day.ago, value_updated_at: 3.weeks.ago } }
+
+      it { expect(page).not_to have_text("Modifié le") }
+    end
+
+    context "when the user modified the champ after deposit" do
+      let(:champ_attributes) { { updated_at: 1.day.ago, value_updated_at: 1.day.ago } }
+
+      it { expect(page).to have_text("Modifié le") }
+    end
+
+    context "when a legacy champ has no value_updated_at" do
+      let(:champ_attributes) { { updated_at: 1.day.ago, value_updated_at: nil } }
+
+      it "falls back to updated_at" do
+        expect(page).to have_text("Modifié le")
       end
     end
   end

@@ -4,7 +4,7 @@ describe 'shared/dossiers/normalized_address', type: :view do
   let(:subject) { render 'shared/dossiers/normalized_address', address: }
 
   context 'given an champ' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :siret }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:address) { AddressProxy.new(dossier.champ_data.first) }
 

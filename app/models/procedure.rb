@@ -13,11 +13,10 @@ class Procedure < ApplicationRecord
   include PiecesJointesListConcern
   include ColumnsConcern
   include RoutingRuleStatusesConcern
+  include ProcedureDossierVidePdfConcern
 
   include Discard::Model
   self.discard_column = :hidden_at
-
-  self.ignored_columns += ["api_entreprise_token_expires_at", "pro_connect_restricted", "procedure_expires_when_termine_enabled"]
 
   default_scope -> { kept }
 
@@ -25,7 +24,7 @@ class Procedure < ApplicationRecord
 
   MIN_WEIGHT = 350000
 
-  DOSSIERS_COUNT_EXPIRING = 1.hour
+  DOSSIERS_COUNT_EXPIRING = 12.hours
 
   encrypts :api_particulier_token
 
@@ -35,10 +34,10 @@ class Procedure < ApplicationRecord
   has_many :deleted_dossiers, dependent: :destroy
   has_many :llm_rule_suggestions, through: :revisions
 
-  def draft_types_de_champ_public = draft_revision&.root_types_de_champ_public || []
-  def draft_types_de_champ_private = draft_revision&.root_types_de_champ_private || []
-  def published_types_de_champ_public = published_revision&.root_types_de_champ_public || []
-  def published_types_de_champ_private = published_revision&.root_types_de_champ_private || []
+  def public_draft_type_de_champs = draft_revision&.public_flat_type_de_champs || []
+  def private_draft_type_de_champs = draft_revision&.private_flat_type_de_champs || []
+  def public_published_type_de_champs = published_revision&.public_flat_type_de_champs || []
+  def private_published_type_de_champs = published_revision&.private_flat_type_de_champs || []
 
   has_one :published_dossier_submitted_message, dependent: :destroy, through: :published_revision, source: :dossier_submitted_message
   has_one :draft_dossier_submitted_message, dependent: :destroy, through: :draft_revision, source: :dossier_submitted_message
@@ -89,42 +88,55 @@ class Procedure < ApplicationRecord
     brouillon? ? draft_revision : published_revision
   end
 
-  def all_revisions_types_de_champ(parent: nil, with_header_section: false)
+  def all_revisions_type_de_champs(parent: nil, with_header_section: false)
     if brouillon?
       if parent.nil?
         (with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable)
-          .joins(:revision_types_de_champ)
-          .where(revision_types_de_champ: { revision_id: draft_revision_id, parent_id: nil })
+          .joins(:revision_type_de_champs)
+          .where(revision_type_de_champs: { revision_id: draft_revision_id, parent_id: nil })
           .order(:private, :position)
       else
         draft_revision.children_of(parent)
       end
     else
-      cache_key = ['all_revisions_types_de_champ', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
-      Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_types_de_champ(parent:, with_header_section:) }
+      # 'sti': entries marshalled before the TypeDeChamp STI deserialize as the
+      # base class, without the typed behavior.
+      cache_key = ['all_revisions_type_de_champs', 'sti', published_revision, parent, with_header_section, ActiveRecord::VERSION::STRING].compact
+      Rails.cache.fetch(cache_key, expires_in: 1.month) { published_revisions_type_de_champs(parent:, with_header_section:) }
     end
   end
 
-  def types_de_champ_for_procedure_export
-    all_revisions_types_de_champ.not_repetition
+  def type_de_champs_for_procedure_export
+    all_revisions_type_de_champs.not_repetition
   end
 
-  def types_de_champ_for_tags
+  # The template tag parser's vocabulary (mail templates, attestations,
+  # dossier submitted messages) — not the tag picker, which offers the active
+  # revision only. Two properties are load-bearing:
+  # - on a published procedure the draft revision is included, so tags for
+  #   not-yet-published champs parse on dossiers following the draft revision
+  #   (procedure preview);
+  # - every version of a type de champ is returned — no deduplication by
+  #   stable_id: legacy tags reference champs by libellé, so libellés from
+  #   older revisions must keep matching.
+  # Both are pinned in tags_substitution_concern_spec ('replace_tags' with
+  # revisions and with a draft-only champ).
+  def type_de_champs_for_tags
     TypeDeChamp
       .fillable
       .joins(:revisions)
       .where(procedure_revisions: brouillon? ? { id: draft_revision_id } : { procedure_id: id })
-      .where(revision_types_de_champ: { parent_id: nil })
+      .where(revision_type_de_champs: { parent_id: nil })
       .order(:created_at)
       .distinct(:id)
   end
 
-  def types_de_champ_public_for_tags
-    types_de_champ_for_tags.public_only
+  def public_type_de_champs_for_tags
+    type_de_champs_for_tags.public_only
   end
 
-  def types_de_champ_private_for_tags
-    types_de_champ_for_tags.private_only
+  def private_type_de_champs_for_tags
+    type_de_champs_for_tags.private_only
   end
 
   def revisions_with_pending_dossiers
@@ -134,11 +146,12 @@ class Procedure < ApplicationRecord
         .state_en_construction_ou_instruction
         .distinct(:revision_id)
         .pluck(:revision_id)
-      ProcedureRevision.includes(:revision_types_de_champ).where(id: ids)
+      ProcedureRevision.includes(:revision_type_de_champs).where(id: ids)
     end
   end
 
   has_many :administrateurs_procedures, dependent: :delete_all
+  has_many :dossiers_list_personnalisations, dependent: :delete_all
   has_many :administrateurs, through: :administrateurs_procedures, before_remove: :check_administrateur_minimal_presence
   has_many :groupe_instructeurs, -> { order(:label) }, inverse_of: :procedure, dependent: :destroy
   has_many :instructeurs, through: :groupe_instructeurs
@@ -154,12 +167,13 @@ class Procedure < ApplicationRecord
 
   has_many :rdvs, through: :dossiers
 
-  has_one :initiated_mail, class_name: "Mails::InitiatedMail", dependent: :destroy
-  has_one :received_mail, class_name: "Mails::ReceivedMail", dependent: :destroy
-  has_one :closed_mail, class_name: "Mails::ClosedMail", dependent: :destroy
-  has_one :refused_mail, class_name: "Mails::RefusedMail", dependent: :destroy
-  has_one :without_continuation_mail, class_name: "Mails::WithoutContinuationMail", dependent: :destroy
-  has_one :re_instructed_mail, class_name: "Mails::ReInstructedMail", dependent: :destroy
+  has_many :custom_email_templates, class_name: "EmailTemplate", dependent: :destroy
+  has_one :email_depose, class_name: "Emails::Depose", dependent: :destroy
+  has_one :email_passe_en_instruction, class_name: "Emails::PasseEnInstruction", dependent: :destroy
+  has_one :email_accepte, class_name: "Emails::Accepte", dependent: :destroy
+  has_one :email_refuse, class_name: "Emails::Refuse", dependent: :destroy
+  has_one :email_classe_sans_suite, class_name: "Emails::ClasseSansSuite", dependent: :destroy
+  has_one :email_repasse_en_instruction, class_name: "Emails::RepasseEnInstruction", dependent: :destroy
 
   belongs_to :defaut_groupe_instructeur, class_name: 'GroupeInstructeur', inverse_of: false, optional: true
 
@@ -198,7 +212,7 @@ class Procedure < ApplicationRecord
 
   scope :for_api, -> { with_active_revision.includes(:administrateurs, :module_api_carto) }
   scope :for_api_v2, -> { with_active_revision.includes(administrateurs: :user) }
-  scope :with_active_revision, -> { includes(draft_revision: :revision_types_de_champ, published_revision: :revision_types_de_champ) }
+  scope :with_active_revision, -> { includes(draft_revision: :revision_type_de_champs, published_revision: :revision_type_de_champs) }
 
   scope :order_by_position_for, -> (instructeur) {
     joins(:instructeurs_procedures)
@@ -240,32 +254,32 @@ class Procedure < ApplicationRecord
   validates :web_hook_url, url: { no_local: true, allow_blank: true }
   validates :web_hook_url, no_private_ip_url: true, allow_blank: true
 
-  validates :draft_types_de_champ_public,
-    'types_de_champ/condition': true,
-    'types_de_champ/header_section_consistency': true,
-    'types_de_champ/no_empty_block': true,
-    'types_de_champ/no_empty_drop_down': true,
-    'types_de_champ/formatted': true,
-    'types_de_champ/referentiel_ready': true,
-    'types_de_champ/libelle': true,
-    'types_de_champ/number': true,
-    'types_de_champ/date': true,
-    'types_de_champ/repetition': true,
-    'types_de_champ/api_particulier': true,
-    on: [:types_de_champ_public_editor, :publication]
+  validates :public_draft_type_de_champs,
+    'type_de_champs/condition': true,
+    'type_de_champs/header_section_consistency': true,
+    'type_de_champs/no_empty_block': true,
+    'type_de_champs/no_empty_drop_down': true,
+    'type_de_champs/formatted': true,
+    'type_de_champs/referentiel_ready': true,
+    'type_de_champs/libelle': true,
+    'type_de_champs/number': true,
+    'type_de_champs/date': true,
+    'type_de_champs/repetition': true,
+    'type_de_champs/api_particulier': true,
+    on: [:public_type_de_champs_editor, :publication]
 
-  validates :draft_types_de_champ_private,
-    'types_de_champ/condition': true,
-    'types_de_champ/header_section_consistency': true,
-    'types_de_champ/no_empty_block': true,
-    'types_de_champ/no_empty_drop_down': true,
-    'types_de_champ/formatted': true,
-    'types_de_champ/referentiel_ready': true,
-    'types_de_champ/libelle': true,
-    'types_de_champ/number': true,
-    'types_de_champ/date': true,
-    'types_de_champ/repetition': true,
-    on: [:types_de_champ_private_editor, :publication]
+  validates :private_draft_type_de_champs,
+    'type_de_champs/condition': true,
+    'type_de_champs/header_section_consistency': true,
+    'type_de_champs/no_empty_block': true,
+    'type_de_champs/no_empty_drop_down': true,
+    'type_de_champs/formatted': true,
+    'type_de_champs/referentiel_ready': true,
+    'type_de_champs/libelle': true,
+    'type_de_champs/number': true,
+    'type_de_champs/date': true,
+    'type_de_champs/repetition': true,
+    on: [:private_type_de_champs_editor, :publication]
 
   validate :check_juridique, on: [:create, :publication]
 
@@ -288,12 +302,12 @@ class Procedure < ApplicationRecord
   validates_with MonAvisEmbedValidator, on: :publication
 
   validate :validates_associated_draft_revision_with_context
-  validates_associated :initiated_mail, on: :publication
-  validates_associated :received_mail, on: :publication
-  validates_associated :closed_mail, on: :publication
-  validates_associated :refused_mail, on: :publication
-  validates_associated :without_continuation_mail, on: :publication
-  validates_associated :re_instructed_mail, on: :publication
+  validates_associated :email_depose, on: :publication
+  validates_associated :email_passe_en_instruction, on: :publication
+  validates_associated :email_accepte, on: :publication
+  validates_associated :email_refuse, on: :publication
+  validates_associated :email_classe_sans_suite, on: :publication
+  validates_associated :email_repasse_en_instruction, on: :publication
   validates_associated :attestation_acceptation_template, on: :publication, if: -> { attestation_acceptation_template&.activated? }
   validates_associated :attestation_refus_template, on: :publication, if: -> { attestation_refus_template&.activated? }
 
@@ -309,7 +323,7 @@ class Procedure < ApplicationRecord
     "image/jpeg",
     "image/png",
     "text/plain",
-  ], size: { less_than: FILE_MAX_SIZE }, if: -> { new_record? || created_at > Date.new(2020, 2, 28) }
+  ], size: { less_than: FILE_MAX_SIZE }, empty_file: true, if: -> { new_record? || created_at > Date.new(2020, 2, 28) }
 
   validates :deliberation, content_type: [
     "application/msword",
@@ -319,11 +333,12 @@ class Procedure < ApplicationRecord
     "image/jpeg",
     "image/png",
     "text/plain",
-  ], size: { less_than: FILE_MAX_SIZE }, if: -> { new_record? || created_at > Date.new(2020, 4, 29) }
+  ], size: { less_than: FILE_MAX_SIZE }, empty_file: true, if: -> { new_record? || created_at > Date.new(2020, 4, 29) }
 
   LOGO_MAX_SIZE = 5.megabytes
   validates :logo, content_type: ['image/png', 'image/jpeg'],
     size: { less_than: LOGO_MAX_SIZE },
+    empty_file: true,
     if: -> { new_record? || created_at > Date.new(2020, 11, 13) }
 
   validates :api_particulier_token, format: { with: /\A[A-Za-z0-9\-_=.]{15,}\z/ }, allow_blank: true
@@ -385,11 +400,11 @@ class Procedure < ApplicationRecord
 
   def draft_changed?
     preload_draft_and_published_revisions
-    !brouillon? && (types_de_champ_revision_changes.present? || ineligibilite_rules_revision_changes.present?)
+    !brouillon? && (type_de_champs_revision_changes.present? || ineligibilite_rules_revision_changes.present?)
   end
 
-  def types_de_champ_revision_changes
-    published_revision.compare_types_de_champ(draft_revision)
+  def type_de_champs_revision_changes
+    published_revision.compare_type_de_champs(draft_revision)
   end
 
   def ineligibilite_rules_revision_changes
@@ -474,44 +489,44 @@ class Procedure < ApplicationRecord
     self.dossiers.state_not_brouillon.size
   end
 
-  def passer_en_construction_email_template
-    initiated_mail || Mails::InitiatedMail.default_for_procedure(self)
+  def email_depose_or_default
+    email_depose || Emails::Depose.default_for_procedure(self)
   end
 
-  def passer_en_instruction_email_template
-    received_mail || Mails::ReceivedMail.default_for_procedure(self)
+  def email_passe_en_instruction_or_default
+    email_passe_en_instruction || Emails::PasseEnInstruction.default_for_procedure(self)
   end
 
-  def accepter_email_template
-    closed_mail || Mails::ClosedMail.default_for_procedure(self)
+  def email_accepte_or_default
+    email_accepte || Emails::Accepte.default_for_procedure(self)
   end
 
-  def refuser_email_template
-    refused_mail || Mails::RefusedMail.default_for_procedure(self)
+  def email_refuse_or_default
+    email_refuse || Emails::Refuse.default_for_procedure(self)
   end
 
-  def classer_sans_suite_email_template
-    without_continuation_mail || Mails::WithoutContinuationMail.default_for_procedure(self)
+  def email_classe_sans_suite_or_default
+    email_classe_sans_suite || Emails::ClasseSansSuite.default_for_procedure(self)
   end
 
-  def repasser_en_instruction_email_template
-    re_instructed_mail || Mails::ReInstructedMail.default_for_procedure(self)
+  def email_repasse_en_instruction_or_default
+    email_repasse_en_instruction || Emails::RepasseEnInstruction.default_for_procedure(self)
   end
 
   def email_template_for(state)
     case state
     when Dossier.states.fetch(:en_construction)
-      passer_en_construction_email_template
+      email_depose_or_default
     when Dossier.states.fetch(:en_instruction)
-      passer_en_instruction_email_template
+      email_passe_en_instruction_or_default
     when DossierOperationLog.operations.fetch(:repasser_en_instruction)
-      repasser_en_instruction_email_template
+      email_repasse_en_instruction_or_default
     when Dossier.states.fetch(:accepte)
-      accepter_email_template
+      email_accepte_or_default
     when Dossier.states.fetch(:refuse)
-      refuser_email_template
+      email_refuse_or_default
     when Dossier.states.fetch(:sans_suite)
-      classer_sans_suite_email_template
+      email_classe_sans_suite_or_default
     else
       raise "Unknown dossier state: #{state}"
     end
@@ -521,19 +536,19 @@ class Procedure < ApplicationRecord
     touch(:whitelisted_at)
   end
 
-  def mail_template_attestation_inconsistency_state(mail_type)
-    case mail_type
+  def email_template_attestation_inconsistency_state(email_type)
+    case email_type
     when :acceptation
-      mail = closed_mail
+      email = email_accepte
       attestation = attestation_acceptation_template
     when :refus
-      mail = refused_mail
+      email = email_refuse
       attestation = attestation_refus_template
     end
 
-    return if mail.nil?
+    return if email.nil?
 
-    tag_present = mail.body.to_s.include?('--lien attestation--')
+    tag_present = email.body.to_s.include?('--lien attestation--')
     if attestation&.activated? && !tag_present
       :missing_tag
     elsif !attestation&.activated? && tag_present
@@ -606,7 +621,7 @@ class Procedure < ApplicationRecord
   end
 
   def routing_champs
-    active_revision.revision_types_de_champ_public.filter(&:used_by_routing_rules?).map(&:libelle)
+    active_revision.public_revision_type_de_champs.filter(&:used_by_routing_rules?).map(&:libelle)
   end
 
   def champ_value_in_condition?
@@ -616,8 +631,8 @@ class Procedure < ApplicationRecord
       champ_value_in_routing_rule?
   end
 
-  def dossiers_count
-    dossiers.count
+  def dossiers_submitted_to_administration_count
+    dossiers.submitted_to_administration.count + deleted_dossiers.submitted_to_administration.count
   end
 
   def can_be_deleted_by_administrateur?
@@ -695,7 +710,7 @@ class Procedure < ApplicationRecord
   def compute_dossiers_count
     now = Time.zone.now
     if now > (self.dossiers_count_computed_at || self.created_at) + DOSSIERS_COUNT_EXPIRING
-      self.update(estimated_dossiers_count: self.dossiers.visible_by_administration.count,
+      self.update(estimated_dossiers_count: self.dossiers_submitted_to_administration_count,
                 dossiers_count_computed_at: now)
     end
   end
@@ -788,14 +803,14 @@ class Procedure < ApplicationRecord
     update!(closing_reason: nil, closing_details: nil, replaced_by_procedure_id: nil, closing_notification_brouillon: false, closing_notification_en_cours: false)
   end
 
-  def mail_templates
+  def email_templates
     [
-      self.passer_en_construction_email_template,
-      self.passer_en_instruction_email_template,
-      self.accepter_email_template,
-      self.refuser_email_template,
-      self.classer_sans_suite_email_template,
-      self.repasser_en_instruction_email_template,
+      email_depose_or_default,
+      email_passe_en_instruction_or_default,
+      email_accepte_or_default,
+      email_refuse_or_default,
+      email_classe_sans_suite_or_default,
+      email_repasse_en_instruction_or_default,
     ]
   end
 
@@ -853,14 +868,14 @@ class Procedure < ApplicationRecord
 
   def stable_ids_used_by_referentiel_urls
     @stable_ids_used_by_referentiel_urls ||= draft_revision
-      .types_de_champ
+      .type_de_champs
       .filter_map(&:referentiel)
       .filter { it.is_a?(Referentiels::APIReferentiel) }
       .flat_map(&:tiptap_mention_stable_ids)
       .uniq
   end
 
-  def published_revisions_types_de_champ(parent: nil, with_header_section: false)
+  def published_revisions_type_de_champs(parent: nil, with_header_section: false)
     # all published revisions
     revision_ids = revisions.ids - [draft_revision_id]
     # fetch all parent types de champ
@@ -874,10 +889,10 @@ class Procedure < ApplicationRecord
 
     # fetch all type_de_champ.stable_id for all the revisions expect draft
     # and for each stable_id take the bigger (more recent) type_de_champ.id
-    types_de_champ_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
-    recent_ids = types_de_champ_scope
-      .joins(:revision_types_de_champ)
-      .where(revision_types_de_champ: { revision_id: revision_ids, parent_id: parent_ids })
+    type_de_champs_scope = with_header_section ? TypeDeChamp.with_header_section : TypeDeChamp.fillable
+    recent_ids = type_de_champs_scope
+      .joins(:revision_type_de_champs)
+      .where(revision_type_de_champs: { revision_id: revision_ids, parent_id: parent_ids })
       .group(:stable_id).pluck('MAX(types_de_champ.id)')
 
     # fetch the more recent procedure_revision_types_de_champ
@@ -890,12 +905,12 @@ class Procedure < ApplicationRecord
       .pluck('MAX(id)')
 
     TypeDeChamp
-      .joins(:revision_types_de_champ)
-      .where(revision_types_de_champ: { id: recents_prtdc }).then do |relation|
+      .joins(:revision_type_de_champs)
+      .where(revision_type_de_champs: { id: recents_prtdc }).then do |relation|
         if feature_enabled?(:export_order_by_revision) # Fonds Verts, en attente d’exports personnalisables
-          relation.order(:private, 'revision_types_de_champ.revision_id': :desc, position: :asc)
+          relation.order(:private, 'revision_type_de_champs.revision_id': :desc, position: :asc)
         else
-          relation.order(:private, :position, 'revision_types_de_champ.revision_id': :desc)
+          relation.order(:private, :position, 'revision_type_de_champs.revision_id': :desc)
         end
       end
   end

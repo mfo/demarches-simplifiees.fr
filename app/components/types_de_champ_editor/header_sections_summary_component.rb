@@ -8,9 +8,9 @@ class TypesDeChampEditor::HeaderSectionsSummaryComponent < ApplicationComponent
 
   def header_sections
     coordinates = if @is_private
-      @procedure.draft_revision.revision_types_de_champ_private
+      @procedure.draft_revision.private_revision_type_de_champs
     else
-      @procedure.draft_revision.revision_types_de_champ_public
+      @procedure.draft_revision.public_revision_type_de_champs
     end
 
     coordinates.filter { _1.type_de_champ.header_section? }

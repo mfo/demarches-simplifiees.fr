@@ -6,7 +6,7 @@ describe Columns::ChampColumn do
 
     context 'without any cast' do
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:types_de_champ) { procedure.all_revisions_types_de_champ }
+      let(:type_de_champs) { procedure.all_revisions_type_de_champs }
 
       it 'extracts values for columns and type de champ', :slow do
         expect_type_de_champ_values('civilite', eq(["M."]))
@@ -50,7 +50,7 @@ describe Columns::ChampColumn do
         expect_type_de_champ_values('yes_no', eq([true]))
         expect_type_de_champ_values('annuaire_education', eq([nil]))
         expect_type_de_champ_values('piece_justificative', be_an_instance_of(Array))
-        type_de_champ = types_de_champ.find(&:titre_identite?)
+        type_de_champ = type_de_champs.find { it.piece_justificative? && it.titre_identite? }
         champ = dossier.send(:filled_champ, type_de_champ)
         columns = type_de_champ.columns(procedure_id: procedure.id)
         expect(columns.map { _1.value(champ) }).to be_an_instance_of(Array)
@@ -176,7 +176,7 @@ describe Columns::ChampColumn do
     subject { column.filtered_ids(dossiers, { operator: 'match', value: search_terms }) }
 
     context "with a text champ" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, mandatory: false, libelle: "text" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, mandatory: false, libelle: "text" }]) }
       let(:dossier_with_value) { create(:dossier, :en_instruction, procedure:) }
 
       let(:column) { procedure.find_column(label: "text") }
@@ -205,7 +205,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a multiple_drop_down_list champ" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :multiple_drop_down_list, mandatory: false, libelle: "multiple_drop_down_list", options: ["Fromage", 'Fromage "blanc"'] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :multiple_drop_down_list, mandatory: false, libelle: "multiple_drop_down_list", options: ["Fromage", 'Fromage "blanc"'] }]) }
       let(:dossier_with_value) { create(:dossier, :en_instruction, procedure:) }
 
       let(:column) { procedure.find_column(label: "multiple_drop_down_list") }
@@ -235,7 +235,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a yes no champ not mandatory" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no, mandatory: false, libelle: "oui/non" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no, mandatory: false, libelle: "oui/non" }]) }
       let(:dossier_with_yes) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_with_no) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_not_filled) { create(:dossier, :en_instruction, procedure:) }
@@ -275,7 +275,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a checkbox champ not mandatory" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :checkbox, mandatory: false, libelle: "checkbox" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :checkbox, mandatory: false, libelle: "checkbox" }]) }
       let(:dossier_with_checked) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_not_checked) { create(:dossier, :en_instruction, procedure:) }
 
@@ -305,7 +305,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a checkbox champ not mandatory" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :checkbox, mandatory: false, libelle: "checkbox" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :checkbox, mandatory: false, libelle: "checkbox" }]) }
       let(:dossier_with_checked) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_not_checked) { create(:dossier, :en_instruction, procedure:) }
 
@@ -335,7 +335,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a drop_down_list champ" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: "drop_down_list", options: ["Fromage", "Dessert", "Chocolat"] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: "drop_down_list", options: ["Fromage", "Dessert", "Chocolat"] }]) }
       let(:dossier_with_fromage) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_with_dessert) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_with_chocolat) { create(:dossier, :en_instruction, procedure:) }
@@ -367,7 +367,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a pays champ" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :pays, libelle: "pays" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :pays, libelle: "pays" }]) }
       let(:dossier_fr) { create(:dossier, :en_instruction, procedure:) }
       let(:dossier_de) { create(:dossier, :en_instruction, procedure:) }
 
@@ -389,7 +389,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a date champ" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :date, libelle: "date" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :date, libelle: "date" }]) }
 
       subject { column.filtered_ids(dossiers, filter) }
 
@@ -425,6 +425,26 @@ describe Columns::ChampColumn do
 
         it "returns the correct ids" do
           expect(subject).to eq([dossier2.id])
+        end
+      end
+
+      # update_filter neither whitelists the operator nor validates the date, so
+      # both of these reach the column.
+      context "when searching with a date the filter form let through" do
+        let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+        before { dossier.champ_data.first.update!(value: "2025-02-13") }
+
+        context "out of range" do
+          let(:filter) { { operator: 'before', value: ['2024-13-45'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
+        end
+
+        context "unparseable" do
+          let(:filter) { { operator: 'after', value: ['abc'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
         end
       end
 
@@ -496,7 +516,7 @@ describe Columns::ChampColumn do
     end
 
     context "with a datetime champ" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :datetime, libelle: "datetime" }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :datetime, libelle: "datetime" }]) }
 
       subject { column.filtered_ids(dossiers, filter) }
 
@@ -532,6 +552,26 @@ describe Columns::ChampColumn do
 
         it "returns the correct ids" do
           expect(subject).to eq([dossier2.id])
+        end
+      end
+
+      # update_filter neither whitelists the operator nor validates the date, so
+      # both of these reach the column.
+      context "when searching with a date the filter form let through" do
+        let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+        before { dossier.champ_data.first.update!(value: "2025-02-13") }
+
+        context "out of range" do
+          let(:filter) { { operator: 'before', value: ['2024-13-45'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
+        end
+
+        context "unparseable" do
+          let(:filter) { { operator: 'after', value: ['abc'] } }
+
+          it { expect(subject).to eq([dossier.id]) }
         end
       end
 
@@ -606,14 +646,14 @@ describe Columns::ChampColumn do
   private
 
   def expect_type_de_champ_values(type, assertion)
-    type_de_champ = types_de_champ.find { _1.type_champ == type }
+    type_de_champ = type_de_champs.find { _1.type_champ == type }
     champ = dossier.send(:filled_champ, type_de_champ)
     columns = type_de_champ.columns(procedure_id: procedure.id)
     expect(columns.map { _1.value(champ) }).to assertion
   end
 
   def retrieve_champ(type)
-    type_de_champ = types_de_champ.find { _1.type_champ == type }
+    type_de_champ = type_de_champs.find { _1.type_champ == type }
     dossier.send(:filled_champ, type_de_champ)
   end
 end

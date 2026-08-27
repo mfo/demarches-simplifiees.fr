@@ -110,6 +110,14 @@ const EDITOR_ACTIONS: Record<string, (editor: Editor) => EditorAction> = {
       editor.isActive('header') ||
       editor.isActive('footer')
   }),
+  paragraph: (editor) => ({
+    run: () => editor.chain().focus().keyboardShortcut('Enter').run(),
+    isActive: () => false,
+    isDisabled: () =>
+      editor.isActive('title') ||
+      editor.isActive('header') ||
+      editor.isActive('footer')
+  }),
   link: (editor) => ({
     run: () => {
       // Link action is handled directly by the controller's menuButton method

@@ -109,7 +109,6 @@ class Attachment::FileFieldComponent < ApplicationComponent
     Attachment::HintsComponent.new(
       champ:,
       attached_file:,
-      show_identity_hint: champ&.titre_identite?,
       html_id: describedby_hint_id,
       max: @max
     )

@@ -11,7 +11,7 @@ module Instructeurs
       connected_user = current_instructeur || current_expert
 
       if !commentaire.soft_deletable?(connected_user, cancel_correction: false)
-        flash.alert = t('.alert_acl')
+        flash.alert = t('.alert_not_deletable')
       else
         commentaire.soft_delete!
         set_notifications

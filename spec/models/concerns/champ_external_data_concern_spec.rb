@@ -4,7 +4,7 @@ RSpec.describe ChampExternalDataConcern do
   include Dry::Monads[:result]
 
   describe '#save_external_error' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
     context "add execption to the log" do
@@ -16,7 +16,7 @@ RSpec.describe ChampExternalDataConcern do
   end
 
   describe '#external_data_not_found?' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -48,7 +48,7 @@ RSpec.describe ChampExternalDataConcern do
   end
 
   describe 'the state machine' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rnf }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rnf }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
 

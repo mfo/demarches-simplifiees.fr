@@ -7,8 +7,8 @@ describe ChampPolicy do
   let(:stranger) { create(:user) }
   let(:procedure) do
     create(:procedure, :published,
-      types_de_champ_public: [{ type: :text }],
-      types_de_champ_private: [{ type: :text }])
+      public_type_de_champs: [{ type: :text }],
+      private_type_de_champs: [{ type: :text }])
   end
   let(:dossier) do
     create(:dossier, state,

@@ -17,6 +17,13 @@ module Maintenance
     end
 
     describe "#process" do
+      # Each expectation below compares a date built by adding months to another
+      # against `1.month.from_now`. Month arithmetic clamps the day when the target
+      # month is shorter, so run on a 31st, `8.months.ago` lands on a 30th and the
+      # comparison misses by a day — which happens four days a year. Pin the clock
+      # to a day short enough that no offset can clamp it.
+      before { travel_to(Time.zone.local(2026, 1, 15, 12)) }
+
       let!(:procedure) { create(:procedure, duree_conservation_dossiers_dans_ds: 6) }
 
       subject(:process) { described_class.process(dossier) }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Columns::JSONPathColumn do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:stable_id) { champ.stable_id }
@@ -59,19 +59,22 @@ describe Columns::JSONPathColumn do
       end
     end
 
-    context 'with avanced search using special characters' do
+    context 'with search terms containing regex metacharacters' do
       let(:jsonpath) { '$.city_name' }
+      let(:dossiers) { Dossier.where(id: dossier.id) }
 
-      subject { column.filtered_ids(Dossier.all, { operator: 'match', value: ['*reno*', 'Lyon'] }) }
+      before { champ.update(value_json: { city_name: 'SARL (LES TROIS CHENES)' }) }
 
-      context 'when champ has value_json we catch Invalid Regex error and return []' do
-        before { champ.update(value_json: { city_name: 'Grenoble' }) }
-
-        it { is_expected.to eq([]) }
+      it 'matches the metacharacters literally' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['SARL (LES TROIS CHENES)'] })).to eq([dossier.id])
       end
 
-      context 'when champ has no value_json we catch Invalid Regex error and return []' do
-        it { is_expected.to eq([]) }
+      it 'does not let a metacharacter stand for another character' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['SARL .LES.'] })).to eq([])
+      end
+
+      it 'keeps the other terms when one of them would be a malformed regex' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['*reno*', 'CHENES'] })).to eq([dossier.id])
       end
     end
 
@@ -133,6 +136,18 @@ describe Columns::JSONPathColumn do
 
         it { is_expected.to include(dossier_in_range.id, dossier_out_range.id) }
       end
+
+      # update_filter does not validate the date, so this one reaches the column.
+      context 'with a date out of range' do
+        before do
+          dossier_in_range.champ_data.first.update(value_json: { issue_date: '2022-06-15' })
+          dossier_out_range.champ_data.first.update(value_json: { issue_date: '2020-06-15' })
+        end
+
+        subject { column.filtered_ids(Dossier.all, { operator: 'before', value: ['2024-13-45'] }) }
+
+        it { is_expected.to include(dossier_in_range.id, dossier_out_range.id) }
+      end
     end
 
     context 'with integer' do
@@ -181,6 +196,21 @@ describe Columns::JSONPathColumn do
           is_expected.to include(dossier_match.id)
           is_expected.not_to include(dossier_no_match.id)
         end
+      end
+    end
+
+    context 'with search terms containing jsonpath string delimiters' do
+      let(:jsonpath) { '$.city_name' }
+      let(:dossiers) { Dossier.where(id: dossier.id) }
+
+      before { champ.update(value_json: { city_name: 'Aix "la" Belle' }) }
+
+      it 'matches a term containing a double quote' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['"la"'] })).to eq([dossier.id])
+      end
+
+      it 'does not blow up on a term ending with a backslash' do
+        expect(column.filtered_ids(dossiers, { operator: 'match', value: ['Aix\\'] })).to eq([])
       end
     end
 

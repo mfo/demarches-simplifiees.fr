@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::PhoneTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = ETAT_CIVIL
+
   # We want to allow:
   # * international (e164) phone numbers
   # * “french format” (ten digits with a leading 0)
@@ -22,7 +24,7 @@ class TypesDeChamp::PhoneTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   # See issue #6996.
   DEFAULT_COUNTRY_CODES = [:FR, :GP, :GF, :MQ, :RE, :YT, :NC, :PF].freeze
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     if Phonelib.valid_for_countries?(champ.value, DEFAULT_COUNTRY_CODES)
       Phonelib.parse_for_countries(champ.value, DEFAULT_COUNTRY_CODES).full_national
     else

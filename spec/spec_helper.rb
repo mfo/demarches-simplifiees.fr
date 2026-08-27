@@ -24,6 +24,18 @@ require 'simplecov' if ENV["CI"] || ENV["COVERAGE"] # see config in .simplecov f
 
 require 'rspec/retry'
 
+# Under parallel_tests (bin/parallel-rspec), log per-file runtimes so later
+# runs can balance processes with --group-by runtime. TEST_ENV_NUMBER is ""
+# for the first process, nil outside parallel_tests.
+unless ENV['TEST_ENV_NUMBER'].nil?
+  require 'parallel_tests/rspec/runtime_logger'
+
+  RSpec.configure do |config|
+    config.add_formatter :progress
+    config.add_formatter ParallelTests::RSpec::RuntimeLogger, 'tmp/parallel_runtime_rspec.log'
+  end
+end
+
 SECURE_PASSWORD = '{My-$3cure-p4ssWord}'
 
 RSpec.configure do |config|
@@ -31,7 +43,7 @@ RSpec.configure do |config|
   config.color = true
   config.tty = true
 
-  config.example_status_persistence_file_path = 'failing_specs.txt'
+  config.example_status_persistence_file_path = "failing_specs#{ENV['TEST_ENV_NUMBER']}.txt"
   config.run_all_when_everything_filtered = true
   config.filter_run :focus => true
 

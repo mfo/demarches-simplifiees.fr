@@ -15,7 +15,7 @@ module Maintenance
         let(:procedure) do
           create(
             :procedure,
-            types_de_champ_public: [
+            public_type_de_champs: [
               {
                 type: :drop_down_list,
                 drop_down_options: ["  Foo   Bar  ", "Baz"],
@@ -23,7 +23,7 @@ module Maintenance
             ]
           )
         end
-        let(:type_de_champ) { procedure.active_revision.root_types_de_champ_public.first }
+        let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         let(:champ) { dossier.champ_data.first }
 
@@ -47,7 +47,7 @@ module Maintenance
         let(:procedure) do
           create(
             :procedure,
-            types_de_champ_public: [
+            public_type_de_champs: [
               {
                 type: :drop_down_list,
                 drop_down_options: ["Foo Bar", "Baz"],
@@ -55,7 +55,7 @@ module Maintenance
             ]
           )
         end
-        let(:type_de_champ) { procedure.active_revision.root_types_de_champ_public.first }
+        let(:type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
         let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
         let!(:champ) { dossier.champ_data.first }
 

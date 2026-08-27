@@ -35,7 +35,7 @@ module ColumnsConcern
       columns.concat(individual_columns) if for_individual
       columns.concat(moral_columns) if !for_individual
       columns.concat(procedure_chorus_columns) if chorusable? && chorus_configuration.complete?
-      columns.concat(types_de_champ_columns)
+      columns.concat(type_de_champs_columns)
     end
   end
 
@@ -124,11 +124,53 @@ module ColumnsConcern
   end
 
   def form_filterable_columns
-    all_revisions_types_de_champ.public_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
+    all_revisions_type_de_champs.public_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
   end
 
   def annotation_privees_filterable_columns
-    all_revisions_types_de_champ.private_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
+    all_revisions_type_de_champs.private_only.flat_map { _1.columns(procedure_id: id) }.filter(&:filterable)
+  end
+
+  def customizable_columns
+    current_revision = published_revision || active_revision
+    current_revision.public_root_type_de_champs
+      .filter(&:customizable?)
+      .filter { _1.condition.nil? }
+      .filter_map { _1.customization_column(procedure_id: id) }
+      .uniq(&:stable_id)
+  end
+
+  def customizable_columns_by_section
+    current_revision = published_revision || active_revision
+    tdcs_public = current_revision.public_root_type_de_champs
+    auto_numbering = tdcs_public.none? { _1.header_section? && _1.libelle.match?(/^\d/) }
+
+    customizable_by_stable_id = customizable_columns.index_by(&:stable_id)
+
+    current_section = [nil, nil]
+    counters = []
+    grouped = {}
+
+    tdcs_public.each do |type_de_champ|
+      if type_de_champ.header_section?
+        label = type_de_champ.libelle
+        if auto_numbering
+          level = type_de_champ.level_for_revision(current_revision)
+          counters = counters.first(level)
+          counters[level - 1] = (counters[level - 1] || 0) + 1
+          counters.map! { it || 1 }
+          label = "#{counters.join('.')}. #{label}"
+        end
+        current_section = [type_de_champ.stable_id, label]
+        next
+      end
+      column = customizable_by_stable_id[type_de_champ.stable_id]
+      next if column.nil?
+
+      (grouped[current_section] ||= []) << column
+    end
+
+    grouped.map { |(stable_id, label), columns| [stable_id, label, columns] }
   end
 
   private
@@ -149,7 +191,7 @@ module ColumnsConcern
 
   def dossier_submitted_with_identity_provider_columns
     ['submitted_with_france_connect', 'submitted_with_pro_connect']
-      .map { |column| dossier_col(table: 'self', column:, type: :boolean, options_for_select: Champs::YesNoChamp.options) }
+      .map { |column| dossier_col(table: 'self', column:, type: :boolean) }
   end
 
   def traitements_email_column = dossier_col(table: 'traitements', column: 'instructeur_email', filterable: true, displayable: false)
@@ -219,7 +261,7 @@ module ColumnsConcern
     @individual_columns
       .concat ['nom', 'prenom'].map { |column| dossier_col(table: 'individual', column:) }
       .concat ['mandataire_last_name', 'mandataire_first_name'].map { |column| dossier_col(table: 'self', column:) }
-      .concat ['for_tiers'].map { |column| dossier_col(table: 'self', column:, type: :boolean, options_for_select: Champs::YesNoChamp.options) }
+      .concat ['for_tiers'].map { |column| dossier_col(table: 'self', column:, type: :boolean) }
   end
 
   def moral_columns
@@ -237,8 +279,8 @@ module ColumnsConcern
     [siret_column, etablissements, others, for_export].flatten
   end
 
-  def types_de_champ_columns
-    all_revisions_types_de_champ.flat_map { _1.columns(procedure_id: id) }
+  def type_de_champs_columns
+    all_revisions_type_de_champs.flat_map { _1.columns(procedure_id: id) }
   end
 
   def dossier_col(**args) = Columns::DossierColumn.new(**(args.merge(procedure_id: id)))

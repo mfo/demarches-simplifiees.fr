@@ -89,19 +89,20 @@ module Users
       @alerts_enabled = @user.dossiers_alerts_enabled?
     end
 
+    def user_dossiers
+      @user_dossiers ||= begin
+        invited_ids = @user.dossiers_invites.visible_by_user.pluck(:id)
+        own = @user.dossiers.visible_by_user
+        invited_ids.empty? ? own : own.or(Dossier.visible_by_user.where(id: invited_ids))
+      end
+    end
+
     def model_alerts
       return [] if !alerts_enabled?
       Array(@params[:alert]) & ALERT_SCOPES.keys
     end
 
     private
-
-    def user_dossiers
-      invited_ids = @user.dossiers_invites.visible_by_user.pluck(:id)
-      own = @user.dossiers.visible_by_user
-      return own if invited_ids.empty?
-      own.or(Dossier.visible_by_user.where(id: invited_ids))
-    end
 
     def filtered_procedure
       Procedure

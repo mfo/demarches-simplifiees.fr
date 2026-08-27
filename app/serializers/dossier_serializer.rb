@@ -32,7 +32,7 @@ class DossierSerializer < ActiveModel::Serializer
   has_many :champs, serializer: ChampSerializer
 
   def champs
-    champs = object.root_champs_public.reject { |c| c.type_de_champ.old_pj.present? }
+    champs = object.root_champs_public.reject { |c| c.type_de_champ.piece_justificative? && c.type_de_champ.old_pj.present? }
 
     if object.expose_legacy_carto_api?
       champ_carte = champs.find do |champ|
@@ -61,7 +61,7 @@ class DossierSerializer < ActiveModel::Serializer
   end
 
   def pieces_justificatives
-    object.root_champs_public.filter { |champ| champ.type_de_champ.old_pj }.map do |champ|
+    object.root_champs_public.filter { |champ| champ.type_de_champ.piece_justificative? && champ.type_de_champ.old_pj }.map do |champ|
       {
         created_at: champ.created_at&.in_time_zone('UTC'),
         type_de_piece_justificative_id: champ.type_de_champ.old_pj[:stable_id],
@@ -80,7 +80,7 @@ class DossierSerializer < ActiveModel::Serializer
   end
 
   def types_de_piece_justificative
-    PiecesJustificativesService.serialize_types_de_champ_as_type_pj(object.revision)
+    PiecesJustificativesService.serialize_type_de_champs_as_type_pj(object.revision)
   end
 
   def email

@@ -356,7 +356,7 @@ module LLM
     def sanitize_options(type_champ, options)
       return nil if options.blank? || !options.is_a?(Hash)
 
-      allowed_keys = TypeDeChamp::OPTS_BY_TYPE[type_champ.to_s]
+      allowed_keys = TypeDeChamp.find_sti_class(type_champ).option_keys
       return nil if allowed_keys.blank?
 
       options.slice(*allowed_keys.map(&:to_s)).presence

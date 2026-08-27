@@ -13,8 +13,8 @@ describe Instructeurs::ClearFilterButtonsComponent, type: :component do
   before { render_inline(component) }
 
   describe "visible text" do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
-    let(:first_type_de_champ) { procedure.active_revision.root_types_de_champ_public.first }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
+    let(:first_type_de_champ) { procedure.active_revision.public_root_type_de_champs.first }
     let(:filter) { to_filter([first_type_de_champ.libelle, { operator: 'match', value: ['true'] }]) }
 
     context 'when type_de_champ text' do
@@ -24,7 +24,7 @@ describe Instructeurs::ClearFilterButtonsComponent, type: :component do
     end
 
     context 'when type_de_champ yes_no' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }]) }
 
       it 'should transform value' do
         expect(page).to have_text("oui")

@@ -6,11 +6,11 @@ describe Manager::DossiersController, type: :controller do
   let(:super_admin) { create(:super_admin, :with_otp) }
   before do
     sign_in super_admin
-    procedure = create(:procedure, :published, types_de_champ_public: types_de_champ)
+    procedure = create(:procedure, :published, public_type_de_champs: type_de_champs)
     @dossier = create(:dossier, :en_construction, :with_populated_champs, procedure:)
   end
 
-  let(:types_de_champ) { [] }
+  let(:type_de_champs) { [] }
 
   render_views
 
@@ -22,7 +22,7 @@ describe Manager::DossiersController, type: :controller do
   end
 
   describe "GET #show" do
-    let(:types_de_champ) {
+    let(:type_de_champs) {
       [
         { libelle: "Nom", mandatory: true },
       ]
@@ -77,7 +77,7 @@ describe Manager::DossiersController, type: :controller do
 
     it do
       expect(@dossier.transfer).to be_nil
-      expect(flash[:notice]).to eq "La demande de transfert a été supprimée avec succès"
+      expect(flash[:notice]).to eq "La proposition de transfert a été annulée."
     end
   end
 end

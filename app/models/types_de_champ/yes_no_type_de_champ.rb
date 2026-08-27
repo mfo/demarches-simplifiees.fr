@@ -1,25 +1,23 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::YesNoTypeDeChamp < TypesDeChamp::TypeDeChampBase
-  def filter_to_human(filter_value)
-    if filter_value == "true"
-      I18n.t('activerecord.attributes.type_de_champ.type_champs.yes_no_true')
-    elsif filter_value == "false"
-      I18n.t('activerecord.attributes.type_de_champ.type_champs.yes_no_false')
-    else
-      filter_value
-    end
-  end
+class TypesDeChamp::YesNoTypeDeChamp < TypeDeChamp
+  def self.category = CHOICE
+  def self.column_type = :boolean
+  def self.conditionable? = true
 
-  def champ_value(champ)
+  def prefillable? = true
+  def choice_type? = true
+  def condition_value_type = :boolean
+
+  def typed_champ_value(champ)
     champ_value_true?(champ) ? 'Oui' : 'Non'
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     champ_value_true?(champ) ? 'Oui' : 'Non'
   end
 
-  def champ_value_for_api(champ, version: 2)
+  def typed_champ_value_for_api(champ, version: 2)
     case version
     when 2
       champ_value_true?(champ).to_s

@@ -20,7 +20,6 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 fr:
-  insee_down: LʼINSEE est indisponible, les informations sur lʼentreprise arriveront dʼici quelques heures.
   invisible_captcha:
     sentence_for_humans: 'Si vous êtes un humain, laissez ce champ vide'
   clipboard:
@@ -410,7 +409,7 @@ fr:
         edit:
           autosave: Votre dossier est enregistré automatiquement après chaque modification. Vous pouvez à tout moment fermer la fenêtre et reprendre plus tard là où vous en étiez.
           autosave_submit: Vos modifications sont automatiquement enregistrées. Déposez-les quand vous aurez terminé.
-          invite_notice: En tant qu’invité, vous pouvez remplir ce formulaire – mais <strong>le titulaire du dossier doit le déposer lui-même</strong>.
+          invite_notice_html: En tant qu’invité, vous pouvez remplir ce formulaire – mais <strong>le titulaire du dossier doit le déposer lui-même</strong>.
         messages:
           form:
             send_message: "Envoyer le message"
@@ -576,6 +575,9 @@ fr:
             label:
               one: "Corbeille (%{count})"
               other: "Corbeille (%{count})"
+          personnalisation_link:
+            label: Personnaliser la liste des dossiers
+            tooltip: Personnaliser la liste des dossiers
           search:
             back_to_list: "Mes dossiers"
             result_title: "Résultat de la recherche pour « %{search_terms} »"
@@ -586,31 +588,14 @@ fr:
             open: "Rechercher"
             panel_title: "Rechercher"
           filter_panel:
-            open: "Filtrer les dossiers"
-            title: "Filtrer les dossiers"
-            close: "Fermer"
-            loading: "Chargement des filtres…"
             groups:
-              procedure: "Par démarche"
               shared_with_me: "Partagé avec moi"
-              state: "État de traitement"
-              alert: "Alerte sur le dossier"
-            procedure_placeholder: "Sélectionnez une démarche"
             alerts:
               nouveau_message: "Nouveau message"
               message_avec_attente_de_reponse: "Message avec attente de réponse"
               a_corriger: "À corriger"
               expire_bientot: "Expire bientôt"
-            from_created_at_date: "Créé depuis le"
-            from_depose_at_date: "Déposé depuis le"
-            reset: "Réinitialiser"
-            apply:
-              zero: "Aucun dossier ne correspond"
-              one: "Afficher le dossier"
-              other: "Afficher les %{count} dossiers"
           active_filters:
-            reset: "Réinitialiser les filtres"
-            remove_tag: "Retirer le filtre : %{label}"
             from_created_at_date_tag: "Créé depuis le %{date}"
             from_depose_at_date_tag: "Déposé depuis le %{date}"
         dossiers_list:
@@ -663,7 +648,7 @@ fr:
           clone: "Dupliquer le dossier"
           delete_dossier: "Mettre à la corbeille"
           delete_dossier_confirm: "Voulez-vous vraiment mettre à la corbeille ce dossier ?"
-          delete_dossier_with_transfer_confirm: "En continuant, vous allez supprimer ce dossier, les informations qu’il contient ainsi que sa demande de transfert à %{email}. Toute suppression entraîne l’annulation de la démarche en cours.\n\nConfirmer la suppression ?"
+          delete_dossier_with_transfer_confirm: "En continuant, vous allez supprimer ce dossier, les informations qu’il contient ainsi que sa proposition de transfert à %{email}. Toute suppression entraîne l’annulation de la démarche en cours.\n\nConfirmer la suppression ?"
           transfer_dossier: "Transférer le dossier"
           edit_draft: "Continuer à remplir"
           restore: "Restaurer"
@@ -678,23 +663,38 @@ fr:
             one: "1 dossier"
             other: "%{count} dossiers"
         transfer_requests:
-          title: "Demandes de transfert"
+          title: "Propositions de transfert"
           count:
             one: "1 dossier en attente de transfert"
             other: "%{count} dossiers en attente de transfert"
-          received_from: "Demande de transfert envoyée par %{email}"
+          received_from: "Proposition de transfert envoyée par %{email}"
           accept: "Accepter"
           refuse: "Refuser"
-          refuse_confirm: "Êtes-vous sûr de vouloir refuser cette demande de transfert ?"
+          refuse_confirm: "Êtes-vous sûr de vouloir refuser cette proposition de transfert ?"
           close: "Fermer"
         transfers:
           sender_from_support: Le support technique
-          sender_demande_en_cours_from_support_html: '<h4 class="card-title fr-mb-1v">Une demande de transfert par le support technique est en cours sur le dossier n° %{id} pour %{email}</h4>'
-          revoke_html: 'Révoquer cette demande <span class="fr-sr-only">de transfert</span>'
-          sender_title: "Demande de transfert en cours"
-          sender_body: "Vous avez envoyé une demande de transfert de ce dossier à %{email}."
-          sender_body_from_support: "L’équipe support a initié une demande de transfert de ce dossier vers %{email}."
-          revoke: "Révoquer cette demande"
+          sender_pending_from_support_html: '<h4 class="card-title fr-mb-1v">Une proposition de transfert par le support technique est en cours sur le dossier n° %{id} pour %{email}</h4>'
+          cancel_html: 'Annuler cette proposition <span class="fr-sr-only">de transfert</span>'
+          sender_title: "Proposition de transfert en cours"
+          sender_body: "Vous avez envoyé une proposition de transfert de ce dossier à %{email}."
+          sender_body_from_support: "L’équipe support a initié une proposition de transfert de ce dossier vers %{email}."
+          revoke: "Annuler cette proposition"
+        personnalisation:
+          title: Personnaliser la liste des dossiers
+          back: Mes dossiers
+          why_title: Pourquoi personnaliser la liste ?
+          why_intro: "Pour chaque dossier, les informations suivantes sont systématiquement affichées :"
+          why_field_number_html: "<strong>N° de dossier</strong>"
+          why_field_applicant_html: "<strong>Identité du demandeur</strong>"
+          why_field_date_html: "<strong>Date de dépôt</strong> (ou de création / modification)"
+          why_explanation_html: "Afin de faciliter la distinction des dossiers entre eux dans la liste (notamment si vous déposez plusieurs dossiers sur une même démarche), vous pouvez définir <strong>une ou plusieurs informations complémentaires</strong> à afficher, issues des données renseignées dans les champs du formulaire."
+          fields_title: "Informations supplémentaires à afficher dans la vue des dossiers de la liste :"
+          cancel: Annuler
+          save_button: Enregistrer
+          saved: "La liste des dossiers a bien été personnalisée."
+          error: "La personnalisation n’a pas pu être enregistrée."
+          empty_state: "Aucune de vos démarches ne comporte de champ pouvant être affiché dans la liste des dossiers."
       sessions:
         new:
           sign_in: Connexion à %{application_name}
@@ -725,17 +725,6 @@ fr:
       shared:
         email_can_take_a_while_html: "<strong>Attention</strong>, ce courriel peut mettre jusqu’à <strong>15 minutes</strong> pour arriver."
         contact_us_if_any_trouble_html: 'En cas de difficultés, nous restons joignables <a href="%{href}">via ce formulaire</a>.'
-  modal:
-    publish:
-      title:
-        publish: Publier la démarche
-        reopen: Réactiver la démarche
-      body:
-        publish: Vous vous apprêtez à publier votre démarche au public.
-        reopen: Vous vous apprêtez à réactiver votre démarche.
-      submit:
-        publish: Publier
-        reopen: Réactiver
   activerecord:
     models:
       user:
@@ -765,19 +754,19 @@ fr:
         ineligibilite_rules: "Les règles d’inéligibilité"
       champs:
         value: Valeur du champ
-      default_mail_attributes: &default_mail_attributes
+      default_email_attributes: &default_email_attributes
         hints:
           subject: "L’objet généré sera tronqué s’il dépasse 100 caractères."
-      mails/closed_mail:
-        << : *default_mail_attributes
-      mails/initiated_mail:
-        << : *default_mail_attributes
-      mails/received_mail:
-        << : *default_mail_attributes
-      mails/refused_mail:
-        << : *default_mail_attributes
-      mails/without_continuation_mail:
-        << : *default_mail_attributes
+      emails/accepte:
+        << : *default_email_attributes
+      emails/depose:
+        << : *default_email_attributes
+      emails/passe_en_instruction:
+        << : *default_email_attributes
+      emails/refuse:
+        << : *default_email_attributes
+      emails/classe_sans_suite:
+        << : *default_email_attributes
 
     errors:
       messages:
@@ -986,8 +975,8 @@ fr:
       one:  supprimé définitivement
       other: supprimés définitivement
     dossiers_transferes:
-      one: demande de transfert
-      other: demandes de transfert
+      one: proposition de transfert
+      other: propositions de transfert
     dossiers_close_to_expiration:
       one: expirant
       other: expirants
@@ -1059,9 +1048,9 @@ fr:
         title: "Le dossier n° %{numero} a été mis à la corbeille"
         explanation_html: "Vous pouvez retrouver ce dossier depuis l’onglet <a href=\"%{trash_link}\" class=\"fr-link\">corbeille</a> de votre compte.<br>Il n’est pas consultable actuellement."
         consult_trash: "Consulter la corbeille"
-        user_request_info_without_if: "Ce dossier a été mis à la corbeille à votre demande :<br>Vous pouvez encore le <strong>restaurer</strong>."
-        user_request_info: "Si ce dossier a été mis à la corbeille à votre demande :<br>Vous pouvez encore le <strong>restaurer</strong>."
-        automatic_info: "Si ce dossier a été mis à la corbeille automatiquement car son délai maximal de conservation a été atteint :<br>Nous vous invitons à le <strong>télécharger</strong> au plus vite avant qu’il ne soit supprimé définitivement."
+        user_request_info_without_if_html: "Ce dossier a été mis à la corbeille à votre demande :<br>Vous pouvez encore le <strong>restaurer</strong>."
+        user_request_info_html: "Si ce dossier a été mis à la corbeille à votre demande :<br>Vous pouvez encore le <strong>restaurer</strong>."
+        automatic_info_html: "Si ce dossier a été mis à la corbeille automatiquement car son délai maximal de conservation a été atteint :<br>Nous vous invitons à le <strong>télécharger</strong> au plus vite avant qu’il ne soit supprimé définitivement."
       show_deleted:
         page_title: "Dossier n° %{numero} - Supprimé définitivement"
         title: "Le dossier n° %{numero} a été supprimé"
@@ -1141,7 +1130,7 @@ fr:
     jetons:
       index:
         api_entreprise_description_html: "%{app_name} utilise <a target=\"_blank\" rel=\"noopener\" title=\"En savoir plus sur API Entreprise — Nouvel onglet\" href=\"https://entreprise.api.gouv.fr/\">API Entreprise</a> qui permet de récupérer les informations administratives des entreprises et des associations.<br />Si vous avez besoin d’informations complémentaires, vous pouvez demander votre propre habilitation API Entreprise en cliquant sur le lien suivant <a target=\"_blank\" rel=\"noopener\" title=\"Demander une habilitation API Entreprise — Nouvel onglet\" href=\"https://www.data.gouv.fr/dataservices/api-entreprise\">https://www.data.gouv.fr/dataservices/api-entreprise</a>."
-        api_particulier_description_html: "%{app_name} utilise <a target=\"_blank\" rel=\"noopener\" title=\"En savoir plus sur API Particulier — Nouvel onglet\" href=\"https://particulier.api.gouv.fr/\">API Particulier</a> qui permet d’accéder aux données familiales (CAF ou MSA), au statut étudiant boursier, au statut allocation d’éducation de l’enfant handicapé (AEEH), et au statut allocation adulte handicapé (AAH).<br />Pour en bénéficier, demandez une habilitation API Particulier en cliquant sur le lien suivant <a target=\"_blank\" rel=\"noopener\" title=\"Demander une habilitation API Particulier — Nouvel onglet\" href=\"https://www.data.gouv.fr/dataservices/api-particulier\">https://www.data.gouv.fr/dataservices/api-particulier</a>."
+        api_particulier_description_html: "%{app_name} utilise <a target=\"_blank\" rel=\"noopener\" title=\"En savoir plus sur API Particulier — Nouvel onglet\" href=\"https://particulier.api.gouv.fr/\">API Particulier</a> qui permet d’accéder aux données familiales (CAF ou MSA), au statut étudiant boursier, au statut allocation d’éducation de l’enfant handicapé (AEEH), au statut allocation adulte handicapé (AAH), et au statut d’allocation de rentrée scolaire (ARS).<br />Pour en bénéficier, demandez une habilitation API Particulier en cliquant sur le lien suivant <a target=\"_blank\" rel=\"noopener\" title=\"Demander une habilitation API Particulier — Nouvel onglet\" href=\"https://datapass.api.gouv.fr/formulaires/api-particulier-demarche-numerique/demande/nouveau\">https://datapass.api.gouv.fr/formulaires/api-particulier-demarche-numerique/demande/nouveau</a>."
       api_particulier:
         already_configured: "Déjà rempli"
         needs_configuration: "À remplir"
@@ -1208,34 +1197,34 @@ fr:
     default_templates:
       greeting: Bonjour,
       your_file_number: "Votre dossier n° %{id}"
-      closed_mail:
+      accepte:
         accepted: "a été accepté le %{date}"
         consultation_info: "À tout moment, vous pouvez consulter votre dossier et les éventuels messages de l’administration à cette adresse : %{link}"
-      closed_mail_with_attestation:
+      accepte_avec_attestation:
         accepted: "a été accepté le %{date}"
         download_attestation: "Vous pouvez télécharger votre attestation à l’adresse suivante : %{link}"
-      initiated_mail:
+      depose:
         deposited: a bien été déposé
         can_modify: Si besoin est, vous pouvez encore y apporter des modifications.
-      received_mail:
+      passe_en_instruction:
         received: a bien été reçu et
         processed: pris en charge
         examination: Il va maintenant être examiné par le service.
-      re_instructed_mail:
+      repasse_en_instruction:
         reexamined: va être réexaminé, la précédente décision sur ce dossier est caduque.
         procedure_link: "Vous pouvez retrouver le dossier que vous avez créé pour la démarche %{procedure} à l’adresse suivante : %{link}"
         contact_service: "Pour obtenir le détail de cette modification de la décision, vous pouvez contacter le service : %{service}."
-      refused_mail:
+      refuse:
         refused: "a été refusé le %{date}"
         reason_title: "Le motif de refus est le suivant :"
         reason_content: "%{motivation}"
         more_info: "Pour en savoir plus sur le motif du refus, vous pouvez consulter votre dossier et les éventuels messages de l’administration à cette adresse : %{link}"
-      refused_mail_with_attestation:
+      refuse_avec_attestation:
         refused: "a été refusé le %{date}"
         reason_title: "Le motif de refus est le suivant :"
         reason_content: "%{motivation}"
         download_attestation: "Vous pouvez télécharger votre attestation à l’adresse suivante : %{link}"
-      without_continuation_mail:
+      classe_sans_suite:
         closed_without_continuation: "a été classé sans suite le %{date}"
         reason_title: "Le motif est le suivant :"
         reason_content: "%{motivation}"

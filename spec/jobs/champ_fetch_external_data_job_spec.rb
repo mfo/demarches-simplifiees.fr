@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe ChampFetchExternalDataJob, type: :job do
   include Dry::Monads[:result]
 
-  let(:procedure) { create(:procedure, :published, types_de_champ_public: [{ type: :rnf }]) }
+  let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :rnf }]) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:external_id) { champ.external_id }

@@ -3,8 +3,8 @@
 RSpec.describe DossierStateConcern do
   include Logic
 
-  let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public:, declarative_with_state:, auto_archive_on:) }
-  let(:types_de_champ_public) do
+  let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:, declarative_with_state:, auto_archive_on:) }
+  let(:public_type_de_champs) do
     [
       { type: :text, stable_id: 90 },
       { type: :text, stable_id: 91 },
@@ -316,7 +316,7 @@ RSpec.describe DossierStateConcern do
     before { allow(ClamavService).to receive(:safe_file?).and_return(true) }
 
     context 'when piece_justificative with titre_identite nature' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
       let(:champ) { dossier.champ_data.first }
@@ -329,7 +329,7 @@ RSpec.describe DossierStateConcern do
     end
 
     context 'when nature is titre_identite' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, nature: 'titre_identite' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
       let(:champ) { dossier.champ_data.first }
@@ -342,7 +342,7 @@ RSpec.describe DossierStateConcern do
     end
 
     context 'when pj_auto_purge is enabled' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative, pj_auto_purge: '1' }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative, pj_auto_purge: '1' }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
       let(:champ) { dossier.champ_data.first }
@@ -355,7 +355,7 @@ RSpec.describe DossierStateConcern do
     end
 
     context 'when standard piece justificative' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :piece_justificative }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :piece_justificative }]) }
       let(:dossier) { create(:dossier, :en_instruction, :followed, procedure:) }
       let(:instructeur) { dossier.followers_instructeurs.first }
       let(:champ) { dossier.champ_data.first }
@@ -370,7 +370,7 @@ RSpec.describe DossierStateConcern do
 
   describe 'submit brouillon with pre_rempli champ' do
     context 'when pre_rempli champ is hidden (pre_rempli_hidden: "1")' do
-      let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :pre_rempli, pre_rempli_hidden: "1", stable_id: 100 }]) }
+      let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :pre_rempli, pre_rempli_hidden: "1", stable_id: 100 }]) }
       let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure:) }
 
       before do
@@ -388,7 +388,7 @@ RSpec.describe DossierStateConcern do
     end
 
     context 'when pre_rempli champ is visible but condition is false' do
-      let(:procedure) { create(:procedure, :published, :for_individual, types_de_champ_public: [{ type: :pre_rempli, stable_id: 101, condition: ds_eq(constant(true), constant(false)) }]) }
+      let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs: [{ type: :pre_rempli, stable_id: 101, condition: ds_eq(constant(true), constant(false)) }]) }
       let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure:) }
 
       before do
@@ -407,7 +407,7 @@ RSpec.describe DossierStateConcern do
   end
 
   describe '#clear_france_connect_champs_piece_justificatives (after user submits a dossier or modifications)' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :quotient_familial }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :quotient_familial }]) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.champ_data.first }
 
@@ -446,6 +446,73 @@ RSpec.describe DossierStateConcern do
       it 'does not delete the associated attachment' do
         subject
         expect(champ.reload.piece_justificative_file).to be_attached
+      end
+    end
+  end
+
+  describe 'carte static map rendering' do
+    let(:carte_procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :carte }, { type: :text }]) }
+    let(:carte_dossier) { create(:dossier, dossier_state, procedure: carte_procedure) }
+    let(:carte_champ) { carte_dossier.champ_data.find(&:carte?) }
+
+    before { carte_champ.update(geo_areas: [build(:geo_area, :selection_utilisateur, :polygon)]) }
+
+    context 'on dépôt' do
+      let(:dossier_state) { :brouillon }
+
+      it 'renders the map once the dossier is submitted' do
+        expect { carte_dossier.after_commit_passer_en_construction }
+          .to have_enqueued_job(RenderCarteChampJob).with(carte_champ).exactly(:once)
+      end
+    end
+
+    context 'on submitting changes' do
+      let(:dossier_state) { :en_construction }
+
+      it 'renders the map again' do
+        expect { carte_dossier.usager_submit_en_construction! }
+          .to have_enqueued_job(RenderCarteChampJob).with(carte_champ)
+      end
+
+      it 'renders the map when an instructeur submits changes' do
+        instructeur = create(:instructeur)
+        carte_procedure.defaut_groupe_instructeur.add_instructeurs(ids: [instructeur.id])
+
+        expect { carte_dossier.instructeur_submit_en_construction!(instructeur:) }
+          .to have_enqueued_job(RenderCarteChampJob).with(carte_champ)
+      end
+
+      # A carte champ left empty has nothing to render: no point calling IGN to
+      # find out the geometry is missing.
+      it 'skips champs without geometry' do
+        carte_champ.geo_areas.destroy_all
+
+        expect { carte_dossier.reload.usager_submit_en_construction! }
+          .not_to have_enqueued_job(RenderCarteChampJob)
+      end
+
+      # ... but an image rendered before the geometry was removed must not
+      # survive the submission that removed it.
+      context 'when the geometry is removed after a first render' do
+        before { carte_champ.attach_static_map(StringIO.new('map-bytes'), digest: 'abc') }
+
+        it 'purges the stale map when the usager submits' do
+          carte_champ.geo_areas.destroy_all
+
+          expect do
+            perform_enqueued_jobs(only: RenderCarteChampJob) { carte_dossier.reload.usager_submit_en_construction! }
+          end.to change { carte_champ.reload.static_map.attached? }.from(true).to(false)
+        end
+
+        it 'purges the stale map when an instructeur submits' do
+          instructeur = create(:instructeur)
+          carte_procedure.defaut_groupe_instructeur.add_instructeurs(ids: [instructeur.id])
+          carte_champ.geo_areas.destroy_all
+
+          expect do
+            perform_enqueued_jobs(only: RenderCarteChampJob) { carte_dossier.reload.instructeur_submit_en_construction!(instructeur:) }
+          end.to change { carte_champ.reload.static_map.attached? }.from(true).to(false)
+        end
       end
     end
   end

@@ -18,6 +18,14 @@ module Mutations
       argument :drop_down_list, String, "Modifier la sélection d’un champ choix simple", required: false
       argument :multiple_drop_down_list, [String], "Modifier la sélection d’un champ choix multiple", required: false
       argument :dossier_link, String, "Modifier la valeur d'un champ lien vers un dossier", required: false
+      argument :phone, String, "Modifier la valeur d’un champ téléphone", required: false
+      argument :iban, String, "Modifier la valeur d’un champ IBAN", required: false
+      argument :formatted, String, "Modifier la valeur d’un champ à format prédéfini", required: false
+      argument :civilite, Types::Civilite, "Modifier la valeur d’un champ civilité", required: false
+      argument :pays, String, "Modifier la valeur d’un champ pays (code ISO 3166-1 alpha-2 ou nom)", required: false
+      argument :regions, String, "Modifier la valeur d’un champ région (code INSEE ou nom)", required: false
+      argument :departements, String, "Modifier la valeur d’un champ département (code INSEE ou nom)", required: false
+      argument :piece_justificative, [ID], "Ajouter des pièces justificatives à un champ pièce justificative (identifiants signés de blobs, créés via la mutation createDirectUpload)", required: false
       argument :repetition, Int, "Ajouter des repetitions à un champ répétable", required: false
     end
 
@@ -35,6 +43,14 @@ module Mutations
 
     def resolve(dossier:, instructeur:, annotations:)
       update_annotations(dossier, annotations)
+    end
+
+    def authorized_before_load?(annotations:, **args)
+      annotations.flat_map { _1.value.piece_justificative || [] }.each do |blob_id|
+        result = validate_blob(blob_id)
+        return result unless result == true
+      end
+      true
     end
 
     def authorized?(dossier:, instructeur:, **args)
@@ -83,6 +99,9 @@ module Mutations
 
       champ = dossier.champ_for_update(type_de_champ, row_id:, updated_by: current_administrateur.email)
       case champ.type_champ
+      when 'piece_justificative'
+        champ.piece_justificative_file.attach(*value)
+        champ.fetch_later if champ.has_async_external_data? && champ.may_fetch_later?
       when 'datetime'
         champ.value = value.iso8601(0)
       when 'multiple_drop_down_list'
@@ -107,6 +126,14 @@ module Mutations
         TypeDeChamp.type_champs.fetch(:drop_down_list),
         TypeDeChamp.type_champs.fetch(:multiple_drop_down_list),
         TypeDeChamp.type_champs.fetch(:dossier_link),
+        TypeDeChamp.type_champs.fetch(:phone),
+        TypeDeChamp.type_champs.fetch(:iban),
+        TypeDeChamp.type_champs.fetch(:formatted),
+        TypeDeChamp.type_champs.fetch(:civilite),
+        TypeDeChamp.type_champs.fetch(:pays),
+        TypeDeChamp.type_champs.fetch(:regions),
+        TypeDeChamp.type_champs.fetch(:departements),
+        TypeDeChamp.type_champs.fetch(:piece_justificative),
         TypeDeChamp.type_champs.fetch(:repetition),
       ]
     end

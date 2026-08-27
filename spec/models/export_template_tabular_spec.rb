@@ -4,9 +4,9 @@ describe ExportTemplate do
   let(:groupe_instructeur) { create(:groupe_instructeur, procedure:) }
   let(:export_template) { build(:export_template, kind: 'csv', groupe_instructeur:) }
   let(:tabular_export_template) { build(:tabular_export_template, groupe_instructeur:) }
-  let(:procedure) { create(:procedure_with_dossiers, :published, types_de_champ_public:, for_individual:) }
+  let(:procedure) { create(:procedure_with_dossiers, :published, public_type_de_champs:, for_individual:) }
   let(:for_individual) { true }
-  let(:types_de_champ_public) do
+  let(:public_type_de_champs) do
     [
       { type: :text, libelle: "Ca va ?", mandatory: true, stable_id: 1 },
       { type: :communes, libelle: "Commune", mandatory: true, stable_id: 17 },
@@ -35,7 +35,7 @@ describe ExportTemplate do
 
     context 'when there is a previous revision with a renamed tdc' do
       context 'with already column in export template' do
-        let(:previous_tdc) { procedure.published_revision.root_types_de_champ_public.find { _1.stable_id == 1 } }
+        let(:previous_tdc) { procedure.published_revision.public_root_type_de_champs.find { _1.stable_id == 1 } }
         let(:changed_tdc) { { libelle: "Ca roule ?" } }
 
         context 'with already column in export template' do
@@ -59,7 +59,7 @@ describe ExportTemplate do
         end
       end
       context 'without columns in export template' do
-        let(:previous_tdc) { procedure.published_revision.root_types_de_champ_public.find { _1.stable_id == 1 } }
+        let(:previous_tdc) { procedure.published_revision.public_root_type_de_champs.find { _1.stable_id == 1 } }
         let(:changed_tdc) { { libelle: "Ca roule ?" } }
 
         before do
@@ -128,12 +128,12 @@ describe ExportTemplate do
 
   describe 'columns_for_stable_id' do
     before do
-      export_template.exported_columns = procedure.published_revision.types_de_champ.first.columns(procedure_id: procedure.id).map do |column|
+      export_template.exported_columns = procedure.published_revision.type_de_champs.first.columns(procedure_id: procedure.id).map do |column|
         ExportedColumn.new(libelle: column.label, column:)
       end
     end
     context 'when procedure has a TypeDeChamp::Commune' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :communes, libelle: "Commune", mandatory: true, stable_id: 17 },
         ]
@@ -143,7 +143,7 @@ describe ExportTemplate do
       end
     end
     context 'when procedure has a TypeDeChamp::Siret' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :siret, libelle: 'SIRET', stable_id: 20 },
         ]
@@ -162,7 +162,7 @@ describe ExportTemplate do
       end
     end
     context 'when procedure has a TypeDeChamp::Text' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :text, libelle: "Text", mandatory: true, stable_id: 15 },
         ]

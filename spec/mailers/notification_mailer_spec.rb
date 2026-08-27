@@ -81,10 +81,10 @@ RSpec.describe NotificationMailer, type: :mailer do
     end
 
     context "with a custom template" do
-      let(:email_template) { create(:initiated_mail, subject: 'Email subject', body: 'Your dossier was received. Thanks.', procedure:) }
+      let(:email_template) { create(:email_depose, subject: 'Email subject', body: 'Your dossier was received. Thanks.', procedure:) }
 
       before do
-        dossier.procedure.initiated_mail = email_template
+        dossier.procedure.email_depose = email_template
       end
 
       it 'renders the template' do
@@ -200,10 +200,10 @@ RSpec.describe NotificationMailer, type: :mailer do
 
   describe 'send_en_instruction_notification' do
     let(:dossier) { create(:dossier, :en_instruction, :with_individual, :with_service, user: user, procedure:) }
-    let(:email_template) { create(:received_mail, subject: 'Email subject', body: 'Your dossier was processed. Thanks.', procedure:) }
+    let(:email_template) { create(:email_passe_en_instruction, subject: 'Email subject', body: 'Your dossier was processed. Thanks.', procedure:) }
 
     before do
-      dossier.procedure.received_mail = email_template
+      dossier.procedure.email_passe_en_instruction = email_template
     end
 
     subject(:mail) { described_class.send_en_instruction_notification(dossier) }
@@ -220,7 +220,7 @@ RSpec.describe NotificationMailer, type: :mailer do
     end
 
     context 'when the template body contains tags' do
-      let(:email_template) { create(:received_mail, subject: 'Email subject', body: 'Hello --nom--, your dossier --lien dossier-- was processed.', procedure:) }
+      let(:email_template) { create(:email_passe_en_instruction, subject: 'Email subject', body: 'Hello --nom--, your dossier --lien dossier-- was processed.', procedure:) }
 
       it 'replaces value tags with the proper value and renders links correctly' do
         expect(mail.body).to include(dossier.individual.nom)
@@ -229,7 +229,7 @@ RSpec.describe NotificationMailer, type: :mailer do
     end
 
     context 'when the template body contains HTML' do
-      let(:email_template) { create(:received_mail, body: 'Your <b>dossier</b> was processed. <iframe src="#">Foo</iframe>', procedure:) }
+      let(:email_template) { create(:email_passe_en_instruction, body: 'Your <b>dossier</b> was processed. <iframe src="#">Foo</iframe>', procedure:) }
 
       it 'allows basic formatting tags but sanitizes sensitive content' do
         expect(mail.body).to include('<b>dossier</b>')
@@ -239,7 +239,7 @@ RSpec.describe NotificationMailer, type: :mailer do
 
     context 'when the template body comes from json_body with a dossier_url mention' do
       let(:email_template) do
-        create(:received_mail, subject: 'Email subject', procedure:, json_body: {
+        create(:email_passe_en_instruction, subject: 'Email subject', procedure:, json_body: {
           "type" => "doc",
           "content" => [
             {
@@ -266,10 +266,10 @@ RSpec.describe NotificationMailer, type: :mailer do
   describe 'subject length' do
     let(:procedure) { create(:simple_procedure, libelle: "My super long title " + ("xo " * 100)) }
     let(:dossier) { create(:dossier, :accepte, :with_individual, :with_service, user: user, procedure:) }
-    let(:email_template) { create(:closed_mail, subject:, body: 'Your dossier was accepted. Thanks.', procedure:) }
+    let(:email_template) { create(:email_accepte, subject:, body: 'Your dossier was accepted. Thanks.', procedure:) }
 
     before do
-      dossier.procedure.closed_mail = email_template
+      dossier.procedure.email_accepte = email_template
     end
 
     subject(:mail) { described_class.send_accepte_notification(dossier) }
@@ -291,10 +291,10 @@ RSpec.describe NotificationMailer, type: :mailer do
   describe 'subject with apostrophe' do
     let(:procedure) { create(:simple_procedure, libelle: "Mon titre avec l’apostrophe") }
     let(:dossier) { create(:dossier, :en_instruction, :with_individual, :with_service, user: user, procedure:) }
-    let(:email_template) { create(:received_mail, subject:, body: 'Your dossier was accepted. Thanks.', procedure:) }
+    let(:email_template) { create(:email_passe_en_instruction, subject:, body: 'Your dossier was accepted. Thanks.', procedure:) }
 
     before do
-      dossier.procedure.received_mail = email_template
+      dossier.procedure.email_passe_en_instruction = email_template
     end
 
     subject(:mail) { described_class.send_en_instruction_notification(dossier) }

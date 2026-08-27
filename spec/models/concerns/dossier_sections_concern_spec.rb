@@ -4,14 +4,14 @@ describe DossierSectionsConcern do
   describe '#auto_numbering_section_headers_for?' do
     let(:public_libelle) { "Infos" }
     let(:private_libelle) { "Infos Private" }
-    let(:types_de_champ_public) { [{ type: :header_section, libelle: public_libelle }, { type: :header_section, libelle: "Details" }] }
-    let(:types_de_champ_private) { [{ type: :header_section, libelle: private_libelle }, { type: :header_section, libelle: "Details Private" }] }
+    let(:public_type_de_champs) { [{ type: :header_section, libelle: public_libelle }, { type: :header_section, libelle: "Details" }] }
+    let(:private_type_de_champs) { [{ type: :header_section, libelle: private_libelle }, { type: :header_section, libelle: "Details Private" }] }
 
-    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public:, types_de_champ_private:) }
+    let(:procedure) { create(:procedure, :for_individual, public_type_de_champs:, private_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure: procedure) }
 
-    let(:public_type_de_champ) { dossier.root_types_de_champ_public[1] }
-    let(:private_type_de_champ) { dossier.root_types_de_champ_private[1] }
+    let(:public_type_de_champ) { dossier.public_root_type_de_champs[1] }
+    let(:private_type_de_champ) { dossier.private_root_type_de_champs[1] }
 
     context "with no section having number" do
       it do
@@ -37,9 +37,9 @@ describe DossierSectionsConcern do
     end
 
     context "header_section in a repetition are not auto-numbered" do
-      let(:types_de_champ_public) { [{ type: :header_section, libelle: public_libelle }, { type: :repetition, mandatory: true, children: [{ type: :header_section, libelle: "Enfant" }, { type: :text }] }] }
+      let(:public_type_de_champs) { [{ type: :header_section, libelle: public_libelle }, { type: :repetition, mandatory: true, children: [{ type: :header_section, libelle: "Enfant" }, { type: :text }] }] }
 
-      let(:public_type_de_champ) { dossier.revision.children_of(dossier.root_types_de_champ_public[1]).first }
+      let(:public_type_de_champ) { dossier.revision.children_of(dossier.public_root_type_de_champs[1]).first }
 
       context "with parent section having headers with number" do
         let(:public_libelle) { "1. Infos" }
@@ -56,7 +56,7 @@ describe DossierSectionsConcern do
   describe '#index_for_section_header' do
     include Logic
     let(:number_stable_id) { 99 }
-    let(:types_de_champ) do
+    let(:type_de_champs) do
       [
         { type: :header_section, libelle: "Infos" },
         { type: :integer_number, stable_id: number_stable_id },
@@ -65,10 +65,10 @@ describe DossierSectionsConcern do
       ]
     end
 
-    let(:procedure) { create(:procedure, :for_individual, types_de_champ_public: types_de_champ) }
+    let(:procedure) { create(:procedure, :for_individual, public_type_de_champs: type_de_champs) }
     let(:dossier) { create(:dossier, procedure: procedure) }
 
-    let(:headers) { dossier.revision.root_types_de_champ_public.filter(&:header_section?) }
+    let(:headers) { dossier.revision.public_root_type_de_champs.filter(&:header_section?) }
 
     let(:number_value) { nil }
 
@@ -96,7 +96,7 @@ describe DossierSectionsConcern do
     end
 
     context "with nested levels" do
-      let(:types_de_champ) {
+      let(:type_de_champs) {
         [
           { type: :header_section, libelle: "Identité", level: 1 },
           { type: :header_section, libelle: "État civil", level: 2 },
@@ -116,7 +116,7 @@ describe DossierSectionsConcern do
     end
 
     context "with three levels of nesting" do
-      let(:types_de_champ) {
+      let(:type_de_champs) {
         [
           { type: :header_section, libelle: "Niveau 1", level: 1 },
           { type: :header_section, libelle: "Niveau 2 a", level: 2 },
@@ -136,7 +136,7 @@ describe DossierSectionsConcern do
     end
 
     context "with an invisible sub-section" do
-      let(:types_de_champ) {
+      let(:type_de_champs) {
         [
           { type: :header_section, libelle: "Visible parent", level: 1 },
           { type: :header_section, libelle: "Invisible enfant", level: 2, condition: ds_eq(champ_value(number_stable_id), constant(5)) },

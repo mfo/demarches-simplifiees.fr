@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class Dossier < ApplicationRecord
-  self.ignored_columns += [:search_terms, :private_search_terms, :editing_fork_origin_id, :last_champ_piece_jointe_updated_at]
+  # The search columns are only ever read and written as raw SQL: loading them as
+  # attributes would carry a full-text blob on every dossier instance.
+  self.ignored_columns += [:search_terms, :private_search_terms, :search_terms_tsvector, :all_search_terms_tsvector]
 
   include DossierCloneConcern
   include DossierCorrectableConcern
@@ -169,7 +171,7 @@ class Dossier < ApplicationRecord
   has_one :attestation_acceptation_template, through: :procedure
   has_one :attestation_refus_template, through: :procedure
 
-  delegate :root_types_de_champ_public, :root_types_de_champ_private, :has_france_connect_type_de_champ?, to: :revision
+  delegate :public_root_type_de_champs, :private_root_type_de_champs, :has_france_connect_type_de_champ?, to: :revision
 
   belongs_to :transfer, class_name: 'DossierTransfer', foreign_key: 'dossier_transfer_id', optional: true, inverse_of: :dossiers
   has_many :transfer_logs, class_name: 'DossierTransferLog', dependent: :destroy
@@ -262,6 +264,12 @@ class Dossier < ApplicationRecord
   scope :hidden_by_expired,         -> { where.not(hidden_by_expired_at: nil) }
   scope :hidden_by_not_modified_for_a_long_time, -> { hidden_by_expired.where(hidden_by_reason: :not_modified_for_a_long_time) }
   scope :hidden_by_procedure_removed, -> { hidden_by_administration.where(hidden_by_reason: :procedure_removed) }
+  scope :submitted_to_administration, -> {
+    state_not_brouillon
+      .where("state != :state OR hidden_by_reason IS NULL OR hidden_by_reason != :reason",
+        state: "en_construction",
+        reason: "user_request")
+  }
   scope :visible_by_user,           -> { where(for_procedure_preview: false, hidden_by_user_at: nil, hidden_by_expired_at: nil) }
   scope :visible_by_administration, -> {
     state_not_brouillon
@@ -401,10 +409,10 @@ class Dossier < ApplicationRecord
       .where.not(user: users_who_submitted)
   end
 
-  scope :with_revision, -> { includes(revision: :revision_types_de_champ) }
+  scope :with_revision, -> { includes(revision: :revision_type_de_champs) }
   scope :for_api_v2, -> {
     with_revision
-      .includes(:attestation_acceptation_template, :etablissement, :individual, :traitement, procedure: [:administrateurs], user: [:france_connect_informations])
+      .includes(:attestation_acceptation_template, :attestation_refus_template, :etablissement, :individual, :traitement, procedure: [:administrateurs], user: [:france_connect_informations])
   }
 
   scope :with_notifications, -> (instructeur) {
@@ -452,7 +460,7 @@ class Dossier < ApplicationRecord
   def with_revision
     ::ActiveRecord::Associations::Preloader.new(
       records: [self],
-      associations: { revision: :revision_types_de_champ }
+      associations: { revision: :revision_type_de_champs }
     ).call
     self
   end
@@ -1088,7 +1096,7 @@ class Dossier < ApplicationRecord
   end
 
   def has_annotations?
-    revision.root_types_de_champ_private.present?
+    revision.private_root_type_de_champs.present?
   end
 
   def hide_info_with_accuse_lecture?
@@ -1123,9 +1131,9 @@ class Dossier < ApplicationRecord
     end
   end
 
-  def prefill_and_enqueue_fetch_external_data_jobs(champs, types_de_champ)
+  def prefill_and_enqueue_fetch_external_data_jobs(champs, type_de_champs)
     prefilled_champs = Array.wrap(champs).flat_map do |champ|
-      champ.propagate_prefill(types_de_champ)
+      champ.propagate_prefill(type_de_champs)
     end
     enqueue_fetch_external_data_jobs(prefilled_champs)
   end
@@ -1151,12 +1159,12 @@ class Dossier < ApplicationRecord
   end
 
   def build_default_champs
-    build_default_champs_for(revision.root_types_de_champ_public) if !champ_data.any?(&:public?)
-    build_default_champs_for(revision.root_types_de_champ_private) if !champ_data.any?(&:private?)
+    build_default_champs_for(revision.public_root_type_de_champs) if !champ_data.any?(&:public?)
+    build_default_champs_for(revision.private_root_type_de_champs) if !champ_data.any?(&:private?)
   end
 
-  def build_default_champs_for(types_de_champ)
-    self.champ_data << types_de_champ.filter(&:fillable?).filter_map do |type_de_champ|
+  def build_default_champs_for(type_de_champs)
+    self.champ_data << type_de_champs.filter(&:fillable?).filter_map do |type_de_champ|
       if type_de_champ.repetition?
         if type_de_champ.private? || type_de_champ.mandatory?
           type_de_champ.build_champ(dossier: self, row_id: ULID.generate)
@@ -1198,6 +1206,7 @@ class Dossier < ApplicationRecord
   end
 
   def geo_areas
+    ActiveRecord::Associations::Preloader.new(records: filled_champs, associations: :geo_areas).call
     filled_champs.flat_map(&:geo_areas)
   end
 

@@ -2,9 +2,9 @@
 
 RSpec.describe Referentiels::StepperComponent, type: :component do
   let(:referentiel) { create(:api_referentiel, :exact_match) }
-  let(:procedure) { create(:procedure, types_de_champ_public:, types_de_champ_private:) }
-  let(:types_de_champ_public) { [] }
-  let(:types_de_champ_private) { [] }
+  let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+  let(:public_type_de_champs) { [] }
+  let(:private_type_de_champs) { [] }
   let(:step_component) do
     Referentiels::MappingFormComponent.new(
       referentiel:,
@@ -16,8 +16,8 @@ RSpec.describe Referentiels::StepperComponent, type: :component do
   subject(:rendered_component) { render_inline(described_class.new(step_component:)) }
 
   context 'when referentiel is private' do
-    let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_private.first }
-    let(:types_de_champ_private) { [{ type: :referentiel, referentiel: }] }
+    let(:type_de_champ) { procedure.draft_revision.private_root_type_de_champs.first }
+    let(:private_type_de_champs) { [{ type: :referentiel, referentiel: }] }
 
     it 'back links goes to annotations' do
       expect(rendered_component)
@@ -26,8 +26,8 @@ RSpec.describe Referentiels::StepperComponent, type: :component do
   end
 
   context 'when referentiel is public' do
-    let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public.first }
-    let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+    let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
+    let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
 
     it 'back links goes to champs' do
       expect(rendered_component)

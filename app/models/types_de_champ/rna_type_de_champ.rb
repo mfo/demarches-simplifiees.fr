@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::RNATypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::RNATypeDeChamp < TypeDeChamp
+  def self.category = REFERENTIEL_EXTERNE
+
+  def customizable? = true
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)
     FILL_DURATION_MEDIUM
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     champ.identifier
   end
 

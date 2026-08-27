@@ -1,6 +1,27 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
+  def self.option_keys = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :pj_limit_formats, :pj_format_families, :pj_auto_purge]
+  def self.column_type = :attachments
+
+  IDENTITY_FILE_MAX_SIZE = 20.megabytes
+
+  enum :nature, %w[non_specifie titre_identite rib justificatif_domicile avis_impot].index_by(&:itself)
+
+  store_accessor :options,
+                 :old_pj,
+                 :skip_pj_validation,
+                 :skip_content_type_pj_validation,
+                 :pj_limit_formats,
+                 :pj_format_families,
+                 :pj_auto_purge
+
+  validates :piece_justificative_template, size: { less_than: FILE_MAX_SIZE }, on: :update
+  validates :piece_justificative_template, content_type: -> (_record) { AUTHORIZED_CONTENT_TYPES }, on: :update
+  validates :piece_justificative_template, empty_file: true, on: :update
+
+  before_validation :reset_format_options_if_forced_nature
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)
@@ -9,7 +30,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
 
   def tags_for_template = [].freeze
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     if titre_identite?
       champ.piece_justificative_file.attached? ? "présent" : "absent"
     else
@@ -17,7 +38,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
     end
   end
 
-  def champ_value_for_api(champ, version: 2)
+  def typed_champ_value_for_api(champ, version: 2)
     return if version == 2
 
     # API v1 don't support multiple PJ
@@ -31,7 +52,46 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
     end
   end
 
-  def champ_blank?(champ) = champ.piece_justificative_file.blank?
+  def typed_champ_blank?(champ) = champ.piece_justificative_file.blank?
+
+  boolean_options :pj_limit_formats
+
+  def pj_format_families
+    Array.wrap(options[:pj_format_families]).map(&:to_s)
+  end
+
+  def pj_auto_purge?
+    titre_identite? || ActiveModel::Type::Boolean.new.cast(pj_auto_purge) || false
+  end
+
+  def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
+
+  def max_file_size_bytes
+    if titre_identite?
+      IDENTITY_FILE_MAX_SIZE
+    else
+      FILE_MAX_SIZE
+    end
+  end
+
+  def allowed_extensions
+    allowed_content_types
+      .filter_map { |mime| MiniMime.lookup_by_content_type(mime)&.extension }
+      .uniq
+      .map { |ext| ".#{ext}" }
+  end
+
+  def allowed_content_types
+    if titre_identite?
+      families_to_content_types(%w[image_scan])
+    elsif ocr_compatible?
+      families_to_content_types(%w[document_texte image_scan])
+    elsif pj_limit_formats? && pj_format_families.present?
+      families_to_content_types(pj_format_families)
+    else
+      AUTHORIZED_CONTENT_TYPES
+    end
+  end
 
   def canonical_column(procedure_id:, displayable: true, prefix: nil)
     if titre_identite?
@@ -50,7 +110,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),
-        type: TypeDeChamp.column_type(type_champ),
+        type: self.class.column_type,
         displayable: false,
         filterable: false,
         mandatory: mandatory?
@@ -67,7 +127,7 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
         stable_id:,
         tdc_type: type_champ,
         label: libelle_with_prefix(prefix),
-        type: TypeDeChamp.column_type(type_champ),
+        type: self.class.column_type,
         displayable: false,
         filterable: false,
         mandatory: mandatory?
@@ -147,5 +207,22 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypesDeChamp::TypeDeChampBas
     end
 
     cs
+  end
+
+  private
+
+  def families_to_content_types(families)
+    return AUTHORIZED_CONTENT_TYPES if families.blank?
+
+    families
+      .flat_map { |f| FORMAT_FAMILIES[f.to_sym] || [] }
+      .presence || AUTHORIZED_CONTENT_TYPES
+  end
+
+  def reset_format_options_if_forced_nature
+    if titre_identite? || rib?
+      self.pj_limit_formats = nil
+      self.pj_format_families = []
+    end
   end
 end

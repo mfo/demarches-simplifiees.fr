@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::RNFTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = REFERENTIEL_EXTERNE
+
+  def prefillable? = false
+
   include AddressableColumnConcern
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :value
       champ.rnf_id
@@ -18,7 +22,7 @@ class TypesDeChamp::RNFTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :value
       champ.rnf_id
@@ -33,7 +37,7 @@ class TypesDeChamp::RNFTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def champ_blank?(champ) = champ.external_id.blank?
+  def typed_champ_blank?(champ) = champ.external_id.blank?
 
   def columns(procedure_id:, displayable: true, prefix: nil)
     super

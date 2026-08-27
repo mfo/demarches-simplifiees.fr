@@ -28,6 +28,28 @@ describe DossierSearchableConcern do
       expect(result["private_search_terms"]).to eq('champ privé')
     end
 
+    it "stores the tsvector columns alongside the text" do
+      champ_public.update_attribute(:value, "champ public")
+      champ_private.update_attribute(:value, "champ privé")
+      perform_enqueued_jobs(only: DossierIndexSearchTermsJob)
+
+      matching = Dossier.connection.select_one(
+        Dossier.sanitize_sql_array([<<~SQL.squish, id: dossier.id])
+          SELECT
+            search_terms_tsvector @@ to_tsquery('french_unaccent', 'public:*') AS public_match,
+            search_terms_tsvector @@ to_tsquery('french_unaccent', 'prive:*') AS private_leaked,
+            all_search_terms_tsvector @@ to_tsquery('french_unaccent', 'public:* & prive:*') AS spanning_match
+          FROM dossiers WHERE id = :id
+        SQL
+      )
+
+      expect(matching["public_match"]).to be(true)
+      # annotations must not leak into the default search vector
+      expect(matching["private_leaked"]).to be(false)
+      # ...but a query spanning both parts matches the combined vector
+      expect(matching["spanning_match"]).to be(true)
+    end
+
     context 'with an update' do
       before do
         stub_const("DossierSearchableConcern::SEARCH_TERMS_DEBOUNCE_LIGHT_USER", 1.second)

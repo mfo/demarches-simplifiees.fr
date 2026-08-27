@@ -2,7 +2,7 @@
 
 describe DubiousProcedure, type: :model do
   describe '#all' do
-    let!(:procedure) { create(:procedure, types_de_champ_public: tdcs) }
+    let!(:procedure) { create(:procedure, public_type_de_champs: tdcs) }
     let(:allowed_tdc) { { libelle: 'fournir' } }
     subject { DubiousProcedure.all }
 

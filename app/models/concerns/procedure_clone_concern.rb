@@ -115,15 +115,18 @@ module ProcedureCloneConcern
 
     transaction do
       procedure.save!
+      clone_email_templates(procedure) if options[:clone_email_templates]
       move_new_children_to_new_parent_coordinate(procedure.draft_revision)
     end
 
-    procedure.draft_revision.revision_types_de_champ.public_only.each(&:destroy) if !options[:clone_champs]
-    procedure.draft_revision.revision_types_de_champ.private_only.each(&:destroy) if !options[:clone_annotations]
+    procedure.draft_revision.revision_type_de_champs.public_only.each(&:destroy) if !options[:clone_champs]
+    procedure.draft_revision.revision_type_de_champs.private_only.each(&:destroy) if !options[:clone_annotations]
     procedure.labels = [] if !options[:clone_labels]
 
     if !same_admin?(admin) || options[:cloned_from_library]
-      procedure.draft_revision.root_types_de_champ_public.each { |tdc| tdc.options&.delete(:old_pj) }
+      procedure.draft_revision.public_root_type_de_champs.each do |tdc|
+        tdc.update!(options: tdc.options.except(:old_pj)) if tdc.options.key?(:old_pj)
+      end
     end
 
     new_defaut_groupe = procedure.groupe_instructeurs
@@ -206,7 +209,7 @@ module ProcedureCloneConcern
       clone_monavis_embed: true,
       clone_dossier_submitted_message: true,
       clone_accuse_lecture: true,
-      clone_mail_templates: true,
+      clone_email_templates: true,
       clone_labels: true,
     }
   end
@@ -245,15 +248,6 @@ module ProcedureCloneConcern
       procedure.draft_revision.ineligibilite_message = nil
     end
 
-    if options[:clone_mail_templates]
-      procedure.initiated_mail = initiated_mail&.dup
-      procedure.received_mail = received_mail&.dup
-      procedure.closed_mail = closed_mail&.dup
-      procedure.refused_mail = refused_mail&.dup
-      procedure.re_instructed_mail = re_instructed_mail&.dup
-      procedure.without_continuation_mail = without_continuation_mail&.dup
-    end
-
     if !same_admin?(admin)
       procedure.api_particulier_token = nil
       procedure.opendata = true
@@ -262,10 +256,21 @@ module ProcedureCloneConcern
     procedure
   end
 
+  # Copied once the clone is persisted: the tags validator resolves tags against
+  # revisions in database, which don't exist before the save. Validation is
+  # skipped so a template referencing a since-removed champ is cloned as is.
+  def clone_email_templates(procedure)
+    custom_email_templates.each do |email_template|
+      copy = email_template.dup
+      copy.procedure = procedure
+      copy.save!(validate: false)
+    end
+  end
+
   def cloneable_associations(options, admin)
     associations = {
       draft_revision: {
-        revision_types_de_champ: :type_de_champ,
+        revision_type_de_champs: :type_de_champ,
         dossier_submitted_message: [],
       },
     }

@@ -68,11 +68,12 @@ fr:
         declarative_with_state/accepte: Accepté
         api_entreprise_token: Jeton API Entreprise
         api_particulier_token: Jeton API Particulier
-        initiated_mail: L’adresse électronique de notification de passage de dossier en instruction
-        received_mail: L’adresse électronique de notification de dépôt de dossier
-        closed_mail: L’adresse électronique de notification d’acceptation de dossier
-        refused_mail: L’adresse électronique de notification de refus de dossier
-        without_continuation_mail: L’adresse électronique de notification de classement sans suite de dossier
+        email_depose: Le modèle d’email « Accusé de réception »
+        email_passe_en_instruction: Le modèle d’email « Accusé de passage en instruction »
+        email_accepte: Le modèle d’email « Accusé d’acceptation »
+        email_refuse: Le modèle d’email « Accusé de refus »
+        email_classe_sans_suite: Le modèle d’email « Accusé de classement sans suite »
+        email_repasse_en_instruction: Le modèle d’email « Réexamen du dossier »
         attestation_acceptation_template: Le modèle d’attestation d’acceptation
         attestation_refus_template: Le modèle d’attestation de refus
         draft_revision: Le formulaire
@@ -92,7 +93,7 @@ fr:
           attributes:
             api_particulier_token:
               invalid: 'n’a pas le bon format'
-            draft_types_de_champ_public:
+            public_draft_type_de_champs:
               format: 'Le champ %{message}'
               invalid_condition: "a une logique conditionnelle invalide"
               empty_repetition: 'doit comporter au moins un champ répétable'
@@ -104,7 +105,7 @@ fr:
               expression_reguliere_invalid: "est invalide, veuillez la corriger"
               referentiel_not_ready: "n’est pas configuré"
               missing_api_particulier_token: "n’est pas fonctionnel en l’absence d’un jeton API Particulier"
-            draft_types_de_champ_private:
+            private_draft_type_de_champs:
               format: 'L’annotation privée %{message}'
               invalid_condition: "a une logique conditionnelle invalide"
               empty_repetition: 'doit comporter au moins un champ répétable'
@@ -117,17 +118,17 @@ fr:
               referentiel_not_ready: "n’est pas configuré"
             attestation_template:
               format: "%{attribute} %{message}"
-            initiated_mail:
+            email_depose:
               format: "%{attribute} %{message}"
-            received_mail:
+            email_passe_en_instruction:
               format: "%{attribute} %{message}"
-            closed_mail:
+            email_accepte:
               format: "%{attribute} %{message}"
-            refused_mail:
+            email_refuse:
               format: "%{attribute} %{message}"
-            without_continuation_mail:
+            email_classe_sans_suite:
               format: "%{attribute} %{message}"
-            re_instructed_mail:
+            email_repasse_en_instruction:
               format: "%{attribute} %{message}"
             lien_dpo:
               invalid_uri_or_email: "Veuillez saisir une adresse électronique ou un lien"
@@ -150,7 +151,7 @@ fr:
     label:
       procedure:
         routing_champs: Champ(s) de routage
-        dossiers_count: Nombre de dossiers
+        estimated_dossiers_count: Nombre de dossiers déposés
   datetime:
     distance_in_words:
       less_than_x_minutes:

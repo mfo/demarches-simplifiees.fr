@@ -4,7 +4,6 @@ module BlobVirusScannerConcern
   extend ActiveSupport::Concern
 
   included do
-    self.ignored_columns += [:lock_version]
     before_create :set_pending
   end
 

@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe T20260504MigrateLegacyCommuneColumnsInProcedurePresentationTask do
     subject(:process) { described_class.process(ProcedurePresentation.find(presentation.id)) }
 
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :communes, libelle: 'commune' }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :communes, libelle: 'commune' }]) }
     let(:instructeur) { create(:instructeur) }
     let(:presentation) do
       assign_to = create(:assign_to, instructeur:, groupe_instructeur: procedure.defaut_groupe_instructeur)

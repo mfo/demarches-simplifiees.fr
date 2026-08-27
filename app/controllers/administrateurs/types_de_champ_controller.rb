@@ -28,7 +28,7 @@ module Administrateurs
 
       type_de_champ = draft.find_and_ensure_exclusive_use(params[:stable_id])
       @coordinate = draft.coordinate_for(type_de_champ)
-      was_prefill_with_fc_information = type_de_champ.prefill_with_france_connect_information?
+      was_prefill_with_fc_information = type_de_champ.date? && type_de_champ.prefill_with_france_connect_information?
 
       if @coordinate.used_by_routing_rules? && changing_of_type?(type_de_champ)
         errors = "« #{type_de_champ.libelle} » est utilisé pour le routage, vous ne pouvez pas modifier son type."
@@ -38,15 +38,27 @@ module Administrateurs
         errors = "« #{type_de_champ.libelle} » est utilisé par un référentiel, vous ne pouvez pas modifier son type."
         @morphed = [champ_component_from(@coordinate, focused: false, errors:)]
         flash.alert = errors
-      elsif type_de_champ.update(type_de_champ_update_params)
-        reload_procedure_with_includes
-        @morphed = if was_prefill_with_fc_information != type_de_champ.prefill_with_france_connect_information?
-          draft.revision_types_de_champ.map { |c| champ_component_from(c) }
-        else
-          champ_components_starting_at(@coordinate)
-        end
       else
-        flash.alert = type_de_champ.errors.full_messages
+        update_params = type_de_champ_update_params
+
+        if changing_of_type?(type_de_champ)
+          type_de_champ = type_de_champ.becomes_type(update_params['type_champ'])
+        end
+
+        # the editor form can submit options of another type (type change, or a
+        # stale tab autosaving after one): drop the ones the type does not define
+        update_params = update_params.except(*update_params.keys.reject { type_de_champ.respond_to?("#{it}=") })
+
+        if type_de_champ.update(update_params)
+          reload_procedure_with_includes
+          @morphed = if was_prefill_with_fc_information != (type_de_champ.date? && type_de_champ.prefill_with_france_connect_information?)
+            draft.revision_type_de_champs.map { |c| champ_component_from(c) }
+          else
+            champ_components_starting_at(@coordinate)
+          end
+        else
+          flash.alert = type_de_champ.errors.full_messages
+        end
       end
     end
 
@@ -60,7 +72,7 @@ module Administrateurs
 
         render :create
       else
-        render json: { errors: @champ.errors.full_messages }, status: 422
+        render json: { errors: type_de_champ.errors.full_messages }, status: 422
       end
     end
 
@@ -74,7 +86,7 @@ module Administrateurs
 
         render :create
       else
-        render json: { errors: @champ.errors.full_messages }, status: 422
+        render json: { errors: type_de_champ.errors.full_messages }, status: 422
       end
     end
 
@@ -101,7 +113,7 @@ module Administrateurs
     def move_up
       @coordinate = draft.move_up_type_de_champ(params[:stable_id])
       reload_procedure_with_includes
-      @coordinate = draft.revision_types_de_champ.find { _1.id == @coordinate.id }
+      @coordinate = draft.revision_type_de_champs.find { _1.id == @coordinate.id }
       @destroyed = @coordinate
       @created = champ_component_from(@coordinate)
       # update the one component below
@@ -111,7 +123,7 @@ module Administrateurs
     def move_down
       @coordinate = draft.move_down_type_de_champ(params[:stable_id])
       reload_procedure_with_includes
-      @coordinate = draft.revision_types_de_champ.find { _1.id == @coordinate.id }
+      @coordinate = draft.revision_type_de_champs.find { _1.id == @coordinate.id }
       @destroyed = @coordinate
       @created = champ_component_from(@coordinate)
       # update the one component above
@@ -131,8 +143,9 @@ module Administrateurs
         flash.alert = errors
       else
         @coordinate = draft.remove_type_de_champ(params[:stable_id])
-        ProcedureRevisionPreloader.load_one(@coordinate.revision)
+        # nil in case of replay (double click, champ already removed)
         if @coordinate.present?
+          ProcedureRevisionPreloader.load_one(@coordinate.revision)
           @destroyed = @coordinate
           @morphed = champ_components_starting_at(@coordinate)
         end

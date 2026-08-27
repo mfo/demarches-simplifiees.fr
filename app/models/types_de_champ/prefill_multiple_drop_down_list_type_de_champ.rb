@@ -14,6 +14,14 @@ class TypesDeChamp::PrefillMultipleDropDownListTypeDeChamp < TypesDeChamp::Prefi
     return nil if !acceptable_prefill_value?(value)
 
     values = Champs::MultipleDropDownListChamp.parse_values(value)
+
+    # Advanced lists store item ids: resolve each input (id or label) and keep
+    # only the ones matching an item, serialized like the champ setter expects.
+    if drop_down_advanced?
+      resolved = values.filter_map { referentiel&.resolve_item_id(_1) }
+      return resolved.empty? ? nil : resolved.to_json
+    end
+
     return nil if DropDownOptionsValidator.violations(values, self).any?
 
     value

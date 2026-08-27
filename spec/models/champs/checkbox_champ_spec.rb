@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Champs::CheckboxChamp do
-  let(:types_de_champ_public) { [{ type: :checkbox }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :checkbox }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:boolean_champ) { dossier.champ_data.first.tap { _1.update_column(:value, value) } }
   let(:value) { '' }

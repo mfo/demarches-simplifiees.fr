@@ -5,7 +5,7 @@ require "rails_helper"
 module Maintenance
   RSpec.describe NormalizeRNAValuesTask do
     describe "#process" do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :rna }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :rna }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:element) { dossier.champ_data.first }
       subject(:process) { described_class.process(element) }

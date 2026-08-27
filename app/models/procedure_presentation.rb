@@ -12,8 +12,6 @@ class ProcedurePresentation < ApplicationRecord
     :archives_filters,
   ]
 
-  self.ignored_columns += ["displayed_fields", "filters", "sort"]
-
   belongs_to :assign_to, optional: false
   has_many :exports, dependent: :destroy
 
@@ -50,10 +48,10 @@ class ProcedurePresentation < ApplicationRecord
     update!(filters_name_for(statut) => [])
   end
 
-  def update_filter_for_statut!(statut, filter_key, filter)
+  def update_filter_for_statut(statut, filter_key, filter)
     filters_attr = filters_name_for(statut)
     current_filters = send(filters_attr) || []
-    update!(filters_attr => current_filters.map { |f| f.id == filter_key ? filter : f })
+    update(filters_attr => current_filters.map { |f| f.id == filter_key ? filter : f })
   end
 
   def replace_filters!(statut, new_filters_columns)

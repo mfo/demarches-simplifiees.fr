@@ -718,6 +718,16 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur previously followed a dossier' do
+      let!(:previous_follow) { create(:follow, instructeur: old_instructeur, unfollowed_at: 1.day.ago) }
+
+      before { subject }
+
+      it 'transfers the previous follow to the new instructeur' do
+        expect(previous_follow.reload.instructeur_id).to eq(new_instructeur.id)
+      end
+    end
+
     context 'when the old instructeur is on on admin list' do
       let(:administrateur) { administrateurs.default }
 
@@ -745,6 +755,73 @@ describe Instructeur, type: :model do
       end
     end
 
+    context 'when the old instructeur has a rdv' do
+      let!(:rdv) { create(:rdv, instructeur: old_instructeur) }
+
+      before { subject }
+
+      it 'transfers the rdv to the new instructeur' do
+        expect(rdv.reload.instructeur).to eq(new_instructeur)
+      end
+    end
+
+    context 'when the old instructeur is referenced by a legacy export' do
+      let!(:export) { create(:export, instructeur: old_instructeur) }
+
+      before { subject }
+
+      it 'transfers the legacy reference to the new instructeur' do
+        expect(export.reload.instructeur).to eq(new_instructeur)
+      end
+    end
+
+    context 'when the old instructeur has a dossier notification' do
+      let!(:notification) { create(:dossier_notification, instructeur: old_instructeur) }
+
+      before { subject }
+
+      it 'transfers the notification to the new instructeur' do
+        expect(notification.reload.instructeur).to eq(new_instructeur)
+      end
+    end
+
+    context 'when both instructeurs have the same notification on the same dossier' do
+      let(:dossier) { dossiers.en_construction }
+      let!(:old_notification) { create(:dossier_notification, instructeur: old_instructeur, dossier:) }
+      let!(:new_notification) { create(:dossier_notification, instructeur: new_instructeur, dossier:) }
+
+      before { subject }
+
+      it 'keeps the new instructeur notification and leaves the duplicate behind' do
+        expect(new_notification.reload.instructeur).to eq(new_instructeur)
+        expect(old_notification.reload.instructeur).to eq(old_instructeur)
+      end
+    end
+
+    context 'when the old instructeur has per-procedure settings' do
+      let!(:instructeurs_procedure) { create(:instructeurs_procedure, instructeur: old_instructeur, daily_email_summary: true) }
+
+      before { subject }
+
+      it 'transfers the settings to the new instructeur' do
+        expect(instructeurs_procedure.reload.instructeur).to eq(new_instructeur)
+        expect(instructeurs_procedure.daily_email_summary).to eq(true)
+      end
+    end
+
+    context 'when both instructeurs have settings on the same procedure' do
+      let(:procedure) { procedures.individual }
+      let!(:old_settings) { create(:instructeurs_procedure, instructeur: old_instructeur, procedure:) }
+      let!(:new_settings) { create(:instructeurs_procedure, instructeur: new_instructeur, procedure:) }
+
+      before { subject }
+
+      it 'keeps the new instructeur settings and leaves the duplicate behind' do
+        expect(new_settings.reload.instructeur).to eq(new_instructeur)
+        expect(old_settings.reload.instructeur).to eq(old_instructeur)
+      end
+    end
+
     context 'when old instructeur has avis' do
       let(:avis) { create(:avis, claimant: old_instructeur) }
       before do
@@ -755,6 +832,19 @@ describe Instructeur, type: :model do
         avis.reload
         expect(avis.claimant).to eq(new_instructeur)
       end
+    end
+  end
+
+  describe 'when an instructeur is destroyed' do
+    let(:instructeur) { instructeurs.default }
+    let!(:export) { create(:export, user_profile: instructeur) }
+    let!(:archive) { create(:archive, user_profile: instructeur) }
+
+    it 'destroys its exports and archives' do
+      instructeur.destroy!
+
+      expect(Export.exists?(export.id)).to eq(false)
+      expect(Archive.exists?(archive.id)).to eq(false)
     end
   end
 

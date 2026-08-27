@@ -41,14 +41,14 @@ describe ProcedurePresentation do
     end
   end
 
-  describe '#update_filter_for_statut!' do
+  describe '#update_filter_for_statut' do
     let(:procedure_presentation) { create(:procedure_presentation, assign_to:) }
     let(:column) { procedure.find_column(label: 'Demandeur') }
     let(:existing_filter) { FilteredColumn.new(column:, filter: { operator: "match", value: ['existing_filter_value'] }) }
     let(:updated_filter) { FilteredColumn.new(column:, filter: { operator: "match", value: ['updated_filter_value'] }) }
     let(:other_filter) { FilteredColumn.new(column:, filter: { operator: "match", value: ['other_filter_value'] }) }
 
-    subject { procedure_presentation.update_filter_for_statut!(statut, filter_key, updated_filter) }
+    subject { procedure_presentation.update_filter_for_statut(statut, filter_key, updated_filter) }
 
     context 'when updating a filter' do
       let(:statut) { 'a-suivre' }

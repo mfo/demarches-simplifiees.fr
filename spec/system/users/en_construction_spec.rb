@@ -2,10 +2,10 @@
 
 describe "Dossier en_construction", js: true do
   let(:user) { create(:user) }
-  let(:procedure) { create(:procedure, :for_individual, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, :for_individual, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :en_construction, :with_individual, :with_populated_champs, user:, procedure:) }
   let(:mandatory) { false }
-  let(:types_de_champ_public) { [{ type: :piece_justificative, stable_id: 99, mandatory: }] }
+  let(:public_type_de_champs) { [{ type: :piece_justificative, stable_id: 99, mandatory: }] }
   let(:champ) { dossier.root_champs_public.find { _1.stable_id == 99 } }
 
   def user_buffer_champ
@@ -43,7 +43,7 @@ describe "Dossier en_construction", js: true do
   end
 
   context "with a mandatory titre identite" do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'titre_identite', stable_id: 99, mandatory: true }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'titre_identite', stable_id: 99, mandatory: true }] }
 
     scenario 'remplace a mandatory titre identite' do
       visit_dossier(dossier)
@@ -62,7 +62,7 @@ describe "Dossier en_construction", js: true do
   end
 
   context "with a RNA champ" do
-    let(:types_de_champ_public) { [{ type: :rna, stable_id: 99, mandatory: true, libelle: "Num RNA" }] }
+    let(:public_type_de_champs) { [{ type: :rna, stable_id: 99, mandatory: true, libelle: "Num RNA" }] }
     let(:external_id) { 'W751004076' }
     let(:body) { File.read('spec/fixtures/files/api_entreprise/associations.json') }
     let(:status) { 200 }

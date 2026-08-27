@@ -1,13 +1,18 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::SiretTypeDeChamp < TypeDeChamp
+  def self.category = PAIEMENT_IDENTIFICATION
+
+  def prefillable? = true
+  def customizable? = true
+
   include AddressableColumnConcern
 
   def estimated_fill_duration(revision)
     FILL_DURATION_MEDIUM
   end
 
-  def champ_blank_or_invalid?(champ) = Siret.new(siret: champ.value).invalid?
+  def typed_champ_blank_or_invalid?(champ) = Siret.new(siret: champ.value).invalid?
 
   def columns(procedure_id:, displayable: true, prefix: nil)
     super
@@ -45,5 +50,10 @@ class TypesDeChamp::SiretTypeDeChamp < TypesDeChamp::TypeDeChampBase
         mandatory: mandatory?
       )
     end
+  end
+
+  # SIRET needs to be explicit in listings for better UI readability
+  def libelle_with_prefix(prefix)
+    libelle.upcase.include?("SIRET") ? super : [prefix, libelle, "SIRET"].compact.join(' – ')
   end
 end

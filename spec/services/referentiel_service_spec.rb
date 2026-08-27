@@ -194,9 +194,9 @@ RSpec.describe ReferentielService, type: :service do
     end
 
     context 'with Dossier as values_source' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
       let(:dossier) { create(:dossier, procedure:) }
-      let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public.first }
+      let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
       let(:url_tiptap) do
         {
           "type" => "doc", "content" => [
@@ -231,9 +231,9 @@ RSpec.describe ReferentielService, type: :service do
     end
 
     context 'with yes_no champ as values_source' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :yes_no }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public.first }
+      let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
       let(:url_tiptap) do
         {
           "type" => "doc", "content" => [
@@ -269,9 +269,9 @@ RSpec.describe ReferentielService, type: :service do
     end
 
     context 'with address champ as values_source' do
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-      let(:type_de_champ) { procedure.draft_revision.root_types_de_champ_public.first }
+      let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
       let(:url_tiptap) do
         {
           "type" => "doc", "content" => [

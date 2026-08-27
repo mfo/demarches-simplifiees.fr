@@ -1,7 +1,23 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampBase
-  def champ_value(champ)
+class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::DropDownBaseTypeDeChamp
+  def self.category = CHOICE
+  def self.option_keys = [:drop_down_options, :drop_down_mode]
+  def self.column_type = :enums
+  def self.conditionable? = true
+
+  def prefillable? = true
+  def options_for_select = options_for_select_with_other
+  def choice_type? = true
+  def any_drop_down_list? = true
+  def conditionable? = !drop_down_advanced?
+  def condition_value_type = :enums
+  def condition_options = options_for_select_with_other
+  def customizable? = true
+
+  before_validation :set_default_drop_down_options, if: :type_champ_changed?
+
+  def typed_champ_value(champ)
     if drop_down_advanced? && champ.respond_to?(:referentiels) && champ.referentiels.present?
       champ.referentiels_items_user_values.join(', ')
     else
@@ -9,11 +25,11 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampB
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
-    path == :value ? champ_value(champ).presence : super
+  def typed_champ_value_for_export(champ, path = :value)
+    path == :value ? typed_champ_value(champ).presence : super
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     ChampPresentations::MultipleDropDownListPresentation.new(selected_options(champ))
   end
 
@@ -37,7 +53,7 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampB
     end
   end
 
-  def champ_blank?(champ) = selected_options(champ).blank?
+  def typed_champ_blank?(champ) = selected_options(champ).blank?
 
   def self.parse_selected_options(champ)
     return [] if champ.value.blank?
@@ -55,5 +71,11 @@ class TypesDeChamp::MultipleDropDownListTypeDeChamp < TypesDeChamp::TypeDeChampB
 
   def selected_options(champ)
     self.class.parse_selected_options(champ)
+  end
+
+  def set_default_drop_down_options
+    if drop_down_options.empty?
+      self.drop_down_options = ['Fromage', 'Dessert']
+    end
   end
 end

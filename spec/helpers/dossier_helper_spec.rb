@@ -285,6 +285,24 @@ RSpec.describe DossierHelper, type: :helper do
     end
   end
 
+  describe ".badge_notification_text_a11y" do
+    [:dossier_modifie, :message, :annotation_instructeur, :avis_externe].each do |notification_type|
+      context "with a #{notification_type} notification" do
+        it "announces a nouveauté" do
+          expect(badge_notification_text_a11y(notification_type, summary: true)).to eq("dossiers avec au moins une nouveauté")
+          expect(badge_notification_text_a11y(notification_type, summary: false)).to eq("au moins une nouveauté")
+        end
+      end
+    end
+
+    context "with a notification that is not a nouveauté" do
+      it "only announces something in a summary" do
+        expect(badge_notification_text_a11y(:attente_correction, summary: true)).to eq("dossiers")
+        expect(badge_notification_text_a11y(:attente_correction, summary: false)).to be_nil
+      end
+    end
+  end
+
   describe ".partage_badge" do
     subject { partage_badge }
 

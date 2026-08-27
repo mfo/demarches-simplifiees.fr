@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe EditableChamp::FranceConnectChampBaseComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: type_champ }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: type_champ }]) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:champ) { dossier.champ_data.first }
 

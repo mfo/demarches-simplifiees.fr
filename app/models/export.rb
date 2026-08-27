@@ -3,8 +3,6 @@
 class Export < ApplicationRecord
   include TransientModelsWithPurgeableJobConcern
 
-  self.ignored_columns += ["procedure_presentation_snapshot"]
-
   MAX_DUREE_CONSERVATION_EXPORT = 32.hours
   MAX_DUREE_GENERATION = 16.hours
 

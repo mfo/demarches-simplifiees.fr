@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Champs::DatetimeChamp do
-  let(:types_de_champ_public) { [{ type: :datetime }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :datetime }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, procedure:) }
   let(:datetime_champ) { dossier.root_champs_public.first }
 
@@ -54,15 +54,15 @@ describe Champs::DatetimeChamp do
   end
 
   describe '#valid?' do
-    it 'should not change the value' do
+    it 'self-heals a preexisting invalid value instead of failing (RAILS-MC5)' do
       sql = "UPDATE champs SET value = 'invalid' WHERE id = #{datetime_champ.id}"
       ActiveRecord::Base.connection.execute(sql)
       datetime_champ.reload
       expect(datetime_champ.value).to eq("invalid")
 
-      expect(datetime_champ.valid?).to be_falsey
-      error = datetime_champ.errors.first
-      expect(error.attribute).to eq(:value)
+      expect(Sentry).to receive(:capture_message)
+      expect(datetime_champ.valid?).to be_truthy
+      expect(datetime_champ.value).to be_nil
     end
   end
 

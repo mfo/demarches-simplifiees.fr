@@ -12,8 +12,12 @@ class ReferentielAutocompleteRenderService
 
   def format_response
     objects = JsonPath.on(api_response, referentiel.datasource).first
-    objects.take(MAX_RENDERED_OBJECTS).map do |data|
+    objects.take(MAX_RENDERED_OBJECTS).filter_map do |data|
       label = render_template(json_template, data.with_indifferent_access).join("")
+      # an object the template renders as nothing can not be told apart from
+      # another in the autocompletion list: skip it rather than offer a blank row
+      next if label.blank?
+
       {
         id: Digest::MD5.hexdigest(data.to_json), # stable unique key for react-stately (not security-related)
         label:,
@@ -29,16 +33,23 @@ class ReferentielAutocompleteRenderService
     @message_encryptor_service ||= MessageEncryptorService.new
   end
 
+  # The template is authored in a rich text editor, so its node vocabulary is the
+  # editor's, not ours: an empty paragraph carries no `content` key at all (tiptap
+  # omits it), a line break is a `hardBreak` node, and any extension added later
+  # brings its own types. Interpolate the nodes we know, walk through the others,
+  # and ignore what is left: a node we can't render is worth an incomplete label,
+  # not a failed search.
   def render_template(template, obj, interpolations = [])
+    return interpolations if template.blank?
+
     case template["type"]
     when "mention"
-      interpolations << JSONPathUtil.on_safe(obj, template["attrs"]["id"]).first
+      jsonpath = template.dig("attrs", "id")
+      interpolations << JSONPathUtil.on_safe(obj, jsonpath).first if jsonpath.present?
     when "text"
       interpolations << template["text"]
-    when "doc", 'paragraph'
-      template['content'].each { |t| interpolations.concat(render_template(t, obj)) }
     else
-      raise "Unknown template type: #{template['type']}. Expected one of: mention, text, doc, paragraph."
+      template["content"]&.each { interpolations.concat(render_template(it, obj)) }
     end
     interpolations
   end

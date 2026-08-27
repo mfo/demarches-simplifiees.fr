@@ -2,15 +2,15 @@
 
 describe EditableChamp::SectionComponent, type: :component do
   include TreeableConcern
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
-  let(:types_de_champ_public) { [] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
+  let(:public_type_de_champs) { [] }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
-  let(:types_de_champ) { dossier.revision.root_types_de_champ_public }
-  let(:component) { described_class.new(types_de_champ:, dossier:) }
+  let(:type_de_champs) { dossier.revision.public_root_type_de_champs }
+  let(:component) { described_class.new(type_de_champs:, dossier:) }
   before { render_inline(component).to_html }
 
   context 'list of champs without an header_section' do
-    let(:types_de_champ_public) { [{ type: :text }, { type: :textarea }] }
+    let(:public_type_de_champs) { [{ type: :text }, { type: :textarea }] }
 
     it 'does not renders within a fieldset' do
       expect(page).to have_selector("fieldset", count: 0)
@@ -23,7 +23,7 @@ describe EditableChamp::SectionComponent, type: :component do
   end
 
   context 'list of champs with an header_section' do
-    let(:types_de_champ_public) { [{ type: :header_section, level: 1 }, { type: :text }, { type: :textarea }] }
+    let(:public_type_de_champs) { [{ type: :header_section, level: 1 }, { type: :text }, { type: :textarea }] }
 
     it 'renders fieldset' do
       expect(page).to have_selector("fieldset")
@@ -37,7 +37,7 @@ describe EditableChamp::SectionComponent, type: :component do
   end
 
   context 'list of champs without section and an header_section having champs' do
-    let(:types_de_champ_public) { [{ type: :text }, { type: :header_section, level: 1 }, { type: :text }] }
+    let(:public_type_de_champs) { [{ type: :text }, { type: :header_section, level: 1 }, { type: :text }] }
 
     it 'renders nested champs (after an header section) within a fieldset' do
       expect(page).to have_selector("fieldset", count: 1)
@@ -53,7 +53,7 @@ describe EditableChamp::SectionComponent, type: :component do
   end
 
   context 'list of header_section without champs' do
-    let(:types_de_champ_public) { [{ type: :header_section, level: 1 }, { type: :header_section, level: 2 }, { type: :header_section, level: 3 }] }
+    let(:public_type_de_champs) { [{ type: :header_section, level: 1 }, { type: :header_section, level: 2 }, { type: :header_section, level: 3 }] }
 
     it 'render header within fieldset' do
       expect(page).to have_selector("fieldset > legend", count: 3)
@@ -64,7 +64,7 @@ describe EditableChamp::SectionComponent, type: :component do
   end
 
   context 'header_section followed by explication and another fieldset' do
-    let(:types_de_champ_public) { [{ type: :header_section, level: 1 }, { type: :explication }, { type: :header_section, level: 1 }, { type: :text }] }
+    let(:public_type_de_champs) { [{ type: :header_section, level: 1 }, { type: :explication }, { type: :header_section, level: 1 }, { type: :text }] }
 
     it 'render fieldset, header_section, also render explication' do
       expect(page).to have_selector("h3", count: 3)
@@ -74,7 +74,7 @@ describe EditableChamp::SectionComponent, type: :component do
   end
 
   context 'nested fieldsset' do
-    let(:types_de_champ_public) { [{ type: :header_section, level: 1 }, { type: :text }, { type: :header_section, level: 2 }, { type: :textarea }] }
+    let(:public_type_de_champs) { [{ type: :header_section, level: 1 }, { type: :text }, { type: :header_section, level: 2 }, { type: :textarea }] }
 
     it 'render nested fieldsets' do
       expect(page).to have_selector("fieldset")
@@ -90,7 +90,7 @@ describe EditableChamp::SectionComponent, type: :component do
   end
 
   context 'with repetition' do
-    let(:types_de_champ_public) do
+    let(:public_type_de_champs) do
       [
         { type: :header_section, level: 1 },
         {
@@ -118,7 +118,7 @@ describe EditableChamp::SectionComponent, type: :component do
 
   context 'persistent live region for status-bearing champs' do
     context 'with a SIRET champ' do
-      let(:types_de_champ_public) { [{ type: :siret }] }
+      let(:public_type_de_champs) { [{ type: :siret }] }
 
       it 'renders a persistent sr-only polite live region' do
         champ = dossier.root_champs_public.first
@@ -127,7 +127,7 @@ describe EditableChamp::SectionComponent, type: :component do
     end
 
     context 'with a plain text champ' do
-      let(:types_de_champ_public) { [{ type: :text }] }
+      let(:public_type_de_champs) { [{ type: :text }] }
 
       it 'does not render a live region' do
         expect(page).not_to have_css(".fr-sr-only[aria-live='polite']", visible: :all)
@@ -158,7 +158,7 @@ describe EditableChamp::SectionComponent, type: :component do
       end
     end
 
-    let(:types_de_champ_public) {
+    let(:public_type_de_champs) {
       [
         { type: :header_section, level: 1 },
         { type: :header_section, level: 2 },

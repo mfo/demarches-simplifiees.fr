@@ -61,6 +61,54 @@ ActiveSupport.on_load(:active_storage_blob) do
     end
   end
 
+  # Direct upload is the one path that stores the content type declared by the
+  # client without ever reading the file, and `identified` stays false until
+  # something does. Building a variant from such a blob means deciding it is an
+  # image on the uploader's word alone, so refuse: the image library picks its
+  # decoder from the bytes and will not agree with a type nobody checked.
+  def variable?
+    identified? && super
+  end
+
+  # Same for previews: the previewer is picked from the declared content type
+  # too, and it hands the bytes to pdftoppm or ffmpeg rather than to the image
+  # library. `representation` tries this before `variant`, so guarding only the
+  # latter would leave the wider decoder open.
+  def previewable?
+    identified? && super
+  end
+
+  # Rails identifies blobs with Marcel, matching the first bytes against a
+  # dictionary of magic signatures. When no signature matches, it falls back to
+  # the filename extension to guess the MIME type, which is dangerous. We only
+  # want to build variants for files whose magic bytes are recognized, so we
+  # return the binary MIME type for anything unknown.
+  private def identify_content_type
+    chunk = download_identifiable_chunk
+    declared = Marcel::MimeType.for(chunk, name: filename.to_s, declared_type: content_type)
+
+    if declared.in?(ActiveStorage.variable_content_types)
+      magic = Marcel::MimeType.for(chunk)
+
+      if magic != declared
+        Sentry.capture_message(
+          "Suspicious attachment: declared variable content type not confirmed by magic bytes",
+          level: :warning,
+          extra: {
+            blob_id: id,
+            filename: filename.to_s,
+            declared_type: declared,
+            magic_type: magic,
+            head_hex: chunk.byteslice(0, 32).unpack1("H*"),
+          }
+        )
+        declared = Marcel::MimeType::BINARY
+      end
+    end
+
+    declared
+  end
+
   ActiveStorage::Blob.class_eval do
     def purge_later
       DelayedPurgeJob.perform_later(self)
@@ -99,6 +147,15 @@ Rails.application.reloader.to_prepare do
   class ActiveStorage::BaseController
     # same store as ApplicationController
     protect_from_forgery with: :exception, store: :cookie
+  end
+
+  # A blob we decline to transform is a missing representation, not a server
+  # error: the signed id and the variation key are both valid, they just do not
+  # compose into something we are willing to render.
+  class ActiveStorage::Representations::BaseController
+    rescue_from ActiveStorage::UnrepresentableError, ActiveStorage::InvariableError do
+      head :not_found
+    end
   end
 end
 

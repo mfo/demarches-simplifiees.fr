@@ -8,7 +8,7 @@ module Maintenance
 
     let(:procedure) { create(:procedure, routing_enabled: true, administrateur: admin) }
     let(:admin) { administrateurs.default }
-    let(:stable_id) { procedure.published_revision.root_types_de_champ_public.last.stable_id }
+    let(:stable_id) { procedure.published_revision.public_root_type_de_champs.last.stable_id }
 
     before do
       procedure.draft_revision.add_type_de_champ(
@@ -59,11 +59,12 @@ module Maintenance
       end
 
       context "when procedure has a group with invalid routing rule" do
+        let(:unknown_stable_id) { procedure.published_revision.type_de_champs.map(&:stable_id).max + 1 }
         let!(:gi1) do
           create(:groupe_instructeur,
                  procedure: procedure,
                  label: 'Groupe Invalid',
-                 routing_rule: ds_eq(champ_value(999), constant('Invalid')))
+                 routing_rule: ds_eq(champ_value(unknown_stable_id), constant('Invalid')))
         end
 
         it "maintains valid_routing_rule as false" do

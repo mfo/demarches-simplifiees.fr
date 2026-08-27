@@ -238,7 +238,7 @@ describe GroupeInstructeur, type: :model do
     include Logic
 
     let(:routed_procedure) { create(:procedure, :published, routing_enabled: true, administrateur: admin) }
-    let(:stable_id) { routed_procedure.published_revision.root_types_de_champ_public.last.stable_id }
+    let(:stable_id) { routed_procedure.published_revision.public_root_type_de_champs.last.stable_id }
 
     before do
       routed_procedure.draft_revision.add_type_de_champ(
@@ -263,10 +263,11 @@ describe GroupeInstructeur, type: :model do
       end
 
       context 'with invalid routing rule (unknown stable_id)' do
+        let(:unknown_stable_id) { routed_procedure.published_revision.type_de_champs.map(&:stable_id).max + 1 }
         let(:gi) do
           create(:groupe_instructeur,
                  procedure: routed_procedure,
-                 routing_rule: ds_eq(champ_value(999), constant('Paris')))
+                 routing_rule: ds_eq(champ_value(unknown_stable_id), constant('Paris')))
         end
 
         it 'returns false for invalid routing rule' do

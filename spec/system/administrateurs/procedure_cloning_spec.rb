@@ -19,7 +19,7 @@ describe 'As an administrateur I wanna clone a procedure', js: true do
     login_as administrateur.user, scope: :user
   end
   context 'Visit all admin procedures and clone from this page' do
-    let(:download_dir) { Rails.root.join('tmp/capybara') }
+    let(:download_dir) { Pathname.new(Capybara.save_path) }
     let(:download_file_pattern) { download_dir.join('*.xlsx') }
 
     scenario do

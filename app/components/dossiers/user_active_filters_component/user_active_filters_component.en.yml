@@ -1,0 +1,3 @@
+en:
+  reset: "Reset filters"
+  remove_tag: "Remove filter: %{label}"

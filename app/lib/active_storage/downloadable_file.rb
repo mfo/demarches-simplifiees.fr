@@ -6,8 +6,12 @@ class ActiveStorage::DownloadableFile
   def self.create_list_from_dossiers(dossiers:, user_profile:, export_template: nil)
     pj_service = PiecesJustificativesService.new(user_profile:, export_template:)
 
+    # The PDF of each dossier prints the static map of its carte champs;
+    # without the preload it is one query per champ over the whole export.
+    preloader = DossierPreloader.new(dossiers, includes_for_champ: [static_map_attachment: :blob])
+
     files = []
-    DossierPreloader.new(dossiers).in_batches(includes: DossierPreloader::PJ_EXPORT_INCLUDES) do |loaded_dossiers|
+    preloader.in_batches(includes: DossierPreloader::PJ_EXPORT_INCLUDES) do |loaded_dossiers|
       files += pj_service.generate_dossiers_export(loaded_dossiers) + pj_service.liste_documents(loaded_dossiers)
     end
 

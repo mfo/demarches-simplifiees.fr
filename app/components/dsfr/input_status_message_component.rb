@@ -25,6 +25,7 @@ module Dsfr
     def statutable?
       siret_support_status? ||
       rna_support_statut? ||
+      rnf_support_statut? ||
       referentiel_support_statut? ||
       address_support_statut? ||
       dossier_link_support_statut? ||
@@ -40,12 +41,19 @@ module Dsfr
       type_de_champ.rna? && @champ.external_id.present?
     end
 
+    def rnf_support_statut?
+      type_de_champ.rnf? && @champ.external_id.present?
+    end
+
     def referentiel_support_statut?
       type_de_champ.referentiel? && (!@champ.idle? || type_de_champ.referentiel.blank?)
     end
 
     def pjs_statut?
-      (@champ.rib? || @champ.justificatif_domicile? || @champ.avis_impot?) && !@champ.idle?
+      return false if !@champ.piece_justificative?
+      return false if @champ.idle?
+
+      @champ.ocr_compatible?
     end
 
     def address_support_statut?
@@ -87,12 +95,20 @@ module Dsfr
         elsif @champ.value.present?
           { state: :info, text: t(".rna.success", title: @champ.title, address: @champ.full_address) }
         end
+      when TypeDeChamp.type_champs[:rnf]
+        if @champ.pending?
+          { state: :info, text: t(".rnf.pending") }
+        elsif @champ.external_error?
+          { state: :warning, text: t(".rnf.error") }
+        elsif @champ.data.present?
+          { state: :info, text: t(".rnf.success", title: @champ.title, address: @champ.full_address) }
+        end
       when TypeDeChamp.type_champs[:dossier_link]
         dossier = Dossier.find_by(id: @champ.value)
         deleted_dossier = DeletedDossier.find_by(dossier_id: @champ.value) if dossier.nil?
         if deleted_dossier.present?
           {
-            state: :info, text: I18n.t('shared.champs.dossier_link.hidden',
+            state: :info, text: t('shared.champs.dossier_link.hidden',
                                        depose_at: l(deleted_dossier.depose_at),
                                        procedure_libelle: deleted_dossier.procedure.libelle,
                                        hidden_at: l(deleted_dossier.deleted_at.to_date)),
@@ -100,14 +116,14 @@ module Dsfr
         elsif dossier.present?
           if dossier.hidden_by_expired_at.present?
             {
-              state: :info, text: I18n.t('shared.champs.dossier_link.expired',
+              state: :info, text: t('shared.champs.dossier_link.expired',
                                          depose_at: l(dossier.depose_at.to_date),
                                          procedure_libelle: dossier.procedure.libelle,
                                          expired_at: l(dossier.hidden_by_expired_at.to_date)),
             }
           elsif dossier.hidden_by_user_at.present?
             {
-              state: :info, text: I18n.t('shared.champs.dossier_link.hidden',
+              state: :info, text: t('shared.champs.dossier_link.hidden',
                                          depose_at: l(dossier.depose_at.to_date),
                                          procedure_libelle: dossier.procedure.libelle,
                                          hidden_at: l(dossier.hidden_by_user_at.to_date)),

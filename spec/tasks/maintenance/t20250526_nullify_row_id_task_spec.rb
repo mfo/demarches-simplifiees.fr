@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe T20250526NullifyRowIdTask do
     describe "#process" do
       subject(:process) { described_class.process(dossier) }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{}, { type: :repetition, children: [{ type: :text }] }]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{}, { type: :repetition, children: [{ type: :text }] }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:champs_with_null_row_id) { dossier.champ_data.where(row_id: [nil, 'N']) }
 

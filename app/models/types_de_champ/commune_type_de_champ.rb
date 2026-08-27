@@ -1,12 +1,21 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::CommuneTypeDeChamp < TypeDeChamp
+  def self.category = LOCALISATION
+  def self.simple_routable? = true
+  def self.conditionable? = true
+
+  def prefillable? = true
+  def customizable? = true
+  def condition_value_type = :commune_enum
+  def condition_options = APIGeoService.departement_options
+
   include AddressableColumnConcern
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :departement
       champ.departement_code_and_name || ''
     when :code
@@ -14,10 +23,10 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :departement
       champ.departement_code_and_name || ''
     when :code
@@ -25,13 +34,17 @@ class TypesDeChamp::CommuneTypeDeChamp < TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     champ.code_postal? ? "#{champ.name} (#{champ.code_postal})" : champ.name
   end
 
   def columns(procedure_id:, displayable: true, prefix: nil)
     addressable_columns(procedure_id:, displayable:, prefix:)
       .concat(legacy_columns(procedure_id:, prefix:))
+  end
+
+  def customization_column(procedure_id:)
+    addressable_columns(procedure_id:, only: [:city_name]).first
   end
 
   def info_columns(procedure:)

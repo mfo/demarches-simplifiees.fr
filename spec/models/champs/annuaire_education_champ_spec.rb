@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Champs::AnnuaireEducationChamp do
   describe '#update_external_data!' do
-    let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :annuaire_education }]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :annuaire_education }]) }
     let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
     let(:champ) { dossier.champ_data.first.tap { _1.update_column(:data, 'any data') } }
     subject { champ.send(:update_external_data!, data: data) }

@@ -100,6 +100,25 @@ describe Columns::DossierColumn do
   end
 
   describe '#filtered_ids' do
+    context 'for a boolean etablissement column (siege_social)' do
+      let(:procedure) { create(:procedure, for_individual: false) }
+      let(:column) { procedure.find_column(label: 'Établissement siège social') }
+      let!(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
+
+      before { dossier.etablissement.update!(siege_social: true) }
+
+      def filtering(value) = column.filtered_ids(procedure.dossiers, { operator: 'match', value: })
+
+      it 'filters on the boolean' do
+        expect(filtering(['true'])).to eq([dossier.id])
+        expect(filtering(['false'])).to eq([])
+      end
+
+      it 'offers the oui/non options the radio buttons are built from' do
+        expect(column.options_for_select).to eq(Champs::YesNoChamp.options)
+      end
+    end
+
     context 'for an integer etablissement column' do
       let(:procedure) { create(:procedure, for_individual: false) }
       let!(:dossier) { create(:dossier, :en_instruction, :with_entreprise, procedure:) }
@@ -170,6 +189,24 @@ describe Columns::DossierColumn do
         context "for updated_since column (special case)" do
           let(:date_column) { procedure.find_column(label: "Dernier évènement depuis") }
           it { is_expected.to contain_exactly(dossier2.id) }
+        end
+      end
+
+      # update_filter neither whitelists the operator nor validates the date, so
+      # both of these reach the column.
+      context 'when searching with a date the filter form let through' do
+        let!(:dossier) { travel_to(DateTime.parse("12/02/2025 09:19")) { create(:dossier, :en_instruction, procedure:) } }
+
+        context 'out of range' do
+          let(:search_terms) { { operator: 'before', value: ['2024-13-45'] } }
+
+          it { is_expected.to contain_exactly(dossier.id) }
+        end
+
+        context 'unparseable' do
+          let(:search_terms) { { operator: 'after', value: ['abc'] } }
+
+          it { is_expected.to contain_exactly(dossier.id) }
         end
       end
 

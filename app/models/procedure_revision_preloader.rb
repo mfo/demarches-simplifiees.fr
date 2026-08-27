@@ -7,7 +7,7 @@ class ProcedureRevisionPreloader
 
   def all
     revisions = @revisions.to_a
-    load_procedure_revision_types_de_champ(revisions)
+    load_procedure_revision_type_de_champs(revisions)
   end
 
   def self.load_one(revision)
@@ -16,7 +16,7 @@ class ProcedureRevisionPreloader
 
   private
 
-  def load_procedure_revision_types_de_champ(revisions)
+  def load_procedure_revision_type_de_champs(revisions)
     revisions_by_id = revisions.index_by(&:id)
 
     coordinates_by_revision_id = ProcedureRevisionTypeDeChamp
@@ -40,7 +40,7 @@ class ProcedureRevisionPreloader
 
   def assign_revision_type_de_champ(revisions_by_id, coordinates_by_revision_id)
     revisions_by_id.each_pair do |revision_id, revision|
-      revision.association(:revision_types_de_champ).target = coordinates_by_revision_id[revision_id] || []
+      revision.association(:revision_type_de_champs).target = coordinates_by_revision_id[revision_id] || []
     end
   end
 end

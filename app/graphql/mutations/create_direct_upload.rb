@@ -21,6 +21,17 @@ module Mutations
 
     field :direct_upload, DirectUpload, null: false
 
+    # Unlike other mutations, the payload has no errors field and directUpload is
+    # non-null: reporting a read-only token in the payload would violate nullability,
+    # so surface it as a top-level error instead.
+    def ready?(**args)
+      if context.write_access?
+        true
+      else
+        raise GraphQL::ExecutionError.new('Le jeton utilisé est configuré seulement en lecture', extensions: { code: :unauthorized })
+      end
+    end
+
     def resolve(filename:, byte_size:, checksum:, content_type:, dossier:)
       blob = ActiveStorage::Blob.create_before_direct_upload!(
         filename: filename,

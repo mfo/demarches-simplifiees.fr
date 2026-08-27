@@ -4,8 +4,10 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   render_views
   include Logic
 
+  before_all { seed "cases/routage" }
+
   let(:admin) { administrateurs.default }
-  let(:procedure) { create(:procedure, :routee, :published, :for_individual, administrateurs: [admin]) }
+  let(:procedure) { procedures.routee }
 
   let!(:gi_1_1) { procedure.defaut_groupe_instructeur }
   let!(:gi_1_2) { procedure.defaut_groupe_instructeur.other_groupe_instructeurs.first }
@@ -1059,7 +1061,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a simple routable type de champ' do
       let!(:procedure) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                ],
                administrateurs: [admin])
@@ -1076,7 +1078,7 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a conditionable but not simple routable type de champ' do
       let!(:procedure) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :integer_number },
                ],
                administrateurs: [admin])
@@ -1170,14 +1172,14 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a drop_down_list type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [
+               public_type_de_champs: [
                  { type: :drop_down_list, libelle: 'Votre ville', drop_down_options: ['Paris', 'Lyon', 'Marseille'], drop_down_other: true },
                  { type: :text, libelle: 'Un champ texte' },
                ],
                administrateurs: [admin])
       end
 
-      let!(:drop_down_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:drop_down_tdc) { procedure3.draft_revision.type_de_champs.first }
       let!(:dossier) { create(:dossier, :en_construction, procedure: procedure3) }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: drop_down_tdc.stable_id } } }
@@ -1206,11 +1208,11 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a departements type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :departements }],
+               public_type_de_champs: [{ type: :departements }],
                administrateurs: [admin])
       end
 
-      let!(:departements_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:departements_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: departements_tdc.stable_id } } }
 
@@ -1242,11 +1244,11 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a regions type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :regions }],
+               public_type_de_champs: [{ type: :regions }],
                administrateurs: [admin])
       end
 
-      let!(:regions_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:regions_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: regions_tdc.stable_id } } }
 
@@ -1262,11 +1264,11 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a pays type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :pays }],
+               public_type_de_champs: [{ type: :pays }],
                administrateurs: [admin])
       end
 
-      let!(:pays_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:pays_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: pays_tdc.stable_id } } }
 
@@ -1297,11 +1299,11 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with a communes type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :communes }],
+               public_type_de_champs: [{ type: :communes }],
                administrateurs: [admin])
       end
 
-      let!(:communes_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:communes_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: communes_tdc.stable_id } } }
 
@@ -1332,11 +1334,11 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with an epci type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :epci }],
+               public_type_de_champs: [{ type: :epci }],
                administrateurs: [admin])
       end
 
-      let!(:epci_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:epci_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: epci_tdc.stable_id } } }
 
@@ -1352,11 +1354,11 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
     context 'with an address type de champ' do
       let!(:procedure3) do
         create(:procedure,
-               types_de_champ_public: [{ type: :address }],
+               public_type_de_champs: [{ type: :address }],
                administrateurs: [admin])
       end
 
-      let!(:address_tdc) { procedure3.draft_revision.types_de_champ.first }
+      let!(:address_tdc) { procedure3.draft_revision.type_de_champs.first }
 
       before { post :create_simple_routing, params: { procedure_id: procedure3.id, create_simple_routing: { stable_id: address_tdc.stable_id } } }
 
@@ -1373,14 +1375,14 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   describe '#wizard' do
     let!(:procedure4) do
       create(:procedure,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                { type: :text, libelle: 'Un champ texte' },
              ],
              administrateurs: [admin])
     end
 
-    let!(:drop_down_tdc) { procedure4.draft_revision.types_de_champ.first }
+    let!(:drop_down_tdc) { procedure4.draft_revision.type_de_champs.first }
 
     before { patch :wizard, params: { procedure_id: procedure4.id, choice: { state: 'custom_routing' } } }
 
@@ -1493,14 +1495,14 @@ describe Administrateurs::GroupeInstructeursController, type: :controller do
   describe '#bulk_route' do
     let!(:procedure) do
       create(:procedure,
-             types_de_champ_public: [
+             public_type_de_champs: [
                { type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] },
                { type: :text, libelle: 'Un champ texte' },
              ],
              administrateurs: [admin])
     end
 
-    let!(:drop_down_tdc) { procedure.draft_revision.types_de_champ.first }
+    let!(:drop_down_tdc) { procedure.draft_revision.type_de_champs.first }
     let!(:dossier1) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let!(:dossier2) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
     let!(:dossier3) { create(:dossier, :accepte, :with_populated_champs, procedure: procedure) }

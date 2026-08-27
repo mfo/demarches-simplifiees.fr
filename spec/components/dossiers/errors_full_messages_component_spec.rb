@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
-  let(:types_de_champ_public) { [type: :text] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
+  let(:public_type_de_champs) { [type: :text] }
   let(:dossier) { create(:dossier, procedure:) }
   let(:component) { described_class.new(dossier:) }
 
@@ -30,7 +30,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
         let(:rows) { champ_repetition.rows }
         let(:champ_child) { rows.first.first }
 
-        let(:types_de_champ_public) { [{ libelle: "Champ parent", type: :repetition, children: [{ libelle: "Champ enfant", type: :text }] }] }
+        let(:public_type_de_champs) { [{ libelle: "Champ parent", type: :repetition, children: [{ libelle: "Champ enfant", type: :text }] }] }
 
         it 'focuses on focusable_input_id' do
           expect(subject).to have_link(champ_child.libelle, href: "##{champ_child.focusable_input_id}")
@@ -41,7 +41,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
         end
 
         context "when there is more than one child" do
-          let(:types_de_champ_public) { [{ libelle: "Champ parent", type: :repetition, children: [{ libelle: "Premier champ", type: :text }, { libelle: "Second enfant", type: :text }] }] }
+          let(:public_type_de_champs) { [{ libelle: "Champ parent", type: :repetition, children: [{ libelle: "Premier champ", type: :text }, { libelle: "Second enfant", type: :text }] }] }
 
           it do
             expect(subject).to have_text("[1] Champ parent - Premier champ")
@@ -51,14 +51,14 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
       end
 
       context 'when champ is civilite' do
-        let(:types_de_champ_public) { [{ type: :civilite }] }
+        let(:public_type_de_champs) { [{ type: :civilite }] }
         it 'focuses on focusable_input_id' do
           expect(subject).to have_link(champ.libelle, href: "##{champ.focusable_input_id}")
         end
       end
 
       context 'when champ is epci' do
-       let(:types_de_champ_public) { [{ type: :epci, mandatory: true }] }
+       let(:public_type_de_champs) { [{ type: :epci, mandatory: true }] }
        before { champ.update(attributes) }
 
        context 'when nothing is filled' do
@@ -86,21 +86,21 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
      end
 
       context 'when champ is drop_down_list as radio' do
-        let(:types_de_champ_public) { [{ type: :drop_down_list, options: %w[first_option other ones] }] }
+        let(:public_type_de_champs) { [{ type: :drop_down_list, options: %w[first_option other ones] }] }
         it 'focuses on focusable_input_id (first option)' do
           expect(subject).to have_link(champ.libelle, href: "##{champ.focusable_input_id}")
         end
       end
 
       context 'when champ is drop_down_list as combobox' do
-        let(:types_de_champ_public) { [{ type: :drop_down_list, options: %w[a b c d e f] }] }
+        let(:public_type_de_champs) { [{ type: :drop_down_list, options: %w[a b c d e f] }] }
         it 'focuses on focusable_input_id (first option)' do
           expect(subject).to have_link(champ.libelle, href: "##{champ.focusable_input_id}")
         end
       end
 
       context 'when champ is multiple_drop_down_list' do
-        let(:types_de_champ_public) { [{ type: :multiple_drop_down_list }] }
+        let(:public_type_de_champs) { [{ type: :multiple_drop_down_list }] }
         it 'focuses on focusable_input_id' do
           expect(subject).to have_link(champ.libelle, href: "##{champ.focusable_input_id}")
         end
@@ -108,7 +108,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
 
       context 'when champ is linked_drop_down_list' do
         let(:options) { ['--Primary 1--', 'Secondary 1.1', 'Secondary 1.2'] }
-        let(:types_de_champ_public) do
+        let(:public_type_de_champs) do
           [{ type: :linked_drop_down_list, libelle: 'Ville', options:, mandatory: true }]
         end
 
@@ -131,7 +131,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
       end
 
       context 'when champ is yes_no' do
-        let(:types_de_champ_public) { [{ type: :yes_no }] }
+        let(:public_type_de_champs) { [{ type: :yes_no }] }
         it 'focuses on focusable_input_id' do
           expect(subject).to have_link(champ.libelle, href: "##{champ.focusable_input_id}")
         end
@@ -145,7 +145,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
 
       context 'when champ is referentiel required and not filled' do
         let(:referentiel) { create(:api_referentiel, :exact_match) }
-        let(:types_de_champ_public) { [{ type: :referentiel, referentiel:, mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :referentiel, referentiel:, mandatory: true }] }
 
         context 'when champ is referentiel and not filled' do
           before { champ.update(external_id: nil) }
@@ -164,7 +164,7 @@ RSpec.describe Dossiers::ErrorsFullMessagesComponent, type: :component do
       end
 
       context 'when champ is address not in ban' do
-        let(:types_de_champ_public) { [{ type: :address, mandatory: true }] }
+        let(:public_type_de_champs) { [{ type: :address, mandatory: true }] }
         let(:not_in_ban) { 'true' }
         before do
           champ.update(value_json: { not_in_ban:, country_code: })

@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
-class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
+class TypesDeChamp::FranceConnectTypeDeChamp < TypeDeChamp
+  def self.category = FRANCE_CONNECT
+  def self.public_only? = true
+  def self.allowed_in_repetition? = false
+
+  def france_connect? = true
+  def api_particulier? = true
+  def must_be_mandatory? = true
+  def libelle_configurable? = false
+  def description_configurable? = false
+  def has_label? = false
+
   REGISTRY = {
     quotient_familial: {
       resource: 'v3/dss/quotient_familial/identite',
@@ -30,6 +41,13 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
       rows_builder: FranceConnectChamp::AEEHRowsBuilder,
       columns: Columns::FranceConnectChampColumn::AEEH_COLUMNS,
     },
+    ars: {
+      resource: 'v3/dss/allocation_rentree_scolaire/identite',
+      schema: "app/schemas/ars.json",
+      preview_data_file_path: "france_connect_champ_base_component/api_part_preview_data/preview_ars_data.json",
+      rows_builder: FranceConnectChamp::ARSRowsBuilder,
+      columns: Columns::FranceConnectChampColumn::ARS_COLUMNS,
+    },
   }.freeze
 
   def self.config_for(type_champ)
@@ -40,7 +58,7 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
     FILL_DURATION_MEDIUM
   end
 
-  def champ_blank?(champ)
+  def typed_champ_blank?(champ)
     return true if champ.fetched? && champ.fc_data_approved?.nil?
     return false if champ.fc_data_correct?
 
@@ -49,7 +67,7 @@ class TypesDeChamp::FranceConnectTypeDeChamp < TypesDeChamp::TypeDeChampBase
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     ''
   end
 

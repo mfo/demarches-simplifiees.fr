@@ -252,6 +252,8 @@ class Champs::AddressChamp < Champs::TextChamp
     end
   end
 
+  def condition_value = { department_code: code_departement, region_code: code_region }
+
   private
 
   def format_label
@@ -283,7 +285,8 @@ class Champs::AddressChamp < Champs::TextChamp
   end
 
   def set_full_address
-    address_data = self.value_json
+    # value_json is nil on a blank champ (e.g. cleared by the user)
+    address_data = self.value_json || {}
     if become_france? || become_international?
       address_data.merge!(
         'department_code' => nil,

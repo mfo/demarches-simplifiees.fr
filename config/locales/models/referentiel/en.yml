@@ -1,4 +1,4 @@
-fr:
+en:
   activerecord:
     errors:
       models:
@@ -11,11 +11,10 @@ fr:
       referentiel: 'Field type'
     attributes:
       referentiels/api_referentiel:
-        url: "URL of the API"
+        url_tiptap: "URL of the API"
         hint: "Expected format shown to the user"
         test_data: "Valid example used to test the API"
         hints:
-          url_html: "Expected format: https://api_1.ext/<strong>{id}</strong>, the segment <strong>{id}</strong> will be replaced by the field value. The http request will use the GET verb"
           hint: "Example : ID containing 12 chars"
           "authentication_data[header]": "Example: Authorization"
           "authentication_data[value]": "Example: Bearer your_token_here"

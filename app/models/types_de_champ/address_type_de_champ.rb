@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
+  def self.category = LOCALISATION
+  def self.simple_routable? = true
+  def self.conditionable? = true
+
+  def condition_value_type = :address
+  def condition_options = APIGeoService.departement_options
+
   include AddressableColumnConcern
 
   def libelles_for_export
@@ -8,18 +15,18 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     [[path[:libelle], path[:path]]]
   end
 
-  def champ_value(champ)
+  def typed_champ_value(champ)
     champ.address_label.presence || ''
   end
 
-  def champ_value_for_api(champ, version: 2)
-    champ_value(champ)
+  def typed_champ_value_for_api(champ, version: 2)
+    typed_champ_value(champ)
   end
 
-  def champ_value_for_tag(champ, path = :value)
+  def typed_champ_value_for_tag(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :departement
       champ.departement_code_and_name || ''
     when :commune
@@ -27,10 +34,10 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def champ_value_for_export(champ, path = :value)
+  def typed_champ_value_for_export(champ, path = :value)
     case path
     when :value
-      champ_value(champ)
+      typed_champ_value(champ)
     when :departement
       champ.departement_code_and_name
     when :commune
@@ -38,7 +45,7 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     end
   end
 
-  def champ_blank?(champ)
+  def typed_champ_blank?(champ)
     if champ.migrated_legacy_address?
       champ.value.blank?
     else
@@ -52,7 +59,7 @@ class TypesDeChamp::AddressTypeDeChamp < TypesDeChamp::TextTypeDeChamp
       stable_id:,
       tdc_type: type_champ,
       label: libelle_with_prefix(prefix),
-      type: TypeDeChamp.column_type(type_champ),
+      type: self.class.column_type,
       displayable:,
       mandatory: mandatory?
     )

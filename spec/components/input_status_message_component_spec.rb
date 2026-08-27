@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
   let(:champ) { dossier.champ_data.first }
   let(:champ_component) { instance_double("ChampComponent", errors_on_attribute?: errors_on_attribute, error_full_messages:, attribute: :value) }
@@ -12,7 +12,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
   subject { render_inline(component) }
 
   context "when there are errors on the attribute" do
-    let(:types_de_champ_public) { [{ type: :text, libelle: "Plop" }] }
+    let(:public_type_de_champs) { [{ type: :text, libelle: "Plop" }] }
     let(:errors_on_attribute) { true }
     let(:error_full_messages) { ["Invalid input"] }
     it "renders the error message" do
@@ -31,7 +31,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     let(:errors_on_attribute) { false }
 
     context 'with rna champs' do
-      let(:types_de_champ_public) { [{ type: :rna }] }
+      let(:public_type_de_champs) { [{ type: :rna }] }
       context "when there are no errors but the field supports statut" do
         it "renders the statut message" do
           allow(champ).to receive(:title).and_return("Title")
@@ -43,8 +43,45 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
       end
     end
 
+    context 'with rnf champs' do
+      let(:public_type_de_champs) { [{ type: :rnf }] }
+      let(:state) { :idle }
+
+      before do
+        allow(champ).to receive(:pending?).and_return(state == :pending)
+        allow(champ).to receive(:external_error?).and_return(state == :external_error)
+        allow(champ).to receive(:external_id).and_return('075-FDD-00003-01')
+      end
+
+      context 'when the lookup is pending' do
+        let(:state) { :pending }
+
+        it 'renders the pending message' do
+          expect(subject).to have_css('.fr-message--info', text: 'Vérification du RNF en cours')
+        end
+      end
+
+      context 'when the lookup failed' do
+        let(:state) { :external_error }
+
+        it 'renders a warning message' do
+          expect(subject).to have_css('.fr-message--warning', text: 'Aucune fondation trouvée')
+        end
+      end
+
+      context 'when the foundation was found' do
+        before do
+          allow(champ).to receive(:data).and_return({ 'title' => 'Fondation de France', 'address' => { 'label' => '40 Avenue Hoche, 75008 Paris' } })
+        end
+
+        it 'renders the success message' do
+          expect(subject).to have_css('.fr-message--info', text: 'Ce RNF correspond à : Fondation de France, 40 Avenue Hoche, 75008 Paris')
+        end
+      end
+    end
+
     context 'with dossier_link champs' do
-      let(:types_de_champ_public) { [{ type: :dossier_link }] }
+      let(:public_type_de_champs) { [{ type: :dossier_link }] }
       let(:linked_dossier) { create(:dossier, :en_construction) }
 
       before do
@@ -73,7 +110,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
 
     context 'with referentiel champs' do
       let(:referentiel) { create(:api_referentiel, :exact_match) }
-      let(:types_de_champ_public) { [{ type: :referentiel, referentiel: }] }
+      let(:public_type_de_champs) { [{ type: :referentiel, referentiel: }] }
       let(:state) { :idle }
 
       before do
@@ -110,7 +147,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     end
 
     context 'with address champs' do
-      let(:types_de_champ_public) { [{ type: :address }] }
+      let(:public_type_de_champs) { [{ type: :address }] }
       let(:state) { :idle }
 
       before do
@@ -139,7 +176,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     end
 
     context 'with piece_justificative champs (RIB)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'rib' }] }
       let(:state) { :idle }
       let(:value_json) { {} }
 
@@ -188,7 +225,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     end
 
     context 'with piece_justificative champs (avis impot)' do
-      let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'avis_impot' }] }
+      let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'avis_impot' }] }
       let(:state) { :idle }
       let(:value_json) { {} }
 
@@ -220,7 +257,7 @@ RSpec.describe Dsfr::InputStatusMessageComponent, type: :component do
     end
 
     context 'with siret champs' do
-      let(:types_de_champ_public) { [{ type: :siret }] }
+      let(:public_type_de_champs) { [{ type: :siret }] }
       let(:errors_on_attribute) { false }
       let(:error_full_messages) { [] }
 

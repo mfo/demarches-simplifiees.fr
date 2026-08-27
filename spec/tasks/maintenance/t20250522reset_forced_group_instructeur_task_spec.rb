@@ -6,7 +6,7 @@ module Maintenance
   RSpec.describe T20250522resetForcedGroupInstructeurTask do
     describe "#process" do
       let(:admin) { administrateurs.default }
-      let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :departements, libelle: 'Votre département' }], administrateurs: [admin]) }
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :departements, libelle: 'Votre département' }], administrateurs: [admin]) }
       let(:dossier1) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure, forced_groupe_instructeur: true) }
       let!(:dossier2) { create(:dossier, :en_construction, :with_populated_champs, procedure: procedure) }
 

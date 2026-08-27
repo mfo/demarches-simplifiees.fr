@@ -15,10 +15,19 @@ class TypesDeChamp::PrefillDropDownListTypeDeChamp < TypesDeChamp::PrefillTypeDe
 
   private
 
-  # Advanced (referentiel-backed) lists and lists accepting "other" take
-  # values the options don't enumerate, so only simple lists are screened.
+  # Advanced (referentiel-backed) lists store an item id, so a prefill input
+  # given as a human label is resolved to its item id (the champ setter only
+  # accepts ids). Simple lists are screened against their options; lists
+  # accepting "other" take any value.
   def screened_value(champ, value)
     return nil if !value.is_a?(String)
+
+    if drop_down_advanced?
+      resolved = referentiel&.resolve_item_id(value)
+      return resolved if resolved.present?
+      return drop_down_other? ? value : nil
+    end
+
     return nil if screenable? && DropDownOptionsValidator.violations([value], self).any?
 
     value

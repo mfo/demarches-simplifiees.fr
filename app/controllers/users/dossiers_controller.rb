@@ -11,7 +11,7 @@ module Users
 
     layout 'procedure_context', only: [:identite, :update_identite, :siret, :update_siret]
 
-    ACTIONS_ALLOWED_TO_ANY_USER = [:index, :new, :deleted_dossiers, :trash, :transfer_requests]
+    ACTIONS_ALLOWED_TO_ANY_USER = [:index, :new, :deleted_dossiers, :trash, :transfer_requests, :personnalisation, :update_personnalisation]
     ACTIONS_ALLOWED_TO_OWNER_OR_INVITE = [:show, :destroy, :demande, :messagerie, :brouillon, :modifier, :update, :create_commentaire, :attestation_depot, :restore, :champ, :check_completude, :notify_owner_for_changes, :revert_prefill]
     TRASH_ACTIONS = [:show_in_trash, :show_deleted]
     ITEMS_PER_PAGE = 25
@@ -50,10 +50,13 @@ module Users
 
       @dossiers = @filter.dossiers.page(page).per(ITEMS_PER_PAGE)
       @total_count = @dossiers.total_count
+      @show_personnalisation_link = personnalisation_available?
       list_title = @filter.model_alerts.any? ? "filters.alerts" : "filters.no_alert"
       Skylight.instrument(title: list_title) do
         @dossiers.load
       end
+      load_personnalisation_data(@dossiers)
+      load_user_buffer_changes_data(@dossiers)
       @corbeille_count = current_user.dossiers.hidden_by_user.or(current_user.dossiers.hidden_by_expired).count
       @pending_transfers_count = current_user.dossier_transfers_received_pending.count
       @show_simple_list = params[:search].blank? && !@filter.active? && @total_count <= SIMPLE_LIST_THRESHOLD
@@ -113,7 +116,7 @@ module Users
       @dossier = dossier
       pdf = @dossier.generate_or_reuse_attestation_depot
       send_data pdf,
-        filename: I18n.t('users.dossiers.show.attestation_depot.filename', dossier_id: @dossier.id),
+        filename: t('users.dossiers.show.attestation_depot.filename', dossier_id: @dossier.id),
         type: 'application/pdf',
         disposition: 'attachment'
     end
@@ -512,6 +515,45 @@ module Users
       render layout: 'empty_layout'
     end
 
+    def personnalisation
+      return redirect_to dossiers_path if !personnalisation_available?
+
+      @personnalisable_procedures = personnalisable_procedures
+      @personnalisations_by_procedure_id = current_user
+        .dossiers_list_personnalisations
+        .where(procedure_id: @personnalisable_procedures.map(&:id))
+        .index_by(&:procedure_id)
+      render layout: 'empty_layout'
+    end
+
+    def update_personnalisation
+      return redirect_to dossiers_path if !personnalisation_available?
+
+      personnalisations = personnalisation_params
+      procedures_by_id = user_procedures.where(id: personnalisations.keys).index_by { _1.id.to_s }
+      results = personnalisations.map do |procedure_id, attrs|
+        procedure = procedures_by_id[procedure_id.to_s]
+        next true if procedure.nil?
+
+        submitted_ids = Array(attrs[:displayed_columns]).compact_blank
+        columns =
+          if submitted_ids.empty?
+            []
+          else
+            columns_by_id = procedure.customizable_columns.index_by(&:id)
+            submitted_ids.filter_map { columns_by_id[_1] }
+          end
+        perso = current_user.dossiers_list_personnalisations.find_or_initialize_by(procedure_id:)
+        perso.update(displayed_columns: columns)
+      end
+
+      if results.all?
+        redirect_to dossiers_path, notice: t('views.users.dossiers.personnalisation.saved')
+      else
+        redirect_to dossiers_path, alert: t('views.users.dossiers.personnalisation.error')
+      end
+    end
+
     def trash
       @statut = 'dossiers-supprimes'
       @dossiers = current_user.dossiers
@@ -522,6 +564,7 @@ module Users
         .page(page)
         .per(ITEMS_PER_PAGE)
       @total_count = @dossiers.total_count
+      load_user_buffer_changes_data(@dossiers)
     end
 
     private
@@ -682,6 +725,68 @@ module Users
 
     def commentaire_params
       params.require(:commentaire).permit(:body, piece_jointe: [])
+    end
+
+    def load_personnalisation_data(dossiers)
+      @personnalisations_by_procedure_id = {}
+      @champs_by_dossier_id = {}
+      return if !feature_enabled?(:dossiers_list_personnalisation)
+
+      @personnalisations_by_procedure_id = current_user.dossiers_list_personnalisations
+        .where(procedure_id: dossiers.map { _1.procedure.id }.uniq)
+        .index_by(&:procedure_id)
+      return if @personnalisations_by_procedure_id.empty?
+
+      stable_ids = @personnalisations_by_procedure_id.values
+        .flat_map(&:displayed_columns)
+        .filter(&:champ_column?)
+        .map(&:stable_id)
+        .uniq
+      return if stable_ids.empty?
+
+      ChampData.where(dossier_id: dossiers.map(&:id), stable_id: stable_ids, stream: Dossier::MAIN_STREAM)
+        .find_each do |champ|
+          (@champs_by_dossier_id[champ.dossier_id] ||= {})[champ.stable_id] = champ
+        end
+    end
+
+    # Sur-ensemble des dossiers ayant des champs sur le stream « user:buffer » :
+    # une seule requête pour toute la page, au lieu de charger tous les champs
+    # de chaque dossier en_construction juste pour décider d'afficher la bannière
+    # « modifications non soumises ». Le composant fait ensuite la vérification
+    # précise (stable_id dans la révision) sur les seuls dossiers signalés.
+    def load_user_buffer_changes_data(dossiers)
+      dossier_ids = dossiers.filter(&:en_construction?).map(&:id)
+      @dossier_ids_with_user_buffer_changes = ChampData
+        .where(dossier_id: dossier_ids, stream: Dossier::USER_BUFFER_STREAM)
+        .distinct
+        .pluck(:dossier_id)
+        .to_set
+    end
+
+    def personnalisation_available?
+      feature_enabled?(:dossiers_list_personnalisation) &&
+        dossier_filter.user_dossiers.count > SIMPLE_LIST_THRESHOLD
+    end
+
+    def dossier_filter
+      @filter ||= Users::DossierFilterService.new(user: current_user, params:)
+    end
+
+    def user_procedures
+      Procedure.where(id: dossier_filter.user_dossiers.joins(:procedure).select('procedures.id'))
+    end
+
+    def personnalisation_params
+      params.permit(personnalisations: {}).fetch(:personnalisations, {}).to_h
+    end
+
+    def personnalisable_procedures
+      user_procedures
+        .distinct
+        .order(:libelle)
+        .includes(published_revision: { revision_type_de_champs: :type_de_champ })
+        .filter { _1.customizable_columns_by_section.any? }
     end
 
     def redirect_if_hidden_or_deleted_dossier

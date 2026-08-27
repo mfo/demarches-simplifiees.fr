@@ -24,13 +24,15 @@ class Dossiers::RNAComponent < ApplicationComponent
   private
 
   def data
-    [
-      [champ.class.human_attribute_name(:value), champ.to_s],
-      *['titre', 'objet'].map { label_value(it) },
-    ]
+    rows = [[champ.class.human_attribute_name(:value), champ.to_s]]
+    return rows if champ.data.blank?
+
+    rows + ['titre', 'objet'].map { label_value(it) }
   end
 
   def details
+    return [] if champ.data.blank?
+
     [
       *['date_creation', 'date_declaration', 'date_publication'].map { label_value(it) },
       *helpers.address_array(champ),

@@ -5,7 +5,7 @@ describe Procedure::OneGroupeManagementComponent, type: :component do
 
   describe 'render' do
     let(:procedure) do
-      create(:procedure, types_de_champ_public: [{ type: :integer_number, libelle: 'Age' }])
+      create(:procedure, public_type_de_champs: [{ type: :integer_number, libelle: 'Age' }])
         .tap { _1.groupe_instructeurs.create(label: 'groupe 2') }
     end
 

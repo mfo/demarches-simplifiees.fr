@@ -7,7 +7,7 @@ class DataSources::ReferentielController < DataSources::BaseController
 
   def search
     if query && params[:referentiel_id].present?
-      return render json: [] if referentiel&.autocomplete_configuration.blank?
+      return render json: [] if !referentiel&.autocomplete_ready?
 
       begin
         result = referentiel_service.call(query, dossier: @dossier)
@@ -72,7 +72,7 @@ class DataSources::ReferentielController < DataSources::BaseController
     candidate = Referentiel.find_by(id: params[:referentiel_id])
     return nil if candidate.nil?
 
-    candidate if @dossier.procedure.active_revision.types_de_champ.any? { it.referentiel_id == candidate.id }
+    candidate if @dossier.procedure.active_revision.type_de_champs.any? { it.referentiel_id == candidate.id }
   end
 
   def set_dossier

@@ -14,6 +14,7 @@ module DossierStateConcern
     resolve_pending_correction!
     process_sva_svr!
     clean_champs_after_submit!
+    render_carte_champs_later!
     DossierNotification.create_notification(self, :dossier_modifie)
   end
 
@@ -23,6 +24,7 @@ module DossierStateConcern
     save!
 
     RoutingEngine.compute(self)
+    render_carte_champs_later!
     Message::DossierModifierParInstructeurComponent.create_commentaire(traitement)
   end
 
@@ -38,7 +40,7 @@ module DossierStateConcern
 
     RoutingEngine.compute(self)
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:en_construction))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:en_construction))
     procedure.compute_dossiers_count
 
     process_declarative!
@@ -58,6 +60,23 @@ module DossierStateConcern
     DossierNotification.create_notification(self, :dossier_depose) if !procedure.declarative? && !procedure.sva_svr_enabled?
 
     clean_champs_after_submit!
+    render_carte_champs_later!
+  end
+
+  # The static image of a carte champ only serves the PDF exports, which only
+  # concern submitted dossiers: we render at the moments the geometry becomes
+  # official, never while the usager is drawing. The job short-circuits on its
+  # own when the map has not moved since the last render.
+  #
+  # A champ that has lost its geometry still gets a job, which purges the image
+  # instead of rendering one: a submission that removes the last geo area must
+  # not leave the previous map behind. Only a champ with neither geometry nor
+  # image is skipped, as there is nothing to do for it.
+  def render_carte_champs_later!
+    champ_data
+      .where(type: Champs::CarteChamp.to_s, stream: Dossier::MAIN_STREAM)
+      .includes(:static_map_attachment)
+      .find_each { RenderCarteChampJob.enqueue_for(it) if it.geometry? || it.static_map.attached? }
   end
 
   def after_passer_en_instruction(h)
@@ -76,7 +95,7 @@ module DossierStateConcern
     reset_instructeur_buffer_stream!
     with_champs
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:en_instruction))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:en_instruction))
     resolve_pending_correction!
 
     log_dossier_operation(instructeur, :passer_en_instruction)
@@ -105,7 +124,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:en_instruction))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:en_instruction))
 
     if procedure.sva_svr_enabled?
       log_automatic_dossier_operation(:passer_en_instruction, self)
@@ -159,7 +178,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:accepte))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:accepte))
 
     log_dossier_operation(instructeur, :accepter, self)
   end
@@ -197,7 +216,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:accepte))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:accepte))
 
     log_automatic_dossier_operation(:accepter, self)
   end
@@ -235,7 +254,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:refuse))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:refuse))
 
     log_dossier_operation(instructeur, :refuser, self)
   end
@@ -272,7 +291,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:refuse))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:refuse))
 
     log_automatic_dossier_operation(:refuser, self)
   end
@@ -311,7 +330,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:sans_suite))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, Dossier.states.fetch(:sans_suite))
 
     log_dossier_operation(instructeur, :classer_sans_suite, self)
   end
@@ -355,7 +374,7 @@ module DossierStateConcern
 
     save!
 
-    MailTemplatePresenterService.create_commentaire_for_state(self, DossierOperationLog.operations.fetch(:repasser_en_instruction))
+    EmailTemplatePresenterService.create_commentaire_for_state(self, DossierOperationLog.operations.fetch(:repasser_en_instruction))
 
     log_dossier_operation(instructeur, :repasser_en_instruction)
   end
@@ -443,7 +462,7 @@ module DossierStateConcern
 
   def clear_auto_purged_piece_justificatives!
     revision_ids = revision.draft? ? [procedure.draft_revision_id] : (procedure.revisions.ids - [procedure.draft_revision_id])
-    champ_to_clear_stable_ids = TypeDeChamp.joins(:revision_types_de_champ)
+    champ_to_clear_stable_ids = TypeDeChamp.joins(:revision_type_de_champs)
       .where(procedure_revision_types_de_champ: { revision_id: revision_ids }, type_champ: 'piece_justificative')
       .order(updated_at: :desc)
       .uniq(&:stable_id)

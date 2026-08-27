@@ -3,8 +3,8 @@
 describe Instructeurs::ChampsController, type: :controller do
   let(:instructeur) { create(:instructeur) }
   let(:instructeurs) { [instructeur] }
-  let(:types_de_champ_public) { [{ type: :piece_justificative, nature: 'rib' }] }
-  let(:procedure) { create(:procedure, instructeurs:, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :piece_justificative, nature: 'rib' }] }
+  let(:procedure) { create(:procedure, instructeurs:, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :en_construction, procedure:) }
   let(:champ) { dossier.champ_data.first }
 
@@ -56,7 +56,7 @@ describe Instructeurs::ChampsController, type: :controller do
     end
 
     context 'when the public_id points to a public champ that is not a RIB' do
-      let(:types_de_champ_public) do
+      let(:public_type_de_champs) do
         [
           { type: :piece_justificative, nature: 'rib' },
           { type: :address, libelle: 'Adresse' },

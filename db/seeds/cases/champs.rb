@@ -55,7 +55,7 @@ ActiveRecord::Base.transaction do
 
   build_type_de_champ = lambda do |params, private_champ, position|
     type_de_champ = TypeDeChamp.new(private: private_champ, libelle: params[:type_champ], **params)
-    revision.revision_types_de_champ.build(type_de_champ:, position:)
+    revision.revision_type_de_champs.build(type_de_champ:, position:)
 
     if type_de_champ.type_champ == TypeDeChamp.type_champs.fetch(:piece_justificative) && type_de_champ.nature.blank?
       type_de_champ.piece_justificative_template.attach(
@@ -82,12 +82,12 @@ ActiveRecord::Base.transaction do
 
   revision.save!
 
-  repetition_coordinate = revision.revision_types_de_champ.find { it.type_de_champ.repetition? && !it.type_de_champ.private? }
+  repetition_coordinate = revision.revision_type_de_champs.find { it.type_de_champ.repetition? && !it.type_de_champ.private? }
   [
     { type_champ: "text", libelle: "sub type de champ" },
     { type_champ: "integer_number", libelle: "sub type de champ2" },
   ].each_with_index do |params, position|
-    revision.revision_types_de_champ.create!(type_de_champ: TypeDeChamp.create!(params), parent: repetition_coordinate, position:)
+    revision.revision_type_de_champs.create!(type_de_champ: TypeDeChamp.create!(params), parent: repetition_coordinate, position:)
   end
 
   procedures.label tous_champs: procedure

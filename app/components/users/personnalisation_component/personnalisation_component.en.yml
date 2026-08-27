@@ -1,0 +1,8 @@
+---
+en:
+  default_section: Application form
+  empty_hint: No custom display for this procedure's dossiers.
+  hint: Select one or more fields
+  selected_one: 1 field selected
+  selected_other: "# fields selected"
+  aria_label: "Fields to display for the procedure %{libelle}"

@@ -7,6 +7,7 @@ class DeletedDossier < ApplicationRecord
   scope :order_by_updated_at, -> (order = :desc) { order(created_at: order) }
   scope :deleted_since,       -> (since) { where(deleted_dossiers: { deleted_at: since.. }) }
   scope :state_termine,       -> { where(state: [states.fetch(:accepte), states.fetch(:refuse), states.fetch(:sans_suite)]) }
+  scope :submitted_to_administration, -> { where("state != ? OR reason != ?", "en_construction", "user_request") }
 
   enum :reason, {
     user_request:      'user_request',

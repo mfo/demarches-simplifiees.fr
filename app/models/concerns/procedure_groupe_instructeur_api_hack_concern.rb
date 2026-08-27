@@ -10,7 +10,9 @@ module ProcedureGroupeInstructeurAPIHackConcern
   def update_groupe_instructeur_routing_roules!
     if feature_enabled?(:groupe_instructeur_api_hack)
       stable_id = groupe_instructeurs.first.routing_rule.left.stable_id
-      tdc = published_revision.types_de_champ.find { _1.stable_id == stable_id }
+      tdc = published_revision.type_de_champs.find { _1.stable_id == stable_id }
+
+      raise "the groupe_instructeur_api_hack expects a drop-down routing champ, got a #{tdc.type_champ}" if !tdc.drop_down_list?
 
       drop_down_options = groupe_instructeurs.active.map do |groupe_instructeur|
         groupe_instructeur.update!(routing_rule: ds_eq(champ_value(stable_id), constant(groupe_instructeur.label)))

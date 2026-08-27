@@ -1,7 +1,7 @@
 = render Dsfr::AlertComponent.new(state: :info, size: :sm, extra_class_names: 'fr-mb-3w') do |c|
   - c.with_body do
     %p
-      = t('.subtitle').html_safe
+      = t('.subtitle_html')
 
 = form_for instructeur_procedure, url: update_badge_notifications_instructeur_procedure_path(procedure), html: { class: 'form', data: { controller: 'enable-submit-if-form-changes', action: 'change->enable-submit-if-form-changes#onFormChange' } } do |form|
   - InstructeursProcedure::NOTIFICATION_COLUMNS.keys.each do |notification_type|

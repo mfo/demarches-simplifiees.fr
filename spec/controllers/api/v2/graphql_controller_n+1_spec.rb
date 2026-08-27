@@ -4,7 +4,7 @@ describe API::V2::GraphqlController do
   let_it_be(:admin) { administrateurs.default }
   let_it_be(:generated_token) { APIToken.generate(admin) }
   let(:token) { generated_token.second }
-  let_it_be(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], types_de_champ_public: [{}, { type: :piece_justificative }, { type: :siret }, { type: :repetition, mandatory: true, children: [{}, { type: :piece_justificative }, { type: :siret }] }]) }
+  let_it_be(:procedure) { create(:procedure, :published, :for_individual, :with_service, administrateurs: [admin], public_type_de_champs: [{}, { type: :piece_justificative }, { type: :siret }, { type: :repetition, mandatory: true, children: [{}, { type: :piece_justificative }, { type: :siret }] }]) }
   let(:authorization_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 
   let(:query_id) { 'ds-query-v2' }
@@ -61,6 +61,46 @@ describe API::V2::GraphqlController do
         expect(gql_data[:demarche][:dossiers][:nodes].count).to eq(dossiers_count + 1)
         expect(query_count).to be <= MAX_QUERY_COUNT
       end
+    end
+  end
+
+  describe 'demarche.dossiers with entreprise demandeur' do
+    let_it_be(:procedure_entreprise) { create(:procedure, :published, :with_service, administrateurs: [admin], public_type_de_champs: [{}]) }
+
+    # A custom query without champs skips the DossierPreloader (which marks the
+    # demandeur's champ_data association as loaded), so PersonneMorale.address
+    # has to resolve champ_data itself — it must batch instead of one query per dossier.
+    let(:query) do
+      <<~GRAPHQL
+        query($demarcheNumber: Int!) {
+          demarche(number: $demarcheNumber) {
+            dossiers {
+              nodes {
+                demandeur {
+                  ... on PersonneMorale { siret address { label } }
+                }
+              }
+            }
+          }
+        }
+      GRAPHQL
+    end
+    let(:variables) { { demarcheNumber: procedure_entreprise.id } }
+
+    subject { post :execute, params: { query:, variables: }, as: :json }
+
+    it "batches etablissement champ_data lookups (PersonneMorale.address)" do
+      create_list(:dossier, 5, :en_construction, :with_entreprise, procedure: procedure_entreprise)
+
+      etablissement_champ_queries = []
+      callback = lambda do |_name, _started, _finished, _unique_id, payload|
+        etablissement_champ_queries << payload[:sql] if payload[:sql]&.include?('"champs"."etablissement_id"')
+      end
+      ActiveSupport::Notifications.subscribed(callback, "sql.active_record") { subject }
+
+      expect(gql_errors).to be_nil
+      expect(gql_data[:demarche][:dossiers][:nodes].count).to eq(5)
+      expect(etablissement_champ_queries.size).to be <= 1
     end
   end
 end

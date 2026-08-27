@@ -609,16 +609,39 @@ describe Instructeurs::ProceduresController, type: :controller do
       end
 
       context 'when an error occurs in the DossierFilterService' do
-        before do
-          allow(DossierFilterService).to receive(:filtered_sorted_ids).and_raise(ActiveRecord::StatementInvalid.new('PG::UndefinedFunction'))
+        before { allow(DossierFilterService).to receive(:filtered_sorted_ids).and_raise(error) }
 
-          expect_any_instance_of(ProcedurePresentation).to receive(:destroy_filters_for!)
-          subject
+        shared_examples 'a filter the instructeur cannot get rid of' do
+          it 'resets the display instead of leaving the tab broken' do
+            expect_any_instance_of(ProcedurePresentation).to receive(:destroy_filters_for!)
+
+            subject
+
+            expect(response).to redirect_to(instructeur_procedure_path)
+            expect(flash.alert).to include('Votre affichage a dû être réinitialisé')
+          end
         end
 
-        it do
-          expect(response).to redirect_to(instructeur_procedure_path)
-          expect(flash.alert).to include('Votre affichage a dû être réinitialisé')
+        context 'because postgres rejects the filter' do
+          let(:error) { ActiveRecord::StatementInvalid.new('PG::UndefinedFunction') }
+
+          it_behaves_like 'a filter the instructeur cannot get rid of'
+        end
+
+        context 'because of anything else' do
+          let(:error) { NoMethodError.new("undefined method 'beginning_of_day' for nil") }
+
+          it_behaves_like 'a filter the instructeur cannot get rid of'
+        end
+
+        context 'because the query timed out, which says nothing about the filters' do
+          let(:error) { ActiveRecord::QueryCanceled.new('PG::QueryCanceled') }
+
+          it 'keeps them' do
+            expect_any_instance_of(ProcedurePresentation).not_to receive(:destroy_filters_for!)
+
+            expect { subject }.to raise_error(ActiveRecord::QueryCanceled)
+          end
         end
       end
 
@@ -1053,6 +1076,15 @@ describe Instructeurs::ProceduresController, type: :controller do
       get :download_export, params: { export_format: :csv, procedure_id: procedure.id }
     end
 
+    context 'when no export format is given' do
+      subject { get :download_export, params: { procedure_id: procedure.id } }
+
+      it 'redirects with an alert instead of failing (RAILS-JZW)' do
+        is_expected.to redirect_to(exports_instructeur_procedure_url(procedure))
+        expect(flash.alert).to be_present
+      end
+    end
+
     context 'when the export does not exist' do
       it 'displays an notice' do
         is_expected.to redirect_to(exports_instructeur_procedure_url(procedure))
@@ -1245,7 +1277,7 @@ describe Instructeurs::ProceduresController, type: :controller do
     render_views
 
     let(:instructeur) { create(:instructeur) }
-    let(:procedure) { create(:procedure, types_de_champ_public: [type: :text, libelle: "Premier champ"]) }
+    let(:procedure) { create(:procedure, public_type_de_champs: [type: :text, libelle: "Premier champ"]) }
 
     before do
       sign_in(instructeur.user)

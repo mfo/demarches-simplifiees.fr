@@ -3,6 +3,8 @@
 class Procedure::ErrorsSummary < ApplicationComponent
   ErrorDescriptor = Data.define(:anchor, :label, :error_message)
 
+  EMAIL_TEMPLATE_ATTRIBUTES = [:email_depose, :email_passe_en_instruction, :email_accepte, :email_refuse, :email_classe_sans_suite, :email_repasse_en_instruction].freeze
+
   def initialize(procedure:, validation_context:)
     @procedure = procedure
     @validation_context = validation_context
@@ -10,15 +12,15 @@ class Procedure::ErrorsSummary < ApplicationComponent
 
   def title
     case @validation_context
-    when :types_de_champ_private_editor
-      "Les annotations privées contiennent des erreurs"
-    when :types_de_champ_public_editor
-      "Les champs du formulaire contiennent des erreurs"
+    when :private_type_de_champs_editor
+      t(".private_annotations_contain_errors")
+    when :public_type_de_champs_editor
+      t(".form_fields_contain_errors")
     when :publication
       if @procedure.publiee?
-        "Des problèmes empêchent la publication des modifications"
+        t(".problems_block_publishing_modifications")
       else
-        "Des problèmes empêchent la publication de la démarche"
+        t(".problems_block_publishing_procedure")
       end
     end
   end
@@ -29,17 +31,17 @@ class Procedure::ErrorsSummary < ApplicationComponent
   end
 
   def errors
-    @procedure.errors.map { to_error_descriptor(_1) }
+    @procedure.errors.flat_map { to_error_descriptors(_1) }
   end
 
   def error_correction_page(error)
     case error.attribute
     when :ineligibilite_rules
       edit_admin_procedure_ineligibilite_rules_path(@procedure)
-    when :draft_types_de_champ_public
+    when :public_draft_type_de_champs
       tdc = error.options[:type_de_champ]
       champs_admin_procedure_path(@procedure, anchor: dom_id(tdc.stable_self, :editor_error))
-    when :draft_types_de_champ_private
+    when :private_draft_type_de_champs
       tdc = error.options[:type_de_champ]
       annotations_admin_procedure_path(@procedure, anchor: dom_id(tdc.stable_self, :editor_error))
     when :attestation_acceptation_template, :attestation_refus_template
@@ -48,15 +50,24 @@ class Procedure::ErrorsSummary < ApplicationComponent
       else
         edit_admin_procedure_attestation_template_v2_path(@procedure, attestation_kind: error.detail[:value].kind)
       end
-    when :initiated_mail, :received_mail, :closed_mail, :refused_mail, :without_continuation_mail, :re_instructed_mail
-      klass = "Mails::#{error.attribute.to_s.classify}".constantize
-      edit_admin_procedure_mail_template_path(@procedure, klass.const_get(:SLUG))
+    when *EMAIL_TEMPLATE_ATTRIBUTES
+      klass = "Emails::#{error.attribute.to_s.delete_prefix('email_').camelize}".constantize
+      edit_admin_procedure_email_template_path(@procedure, klass.const_get(:SLUG))
     end
+  end
+
+  def to_error_descriptors(error)
+    template_errors = error.attribute.in?(EMAIL_TEMPLATE_ATTRIBUTES) ? error.detail[:value]&.errors : nil
+    return [to_error_descriptor(error)] if template_errors.blank?
+
+    anchor = error_correction_page(error)
+    label = error.base.class.human_attribute_name(error.attribute)
+    template_errors.map { ErrorDescriptor.new(anchor, label, _1.full_message) }
   end
 
   def to_error_descriptor(error)
     libelle = case error.attribute
-    when :draft_types_de_champ_public, :draft_types_de_champ_private
+    when :public_draft_type_de_champs, :private_draft_type_de_champs
       error.options[:type_de_champ].libelle.truncate(200)
     else
       error.base.class.human_attribute_name(error.attribute)

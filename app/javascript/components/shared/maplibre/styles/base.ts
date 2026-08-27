@@ -135,6 +135,32 @@ const OPTIONAL_LAYERS: { label: string; id: string; layers: string[][] }[] = [
   }
 ];
 
+// `cadastre` and `rpg` back the two parcelle layers, and nothing else. Declare
+// them only when their layer is enabled, instead of in the base style: a source
+// that never loads leaves the style permanently "not loaded", which downgrades
+// subsequent setStyle() calls to a full reload — aborting and refetching every
+// tile in flight.
+export function buildOptionalSources(
+  ids: string[]
+): StyleSpecification['sources'] {
+  const sources: StyleSpecification['sources'] = {};
+
+  if (ids.includes('cadastres')) {
+    sources.cadastre = {
+      type: 'vector',
+      url: 'https://openmaptiles.geo.data.gouv.fr/data/cadastre.json'
+    };
+  }
+  if (ids.includes('rpg')) {
+    sources.rpg = {
+      type: 'vector',
+      url: 'pmtiles://https://pmtiles-data.s3.rbx.io.cloud.ovh.net/rpg_2023.pmtiles'
+    };
+  }
+
+  return sources;
+}
+
 function buildSources() {
   return Object.fromEntries(
     OPTIONAL_LAYERS.filter(({ id }) => id != 'cadastres' && id != 'rpg')
@@ -238,18 +264,10 @@ export const style: StyleSpecification = {
       [ignServiceURL('ORTHOIMAGERY.ORTHOPHOTOS', 'normal', 'image/jpeg')],
       'IGN-F/Géoportail'
     ),
-    cadastre: {
-      type: 'vector',
-      url: 'https://openmaptiles.geo.data.gouv.fr/data/cadastre.json'
-    },
     'plan-ign': rasterSource(
       [ignServiceURL('GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2', 'normal')],
       'IGN-F/Géoportail'
     ),
-    rpg: {
-      type: 'vector',
-      url: 'pmtiles://https://object.data.gouv.fr/pmtiles/rpg_2023.pmtiles'
-    },
     ...buildSources()
   },
   sprite: 'https://openmaptiles.github.io/osm-bright-gl-style/sprite',

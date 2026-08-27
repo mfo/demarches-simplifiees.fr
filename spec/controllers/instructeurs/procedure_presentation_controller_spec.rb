@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Instructeurs::ProcedurePresentationController, type: :controller do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
   let(:instructeur) { create(:instructeur) }
   let(:procedure_presentation) do
     groupe_instructeur = procedure.defaut_groupe_instructeur
@@ -89,7 +89,7 @@ describe Instructeurs::ProcedurePresentationController, type: :controller do
 
     context 'with an admin who set presentation as default for other instructeurs' do
       let(:administrateur) { create(:administrateur, user: instructeur.user) }
-      let(:procedure) { create(:procedure, administrateurs: [administrateur], types_de_champ_public: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
+      let(:procedure) { create(:procedure, administrateurs: [administrateur], public_type_de_champs: [{ type: :drop_down_list, libelle: 'Votre ville', options: ['Paris', 'Lyon', 'Marseille'] }]) }
 
       before { sign_in(instructeur.user) }
 
@@ -168,6 +168,20 @@ describe Instructeurs::ProcedurePresentationController, type: :controller do
         subject
 
         expect(procedure_presentation.reload.tous_filters).to eq([FilteredColumn.new(column:, filter: { operator: 'in', value: [] })])
+      end
+    end
+
+    context 'when the filter value is invalid' do
+      let(:dossier_id_column) { procedure.dossier_id_column }
+      let(:existing_filter) { FilteredColumn.new(column: dossier_id_column, filter: { operator: 'match', value: ['123'] }) }
+      let(:params) { { id: procedure_presentation.id, statut: 'tous', filter_key: existing_filter.id, filter: { id: dossier_id_column.id, filter: { operator: 'match', value: ['13002526500013'] } } } }
+
+      it 'shows the validation message instead of failing (RAILS-K75)' do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        expect(flash.alert.join).to include('n’est pas un numéro de dossier possible')
+        expect(procedure_presentation.reload.tous_filters).to eq([existing_filter])
       end
     end
   end

@@ -32,7 +32,7 @@ module Maintenance
       end
 
       describe "#old_linked_drop_down?" do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :linked_drop_down_list, libelle: 'linked' }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :linked_drop_down_list, libelle: 'linked' }]) }
 
         let(:old_syntaxed_columns) do
           procedure.columns.filter { _1.label =~ /linked/ }.map do |column|
@@ -67,7 +67,7 @@ module Maintenance
       end
 
       describe "#department_columns" do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :address, libelle: 'address' }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address, libelle: 'address' }]) }
         let(:old_department) do
           department_column = procedure.columns.filter { _1.id =~ /\$.department/ }.first
 
@@ -98,7 +98,7 @@ module Maintenance
       end
 
       describe "an invalid procedure presentation" do
-        let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :text, libelle: 'text' }]) }
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'text' }]) }
 
         let(:invalid_column) do
           text_column = procedure.columns.filter { _1.label =~ /text/ }.first

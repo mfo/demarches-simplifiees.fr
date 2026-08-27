@@ -17,8 +17,11 @@ class Attachment::PieceJustificativeService
       # the main stream, and conditional visibility (the validation gate) must
       # be computed on the stream being edited
       champ.association(:dossier).target = dossier
-      champ.updated_by = updated_by # keep record dirty so attach defers save to us
-      champ.piece_justificative_file.attach(blob_signed_id)
+      champ.updated_by = updated_by
+      # Assign rather than #attach: attach saves immediately unless the record
+      # happens to be dirty, which would commit the attachment without running
+      # the :champ_value validations (size, content type, empty file).
+      champ.piece_justificative_file = champ.piece_justificative_file.blobs + [blob_signed_id]
 
       # fetch_later should be called inside the transaction to avoid
       # race condition with processor_job

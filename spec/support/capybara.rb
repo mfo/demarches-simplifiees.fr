@@ -6,6 +6,11 @@ require 'capybara/email/rspec'
 
 Capybara.default_max_wait_time = 6
 
+# Parallel test processes must not share the downloads/screenshots directory:
+# DownloadHelpers reads "the first zip in save_path", which could come from
+# another process. Serial runs keep the default tmp/capybara.
+Capybara.save_path = Rails.root.join("tmp/capybara#{ENV['TEST_ENV_NUMBER']}")
+
 Capybara.ignore_hidden_elements = false
 
 Capybara.enable_aria_label = true

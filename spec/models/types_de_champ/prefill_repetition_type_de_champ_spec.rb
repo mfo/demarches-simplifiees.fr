@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
-  let(:procedure) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{}, { type: :integer_number }, { type: :regions }] }]) }
+  let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, children: [{}, { type: :integer_number }, { type: :regions }] }]) }
   let(:dossier) { create(:dossier, procedure: procedure) }
   let(:champ) { dossier.root_champs_public.first }
   let(:type_de_champ) { champ.type_de_champ }
@@ -21,7 +21,7 @@ RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
   describe '#possible_values' do
     subject(:possible_values) { described_class.new(type_de_champ, procedure.active_revision).possible_values }
     let(:expected_value) {
-      "Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.</br><ul><li>champ_#{text_repetition.to_typed_id_for_query}: Un texte court<br></li><li>champ_#{integer_repetition.to_typed_id_for_query}: Un nombre entier<br></li><li>champ_#{region_repetition.to_typed_id_for_query}: Un <a href=\"https://fr.wikipedia.org/wiki/R%C3%A9gion_fran%C3%A7aise\" target=\"_blank\" rel=\"noopener noreferrer\">code INSEE de région</a><br><a title=\"Toutes les valeurs possibles — Nouvel onglet\" target=\"_blank\" rel=\"noopener noreferrer\" href=\"/procedures/#{procedure.path}/prefill_type_de_champs/#{region_repetition.id}\">Voir toutes les valeurs possibles</a></li></ul>"
+      "Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.<br><ul><li>champ_#{text_repetition.to_typed_id_for_query}: Un texte court<br></li><li>champ_#{integer_repetition.to_typed_id_for_query}: Un nombre entier<br></li><li>champ_#{region_repetition.to_typed_id_for_query}: Un <a href=\"https://fr.wikipedia.org/wiki/R%C3%A9gion_fran%C3%A7aise\" target=\"_blank\" rel=\"noopener noreferrer\">code INSEE de région</a><br><a title=\"Toutes les valeurs possibles — Nouvel onglet\" target=\"_blank\" rel=\"noopener noreferrer\" href=\"/procedures/#{procedure.path}/prefill_type_de_champs/#{region_repetition.id}\">Voir toutes les valeurs possibles</a></li></ul>"
     }
 
     it {
@@ -31,8 +31,8 @@ RSpec.describe TypesDeChamp::PrefillRepetitionTypeDeChamp, type: :model do
 
   describe '#possible_values does not contain unescaped HTML (XSS prevention)' do
     let(:xss_payload) { '<script>alert("XSS")</script>' }
-    let(:procedure_with_dropdown) { create(:procedure, types_de_champ_public: [{ type: :repetition, children: [{ type: :drop_down_list }] }]) }
-    let(:repetition_tdc) { procedure_with_dropdown.draft_types_de_champ_public.find(&:repetition?) }
+    let(:procedure_with_dropdown) { create(:procedure, public_type_de_champs: [{ type: :repetition, children: [{ type: :drop_down_list }] }]) }
+    let(:repetition_tdc) { procedure_with_dropdown.public_draft_type_de_champs.find(&:repetition?) }
 
     before do
       sub_tdc = procedure_with_dropdown.active_revision.children_of(repetition_tdc).first

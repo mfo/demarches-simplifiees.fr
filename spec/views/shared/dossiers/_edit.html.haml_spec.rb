@@ -8,21 +8,21 @@ describe 'shared/dossiers/edit', type: :view do
 
   subject { render 'shared/dossiers/edit', dossier:, apercu: false }
 
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
 
   context 'when there are some champs' do
-    let(:type_de_champ_header_section) { procedure.draft_types_de_champ_public.find(&:header_section?) }
-    let(:type_de_champ_explication) { procedure.draft_types_de_champ_public.find(&:explication?) }
-    let(:type_de_champ_dossier_link) { procedure.draft_types_de_champ_public.find(&:dossier_link?) }
-    let(:type_de_champ_checkbox) { procedure.draft_types_de_champ_public.find(&:checkbox?) }
-    let(:type_de_champ_textarea) { procedure.draft_types_de_champ_public.find(&:textarea?) }
+    let(:type_de_champ_header_section) { procedure.public_draft_type_de_champs.find(&:header_section?) }
+    let(:type_de_champ_explication) { procedure.public_draft_type_de_champs.find(&:explication?) }
+    let(:type_de_champ_dossier_link) { procedure.public_draft_type_de_champs.find(&:dossier_link?) }
+    let(:type_de_champ_checkbox) { procedure.public_draft_type_de_champs.find(&:checkbox?) }
+    let(:type_de_champ_textarea) { procedure.public_draft_type_de_champs.find(&:textarea?) }
 
     let(:champ_checkbox) { dossier.project_champ(type_de_champ_checkbox) }
     let(:champ_dossier_link) { dossier.project_champ(type_de_champ_dossier_link) }
     let(:champ_textarea) { dossier.project_champ(type_de_champ_textarea) }
 
-    let(:types_de_champ_public) { [{ type: :checkbox }, { type: :header_section }, { type: :explication }, { type: :dossier_link }, { type: :textarea }] }
+    let(:public_type_de_champs) { [{ type: :checkbox }, { type: :header_section }, { type: :explication }, { type: :dossier_link }, { type: :textarea }] }
 
     it 'renders labels and editable values of champs' do
       expect(subject).to have_field(champ_checkbox.libelle, checked: true)
@@ -33,7 +33,7 @@ describe 'shared/dossiers/edit', type: :view do
     end
 
     context "with standard champs" do
-      let(:types_de_champ_public) { [{ type: :email }, { type: :phone }] }
+      let(:public_type_de_champs) { [{ type: :email }, { type: :phone }] }
 
       it "does not render basic placeholders" do
         expect(subject).not_to have_css('input[type="email"][placeholder$="exemple.fr"]')
@@ -43,8 +43,8 @@ describe 'shared/dossiers/edit', type: :view do
   end
 
   context 'with a public text champ containing HTML in value' do
-    let(:types_de_champ_public) { [{ type: :textarea }] }
-    let(:procedure) { create(:procedure, types_de_champ_public:) }
+    let(:public_type_de_champs) { [{ type: :textarea }] }
+    let(:procedure) { create(:procedure, public_type_de_champs:) }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ) { dossier.root_champs_public.first }
 
@@ -59,7 +59,7 @@ describe 'shared/dossiers/edit', type: :view do
   end
 
   context 'with a single-value list' do
-    let(:types_de_champ_public) { [{ type: :drop_down_list, options:, mandatory: }] }
+    let(:public_type_de_champs) { [{ type: :drop_down_list, options:, mandatory: }] }
     let(:champ) { dossier.root_champs_public.first }
     let(:type_de_champ) { champ.type_de_champ }
     let(:enabled_options) { type_de_champ.drop_down_options }
@@ -98,7 +98,7 @@ describe 'shared/dossiers/edit', type: :view do
   end
 
   context 'with a multiple-values list' do
-    let(:types_de_champ_public) { [{ type: :multiple_drop_down_list, options: }] }
+    let(:public_type_de_champs) { [{ type: :multiple_drop_down_list, options: }] }
     let(:champ) { dossier.champ_data.first }
     let(:type_de_champ) { champ.type_de_champ }
     let(:options) { type_de_champ.drop_down_options }
@@ -127,7 +127,7 @@ describe 'shared/dossiers/edit', type: :view do
   end
 
   context 'with a mandatory piece justificative' do
-    let(:types_de_champ_public) { [{ type: :piece_justificative, mandatory: true }] }
+    let(:public_type_de_champs) { [{ type: :piece_justificative, mandatory: true }] }
     let(:champ) { dossier.champ_data.first }
 
     context 'when dossier is en construction (stream)' do
@@ -147,7 +147,7 @@ describe 'shared/dossiers/edit', type: :view do
 
   context 'with a routed procedure' do
     let(:groupe_instructeur) { create(:groupe_instructeur) }
-    let(:procedure) { create(:procedure, :routee, groupe_instructeurs: [groupe_instructeur], types_de_champ_public: [{ type: :drop_down_list, options: }]) }
+    let(:procedure) { create(:procedure, :routee, groupe_instructeurs: [groupe_instructeur], public_type_de_champs: [{ type: :drop_down_list, options: }]) }
     let(:options) { [groupe_instructeur.label] }
     let(:dossier) { create(:dossier, procedure:) }
     let(:champ_drop_down) { dossier.champ_data.first }
@@ -169,7 +169,7 @@ describe 'shared/dossiers/edit', type: :view do
   end
 
   context 'when dossier transitions rules are computable and passer_en_construction is false' do
-    let(:types_de_champ_public) { [] }
+    let(:public_type_de_champs) { [] }
     let(:dossier) { create(:dossier, procedure:) }
 
     before do

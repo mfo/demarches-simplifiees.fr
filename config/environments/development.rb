@@ -72,6 +72,9 @@ Rails.application.configure do
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
+  # Highlight code that triggered redirect in logs.
+  config.action_dispatch.verbose_redirect_logs = true
+
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
@@ -109,9 +112,24 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
-  # We use the async adapter by default, but delayed_job can be set using
-  # RAILS_QUEUE_ADAPTER=delayed_job bin/rails server
-  config.active_job.queue_adapter = ENV.fetch('RAILS_QUEUE_ADAPTER', 'async').to_sym
+  # We use the async adapter by default, but sidekiq can be set using
+  # RAILS_QUEUE_ADAPTER=sidekiq bin/rails server (requires redis and a running
+  # `bundle exec sidekiq`)
+  queue_adapter = ENV.fetch('RAILS_QUEUE_ADAPTER', 'async')
+
+  # Transitional guard, can go away once everyone has deployed past the
+  # delayed_job removal: a leftover .env line otherwise only yields a
+  # `cannot load such file -- delayed_job` on boot.
+  if queue_adapter == 'delayed_job'
+    raise <<~MESSAGE
+      RAILS_QUEUE_ADAPTER=delayed_job is not supported anymore: the delayed_job gems have been removed.
+
+      Drop the line from your .env to fall back to the in-process `async` adapter (the default),
+      or set RAILS_QUEUE_ADAPTER=sidekiq and run `bundle exec sidekiq` alongside bin/dev.
+    MESSAGE
+  end
+
+  config.active_job.queue_adapter = queue_adapter.to_sym
 
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.

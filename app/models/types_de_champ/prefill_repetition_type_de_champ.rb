@@ -5,10 +5,7 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
   include ApplicationHelper
 
   def possible_values
-    [
-      I18n.t("views.prefill_descriptions.edit.possible_values.#{type_champ}_html"),
-      subchamps_all_possible_values,
-    ].join("</br>").html_safe
+    safe_join([description, subchamps_all_possible_values].compact, tag.br)
   end
 
   def example_value
@@ -26,9 +23,9 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
   private
 
   def subchamps_all_possible_values
-    "<ul>" + prefillable_subchamps.map do |prefill_type_de_champ|
-      "<li>champ_#{prefill_type_de_champ.to_typed_id_for_query}: #{prefill_type_de_champ.possible_values}</li>"
-    end.join + "</ul>"
+    tag.ul(safe_join(prefillable_subchamps.map do |prefill_type_de_champ|
+      tag.li(safe_join(["champ_#{prefill_type_de_champ.to_typed_id_for_query}: ", prefill_type_de_champ.possible_values]))
+    end))
   end
 
   def row_values_format
@@ -62,7 +59,7 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
         next if !key.is_a?(String) || !key.starts_with?("champ_")
 
         stable_id = ChampData.stable_id_from_typed_id(key)
-        type_de_champ = revision.types_de_champ.find { _1.stable_id == stable_id }
+        type_de_champ = revision.type_de_champs.find { _1.stable_id == stable_id }
         next unless type_de_champ
 
         subchamp = champ.dossier.champ_for_update(type_de_champ, row_id:, updated_by: nil)

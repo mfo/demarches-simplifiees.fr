@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 describe Champs::DossierLinkChamp, type: :model do
-  let(:types_de_champ_public) { [{ type: :dossier_link, mandatory: }] }
-  let(:procedure) { create(:procedure, types_de_champ_public:) }
+  let(:public_type_de_champs) { [{ type: :dossier_link, mandatory: }] }
+  let(:procedure) { create(:procedure, public_type_de_champs:) }
   let(:dossier) { create(:dossier, :en_construction, procedure:) }
   let(:champ) { dossier.root_champs_public.first.tap { _1.update(value:) } }
   let(:value) { nil }
@@ -53,7 +53,7 @@ describe Champs::DossierLinkChamp, type: :model do
     let(:user) { dossier.user }
     let(:allowed_procedure) { create(:procedure) }
     let(:other_procedure) { create(:procedure) }
-    let(:type_de_champ) { procedure.draft_revision.types_de_champ.first }
+    let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
     before do
       type_de_champ.update!(options: type_de_champ.options.merge(

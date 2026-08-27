@@ -2,7 +2,6 @@
 fr:
   select: Sélectionner
   add: Ajouter
-  clear_filter: Effacer le filtre « %{filter_label} »
   delete_filter: Supprimer le filtre « %{filter_label} »
   move_up_filter: Déplacer le filtre « %{filter_label} » vers le haut
   move_down_filter: Déplacer le filtre « %{filter_label} » vers le bas
