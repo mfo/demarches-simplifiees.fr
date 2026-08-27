@@ -25,6 +25,11 @@ linter:
     html-anchor-require-href:
       exclude:
         - 'app/components/account_dropdown_component/**'
+        # /patron is the internal styleguide: every button, tab and dropdown on
+        # it is a dead sample whose `href="#"` is exactly what makes it inert.
+        # Turning them into `<button>` would change the very markup the page
+        # documents.
+        - 'app/views/root/patron.html.erb'
 
 formatter:
   enabled: true
