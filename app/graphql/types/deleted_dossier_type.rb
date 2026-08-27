@@ -19,7 +19,7 @@ module Types
     field :date_supression, GraphQL::Types::ISO8601DateTime, "Date de suppression.", null: false
 
     def self.authorized?(object, context)
-      context.authorized_demarche?(object.procedure)
+      context.authorized_demarche?(context.dataloader.with(Sources::Association, :procedure).load(object))
     end
 
     def date_supression
