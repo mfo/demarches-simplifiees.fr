@@ -50,7 +50,9 @@ class Champs::DropDownListChamp < ChampData
       self.other = true
       write_attribute(:value, nil)
     else
-      self.other = false
+      # a re-assignment of the current value is a replay (normalization, clone),
+      # not a user selection: it must not leave the "other" mode
+      self.other = false if value != read_attribute(:value)
       write_attribute(:value, value)
     end
   end
