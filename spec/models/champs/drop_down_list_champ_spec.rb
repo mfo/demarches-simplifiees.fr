@@ -60,6 +60,23 @@ describe Champs::DropDownListChamp do
     end
   end
 
+  describe 'value' do
+    let(:other) { true }
+
+    it 'keeps the other flag when the free text is reassigned' do
+      champ.value = Champs::DropDownListChamp::OTHER
+      champ.value_other = 'something else'
+      champ.value = champ.value
+      expect(champ).to have_attributes(value: 'something else', other: true)
+    end
+
+    it 'leaves the other mode when an option is selected' do
+      champ.value = 'val1'
+      champ.save!
+      expect(champ.reload).to have_attributes(value: 'val1', other: false)
+    end
+  end
+
   describe '#drop_down_other?' do
     context 'when drop_down_other is nil' do
       it do

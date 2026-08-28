@@ -73,6 +73,11 @@ describe Champs::RegionChamp, type: :model do
       expect(champ.to_s).to eq('Guadeloupe')
     end
 
+    it 'with name' do
+      champ.value = 'Auvergne-Rhône-Alpes'
+      expect(champ).to have_attributes(external_id: '84', value: 'Auvergne-Rhône-Alpes')
+    end
+
     it 'with nil' do
       champ.write_attribute(:value, 'Guadeloupe')
       champ.write_attribute(:external_id, '01')

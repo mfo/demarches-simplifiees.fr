@@ -163,6 +163,20 @@ describe Champs::EpciChamp, type: :model do
       expect(champ.departement?).to be_truthy
       expect(champ.to_s).to eq(epci[:name])
     end
+
+    it 'with departement and name' do
+      champ.code_departement = '01'
+      champ.value = epci[:name]
+      expect(champ).to have_attributes(external_id: epci[:code], value: epci[:name])
+    end
+
+    it 'with departement and code, once saved' do
+      champ.update!(code_departement: '01')
+      champ.value = epci[:code]
+      expect(champ.value).to eq(epci[:name])
+      champ.save!
+      expect(champ.reload).to have_attributes(external_id: epci[:code], value: epci[:name])
+    end
   end
 
   describe 'double-write of canonical value_json keys' do

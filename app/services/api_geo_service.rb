@@ -114,12 +114,16 @@ class APIGeoService
       departements.find { _1[:name] == name }&.dig(:code)
     end
 
-    # A 2 or 3 characters input is treated as a departement code, anything
-    # else as a departement name.
+    # A 2 or 3 characters input matching a departement code is treated as
+    # such, anything else as a departement name (Ain, Lot and Var are 3
+    # characters long).
     def resolve_departement(input)
-      if [2, 3].include?(input&.size)
-        Resolution.new(code: input, name: departement_name(input))
-      elsif input.present?
+      return if input.blank?
+
+      name = departement_name(input) if [2, 3].include?(input.size)
+      if name
+        Resolution.new(code: input, name:)
+      else
         Resolution.new(code: departement_code(input), name: input)
       end
     end

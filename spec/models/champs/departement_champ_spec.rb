@@ -94,6 +94,18 @@ describe Champs::DepartementChamp, type: :model do
       expect(champ.to_s).to eq('2B – Haute-Corse')
     end
 
+    it 'with a name as short as a code' do
+      champ.value = 'Var'
+      expect(champ).to have_attributes(external_id: '83', value: 'Var')
+    end
+
+    it 'with a name as short as a code, once saved' do
+      champ.value = '83'
+      expect(champ.value).to eq('Var')
+      champ.save!
+      expect(champ.reload).to have_attributes(external_id: '83', value: 'Var')
+    end
+
     it 'with nil' do
       champ.write_attribute(:value, 'Ain')
       champ.write_attribute(:external_id, '01')

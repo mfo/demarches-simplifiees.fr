@@ -65,10 +65,11 @@ describe APIGeoService do
 
     it 'resolves a name to its code' do
       expect(APIGeoService.resolve_departement('Aisne')).to have_attributes(code: '02', name: 'Aisne', resolved?: true)
+      expect(APIGeoService.resolve_departement('Var')).to have_attributes(code: '83', name: 'Var', resolved?: true)
     end
 
     it 'keeps an unknown code or name partially resolved' do
-      expect(APIGeoService.resolve_departement('00')).to have_attributes(code: '00', name: nil, resolved?: false)
+      expect(APIGeoService.resolve_departement('00')).to have_attributes(code: nil, name: '00', resolved?: false)
       expect(APIGeoService.resolve_departement('value')).to have_attributes(code: nil, name: 'value', resolved?: false)
     end
 
