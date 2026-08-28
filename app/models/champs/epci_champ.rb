@@ -59,13 +59,13 @@ class Champs::EpciChamp < Champs::TextChamp
     code
   end
 
-  def value=(code)
-    if code.blank? || !departement?
+  def value=(code_or_name)
+    if code_or_name.blank? || !departement?
       self.external_id = nil
       super(nil)
     else
-      self.external_id = code
-      super(APIGeoService.epci_name(code_departement, code))
+      self.external_id = APIGeoService.epci_code(code_departement, code_or_name) || code_or_name
+      super(APIGeoService.epci_name(code_departement, external_id))
     end
   end
 
