@@ -1,0 +1,9 @@
+fr:
+  activerecord:
+    attributes:
+      dossier_assignment:
+        modes:
+          auto: "Affectation par le routage automatique de la démarche"
+          manual: "Réaffectation manuelle par un instructeur ou un administrateur"
+          tech: "Affectation technique effectuée par la plateforme"
+          bulk_routing: "Réaffectation en masse suite à une modification du routage"

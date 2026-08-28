@@ -502,6 +502,66 @@ RSpec.describe Types::DossierType, type: :graphql do
     }
   end
 
+  describe 'dossier with assignments' do
+    let(:procedure) { create(:procedure, :published, :routee, :for_individual) }
+    let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure:) }
+    let(:instructeur) { create(:instructeur) }
+    let(:autre_groupe) { procedure.groupe_instructeurs.last }
+    let(:query) { DOSSIER_WITH_ASSIGNMENTS_QUERY }
+    let(:variables) { { number: dossier.id } }
+
+    before do
+      dossier.assign_to_groupe_instructeur(autre_groupe, DossierAssignment.modes.fetch(:manual), instructeur)
+      dossier.assign_to_groupe_instructeur(procedure.defaut_groupe_instructeur, DossierAssignment.modes.fetch(:auto))
+    end
+
+    it 'returns the assignment history' do
+      expect(errors).to be_nil
+
+      assignment = data[:dossier][:assignments].find { it[:mode] == 'manual' }
+      expect(assignment).to eq(
+        {
+          mode: 'manual',
+          assignedAt: dossier.dossier_assignments.manual.last.assigned_at.iso8601,
+          assignedBy: instructeur.email,
+          groupeInstructeurNumber: autre_groupe.id,
+          groupeInstructeurLabel: 'deuxième groupe',
+          previousGroupeInstructeurNumber: procedure.defaut_groupe_instructeur.id,
+          previousGroupeInstructeurLabel: procedure.defaut_groupe_instructeur.label,
+        }
+      )
+    end
+
+    it 'returns assignments in chronological order' do
+      expect(data[:dossier][:assignments].map { it[:mode] }.last(2)).to eq(['manual', 'auto'])
+    end
+
+    context 'when filtering on a mode' do
+      let(:variables) { { number: dossier.id, mode: 'manual' } }
+
+      it { expect(data[:dossier][:assignments].map { it[:mode] }).to eq(['manual']) }
+    end
+
+    context 'when the groupe instructeur has been renamed' do
+      before { autre_groupe.update!(label: 'nouveau nom') }
+
+      it 'keeps the label as it was at assignment time' do
+        assignment = data[:dossier][:assignments].find { it[:mode] == 'manual' }
+        expect(assignment[:groupeInstructeurLabel]).to eq('deuxième groupe')
+      end
+    end
+
+    context 'when the groupe instructeur has been deleted' do
+      before { autre_groupe.destroy! }
+
+      it 'keeps the historical label but has no number' do
+        assignment = data[:dossier][:assignments].find { it[:mode] == 'manual' }
+        expect(assignment[:groupeInstructeurNumber]).to be_nil
+        expect(assignment[:groupeInstructeurLabel]).to eq('deuxième groupe')
+      end
+    end
+  end
+
   describe 'dossier with date and datetime champs' do
     let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :date }, { type: :datetime }]) }
     let(:dossier) { create(:dossier, :en_construction, procedure:) }
@@ -1105,6 +1165,22 @@ RSpec.describe Types::DossierType, type: :graphql do
           id
           name
           color
+        }
+      }
+    }
+  GRAPHQL
+
+  DOSSIER_WITH_ASSIGNMENTS_QUERY = <<-GRAPHQL
+    query($number: Int!, $mode: DossierAssignmentMode) {
+      dossier(number: $number) {
+        assignments(mode: $mode) {
+          mode
+          assignedAt
+          assignedBy
+          groupeInstructeurNumber
+          groupeInstructeurLabel
+          previousGroupeInstructeurNumber
+          previousGroupeInstructeurLabel
         }
       }
     }

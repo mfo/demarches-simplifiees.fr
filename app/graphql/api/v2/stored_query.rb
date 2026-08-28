@@ -53,6 +53,7 @@ class API::V2::StoredQuery
     $includeCorrections: Boolean = false
     $includeGeometry: Boolean = false
     $includeLabels: Boolean = false
+    $includeAssignments: Boolean = false
   ) {
     demarche(number: $demarcheNumber) {
       id
@@ -170,6 +171,7 @@ class API::V2::StoredQuery
     $includeCorrections: Boolean = false
     $includeGeometry: Boolean = false
     $includeLabels: Boolean = false
+    $includeAssignments: Boolean = false
   ) {
     groupeInstructeur(number: $groupeInstructeurNumber) {
       id
@@ -244,6 +246,7 @@ class API::V2::StoredQuery
     $includeCorrections: Boolean = false
     $includeGeometry: Boolean = false
     $includeLabels: Boolean = false
+    $includeAssignments: Boolean = false
   ) {
     dossier(number: $dossierNumber) {
       ...DossierFragment
@@ -360,6 +363,9 @@ class API::V2::StoredQuery
     labels @include(if: $includeLabels) {
       ...LabelFragment
     }
+    assignments @include(if: $includeAssignments) {
+      ...DossierAssignmentFragment
+    }
   }
 
   fragment DemarcheDescriptorFragment on DemarcheDescriptor {
@@ -398,6 +404,16 @@ class API::V2::StoredQuery
     id
     name
     color
+  }
+
+  fragment DossierAssignmentFragment on DossierAssignment {
+    mode
+    assignedAt
+    assignedBy
+    groupeInstructeurNumber
+    groupeInstructeurLabel
+    previousGroupeInstructeurNumber
+    previousGroupeInstructeurLabel
   }
 
   fragment RevisionFragment on Revision {

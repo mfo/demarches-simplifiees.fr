@@ -82,6 +82,9 @@ module Types
       argument :id, ID, required: false
     end
     field :traitements, [Types::TraitementType], null: false
+    field :assignments, [Types::DossierAssignmentType], "Historique des affectations du dossier à un groupe instructeur.", null: false do
+      argument :mode, Types::DossierAssignmentType::DossierAssignmentMode, "Ne retourne que les affectations de ce type.", required: false
+    end
     field :labels, [Types::LabelType], "Labels associés au dossier", null: false
 
     def state
@@ -146,6 +149,11 @@ module Types
 
     def traitements
       dataloader.with(Sources::Association, :traitements).load(object)
+    end
+
+    def assignments(mode: nil)
+      records = dataloader.with(Sources::Association, :dossier_assignments).load(object)
+      mode.present? ? records.filter { it.mode == mode } : records
     end
 
     def messages(id: nil)
