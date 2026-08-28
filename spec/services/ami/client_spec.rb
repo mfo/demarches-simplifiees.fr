@@ -24,9 +24,9 @@ RSpec.describe Ami::Client do
     result = service.send_notification(payload)
 
     expect(api_client).to have_received(:call).with(
-      url: URI("https://ami.example.org/api/v1/notifications"),
+      url: URI("https://ami.example.org#{described_class::EVENT_PATH}"),
       json: payload,
-      method: :post,
+      method: :put,
       userpwd: "ami-user:ami-password"
     )
     expect(result).to be_success

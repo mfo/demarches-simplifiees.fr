@@ -4,13 +4,15 @@ module Ami
   class Client
     include Dry::Monads[:result]
 
-    def send_notification(payload)
-      path = "/api/v1/notifications"
+    EVENT_PATH = "/api/v2/event"
 
+    # PUT et non POST : l'événement est identifié par le partenaire et l'objet
+    # associé, donc un rejeu ne crée pas de doublon (200 s'il existait, 201 sinon).
+    def send_notification(payload)
       result = API::Client.new.call(
-        url: build_url(path),
+        url: build_url(EVENT_PATH),
         json: payload,
-        method: :post,
+        method: :put,
         userpwd: "#{api_user}:#{api_password}"
       )
       handle_result(result)
