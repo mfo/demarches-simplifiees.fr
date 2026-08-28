@@ -1,14 +1,4 @@
 GIT
-  remote: https://github.com/betagouv/rdv-service-public.git
-  revision: f9de028ccd731c59bf6ca34cd3a13ff0f83e4d42
-  branch: production
-  glob: lib/omniauth-rdv-service-public/omniauth-rdv-service-public.gemspec
-  specs:
-    omniauth-rdv-service-public (0.1.0)
-      omniauth (~> 2.0)
-      omniauth-oauth2 (~> 1.8)
-
-GIT
   remote: https://github.com/demarche-numerique/reliable-fetch.git
   revision: f547a270c402b0180091516d790434e83287fae7
   specs:
@@ -531,6 +521,9 @@ GEM
     omniauth-rails_csrf_protection (2.0.1)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
+    omniauth-rdv-service-public (0.1.1)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
     openid_connect (2.3.1)
       activemodel
       attr_required (>= 1.0.0)
@@ -1032,7 +1025,7 @@ DEPENDENCIES
   oauth2
   omniauth
   omniauth-rails_csrf_protection
-  omniauth-rdv-service-public!
+  omniauth-rdv-service-public
   openid_connect
   parallel_tests
   parsby
