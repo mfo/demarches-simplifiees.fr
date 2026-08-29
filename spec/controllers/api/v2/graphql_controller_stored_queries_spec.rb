@@ -1083,6 +1083,18 @@ describe API::V2::GraphqlController do
       end
     end
 
+    describe 'getDossierRecords' do
+      let(:operation_name) { 'getDossierRecords' }
+      let(:commentaire) { dossier.commentaires.first }
+      let(:variables) { { dossierNumber: dossier.id, messageId: commentaire.to_typed_id, includeMessages: true } }
+
+      it 'returns only the requested records' do
+        expect(gql_errors).to be_nil
+        expect(gql_data[:dossier].keys).to match_array([:id, :number, :messages])
+        expect(gql_data[:dossier][:messages]).to match([a_hash_including(id: commentaire.to_typed_id, body: commentaire.body)])
+      end
+    end
+
     describe 'getDemarcheDescriptors' do
       let(:operation_name) { 'getDemarcheDescriptors' }
       let(:variables) { { first: 100 } }

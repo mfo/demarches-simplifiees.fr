@@ -271,6 +271,40 @@ class API::V2::StoredQuery
     }
   }
 
+  query getDossierRecords(
+    $dossierNumber: Int!
+    $champId: ID
+    $annotationId: ID
+    $avisId: ID
+    $messageId: ID
+    $includeChamps: Boolean = false
+    $includeAnnotations: Boolean = false
+    $includeAvis: Boolean = false
+    $includeMessages: Boolean = false
+    $includeCorrections: Boolean = false
+    $includeGeometry: Boolean = false
+    $includeFileUrls: Boolean = true
+  ) {
+    dossier(number: $dossierNumber) {
+      id
+      number
+      champs(id: $champId) @include(if: $includeChamps) {
+        ...ChampFragment
+        ...RootChampFragment
+      }
+      annotations(id: $annotationId) @include(if: $includeAnnotations) {
+        ...ChampFragment
+        ...RootChampFragment
+      }
+      avis(id: $avisId) @include(if: $includeAvis) {
+        ...AvisFragment
+      }
+      messages(id: $messageId) @include(if: $includeMessages) {
+        ...MessageFragment
+      }
+    }
+  }
+
   query getDemarcheDescriptor(
     $demarche: FindDemarcheInput!
     $includeRevision: Boolean = false
@@ -306,6 +340,7 @@ class API::V2::StoredQuery
     siret
     organisme
     typeOrganisme
+    departement
   }
 
   fragment GroupeInstructeurFragment on GroupeInstructeur {
@@ -410,15 +445,28 @@ class API::V2::StoredQuery
     description
     state
     declarative
+    forIndividual
+    tags
+    zones
     dateCreation
     datePublication
     dateDerniereModification
     dateDepublication
     dateFermeture
     dossiersCount
-    notice { url }
-    deliberation { url }
+    logo {
+      ...FileFragment
+    }
+    notice {
+      ...FileFragment
+    }
+    deliberation {
+      ...FileFragment
+    }
     demarcheURL
+    siteWebURL
+    dpoURL
+    noticeURL
     cadreJuridiqueURL
     service @include(if: $includeService) {
       ...ServiceFragment
