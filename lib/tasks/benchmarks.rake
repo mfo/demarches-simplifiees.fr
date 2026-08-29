@@ -16,8 +16,8 @@ namespace :benchmarks do
     p_45964 = Procedure.find(45964)
     p_55824 = Procedure.find(55824)
     Benchmark.bm do |x|
-      x.report("Démarche 45964") { SerializerService.dossiers(p_45964) }
-      x.report("Démarche 55824") { SerializerService.dossiers(p_55824) }
+      x.report("Démarche 45964") { API::V2::Schema.execute(API::V2::StoredQuery::QUERY_V2, operation_name: 'getDemarche', variables: { 'demarcheNumber' => p_45964.id, 'includeDossiers' => true }, context: { internal_use: true }) }
+      x.report("Démarche 55824") { API::V2::Schema.execute(API::V2::StoredQuery::QUERY_V2, operation_name: 'getDemarche', variables: { 'demarcheNumber' => p_55824.id, 'includeDossiers' => true }, context: { internal_use: true }) }
       x.report("Démarches publiques") { SerializerService.demarches_publiques }
     end
   end

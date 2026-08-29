@@ -337,6 +337,28 @@ describe API::V2::GraphqlController do
           expect(columns[17]).to include(label: "label entreprise – SIRET – Région", value: '11')
           expect(columns[18]).to include(label: "label entreprise – SIRET – Région", value: 'Île-de-France')
         }
+
+        context 'with champId' do
+          let(:champ) { dossier.champ_data.find { it.type_de_champ.libelle == 'label integer_number' } }
+          let(:variables) { { dossierNumber: dossier.id, champId: champ.to_typed_id } }
+
+          it 'returns only that champ' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossier][:champs].map { it[:label] }).to eq(['label integer_number'])
+          end
+        end
+
+        context 'with includeFileUrls: false' do
+          let(:variables) { { dossierNumber: dossier.id, includeFileUrls: false } }
+
+          it 'omits file URLs and the dossier pdf' do
+            expect(gql_errors).to be_nil
+            expect(gql_data[:dossier]).not_to have_key(:pdf)
+            file = gql_data[:dossier][:champs].find { it[:label] == 'label piece_justificative' }[:files].first
+            expect(file).to include(filename: 'toto.txt')
+            expect(file).not_to have_key(:url)
+          end
+        end
       end
     end
 
