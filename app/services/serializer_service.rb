@@ -21,7 +21,7 @@ class SerializerService
 
   def self.demarches_publiques(after: nil)
     data = execute_query('serializeDemarchesPubliques', { after: after })
-    data && data['demarchesPubliques']
+    data && data['demarcheDescriptors']
   end
 
   def self.avis(avis)
@@ -81,7 +81,7 @@ class SerializerService
     }
 
     query serializeDemarchesPubliques($after: String) {
-      demarchesPubliques(after: $after) {
+      demarcheDescriptors(after: $after) {
         nodes {
           ...DemarcheDescriptorFragment
         }

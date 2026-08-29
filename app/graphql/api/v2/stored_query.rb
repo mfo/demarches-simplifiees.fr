@@ -266,6 +266,24 @@ class API::V2::StoredQuery
     }
   }
 
+  query getDemarcheDescriptors(
+    $first: Int
+    $last: Int
+    $before: String
+    $after: String
+    $includeRevision: Boolean = false
+    $includeService: Boolean = false
+  ) {
+    demarcheDescriptors(first: $first, last: $last, before: $before, after: $after) {
+      pageInfo {
+        ...PageInfoFragment
+      }
+      nodes {
+        ...DemarcheDescriptorFragment
+      }
+    }
+  }
+
   fragment ServiceFragment on Service {
     nom
     siret
@@ -380,6 +398,7 @@ class API::V2::StoredQuery
     dateDerniereModification
     dateDepublication
     dateFermeture
+    dossiersCount
     notice { url }
     deliberation { url }
     demarcheURL

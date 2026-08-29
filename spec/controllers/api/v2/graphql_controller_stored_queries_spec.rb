@@ -44,7 +44,7 @@ describe API::V2::GraphqlController do
     context 'with query' do
       let(:query) { 'query getDossier($dossierNumber: Int!) { dossier(number: $dossierNumber) { id } }' }
 
-      it { expect(gql_errors.first[:message]).to eq('Without a token, only the public getDemarcheDescriptor query and introspection are allowed') }
+      it { expect(gql_errors.first[:message]).to eq('Without a token, only the public getDemarcheDescriptor and getDemarcheDescriptors queries and introspection are allowed') }
     end
   end
 
@@ -76,7 +76,7 @@ describe API::V2::GraphqlController do
       end
 
       it {
-        expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor query and introspection are allowed")
+        expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor and getDemarcheDescriptors queries and introspection are allowed")
       }
     end
 
@@ -100,7 +100,7 @@ describe API::V2::GraphqlController do
 
       it {
         expect(token).not_to be_nil
-        expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor query and introspection are allowed")
+        expect(gql_errors.first[:message]).to eq("Without a token, only the public getDemarcheDescriptor and getDemarcheDescriptors queries and introspection are allowed")
       }
     end
 
@@ -1058,6 +1058,36 @@ describe API::V2::GraphqlController do
             expect(gql_errors.first[:message]).to eq('An object of type DemarcheDescriptor was hidden due to permissions')
           }
         end
+      end
+    end
+
+    describe 'getDemarcheDescriptors' do
+      let(:operation_name) { 'getDemarcheDescriptors' }
+      let(:variables) { { first: 100 } }
+      let(:numbers) { gql_data[:demarcheDescriptors][:nodes].map { it[:number] } }
+
+      before { procedure.update!(opendata: true, estimated_dossiers_count: 4) }
+
+      it 'lists public procedures' do
+        expect(gql_errors).to be_nil
+        expect(numbers).to include(procedure.id)
+        expect(gql_data[:demarcheDescriptors][:nodes].find { it[:number] == procedure.id }[:dossiersCount]).to eq(4)
+        expect(gql_data[:demarcheDescriptors][:pageInfo]).to include(hasNextPage: false)
+      end
+
+      context 'not opendata' do
+        before { procedure.update!(opendata: false) }
+
+        it { expect(numbers).not_to include(procedure.id) }
+      end
+
+      context 'without authorization token' do
+        let(:authorization_header) { nil }
+
+        it {
+          expect(gql_errors).to be_nil
+          expect(numbers).to include(procedure.id)
+        }
       end
     end
   end

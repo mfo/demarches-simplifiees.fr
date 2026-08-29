@@ -18,9 +18,9 @@ module Types
       argument :demarche, DemarcheDescriptorType::FindDemarcheInput, "La démarche.", required: true
     end
 
-    field :demarches_publiques, DemarcheDescriptorType.connection_type, null: false, internal: true
+    field :demarche_descriptors, DemarcheDescriptorType.connection_type, null: false, description: "Liste des démarches publiques (publiées ou closes, en opendata)."
 
-    def demarches_publiques
+    def demarche_descriptors
       Procedure.publiques.includes(
         :procedure_paths,
         published_revision: {
