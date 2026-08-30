@@ -92,6 +92,7 @@ en:
               empty_repetition: 'requires at least one field'
               empty_drop_down: 'requires at least one option'
               empty_csv: 'requires at least one csv file'
+              missing_primary_option: 'must start with a primary menu entry in the form --text--'
               inconsistent_header_section: "%{custom_message}"
               missing_libelle: "field label in position %{position} must be filled"
               missing_libelle_in_repetition: "field label in position %{position}, within the repetition in position %{parent_position}, must be filled"
@@ -104,6 +105,7 @@ en:
               empty_repetition: 'requires at least one field'
               empty_drop_down: 'requires at least one option'
               empty_csv: 'requires at least one csv file'
+              missing_primary_option: 'must start with a primary menu entry in the form --text--'
               inconsistent_header_section: "%{custom_message}"
               missing_libelle: "field label in position %{position} must be filled"
               missing_libelle_in_repetition: "field label in position %{position}, within the repetition in position %{parent_position}, must be filled"
