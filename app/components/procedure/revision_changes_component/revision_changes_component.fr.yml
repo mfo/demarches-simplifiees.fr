@@ -11,14 +11,22 @@ fr:
   remove_option: "supprimés : %{items}"
   invalid_routing_rules_alert: "Certains groupes d’instructeurs ont une règle de routage invalide. Veuillez mettre à jour la configuration des groupes d’instructeurs après avoir publié les modifications."
 
-  update_referentiel: &update_referentiel
+  update_referentiel_public: &update_referentiel_public
     referentiel_url_tiptap: "L’URL de l’API du champ « %{label} » a été modifiée. La nouvelle URL est « %{to} »."
-    referentiel_mode: "Le mode d’intérogation du référentiel du champ « %{label} » a été modifié. Le nouveau mode est « %{to} »."
+    referentiel_mode: "Le mode d’interrogation du référentiel du champ « %{label} » a été modifié. Le nouveau mode est « %{to} »."
     referentiel_hint: "L’indication à fournir à l’usager concernant le format de saisie attendu du champ « %{label} » a été modifiée. La nouvelle indication est « %{to} »."
     referentiel_test_data_tiptap: "L’exemple de saisie valide du champ « %{label} » a été modifié. Le nouvel exemple est « %{to} »."
     referentiel_mapping: "Le mapping des données entre le champ et l’API du champ « %{label} » a été modifié."
 
+  update_referentiel_private: &update_referentiel_private
+    referentiel_url_tiptap: "L’URL de l’API de l’annotation privée « %{label} » a été modifiée. La nouvelle URL est « %{to} »."
+    referentiel_mode: "Le mode d’interrogation du référentiel de l’annotation privée « %{label} » a été modifié. Le nouveau mode est « %{to} »."
+    referentiel_hint: "L’indication à fournir à l’usager concernant le format de saisie attendu de l’annotation privée « %{label} » a été modifiée. La nouvelle indication est « %{to} »."
+    referentiel_test_data_tiptap: "L’exemple de saisie valide de l’annotation privée « %{label} » a été modifié. Le nouvel exemple est « %{to} »."
+    referentiel_mapping: "Le mapping des données entre le champ et l’API de l’annotation privée « %{label} » a été modifié."
+
   public:
+    update_referentiel_fields: *update_referentiel_public
     add: Le champ « %{label} » a été ajouté.
     add_mandatory: Le champ obligatoire « %{label} » a été ajouté.
     remove: Le champ « %{label} » a été supprimé.
@@ -56,7 +64,7 @@ fr:
     update_special_characters_acceptance: L’acceptation des caractères spéciaux pour le champ « %{label} » a été modifiée. Les caractères spéciaux sont désormais %{to}.
     remove_min_character_length: Le nombre de caractères minimum pour le champ « %{label} » a été supprimé.
     update_min_character_length: Le nombre de caractères minimum pour le champ « %{label} » a été modifié. Le minimum est désormais %{to}.
-    remove_max_character_length: Le nombre de caractères maxium pour le champ « %{label} » a été supprimé.
+    remove_max_character_length: Le nombre de caractères maximum pour le champ « %{label} » a été supprimé.
     update_max_character_length: Le nombre de caractères maximum pour le champ « %{label} » a été modifié. Le maximum est désormais %{to}.
     remove_expression_reguliere: L’expression régulière du champ « %{label} » a été supprimée.
     update_expression_reguliere: L’expression régulière du champ « %{label} » a été modifiée. La nouvelle expression est « %{to} ».
@@ -64,6 +72,8 @@ fr:
     update_expression_reguliere_exemple_text: L’exemple d’expression régulière du champ « %{label} » a été modifié. Le nouvel exemple est « %{to} ».
     remove_expression_reguliere_error_message: Le message d’erreur de l’expression régulière du champ « %{label} » a été supprimé.
     update_expression_reguliere_error_message: Le message d’erreur de l’expression régulière du champ « %{label} » a été modifié. Le nouveau message est « %{to} ».
+    remove_expression_reguliere_indications: Les indications sur le format de saisie attendu du champ « %{label} » ont été supprimées.
+    update_expression_reguliere_indications: Les indications sur le format de saisie attendu du champ « %{label} » ont été modifiées. Les nouvelles indications sont « %{to} ».
     update_referentiel: "Le référentiel du champ « %{label} » a été modifié."
     update_drop_down_mode: "Le type de liste de choix du champ « %{label} » a été modifié."
     update_positive_number: "Le champ « %{label} » a été modifié.  %{to} "
@@ -71,19 +81,28 @@ fr:
     remove_positive_constraint: "Le nombre peut désormais être négatif"
     update_range_number: "Le champ « %{label} » a été modifié.  %{to} "
     add_range_number_constraint: "La limite des valeurs a été activée."
-    remove_range_number_constraint: "La limite des valeurs a été désactivé."
-    remove_min_number: La valeur minimale pour le champ « %{label} » a été supprimé.
-    update_min_number: La valeur minimale pour le champ « %{label} » a été modifié. Le minimum est désormais %{to}.
-    remove_max_number: La valeur maximale pour le champ « %{label} » a été supprimé.
-    update_max_number: La valeur maximale pour le champ « %{label} » a été modifié. Le maximum est désormais %{to}.
+    remove_range_number_constraint: "La limite des valeurs a été désactivée."
+    remove_min_number: La valeur minimale pour le champ « %{label} » a été supprimée.
+    update_min_number: La valeur minimale pour le champ « %{label} » a été modifiée. Le minimum est désormais %{to}.
+    remove_max_number: La valeur maximale pour le champ « %{label} » a été supprimée.
+    update_max_number: La valeur maximale pour le champ « %{label} » a été modifiée. Le maximum est désormais %{to}.
     update_date_in_past: "Le champ « %{label} » a été modifié.  %{to} "
     add_date_in_past_constraint: "La date doit être dans le passé"
     remove_date_in_past_constraint: "La date n’est plus limitée à une date dans le passé."
     update_range_date: "Le champ « %{label} » a été modifié.  %{to} "
     add_range_date_constraint: "La limite des valeurs a été activée."
     remove_range_date_constraint: "La limite des valeurs a été désactivée."
+    update_birthdate: "Le champ « %{label} » a été modifié. %{to}"
+    add_birthdate_constraint: "Il s’agit désormais d’une date de naissance."
+    remove_birthdate_constraint: "Il ne s’agit plus d’une date de naissance."
+    update_prefill_with_france_connect_information: "Le champ « %{label} » a été modifié. %{to}"
+    add_prefill_with_france_connect_information: "La date est désormais préremplie avec FranceConnect."
+    remove_prefill_with_france_connect_information: "La date n’est plus préremplie avec FranceConnect."
+    update_header_section_level: "Le niveau du titre de section « %{label} » a été modifié. Le nouveau niveau est %{to}."
+    enable_pre_rempli_hidden: "Le champ « %{label} » est désormais masqué pour l’usager."
+    disable_pre_rempli_hidden: "Le champ « %{label} » n’est plus masqué pour l’usager."
     remove_start_date: La date de début pour le champ « %{label} » a été supprimée.
-    update_start_date: La date de début pour le champ « %{label} » a été modifiée. Le date est désormais %{to}.
+    update_start_date: La date de début pour le champ « %{label} » a été modifiée. La date est désormais %{to}.
     remove_end_date: La date de fin pour le champ « %{label} » a été supprimée.
     update_end_date: La date de fin pour le champ « %{label} » a été modifiée. La date est désormais %{to}.
     update_pj_limit_formats: "La limitation des formats du champ « %{label} » a été modifiée."
@@ -101,6 +120,7 @@ fr:
     update_max_repetitions: "Le nombre maximum d’éléments du champ « %{label} » a été modifié. Le maximum est désormais %{to}."
 
   private:
+    update_referentiel_fields: *update_referentiel_private
     add: L’annotation privée « %{label} » a été ajoutée.
     remove: L’annotation privée « %{label} » a été supprimée.
     move:
@@ -118,7 +138,7 @@ fr:
     enable_drop_down_other: L’annotation privée « %{label} » comporte maintenant un choix « Autre ».
     disable_drop_down_other: L’annotation privée « %{label} » ne comporte plus de choix « Autre ».
     update_carte_layers: "Les référentiels cartographiques de l’annotation privée « %{label} » ont été modifiés :"
-    enable_update_collapsible_explanation: Le texte complémentaire affichable au clic de l’annotation privée « %{label} » a été ajoutée.
+    enable_update_collapsible_explanation: Le texte complémentaire affichable au clic de l’annotation privée « %{label} » a été ajouté.
     disable_update_collapsible_explanation: Le texte complémentaire affichable au clic de l’annotation privée « %{label} » a été supprimé.
     update_collapsible_explanation_text: Le texte complémentaire affichable au clic de l’annotation privée « %{label} » a été modifié. Le nouveau texte est « %{to} ».
     remove_collapsible_explanation_text: Le texte complémentaire affichable au clic de l’annotation privée « %{label} » a été supprimé.
@@ -130,10 +150,65 @@ fr:
     remove_expression_reguliere: L’expression régulière de l’annotation privée « %{label} » a été supprimée.
     update_expression_reguliere: L’expression régulière de l’annotation privée « %{label} » a été modifiée. La nouvelle expression est « %{to} ».
     remove_expression_reguliere_exemple_text: L’exemple d’expression régulière de l’annotation privée « %{label} » a été supprimé.
-    update_expression_reguliere_exemple_text: L’exemple d’expression régulière de l’annotation privée « %{label} » a été modifiée. Le nouvel exemple est « %{to} ».
+    update_expression_reguliere_exemple_text: L’exemple d’expression régulière de l’annotation privée « %{label} » a été modifié. Le nouvel exemple est « %{to} ».
     remove_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été supprimé.
-    update_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été modifiée. Le nouveau message est « %{to} ».
-    <<: *update_referentiel
+    update_expression_reguliere_error_message: Le message d’erreur de l’expression régulière de l’annotation privée « %{label} » a été modifié. Le nouveau message est « %{to} ».
+    remove_expression_reguliere_indications: Les indications sur le format de saisie attendu de l’annotation privée « %{label} » ont été supprimées.
+    update_expression_reguliere_indications: Les indications sur le format de saisie attendu de l’annotation privée « %{label} » ont été modifiées. Les nouvelles indications sont « %{to} ».
+    update_birthdate: "L’annotation privée « %{label} » a été modifiée. %{to}"
+    add_birthdate_constraint: "Il s’agit désormais d’une date de naissance."
+    remove_birthdate_constraint: "Il ne s’agit plus d’une date de naissance."
+    update_prefill_with_france_connect_information: "L’annotation privée « %{label} » a été modifiée. %{to}"
+    add_prefill_with_france_connect_information: "La date est désormais préremplie avec FranceConnect."
+    remove_prefill_with_france_connect_information: "La date n’est plus préremplie avec FranceConnect."
+    update_header_section_level: "Le niveau du titre de section « %{label} » a été modifié. Le nouveau niveau est %{to}."
+    enable_pre_rempli_hidden: "L’annotation privée « %{label} » est désormais masquée pour l’usager."
+    disable_pre_rempli_hidden: "L’annotation privée « %{label} » n’est plus masquée pour l’usager."
+    update_nature: "La nature de l’annotation privée pièce justificative « %{label} » a été modifiée en « %{to} »."
+    update_drop_down_options_alert: "L’annotation privée « %{label} » est utilisée pour le routage des dossiers. Veuillez mettre à jour la configuration des groupes d’instructeurs après avoir publié les modifications."
+    update_formatted_mode: "Le mode de l’annotation privée formatée « %{label} » a été modifié. Le nouveau mode est « %{to} »."
+    update_letters_acceptance: "L’acceptation des lettres pour l’annotation privée « %{label} » a été modifiée. Les lettres sont désormais %{to}."
+    update_numbers_acceptance: "L’acceptation des chiffres pour l’annotation privée « %{label} » a été modifiée. Les chiffres sont désormais %{to}."
+    update_special_characters_acceptance: "L’acceptation des caractères spéciaux pour l’annotation privée « %{label} » a été modifiée. Les caractères spéciaux sont désormais %{to}."
+    remove_min_character_length: "Le nombre de caractères minimum pour l’annotation privée « %{label} » a été supprimé."
+    update_min_character_length: "Le nombre de caractères minimum pour l’annotation privée « %{label} » a été modifié. Le minimum est désormais %{to}."
+    remove_max_character_length: "Le nombre de caractères maximum pour l’annotation privée « %{label} » a été supprimé."
+    update_max_character_length: "Le nombre de caractères maximum pour l’annotation privée « %{label} » a été modifié. Le maximum est désormais %{to}."
+    update_referentiel: "Le référentiel de l’annotation privée « %{label} » a été modifié."
+    update_drop_down_mode: "Le type de liste de choix de l’annotation privée « %{label} » a été modifié."
+    update_positive_number: "L’annotation privée « %{label} » a été modifiée.  %{to} "
+    add_positive_constraint: "Le nombre doit désormais être positif"
+    remove_positive_constraint: "Le nombre peut désormais être négatif"
+    update_range_number: "L’annotation privée « %{label} » a été modifiée.  %{to} "
+    add_range_number_constraint: "La limite des valeurs a été activée."
+    remove_range_number_constraint: "La limite des valeurs a été désactivée."
+    remove_min_number: "La valeur minimale pour l’annotation privée « %{label} » a été supprimée."
+    update_min_number: "La valeur minimale pour l’annotation privée « %{label} » a été modifiée. Le minimum est désormais %{to}."
+    remove_max_number: "La valeur maximale pour l’annotation privée « %{label} » a été supprimée."
+    update_max_number: "La valeur maximale pour l’annotation privée « %{label} » a été modifiée. Le maximum est désormais %{to}."
+    update_date_in_past: "L’annotation privée « %{label} » a été modifiée.  %{to} "
+    add_date_in_past_constraint: "La date doit être dans le passé"
+    remove_date_in_past_constraint: "La date n’est plus limitée à une date dans le passé."
+    update_range_date: "L’annotation privée « %{label} » a été modifiée.  %{to} "
+    add_range_date_constraint: "La limite des valeurs a été activée."
+    remove_range_date_constraint: "La limite des valeurs a été désactivée."
+    remove_start_date: "La date de début pour l’annotation privée « %{label} » a été supprimée."
+    update_start_date: "La date de début pour l’annotation privée « %{label} » a été modifiée. La date est désormais %{to}."
+    remove_end_date: "La date de fin pour l’annotation privée « %{label} » a été supprimée."
+    update_end_date: "La date de fin pour l’annotation privée « %{label} » a été modifiée. La date est désormais %{to}."
+    update_pj_limit_formats: "La limitation des formats de l’annotation privée « %{label} » a été modifiée."
+    update_pj_format_families: "Les familles de formats acceptés de l’annotation privée « %{label} » ont été modifiées."
+    update_pj_auto_purge: "La suppression automatique de l’annotation privée « %{label} » a été modifiée."
+    add_procedures_limit: "L’option « Limiter à certaines démarches » a été activée pour l’annotation privée « %{label} »."
+    remove_procedures_limit: "L’option « Limiter à certaines démarches » a été désactivée pour l’annotation privée « %{label} »."
+    update_procedures: "Les démarches autorisées pour l’annotation privée « %{label} » ont été modifiées :"
+    update_limit_repetitions: "La limitation du nombre d’éléments de l’annotation privée « %{label} » a été modifiée. %{to}"
+    enable_limit_repetitions: "La limitation est désormais activée."
+    disable_limit_repetitions: "La limitation est désormais désactivée."
+    remove_min_repetitions: "Le nombre minimum d’éléments de l’annotation privée « %{label} » a été supprimé."
+    update_min_repetitions: "Le nombre minimum d’éléments de l’annotation privée « %{label} » a été modifié. Le minimum est désormais %{to}."
+    remove_max_repetitions: "Le nombre maximum d’éléments de l’annotation privée « %{label} » a été supprimé."
+    update_max_repetitions: "Le nombre maximum d’éléments de l’annotation privée « %{label} » a été modifié. Le maximum est désormais %{to}."
 
   ineligibilite_rules:
     add: La condition d’inéligibilité « %{new_condition} » a été ajoutée.

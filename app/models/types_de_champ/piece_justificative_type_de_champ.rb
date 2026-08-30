@@ -60,11 +60,29 @@ class TypesDeChamp::PieceJustificativeTypeDeChamp < TypeDeChamp
     Array.wrap(options[:pj_format_families]).map(&:to_s)
   end
 
+  def forced_format_nature? = titre_identite? || rib? || justificatif_domicile? || avis_impot?
+
   def pj_auto_purge?
     titre_identite? || ActiveModel::Type::Boolean.new.cast(pj_auto_purge) || false
   end
 
   def ocr_compatible? = rib? || justificatif_domicile? || avis_impot?
+
+  def revision_diff_options
+    values = {
+      piece_justificative_template: RevisionDiffValue.new(piece_justificative_template.blob&.checksum) { piece_justificative_template.blob&.filename },
+      nature:,
+    }
+    # les natures forcées imposent leurs règles de format : on compare des
+    # valeurs normalisées des deux côtés, sinon quitter une nature forcée
+    # rapporte un changement fantôme (nil vs []).
+    if forced_format_nature?
+      values.merge!(pj_limit_formats: false, pj_format_families: [], pj_auto_purge: false)
+    else
+      values.merge!(pj_limit_formats: pj_limit_formats?, pj_format_families:, pj_auto_purge: pj_auto_purge?)
+    end
+    values
+  end
 
   def max_file_size_bytes
     if titre_identite?

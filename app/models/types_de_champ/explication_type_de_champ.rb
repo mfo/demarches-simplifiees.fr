@@ -15,4 +15,12 @@ class TypesDeChamp::ExplicationTypeDeChamp < TypesDeChamp::TextTypeDeChamp
   def customizable? = false
   store_accessor :options, :collapsible_explanation_enabled, :collapsible_explanation_text
   boolean_options :collapsible_explanation_enabled
+
+  def revision_diff_options
+    {
+      notice_explicative: RevisionDiffValue.new(notice_explicative.blob&.checksum) { notice_explicative.blob&.filename },
+      collapsible_explanation_enabled: collapsible_explanation_enabled?,
+      collapsible_explanation_text:,
+    }
+  end
 end

@@ -11,6 +11,8 @@ class TypesDeChamp::TextareaTypeDeChamp < TypesDeChamp::TextTypeDeChamp
     allow_blank: true,
   }
 
+  def revision_diff_options = { character_limit: RevisionDiffValue.new(character_limit.presence) { character_limit } }
+
   def customizable? = false
   def character_limit? = character_limit.present?
 

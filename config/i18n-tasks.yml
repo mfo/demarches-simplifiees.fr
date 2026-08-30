@@ -102,6 +102,8 @@ ignore_missing:
 
 ## Consider these keys used:
 ignore_unused:
+  # YAML anchors aliased under public/private in revision_changes_component.fr.yml
+  - 'procedure.revision_changes_component.update_referentiel_{public,private}.*'
   # t(".#{batch.operation}.finish.text_success") in batch_alert_component.html.haml
   - 'dossiers.batch_alert_component.*'
   # t(category, scope: ".categories") in tags_button_list_component.html.erb

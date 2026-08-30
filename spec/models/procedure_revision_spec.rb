@@ -719,12 +719,12 @@ describe ProcedureRevision do
         it 'detects changes in referentiel fields' do
           is_expected.to include({
             :attribute => :referentiel_url_tiptap,
-            :from => referentiel_1.url_tiptap,
+            :from => "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{Valeur saisie par l'usager}/",
             :label => "libelle",
             :op => :update,
             :private => false,
             :stable_id => 123,
-            :to => referentiel_2.url_tiptap,
+            :to => "https://tabular-api.data.gouv.fr?finess__contains={Valeur saisie par l'usager}",
           })
           is_expected.to include({
             :attribute => :referentiel_mode,
@@ -746,12 +746,12 @@ describe ProcedureRevision do
           })
           is_expected.to include({
             :attribute => :referentiel_test_data_tiptap,
-            :from => referentiel_1.test_data_tiptap,
+            :from => referentiel_1.test_data_tiptap.values.join(", "),
             :label => "libelle",
             :op => :update,
             :private => false,
             :stable_id => 123,
-            :to => referentiel_2.test_data_tiptap,
+            :to => referentiel_2.test_data_tiptap.values.join(", "),
           })
           is_expected.to include({
             :attribute => :referentiel_mapping,
@@ -782,8 +782,8 @@ describe ProcedureRevision do
                 label: "Dossier lié",
                 private: false,
                 stable_id: first_tdc.stable_id,
-                from: nil,
-                to: "1",
+                from: false,
+                to: true,
               },
             ])
           end
@@ -831,8 +831,8 @@ describe ProcedureRevision do
             attribute: :limit_repetitions,
             label: "bloc",
             private: false,
-            from: nil,
-            to: "1",
+            from: false,
+            to: true,
             stable_id: repetition_tdc.stable_id,
           },
           {
@@ -877,7 +877,7 @@ describe ProcedureRevision do
           new_draft.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
         end
 
-        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::AddEligibiliteRuleChange)) }
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::AddEligibiliteRuleChange)) }
       end
 
       context 'when ineligibilite_rules removed' do
@@ -885,7 +885,7 @@ describe ProcedureRevision do
           procedure.published_revision.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
         end
 
-        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::RemoveEligibiliteRuleChange)) }
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::RemoveEligibiliteRuleChange)) }
       end
 
       context 'when ineligibilite_rules changed' do
@@ -897,7 +897,7 @@ describe ProcedureRevision do
           ]))
         end
 
-        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::UpdateEligibiliteRuleChange)) }
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::UpdateEligibiliteRuleChange)) }
       end
 
       context 'when when ineligibilite_enabled changes from false to true' do

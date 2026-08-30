@@ -6,6 +6,8 @@ class TypesDeChamp::LinkedDropDownListTypeDeChamp < TypesDeChamp::DropDownBaseTy
 
   store_accessor :options, :drop_down_secondary_libelle, :drop_down_secondary_description
 
+  def revision_diff_options = super.merge(drop_down_secondary_libelle:, drop_down_secondary_description:)
+
   def options_for_select = options_for_select_with_other
   def any_drop_down_list? = true
   def has_label? = false
