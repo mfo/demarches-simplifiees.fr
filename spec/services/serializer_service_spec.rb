@@ -6,6 +6,35 @@ describe SerializerService do
   let(:champ) { dossier.champ_data.first }
   let(:etablissement) { champ.etablissement }
 
+  describe 'dossier' do
+    let(:dossier) { dossiers.en_construction }
+
+    subject { SerializerService.dossier(dossier) }
+
+    it 'serializes the dossier with its champs, annotations and avis but no transient URLs' do
+      expect(subject).to include('number' => dossier.id, 'state' => 'en_construction')
+      expect(subject.keys).to include('champs', 'annotations', 'avis', 'demandeur', 'demarche')
+      expect(subject).not_to have_key('pdf')
+      expect(subject.to_json).not_to include('"url"')
+    end
+  end
+
+  describe 'avis' do
+    let(:pending_avis) { avis.pending }
+
+    subject { SerializerService.avis(pending_avis) }
+
+    it { is_expected.to include('id' => pending_avis.to_typed_id, 'question' => pending_avis.introduction) }
+  end
+
+  describe 'message' do
+    let(:commentaire) { dossiers.en_construction.commentaires.first }
+
+    subject { SerializerService.message(commentaire) }
+
+    it { is_expected.to include('id' => commentaire.to_typed_id, 'body' => commentaire.body) }
+  end
+
   describe 'champ' do
     subject { SerializerService.champ(champ) }
 

@@ -1628,6 +1628,11 @@ type DemarcheDescriptor {
   description: String!
 
   """
+  Nombre de dossiers déposés.
+  """
+  dossiersCount: Int!
+
+  """
   URL ou adresse électronique pour contacter le Délégué à la Protection des Données (DPO)
   """
   dpoURL: String
@@ -1681,6 +1686,41 @@ type DemarcheDescriptor {
   ministère(s) ou collectivité(s) qui mettent en oeuvre la démarche
   """
   zones: [String!]!
+}
+
+"""
+The connection type for DemarcheDescriptor.
+"""
+type DemarcheDescriptorConnection {
+  """
+  A list of edges.
+  """
+  edges: [DemarcheDescriptorEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [DemarcheDescriptor]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type DemarcheDescriptorEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: DemarcheDescriptor
 }
 
 """
@@ -5037,6 +5077,31 @@ type Query {
     """
     demarche: FindDemarcheInput!
   ): DemarcheDescriptor
+
+  """
+  Liste des démarches publiques (publiées ou closes, en opendata).
+  """
+  demarcheDescriptors(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): DemarcheDescriptorConnection!
 
   """
   Informations sur un dossier d’une démarche.

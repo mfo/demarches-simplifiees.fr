@@ -52,7 +52,7 @@ Cela évite l’accès récursif aux dossiers."
     field :notice, Types::File, "notice explicative de la démarche", null: true, extensions: [{ Extensions::Attachment => { root: :procedure } }]
     field :deliberation, Types::File, "fichier contenant le cadre juridique", null: true, extensions: [{ Extensions::Attachment => { root: :procedure } }]
 
-    field :dossiers_count, Int, "nb de dossiers déposés", null: false, internal: true
+    field :dossiers_count, Int, "Nombre de dossiers déposés.", null: false
 
     def service
       dataloader.with(Sources::Association, :service).load(procedure)
@@ -75,7 +75,7 @@ Cela évite l’accès récursif aux dossiers."
     end
 
     def dossiers_count
-      procedure.estimated_dossiers_count
+      procedure.estimated_dossiers_count || 0
     end
 
     def state

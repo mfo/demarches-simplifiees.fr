@@ -65,14 +65,16 @@ class API::V2::BaseController < ApplicationController
 
   def unauthenticated? = @api_token.blank? && current_administrateur.blank?
 
+  PUBLIC_OPERATIONS = ['getDemarcheDescriptor', 'getDemarcheDescriptors'].freeze
+
   def allow_only_public_queries
     query_id = params[:queryId]
     operation_name = params[:operationName]
 
     return if query_id == 'introspection'
-    return if query_id == 'ds-query-v2' && operation_name == 'getDemarcheDescriptor'
+    return if query_id == 'ds-query-v2' && PUBLIC_OPERATIONS.include?(operation_name)
 
-    render json: graphql_error('Without a token, only the public getDemarcheDescriptor query and introspection are allowed', :forbidden), status: :forbidden
+    render json: graphql_error('Without a token, only the public getDemarcheDescriptor and getDemarcheDescriptors queries and introspection are allowed', :forbidden), status: :forbidden
   end
 
   def ensure_authorized_network
