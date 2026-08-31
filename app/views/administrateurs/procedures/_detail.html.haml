@@ -5,7 +5,7 @@
     - params = show_detail ? {} : { show_detail: true }
     = button_to detail_admin_procedure_path(procedure["id"]), method: :post, params:, title:, class: [icon, "fr-icon--sm fr-mb-1w fr-text-action-high--blue-france fr-btn fr-btn--tertiary-no-outline" ] do
       = title
-  %td
+  %td.fr-cell--breakable
     - if procedure.template
       %p.fr-badge.fr-badge--info.fr-badge--sm= "Modèle"
       %abbr{ title: APPLICATION_NAME }= acronymize(APPLICATION_NAME)

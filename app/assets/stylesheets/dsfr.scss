@@ -163,6 +163,10 @@ input[type='radio'] {
   font-variant-numeric: tabular-nums;
 }
 
+.fr-cell--breakable {
+  overflow-wrap: anywhere;
+}
+
 .fr-text--monospace {
   font-family: monospace;
 }
