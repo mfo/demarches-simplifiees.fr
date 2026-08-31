@@ -16,5 +16,7 @@ class ExpressionReguliereValidator < ActiveModel::Validator
     end
   rescue Regexp::TimeoutError
     record.errors.add(:expression_reguliere, :evil_regexp)
+  rescue RegexpError
+    record.errors.add(:expression_reguliere, :syntax_error_regexp)
   end
 end

@@ -51,6 +51,23 @@ describe Champs::FormattedChamp do
     end
 
     context 'with advanced mode' do
+      context 'with an invalid expression reguliere' do
+        let(:value) { "AB-123-CD" }
+        let(:tdc_definition) {
+          {
+            type: :formatted,
+            formatted_mode: "advanced",
+            expression_reguliere: "[AA-000-ZZ]",
+          }
+        }
+
+        it 'adds an error instead of raising' do
+          expect { subject }.not_to raise_error
+          expect(subject).to be_falsey
+          expect(champ.errors[:expression_reguliere]).to be_present
+        end
+      end
+
       context 'with invalid value' do
         let(:value) { "blop" }
         context 'with expression reguliere error message defined' do
