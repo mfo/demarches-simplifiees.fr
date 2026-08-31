@@ -16,7 +16,7 @@ class Champs::FranceConnectChamp < ChampData
   end
 
   def fc_data_not_found?
-    external_error? && self.fetch_external_data_exceptions.first&.code == 404
+    external_error? && self.fetch_external_data_exceptions&.first&.code == 404
   end
 
   def ready_for_external_call?

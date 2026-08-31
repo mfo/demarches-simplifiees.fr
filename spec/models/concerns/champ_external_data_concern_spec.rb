@@ -39,6 +39,13 @@ RSpec.describe ChampExternalDataConcern do
       it { expect(champ).not_to be_external_data_not_found }
     end
 
+    context 'in external_error without recorded exceptions' do
+      let(:external_state) { 'external_error' }
+      let(:exceptions) { nil }
+
+      it { expect(champ).not_to be_external_data_not_found }
+    end
+
     context 'when not in error' do
       let(:external_state) { 'fetched' }
       let(:exceptions) { [] }
