@@ -10,6 +10,7 @@ require:
   - ./lib/cops/application_name.rb
   - ./lib/cops/adresse_electronique.rb
   - ./lib/cops/global_i18n_translate.rb
+  - ./lib/cops/i18n_output_safety.rb
   - ./lib/cops/unscoped.rb
   - ./lib/cops/rspec/consecutive_it_blocks.rb
 
@@ -51,6 +52,9 @@ DS/AdresseElectronique:
     - './lib/tasks/adresse_electronique_lint.rake'
 
 DS/Unscoped:
+  Enabled: true
+
+DS/I18nOutputSafety:
   Enabled: true
 
 DS/GlobalI18nTranslate:
