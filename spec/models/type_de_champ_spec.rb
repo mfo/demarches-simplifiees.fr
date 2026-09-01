@@ -149,20 +149,20 @@ describe TypeDeChamp do
     end
 
     context "runs the STI subclass validations" do
-      subject { create(:type_de_champ_linked_drop_down_list).tap { _1.drop_down_options = ["pas de primaire"] } }
+      subject { create(:type_de_champ_textarea).tap { _1.character_limit = '42' } }
 
       it do
-        is_expected.to be_an_instance_of(TypesDeChamp::LinkedDropDownListTypeDeChamp)
+        is_expected.to be_an_instance_of(TypesDeChamp::TextareaTypeDeChamp)
         is_expected.to be_invalid
-        expect(subject.errors.full_messages.to_sentence).to include("doit commencer par une entrée de menu primaire")
+        expect(subject.errors[:character_limit]).to be_present
       end
     end
   end
 
   describe '#becomes_type' do
     it 'runs the target type validations instead of the source ones' do
-      tdc = create(:type_de_champ_linked_drop_down_list)
-      tdc.update_column(:options, { 'drop_down_options' => ['pas de primaire'] })
+      tdc = create(:type_de_champ_textarea)
+      tdc.update_column(:options, { 'character_limit' => '42' })
       tdc = TypeDeChamp.find(tdc.id)
 
       expect(tdc).to be_invalid
@@ -233,24 +233,6 @@ describe TypeDeChamp do
         tdc2 = create(:type_de_champ_piece_justificative, pj_auto_purge: '0')
         expect(tdc2.pj_auto_purge?).to be false
       end
-    end
-  end
-
-  describe "linked_drop_down_list" do
-    let(:type_de_champ) { create(:type_de_champ_linked_drop_down_list) }
-
-    it 'should validate without label' do
-      type_de_champ.drop_down_options = ['toto']
-      expect(type_de_champ.validate).to be_falsey
-      messages = type_de_champ.errors.full_messages
-      expect(messages.size).to eq(1)
-      expect(messages.first).to eq("Le champ « #{type_de_champ.libelle} » doit commencer par une entrée de menu primaire de la forme <code style='white-space: pre-wrap;'>--texte--</code>")
-
-      type_de_champ.libelle = ''
-      expect(type_de_champ.validate).to be_falsey
-      messages = type_de_champ.errors.full_messages
-      expect(messages.size).to eq(1)
-      expect(messages.last).to eq("Le champ « La liste » doit commencer par une entrée de menu primaire de la forme <code style='white-space: pre-wrap;'>--texte--</code>")
     end
   end
 
