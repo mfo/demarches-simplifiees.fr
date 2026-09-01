@@ -6,7 +6,13 @@ class Champs::AnnuaireEducationChamp < Champs::TextChamp
   end
 
   def fetch_external_data
-    APIEducation::AnnuaireEducationAdapter.new(external_id).to_params
+    data = APIEducation::AnnuaireEducationAdapter.new(external_id).to_params
+
+    if data.present?
+      Success(data:)
+    else
+      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
+    end
   end
 
   def selected_items
