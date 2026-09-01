@@ -6,6 +6,7 @@ RSpec.describe Ami::Client do
   let(:service) { described_class.new }
   let(:payload) { { event: { state: "accepte" } } }
   let(:api_client) { instance_double(API::Client) }
+  let(:response) { double(code: 200, body: '{"ok":true}') }
 
   before do
     allow(ENV).to receive(:fetch).and_call_original
@@ -17,29 +18,64 @@ RSpec.describe Ami::Client do
 
   it 'returns success when API call succeeds' do
     allow(api_client).to receive(:call).and_return(
-      Dry::Monads::Success({ body: { ok: true } })
+      Dry::Monads::Success(API::Client::OK[{ ok: true }, response])
     )
 
     result = service.send_notification(payload)
 
     expect(api_client).to have_received(:call).with(
-      url: URI("https://ami.example.org/api/v1/notifications"),
+      url: URI("https://ami.example.org#{described_class::EVENT_PATH}"),
       json: payload,
-      method: :post,
+      method: :put,
       userpwd: "ami-user:ami-password"
     )
     expect(result).to be_success
+    expect(result.value!).to eq({ ok: true })
   end
 
   it 'returns failure when API returns 4xx' do
     allow(api_client).to receive(:call).and_return(
-      Dry::Monads::Failure({ code: 400, reason: "Bad request", retryable: false })
+      Dry::Monads::Failure(API::Client::Error[:http, 400, false, "Bad request"])
     )
 
     result = service.send_notification(payload)
 
     expect(result).to be_failure
+    expect(result.failure.type).to eq(:http)
+    expect(result.failure.code).to eq(400)
     expect(result.failure.retryable).to be(false)
+  end
+
+  describe 'logging' do
+    before { allow(Rails.logger).to receive(:info) }
+
+    it 'traces a failed call with the status AMI answered' do
+      allow(Rails.env).to receive(:development?).and_return(true)
+      allow(api_client).to receive(:call).and_return(
+        Dry::Monads::Failure(API::Client::Error[:http, 404, false, "Not found"])
+      )
+
+      service.send_notification(payload)
+
+      expect(Rails.logger).to have_received(:info).with("[AMI] PUT /api/v2/event → 404")
+    end
+
+    it 'traces a successful call with the status AMI answered' do
+      allow(Rails.env).to receive(:development?).and_return(true)
+      allow(api_client).to receive(:call).and_return(Dry::Monads::Success(API::Client::OK[{}, response]))
+
+      service.send_notification(payload)
+
+      expect(Rails.logger).to have_received(:info).with("[AMI] PUT /api/v2/event → 200")
+    end
+
+    it 'stays quiet outside development' do
+      allow(api_client).to receive(:call).and_return(Dry::Monads::Success(API::Client::OK[{}, response]))
+
+      service.send_notification(payload)
+
+      expect(Rails.logger).not_to have_received(:info)
+    end
   end
 
   it 'returns retryable failure when API times out' do
@@ -55,12 +91,13 @@ RSpec.describe Ami::Client do
       )
     )
     allow(api_client).to receive(:call).and_return(
-      Dry::Monads::Failure({ code: 0, reason: timeout_error, retryable: true })
+      Dry::Monads::Failure(API::Client::Error[:timeout, 0, true, timeout_error])
     )
 
     result = service.send_notification(payload)
 
     expect(result).to be_failure
+    expect(result.failure.type).to eq(:timeout)
     expect(result.failure.retryable).to be(true)
   end
 end

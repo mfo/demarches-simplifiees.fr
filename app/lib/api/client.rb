@@ -19,6 +19,12 @@ class API::Client
         body: json.nil? ? body : json.to_json,
         timeout:,
         **typhoeus_options)
+    when :put
+      Typhoeus.put(url,
+        headers: headers_with_authorization(headers, json, authorization_token:),
+        body: json.nil? ? body : json.to_json,
+        timeout:,
+        **typhoeus_options)
     when :patch
       Typhoeus.patch(url,
         headers: headers_with_authorization(headers, json, authorization_token:),

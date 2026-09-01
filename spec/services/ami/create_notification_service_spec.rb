@@ -52,7 +52,7 @@ RSpec.describe Ami::CreateNotificationService do
     let(:procedure) { create(:procedure, :published, :for_individual) }
     let(:user) { create(:user) }
     let(:dossier) { create(:dossier, :en_instruction, :with_individual, procedure:, user:) }
-    let(:send_date) { "2026-03-02T12:34:56+01:00" }
+    let(:event_date) { "2026-03-02T12:34:56+01:00" }
 
     before do
       create(
@@ -68,7 +68,7 @@ RSpec.describe Ami::CreateNotificationService do
     end
 
     it 'builds the expected payload contract' do
-      payload = described_class.new(dossier:, trigger: :dossier_state_change, state: nil).create_notification_payload(send_date:)
+      payload = described_class.new(dossier:, trigger: :dossier_state_change, state: nil).create_notification_payload(event_date:)
 
       expect(payload).to include(
         recipient_fc_hash: kind_of(String),
@@ -79,12 +79,13 @@ RSpec.describe Ami::CreateNotificationService do
         item_status_label: "En\u00a0instruction",
         item_generic_status: "wip",
         item_canal: described_class::SOURCE,
-        send_date:
+        content_link: kind_of(String),
+        event_date:
       )
     end
 
     it 'uses the same wording as the user notification email subject' do
-      payload = described_class.new(dossier:, trigger: :dossier_state_change, state: nil).create_notification_payload(send_date:)
+      payload = described_class.new(dossier:, trigger: :dossier_state_change, state: nil).create_notification_payload(event_date:)
 
       expect(payload).to include(
         content_title: APPLICATION_NAME,
@@ -96,7 +97,7 @@ RSpec.describe Ami::CreateNotificationService do
       let(:dossier) { create(:dossier, :brouillon, :with_individual, procedure:, user:) }
 
       it 'builds a creation-oriented payload' do
-        payload = described_class.new(dossier:, trigger: :dossier_state_change, state: nil).create_notification_payload(send_date:)
+        payload = described_class.new(dossier:, trigger: :dossier_state_change, state: nil).create_notification_payload(event_date:)
 
         expect(payload).to include(
           content_title: APPLICATION_NAME,
@@ -108,7 +109,7 @@ RSpec.describe Ami::CreateNotificationService do
 
     context 'when triggered by a messagerie message' do
       it 'builds a messagerie-oriented payload' do
-        payload = described_class.new(dossier:, trigger: :messagerie_message, state: nil).create_notification_payload(send_date:)
+        payload = described_class.new(dossier:, trigger: :messagerie_message, state: nil).create_notification_payload(event_date:)
 
         expect(payload).to include(
           content_title: APPLICATION_NAME,

@@ -34,24 +34,26 @@ module Ami
 
       Rails.logger.debug { "AMI notification eligible for dossier #{dossier.id} (state: #{state})" }
 
-      payload = create_notification_payload(send_date: Time.zone.now.iso8601)
+      payload = create_notification_payload(event_date: Time.zone.now.iso8601)
       return if payload[:recipient_fc_hash].blank?
 
       Ami::SendNotificationJob.perform_later(payload, context)
     end
 
-    def create_notification_payload(send_date:)
+    # Contrat de PUT /api/v2/event : event_date remplace send_date et
+    # content_link remplace item_external_url.
+    def create_notification_payload(event_date:)
       {
         recipient_fc_hash: RecipientFcHash.call(dossier.user),
         content_title:,
         content_body:,
+        content_link: item_external_url,
         item_type: dossier.procedure.id.to_s,
         item_id: dossier.id.to_s,
         item_status_label:,
         item_generic_status:,
-        item_external_url:,
         item_canal: ApplicationHelper::APP_HOST,
-        send_date:,
+        event_date:,
       }
     end
 
