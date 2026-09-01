@@ -32,13 +32,13 @@ RSpec.describe Champs::AnnuaireEducationChamp do
     end
 
     context 'when the API call fails' do
-      before { allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_raise(APIEducation::API::ResourceNotFound) }
+      before { allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_raise(APIEducation::API::RequestFailedError) }
 
       it 'returns a retryable failure' do
         expect(subject).to be_failure
         expect(subject.failure[:retryable]).to eq(true)
         expect(subject.failure[:code]).to eq(503)
-        expect(subject.failure[:error]).to be_a(APIEducation::API::ResourceNotFound)
+        expect(subject.failure[:error]).to be_a(APIEducation::API::RequestFailedError)
       end
     end
 

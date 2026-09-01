@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class APIEducation::API
-  class ResourceNotFound < StandardError
+  class RequestFailedError < StandardError
   end
 
   def self.get_annuaire_education(id)
@@ -18,7 +18,7 @@ class APIEducation::API
     else
       message = response.code == 0 ? response.return_message : response.code.to_s
       Rails.logger.error "[APIEducation] Error on #{url}: #{message}"
-      raise ResourceNotFound
+      raise RequestFailedError
     end
   end
 end
