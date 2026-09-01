@@ -1281,7 +1281,7 @@ class Dossier < ApplicationRecord
       .then { |avis_ids| Avis.find(avis_ids) }
     # rubocop:enable Lint/UnusedBlockArgument
 
-    avis.each { |a| ExpertMailer.send_dossier_decision_v2(a).deliver_later }
+    avis.each { |a| ExpertMailer.send_dossier_decision(a).deliver_later }
   end
 
   def log_destroy

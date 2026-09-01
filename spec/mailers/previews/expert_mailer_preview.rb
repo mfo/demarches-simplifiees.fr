@@ -12,6 +12,6 @@ class ExpertMailerPreview < ActionMailer::Preview
 
     avis = Avis.new(id: 1, email: 'test@exemple.fr', claimant: instructeur, dossier:, experts_procedure:, expert:)
 
-    ExpertMailer.send_dossier_decision_v2(avis)
+    ExpertMailer.send_dossier_decision(avis)
   end
 end
