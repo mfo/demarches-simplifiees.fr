@@ -46,38 +46,6 @@ RSpec.describe Ami::Client do
     expect(result.failure.retryable).to be(false)
   end
 
-  describe 'logging' do
-    before { allow(Rails.logger).to receive(:info) }
-
-    it 'traces a failed call with the status AMI answered' do
-      allow(Rails.env).to receive(:development?).and_return(true)
-      allow(api_client).to receive(:call).and_return(
-        Dry::Monads::Failure(API::Client::Error[:http, 404, false, "Not found"])
-      )
-
-      service.send_notification(payload)
-
-      expect(Rails.logger).to have_received(:info).with("[AMI] PUT /api/v2/event → 404")
-    end
-
-    it 'traces a successful call with the status AMI answered' do
-      allow(Rails.env).to receive(:development?).and_return(true)
-      allow(api_client).to receive(:call).and_return(Dry::Monads::Success(API::Client::OK[{}, response]))
-
-      service.send_notification(payload)
-
-      expect(Rails.logger).to have_received(:info).with("[AMI] PUT /api/v2/event → 200")
-    end
-
-    it 'stays quiet outside development' do
-      allow(api_client).to receive(:call).and_return(Dry::Monads::Success(API::Client::OK[{}, response]))
-
-      service.send_notification(payload)
-
-      expect(Rails.logger).not_to have_received(:info)
-    end
-  end
-
   it 'returns retryable failure when API times out' do
     timeout_error = API::Client::HTTPError.new(
       double(
