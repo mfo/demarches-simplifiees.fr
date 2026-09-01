@@ -86,6 +86,9 @@ describe Stat, type: :model do
   end
 
   describe '.cumulative_hash' do
+    # the metric is a global aggregate: run it against an empty dossiers table
+    empty_seeds Dossier
+
     it 'works count and cumulate counters by month for both dossier and deleted dossiers' do
       2.downto(1).map do |i|
         create(:dossier, state: :en_construction, depose_at: i.months.ago)
