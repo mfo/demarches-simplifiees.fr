@@ -32,7 +32,7 @@ class PrefillDescription < SimpleDelegator
   end
 
   def prefill_link
-    @prefill_link ||= CGI.unescape(commencer_url({ path: path, host: Current.host || ENV["APP_HOST"] }.merge(prefilled_champs_as_params).merge(prefilled_identity_as_params)))
+    @prefill_link ||= CGI.unescape(commencer_url({ path: path, host: Current.host || ENV["APP_HOST"] }.merge(prefilled_champs_as_query_params).merge(prefilled_identity_as_params)))
   end
 
   def prefill_query
@@ -40,7 +40,7 @@ class PrefillDescription < SimpleDelegator
       <<~TEXT
         curl --request POST '#{api_public_v1_dossiers_url(self, host: Current.host || ENV["APP_HOST"])}' \\
              --header 'Content-Type: application/json' \\
-             --data '#{prefilled_identity_as_params.merge(prefilled_champs_as_params).to_json}'
+             --data '#{prefilled_identity_as_params.merge(prefilled_champs_as_body_params).to_json}'
       TEXT
   end
 
@@ -54,7 +54,13 @@ class PrefillDescription < SimpleDelegator
     active_revision.public_root_type_de_champs.filter(&:fillable?)
   end
 
-  def prefilled_champs_as_params
+  # The link and the API body do not serialize the same way: see
+  # PrefillRepetitionTypeDeChamp#example_value_for_query.
+  def prefilled_champs_as_query_params
+    prefilled_champs.map { |type_de_champ| ["champ_#{type_de_champ.to_typed_id_for_query}", type_de_champ.example_value_for_query] }.to_h
+  end
+
+  def prefilled_champs_as_body_params
     prefilled_champs.map { |type_de_champ| ["champ_#{type_de_champ.to_typed_id_for_query}", type_de_champ.example_value] }.to_h
   end
 

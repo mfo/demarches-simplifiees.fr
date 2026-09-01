@@ -139,7 +139,8 @@ RSpec.describe PrefillDescription, type: :model do
             path: procedure.path,
             "champ_#{type_de_champ_text.to_typed_id_for_query}" => TypesDeChamp::PrefillTypeDeChamp.build(type_de_champ_text, procedure.active_revision).example_value,
             "champ_#{type_de_champ_epci.to_typed_id_for_query}" => TypesDeChamp::PrefillTypeDeChamp.build(type_de_champ_epci, procedure.active_revision).example_value,
-            "champ_#{type_de_champ_repetition.to_typed_id_for_query}" => TypesDeChamp::PrefillTypeDeChamp.build(type_de_champ_repetition, procedure.active_revision).example_value,
+            # a repetition indexes its rows in a link, see #example_value_for_query
+            "champ_#{type_de_champ_repetition.to_typed_id_for_query}" => TypesDeChamp::PrefillTypeDeChamp.build(type_de_champ_repetition, procedure.active_revision).example_value_for_query,
             "identite_prenom" => I18n.t("views.prefill_descriptions.edit.examples.prenom")
           )
         )
@@ -177,7 +178,7 @@ RSpec.describe PrefillDescription, type: :model do
       <<~TEXT
         curl --request POST '#{api_public_v1_dossiers_url(procedure)}' \\
              --header 'Content-Type: application/json' \\
-             --data '{"identite_prenom":"#{I18n.t("views.prefill_descriptions.edit.examples.prenom")}","champ_#{type_de_champ_text.to_typed_id_for_query}":"Texte court","champ_#{prefill_type_de_champ_epci.to_typed_id_for_query}":["01","200042935"],"champ_#{type_de_champ_repetition.to_typed_id_for_query}":[{"champ_#{text_repetition.to_typed_id_for_query}":"Texte court","champ_#{integer_repetition.to_typed_id_for_query}":"42","champ_#{region_repetition.to_typed_id_for_query}":"53"},{"champ_#{text_repetition.to_typed_id_for_query}":"Texte court","champ_#{integer_repetition.to_typed_id_for_query}":"42","champ_#{region_repetition.to_typed_id_for_query}":"53"}]}'
+             --data '{"identite_prenom":"#{I18n.t("views.prefill_descriptions.edit.examples.prenom")}","champ_#{type_de_champ_text.to_typed_id_for_query}":"Texte court","champ_#{prefill_type_de_champ_epci.to_typed_id_for_query}":["01","200042935"],"champ_#{type_de_champ_repetition.to_typed_id_for_query}":[{"champ_#{text_repetition.to_typed_id_for_query}":"Texte court","champ_#{integer_repetition.to_typed_id_for_query}":42,"champ_#{region_repetition.to_typed_id_for_query}":"53"},{"champ_#{text_repetition.to_typed_id_for_query}":"Texte court","champ_#{integer_repetition.to_typed_id_for_query}":42,"champ_#{region_repetition.to_typed_id_for_query}":"53"}]}'
       TEXT
     end
 

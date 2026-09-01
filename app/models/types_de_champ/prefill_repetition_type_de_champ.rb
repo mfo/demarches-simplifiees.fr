@@ -12,15 +12,38 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
     [row_values_format, row_values_format]
   end
 
-  def to_assignable_attributes(champ, value)
-    return [] unless value.is_a?(Array)
+  # A JSON body can carry the rows as an array, a query string cannot: with bare
+  # brackets Rack folds `champ_x[][sub][]=a&champ_x[][sub][]=b` into a *single*
+  # row holding every value, so a repetition of array-valued sub-champs (commune,
+  # EPCI, multiple drop-down list) loses its row boundaries. Indexing the rows
+  # keeps them apart; they then arrive as a hash keyed by position.
+  def example_value_for_query
+    example_value.each_with_index.to_h { |row, index| [index.to_s, row] }
+  end
 
-    value.flat_map.with_index do |repetition, index|
+  def to_assignable_attributes(champ, value)
+    rows = rows_from(value)
+    return [] if rows.blank?
+
+    rows.flat_map.with_index do |repetition, index|
       PrefillRepetitionRow.new(champ, repetition, index, @revision).to_assignable_attributes
     end.compact_blank
   end
 
   private
+
+  # An API body sends an array of rows; a prefill link sends them indexed, which
+  # Rack parses into a hash keyed by position. Accept both.
+  def rows_from(value)
+    case value
+    when Array
+      value
+    when Hash
+      return nil unless value.keys.all? { _1.to_s.match?(/\A\d+\z/) }
+
+      value.sort_by { |index, _| index.to_i }.map { |_, row| row }
+    end
+  end
 
   def subchamps_all_possible_values
     tag.ul(safe_join(prefillable_subchamps.map do |prefill_type_de_champ|
@@ -28,10 +51,13 @@ class TypesDeChamp::PrefillRepetitionTypeDeChamp < TypesDeChamp::PrefillTypeDeCh
     end))
   end
 
+  # Keep each sub-champ's example value in its own type: `to_s` turned the array a
+  # commune or an EPCI returns into the literal `'["01500", "01004"]'`, which their
+  # `to_assignable_attributes` then rejects for not being an Array (#10610).
   def row_values_format
     @row_example_value ||=
       prefillable_subchamps.map do |prefill_type_de_champ|
-      ["champ_#{prefill_type_de_champ.to_typed_id_for_query}", prefill_type_de_champ.example_value.to_s]
+      ["champ_#{prefill_type_de_champ.to_typed_id_for_query}", prefill_type_de_champ.example_value]
     end.to_h
   end
 
