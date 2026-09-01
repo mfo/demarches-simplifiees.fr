@@ -13,6 +13,10 @@ class Champs::AnnuaireEducationChamp < Champs::TextChamp
     else
       Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
     end
+  rescue APIEducation::API::ResourceNotFound => error
+    Failure(retryable: true, error:, code: 503)
+  rescue APIEducation::AnnuaireEducationAdapter::InvalidSchemaError => error
+    Failure(retryable: false, error:, code: 422)
   end
 
   def selected_items

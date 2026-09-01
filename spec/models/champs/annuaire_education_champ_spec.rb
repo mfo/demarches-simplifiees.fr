@@ -12,24 +12,44 @@ RSpec.describe Champs::AnnuaireEducationChamp do
 
     subject { champ.fetch_external_data }
 
-    before do
-      allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_return(params)
-    end
-
     context 'when a record is found' do
       let(:params) { { 'nom_etablissement' => 'karrigel an ankou' } }
+
+      before { allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_return(params) }
 
       it { is_expected.to eq(Success(data: params)) }
     end
 
     context 'when no record is found' do
-      let(:params) { nil }
+      before { allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_return(nil) }
 
       it 'returns a non-retryable not found failure' do
         expect(subject).to be_failure
         expect(subject.failure[:retryable]).to eq(false)
         expect(subject.failure[:code]).to eq(404)
         expect(subject.failure[:error].message).to eq('NotFound')
+      end
+    end
+
+    context 'when the API call fails' do
+      before { allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_raise(APIEducation::API::ResourceNotFound) }
+
+      it 'returns a retryable failure' do
+        expect(subject).to be_failure
+        expect(subject.failure[:retryable]).to eq(true)
+        expect(subject.failure[:code]).to eq(503)
+        expect(subject.failure[:error]).to be_a(APIEducation::API::ResourceNotFound)
+      end
+    end
+
+    context 'when the response does not match the expected schema' do
+      before { allow_any_instance_of(APIEducation::AnnuaireEducationAdapter).to receive(:to_params).and_raise(APIEducation::AnnuaireEducationAdapter::InvalidSchemaError.new([])) }
+
+      it 'returns a non-retryable failure' do
+        expect(subject).to be_failure
+        expect(subject.failure[:retryable]).to eq(false)
+        expect(subject.failure[:code]).to eq(422)
+        expect(subject.failure[:error]).to be_a(APIEducation::AnnuaireEducationAdapter::InvalidSchemaError)
       end
     end
   end
