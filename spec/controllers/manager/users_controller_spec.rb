@@ -26,6 +26,30 @@ describe Manager::UsersController, type: :controller do
     end
   end
 
+  describe '#resend_reset_password_instructions' do
+    let(:super_admin) { create(:super_admin, :with_otp) }
+    let(:user) { administrateurs.default.user }
+
+    subject { post :resend_reset_password_instructions, params: { id: user.id } }
+
+    it 'sends the Devise instructions' do
+      expect { subject }.to have_enqueued_mail(DeviseUserMailer, :reset_password_instructions)
+      expect(flash[:notice]).to eq("L’email de réinitialisation du mot de passe a été renvoyé.")
+    end
+
+    context 'when the administrateur must use ProConnect' do
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        user.administrateur.update!(pro_connect_required_at: Time.zone.now)
+      end
+
+      it 'sends the ProConnect invitation' do
+        expect { subject }.to have_enqueued_mail(UserMailer, :reset_password_via_pro_connect)
+        expect(flash[:notice]).to eq("L’email d’invitation à se connecter avec ProConnect a été envoyé.")
+      end
+    end
+  end
+
   describe '#update' do
     let(:super_admin) { create(:super_admin, :with_otp) }
     let(:user) { create(:user, email: 'ancien.email@domaine.fr', password: '{My-$3cure-p4ssWord}') }

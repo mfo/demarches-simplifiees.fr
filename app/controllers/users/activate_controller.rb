@@ -6,13 +6,18 @@ class Users::ActivateController < ApplicationController
   def new
     @user = User.with_reset_password_token(params[:token])
 
-    return if @user
-
-    flash.alert = t('.expired_link_html', contact_link: helpers.contact_link('contactez-nous'))
-    redirect_to root_path
+    if @user.nil?
+      flash.alert = t('.expired_link_html', contact_link: helpers.contact_link('contactez-nous'))
+      redirect_to root_path
+    elsif @user.administrateur&.pro_connect_required?
+      redirect_to_pro_connect_required
+    end
   end
 
   def create
+    user = User.with_reset_password_token(user_params[:reset_password_token])
+    return redirect_to_pro_connect_required if user&.administrateur&.pro_connect_required?
+
     password = user_params[:password]
 
     user = User.reset_password_by_token({

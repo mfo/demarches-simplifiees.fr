@@ -48,6 +48,18 @@ describe Users::ActivateController, type: :controller do
       it { expect(controller).not_to have_received(:trust_device) }
     end
 
+    context 'when the administrateur must use ProConnect' do
+      let(:user) { administrateurs.default.user }
+
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        Flipper.enable(:pro_connect_required_for_all_administrateurs)
+        get :new, params: { token: token }
+      end
+
+      it { expect(response).to redirect_to(pro_connect_path(force_pro_connect: true)) }
+    end
+
     context 'when the user is an instructeur and the token is valid (GET request)' do
       let!(:user) { create(:instructeur).user }
       let(:token) { user.send(:set_reset_password_token) }
@@ -138,6 +150,24 @@ describe Users::ActivateController, type: :controller do
         expect(controller).not_to have_received(:trust_device)
         expect(response).to redirect_to(users_activate_path(token: token))
       end
+    end
+  end
+
+  describe '#create when the administrateur must use ProConnect' do
+    let(:user) { administrateurs.default.user }
+    let(:token) { user.send(:set_reset_password_token) }
+
+    before do
+      allow(ProConnectService).to receive(:enabled?).and_return(true)
+      Flipper.enable(:pro_connect_required_for_all_administrateurs)
+
+      post :create, params: { user: { reset_password_token: token, password: '{another-password-ok?}' } }
+    end
+
+    it 'keeps the password, refuses to sign in and sends to ProConnect' do
+      expect(user.reload.valid_password?(users.default_password)).to be true
+      expect(controller.current_user).to be_nil
+      expect(response).to redirect_to(pro_connect_path(force_pro_connect: true))
     end
   end
 

@@ -48,15 +48,17 @@ class Administrateur < ApplicationRecord
   def registration_state
     if user.active?
       'Actif'
-    elsif user.reset_password_period_valid?
+    elsif pro_connect_required? || user.reset_password_period_valid?
       'En attente'
     else
       'Expiré'
     end
   end
 
-  def invitation_expired?
-    !user.active? && !user.reset_password_period_valid?
+  def pro_connect_required?
+    return false if !ProConnectService.enabled?
+
+    pro_connect_required_at? || Flipper.enabled?(:pro_connect_required_for_all_administrateurs, user)
   end
 
   def owns?(procedure)

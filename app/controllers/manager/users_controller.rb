@@ -51,7 +51,11 @@ module Manager
     def resend_reset_password_instructions
       user = User.find(params[:id])
       user.send_reset_password_instructions
-      flash[:notice] = "L’email de réinitialisation du mot de passe a été renvoyé."
+      flash[:notice] = if user.administrateur&.pro_connect_required?
+        "L’email d’invitation à se connecter avec ProConnect a été envoyé."
+      else
+        "L’email de réinitialisation du mot de passe a été renvoyé."
+      end
       redirect_to manager_user_path(user)
     end
 

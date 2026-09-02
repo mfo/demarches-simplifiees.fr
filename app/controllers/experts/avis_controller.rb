@@ -251,10 +251,13 @@ module Experts
         redirect_to expert_avis_url(avis.procedure, avis)
       elsif avis.expert&.email == params[:email] &&
             avis.expert.user.confirmation_token.present? &&
-            avis.expert.user.confirmation_token == submitted_token &&
-            avis.expert.user.active?
-        # The expert already used the sign-in page to change their password: ask them to sign-in instead.
-        redirect_to new_user_session_url
+            avis.expert.user.confirmation_token == submitted_token
+        if avis.expert.user.administrateur&.pro_connect_required?
+          redirect_to_pro_connect_required
+        elsif avis.expert.user.active?
+          # The expert already used the sign-in page to change their password: ask them to sign-in instead.
+          redirect_to new_user_session_url
+        end
       end
     end
 

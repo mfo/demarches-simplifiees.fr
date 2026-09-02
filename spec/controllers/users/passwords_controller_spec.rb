@@ -52,6 +52,47 @@ describe Users::PasswordsController, type: :controller do
           .from(nil).to(anything)
       end
     end
+
+    context "when the administrateur must use ProConnect" do
+      let(:user) { administrateurs.default.user }
+
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        Flipper.enable(:pro_connect_required_for_all_administrateurs)
+
+        put :update, params: {
+          user: {
+            reset_password_token: user.send(:set_reset_password_token),
+            password: "mot de passe super secret",
+            password_confirmation: "mot de passe super secret",
+          },
+        }
+      end
+
+      it "keeps the password, does not sign in and sends to ProConnect" do
+        expect(user.reload.valid_password?(users.default_password)).to be true
+        expect(controller.current_user).to be_nil
+        expect(response).to redirect_to(pro_connect_path(force_pro_connect: true))
+      end
+    end
+  end
+
+  describe '#edit' do
+    let(:user) { administrateurs.default.user }
+    let(:token) { user.send(:set_reset_password_token) }
+
+    before do
+      allow(ProConnectService).to receive(:enabled?).and_return(true)
+      get :edit, params: { reset_password_token: token }
+    end
+
+    it { expect(response).to have_http_status(:ok) }
+
+    context 'when the administrateur must use ProConnect' do
+      let(:user) { administrateurs.default.user.tap { it.administrateur.update!(pro_connect_required_at: Time.zone.now) } }
+
+      it { expect(response).to redirect_to(pro_connect_path(force_pro_connect: true)) }
+    end
   end
 
   describe '#reset_link_sent' do

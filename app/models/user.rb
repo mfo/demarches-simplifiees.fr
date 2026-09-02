@@ -63,6 +63,15 @@ class User < ApplicationRecord
     send_devise_notification(:confirmation_instructions, @raw_confirmation_token, opts)
   end
 
+  # Override of Devise::Models::Recoverable#send_reset_password_instructions
+  def send_reset_password_instructions
+    if administrateur&.pro_connect_required?
+      UserMailer.reset_password_via_pro_connect(self).deliver_later
+    else
+      super
+    end
+  end
+
   # Callback provided by Devise
   def after_confirmation
     update!(email_verified_at: Time.zone.now)
@@ -110,17 +119,27 @@ class User < ApplicationRecord
   end
 
   def invite_gestionnaire!(groupe_gestionnaire)
-    UserMailer.invite_gestionnaire(self, set_reset_password_token, groupe_gestionnaire).deliver_later
+    if administrateur.pro_connect_required?
+      UserMailer.invite_gestionnaire_via_pro_connect(self, groupe_gestionnaire).deliver_later
+    else
+      UserMailer.invite_gestionnaire(self, set_reset_password_token, groupe_gestionnaire).deliver_later
+    end
   end
 
   def invite_administrateur!
-    AdministrationMailer.invite_admin(self, set_reset_password_token).deliver_later
+    if administrateur.pro_connect_required?
+      AdministrationMailer.invite_admin_via_pro_connect(self).deliver_later
+    else
+      AdministrationMailer.invite_admin(self, set_reset_password_token).deliver_later
+    end
   end
 
   def remind_invitation!
-    reset_password_token = set_reset_password_token
-
-    AdministrateurMailer.activate_before_expiration(self, reset_password_token).deliver_later
+    if administrateur.pro_connect_required?
+      invite_administrateur!
+    else
+      AdministrateurMailer.activate_before_expiration(self, set_reset_password_token).deliver_later
+    end
   end
 
   def self.create_or_promote_to_instructeur(email, password, administrateurs: [], pro_connect: false)
@@ -174,7 +193,8 @@ class User < ApplicationRecord
     user = User.create_or_promote_to_instructeur(email, password)
 
     if user.valid? && user.administrateur.nil?
-      user.create_administrateur!
+      pro_connect_required_at = Time.zone.now if ProConnectService.enabled?
+      user.create_administrateur!(pro_connect_required_at:)
       user.france_connect_informations.delete_all
       AdminUpdateDefaultZonesJob.perform_later(user.administrateur)
     end

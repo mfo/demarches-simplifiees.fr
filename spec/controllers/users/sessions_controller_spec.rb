@@ -116,6 +116,40 @@ describe Users::SessionsController, type: :controller do
       end
     end
 
+    context 'when the user is an administrateur who must use ProConnect' do
+      let(:user) { administrateurs.default.user }
+      let(:email) { user.email }
+      let(:password) { users.default_password }
+
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        Flipper.enable(:pro_connect_required_for_all_administrateurs)
+        freeze_time
+        user.update!(last_sign_in_at: 2.days.ago, sign_in_count: 3)
+      end
+
+      it 'signs out and sends to ProConnect without tracking a sign in' do
+        subject
+
+        expect(response).to redirect_to(pro_connect_path(force_pro_connect: true))
+        expect(flash.alert).to eq('Vous devez utiliser ProConnect pour vous connecter.')
+        expect(controller.current_user).to be_nil
+        expect(user.reload.last_sign_in_at).to eq(2.days.ago)
+        expect(user.sign_in_count).to eq(3)
+      end
+
+      context 'with a wrong password' do
+        let(:send_password) { 'wrong_password' }
+
+        it 'does not reveal the ProConnect requirement' do
+          subject
+
+          expect(response).to render_template(:new)
+          expect(flash.alert).to eq('Adresse électronique ou mot de passe incorrect.')
+        end
+      end
+    end
+
     xcontext 'when email domain is in mandatory list' do
       let(:email) { 'user@beta.gouv.fr' }
       it 'redirects to pro connect with force parameter and is not logged in' do

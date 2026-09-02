@@ -32,6 +32,27 @@ describe 'Signin in:' do
     end
   end
 
+  context 'when the user is an administrateur who must use ProConnect' do
+    let(:admin) { administrateurs.default }
+
+    before do
+      allow(ProConnectService).to receive(:enabled?).and_return(true)
+      Flipper.enable(:pro_connect_required_for_all_administrateurs)
+    end
+
+    scenario 'the password is refused and ProConnect is offered instead' do
+      visit root_path
+      click_on 'Se connecter', match: :first
+
+      try_sign_in_with admin.email, users.default_password
+
+      expect(page).to have_current_path(pro_connect_path(force_pro_connect: true))
+      expect(page).to have_content('Vous devez utiliser ProConnect pour vous connecter.')
+      expect(page).to have_link('S’identifier avec ProConnect')
+      expect(page).not_to have_field(:user_password)
+    end
+  end
+
   scenario 'an existing user can lock its account' do
     visit root_path
     click_on 'Se connecter', match: :first

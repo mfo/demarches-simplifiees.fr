@@ -39,6 +39,20 @@ RSpec.describe Cron::AdministrateurActivateBeforeExpirationJob, type: :job do
 
         it { expect(AdministrateurMailer).to have_received(:activate_before_expiration).with(administrateur.user, kind_of(String)) }
       end
+
+      context "created 3 days ago and invited through ProConnect" do
+        before do
+          allow(ProConnectService).to receive(:enabled?).and_return(true)
+          allow(AdministrationMailer).to receive(:invite_admin_via_pro_connect).and_return(mailer_double)
+          administrateur.update_columns(created_at: Time.zone.local(2018, 03, 17, 20, 00), pro_connect_required_at: Time.zone.now)
+          subject
+        end
+
+        it 'sends the ProConnect invitation again' do
+          expect(AdministrationMailer).to have_received(:invite_admin_via_pro_connect).with(administrateur.user)
+          expect(AdministrateurMailer).not_to have_received(:activate_before_expiration)
+        end
+      end
     end
 
     context "with an active administrateur" do

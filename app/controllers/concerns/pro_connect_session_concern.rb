@@ -42,6 +42,10 @@ module ProConnectSessionConcern
     cookies.delete SESSION_INFO_COOKIE_NAME
   end
 
+  def redirect_to_pro_connect_required
+    redirect_to pro_connect_path(force_pro_connect: true), alert: t('errors.messages.pro_connect.required')
+  end
+
   private
 
   def pro_connect_session

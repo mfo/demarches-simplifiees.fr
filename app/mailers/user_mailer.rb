@@ -80,6 +80,27 @@ class UserMailer < ApplicationMailer
       reply_to: CONTACT_EMAIL)
   end
 
+  def invite_gestionnaire_via_pro_connect(user, groupe_gestionnaire)
+    @user = user
+    @groupe_gestionnaire = groupe_gestionnaire
+
+    bypass_unverified_mail_protection!
+
+    mail(to: user.email,
+      subject: default_i18n_subject,
+      reply_to: CONTACT_EMAIL)
+  end
+
+  def reset_password_via_pro_connect(user)
+    @user = user
+
+    bypass_unverified_mail_protection!
+
+    mail(to: user.email,
+      subject: default_i18n_subject,
+      reply_to: CONTACT_EMAIL)
+  end
+
   def send_archive(administrateur_or_instructeur, procedure, archive)
     @archive = archive
     @procedure = procedure
@@ -128,6 +149,7 @@ class UserMailer < ApplicationMailer
       "invite_tiers",
       "resend_confirmation_email",
       "custom_confirmation_instructions",
+      "reset_password_via_pro_connect",
     ].include?(action_name)
   end
 end

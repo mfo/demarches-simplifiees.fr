@@ -58,6 +58,17 @@ describe Gestionnaire, type: :model do
 
       it { is_expected.to eq 'Expiré' }
     end
+
+    context "when invited through ProConnect" do
+      let!(:gestionnaire) { create(:gestionnaire) }
+
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        gestionnaire.user.create_administrateur!(pro_connect_required_at: Time.zone.now)
+      end
+
+      it { is_expected.to eq 'En attente' }
+    end
   end
 
   describe "#by_email" do
