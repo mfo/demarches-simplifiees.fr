@@ -316,44 +316,34 @@ describe Administrateur, type: :model do
     end
   end
 
-  describe '#registration_state and #invitation_expired?' do
+  describe '#registration_state' do
     let(:administrateur) { administrateurs.blank }
     let(:user) { administrateur.user }
 
     before { allow(ProConnectService).to receive(:enabled?).and_return(true) }
 
+    subject { administrateur.registration_state }
+
     context 'when the administrateur has already signed in' do
       before { user.update!(last_sign_in_at: Time.zone.now) }
 
-      it do
-        expect(administrateur.registration_state).to eq('Actif')
-        expect(administrateur.invitation_expired?).to be false
-      end
+      it { is_expected.to eq('Actif') }
     end
 
     context 'when the password invitation is still valid' do
       before { user.send(:set_reset_password_token) }
 
-      it do
-        expect(administrateur.registration_state).to eq('En attente')
-        expect(administrateur.invitation_expired?).to be false
-      end
+      it { is_expected.to eq('En attente') }
     end
 
     context 'when the password invitation has expired' do
-      it do
-        expect(administrateur.registration_state).to eq('Expiré')
-        expect(administrateur.invitation_expired?).to be true
-      end
+      it { is_expected.to eq('Expiré') }
     end
 
     context 'when the administrateur was invited through ProConnect' do
       before { administrateur.update!(pro_connect_required_at: Time.zone.now) }
 
-      it 'never expires' do
-        expect(administrateur.registration_state).to eq('En attente')
-        expect(administrateur.invitation_expired?).to be false
-      end
+      it { is_expected.to eq('En attente') }
     end
   end
 

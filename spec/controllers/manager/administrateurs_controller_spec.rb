@@ -24,7 +24,16 @@ describe Manager::AdministrateursController, type: :controller do
         subject
       end
 
-      it { expect(response.body).to include(administrateur.email) }
+      it 'offers to send the invitation again while the administrateur has not signed in' do
+        expect(response.body).to include(administrateur.email)
+        expect(response.body).to include("renvoyer l’invitation")
+      end
+
+      context 'when the administrateur has already signed in' do
+        let(:administrateur) { administrateurs.blank.tap { it.user.update!(last_sign_in_at: Time.zone.now) } }
+
+        it { expect(response.body).not_to include("renvoyer l’invitation") }
+      end
     end
   end
 

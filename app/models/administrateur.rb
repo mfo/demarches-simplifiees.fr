@@ -55,11 +55,6 @@ class Administrateur < ApplicationRecord
     end
   end
 
-  # A ProConnect invitation carries no token, so it never expires
-  def invitation_expired?
-    !user.active? && !pro_connect_required? && !user.reset_password_period_valid?
-  end
-
   def pro_connect_required?
     return false if !ProConnectService.enabled?
 
