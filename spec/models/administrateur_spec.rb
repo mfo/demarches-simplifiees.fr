@@ -315,4 +315,32 @@ describe Administrateur, type: :model do
       expect(Archive.exists?(archive.id)).to eq(false)
     end
   end
+
+  describe '#pro_connect_required?' do
+    let(:administrateur) { administrateurs.blank }
+
+    before { allow(ProConnectService).to receive(:enabled?).and_return(true) }
+
+    subject { administrateur.pro_connect_required? }
+
+    it { is_expected.to be false }
+
+    context 'when the administrateur was created with ProConnect required' do
+      before { administrateur.update!(pro_connect_required_at: Time.zone.now) }
+
+      it { is_expected.to be true }
+
+      context 'but ProConnect is not enabled on this instance' do
+        before { allow(ProConnectService).to receive(:enabled?).and_return(false) }
+
+        it { is_expected.to be false }
+      end
+    end
+
+    context 'when ProConnect is required for all administrateurs' do
+      before { Flipper.enable(:pro_connect_required_for_all_administrateurs) }
+
+      it { is_expected.to be true }
+    end
+  end
 end

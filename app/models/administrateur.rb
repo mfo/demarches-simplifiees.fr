@@ -59,6 +59,12 @@ class Administrateur < ApplicationRecord
     !user.active? && !user.reset_password_period_valid?
   end
 
+  def pro_connect_required?
+    return false if !ProConnectService.enabled?
+
+    pro_connect_required_at? || Flipper.enabled?(:pro_connect_required_for_all_administrateurs, user)
+  end
+
   def owns?(procedure)
     procedure.administrateurs.include?(self)
   end

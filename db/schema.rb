@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_27_093000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_02_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_catalog.plpgsql"
@@ -69,6 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_27_093000) do
     t.datetime "commentaire_seen_at"
     t.datetime "created_at", precision: nil
     t.bigint "groupe_gestionnaire_id"
+    t.datetime "pro_connect_required_at"
     t.datetime "updated_at", precision: nil
     t.bigint "user_id", null: false
     t.index ["groupe_gestionnaire_id"], name: "index_administrateurs_on_groupe_gestionnaire_id"
