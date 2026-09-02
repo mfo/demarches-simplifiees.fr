@@ -6,7 +6,17 @@ class Champs::AnnuaireEducationChamp < Champs::TextChamp
   end
 
   def fetch_external_data
-    APIEducation::AnnuaireEducationAdapter.new(external_id).to_params
+    data = APIEducation::AnnuaireEducationAdapter.new(external_id).to_params
+
+    if data.present?
+      Success(data:)
+    else
+      Failure(retryable: false, error: StandardError.new('NotFound'), code: 404)
+    end
+  rescue APIEducation::API::RequestFailedError => error
+    Failure(retryable: true, error:, code: 503)
+  rescue APIEducation::AnnuaireEducationAdapter::InvalidSchemaError => error
+    Failure(retryable: false, error:, code: 422)
   end
 
   def selected_items

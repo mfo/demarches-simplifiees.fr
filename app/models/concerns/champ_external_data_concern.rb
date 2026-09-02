@@ -90,23 +90,18 @@ module ChampExternalDataConcern
   end
 
   def handle_result(result)
-    if result.is_a?(Dry::Monads::Result)
-      case result
-      in Success(hash)
-        update_external_data!(hash)
-        external_data_fetched!
-      in Failure(retryable: true, error:, code:)
-        save_external_error(error, code)
-        retry!
-        raise RetryableFetchError.new(error)
-      in Failure(retryable: false, error:, code:)
-        save_external_error(error, code)
-        Sentry.capture_exception(error) if code != 404
-        external_data_error!
-      end
-    elsif result.present?
-      update_external_data!(data: result)
+    case result
+    in Success(hash)
+      update_external_data!(hash)
       external_data_fetched!
+    in Failure(retryable: true, error:, code:)
+      save_external_error(error, code)
+      retry!
+      raise RetryableFetchError.new(error)
+    in Failure(retryable: false, error:, code:)
+      save_external_error(error, code)
+      Sentry.capture_exception(error) if code != 404
+      external_data_error!
     end
   end
 
