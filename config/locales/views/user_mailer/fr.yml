@@ -18,6 +18,8 @@ fr:
       subject: Activez votre compte gestionnaire
     invite_gestionnaire_via_pro_connect:
       subject: Activez votre compte gestionnaire
+    reset_password_via_pro_connect:
+      subject: Connectez-vous avec ProConnect
     send_archive:
       subject: Votre archive est disponible
     notify_inactive_close_to_deletion:

@@ -40,6 +40,10 @@ class UserMailerPreview < ActionMailer::Preview
     UserMailer.invite_gestionnaire_via_pro_connect(user, groupe_gestionnaire)
   end
 
+  def reset_password_via_pro_connect
+    UserMailer.reset_password_via_pro_connect(user)
+  end
+
   def notify_inactive_close_to_deletion
     UserMailer.notify_inactive_close_to_deletion(user)
   end

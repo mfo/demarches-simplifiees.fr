@@ -375,6 +375,29 @@ describe User, type: :model do
     end
   end
 
+  describe '#send_reset_password_instructions' do
+    let(:administrateur) { administrateurs.default }
+    let(:user) { administrateur.user }
+
+    subject { user.send_reset_password_instructions }
+
+    it 'sends the Devise instructions' do
+      expect { subject }.to have_enqueued_mail(DeviseUserMailer, :reset_password_instructions)
+    end
+
+    context 'when the administrateur must use ProConnect' do
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        administrateur.update!(pro_connect_required_at: Time.zone.now)
+      end
+
+      it 'sends to ProConnect without any reset password token' do
+        expect { subject }.to have_enqueued_mail(UserMailer, :reset_password_via_pro_connect)
+          .and not_change { user.reload.reset_password_token }
+      end
+    end
+  end
+
   describe '#active?' do
     let!(:user) { create(:user) }
 

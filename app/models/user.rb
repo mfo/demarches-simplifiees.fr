@@ -63,6 +63,15 @@ class User < ApplicationRecord
     send_devise_notification(:confirmation_instructions, @raw_confirmation_token, opts)
   end
 
+  # Override of Devise::Models::Recoverable#send_reset_password_instructions
+  def send_reset_password_instructions
+    if administrateur&.pro_connect_required?
+      UserMailer.reset_password_via_pro_connect(self).deliver_later
+    else
+      super
+    end
+  end
+
   # Callback provided by Devise
   def after_confirmation
     update!(email_verified_at: Time.zone.now)

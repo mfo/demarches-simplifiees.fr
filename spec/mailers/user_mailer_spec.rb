@@ -209,6 +209,17 @@ RSpec.describe UserMailer, type: :mailer do
     end
   end
 
+  describe '.reset_password_via_pro_connect' do
+    subject { described_class.reset_password_via_pro_connect(user) }
+
+    it do
+      expect(subject.to).to eq([user.email])
+      expect(subject.body).to include(pro_connect_url(force_pro_connect: true))
+      expect(subject.body).not_to include('reset_password_token=')
+      expect(subject['BYPASS_UNVERIFIED_MAIL_PROTECTION']).to be_present
+    end
+  end
+
   describe '.account_reactivated' do
     subject { described_class.account_reactivated(user) }
 

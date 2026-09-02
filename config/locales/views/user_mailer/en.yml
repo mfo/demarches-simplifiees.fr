@@ -18,6 +18,8 @@ en:
       subject: Activate your manager account
     invite_gestionnaire_via_pro_connect:
       subject: Activate your manager account
+    reset_password_via_pro_connect:
+      subject: Sign in with ProConnect
     send_archive:
       subject: Your archive is available
     notify_inactive_close_to_deletion:
