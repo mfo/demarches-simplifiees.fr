@@ -26,7 +26,7 @@ class Gestionnaire < ApplicationRecord
   def registration_state
     if user.active?
       'Actif'
-    elsif user.reset_password_period_valid?
+    elsif user.administrateur&.pro_connect_required? || user.reset_password_period_valid?
       'En attente'
     else
       'Expiré'

@@ -16,6 +16,8 @@ en:
       subject: Verify your email address
     invite_gestionnaire:
       subject: Activate your manager account
+    invite_gestionnaire_via_pro_connect:
+      subject: Activate your manager account
     send_archive:
       subject: Your archive is available
     notify_inactive_close_to_deletion:

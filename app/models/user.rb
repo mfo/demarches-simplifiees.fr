@@ -110,7 +110,11 @@ class User < ApplicationRecord
   end
 
   def invite_gestionnaire!(groupe_gestionnaire)
-    UserMailer.invite_gestionnaire(self, set_reset_password_token, groupe_gestionnaire).deliver_later
+    if administrateur.pro_connect_required?
+      UserMailer.invite_gestionnaire_via_pro_connect(self, groupe_gestionnaire).deliver_later
+    else
+      UserMailer.invite_gestionnaire(self, set_reset_password_token, groupe_gestionnaire).deliver_later
+    end
   end
 
   def invite_administrateur!
