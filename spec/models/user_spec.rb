@@ -324,6 +324,21 @@ describe User, type: :model do
         expect(AdministrationMailer).to have_received(:invite_admin).with(user, kind_of(String))
       end
     end
+
+    context 'when the administrateur must use ProConnect' do
+      before do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        administrateur.update!(pro_connect_required_at: Time.zone.now)
+        allow(AdministrationMailer).to receive(:invite_admin_via_pro_connect).and_return(mailer_double)
+      end
+
+      it 'receives a ProConnect invitation without any reset password token' do
+        expect { subject }.not_to change { user.reload.reset_password_token }
+
+        expect(AdministrationMailer).to have_received(:invite_admin_via_pro_connect).with(user)
+        expect(AdministrationMailer).not_to have_received(:invite_admin)
+      end
+    end
   end
 
   describe '#active?' do

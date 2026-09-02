@@ -27,6 +27,19 @@ RSpec.describe AdministrationMailer, type: :mailer do
     end
   end
 
+  describe '#invite_admin_via_pro_connect' do
+    let(:admin_user) { create(:user) }
+
+    subject { described_class.invite_admin_via_pro_connect(admin_user) }
+
+    it do
+      expect(subject.subject).to eq("Activez votre compte administrateur")
+      expect(subject.body).to include(pro_connect_url(force_pro_connect: true))
+      expect(subject.body).not_to include('token=')
+      expect(subject['BYPASS_UNVERIFIED_MAIL_PROTECTION']).to be_present
+    end
+  end
+
   describe '#refuse_admin' do
     let(:mail) { "l33t-4dm1n@h4x0r.com" }
 

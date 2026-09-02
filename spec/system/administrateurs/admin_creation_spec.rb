@@ -12,32 +12,49 @@ describe 'As an administrateur', js: true do
     WebMock.stub_request(:get, /https:\/\/matrix.agent.tchap.gouv.fr\/_matrix\/identity\/api\/v1\/info\?address=(.*)&medium=email/)
       .to_return(body: body, status: 200)
 
+    allow(ProConnectService).to receive(:enabled?).and_return(pro_connect_enabled)
+
     perform_enqueued_jobs do
       super_admin.invite_admin(admin_email)
     end
   end
 
-  scenario 'I can register' do
-    expect(new_admin.reload.user.active?).to be(false)
+  context 'when the instance has no ProConnect' do
+    let(:pro_connect_enabled) { false }
 
-    confirmation_email = open_email(admin_email)
-    token_params = confirmation_email.body.match(/token=[^"]+/)
+    scenario 'I can register' do
+      expect(new_admin.reload.user.active?).to be(false)
 
-    visit "admin/activate?#{token_params}"
+      confirmation_email = open_email(admin_email)
+      token_params = confirmation_email.body.match(/token=[^"]+/)
 
-    fill_in :user_password, with: weak_password
+      visit "admin/activate?#{token_params}"
 
-    expect(page).to have_text('Mot de passe très vulnérable')
-    expect(page).to have_button('Créer un compte', disabled: true)
+      fill_in :user_password, with: weak_password
 
-    fill_in :user_password, with: strong_password
-    expect(page).to have_text('Mot de passe suffisamment fort et sécurisé')
-    expect(page).to have_button('Créer un compte', disabled: false)
+      expect(page).to have_text('Mot de passe très vulnérable')
+      expect(page).to have_button('Créer un compte', disabled: true)
 
-    click_button 'Créer un compte'
+      fill_in :user_password, with: strong_password
+      expect(page).to have_text('Mot de passe suffisamment fort et sécurisé')
+      expect(page).to have_button('Créer un compte', disabled: false)
 
-    expect(page).to have_content 'Mot de passe enregistré'
+      click_button 'Créer un compte'
 
-    expect(new_admin.reload.user.active?).to be(true)
+      expect(page).to have_content 'Mot de passe enregistré'
+
+      expect(new_admin.reload.user.active?).to be(true)
+    end
+  end
+
+  context 'when the instance has ProConnect' do
+    let(:pro_connect_enabled) { true }
+
+    scenario 'I am invited to sign in with ProConnect' do
+      invitation_email = open_email(admin_email)
+
+      expect(invitation_email).to have_link(href: pro_connect_url(force_pro_connect: true))
+      expect(invitation_email.body).not_to include('token=')
+    end
   end
 end

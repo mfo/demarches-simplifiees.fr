@@ -48,7 +48,15 @@ describe Manager::AdministrateursController, type: :controller do
       end
 
       it 'alert new mail are send' do
+        allow(ProConnectService).to receive(:enabled?).and_return(false)
         expect(AdministrationMailer).to receive(:invite_admin).and_return(AdministrationMailer)
+        expect(AdministrationMailer).to receive(:deliver_later)
+        subject
+      end
+
+      it 'invites through ProConnect when the instance has it' do
+        allow(ProConnectService).to receive(:enabled?).and_return(true)
+        expect(AdministrationMailer).to receive(:invite_admin_via_pro_connect).and_return(AdministrationMailer)
         expect(AdministrationMailer).to receive(:deliver_later)
         subject
       end

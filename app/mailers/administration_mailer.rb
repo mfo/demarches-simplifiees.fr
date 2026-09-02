@@ -17,6 +17,17 @@ class AdministrationMailer < ApplicationMailer
       reply_to: CONTACT_EMAIL)
   end
 
+  def invite_admin_via_pro_connect(user)
+    @user = user
+    @author_name = "Équipe de #{APPLICATION_NAME}"
+
+    bypass_unverified_mail_protection!
+
+    mail(to: user.email,
+      subject: "Activez votre compte administrateur",
+      reply_to: CONTACT_EMAIL)
+  end
+
   def refuse_admin(admin_email)
     subject = "Votre demande de compte a été refusée"
 
@@ -28,6 +39,6 @@ class AdministrationMailer < ApplicationMailer
   end
 
   def self.critical_email?(action_name)
-    action_name == "invite_admin"
+    action_name.in?(["invite_admin", "invite_admin_via_pro_connect"])
   end
 end

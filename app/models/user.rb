@@ -114,7 +114,11 @@ class User < ApplicationRecord
   end
 
   def invite_administrateur!
-    AdministrationMailer.invite_admin(self, set_reset_password_token).deliver_later
+    if administrateur.pro_connect_required?
+      AdministrationMailer.invite_admin_via_pro_connect(self).deliver_later
+    else
+      AdministrationMailer.invite_admin(self, set_reset_password_token).deliver_later
+    end
   end
 
   def remind_invitation!
