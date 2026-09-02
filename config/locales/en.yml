@@ -871,6 +871,7 @@ en:
         unavailable_for_legal_reasons: 'Information for this establishment is not available (non-diffusable entity).'
       pro_connect:
         connexion: "Error trying to connect to ProConnect. Please try again."
+        required: "You must use ProConnect to sign in."
       france_connect:
         connexion: "Error trying to connect to FranceConnect."
         forbidden_html: "Only citizen can use FranceConnect. As an instructor or administrator, please identify yourself with ProConnect or log in with your %{app_name} account."

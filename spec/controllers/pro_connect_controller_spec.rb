@@ -172,6 +172,23 @@ describe ProConnectController, type: :controller do
             end
           end
         end
+
+        context 'and the user is an administrateur who must use ProConnect' do
+          let(:administrateur) { administrateurs.default }
+          let(:email) { administrateur.user.email }
+
+          before do
+            allow(ProConnectService).to receive(:enabled?).and_return(true)
+            Flipper.enable(:pro_connect_required_for_all_administrateurs)
+          end
+
+          it 'signs in the administrateur' do
+            subject
+
+            expect(controller.current_user).to eq(administrateur.user)
+            expect(response).to redirect_to(root_path)
+          end
+        end
       end
 
       context 'when connecting multiple times' do

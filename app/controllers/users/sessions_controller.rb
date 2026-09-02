@@ -17,7 +17,18 @@ class Users::SessionsController < Devise::SessionsController
     # `super`. Devise's paranoid mode normalises the bcrypt timing for unknown
     # emails inside `warden.authenticate!`; a manual pre-check would only run
     # bcrypt for existing accounts and reintroduce a timing-based enumeration.
+    # Devise tracks the sign in as soon as the password is verified; we track
+    # it ourselves once we know the session is kept.
+    request.env['devise.skip_trackable'] = true
+
     super do |resource|
+      if resource.administrateur&.pro_connect_required?
+        sign_out(resource)
+        flash.discard(:notice)
+        return redirect_to_pro_connect_required
+      end
+
+      resource.update_tracked_fields!(request)
       delete_france_connect_cookies
       delete_pro_connect_session_info_cookie
       resource.update(loged_in_with_france_connect: nil)
