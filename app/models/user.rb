@@ -122,9 +122,11 @@ class User < ApplicationRecord
   end
 
   def remind_invitation!
-    reset_password_token = set_reset_password_token
-
-    AdministrateurMailer.activate_before_expiration(self, reset_password_token).deliver_later
+    if administrateur.pro_connect_required?
+      invite_administrateur!
+    else
+      AdministrateurMailer.activate_before_expiration(self, set_reset_password_token).deliver_later
+    end
   end
 
   def self.create_or_promote_to_instructeur(email, password, administrateurs: [], pro_connect: false)
