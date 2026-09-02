@@ -141,6 +141,24 @@ describe Users::ActivateController, type: :controller do
     end
   end
 
+  describe '#create when the administrateur must use ProConnect' do
+    let(:user) { administrateurs.default.user }
+    let(:token) { user.send(:set_reset_password_token) }
+
+    before do
+      allow(ProConnectService).to receive(:enabled?).and_return(true)
+      Flipper.enable(:pro_connect_required_for_all_administrateurs)
+
+      post :create, params: { user: { reset_password_token: token, password: '{another-password-ok?}' } }
+    end
+
+    it 'keeps the password, refuses to sign in and sends to ProConnect' do
+      expect(user.reload.valid_password?(users.default_password)).to be true
+      expect(controller.current_user).to be_nil
+      expect(response).to redirect_to(pro_connect_path(force_pro_connect: true))
+    end
+  end
+
   describe '#confirm_email' do
     let(:user) { create(:user) }
     let(:dossier) { create(:dossier, user: user) }

@@ -13,6 +13,9 @@ class Users::ActivateController < ApplicationController
   end
 
   def create
+    user = User.with_reset_password_token(user_params[:reset_password_token])
+    return redirect_to_pro_connect_required if user&.administrateur&.pro_connect_required?
+
     password = user_params[:password]
 
     user = User.reset_password_by_token({
