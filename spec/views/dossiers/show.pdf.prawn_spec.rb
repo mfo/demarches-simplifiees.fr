@@ -176,6 +176,45 @@ describe 'dossiers/show.pdf', :external_deps, type: :view do
     end
   end
 
+  describe 'avis' do
+    let(:procedure) { create(:procedure, :published, public_type_de_champs: [{ type: :text, libelle: 'Nom' }]) }
+    let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+    let(:instructeur) { create(:instructeur) }
+    let(:expert) { create(:expert) }
+    let(:experts_procedure) { create(:experts_procedure, expert:, procedure:) }
+    let!(:avis) { create(:avis, dossier:, experts_procedure:, introduction: 'Que pensez-vous de ce dossier ?') }
+    let!(:other_avis) { create(:avis, :confidentiel, dossier:, introduction: 'Un autre avis') }
+
+    def render_for(profile)
+      assign(:dossier, dossier)
+      assign(:acls, PiecesJustificativesService.new(user_profile: profile, export_template: nil).acl_for_dossier_export(procedure))
+      render template: 'dossiers/show', formats: [:pdf]
+
+      pdf_path = Rails.root.join("tmp/test_show_avis_#{profile.class.name.downcase}.pdf")
+      File.binwrite(pdf_path, rendered)
+      `pdftotext -layout #{pdf_path} - 2>/dev/null`
+    end
+
+    it 'prints the Avis section once for an instructeur, with every avis', if: PDFTOTEXT_AVAILABLE do
+      text = render_for(instructeur)
+
+      expect(text.scan(/^Avis$/).size).to eq(1)
+      expect(text).to include('Que pensez-vous de ce dossier ?', 'Un autre avis')
+    end
+
+    it 'hides confidential avis of other experts from an expert', if: PDFTOTEXT_AVAILABLE do
+      text = render_for(expert)
+
+      expect(text.scan(/^Avis$/).size).to eq(1)
+      expect(text).to include('Que pensez-vous de ce dossier ?')
+      expect(text).not_to include('Un autre avis')
+    end
+
+    it 'prints no avis to the usager', if: PDFTOTEXT_AVAILABLE do
+      expect(render_for(dossier.user)).not_to include('Que pensez-vous de ce dossier ?')
+    end
+  end
+
   describe 'carte champ' do
     let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte, libelle: 'Emprise' }]) }
     let(:dossier) { create(:dossier, :en_construction, procedure:) }

@@ -497,23 +497,11 @@ prawn_document(page_size: "A4") do |pdf|
     add_champs(pdf, @dossier.root_champs_private)
   end
 
-  if @acls[:include_infos_administration] && @dossier.avis.present?
+  if (@acls[:include_infos_administration] || @acls[:include_avis_for_expert]) && @dossier.avis.present?
     add_title(pdf, "Avis")
-    @dossier.avis.each do |avis|
+    avis_to_print = @acls[:only_for_expert] ? @dossier.avis_for_expert(@acls[:only_for_expert]) : @dossier.avis
+    avis_to_print.each do |avis|
       add_avis(pdf, avis)
-    end
-  end
-
-  if @acls[:include_avis_for_expert] && @dossier.avis.present?
-    add_title(pdf, "Avis")
-    if @acls[:only_for_expert]
-      @dossier.avis_for_expert(@acls[:only_for_expert]).each do |avis|
-        add_avis(pdf, avis)
-      end
-    else
-      @dossier.avis.each do |avis|
-        add_avis(pdf, avis)
-      end
     end
   end
 
