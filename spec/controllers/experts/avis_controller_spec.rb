@@ -637,6 +637,23 @@ describe Experts::AvisController, type: :controller do
         it { is_expected.to have_http_status(:success) }
       end
 
+      context 'when the expert is an administrateur who must use ProConnect' do
+        before do
+          allow(ProConnectService).to receive(:enabled?).and_return(true)
+          avis.expert.user.create_administrateur!(pro_connect_required_at: Time.zone.now)
+        end
+
+        it { is_expected.to redirect_to(pro_connect_path(force_pro_connect: true)) }
+
+        # Sécurité: sans confirmation_token valide, l’obligation ProConnect ne
+        # doit pas être observable par un attaquant.
+        context 'and no confirmation_token is provided' do
+          let(:confirmation_token) { nil }
+
+          it { is_expected.to have_http_status(:success) }
+        end
+      end
+
       context 'when the expert has already signed up' do
         before { expert.user.update(last_sign_in_at: Time.zone.now) }
 
@@ -695,6 +712,24 @@ describe Experts::AvisController, type: :controller do
         let(:confirmation_token) { "kthxbye" }
 
         it { is_expected.to redirect_to(root_path) }
+      end
+
+      context 'when the expert is an administrateur who must use ProConnect' do
+        let(:confirmation_token) { valid_confirmation_token }
+        let(:password) { '{Another-$3cure-p4ssWord}' }
+
+        before do
+          allow(ProConnectService).to receive(:enabled?).and_return(true)
+          avis.expert.user.create_administrateur!(pro_connect_required_at: Time.zone.now)
+        end
+
+        it 'keeps the password and sends to ProConnect without opening a session' do
+          subject
+
+          expect(controller.current_user).to be_nil
+          expect(avis.expert.user.reload.valid_password?(password)).to be false
+          expect(response).to redirect_to(pro_connect_path(force_pro_connect: true))
+        end
       end
 
       # Sécurité: un confirmation_token absent ou vide ne doit jamais matcher,
