@@ -48,15 +48,16 @@ class Administrateur < ApplicationRecord
   def registration_state
     if user.active?
       'Actif'
-    elsif user.reset_password_period_valid?
+    elsif pro_connect_required? || user.reset_password_period_valid?
       'En attente'
     else
       'Expiré'
     end
   end
 
+  # A ProConnect invitation carries no token, so it never expires
   def invitation_expired?
-    !user.active? && !user.reset_password_period_valid?
+    !user.active? && !pro_connect_required? && !user.reset_password_period_valid?
   end
 
   def pro_connect_required?
