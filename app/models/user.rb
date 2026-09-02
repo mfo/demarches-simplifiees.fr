@@ -174,7 +174,8 @@ class User < ApplicationRecord
     user = User.create_or_promote_to_instructeur(email, password)
 
     if user.valid? && user.administrateur.nil?
-      user.create_administrateur!
+      pro_connect_required_at = Time.zone.now if ProConnectService.enabled?
+      user.create_administrateur!(pro_connect_required_at:)
       user.france_connect_informations.delete_all
       AdminUpdateDefaultZonesJob.perform_later(user.administrateur)
     end

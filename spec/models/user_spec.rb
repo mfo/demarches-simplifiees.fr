@@ -275,6 +275,28 @@ describe User, type: :model do
     end
   end
 
+  describe '.create_or_promote_to_administrateur' do
+    subject { User.create_or_promote_to_administrateur('nouvel-admin@exemple.fr', SECURE_PASSWORD) }
+
+    before { freeze_time }
+
+    context 'when ProConnect is enabled on this instance' do
+      before { allow(ProConnectService).to receive(:enabled?).and_return(true) }
+
+      it 'creates an administrateur who must use ProConnect' do
+        expect(subject.administrateur.pro_connect_required_at).to eq(Time.zone.now)
+      end
+    end
+
+    context 'when ProConnect is not enabled on this instance' do
+      before { allow(ProConnectService).to receive(:enabled?).and_return(false) }
+
+      it 'creates an administrateur who may use a password' do
+        expect(subject.administrateur.pro_connect_required_at).to be_nil
+      end
+    end
+  end
+
   describe 'invite_administrateur!' do
     let(:super_admin) { create(:super_admin) }
     let(:administrateur) { administrateurs.default }
