@@ -18,9 +18,12 @@ class Users::PasswordsController < Devise::PasswordsController
   # end
 
   # GET /resource/password/edit?reset_password_token=abcdef
-  # def edit
-  #   super
-  # end
+  def edit
+    user = User.with_reset_password_token(params[:reset_password_token])
+    return redirect_to_pro_connect_required if user&.administrateur&.pro_connect_required?
+
+    super
+  end
 
   # PUT /resource/password
   def update
