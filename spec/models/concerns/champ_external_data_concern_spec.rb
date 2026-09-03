@@ -152,6 +152,12 @@ RSpec.describe ChampExternalDataConcern do
 
         it { expect(Sentry).to have_received(:capture_exception) }
       end
+
+      context 'when code is nil' do
+        let(:code) { nil }
+
+        it { expect(champ).to be_external_error }
+      end
     end
 
     describe 'fetch a retryable failure, now is back in waiting_for_job state' do

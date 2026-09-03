@@ -54,6 +54,21 @@ describe OCRService do
         end
       end
     end
+
+    context 'when the service is not configured' do
+      let(:blob) { double('Blob', url: 'http://example.com/blob.pdf') }
+
+      before do
+        allow(ENV).to receive(:fetch).and_call_original
+        allow(ENV).to receive(:fetch).with("OCR_SERVICE_URL", nil).and_return(nil)
+      end
+
+      it 'returns a failure carrying a code key' do
+        analysis = described_class.analyze(blob, nature: 'rib')
+        expect(analysis.failure?).to be true
+        expect(analysis.failure).to include(retryable: false, code: nil)
+      end
+    end
   end
 
   describe '#analyze with unknown nature' do
@@ -62,6 +77,13 @@ describe OCRService do
     it 'raises ArgumentError' do
       expect { described_class.analyze(blob, nature: 'UNKNOWN') }
         .to raise_error(ArgumentError, /unknown nature/)
+    end
+  end
+
+  describe '#to_not_retryable_failure with an unrecognized failure shape' do
+    it 'returns a failure carrying a code key' do
+      failure = described_class.to_not_retryable_failure(:boom)
+      expect(failure.failure).to include(retryable: false, code: nil)
     end
   end
 
