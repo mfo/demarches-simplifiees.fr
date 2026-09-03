@@ -16,8 +16,8 @@ describe ProcedureCloneConcern, type: :model do
         attestation_refus_template: build(:attestation_template, kind: 'refus'),
         public_type_de_champs:,
         private_type_de_champs:,
-        api_particulier_token: '123456789012345',
         web_hook_url: 'https://callback.exemple.fr/',
+        api_particulier_token: JWT.encode({ exp: 2.months.from_now.to_i }, nil, 'none'),
         estimated_dossiers_count: 4,
         template: true)
     end
@@ -286,7 +286,7 @@ describe ProcedureCloneConcern, type: :model do
       end
 
       it "should discard the existing token" do
-        expect(subject.api_particulier_token).to be_nil
+        expect(subject.api_particulier_token?).to be(false)
       end
 
       it 'should discard the web_hook_url' do
