@@ -1397,6 +1397,25 @@ describe ProcedureRevision do
       expect(draft.dependent_conditions(first_champ)).to eq([second_champ])
       expect(draft.dependent_conditions(second_champ)).to eq([])
     end
+
+    context 'when a private annotation has a condition on a public champ' do
+      let(:procedure) do
+        create(:procedure, public_type_de_champs: [{ type: :integer_number, libelle: 'public' }]).tap do |p|
+          public_tdc = p.draft_revision.public_root_type_de_champs.first
+          p.draft_revision.add_type_de_champ(type_champ: :text,
+                                             libelle: 'annotation',
+                                             private: true,
+                                             condition: ds_eq(champ_value(public_tdc.stable_id), constant(1)))
+        end
+      end
+
+      def public_champ = procedure.draft_revision.public_root_type_de_champs.first
+      def private_annotation = procedure.draft_revision.private_root_type_de_champs.first
+
+      it 'finds the private annotation as dependent' do
+        expect(draft.dependent_conditions(public_champ)).to include(private_annotation)
+      end
+    end
   end
 
   describe 'only_present_on_draft?' do
