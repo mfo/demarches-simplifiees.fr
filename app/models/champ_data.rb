@@ -233,6 +233,10 @@ class ChampData < ApplicationRecord
   # condition_value cannot stand in for.
   def condition_answered? = !condition_value.nil?
 
+  # True when condition_value comes from the type rather than from the usager:
+  # a row exists for every root champ from the dossier creation on.
+  def implicit_value? = false
+
   def last_write_type_champ
     TypeDeChamp::CHAMP_TYPE_TO_TYPE_CHAMP.fetch(type)
   end
