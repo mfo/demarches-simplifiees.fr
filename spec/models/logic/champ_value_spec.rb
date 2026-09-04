@@ -161,6 +161,18 @@ describe Logic::ChampValue do
         expect(champ_value(champ.stable_id).type([champ.type_de_champ])).to eq(:boolean)
         is_expected.to eq(true)
       end
+
+      context 'with false value' do
+        let(:value) { 'false' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'with a blank value, an untouched box reading as unchecked' do
+        let(:value) { nil }
+
+        it { is_expected.to be(false) }
+      end
     end
 
     context 'departement tdc' do

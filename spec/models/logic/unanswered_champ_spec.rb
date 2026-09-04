@@ -30,7 +30,8 @@ describe 'an unanswered champ triggers no operator' do
       let(:procedure) { create(:procedure, public_type_de_champs: [{ type: type_champ }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:champ) { dossier.champ_data.first }
-      let(:expected) { nil }
+      # A checkbox has no empty state: untouched, it answers « Non ».
+      let(:expected) { type_champ == :checkbox ? false : nil }
 
       it 'computes nothing on Logic::ChampValue' do
         expect(champ_value(champ.stable_id).compute([champ])).to eq(expected)
