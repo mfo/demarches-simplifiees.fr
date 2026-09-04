@@ -19,7 +19,7 @@ class Champs::BooleanChamp < ChampData
     end
   end
 
-  def condition_value = true?
+  def condition_value = value.blank? ? nil : true?
 
   private
 

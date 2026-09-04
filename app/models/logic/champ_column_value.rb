@@ -14,7 +14,7 @@ class Logic::ChampColumnValue < Logic::Term
 
     return nil if targeted_champ.nil?
     return nil if !targeted_champ.visible?
-    return nil if targeted_champ.blank_for_condition?
+    return nil if !targeted_champ.condition_answered?
 
     column = targeted_column([targeted_champ.type_de_champ])
 
