@@ -152,20 +152,20 @@ module Dsfr
         if @champ.pending?
           { state: :info, text: t('.pj.info') }
         elsif @champ.external_error?
-          { state: :warning, text: t('.pj.error') }
+          { state: :warning, text: t('.pj.error_html') }
         elsif @champ.justificatif_domicile?
           justif = @champ.ocr_result
           if justif&.two_ddoc
             { state: :valid, text: t('.pj.justif_domicile.valid_html', beneficiary: justif.beneficiary, address: justif.label, issue_date: l(justif.issue_date)) }
           else
-            { state: :warning, text: t('.pj.justif_domicile.warning') }
+            { state: :warning, text: t('.pj.justif_domicile.warning_html') }
           end
         elsif @champ.avis_impot?
           avis = @champ.ocr_result
           if avis&.two_ddoc
             { state: :valid, text: t('.pj.avis_impot.valid_html', declarant: avis.declarant_1, reference: avis.reference_avis, annee: avis.annee_des_revenus) }
           else
-            { state: :warning, text: t('.pj.avis_impot.warning') }
+            { state: :warning, text: t('.pj.avis_impot.warning_html') }
           end
         else
           value_json = @champ.value_json
@@ -173,9 +173,9 @@ module Dsfr
           bank_name = value_json&.dig('rib', 'bank_name')
 
           if iban.nil?
-            { state: :warning, text: t('.pj.warning') }
+            { state: :warning, text: t('.pj.warning_html') }
           else
-            text = bank_name.present? ? t('.pj.valid_with_bank', iban:, bank_name:) : t('.pj.valid', iban:)
+            text = bank_name.present? ? t('.pj.valid_with_bank_html', iban:, bank_name:) : t('.pj.valid', iban:)
             { state: :valid, text: }
           end
         end
