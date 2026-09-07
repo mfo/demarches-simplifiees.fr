@@ -187,6 +187,33 @@ describe DataSources::ReferentielController, type: :controller do
         end
       end
 
+      context 'when a row_id is provided (referentiel champ inside a repetition)' do
+        let(:referentiel_service) { instance_double(ReferentielService) }
+        subject { post :search, params: { q: '010002699', referentiel_id: referentiel.id, dossier_id: dossier.id, row_id: 'ROW-1' } }
+
+        before { allow(ReferentielService).to receive(:new).and_return(referentiel_service) }
+
+        it 'forwards the row_id, so tags resolve the champs of this row' do
+          expect(referentiel_service).to receive(:call).with('010002699', dossier:, row_id: 'ROW-1').and_return(Success({ 'data' => [] }))
+
+          expect(subject).to have_http_status(:ok)
+        end
+
+        context 'when the usager is editing a dossier en construction' do
+          let(:dossier) { create(:dossier, :en_construction, procedure:, user:) }
+
+          it 'resolves the tags on the stream being edited, where the row being filled lives' do
+            expect(referentiel_service).to receive(:call) do |_query, dossier:, row_id:|
+              expect(dossier).to be_user_buffer_stream
+              expect(row_id).to eq('ROW-1')
+              Success({ 'data' => [] })
+            end
+
+            expect(subject).to have_http_status(:ok)
+          end
+        end
+      end
+
       context 'when failure' do
         let(:referentiel_service) { double(call: service_respone) }
 

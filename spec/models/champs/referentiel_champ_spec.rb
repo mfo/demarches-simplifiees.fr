@@ -53,6 +53,46 @@ describe Champs::ReferentielChamp, type: :model do
     end
   end
 
+  describe '#fetch_external_data when the champ is inside a repetition' do
+    include Dry::Monads[:result]
+
+    let(:public_type_de_champs) do
+      [{ type: :repetition, stable_id: 100, children: [{ type: :referentiel, stable_id: 101, referentiel: }] }]
+    end
+    let(:row_id) { dossier.repetition_add_row(dossier.find_type_de_champ_by_stable_id(100), updated_by: 'test') }
+    let(:champ_in_row) { dossier.champ_for_update(dossier.find_type_de_champ_by_stable_id(101), row_id:, updated_by: 'test') }
+
+    it 'passes its row_id, so the url tags resolve the champs of this row' do
+      champ_in_row.update!(external_id: 'ext-1')
+
+      expect_any_instance_of(ReferentielService).to receive(:call).with('ext-1', dossier:, row_id:).and_return(Success({}))
+
+      champ_in_row.fetch_external_data
+    end
+
+    context 'when the champ is on a buffer stream' do
+      let(:dossier) { create(:dossier, :en_construction, procedure:) }
+      let(:champ_on_buffer) do
+        dossier.with_update_stream(dossier.user) do
+          row_id = dossier.repetition_add_row(dossier.find_type_de_champ_by_stable_id(100), updated_by: 'test')
+          dossier.champ_for_update(dossier.find_type_de_champ_by_stable_id(101), row_id:, updated_by: 'test')
+        end
+      end
+
+      it 'resolves the url tags on the stream of the champ, where the row being filled lives' do
+        champ_on_buffer.update!(external_id: 'ext-1')
+
+        expect_any_instance_of(ReferentielService).to receive(:call) do |_service, _external_id, dossier:, row_id:|
+          expect(dossier.stream).to eq(champ_on_buffer.stream)
+          expect(row_id).to eq(champ_on_buffer.row_id)
+          Success({})
+        end
+
+        champ_on_buffer.fetch_external_data
+      end
+    end
+  end
+
   describe '#fetch_external_data' do
     subject { referentiel_champ.update_external_data!(data:) }
 

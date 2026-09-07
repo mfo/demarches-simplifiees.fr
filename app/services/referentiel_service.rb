@@ -18,8 +18,8 @@ class ReferentielService
     @timeout = timeout
   end
 
-  def call(query_params, dossier: nil)
-    resolved_url = url(query_params, dossier:)
+  def call(query_params, dossier: nil, row_id: nil)
+    resolved_url = url(query_params, dossier:, row_id:)
     return Failure(retryable: false, error: StandardError.new("URL could not be resolved"), code: nil) if resolved_url.nil?
 
     result = API::Client.new.call(
@@ -31,8 +31,8 @@ class ReferentielService
     handle_api_result(result)
   end
 
-  def url(query_params, dossier: nil)
-    resolve_tiptap_url(query_params, dossier || referentiel.test_data_tiptap)
+  def url(query_params, dossier: nil, row_id: nil)
+    resolve_tiptap_url(query_params, dossier || referentiel.test_data_tiptap, row_id)
   end
 
   def test_url
@@ -84,8 +84,8 @@ class ReferentielService
     end
   end
 
-  def resolve_tiptap_url(query_params, values_source)
-    substitutions = build_substitutions(query_params, values_source)
+  def resolve_tiptap_url(query_params, values_source, row_id = nil)
+    substitutions = build_substitutions(query_params, values_source, row_id)
     return nil if substitutions.nil?
 
     return nil if referentiel.url_tiptap.blank?
@@ -96,19 +96,19 @@ class ReferentielService
     )
   end
 
-  def build_substitutions(query_params, values_source)
+  def build_substitutions(query_params, values_source, row_id = nil)
     referentiel.tiptap_mention_ids.each_with_object({}) do |id, hash|
       value = if id == "{query}"
         query_params.presence&.to_s
       else
-        extract_value(values_source, id)
+        extract_value(values_source, id, row_id)
       end
       return nil if value.blank?
       hash[id] = URI.encode_www_form_component(value)
     end
   end
 
-  def extract_value(values_source, tag_id)
+  def extract_value(values_source, tag_id, row_id = nil)
     case values_source
     when NilClass
       nil
@@ -116,8 +116,20 @@ class ReferentielService
       values_source[tag_id]
     else
       stable_id = tag_id.delete_prefix("tdc").to_i
-      champ = values_source.filled_champs.find { _1.stable_id == stable_id }
-      champ&.value
+      champ_for_tag(values_source, stable_id, row_id)&.value
     end
+  end
+
+  # Le tag est résolu sur les champs que le champ référentiel appelant peut référencer :
+  # ceux de sa propre ligne de répétition, et ceux hors répétition. Jamais ceux d'une
+  # autre ligne : mieux vaut ne pas résoudre l'URL que d'appeler l'API avec la donnée
+  # d'une ligne voisine.
+  # Sans contexte de ligne (référentiel hors répétition), un tag visant une répétition
+  # n'a pas de ligne de référence : on garde alors le premier champ trouvé.
+  def champ_for_tag(dossier, stable_id, row_id)
+    champ = dossier.filled_champs_for_row(row_id).find { it.stable_id == stable_id }
+    return champ if champ.present? || row_id.present?
+
+    dossier.filled_champs.find { it.stable_id == stable_id }
   end
 end

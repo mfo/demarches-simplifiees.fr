@@ -11,7 +11,11 @@ class Champs::ReferentielChamp < ChampData
   before_save :clear_previous_result, if: -> { external_id_changed? }
 
   def fetch_external_data
-    ReferentielService.new(referentiel:).call(external_id, dossier:).fmap do |data|
+    # Les tags de l'URL sont résolus sur le stream du champ : sur un buffer, la ligne
+    # de répétition en cours de saisie n'existe pas encore sur le stream principal.
+    dossier.with_champ_stream(self) do
+      ReferentielService.new(referentiel:).call(external_id, dossier:, row_id:)
+    end.fmap do |data|
       {
         data:, # keep raw API response
         value: external_id, # now that we have the data, we can set the value

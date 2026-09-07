@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
 RSpec.describe ReferentielService, type: :service do
+  def url_tiptap_for(tag_id, separator = "/dep/")
+    {
+      "type" => "doc", "content" => [
+        {
+          "type" => "paragraph", "content" => [
+            { "type" => "text", "text" => "https://api.gouv.fr/" },
+            { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
+            { "type" => "text", "text" => separator },
+            { "type" => "mention", "attrs" => { "id" => tag_id, "label" => "Tag" } },
+          ],
+        },
+      ],
+    }
+  end
+
   let(:api_referentiel) { create(:api_referentiel, :exact_match) }
   let(:query_params) { api_referentiel.effective_test_data }
   let(:resolved_url) { described_class.new(referentiel: api_referentiel).url(query_params) }
@@ -151,20 +166,7 @@ RSpec.describe ReferentielService, type: :service do
     let(:api_referentiel) { build(:api_referentiel, :exact_match, url_tiptap:) }
     let(:service) { described_class.new(referentiel: api_referentiel) }
 
-    let(:url_tiptap) do
-      {
-        "type" => "doc", "content" => [
-          {
-            "type" => "paragraph", "content" => [
-              { "type" => "text", "text" => "https://api.gouv.fr/" },
-              { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
-              { "type" => "text", "text" => "/dep/" },
-              { "type" => "mention", "attrs" => { "id" => "tdc42", "label" => "Dep" } },
-            ],
-          },
-        ],
-      }
-    end
+    let(:url_tiptap) { url_tiptap_for("tdc42") }
 
     context 'with Hash values_source and all values present' do
       let(:values_source) { { "{query}" => "search term", "tdc42" => "75" } }
@@ -197,20 +199,7 @@ RSpec.describe ReferentielService, type: :service do
       let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
       let(:dossier) { create(:dossier, procedure:) }
       let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
-      let(:url_tiptap) do
-        {
-          "type" => "doc", "content" => [
-            {
-              "type" => "paragraph", "content" => [
-                { "type" => "text", "text" => "https://api.gouv.fr/" },
-                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
-                { "type" => "text", "text" => "/dep/" },
-                { "type" => "mention", "attrs" => { "id" => "tdc#{type_de_champ.stable_id}", "label" => "Dep" } },
-              ],
-            },
-          ],
-        }
-      end
+      let(:url_tiptap) { url_tiptap_for("tdc#{type_de_champ.stable_id}") }
 
       before do
         dossier.champ_data.find { _1.stable_id == type_de_champ.stable_id }.update!(value: "75")
@@ -234,20 +223,7 @@ RSpec.describe ReferentielService, type: :service do
       let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :yes_no }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
-      let(:url_tiptap) do
-        {
-          "type" => "doc", "content" => [
-            {
-              "type" => "paragraph", "content" => [
-                { "type" => "text", "text" => "https://api.gouv.fr/" },
-                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
-                { "type" => "text", "text" => "?flag=" },
-                { "type" => "mention", "attrs" => { "id" => "tdc#{type_de_champ.stable_id}", "label" => "Flag" } },
-              ],
-            },
-          ],
-        }
-      end
+      let(:url_tiptap) { url_tiptap_for("tdc#{type_de_champ.stable_id}", "?flag=") }
 
       context 'when value is true' do
         it 'resolves boolean true value' do
@@ -272,20 +248,7 @@ RSpec.describe ReferentielService, type: :service do
       let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :address }]) }
       let(:dossier) { create(:dossier, :with_populated_champs, procedure:) }
       let(:type_de_champ) { procedure.draft_revision.public_root_type_de_champs.first }
-      let(:url_tiptap) do
-        {
-          "type" => "doc", "content" => [
-            {
-              "type" => "paragraph", "content" => [
-                { "type" => "text", "text" => "https://api.gouv.fr/" },
-                { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } },
-                { "type" => "text", "text" => "?address=" },
-                { "type" => "mention", "attrs" => { "id" => "tdc#{type_de_champ.stable_id}", "label" => "Adresse" } },
-              ],
-            },
-          ],
-        }
-      end
+      let(:url_tiptap) { url_tiptap_for("tdc#{type_de_champ.stable_id}", "?address=") }
 
       it 'resolves address label with encoding' do
         result = service.send(:resolve_tiptap_url, "search", dossier)
@@ -300,6 +263,69 @@ RSpec.describe ReferentielService, type: :service do
 
     context 'when values_source is nil' do
       it { expect(service.send(:resolve_tiptap_url, "search", nil)).to be_nil }
+    end
+  end
+
+  describe '#url with a row_id' do
+    let(:api_referentiel) { build(:api_referentiel, :exact_match, url_tiptap:) }
+    let(:service) { described_class.new(referentiel: api_referentiel) }
+    let(:procedure) do
+      create(:procedure, public_type_de_champs: [
+        { type: :text, stable_id: 1, libelle: 'Code' },
+        {
+          type: :repetition, stable_id: 100, libelle: 'Bloc', children: [
+            { type: :text, stable_id: 102, libelle: 'Code' },
+          ],
+        },
+      ])
+    end
+    let(:dossier) { create(:dossier, procedure:) }
+    let(:repetition) { dossier.find_type_de_champ_by_stable_id(100) }
+    let(:type_de_champ) { dossier.find_type_de_champ_by_stable_id(102) }
+    let(:row_ids) do
+      Array.new(2) { dossier.repetition_add_row(repetition, updated_by: 'test') }
+    end
+
+    before do
+      row_ids.each_with_index do |row_id, index|
+        dossier.champ_for_update(type_de_champ, row_id:, updated_by: 'test').update!(value: "LIGNE-#{index + 1}")
+      end
+      dossier.champ_data.find { _1.stable_id == 1 }.update!(value: "RACINE")
+      dossier.reload
+    end
+
+    context 'when the tag targets a champ of the repetition' do
+      let(:url_tiptap) { url_tiptap_for("tdc102", "/code/") }
+
+      it 'resolves the champ of the given row' do
+        expect(service.url("search", dossier:, row_id: row_ids.first)).to eq("https://api.gouv.fr/search/code/LIGNE-1")
+        expect(service.url("search", dossier:, row_id: row_ids.second)).to eq("https://api.gouv.fr/search/code/LIGNE-2")
+      end
+    end
+
+    context 'when the tag targets a champ outside of the repetition' do
+      let(:url_tiptap) { url_tiptap_for("tdc1", "/code/") }
+
+      it 'resolves the root champ whatever the row' do
+        expect(service.url("search", dossier:, row_id: row_ids.second)).to eq("https://api.gouv.fr/search/code/RACINE")
+      end
+    end
+
+    context 'when the champ of the given row is not filled yet' do
+      let(:url_tiptap) { url_tiptap_for("tdc102", "/code/") }
+      let(:empty_row_id) { dossier.repetition_add_row(repetition, updated_by: 'test') }
+
+      it 'does not resolve the url rather than borrowing another row' do
+        expect(service.url("search", dossier: dossier.reload, row_id: empty_row_id)).to be_nil
+      end
+    end
+
+    context 'when the referentiel champ is outside of the repetition (no row context)' do
+      let(:url_tiptap) { url_tiptap_for("tdc102", "/code/") }
+
+      it 'resolves the first row' do
+        expect(service.url("search", dossier:)).to eq("https://api.gouv.fr/search/code/LIGNE-1")
+      end
     end
   end
 end

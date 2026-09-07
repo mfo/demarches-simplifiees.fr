@@ -10,7 +10,7 @@ class DataSources::ReferentielController < DataSources::BaseController
       return render json: [] if !referentiel&.autocomplete_ready?
 
       begin
-        result = referentiel_service.call(query, dossier: @dossier)
+        result = referentiel_service.call(query, dossier: dossier_on_edit_stream, row_id: params[:row_id].presence)
 
         case result
         in Dry::Monads::Success
@@ -72,7 +72,17 @@ class DataSources::ReferentielController < DataSources::BaseController
     candidate = Referentiel.find_by(id: params[:referentiel_id])
     return nil if candidate.nil?
 
-    candidate if @dossier.procedure.active_revision.type_de_champs.any? { it.referentiel_id == candidate.id }
+    @type_de_champ = @dossier.procedure.active_revision.type_de_champs.find { it.referentiel_id == candidate.id }
+    candidate if @type_de_champ.present?
+  end
+
+  # L'usager remplit le formulaire sur un stream de brouillon : les tags de l'URL doivent
+  # être résolus sur les valeurs qu'il vient de saisir, pas sur celles du stream principal.
+  def dossier_on_edit_stream
+    return nil if @dossier.nil?
+
+    @dossier.with_update_stream(current_user) if @type_de_champ&.public?
+    @dossier
   end
 
   def set_dossier
