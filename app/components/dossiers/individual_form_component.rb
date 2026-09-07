@@ -22,6 +22,13 @@ class Dossiers::IndividualFormComponent < ApplicationComponent
 
   def mandataire_identity_locked? = @identity_source.mandataire_locked?
 
+  def identity_locked_message
+    case @identity_source.resolved
+    when :france_connect then t('.identity_locked_by_france_connect')
+    when :pro_connect then t('.identity_locked_by_pro_connect')
+    end
+  end
+
   private
 
   def back_url

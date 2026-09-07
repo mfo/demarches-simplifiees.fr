@@ -20,7 +20,7 @@
 
         <% if mandataire_identity_locked? %>
           <div class="fr-highlight fr-text--sm">
-            <%= t('.identity_locked_by_france_connect') %>
+            <%= identity_locked_message %>
           </div>
         <% end %>
 
@@ -56,7 +56,7 @@
 
         <% if individual_identity_locked? %>
           <div class="fr-highlight fr-text--sm">
-            <%= t('.identity_locked_by_france_connect') %>
+            <%= identity_locked_message %>
           </div>
         <% end %>
 

@@ -3,8 +3,9 @@
 RSpec.describe IdentityPrefillSource do
   let(:procedure) { create(:procedure, :for_individual, no_gender: false) }
   let(:dossier) { create(:dossier, :with_individual, procedure:, user:) }
+  let(:source) { :france_connect }
 
-  subject(:identity_source) { described_class.new(dossier:) }
+  subject(:identity_source) { described_class.new(dossier:, source:) }
 
   context "when the user has no identity provider" do
     let(:user) { create(:user) }
@@ -32,11 +33,72 @@ RSpec.describe IdentityPrefillSource do
     end
   end
 
+  context "when the session is ProConnected" do
+    let(:user) { create(:user, :with_pci) }
+    let(:source) { :pro_connect }
+
+    it "resolves to :pro_connect and locks nom/prenom but not gender" do
+      expect(identity_source.resolved).to eq(:pro_connect)
+      expect(identity_source.individual_locked_fields).to contain_exactly(:nom, :prenom)
+    end
+
+    context "when ProConnect did not provide a usual name" do
+      let(:user) { create(:user, pro_connect_informations: [build(:pro_connect_information, usual_name: nil)]) }
+
+      it { expect(identity_source.resolved).to be_nil }
+    end
+
+    context "but the request does not prefer ProConnect" do
+      let(:source) { :france_connect }
+
+      it { expect(identity_source.resolved).to be_nil }
+    end
+  end
+
+  context "when the user has both identities" do
+    let(:user) { create(:user, :with_fci, :with_pci) }
+
+    context "and the session is ProConnected" do
+      let(:source) { :pro_connect }
+
+      it "the current session wins" do
+        expect(identity_source.resolved).to eq(:pro_connect)
+        expect(identity_source.individual_locked_fields).to contain_exactly(:nom, :prenom)
+      end
+    end
+
+    context "and the session is not ProConnected" do
+      it "falls back to FranceConnect" do
+        expect(identity_source.resolved).to eq(:france_connect)
+        expect(identity_source.individual_locked_fields).to contain_exactly(:nom, :prenom, :gender)
+      end
+    end
+
+    context "with the ProConnect session but an incomplete ProConnect identity" do
+      let(:user) { create(:user, :with_fci, pro_connect_informations: [build(:pro_connect_information, usual_name: nil)]) }
+      let(:source) { :pro_connect }
+
+      it "falls back to FranceConnect" do
+        expect(identity_source.resolved).to eq(:france_connect)
+      end
+    end
+  end
+
   context "when the dossier is for_tiers" do
     let(:dossier) { create(:dossier, :for_tiers_without_notification, procedure:, user:) }
 
     context "FranceConnected" do
       let(:user) { create(:user, :with_fci) }
+
+      it "locks the mandataire and nothing on the individual" do
+        expect(identity_source.mandataire_locked?).to be(true)
+        expect(identity_source.individual_locked_fields).to eq([])
+      end
+    end
+
+    context "ProConnected" do
+      let(:user) { create(:user, :with_pci) }
+      let(:source) { :pro_connect }
 
       it "locks the mandataire and nothing on the individual" do
         expect(identity_source.mandataire_locked?).to be(true)

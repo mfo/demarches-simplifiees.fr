@@ -17,14 +17,19 @@ module DossierFranceConnectPrefillConcern
   end
 
   def prefill_individual_from(identity_source)
-    return if !identity_source.france_connect?
-
-    fc_info = identity_source.france_connect_information
-    individual.assign_attributes(
-      nom: fc_info.family_name,
-      prenom: fc_info.given_name,
-      gender: fc_info.gender == 'female' ? Individual::GENDER_FEMALE : Individual::GENDER_MALE
-    )
+    case identity_source.resolved
+    when :france_connect
+      fc_info = identity_source.france_connect_information
+      individual.assign_attributes(
+        nom: fc_info.family_name,
+        prenom: fc_info.given_name,
+        gender: fc_info.gender == 'female' ? Individual::GENDER_FEMALE : Individual::GENDER_MALE
+      )
+    when :pro_connect
+      pc_info = identity_source.pro_connect_information
+      # ProConnect ne fournit pas de civilité : gender laissé éditable.
+      individual.assign_attributes(nom: pc_info.usual_name, prenom: pc_info.given_name)
+    end
   end
 
   def prefill_champs_from_france_connect(updated_by:)
@@ -65,11 +70,16 @@ module DossierFranceConnectPrefillConcern
   private
 
   def prefill_mandataire_from(identity_source)
-    return if !identity_source.france_connect?
-
-    fc_info = identity_source.france_connect_information
-    self.mandataire_first_name = fc_info.given_name
-    self.mandataire_last_name = fc_info.family_name
+    case identity_source.resolved
+    when :france_connect
+      fc_info = identity_source.france_connect_information
+      self.mandataire_first_name = fc_info.given_name
+      self.mandataire_last_name = fc_info.family_name
+    when :pro_connect
+      pc_info = identity_source.pro_connect_information
+      self.mandataire_first_name = pc_info.given_name
+      self.mandataire_last_name = pc_info.usual_name
+    end
   end
 
   def reset_individual_for_tiers

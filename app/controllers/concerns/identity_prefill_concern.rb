@@ -10,6 +10,12 @@ module IdentityPrefillConcern
   end
 
   def identity_prefill_source(dossier)
-    IdentityPrefillSource.new(dossier:)
+    IdentityPrefillSource.new(dossier:, source: current_identity_provider)
+  end
+
+  # Le fournisseur d'identité que cette requête privilégie. Seul ProConnect
+  # dépend de la session : FranceConnect est résolu depuis l'identité persistée.
+  def current_identity_provider
+    logged_in_with_pro_connect? ? :pro_connect : :france_connect
   end
 end

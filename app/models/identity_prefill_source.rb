@@ -1,30 +1,43 @@
 # frozen_string_literal: true
 
 # Résout la source de préremplissage de l'identité d'un dossier (nom, prénom,
-# civilité) à partir du fournisseur d'identité de l'usager.
+# éventuellement civilité) à partir du fournisseur d'identité de l'usager.
+#
+# `source` est le fournisseur que la requête courante privilégie, `resolved`
+# celui réellement retenu. L'asymétrie entre les deux fournisseurs est assumée :
+# ProConnect se lit dans la session (cf. ProConnectSessionConcern), FranceConnect
+# dans l'identité persistée de l'usager (cf. Dossier#identity_from_fc?) — d'où le
+# repli sur FranceConnect quelle que soit la valeur de `source`.
 #
 # Consommé par le composant du formulaire identité, les contrôleurs et
 # DossierFranceConnectPrefillConcern, qui s'accordent ainsi par construction
 # plutôt que par ordre d'exécution.
 class IdentityPrefillSource
-  attr_reader :dossier
+  attr_reader :dossier, :source
 
-  def initialize(dossier:)
+  def initialize(dossier:, source: :france_connect)
     @dossier = dossier
+    @source = source
   end
 
-  # :france_connect | nil — FranceConnect se résout depuis l'identité persistée
-  # de l'usager, pas depuis la session.
+  # :pro_connect | :france_connect | nil — la session courante prime, avec repli
+  # sur FranceConnect si l'identité ProConnect est incomplète.
   def resolved
     return @resolved if defined?(@resolved)
 
-    @resolved = (:france_connect if dossier.identity_from_fc?)
+    @resolved = if source == :pro_connect && pro_connect_identity_complete?
+      :pro_connect
+    elsif dossier.identity_from_fc?
+      :france_connect
+    end
   end
 
   def none? = resolved.nil?
   def france_connect? = resolved == :france_connect
+  def pro_connect? = resolved == :pro_connect
 
   # Champs de `individual` à verrouiller ET à stripper côté serveur.
+  # ProConnect ne fournit pas de civilité -> le gender reste éditable.
   #
   # Retourne [] quand for_tiers? : c'est ce qui rend `individual_locked_fields`
   # et `mandataire_locked?` mutuellement exclusifs (le contrôleur peut alors
@@ -32,7 +45,7 @@ class IdentityPrefillSource
   def individual_locked_fields
     return [] if dossier.for_tiers? || none?
 
-    [:nom, :prenom, :gender]
+    france_connect? ? [:nom, :prenom, :gender] : [:nom, :prenom]
   end
 
   def individual_field_locked?(field) = individual_locked_fields.include?(field)
@@ -40,4 +53,12 @@ class IdentityPrefillSource
   def mandataire_locked? = dossier.for_tiers? && !none?
 
   def france_connect_information = dossier.user&.france_connect_informations&.first
+  def pro_connect_information = dossier.user&.last_pro_connect_information
+
+  private
+
+  def pro_connect_identity_complete?
+    info = pro_connect_information
+    info.present? && info.given_name.present? && info.usual_name.present?
+  end
 end
