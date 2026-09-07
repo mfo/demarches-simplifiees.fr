@@ -3,21 +3,23 @@
 module DossierFranceConnectPrefillConcern
   extend ActiveSupport::Concern
 
-  def assign_for_tiers(will_be_for_tiers)
+  def assign_for_tiers(will_be_for_tiers, identity_source: IdentityPrefillSource.new(dossier: self))
     self.for_tiers = will_be_for_tiers
 
-    return unless france_connected_with_one_identity?
+    return if identity_source.none?
 
     if will_be_for_tiers
-      prefill_mandataire_from_france_connect
+      prefill_mandataire_from(identity_source)
       reset_individual_for_tiers
     else
-      prefill_individual_from_france_connect
+      prefill_individual_from(identity_source)
     end
   end
 
-  def prefill_individual_from_france_connect
-    fc_info = user.france_connect_informations.first
+  def prefill_individual_from(identity_source)
+    return if !identity_source.france_connect?
+
+    fc_info = identity_source.france_connect_information
     individual.assign_attributes(
       nom: fc_info.family_name,
       prenom: fc_info.given_name,
@@ -62,8 +64,10 @@ module DossierFranceConnectPrefillConcern
 
   private
 
-  def prefill_mandataire_from_france_connect
-    fc_info = user.france_connect_informations.first
+  def prefill_mandataire_from(identity_source)
+    return if !identity_source.france_connect?
+
+    fc_info = identity_source.france_connect_information
     self.mandataire_first_name = fc_info.given_name
     self.mandataire_last_name = fc_info.family_name
   end

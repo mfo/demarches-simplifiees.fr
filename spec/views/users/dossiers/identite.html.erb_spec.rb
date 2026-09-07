@@ -6,6 +6,7 @@ describe 'users/dossiers/identite', type: :view do
   before do
     sign_in dossier.user
     assign(:dossier, dossier)
+    allow(view).to receive(:identity_prefill_source) { |dossier| IdentityPrefillSource.new(dossier:) }
   end
 
   subject! { render }
