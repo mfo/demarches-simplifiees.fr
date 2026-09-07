@@ -46,7 +46,7 @@ describe RechercheController, type: :controller do
         let(:user) { avis.experts_procedure.expert.user }
         let(:query) { dossier_with_expert.id }
 
-        before { avis.update!(revoked_at: 1.day.ago) }
+        before { avis.update_column(:revoked_at, 1.day.ago) }
 
         it 'does not return the dossier' do
           is_expected.to have_http_status(200)

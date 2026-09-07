@@ -86,7 +86,7 @@ describe AttachmentsController, type: :controller do
       let(:expert) { create(:expert) }
       let(:procedure) { create(:procedure) }
       let(:experts_procedure) { create(:experts_procedure, procedure:, expert:) }
-      let(:avis) { create(:avis, dossier:, experts_procedure:) }
+      let(:avis) { create(:avis, :with_answer, dossier:, experts_procedure:) }
       let(:attachment) { avis.piece_justificative_file.attachments.first }
       let(:signed_id) { attachment.blob.signed_id }
 
@@ -103,7 +103,7 @@ describe AttachmentsController, type: :controller do
       let(:other_expert) { experts.second }
       let(:procedure) { create(:procedure) }
       let(:experts_procedure) { create(:experts_procedure, procedure:, expert:) }
-      let(:avis) { create(:avis, dossier:, experts_procedure:) }
+      let(:avis) { create(:avis, :with_answer, dossier:, experts_procedure:) }
       let(:attachment) { avis.piece_justificative_file.attachments.first }
       let(:signed_id) { attachment.blob.signed_id }
 
@@ -307,7 +307,7 @@ describe AttachmentsController, type: :controller do
       let(:expert) { create(:expert) }
       let(:procedure) { create(:procedure) }
       let(:experts_procedure) { create(:experts_procedure, procedure:, expert:) }
-      let(:avis) { create(:avis, dossier:, experts_procedure:) }
+      let(:avis) { create(:avis, :with_answer, dossier:, experts_procedure:) }
       let(:attachment) { avis.piece_justificative_file.attachments.first }
       let(:signed_id) { attachment.blob.signed_id }
       let(:view_as) { 'link' }

@@ -374,7 +374,7 @@ describe PiecesJustificativesService do
 
       context 'with avis.piece_justificative being confidentiel' do
         let(:procedure) { create(:procedure) }
-        let(:avis) { create(:avis, dossier: dossier, confidentiel: true) }
+        let(:avis) { create(:avis, :with_answer, dossier: dossier, confidentiel: true) }
 
         before do
           to_be_attached = {
@@ -417,7 +417,7 @@ describe PiecesJustificativesService do
 
         context 'when the expert has given the avis' do
           let(:experts_procedure) { create(:experts_procedure, expert: user_profile, procedure:) }
-          let(:avis) { create(:avis, experts_procedure:, dossier: dossier, confidentiel: true) }
+          let(:avis) { create(:avis, :with_answer, experts_procedure:, dossier: dossier, confidentiel: true) }
           let(:user_profile) { create(:expert) }
           it "return confidentiel avis.piece_justificative_file" do
             expect(subject.size).to eq(2)
@@ -428,7 +428,7 @@ describe PiecesJustificativesService do
       context 'with avis.piece_justificative being public' do
         let(:procedure) { create(:procedure) }
         let(:dossier) { create(:dossier, procedure: procedure) }
-        let(:avis) { create(:avis, dossier: dossier, confidentiel: false) }
+        let(:avis) { create(:avis, :with_answer, dossier: dossier, confidentiel: false) }
         before do
           to_be_attached = {
             io: StringIO.new("toto"),

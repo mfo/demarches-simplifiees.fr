@@ -19,10 +19,7 @@ RSpec.describe Avis, type: :model do
   end
 
   describe "an avis is linked to an experts_procedure" do
-    it do
-      expect(avis.pending.valid?).to be_truthy
-      expect(avis.pending.experts_procedure).to eq(experts_procedures.default)
-    end
+    it { expect(avis.pending.experts_procedure).to eq(experts_procedures.default) }
   end
 
   describe ".revoke_by!" do
@@ -102,6 +99,25 @@ RSpec.describe Avis, type: :model do
       built_avis = build(:avis, answer: "Valid\x17Answer", dossier: dossiers.en_construction, experts_procedure: experts_procedures.default)
       built_avis.validate
       expect(built_avis.answer).to eq("ValidAnswer")
+    end
+
+    it 'collapses a blank answer to nil' do
+      built_avis = build(:avis, answer: " \n ", dossier: dossiers.en_construction, experts_procedure: experts_procedures.default)
+      built_avis.validate
+      expect(built_avis.answer).to be_nil
+    end
+  end
+
+  describe 'answer presence' do
+    let(:unanswered_avis) { avis.pending }
+
+    it 'refuses a blank answer on update' do
+      expect(unanswered_avis.update(answer: ' ')).to be(false)
+      expect(unanswered_avis.errors.of_kind?(:answer, :blank)).to be(true)
+    end
+
+    it 'accepts an answer on update' do
+      expect(unanswered_avis.update(answer: 'Avis favorable')).to be(true)
     end
   end
 end

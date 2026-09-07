@@ -289,6 +289,22 @@ describe Experts::AvisController, type: :controller do
         end
       end
 
+      context 'with a blank answer' do
+        subject do
+          post :update, params: { id: avis.id, procedure_id:, avis: { answer: ' ' } }
+          avis.reload
+        end
+
+        it 'refuses the answer and leaves the dossier untouched' do
+          expect(DossierMailer).not_to receive(:notify_new_avis_to_instructeur)
+          expect(subject).to render_template(:instruction)
+          expect(avis.answer).to be_nil
+          expect(dossier.reload.last_avis_updated_at).to be_nil
+          expect(assigns(:avis).errors.of_kind?(:answer, :blank)).to be(true)
+          expect(flash.alert).to eq(assigns(:avis).errors.full_messages)
+        end
+      end
+
       context 'when an instructeur wants to be notified by email' do
         let!(:ip) { create(:instructeurs_procedure, instructeur: instructeur_with_instant_avis_notification, procedure:, instant_email_new_expert_avis: true) }
 
@@ -626,7 +642,7 @@ describe Experts::AvisController, type: :controller do
       # Sécurité: l’état de révocation d’un avis ne doit pas être observable
       # par un attaquant non authentifié (IDOR / information disclosure).
       context 'when the avis is revoked' do
-        before { avis.update(revoked_at: Time.zone.now) }
+        before { avis.update_column(:revoked_at, Time.zone.now) }
 
         it { is_expected.to have_http_status(:success) }
       end
@@ -775,7 +791,7 @@ describe Experts::AvisController, type: :controller do
         # Sécurité: l’état de révocation d’un avis ne doit pas être observable
         # par un attaquant non authentifié (IDOR / information disclosure).
         context 'when the avis is revoked' do
-          before { avis.update(revoked_at: Time.zone.now) }
+          before { avis.update_column(:revoked_at, Time.zone.now) }
 
           it { is_expected.to redirect_to(expert_all_avis_path) }
         end
