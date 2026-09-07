@@ -5,6 +5,7 @@ require_relative "boot"
 require "rails/all"
 require_relative "../app/middleware/cookie_overflow_handler"
 require_relative "../app/middleware/direct_upload_406_logger"
+require_relative "../app/middleware/reject_null_byte_params"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -83,6 +84,7 @@ module TPS
     config.middleware.use Rack::Attack
     config.middleware.insert_before ActionDispatch::Cookies, CookieOverflowHandler
     config.middleware.insert_before Rack::Head, DirectUpload406Logger
+    config.middleware.use RejectNullByteParams
 
     config.ds_env = ENV.fetch('DS_ENV', Rails.env)
 

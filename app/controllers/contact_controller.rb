@@ -79,7 +79,9 @@ class ContactController < ApplicationController
     keys << :email if !user_signed_in? # Email autorisé UNIQUEMENT si non connecté
 
     if params.key?(:contact_form) # submitting form
-      params.require(:contact_form).permit(*keys)
+      # expect rather than require: a scalar (`?contact_form=x`) is a bad
+      # request, not a NoMethodError on String
+      params.expect(contact_form: keys)
     else
       params.permit(:dossier_id, :origin, :error_id) # prefilling form
     end

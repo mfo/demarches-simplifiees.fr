@@ -4,3 +4,9 @@ en:
       commentaire:
         body: 'Your message'
         piece_jointe: "Attachment"
+    errors:
+      models:
+        commentaire:
+          attributes:
+            piece_jointe:
+              attachment_expired: "is no longer valid, the file was selected too long ago: please pick it again"

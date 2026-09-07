@@ -18,16 +18,32 @@ class Attachment::PieceJustificativeService
       # be computed on the stream being edited
       champ.association(:dossier).target = dossier
       champ.updated_by = updated_by
-      # Assign rather than #attach: attach saves immediately unless the record
-      # happens to be dirty, which would commit the attachment without running
-      # the :champ_value validations (size, content type, empty file).
-      champ.piece_justificative_file = champ.piece_justificative_file.blobs + [blob_signed_id]
 
-      # fetch_later should be called inside the transaction to avoid
-      # race condition with processor_job
-      champ.fetch_later if champ.has_async_external_data? && champ.may_fetch_later?
+      if assign_attachment(champ, blob_signed_id)
+        # fetch_later should be called inside the transaction to avoid
+        # race condition with processor_job
+        champ.fetch_later if champ.has_async_external_data? && champ.may_fetch_later?
 
-      champ.save(context: :champ_value)
+        champ.save(context: :champ_value)
+      else
+        false
+      end
     end
+  end
+
+  # Assign rather than #attach: attach saves immediately unless the record
+  # happens to be dirty, which would commit the attachment without running
+  # the :champ_value validations (size, content type, empty file).
+  #
+  # Returns false when the signed id sent by the direct upload is no longer
+  # valid: BlobSignedIdConcern gives it a one hour lifetime, so the form stayed
+  # open too long (or the id was tampered with) and the file has to be
+  # selected again.
+  def self.assign_attachment(champ, attachable)
+    champ.piece_justificative_file = champ.piece_justificative_file.blobs + [attachable]
+    true
+  rescue ActiveSupport::MessageVerifier::InvalidSignature
+    champ.errors.add(:piece_justificative_file, :attachment_expired)
+    false
   end
 end
