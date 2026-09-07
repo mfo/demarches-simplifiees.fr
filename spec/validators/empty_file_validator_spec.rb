@@ -93,23 +93,23 @@ describe EmptyFileValidator do
   end
 
   describe "on a has_one_attached association" do
-    let(:avis) { create(:avis) }
+    let(:record) { avis.answered }
 
     it "rejects an empty file" do
-      avis.introduction_file = empty_blob
+      record.introduction_file = empty_blob
 
-      expect(avis).not_to be_valid
-      expect(avis.errors[:introduction_file].join).to include('vide')
+      expect(record).not_to be_valid
+      expect(record.errors[:introduction_file].join).to include('vide')
     end
 
     it "accepts a file with content" do
-      avis.introduction_file = { io: StringIO.new('x'), filename: 'intro.pdf', content_type: 'application/pdf' }
+      record.introduction_file = { io: StringIO.new('x'), filename: 'intro.pdf', content_type: 'application/pdf' }
 
-      expect(avis).to be_valid
+      expect(record).to be_valid
     end
 
     it "accepts a record without any attachment" do
-      expect(avis).to be_valid
+      expect(record).to be_valid
     end
 
     # #attach on a persisted record saves it right away: the validation still

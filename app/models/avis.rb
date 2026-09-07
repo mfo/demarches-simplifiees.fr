@@ -24,11 +24,18 @@ class Avis < ApplicationRecord
     empty_file: true
 
   validates :question_answer, inclusion: { in: [true, false] }, on: :update, if: -> { question_label.present? }
+  # The expert's answer is the only validated update path (revocation only
+  # touches answered avis, reminders and merges bypass validations).
+  validates :answer, presence: true, on: :update
   validates :piece_justificative_file, size: { less_than: FILE_MAX_SIZE }
   validates :introduction_file, size: { less_than: FILE_MAX_SIZE }
 
   normalizes :question_label, with: -> (value) { value.strip.presence }
-  normalizes :answer, with: NORMALIZES_NON_PRINTABLE_PROC
+  # `.presence` keeps blank collapsed to nil: the with_answer/without_answer
+  # scopes are nil-based while revoke_by!/remind_by! are presence-based — an
+  # empty string would count as answered for the former and unanswered for
+  # the latter.
+  normalizes :answer, with: -> (value) { NORMALIZES_NON_PRINTABLE_PROC.call(value).presence }
 
   default_scope { joins(:dossier) }
   scope :with_answer, -> { where.not(answer: nil) }
