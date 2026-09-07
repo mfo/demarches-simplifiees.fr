@@ -125,6 +125,7 @@ const SelectProps = s.partial(
     labelId: s.string(),
     ariaLabelledbyPrefix: s.string(),
     alwaysShowKey: s.string(),
+    disabledKeys: s.array(s.string()),
     emptyHint: s.optional(s.string()),
     selectedLabels: s.object({ one: s.string(), other: s.string() })
   })
