@@ -4,7 +4,12 @@ class ProConnectService
   include OpenIDConnect
 
   # https://partenaires.proconnect.gouv.fr/docs/fournisseur-service/double_authentification
-  MFA_ACR_VALUES = ["eidas0-mfa", "eidas1-mfa", "eidas2", "eidas3"].freeze
+  MFA_ACR_VALUES = [
+    "eidas0-mfa", # Identité : Faible ou déclarative, Auth: MFA (auto-géré), Orga: Modération ou déclaratif
+    "eidas1-mfa", # Identité : Faible, Auth: MFA (auto-géré), Orga: Modération ou plus
+    "eidas2",     # Identité : Substantielle, Auth: MFA (géré par l'organisation), Orga: Lien certifié par une source officielle
+    "eidas3",     # Identité : Élevée, Auth: MFA matérielle (géré par l'organisation), Orga: Lien certifié par une source officielle
+  ].freeze
 
   def self.enabled?
     ENV['PRO_CONNECT_BASE_URL'].present?
