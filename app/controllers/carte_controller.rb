@@ -2,7 +2,7 @@
 
 class CarteController < ApplicationController
   def show
-    @map_filter = MapFilter.new(params.fetch(:map_filter, {}).permit(:kind, :year))
+    @map_filter = MapFilter.new(map_filter_params)
     @map_filter.validate
 
     # Reset to default params in case of invalid params injection
@@ -14,6 +14,14 @@ class CarteController < ApplicationController
   end
 
   private
+
+  def map_filter_params
+    return {} if !params.key?(:map_filter)
+
+    # A scalar where a hash is expected (`?map_filter=x`) is a bad request,
+    # not a NoMethodError on String.
+    params.expect(map_filter: [:kind, :year])
+  end
 
   def stats
     departements_sql = "select departement, count(procedures.id) as nb_demarches, sum(procedures.estimated_dossiers_count) as nb_dossiers from services inner join procedures on services.id = procedures.service_id where procedures.hidden_at is null and procedures.aasm_state in ('publiee', 'close', 'depubliee')"

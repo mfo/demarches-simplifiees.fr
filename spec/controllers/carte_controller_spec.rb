@@ -28,5 +28,9 @@ describe CarteController do
       get :show, params: { map_filter: { kind: "nimp" } }
       expect(subject.stats['75']).to eq({ nb_demarches: 2, nb_dossiers: 50 })
     end
+
+    it 'rejects a scalar map_filter as a bad request' do
+      expect { get :show, params: { map_filter: 'nimp' } }.to raise_error(ActionController::ParameterMissing)
+    end
   end
 end
