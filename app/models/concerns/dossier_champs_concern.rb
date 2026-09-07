@@ -72,6 +72,15 @@ module DossierChampsConcern
     filled_champs_public + filled_champs_private
   end
 
+  # Les champs qu'un champ situé sur `row_id` peut référencer : ceux de sa propre
+  # ligne de répétition, plus ceux qui sont hors répétition. Un champ hors
+  # répétition (row_id nil) ne voit que ces derniers.
+  def filled_champs_for_row(row_id)
+    return Array(filled_champs_by_row_id[nil]) if row_id.nil?
+
+    Array(filled_champs_by_row_id[row_id]) + Array(filled_champs_by_row_id[nil])
+  end
+
   def flat_champs_public
     @flat_champs_public ||= revision.public_root_type_de_champs.flat_map do |type_de_champ|
       champ = project_champ(type_de_champ)
@@ -494,11 +503,16 @@ module DossierChampsConcern
     end
   end
 
+  def filled_champs_by_row_id
+    @filled_champs_by_row_id ||= filled_champs.group_by(&:row_id)
+  end
+
   def reset_champs_cache
     @champ_data_by_public_id = nil
     @discarded_champ_data_by_public_id = nil
     @filled_champs_public = nil
     @filled_champs_private = nil
+    @filled_champs_by_row_id = nil
     @root_champs_public = nil
     @root_champs_private = nil
     @flat_champs_public = nil

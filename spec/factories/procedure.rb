@@ -321,16 +321,18 @@ FactoryBot.define do
 end
 
 def build_type_de_champs(type_de_champs, revision:, scope: :public, parent: nil)
-  type_de_champs.map do |type_de_champ_attributes|
-    referentiel = type_de_champ_attributes.delete(:referentiel)
-    if referentiel.present?
-      type_de_champ_attributes[:referentiel_id] = referentiel.id
-    end
-    type_de_champ_attributes
-  end.deep_dup.flat_map.with_index do |type_de_champ_attributes, i|
+  type_de_champs.flat_map.with_index do |source_attributes, i|
+    # `referentiel` et `children` sont lus sur la source, jamais sur la copie :
+    # deep_dup duplique l'enregistrement ActiveRecord et la copie a un id nil.
+    # Les children sont dupliqués par l'appel récursif, à leur tour.
+    referentiel = source_attributes[:referentiel]
+    children = source_attributes[:children]
+
+    type_de_champ_attributes = source_attributes.except(:referentiel, :children).deep_dup
+    type_de_champ_attributes[:referentiel_id] = referentiel.id if referentiel.present?
+
     type = TypeDeChamp.type_champs.fetch(type_de_champ_attributes.delete(:type) || :text).to_sym
     position = type_de_champ_attributes.delete(:position) || i
-    children = type_de_champ_attributes.delete(:children)
     options = type_de_champ_attributes.delete(:options)
     layers = type_de_champ_attributes.delete(:layers)
 
