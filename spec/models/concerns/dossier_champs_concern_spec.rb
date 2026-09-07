@@ -1547,6 +1547,27 @@ RSpec.describe DossierChampsConcern do
     def rows_of(stable_id) = dossier.champ_data.filter { it.row? && it.stable_id == stable_id }
     def attach_pj(stable_id) = main_champs(stable_id).sole.piece_justificative_file.attach(file)
 
+    # After a revision changed the type of the champ, the champ_data row keeps
+    # its piece_justificative STI type while the type de champ is now an IBAN.
+    def retype_to_iban(stable_id)
+      procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
+        .becomes_type(:iban)
+        .update!(type_champ: TypeDeChamp.type_champs.fetch(:iban))
+      publish_and_rebase
+      expect(dossier.champ_data.find_by(stable_id:)).to be_a(Champs::PieceJustificativeChamp)
+    end
+
+    def remove_from_revision(stable_id)
+      procedure.draft_revision.remove_type_de_champ(stable_id)
+      publish_and_rebase
+    end
+
+    def publish_and_rebase
+      procedure.publish_revision!(procedure.administrateurs.first)
+      perform_enqueued_jobs
+      dossier.reload
+    end
+
     describe '#clean_champs_after_submit!' do
       subject(:clean) do
         dossier.reload.clean_champs_after_submit!
@@ -1603,6 +1624,17 @@ RSpec.describe DossierChampsConcern do
         clean
 
         expect([98, 99, 100].map { main_champs(it).sole.piece_justificative_file.attached? }).to all(be(true))
+      end
+
+      # The projection of the retyped row is a fresh, blank IBAN champ: the
+      # persisted row behind it is the one to wipe.
+      it 'purges the attachments of a pièce justificative whose type de champ changed type' do
+        attach_pj(100)
+        retype_to_iban(100)
+
+        clean
+
+        expect(main_champs(100).sole.piece_justificative_file).not_to be_attached
       end
 
       context 'with a hidden pre_rempli champ' do
@@ -1680,32 +1712,40 @@ RSpec.describe DossierChampsConcern do
         expect(rows_of(96)).to be_present
       end
 
-      it 'purges a titre identité whose type de champ left the revision' do
-        procedure.draft_revision.remove_type_de_champ(98)
-        procedure.publish_revision!(procedure.administrateurs.first)
-        perform_enqueued_jobs
-        dossier.reload
+      it 'purges the titres identité on every stream, history included' do
+        dossier.with_update_stream(dossier.user) do
+          dossier.public_champ_for_update('98', updated_by: dossier.user.email).piece_justificative_file.attach(file)
+        end
+        dossier.merge_user_buffer_stream!
+        expect(dossier.history.filter { it.stable_id == 98 }.map(&:piece_justificative_file)).to all(be_attached)
+
+        clean
+
+        expect(dossier.history.filter { it.stable_id == 98 }.map(&:piece_justificative_file)).to all(satisfy { !it.attached? })
+        expect(main_champs(98).sole.piece_justificative_file).not_to be_attached
+      end
+
+      # Nothing can display a pièce justificative whose type de champ changed type
+      # (RAILS-MH0) or left the revision: its attachments are stale whatever its
+      # nature, and a former titre identité among them must not survive.
+      it 'purges a pièce justificative whose type de champ changed type, whatever its nature' do
+        retype_to_iban(98)
+        retype_to_iban(100)
 
         clean
 
         expect(dossier.champ_data.find_by(stable_id: 98).piece_justificative_file).not_to be_attached
+        expect(dossier.champ_data.find_by(stable_id: 100).piece_justificative_file).not_to be_attached
       end
 
-      # After a revision changed the type of the champ, the champ_data row keeps
-      # its piece_justificative STI type while the type de champ is now an IBAN,
-      # which has no titre_identite? (RAILS-MH0). The file still goes, through
-      # the auto-purge rule that looks at the earlier published revisions.
-      it 'purges a titre identité whose type de champ changed type' do
-        tdc = procedure.draft_revision.find_and_ensure_exclusive_use(98).becomes_type(:iban)
-        tdc.update!(type_champ: TypeDeChamp.type_champs.fetch(:iban))
-        procedure.publish_revision!(procedure.administrateurs.first)
-        perform_enqueued_jobs
-        dossier.reload
-        expect(dossier.champ_data.find_by(stable_id: 98)).to be_a(Champs::PieceJustificativeChamp)
+      it 'purges a pièce justificative whose type de champ left the revision, whatever its nature' do
+        remove_from_revision(98)
+        remove_from_revision(100)
 
-        expect { clean }.not_to raise_error
+        clean
 
         expect(dossier.champ_data.find_by(stable_id: 98).piece_justificative_file).not_to be_attached
+        expect(dossier.champ_data.find_by(stable_id: 100).piece_justificative_file).not_to be_attached
       end
     end
 

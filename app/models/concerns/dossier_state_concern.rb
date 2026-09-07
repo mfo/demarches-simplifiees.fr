@@ -396,14 +396,13 @@ module DossierStateConcern
   def clean_champs_after_submit!
     remove_not_in_revision_champs!
     remove_discarded_rows!
-    remove_not_visible_or_empty_repetitions!
+    remove_not_visible_repetitions!
     clear_not_visible_or_empty_champs!
     clear_france_connect_champs_piece_justificatives!
   end
 
   def clean_champs_after_instruction!
     remove_discarded_rows!
-    clear_titres_identite!
     clear_auto_purged_piece_justificatives!
   end
 
@@ -413,28 +412,34 @@ module DossierStateConcern
     champ_data.where.not(stable_id: revision_stable_ids).where(stream: Dossier::MAIN_STREAM).destroy_all
   end
 
+  # A discarded row is a repetition champ row carrying discarded_at; the merge
+  # brings the usager's discards onto the main stream, so that is the only
+  # stream to read them from (an instructeur's pending discard must not count).
   def remove_discarded_rows!
-    row_to_remove_ids = champ_data.filter { _1.row? && _1.discarded? }.map(&:row_id)
-
-    return if row_to_remove_ids.empty?
-    champ_data.where(row_id: row_to_remove_ids, stream: Dossier::MAIN_STREAM).destroy_all
+    discarded_row_ids = champ_data.where(stream: Dossier::MAIN_STREAM).where.not(discarded_at: nil).select(:row_id)
+    champ_data.where(stream: Dossier::MAIN_STREAM, row_id: discarded_row_ids).destroy_all
   end
 
-  def remove_not_visible_or_empty_repetitions!
-    row_to_remove_ids = root_champs_public
-      .filter { _1.repetition? && (_1.blank? || !_1.visible?) }
+  def remove_not_visible_repetitions!
+    row_ids = root_champs_public
+      .filter { _1.repetition? && !_1.visible? }
       .flat_map(&:row_ids)
 
-    return if row_to_remove_ids.empty?
-    champ_data.where(row_id: row_to_remove_ids, stream: Dossier::MAIN_STREAM).destroy_all
+    return if row_ids.empty?
+    champ_data.where(stream: Dossier::MAIN_STREAM, row_id: row_ids).destroy_all
   end
 
+  # Matched by public_id, not by id: the projection of a row whose type de champ
+  # changed type is a fresh, unsaved champ, blank by definition, and the
+  # persisted row behind it must be wiped like any other blank champ.
   def clear_not_visible_or_empty_champs!
-    champs_to_clear = flat_champs_public
+    public_ids_to_clear = flat_champs_public
       .reject(&:repetition?)
       .filter { _1.blank? || !_1.visible? }
+      .to_set(&:public_id)
 
-    champ_data.where(id: champs_to_clear, stream: Dossier::MAIN_STREAM).find_each(&:clear)
+    return if public_ids_to_clear.empty?
+    champ_data.where(stream: Dossier::MAIN_STREAM).find_each { it.clear if public_ids_to_clear.member?(it.public_id) }
   end
 
   def clear_france_connect_champs_piece_justificatives!
@@ -444,46 +449,26 @@ module DossierStateConcern
     champ_data.where(stable_id: champs_to_clear_ids, stream: Dossier::MAIN_STREAM).find_each(&:clear_piece_justificative)
   end
 
-  def clear_titres_identite!
-    champ_to_clear_stable_ids = champ_data.filter do |champ|
-      # Use STI type to avoid querying type_de_champ for orphaned champ_data
-      next false unless champ.is_a?(Champs::PieceJustificativeChamp)
-
-      begin
-        # because of revisions, champ.type can differ from champ.type_de_champ.type_champ
-        # (e.g. piece_justificative → iban): the type_de_champ then has no titre_identite?
-        champ.is_type?(champ.type_de_champ.type_champ) && champ.titre_identite?
-      rescue RuntimeError
-        # Champ has no type_de_champ in current revision (orphaned), skip it
-        false
-      end
-    end.to_set(&:stable_id)
-
-    champ_data.where(stable_id: champ_to_clear_stable_ids).find_each(&:clear)
-  end
-
+  # Titres d'identité and pièces justificatives flagged pj_auto_purge are wiped
+  # once the decision is taken, on every stream: the history is no place to keep
+  # a titre d'identité either. The rule is read from the type de champ of the
+  # dossier's revision. A row whose type de champ has since changed type, or left
+  # the revision, can no longer be displayed: its attachments are stale whatever
+  # nature they had, and go too.
   def clear_auto_purged_piece_justificatives!
-    revision_ids = revision.draft? ? [procedure.draft_revision_id] : (procedure.revisions.ids - [procedure.draft_revision_id])
-    champ_to_clear_stable_ids = TypeDeChamp.joins(:revision_type_de_champs)
-      .where(procedure_revision_types_de_champ: { revision_id: revision_ids }, type_champ: 'piece_justificative')
-      .order(updated_at: :desc)
-      .uniq(&:stable_id)
-      .filter(&:pj_auto_purge?)
-      .map(&:stable_id)
+    type_de_champ_by_stable_id = revision.type_de_champs.index_by(&:stable_id)
 
-    champ_data.where(stable_id: champ_to_clear_stable_ids).find_each(&:clear)
+    champ_data.where(type: Champs::PieceJustificativeChamp.name).find_each do |champ|
+      type_de_champ = type_de_champ_by_stable_id[champ.stable_id]
+
+      if type_de_champ.nil? || !type_de_champ.piece_justificative? || type_de_champ.pj_auto_purge?
+        champ.clear
+      end
+    end
   end
 
   def remove_attente_avis_notification
     DossierNotification.destroy_notifications_by_dossier_and_type(self, :attente_avis)
-  end
-
-  def remove_auto_purged_piece_justificatives!
-    champ_to_remove_ids = filled_champs.filter { |c| c.piece_justificative? && c.pj_auto_purge? }.map(&:id)
-
-    return if champ_to_remove_ids.empty?
-
-    champ_data.where(id: champ_to_remove_ids, stream: Dossier::MAIN_STREAM).destroy_all
   end
 
   def enqueue_ami_notification(trigger: :dossier_state_change, state: nil)
