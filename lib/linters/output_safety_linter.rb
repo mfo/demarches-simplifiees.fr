@@ -12,7 +12,7 @@ if defined?(HamlLint)
       include LinterRegistry
 
       RAW = /\braw[\s(]/
-      HTML_SAFE = /\.html_safe\b/
+      HTML_SAFE = /\.html_safe\b(?!\?)/ # `html_safe?` asks the question, it does not bypass escaping
 
       RAW_MSG = 'Avoid `raw`: it bypasses HTML escaping. Suffix the translation key with `_html`, ' \
                 'or build the markup with `tag`/`safe_join`.'
