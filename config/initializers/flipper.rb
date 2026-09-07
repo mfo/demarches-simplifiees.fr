@@ -40,6 +40,7 @@ features = [
   :s3_storage,
   # Enable only once T20260728BackfillSearchTermsTsvectorTask has completed.
   :search_terms_tsvector,
+  :session_registry,
 ]
 
 def database_exists?
