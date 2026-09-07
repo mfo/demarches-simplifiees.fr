@@ -274,4 +274,10 @@ describe ContactController, question_type: :controller do
       end
     end
   end
+
+  context 'with a scalar contact_form' do
+    it 'rejects the request as a bad request' do
+      expect { get :index, params: { contact_form: 'nimp' } }.to raise_error(ActionController::ParameterMissing)
+    end
+  end
 end
