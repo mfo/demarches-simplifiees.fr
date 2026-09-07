@@ -52,5 +52,15 @@ class CommentaireService
       message.save
       message
     end
+  rescue ActiveSupport::MessageVerifier::InvalidSignature
+    # Assigning piece_jointe verifies the signed ids sent by the direct upload,
+    # which BlobSignedIdConcern makes valid for one hour: the form stayed open
+    # too long, or an id was tampered with. Either way the file has to be
+    # selected again; the message is kept so the user does not lose it.
+    message = dossier.commentaires.build(params.except(:piece_jointe))
+    message.errors.add(:piece_jointe, :attachment_expired)
+    raise ActiveRecord::RecordInvalid, message if raise_exception
+
+    message
   end
 end
