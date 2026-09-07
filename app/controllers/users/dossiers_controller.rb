@@ -3,6 +3,7 @@
 module Users
   class DossiersController < UserController
     include DossierHelper
+    include IdentityPrefillConcern
     include TurboChampsConcern
     include LockableConcern
     include ProConnectSessionConcern
@@ -135,10 +136,11 @@ module Users
 
       respond_to do |format|
         format.html do
-          @dossier.prefill_individual_from_france_connect if @dossier.identity_from_fc? && !@dossier.for_tiers?
+          identity_source = identity_prefill_source(@dossier)
+          @dossier.prefill_individual_from(identity_source) if !@dossier.for_tiers?
         end
         format.turbo_stream do
-          @dossier.assign_for_tiers(params.dig(:dossier, :for_tiers) == 'true')
+          @dossier.assign_for_tiers(params.dig(:dossier, :for_tiers) == 'true', identity_source: identity_prefill_source(@dossier))
 
           if @dossier.brouillon?
             # Persist the persona choice so the identity form survives a page reload:
@@ -155,14 +157,16 @@ module Users
       @dossier = dossier
       @no_description = true
 
-      @dossier.assign_for_tiers(dossier_params[:for_tiers] == 'true')
+      identity_source = identity_prefill_source(@dossier)
+      @dossier.assign_for_tiers(dossier_params[:for_tiers] == 'true', identity_source:)
 
       sanitized_params = dossier_params.dup
-      if mandataire_identity_locked?(@dossier)
+      if identity_source.mandataire_locked?
         sanitized_params = sanitized_params.except(:mandataire_first_name, :mandataire_last_name)
-      elsif identity_locked?(@dossier)
+      end
+      if (locked_fields = identity_source.individual_locked_fields).any?
         # keep only birthdate for legacy procedures
-        sanitized_params[:individual_attributes] = sanitized_params[:individual_attributes]&.except(:nom, :prenom, :gender)
+        sanitized_params[:individual_attributes] = sanitized_params[:individual_attributes]&.except(*locked_fields)
         sanitized_params.delete(:individual_attributes) if sanitized_params[:individual_attributes].blank? # évite {} qui réinitialise l'individual
       end
 
@@ -568,14 +572,6 @@ module Users
     end
 
     private
-
-    def identity_locked?(dossier)
-      dossier.identity_from_fc?
-    end
-
-    def mandataire_identity_locked?(dossier)
-      dossier.for_tiers? && dossier.identity_from_fc?
-    end
 
     def filter_params_slice
       params.permit(*Users::DossierFilterService::ALLOWED_PARAMS)
