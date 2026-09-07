@@ -4,6 +4,8 @@ fr:
       models:
         champ:
           attributes:
+            piece_justificative_file:
+              attachment_expired: "n’est plus valide, le fichier a été sélectionné il y a trop longtemps : veuillez le choisir à nouveau"
             value:
               format: '%{message}'
               missing: doit être rempli

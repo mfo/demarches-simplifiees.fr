@@ -77,5 +77,15 @@ RSpec.describe Attachment::PieceJustificativeService do
         expect(pj_champ.errors[:piece_justificative_file]).to be_present
       end
     end
+
+    context 'with an expired signed id' do
+      let(:expired_signed_id) { ActiveStorage.verifier.generate(blob_1.id, purpose: :blob_id, expires_at: 1.minute.ago) }
+
+      it 'refuses the attachment and reports it on the champ' do
+        expect(described_class.attach_champ_pj(champ, expired_signed_id)).to be(false)
+        expect(champ.errors[:piece_justificative_file]).to be_present
+        expect(champ.reload.piece_justificative_file).not_to be_attached
+      end
+    end
   end
 end
