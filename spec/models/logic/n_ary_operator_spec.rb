@@ -46,5 +46,13 @@ describe Logic::NAryOperator do
       expect(or_from([false, true]).hash).to eq(or_from([true, false]).hash)
       expect(and_from([false, true]).hash).not_to eq(or_from([true, false]).hash)
     end
+
+    it 'hashes each operand once, however deep the term' do
+      leaf = constant(true)
+      term = 30.times.reduce(ds_and([leaf, constant(false)])) { |inner, _| ds_and([inner, constant(false)]) }
+
+      expect(leaf).to receive(:hash).once.and_call_original
+      expect(term.hash).to eq(term.hash)
+    end
   end
 end

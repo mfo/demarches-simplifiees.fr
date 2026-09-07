@@ -49,9 +49,12 @@ class Logic::NAryOperator < Logic::Term
       end
   end
 
-  def hash
+  private
+
+  # The same whatever the order of the operands, each one hashed once
+  def hash_value
     term = self.class.name
-    sorted_operands = operands.sort_by(&:hash)
-    [term, *sorted_operands].hash
+    sorted_hashes = @operands.map(&:hash).sort
+    [term, *sorted_hashes].hash
   end
 end
