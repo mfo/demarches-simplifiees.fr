@@ -1,9 +1,9 @@
 fr:
   go_superadmin: 'Passer en super-admin'
   go_user: 'Passer en usager'
-  go_instructor: 'Passer en instructeur'
+  go_instructeur: 'Passer en instructeur'
   go_expert: 'Passer en expert'
-  go_admin: 'Passer en administrateur'
+  go_administrateur: 'Passer en administrateur'
   go_gestionnaire: 'Passer en gestionnaire'
   profile: 'Voir mon profil'
   logout: 'Se déconnecter'

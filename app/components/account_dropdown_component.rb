@@ -5,8 +5,7 @@ class AccountDropdownComponent < ViewComponent::Base
   attr_reader :nav_bar_profile
 
   delegate :current_user, :current_email, :color_by_role, :multiple_devise_profile_connect?,
-           :user_signed_in?, :instructeur_signed_in?, :expert_signed_in?,
-           :administrateur_signed_in?, :gestionnaire_signed_in?, :super_admin_signed_in?,
+           :super_admin_signed_in?, :profile_home_path,
            to: :helpers
 
   def initialize(dossier:, nav_bar_profile:)
@@ -24,6 +23,23 @@ class AccountDropdownComponent < ViewComponent::Base
 
   def show_profile_badge?
     nav_bar_profile != :guest
+  end
+
+  # Profiles the account can switch to, least specific first.
+  def switchable_profiles
+    NavBarProfile.all.reverse.filter do |profile|
+      profile != nav_bar_profile && helpers.public_send(:"#{profile}_signed_in?")
+    end
+  end
+
+  # Both instructeur and administrateur keep the user inside the procedure they
+  # are looking at, instead of sending them back to their procedures list.
+  def switch_path_for(profile)
+    case profile
+    when :instructeur then instructeur_path
+    when :administrateur then admin_path
+    else profile_home_path(profile)
+    end
   end
 
   def instructeur_path

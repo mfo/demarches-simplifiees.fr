@@ -18,6 +18,16 @@ module NavBarProfile
     ALL.filter { OPTIONAL.key?(it) ? OPTIONAL[it].call : true }
   end
 
+  # Where each profile lands when it has no more specific destination: the
+  # breadcrumb root, and the account dropdown when switching to it.
+  HOME_PATH_HELPERS = {
+    gestionnaire: :gestionnaire_groupe_gestionnaires_path,
+    administrateur: :admin_procedures_path,
+    instructeur: :instructeur_procedures_path,
+    expert: :expert_all_avis_path,
+    user: :dossiers_path,
+  }.freeze
+
   # Every profile but :user, which every signed-in account holds by definition.
   def self.roles
     all.excluding(:user)

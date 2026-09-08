@@ -77,6 +77,12 @@ module ApplicationHelper
     link_to title, contact_url(params), options
   end
 
+  def profile_home_path(profile)
+    path_helper = NavBarProfile::HOME_PATH_HELPERS[profile] if NavBarProfile.all.include?(profile)
+
+    path_helper ? send(path_helper) : root_path
+  end
+
   def root_path_info_for_profile(nav_bar_profile)
     case nav_bar_profile
     when :administrateur

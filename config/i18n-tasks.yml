@@ -116,6 +116,10 @@ ignore_unused:
   - 'procedure.instructeurs_management_component.notification_alert.*'
   # t(@champ.fc_data_not_found? ? '.piece_justificative_champ.data_not_found' : '...data_not_recovered')
   - 'editable_champ.france_connect_champ_base_component.piece_justificative_champ.*'
+  # t("layouts.breadcrumb.root.#{key}") in breadcrumb_helper.rb
+  - 'layouts.breadcrumb.root.*'
+  # t(".go_#{profile}") in account_dropdown_component.html.erb
+  - 'account_dropdown_component.go_*'
   - 'errors.format'
   - 'user_mailer.*.subject'
   - 'groupe_gestionnaire_mailer.*.subject'

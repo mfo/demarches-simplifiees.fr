@@ -1,9 +1,9 @@
 en:
   go_superadmin: 'Switch to super-admin'
   go_user: 'Switch to user'
-  go_instructor: 'Switch to instructor'
+  go_instructeur: 'Switch to instructor'
   go_expert: 'Switch to expert'
-  go_admin: 'Switch to administrator'
+  go_administrateur: 'Switch to administrator'
   go_gestionnaire: 'Switch to admins group manager'
   profile: 'See my profile'
   logout: 'Log out'
