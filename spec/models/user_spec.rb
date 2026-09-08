@@ -262,19 +262,6 @@ describe User, type: :model do
     end
   end
 
-  describe '.create_or_promote_to_gestionnaire' do
-    let(:email) { 'inst1@gmail.com' }
-    let(:password) { 'un super p1ssw0rd !' }
-
-    subject { User.create_or_promote_to_gestionnaire(email, password) }
-
-    it 'creates a gestionnaire with unverified email' do
-      user = subject
-      expect(user.email_verified_at).to be_nil
-      expect(user.reload.gestionnaire?).to be true
-    end
-  end
-
   describe '.create_or_promote_to_administrateur' do
     subject { User.create_or_promote_to_administrateur('nouvel-admin@exemple.fr', SECURE_PASSWORD) }
 

@@ -4,11 +4,9 @@ describe Administrateur, type: :model do
   let(:administration) { create(:administration) }
 
   it 'define associations' do
-    is_expected.to have_many(:commentaire_groupe_gestionnaires)
     is_expected.to have_many(:archives)
     is_expected.to have_many(:exports)
     is_expected.to have_and_belong_to_many(:instructeurs)
-    is_expected.to belong_to(:groupe_gestionnaire).optional
   end
 
   describe "#can_be_deleted?" do
@@ -250,57 +248,6 @@ describe Administrateur, type: :model do
     it 'return zones of procedures that the admin is associated' do
       expect(admin.zones).to eq [zone1, zone2]
     end
-  end
-
-  describe "#unread_commentaires?" do
-    context "commentaire_seen_at is nil" do
-      let(:gestionnaire) { create(:gestionnaire) }
-      let(:administrateur) { administrateurs.default }
-      let(:groupe_gestionnaire) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
-      let!(:commentaire_groupe_gestionnaire) { create(:commentaire_groupe_gestionnaire, groupe_gestionnaire: groupe_gestionnaire, sender: administrateur, gestionnaire: gestionnaire, created_at: 12.hours.ago) }
-
-      it do
-        expect(administrateur.unread_commentaires?).to eq true
-      end
-    end
-
-    context "commentaire_seen_at before last commentaire" do
-      let(:gestionnaire) { create(:gestionnaire) }
-      let(:administrateur) { create(:administrateur, commentaire_seen_at: 1.day.ago) }
-      let(:groupe_gestionnaire) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
-      let!(:commentaire_groupe_gestionnaire) { create(:commentaire_groupe_gestionnaire, groupe_gestionnaire: groupe_gestionnaire, sender: administrateur, gestionnaire: gestionnaire, created_at: 12.hours.ago) }
-
-      it do
-        expect(administrateur.unread_commentaires?).to eq true
-      end
-    end
-
-    context "commentaire_seen_at after last commentaire" do
-      let(:gestionnaire) { create(:gestionnaire) }
-      let(:administrateur) { create(:administrateur, commentaire_seen_at: 1.hour.ago) }
-      let(:groupe_gestionnaire) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
-      let!(:commentaire_groupe_gestionnaire) { create(:commentaire_groupe_gestionnaire, groupe_gestionnaire: groupe_gestionnaire, sender: administrateur, gestionnaire: gestionnaire, created_at: 12.hours.ago) }
-
-      it do
-        expect(administrateur.unread_commentaires?).to eq false
-      end
-    end
-  end
-
-  describe "#mark_commentaire_as_seen" do
-    let(:now) { Time.zone.now.beginning_of_minute }
-    let(:gestionnaire) { create(:gestionnaire) }
-    let(:administrateur) { administrateurs.default }
-    let(:groupe_gestionnaire) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
-    let!(:commentaire_groupe_gestionnaire) { create(:commentaire_groupe_gestionnaire, groupe_gestionnaire: groupe_gestionnaire, sender: administrateur, created_at: 12.hours.ago) }
-
-    before do
-      travel_to(now) do
-        administrateur.mark_commentaire_as_seen
-      end
-    end
-
-    it { expect(administrateur.commentaire_seen_at).to eq now }
   end
 
   describe 'when an administrateur is destroyed' do
