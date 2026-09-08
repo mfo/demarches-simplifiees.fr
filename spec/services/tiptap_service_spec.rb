@@ -441,6 +441,21 @@ RSpec.describe TiptapService do
           '<p class="body-start">Motivation : <em>&lt;b&gt;ok&lt;/b&gt;</em><br><br><em>suite</em>.</p>'
         )
       end
+
+      it 'turns the line breaks a champ value carries into hard breaks, and escapes the rest' do
+        json = doc({ type: 'paragraph', content: [text('Réponse : '), mention] })
+        substitutions = { 'languages' => 'Monsieur,<br> <br>surface < 100 m² <Réf 2026>' }
+
+        expect(described_class.new(hard_break: '<br><br>').to_html(json, substitutions)).to eq(
+          '<p class="body-start">Réponse : Monsieur,<br><br>surface &lt; 100 m² &lt;Réf 2026&gt;</p>'
+        )
+      end
+
+      it 'reads the line breaks of a champ value as spaces inside the title' do
+        json = doc({ type: 'title', content: [mention] })
+
+        expect(described_class.new.to_html(json, { 'languages' => 'Ligne 1<br>Ligne 2' })).to eq('<h1>Ligne 1 Ligne 2</h1>')
+      end
     end
   end
 
