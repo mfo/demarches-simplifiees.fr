@@ -15,6 +15,5 @@ Rails.application.routes.draw do
   draw :usager
   draw :expert
   draw :instructeur
-  draw :gestionnaire
   draw :administrateur
 end

@@ -20,6 +20,9 @@ data:
     - config/custom_locales/*%{locale}.yml
     # ViewComponent sidecar translations (bar_component.fr.yml and bare fr.yml styles):
     - app/components/**/*%{locale}.yml
+    # In-repo engines ship their own locales and components:
+    - engines/*/config/locales/**/*%{locale}.yml
+    - engines/*/app/components/**/*%{locale}.yml
 
   # Locale files to write new keys to, based on a list of key pattern => file rules. Matched from top to bottom:
   # `i18n-tasks normalize -p` will force move the keys according to these rules
@@ -55,8 +58,9 @@ data:
 # Find translate calls
 search:
   ## Paths or `File.find` patterns to search in:
-  # paths:
-  #  - app/
+  paths:
+    - app/
+    - engines/
 
   ## Root directories for relative keys resolution.
   relative_roots:
@@ -66,6 +70,10 @@ search:
     - app/mailers
     - app/presenters
     - app/views
+    - engines/admins_group/app/components
+    - engines/admins_group/app/controllers
+    - engines/admins_group/app/mailers
+    - engines/admins_group/app/views
 
   ## Files or `File.fnmatch` patterns to exclude from search. Some files are always excluded regardless of this setting:
   ##   %w(*.jpg *.png *.gif *.svg *.ico *.eot *.otf *.ttf *.woff *.woff2 *.pdf *.css *.sass *.scss *.less *.yml *.json)

@@ -10,3 +10,7 @@
 # to find out whether it was ever justified.
 :ensure_ignore_notes: true
 :ensure_no_obsolete_ignore_entries: true
+
+# In-repo engines under engines/ are discovered and scanned automatically —
+# verified by planting a SQL injection in an engine controller and watching
+# Brakeman report it. No :engine_paths entry needed.
