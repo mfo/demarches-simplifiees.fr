@@ -93,7 +93,7 @@ module Logic
     if condition.nil?
       empty_condition
     elsif [And, Or].include?(condition.class)
-      condition.tap { |c| c.operands << empty_condition }
+      condition.class.new([*condition.operands, empty_condition])
     else
       Logic::And.new([condition, empty_condition])
     end
