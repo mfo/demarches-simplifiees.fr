@@ -44,6 +44,7 @@ DS/ApplicationName:
     - './lib/cops/application_name.rb'
     - './lib/linters/application_name_linter.rb'
     - './spec/**/*'
+    - './engines/*/spec/**/*'
 
 DS/AdresseElectronique:
   Enabled: true
@@ -458,6 +459,7 @@ Lint/ParenthesesAsGroupedExpression:
   Enabled: true
   Exclude:
     - 'spec/**/*'
+    - 'engines/*/spec/**/*'
 
 Lint/PercentStringArray:
   Enabled: false
@@ -550,6 +552,7 @@ Lint/UselessAssignment:
   Enabled: true
   Exclude:
     - 'spec/**/*'
+    - 'engines/*/spec/**/*'
 
 Lint/BinaryOperatorWithIdenticalOperands:
   Enabled: true
@@ -834,6 +837,7 @@ Rails/FindEach:
   Enabled: true
   Exclude:
     - spec/**/*
+    - engines/*/spec/**/*
 
 Rails/FreezeTime:
   Enabled: true
@@ -1089,6 +1093,7 @@ Style/BlockDelimiters:
   Enabled: true
   Exclude:
     - 'spec/**/*'
+    - 'engines/*/spec/**/*'
 
 Style/CaseEquality:
   Enabled: true

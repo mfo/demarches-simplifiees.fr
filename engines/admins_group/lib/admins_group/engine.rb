@@ -13,5 +13,10 @@ module AdminsGroup
   # in the host: a disabled instance still carries the columns, it just never
   # reaches the feature.
   class Engine < ::Rails::Engine
+    # The engine's specs live next to its code, so the mailer previews have to be
+    # told where to look. Its factories are picked up by rails_helper's glob.
+    initializer 'admins_group.mailer_previews' do |app|
+      app.config.action_mailer.preview_paths << root.join('spec/mailers/previews').to_s
+    end
   end
 end
