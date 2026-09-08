@@ -189,9 +189,12 @@ def render_single_champ(pdf, revision, type_de_champ)
     pdf.text "\n"
   when TypeDeChamp.type_champs.fetch(:linked_drop_down_list)
     add_libelle(pdf, type_de_champ)
-    type_de_champ.primary_options.compact_blank.each do |o|
-      format_with_checkbox(pdf, o)
-      type_de_champ.secondary_options[o].compact_blank.each do |secondary_option|
+    # secondary_options parses the whole option list on every call: read it once, not once per primary
+    type_de_champ.secondary_options.each do |primary, secondary_options|
+      next if primary.blank?
+
+      format_with_checkbox(pdf, primary)
+      secondary_options.compact_blank.each do |secondary_option|
         format_with_checkbox(pdf, secondary_option, 15)
       end
     end

@@ -210,11 +210,14 @@ class Dossiers::DossierVidePdfComponent < ApplicationComponent
     safe_join([libelle(type_de_champ), description(type_de_champ), explanation_tag, checkboxes(options)].compact)
   end
 
+  # secondary_options parses the whole option list on every call: read it once,
+  # not once per primary (quadratic on lists of thousands of options).
   def linked_field(type_de_champ)
-    items = type_de_champ.primary_options.compact_blank.flat_map do |primary|
-      secondaries = type_de_champ.secondary_options[primary].to_a.compact_blank
+    items = type_de_champ.secondary_options.flat_map do |primary, secondaries|
+      next [] if primary.blank?
+
       [tag.li(checkbox(primary))] +
-        secondaries.map { |s| tag.li(checkbox(s), class: 'secondary') }
+        secondaries.compact_blank.map { |s| tag.li(checkbox(s), class: 'secondary') }
     end
     safe_join([libelle(type_de_champ), tag.ul(safe_join(items), class: 'options')])
   end
