@@ -119,6 +119,8 @@ ignore_unused:
   # t("layouts.breadcrumb.root.#{key}") in breadcrumb_helper.rb
   - 'layouts.breadcrumb.root.*'
   # t(".go_#{profile}") in account_dropdown_component.html.erb
+  # t(nav_bar_profile, scope: 'layouts.root_path_link_title') in application_helper.rb
+  - 'layouts.root_path_link_title.*'
   - 'account_dropdown_component.go_*'
   - 'errors.format'
   - 'user_mailer.*.subject'
