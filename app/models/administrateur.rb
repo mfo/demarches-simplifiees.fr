@@ -2,6 +2,7 @@
 
 class Administrateur < ApplicationRecord
   include UserFindByConcern
+  include GroupeGestionnaireAdministrateurConcern
   UNUSED_ADMIN_THRESHOLD = ENV.fetch('UNUSED_ADMIN_THRESHOLD') { 6 }.to_i.months
 
   has_and_belongs_to_many :instructeurs
@@ -9,12 +10,10 @@ class Administrateur < ApplicationRecord
   has_many :procedures, through: :administrateurs_procedures
   has_many :services
   has_many :api_tokens, inverse_of: :administrateur, dependent: :destroy
-  has_many :commentaire_groupe_gestionnaires, as: :sender
   has_and_belongs_to_many :default_zones, class_name: 'Zone', join_table: 'default_zones_administrateurs'
   has_many :archives, as: :user_profile, dependent: :destroy
   has_many :exports, as: :user_profile, dependent: :destroy
   belongs_to :user
-  belongs_to :groupe_gestionnaire, optional: true
 
   validates :user_id, uniqueness: true
 
@@ -128,13 +127,5 @@ class Administrateur < ApplicationRecord
 
   # required to display feature flags field in manager
   def features
-  end
-
-  def unread_commentaires?
-    commentaire_groupe_gestionnaires.last && (commentaire_seen_at.nil? || commentaire_seen_at < commentaire_groupe_gestionnaires.last.created_at)
-  end
-
-  def mark_commentaire_as_seen
-    update(commentaire_seen_at: Time.zone.now)
   end
 end

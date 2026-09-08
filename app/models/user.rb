@@ -3,6 +3,7 @@
 class User < ApplicationRecord
   include DomainMigratableConcern
   include EmailSanitizableConcern
+  include GroupeGestionnaireUserConcern
   include PasswordComplexityConcern
 
   enum :loged_in_with_france_connect, {
@@ -32,7 +33,6 @@ class User < ApplicationRecord
 
   has_one :instructeur, dependent: :destroy
   has_one :administrateur, dependent: :destroy
-  has_one :gestionnaire, dependent: :destroy
   has_one :expert, dependent: :destroy
   belongs_to :requested_merge_into, class_name: 'User', optional: true
 
@@ -118,14 +118,6 @@ class User < ApplicationRecord
     UserMailer.resend_confirmation_email(self, token).deliver_later
   end
 
-  def invite_gestionnaire!(groupe_gestionnaire)
-    if administrateur.pro_connect_required?
-      UserMailer.invite_gestionnaire_via_pro_connect(self, groupe_gestionnaire).deliver_later
-    else
-      UserMailer.invite_gestionnaire(self, set_reset_password_token, groupe_gestionnaire).deliver_later
-    end
-  end
-
   def invite_administrateur!
     if administrateur.pro_connect_required?
       AdministrationMailer.invite_admin_via_pro_connect(self).deliver_later
@@ -160,16 +152,6 @@ class User < ApplicationRecord
       end
 
       user.instructeur.administrateurs << administrateurs
-    end
-
-    user
-  end
-
-  def self.create_or_promote_to_gestionnaire(email, password)
-    user = User.create_or_promote_to_administrateur(email, password)
-
-    if user.valid? && user.gestionnaire.nil?
-      user.create_gestionnaire!
     end
 
     user
@@ -233,10 +215,6 @@ class User < ApplicationRecord
 
   def instructeur?
     instructeur.present?
-  end
-
-  def gestionnaire?
-    gestionnaire.present?
   end
 
   def expert?
