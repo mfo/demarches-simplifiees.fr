@@ -2091,6 +2091,13 @@
           </div>
         </div>
       </div>
+      <!--
+        DSFR's HeaderLinks copies .fr-header__tools-links into this element for
+        the mobile menu, and throws when it is missing. It matters even without
+        the burger button: Turbo renders this page in place after a failed
+        request, while the DSFR script of the previous page is still running.
+      -->
+      <div class="fr-header__menu-links" hidden></div>
     </header>
 
     <main id="content" role="main">
