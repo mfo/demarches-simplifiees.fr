@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include TrustedDeviceConcern
   include NavBarProfileConcern
+  include GestionnaireSignInConcern
   include Pundit::Authorization
   include Devise::StoreLocationExtension
   include ApplicationController::ErrorHandling
@@ -32,7 +33,7 @@ class ApplicationController < ActionController::Base
 
   helper_method :multiple_devise_profile_connect?, :instructeur_signed_in?, :current_instructeur, :current_expert, :expert_signed_in?,
     :administrateur_signed_in?, :current_administrateur, :current_account, :localization_enabled?, :set_locale, :current_expert_not_instructeur?,
-    :gestionnaire_signed_in?, :current_gestionnaire, :extra_query_params, :chatbot_disabled_page?
+    :extra_query_params, :chatbot_disabled_page?
 
   before_action do
     Current.request_id = request.uuid
@@ -73,14 +74,6 @@ class ApplicationController < ActionController::Base
 
   def administrateur_signed_in?
     current_administrateur.present?
-  end
-
-  def current_gestionnaire
-    current_user&.gestionnaire
-  end
-
-  def gestionnaire_signed_in?
-    current_gestionnaire.present?
   end
 
   def current_expert
@@ -143,18 +136,10 @@ class ApplicationController < ActionController::Base
     flash.now[:alert] = t('errors.csrf_retry.message')
   end
 
+  # Each authenticate_<profile>! below is a no-op once that profile is signed
+  # in, so the only case that does anything is "no profile at all".
   def authenticate_logged_user!
-    if instructeur_signed_in?
-      authenticate_instructeur!
-    elsif expert_signed_in?
-      authenticate_expert!
-    elsif administrateur_signed_in?
-      authenticate_administrateur!
-    elsif gestionnaire_signed_in?
-      authenticate_gestionnaire!
-    else
-      authenticate_user!
-    end
+    authenticate_user! if NavBarProfile.roles.none? { send(:"#{it}_signed_in?") }
   end
 
   def authenticate_instructeur!
@@ -181,12 +166,6 @@ class ApplicationController < ActionController::Base
   def authenticate_administrateur!
     if !administrateur_signed_in?
       store_location_for(:user, request.fullpath)
-      redirect_to new_user_session_path
-    end
-  end
-
-  def authenticate_gestionnaire!
-    if !gestionnaire_signed_in?
       redirect_to new_user_session_path
     end
   end
