@@ -72,7 +72,7 @@ class DataSources::ReferentielController < DataSources::BaseController
     candidate = Referentiel.find_by(id: params[:referentiel_id])
     return nil if candidate.nil?
 
-    @type_de_champ = @dossier.procedure.active_revision.type_de_champs.find { it.referentiel_id == candidate.id }
+    @type_de_champ = @dossier.revision.type_de_champs.find { it.referentiel_id == candidate.id }
     candidate if @type_de_champ.present?
   end
 

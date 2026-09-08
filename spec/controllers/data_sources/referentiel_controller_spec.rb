@@ -177,6 +177,26 @@ describe DataSources::ReferentielController, type: :controller do
         end
       end
 
+      context 'when the dossier is a preview of the draft revision of a published procedure' do
+        let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+        let(:draft_referentiel) { referentiel.dup.tap(&:save!) }
+        let(:dossier) { procedure.draft_revision.dossier_for_preview(user) }
+
+        before do
+          stable_id = procedure.draft_revision.type_de_champs.first.stable_id
+          procedure.draft_revision
+            .find_and_ensure_exclusive_use(stable_id)
+            .update!(referentiel: draft_referentiel)
+        end
+
+        subject { post :search, params: { q: '010002699', referentiel_id: draft_referentiel.id, dossier_id: dossier.id } }
+
+        it 'returns results', vcr: 'referentiel/datagouv-finess' do
+          expect(subject).to have_http_status(:ok)
+          expect(response.parsed_body.size).to eq(1)
+        end
+      end
+
       context 'when the referentiel has no rendering template' do
         before { referentiel.update_column(:autocomplete_configuration, { 'datasource' => '$.data' }) }
 
