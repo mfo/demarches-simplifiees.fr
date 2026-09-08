@@ -1,0 +1,15 @@
+en:
+  layouts:
+    gestionnaire: admins group manager
+    root_path_link_title:
+      gestionnaire: "Go to admins group panel"
+    breadcrumb:
+      root:
+        gestionnaire: 'Home - Groups list'
+  views:
+    gestionnaires:
+      groupe_gestionnaires:
+        delete: Delete
+  manager:
+    gestionnaires:
+      manage_root_groupe_gestionnaire: Root group management

@@ -113,7 +113,6 @@ fr:
       user: 'Aller à la liste des dossiers'
       instructeur: 'Aller à la liste des démarches'
       administrateur: "Aller au panneau d’administration"
-      gestionnaire: "Aller au panneau de gestionnaire"
   views:
     legal_notice:
       title: "Mentions légales"
@@ -432,9 +431,6 @@ fr:
           accuse_lecture: Cette démarche est soumise à un accusé de lecture.
           accuse_lecture_with_agreement: L’usager a pris connaissance de la décision concernant son dossier le %{agreement}.
           accuse_lecture_without_agreement: L’usager n’a pas encore pris connaissance de la décision concernant son dossier.
-    gestionnaires:
-      groupe_gestionnaires:
-        delete: Supprimer
     instructeurs:
       procedure_menu: "Dossiers de la démarche numero %{id}"
       procedures_menu: "Démarches"
@@ -1135,11 +1131,6 @@ fr:
       api_particulier:
         already_configured: "Déjà rempli"
         needs_configuration: "À remplir"
-  gestionnaires:
-    activate:
-      new:
-        title: Choix du mot de passe
-        continue: Continuer
   zones:
     ministeres: Ministères
   france_connect:
@@ -1177,23 +1168,6 @@ fr:
       invalid_password: "Mot de passe incorrect"
       connection_done: "Les comptes FranceConnect et %{application_name} sont à présent fusionnés"
       merger_token_expired: "Le délai pour fusionner les comptes FranceConnect et %{application_name} est expiré. Veuillez recommencer la procédure pour vous fusionner les comptes."
-  groupe_gestionnaires:
-    flash:
-      alert:
-        groupe_gestionnaire_administrateur:
-          cannot_be_deleted: "L’administrateur « %{email} » ne peut pas être supprimé du groupe gestionnaire."
-          not_in_groupe_gestionnaire: "L’administrateur « %{email} » n’est pas dans le groupe gestionnaire."
-        groupe_gestionnaire_gestionnaire:
-          destroy_at_least_one: "Suppression impossible : il doit y avoir au moins un gestionnaire dans le groupe racine"
-          not_in_groupe_gestionnaire: "Le gestionnaire « %{email} » n’est pas dans le groupe gestionnaire."
-      notice:
-        groupe_gestionnaire_administrateur:
-          create: "Les administrateurs ont bien été affectés au groupe gestionnaire"
-          destroy: "L’administrateur « %{email} » a été supprimé."
-          remove: "L’administrateur « %{email} » a été retiré du groupe gestionnaire."
-        groupe_gestionnaire_gestionnaire:
-          create: "Les gestionnaires ont bien été affectés au groupe gestionnaire"
-          destroy: "Le gestionnaire « %{email} » a été retiré du groupe gestionnaire."
   notification_mailer:
     default_templates:
       greeting: Bonjour,

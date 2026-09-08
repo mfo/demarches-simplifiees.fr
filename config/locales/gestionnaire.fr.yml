@@ -1,0 +1,48 @@
+# Translations of the "groupe gestionnaire" feature, gathered here so they move
+# with it. The keys under layouts, manager and views stay in their shared scope:
+# that is where the chrome looks them up.
+fr:
+  layouts:
+    gestionnaire: gestionnaire
+    root_path_link_title:
+      gestionnaire: "Aller au panneau de gestionnaire"
+    breadcrumb:
+      root:
+        gestionnaire: 'Accueil - Liste des groupes'
+    mailers:
+      commentaire_groupe_gestionnaire_footer:
+        do_not_reply_html: Merci de ne pas répondre à cet email. Consultez votre message sur %{application_name} ou contactez votre expéditeur par <a href="mailto:%{sender_email}">mail</a>
+  views:
+    gestionnaires:
+      groupe_gestionnaires:
+        delete: Supprimer
+  manager:
+    gestionnaires:
+      manage_root_groupe_gestionnaire: Gestion du groupe racine
+    groupe_gestionnaires:
+      add_gestionnaire:
+        wrong_address:
+          one: "%{emails} n’est pas une adresse électronique valide"
+          other: "%{emails} ne sont pas des adresses électroniques valides"
+  gestionnaires:
+    activate:
+      new:
+        title: Choix du mot de passe
+        continue: Continuer
+  groupe_gestionnaires:
+    flash:
+      alert:
+        groupe_gestionnaire_administrateur:
+          cannot_be_deleted: "L’administrateur « %{email} » ne peut pas être supprimé du groupe gestionnaire."
+          not_in_groupe_gestionnaire: "L’administrateur « %{email} » n’est pas dans le groupe gestionnaire."
+        groupe_gestionnaire_gestionnaire:
+          destroy_at_least_one: "Suppression impossible : il doit y avoir au moins un gestionnaire dans le groupe racine"
+          not_in_groupe_gestionnaire: "Le gestionnaire « %{email} » n’est pas dans le groupe gestionnaire."
+      notice:
+        groupe_gestionnaire_administrateur:
+          create: "Les administrateurs ont bien été affectés au groupe gestionnaire"
+          destroy: "L’administrateur « %{email} » a été supprimé."
+          remove: "L’administrateur « %{email} » a été retiré du groupe gestionnaire."
+        groupe_gestionnaire_gestionnaire:
+          create: "Les gestionnaires ont bien été affectés au groupe gestionnaire"
+          destroy: "Le gestionnaire « %{email} » a été retiré du groupe gestionnaire."

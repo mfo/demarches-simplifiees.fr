@@ -11,5 +11,3 @@ en:
         submit: "Reset OTP"
       reset_otp:
         success: "Two-factor authentication for %{email} has been reset."
-    gestionnaires:
-      manage_root_groupe_gestionnaire: Root group management

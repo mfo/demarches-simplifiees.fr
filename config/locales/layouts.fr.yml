@@ -2,7 +2,6 @@ fr:
   layouts:
     instructeur: instructeur
     administrateur: administrateur
-    gestionnaire: gestionnaire
     superadmin: super-admin
     expert: expert
     user: usager
