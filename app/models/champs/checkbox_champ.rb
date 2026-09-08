@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class Champs::CheckboxChamp < Champs::BooleanChamp
+  # A checkbox has no empty state: untouched, it displays unchecked, so a
+  # condition on it reads « Non » rather than « pas de reponse ».
+  def blank_for_condition? = false
+
   def legend_label?
     false
   end

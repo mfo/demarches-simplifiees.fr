@@ -22,6 +22,9 @@ class Logic::ChampColumnValue < Logic::Term
     # and the dropdown is other, return other
     if targeted_champ.is_type?(column.tdc_type) && targeted_champ.drop_down_list? && targeted_champ.other?
       Champs::DropDownListChamp::OTHER
+    # the column reads the raw value, nil on a checkbox nobody touched
+    elsif targeted_champ.is_type?(column.tdc_type) && targeted_champ.checkbox?
+      targeted_champ.condition_value
     else
       column.value(targeted_champ)
     end
