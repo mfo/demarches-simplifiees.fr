@@ -4,6 +4,10 @@ source 'https://rubygems.org'
 
 gem 'rails', '~> 8.1.3' # allows update to security fixes at any time
 
+# Feature shipped only to the instances enabling it (ADMINS_GROUP_ENABLED).
+# Always bundled: it owns tables of the host schema.
+gem 'admins_group', path: 'engines/admins_group'
+
 gem 'aasm'
 gem 'active_model_serializers'
 gem 'activestorage-openstack'
@@ -11,7 +15,6 @@ gem 'active_storage_validations'
 gem 'addressable'
 gem 'administrate'
 gem 'after_commit_everywhere' # soft dependency of aasm, loaded via require: makes :after_commit callbacks run after the DB commit (grep won't find it)
-gem 'ancestry'
 gem 'anchored'
 gem 'aws-sdk-s3'
 gem 'bcrypt'
