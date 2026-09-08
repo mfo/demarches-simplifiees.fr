@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GroupeGestionnaire::GroupeGestionnaireGestionnaires::GestionnaireComponent < ApplicationComponent
+class GroupeGestionnaire::GroupeGestionnaireGestionnaires::GestionnaireComponent < GroupeGestionnaire::BaseComponent
   include ApplicationHelper
 
   def initialize(groupe_gestionnaire:, gestionnaire:, is_gestionnaire: true)

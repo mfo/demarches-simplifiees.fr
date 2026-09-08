@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GroupeGestionnaire::Card::GestionnairesComponent < ApplicationComponent
+class GroupeGestionnaire::Card::GestionnairesComponent < GroupeGestionnaire::BaseComponent
   def initialize(groupe_gestionnaire:, path:, is_gestionnaire: true)
     @groupe_gestionnaire = groupe_gestionnaire
     @path = path

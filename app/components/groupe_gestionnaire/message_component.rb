@@ -5,7 +5,7 @@
 # Sibling of Dossiers::MessageComponent, which renders the messagerie of a
 # dossier. The two look alike but share no domain: a CommentaireGroupeGestionnaire
 # has no dossier, no correction, no pending response and no attachment.
-class GroupeGestionnaire::MessageComponent < ApplicationComponent
+class GroupeGestionnaire::MessageComponent < GroupeGestionnaire::BaseComponent
   def initialize(commentaire:, connected_user:, groupe_gestionnaire:, messagerie_seen_at: nil, heading_level: 'h2')
     @commentaire = commentaire
     @connected_user = connected_user
