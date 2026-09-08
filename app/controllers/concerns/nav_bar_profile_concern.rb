@@ -36,11 +36,6 @@ module NavBarProfileConcern
   # Fallback for shared controllers from user account
   # to the more relevant profile.
   def default_nav_bar_profile_for_user
-    return :gestionnaire if current_user.gestionnaire?
-    return :administrateur if current_user.administrateur?
-    return :instructeur if current_user.instructeur?
-    return :expert if current_user.expert?
-
-    :user
+    NavBarProfile.roles.find { current_user.public_send(:"#{it}?") } || :user
   end
 end

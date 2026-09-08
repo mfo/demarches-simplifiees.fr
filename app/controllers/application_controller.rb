@@ -56,14 +56,7 @@ class ApplicationController < ActionController::Base
   end
 
   def multiple_devise_profile_connect?
-    user_signed_in? && instructeur_signed_in? ||
-        instructeur_signed_in? && administrateur_signed_in? ||
-        instructeur_signed_in? && gestionnaire_signed_in? ||
-        instructeur_signed_in? && expert_signed_in? ||
-        user_signed_in? && administrateur_signed_in? ||
-        user_signed_in? && gestionnaire_signed_in? ||
-        user_signed_in? && expert_signed_in? ||
-        administrateur_signed_in? && gestionnaire_signed_in?
+    NavBarProfile.all.count { send(:"#{it}_signed_in?") } > 1
   end
 
   def current_instructeur
@@ -103,13 +96,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_account
-    {
-      gestionnaire: current_gestionnaire,
-      administrateur: current_administrateur,
-      instructeur: current_instructeur,
-      expert: current_expert,
-      user: current_user,
-    }.compact
+    NavBarProfile.all.index_with { send(:"current_#{it}") }.compact
   end
 
   alias_method :pundit_user, :current_user
@@ -265,14 +252,9 @@ class ApplicationController < ActionController::Base
 
   def current_user_roles
     @current_user_roles ||= begin
-      roles = [
-        current_user,
-        current_instructeur,
-        current_expert,
-        current_administrateur,
-        current_gestionnaire,
-        current_super_admin,
-      ].compact.map { |role| role.class.name }
+      roles = (current_account.values + [current_super_admin])
+        .compact
+        .map { |role| role.class.name }
 
       roles.any? ? roles.join(', ') : 'Guest'
     end

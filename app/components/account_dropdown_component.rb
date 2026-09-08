@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class AccountDropdownComponent < ViewComponent::Base
-  PROFIL_CONTEXT_PROFILES = [:user, :instructeur, :administrateur, :expert, :gestionnaire].freeze
-
   attr_reader :dossier
   attr_reader :nav_bar_profile
 
@@ -17,7 +15,7 @@ class AccountDropdownComponent < ViewComponent::Base
   end
 
   def profil_path_params
-    PROFIL_CONTEXT_PROFILES.include?(nav_bar_profile) ? { context: nav_bar_profile } : {}
+    NavBarProfile.all.include?(nav_bar_profile) ? { context: nav_bar_profile } : {}
   end
 
   def france_connected?

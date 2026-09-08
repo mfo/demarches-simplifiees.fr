@@ -61,7 +61,7 @@ describe API::V2::GraphqlController do
         end
         gql_data
         expect(@rs[:user_id]).to eq(admin.user.id)
-        expect(@rs[:user_roles]).to eq("User, Instructeur, Administrateur")
+        expect(@rs[:user_roles]).to eq("Administrateur, Instructeur, User")
       end
     end
 
