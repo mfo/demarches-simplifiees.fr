@@ -3,22 +3,21 @@
 class Dossiers::MessageComponent < ApplicationComponent
   include DossierHelper
 
-  def initialize(commentaire:, connected_user:, messagerie_seen_at: nil, groupe_gestionnaire: nil, heading_level: 'h2', instructeurs_seen_at: nil)
+  def initialize(commentaire:, connected_user:, messagerie_seen_at: nil, heading_level: 'h2', instructeurs_seen_at: nil)
     @commentaire = commentaire
     @connected_user = connected_user
     @messagerie_seen_at = messagerie_seen_at
-    @groupe_gestionnaire = groupe_gestionnaire
     @heading_level = heading_level
     @instructeurs_seen_at = instructeurs_seen_at
   end
 
-  attr_reader :commentaire, :connected_user, :messagerie_seen_at, :groupe_gestionnaire
+  attr_reader :commentaire, :connected_user, :messagerie_seen_at
   def heading_level
     @heading_level
   end
 
   def correction_badge
-    return if groupe_gestionnaire || commentaire.dossier_correction.nil?
+    return if commentaire.dossier_correction.nil?
 
     if commentaire.dossier_correction.cancelled?
       helpers.correction_resolved_badge(:discarded)
@@ -36,7 +35,7 @@ class Dossiers::MessageComponent < ApplicationComponent
   end
 
   def response_badge
-    return if groupe_gestionnaire || commentaire.dossier_pending_response.nil?
+    return if commentaire.dossier_pending_response.nil?
 
     if commentaire.dossier_pending_response.responded?
       # Don't show any badge if the message was deleted
@@ -65,7 +64,7 @@ class Dossiers::MessageComponent < ApplicationComponent
   end
 
   def delete_button_text
-    if groupe_gestionnaire.nil? && commentaire.dossier_pending_response&.pending?
+    if commentaire.dossier_pending_response&.pending?
       t('.delete_with_response_button')
     else
       t('.delete_button')
@@ -73,15 +72,14 @@ class Dossiers::MessageComponent < ApplicationComponent
   end
 
   def show_cancel_correction_button?
-    return false if groupe_gestionnaire
     return false unless connected_user.is_a?(Instructeur)
 
     commentaire.can_cancel_correction?(connected_user)
   end
 
   def show_delete_button?
-    return false if groupe_gestionnaire.nil? && !connected_user.is_a?(Instructeur) && !connected_user.is_a?(Expert)
-    return false if groupe_gestionnaire.nil? && commentaire.dossier_correction&.pending?
+    return false if !connected_user.is_a?(Instructeur) && !connected_user.is_a?(Expert)
+    return false if commentaire.dossier_correction&.pending?
 
     commentaire.soft_deletable?(connected_user)
   end
@@ -122,8 +120,6 @@ class Dossiers::MessageComponent < ApplicationComponent
       t('.automatic_email')
     elsif commentaire.sent_by_usager?
       demandeur_dossier(commentaire.dossier).presence || t('.applicant')
-    elsif groupe_gestionnaire
-      commentaire.gestionnaire_id ? commentaire.gestionnaire_email : commentaire.sender_email
     else
       commentaire.redacted_email
     end
@@ -136,7 +132,7 @@ class Dossiers::MessageComponent < ApplicationComponent
   end
 
   def commentaire_from_guest?
-    groupe_gestionnaire ? false : commentaire.dossier.invites.map(&:email).include?(commentaire.email)
+    commentaire.dossier.invites.map(&:email).include?(commentaire.email)
   end
 
   def commentaire_date
@@ -144,7 +140,7 @@ class Dossiers::MessageComponent < ApplicationComponent
   end
 
   def delete_url
-    groupe_gestionnaire ? gestionnaire_groupe_gestionnaire_commentaire_path(groupe_gestionnaire, commentaire, statut: params[:statut]) : instructeur_commentaire_path(commentaire.dossier.procedure, commentaire.dossier, commentaire, statut: params[:statut])
+    instructeur_commentaire_path(commentaire.dossier.procedure, commentaire.dossier, commentaire, statut: params[:statut])
   end
 
   def highlight?

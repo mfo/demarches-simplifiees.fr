@@ -1,0 +1,25 @@
+- if !commentaire.sent_by?(connected_user)
+  .icon-avatar.fr-background-alt--blue-cumulus
+    = dsfr_icon('fr-icon-user-fill icon-sm-for-xs')
+
+.width-100.fr-p-2w.fr-background-alt--blue-cumulus
+  = tag.send(heading_level, class: 'fr-h6 fr-mb-1w') do
+    %span.mail
+      = commentaire_issuer
+  .rich-text
+    - if commentaire.discarded?
+      %p= "(#{t('.deleted_body')})"
+    - else
+      = render SimpleFormatComponent.new(commentaire.body, allow_a: false, allow_autolink: false)
+
+  - if show_delete_button?
+    = button_to delete_url, method: :delete, class: 'fr-btn fr-btn--sm fr-btn--tertiary fr-icon-delete-line fr-btn--icon-left fr-text-default--warning fr-mb-1w', form: { data: { turbo: true, turbo_confirm: t('.confirm') } } do
+      = t('.delete_button')
+
+  .fr-mt-1v.flex.align-center.flex-gap-1.justify-between
+    %span.date{ class: ["fr-mb-0", "fr-text--xs", "fr-text-mention--grey", "fr-text--regular"], data: scroll_to_target }
+      = commentaire_date
+
+- if commentaire.sent_by?(connected_user)
+  .icon-avatar.fr-background-alt--blue-cumulus
+    = dsfr_icon('fr-icon-user-fill icon-sm-for-xs')
