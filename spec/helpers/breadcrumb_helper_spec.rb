@@ -24,9 +24,20 @@ describe BreadcrumbHelper do
       it { is_expected.to eq(['Accueil - Avis', helper.expert_all_avis_path]) }
     end
 
-    context 'when profile is :gestionnaire' do
+    context 'when profile is :gestionnaire and the feature is enabled', :admins_group do
       let(:profile) { :gestionnaire }
+
       it { is_expected.to eq(['Accueil - Liste des groupes', helper.gestionnaire_groupe_gestionnaires_path]) }
+    end
+
+    context 'when profile is :gestionnaire and the feature is disabled' do
+      let(:profile) { :gestionnaire }
+
+      before { allow(Rails.application.config).to receive(:ds_admins_group_enabled).and_return(false) }
+
+      it 'falls back to the default root' do
+        is_expected.to eq(['Accueil - Liste des démarches', helper.root_path])
+      end
     end
 
     context 'when profile is unknown' do

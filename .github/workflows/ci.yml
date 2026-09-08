@@ -137,6 +137,42 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  admins_group_disabled_tests:
+    name: Unit tests (admins group disabled)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RUBY_YJIT_ENABLE: "1"
+      # Boot without the "groupe gestionnaire" feature, the way our own instance
+      # runs it. Specs tagged :admins_group need the feature and are skipped.
+      DISABLE_ADMINS_GROUP: "1"
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: tps_test
+          POSTGRES_DB: tps_test
+          POSTGRES_PASSWORD: tps_test
+        ports: ["5432:5432"]
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the app runtime and dependencies
+        uses: ./.github/actions/ci-setup-rails
+
+      - name: Download or pre-compile assets
+        uses: ./.github/actions/ci-setup-assets
+
+      - name: Run tests
+        run: |
+          bin/rspec spec/models spec/helpers spec/components spec/controllers spec/views \
+            --tag '~admins_group' --tag ~slow --tag ~external_deps --tag ~llm_eval \
+            --format progress
+
   unit_tests_slow_or_deps:
     name: (slow, dep) unit tests
     runs-on: ubuntu-24.04

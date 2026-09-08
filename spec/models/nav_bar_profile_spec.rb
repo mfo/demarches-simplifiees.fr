@@ -10,6 +10,8 @@ describe NavBarProfile do
     end
 
     context 'when the admins group feature is enabled' do
+      before { allow(Rails.application.config).to receive(:ds_admins_group_enabled).and_return(true) }
+
       it { is_expected.to include(:gestionnaire) }
     end
 
