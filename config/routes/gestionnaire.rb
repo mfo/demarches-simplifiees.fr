@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-if ENV['ADMINS_GROUP_ENABLED'] == 'enabled' || Rails.env.test? # can be removed if needed when EVERY PARTS of the feature will be merged / from env.example.optional
+if Rails.application.config.ds_admins_group_enabled
   scope module: 'gestionnaires', as: 'gestionnaire', defaults: { nav_bar_profile: :gestionnaire } do
     resources :groupe_gestionnaires, path: 'groupes', only: [:index, :show, :edit, :update, :destroy] do
       resources :gestionnaires, controller: 'groupe_gestionnaire_gestionnaires', only: [:index, :create, :destroy]

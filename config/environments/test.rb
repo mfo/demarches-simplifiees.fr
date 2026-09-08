@@ -86,6 +86,8 @@ Rails.application.configure do
 
   config.ds_zonage_enabled = true
 
+  config.ds_admins_group_enabled = true
+
   # BCrypt is slow by design - but during tests we want to make it faster
   # to compute hashes of passwords.
   silence_warnings do

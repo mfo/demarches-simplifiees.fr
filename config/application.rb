@@ -97,6 +97,8 @@ module TPS
 
     config.ds_zonage_enabled = ENV.fetch("ZONAGE_ENABLED", nil) == "enabled"
 
+    config.ds_admins_group_enabled = ENV.fetch("ADMINS_GROUP_ENABLED", nil) == "enabled"
+
     # The :graphql probe attaches GraphQL::Tracing::ActiveSupportNotificationsTrace,
     # which publishes a start/finish AS::Notifications event around every field
     # resolution. On large API V2 responses (tens of thousands of fields) this
