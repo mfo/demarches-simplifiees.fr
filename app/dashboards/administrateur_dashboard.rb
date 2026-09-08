@@ -9,6 +9,10 @@ class AdministrateurDashboard < Administrate::BaseDashboard
   # Each different type represents an Administrate::Field object,
   # which determines how the attribute is displayed
   # on pages throughout the dashboard.
+  # The groupe gestionnaire column only means something on the instances
+  # enabling the feature; everywhere else the association is always nil.
+  ADMINS_GROUP_ATTRIBUTES = Rails.application.config.ds_admins_group_enabled ? [:groupe_gestionnaire] : []
+
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     user: Field::HasOne.with_options(searchable: true, searchable_fields: %w[email]),
@@ -31,7 +35,7 @@ class AdministrateurDashboard < Administrate::BaseDashboard
     :user,
     :created_at,
     :procedures,
-    :groupe_gestionnaire,
+    *ADMINS_GROUP_ATTRIBUTES,
     :registration_state,
   ].freeze
 
@@ -45,7 +49,7 @@ class AdministrateurDashboard < Administrate::BaseDashboard
     :registration_state,
     :features,
     :procedures,
-    :groupe_gestionnaire,
+    *ADMINS_GROUP_ATTRIBUTES,
   ].freeze
 
   # FORM_ATTRIBUTES
