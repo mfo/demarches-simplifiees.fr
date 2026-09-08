@@ -2,7 +2,8 @@
 
 = render partial: 'shared/breadcrumbs_section',
     locals: { steps: [["#{@groupe_gestionnaire.name.truncate_words(10)}"]],
-              metadatas: true }
+              metadatas: true,
+              metadatas_title: @groupe_gestionnaire.name }
 
 .fr-container.procedure-admin-container
   %ul.fr-btns-group.fr-btns-group--inline-sm.fr-btns-group--icon-left

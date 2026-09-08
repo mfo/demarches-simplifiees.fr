@@ -32,6 +32,8 @@ describe Gestionnaires::GroupeGestionnairesController, type: :controller do
   end
 
   describe "#show" do
+    render_views
+
     subject { get :show, params: { id: child_groupe_gestionnaire.id } }
     let!(:groupe_gestionnaire_root) { create(:groupe_gestionnaire, gestionnaires: [gestionnaire]) }
     let!(:child_groupe_gestionnaire) { create(:groupe_gestionnaire, ancestry: "/#{groupe_gestionnaire_root.id}/", gestionnaires: [gestionnaire]) }
@@ -52,6 +54,7 @@ describe Gestionnaires::GroupeGestionnairesController, type: :controller do
         subject
         expect(response).to have_http_status(:ok)
         expect(assigns(:groupe_gestionnaire)).to eq(child_groupe_gestionnaire)
+        expect(response.body).to match(%r{<div class="metadatas[^"]*">\s*<h1[^>]*>#{Regexp.escape(child_groupe_gestionnaire.name)}</h1>})
       end
     end
   end

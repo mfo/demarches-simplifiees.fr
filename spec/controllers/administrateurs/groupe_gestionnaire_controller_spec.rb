@@ -4,6 +4,8 @@ describe Administrateurs::GroupeGestionnaireController, type: :controller do
   let(:admin) { administrateurs.default }
 
   describe "#show" do
+    render_views
+
     subject { get :show }
 
     context "when not logged" do
@@ -22,6 +24,7 @@ describe Administrateurs::GroupeGestionnaireController, type: :controller do
       it do
         expect(response).to have_http_status(:ok)
         expect(assigns(:groupe_gestionnaire)).to eq(groupe_gestionnaire)
+        expect(response.body).to match(%r{<div class="metadatas[^"]*">\s*<h1[^>]*>#{Regexp.escape(groupe_gestionnaire.name)}</h1>})
       end
     end
   end
