@@ -30,16 +30,6 @@ class UserMailerPreview < ActionMailer::Preview
     UserMailer.invite_tiers(user, 'aedfa0d0', Dossier.first)
   end
 
-  def invite_gestionnaire
-    groupe_gestionnaire = GroupeGestionnaire.new(name: 'Root admins group')
-    UserMailer.invite_gestionnaire(user, 'aedfa0d0', groupe_gestionnaire)
-  end
-
-  def invite_gestionnaire_via_pro_connect
-    groupe_gestionnaire = GroupeGestionnaire.new(name: 'Root admins group')
-    UserMailer.invite_gestionnaire_via_pro_connect(user, groupe_gestionnaire)
-  end
-
   def reset_password_via_pro_connect
     UserMailer.reset_password_via_pro_connect(user)
   end

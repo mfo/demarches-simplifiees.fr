@@ -14,10 +14,6 @@ en:
       subject: Verify your email address
     resend_confirmation_email:
       subject: Verify your email address
-    invite_gestionnaire:
-      subject: Activate your manager account
-    invite_gestionnaire_via_pro_connect:
-      subject: Activate your manager account
     reset_password_via_pro_connect:
       subject: Sign in with ProConnect
     send_archive:

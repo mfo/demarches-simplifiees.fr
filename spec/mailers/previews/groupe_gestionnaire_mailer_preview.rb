@@ -38,6 +38,16 @@ class GroupeGestionnaireMailerPreview < ActionMailer::Preview
     GroupeGestionnaireMailer.notify_new_commentaire_groupe_gestionnaire(groupe_gestionnaire, commentaire, admin_email, gestionnaire.email, commentaire_url)
   end
 
+  def invite_gestionnaire
+    groupe_gestionnaire = GroupeGestionnaire.new(name: 'Root admins group')
+    GroupeGestionnaireMailer.invite_gestionnaire(user, 'aedfa0d0', groupe_gestionnaire)
+  end
+
+  def invite_gestionnaire_via_pro_connect
+    groupe_gestionnaire = GroupeGestionnaire.new(name: 'Root admins group')
+    GroupeGestionnaireMailer.invite_gestionnaire_via_pro_connect(user, groupe_gestionnaire)
+  end
+
   private
 
   def user

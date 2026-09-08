@@ -68,29 +68,6 @@ class UserMailer < ApplicationMailer
       reply_to: CONTACT_EMAIL)
   end
 
-  def invite_gestionnaire(user, reset_password_token, groupe_gestionnaire)
-    @reset_password_token = reset_password_token
-    @user = user
-    @groupe_gestionnaire = groupe_gestionnaire
-
-    bypass_unverified_mail_protection!
-
-    mail(to: user.email,
-      subject: default_i18n_subject,
-      reply_to: CONTACT_EMAIL)
-  end
-
-  def invite_gestionnaire_via_pro_connect(user, groupe_gestionnaire)
-    @user = user
-    @groupe_gestionnaire = groupe_gestionnaire
-
-    bypass_unverified_mail_protection!
-
-    mail(to: user.email,
-      subject: default_i18n_subject,
-      reply_to: CONTACT_EMAIL)
-  end
-
   def reset_password_via_pro_connect(user)
     @user = user
 
