@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 class Dossiers::InvalidIneligibiliteRulesComponent < ApplicationComponent
-  delegate :can_passer_en_construction?, to: :dossier
-
   def initialize(dossier:, wrapped: true)
     @dossier = dossier
     @revision = dossier.revision
-
-    @opened = !dossier.can_passer_en_construction?
     @wrapped = wrapped
   end
 
@@ -23,6 +19,8 @@ class Dossiers::InvalidIneligibiliteRulesComponent < ApplicationComponent
     dossier.revision.ineligibilite_message
   end
 
-  def opened? = @opened
+  # The alert only speaks about champs the usager wrote.
+  def opened? = !dossier.can_submit_modifications?
+
   def wrapped? = @wrapped
 end
