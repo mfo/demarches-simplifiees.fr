@@ -176,7 +176,7 @@ describe ProcedurePublishConcern do
       end
 
       it 'nullifies the referentiel' do
-        expect(procedure.draft_revision.public_root_type_de_champs.first.referentiel).to be_nil
+        expect(tdc.referentiel).to be_nil
       end
     end
   end
