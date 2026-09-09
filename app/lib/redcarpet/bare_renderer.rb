@@ -30,8 +30,16 @@ module Redcarpet
       content_tag(:a, content, { href:, title: new_tab_suffix(title), **external_link_attributes }, false)
     end
 
+    # Redcarpet's C scanner ends an autolink on isalnum(), which on macOS in a
+    # UTF-8 locale accepts the lead byte of the character following the address
+    # (a no-break space before a colon, an accented letter, a « ») and hands us
+    # a link with a stray byte that Rails then rejects as invalid UTF-8. glibc
+    # does not classify those bytes, so production is unaffected. Link the valid
+    # prefix and put the stray bytes back after it, where Redcarpet emits the
+    # rest of the character: the output bytes are the intended ones.
     def autolink(link, link_type)
-      case link_type
+      link, stray = split_invalid_tail(link)
+      html = case link_type
       when :url
         link(link, nil, link)
       when :email
@@ -40,6 +48,17 @@ module Redcarpet
       else
         link
       end
+      stray ? html.to_str + stray : html
+    end
+
+    private
+
+    def split_invalid_tail(text)
+      return [text, nil] if text.valid_encoding?
+
+      valid = text.dup
+      valid = valid.byteslice(0, valid.bytesize - 1) until valid.valid_encoding?
+      [valid, text.byteslice(valid.bytesize..)]
     end
   end
 end

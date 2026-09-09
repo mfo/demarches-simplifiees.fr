@@ -141,6 +141,20 @@ TEXT
         expect(link[:rel]).to be_nil
       end
 
+      context "followed by a multibyte character (no-break space before a colon, accented letter)" do
+        # On macOS Redcarpet swallows the lead byte of the next character into the link
+        let(:text) { "Contact : ds@rspec.io\u00A0: écrire à ds@rspec.frécrivez, voir https://ds.io/aide\u00A0!" }
+
+        it "links the address alone and keeps the following character" do
+          expect(page.find_link("ds@rspec.io").native[:href]).to eq("mailto:ds@rspec.io")
+          expect(page.find_link("ds@rspec.fr").native[:href]).to eq("mailto:ds@rspec.fr")
+          # Redcarpet's URL scanner stops on ASCII whitespace only, so with glibc
+          # the no-break space stays inside the link: check the link, not its href
+          expect(page).to have_link("https://ds.io/aide")
+          expect(page.text).to include("ds@rspec.io\u00A0: écrire à ds@rspec.frécrivez, voir https://ds.io/aide\u00A0!")
+        end
+      end
+
       it "convert www only" do
         link = page.find_link("www.ds.io").native
         expect(link[:href]).to eq("http://www.ds.io")
