@@ -466,8 +466,6 @@ GEM
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
     mime-types-data (3.2026.0414)
-    mina (1.2.5)
-      rake
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
@@ -1017,7 +1015,6 @@ DEPENDENCIES
   maintenance_tasks
   matrix
   memory_profiler
-  mina
   net-imap
   net-pop
   net-smtp

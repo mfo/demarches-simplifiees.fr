@@ -15,12 +15,6 @@ Usually, an upgrade deployment goes like this (in pseudo-code):
 # Run data migrations (e.g. `rake after_party:run`)
 ```
 
-On the main instance, this deployment flow is implemented using [`mina`](https://github.com/mina-deploy/mina), which automatically sshs to the application servers, run the appropriate commands (see `lib/tasks/deploy.rake` and `config/deploy.rb`), and restarts the puma webserver in a way that ensures zero-downtime deployments.
-A deploy on multiple application servers is typically done using:
-```shell
-DOMAINS="web1 web2" BRANCH="main" bin/rake deploy
-```
-
 ### 6.1 Standard upgrade path
 
 Theoretically, only deploying each version sequentially is fully supported. This means that to deploy the version N+3, the upgrade plan should be to deploy the version N+1, N+2 and then only N+3, in that order.
