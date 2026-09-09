@@ -153,7 +153,6 @@ describe DossierExportConcern do
 
   describe "#spreadsheet_columns" do
     before_all { seed "cases/sva" }
-    let(:user) { users.usager }
 
     let(:dossier) { dossiers.brouillon }
 
