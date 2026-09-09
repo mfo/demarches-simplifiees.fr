@@ -764,7 +764,7 @@ class Procedure < ApplicationRecord
     label_ids_positions = ordered_label_ids.each.with_index.to_h
     Label.transaction do
       label_ids_positions.each do |label_id, position|
-        labels.where(id: label_id).update(position:)
+        Label.where(id: label_id, procedure_id: self.id).update_all(position:)
       end
     end
   end

@@ -7,7 +7,7 @@ module Administrateurs
     before_action :set_colors_collection, only: [:edit, :new, :create, :update]
 
     def index
-      @labels = @procedure.labels
+      @labels = @procedure.labels.includes(:dossier_labels)
     end
 
     def edit
