@@ -10,10 +10,15 @@ class ChampPresentations::MultilineTextPresentation < ChampPresentations::BasePr
     @text = text.to_s.gsub("\r\n", "\n").strip
   end
 
+  # A newline, or the `<br>` an instructeur types in a motivation: both reach
+  # the tree as raw text, and both mean a line. The break comes first so that a
+  # newline touching it is swallowed with it, rather than counted twice.
+  SEPARATOR = Regexp.union(TiptapService::LINE_BREAK, "\n")
+
   def to_s = text
 
   def to_tiptap_nodes
-    text.split("\n").flat_map.with_index do |line, index|
+    text.split(SEPARATOR, -1).flat_map.with_index do |line, index|
       [({ type: 'hardBreak' } if index > 0), ({ type: 'text', text: line } unless line.empty?)].compact
     end
   end

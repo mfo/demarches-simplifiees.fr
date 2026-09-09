@@ -41,12 +41,7 @@ class ChampPresentations::RepetitionPresentation < ChampPresentations::BasePrese
                   }.compact,
                   {
                     type: 'descriptionDetails',
-                    content: [
-                      {
-                        type: 'text',
-                        text: champ.to_s,
-                      },
-                    ],
+                    content: TiptapService.line_nodes(champ.to_s),
                   },
                 ]
               end.flatten,

@@ -10,6 +10,15 @@ class TiptapService
   # Inline nodes of the tiptap schema, every other node is a block.
   INLINE_TYPES = ['text', 'hardBreak'].freeze
 
+  # The line breaks a champ value carries. Instructeurs and admins write `<br>`
+  # in them - in a private annotation, mostly - because substitutions used to be
+  # spliced raw into the page, so they have to become nodes now that the tree is
+  # resolved before rendering. A run of them is one break: the attestation
+  # renders a hard break as a blank line, and `<br><br>` means one blank line.
+  # Nothing else in a value is read as markup: it is free text, where an HTML
+  # parser would swallow `Cher <Prénom>` and stray `<` along the way.
+  LINE_BREAK = %r{[[:space:]]*(?:<br[[:space:]]*/?>[[:space:]]*)+}i
+
   # NOTE: node must be deep symbolized keys
   def self.used_tags_and_libelle_for(node, tags = Set.new)
     case node
@@ -27,9 +36,10 @@ class TiptapService
   # Replaces every mention by its substitution and returns a document that
   # follows the tiptap schema, so that renderers (HTML, Typst) never have to
   # know about mentions:
-  # - a text substitution becomes a text node carrying the mention marks
-  #   (the string keeps its `html_safe?` flag, so an HTML renderer escapes
-  #   exactly what the substitution layer did not);
+  # - a text substitution becomes text nodes separated by the hard breaks its
+  #   `<br>` stand for, carrying the mention marks; the string keeps its
+  #   `html_safe?` flag when it holds no break, so an HTML renderer escapes
+  #   exactly what the substitution layer did not;
   # - a presentation becomes its tiptap nodes: inline ones (multiline text)
   #   stay in the paragraph, their text nodes carrying the mention marks;
   #   block ones (the lists of a repetition, a multiple drop down or a carte)
@@ -71,12 +81,23 @@ class TiptapService
       nodes = if value.respond_to?(:to_tiptap_nodes) && !text_only
         value.to_tiptap_nodes
       else
-        [{ type: 'text', text: value.to_s }]
+        line_nodes(value, text_only:)
       end
       marks = rest[:marks]
       marks.present? ? nodes.map { it[:type] == 'text' ? it.merge(marks:) : it } : nodes
     else
       [node]
+    end
+  end
+
+  # A title and a heading read as one line, so their breaks become spaces.
+  def self.line_nodes(value, text_only: false)
+    text = value.to_s
+    return [{ type: 'text', text: }] if !text.match?(LINE_BREAK)
+    return [{ type: 'text', text: text.gsub(LINE_BREAK, ' ') }] if text_only
+
+    text.split(LINE_BREAK, -1).flat_map.with_index do |line, index|
+      [({ type: 'hardBreak' } if index > 0), ({ type: 'text', text: line } unless line.empty?)].compact
     end
   end
 

@@ -108,5 +108,15 @@ describe ChampPresentations::RepetitionPresentation do
 
       expect(representation.to_tiptap_node).to eq(expected_node)
     end
+
+    it 'reads the <br> a champ value carries as a line' do
+      champ = double(libelle: 'Adresse', to_s: '12 rue X<br>75001 Paris', blank?: false)
+      node = described_class.new(libelle, [[champ]]).to_tiptap_node
+
+      expect(node[:content].first[:content].first[:content].second).to eq({
+        type: "descriptionDetails",
+        content: [{ type: 'text', text: '12 rue X' }, { type: 'hardBreak' }, { type: 'text', text: '75001 Paris' }],
+      })
+    end
   end
 end

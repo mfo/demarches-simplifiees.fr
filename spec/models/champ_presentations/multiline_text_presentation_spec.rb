@@ -24,6 +24,14 @@ describe ChampPresentations::MultilineTextPresentation do
       ])
     end
 
+    it 'reads the <br> an instructeur types as a line too' do
+      expect(described_class.new("Refus.<br><br>Motif : incomplet").to_tiptap_nodes).to eq([
+        { type: 'text', text: 'Refus.' },
+        { type: 'hardBreak' },
+        { type: 'text', text: 'Motif : incomplet' },
+      ])
+    end
+
     it { expect(described_class.new(nil).to_tiptap_nodes).to eq([]) }
   end
 end
