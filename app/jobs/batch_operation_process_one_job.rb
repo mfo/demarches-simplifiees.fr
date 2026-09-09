@@ -20,7 +20,9 @@ class BatchOperationProcessOneJob < ApplicationJob
         end
         batch_operation.track_processed_dossier(false, dossier, error_message)
       end
-      raise error
+      # A failed guard (annotations privées, SIRET dégradé, correction en attente)
+      # is a per-dossier failure already reported to the instructeur, not a job failure.
+      raise error unless error.is_a?(AASM::InvalidTransition)
     ensure
       batch_operation.finalize_if_complete!
     end
@@ -48,6 +50,8 @@ class BatchOperationProcessOneJob < ApplicationJob
       I18n.t('instructeurs.dossiers.aasm_error_etablissement_as_degraded_mode', state: dossier_display_state(target_state))
     elsif exception.failures.include?(:can_terminer?) && !dossier.champs_private_valid?
       I18n.t('instructeurs.dossiers.aasm_error_annotations_no_url')
+    elsif exception.failures.include?(:can_passer_en_instruction?) && dossier.blocked_with_pending_correction?
+      I18n.t('instructeurs.dossiers.aasm_error_pending_correction')
     else
       I18n.t('instructeurs.dossiers.aasm_error_other', originating_state: dossier_display_state(exception.originating_state), target_state: dossier_display_state(target_state))
     end

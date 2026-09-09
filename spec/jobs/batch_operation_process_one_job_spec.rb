@@ -356,9 +356,26 @@ describe BatchOperationProcessOneJob, type: :job do
         allow_any_instance_of(Dossier).to receive(:any_etablissement_as_degraded_mode?).and_return(false)
       end
 
-      it 'stores a human readable error message' do
-        expect { subject.perform_now }.to raise_error(AASM::InvalidTransition)
+      it 'stores a human readable error message without failing the job' do
+        expect { subject.perform_now }.not_to raise_error
         expect(batch_operation.dossier_operations.error.first.error_message).to include("annotations privées")
+      end
+    end
+
+    context 'when operation is "passer_en_instruction" and the dossier awaits a correction' do
+      let(:batch_operation) do
+        create(:batch_operation, :passer_en_instruction,
+               options.merge(instructeur: create(:instructeur)))
+      end
+
+      before do
+        allow_any_instance_of(Dossier).to receive(:blocked_with_pending_correction?).and_return(true)
+      end
+
+      it 'stores a human readable error message without failing the job' do
+        expect { subject.perform_now }.not_to raise_error
+        expect(batch_operation.dossier_operations.error.first.error_message).to include("attente de correction")
+        expect(dossier_job.reload).to be_en_construction
       end
     end
 
@@ -372,8 +389,8 @@ describe BatchOperationProcessOneJob, type: :job do
         allow_any_instance_of(Dossier).to receive(:any_etablissement_as_degraded_mode?).and_return(true)
       end
 
-      it 'stores a human readable error message' do
-        expect { subject.perform_now }.to raise_error(AASM::InvalidTransition)
+      it 'stores a human readable error message without failing the job' do
+        expect { subject.perform_now }.not_to raise_error
         expect(batch_operation.dossier_operations.error.first.error_message).to include("SIRET")
       end
     end
