@@ -6,6 +6,8 @@ en:
     breadcrumb:
       root:
         gestionnaire: 'Home - Groups list'
+  account_dropdown_component:
+    go_gestionnaire: 'Switch to admins group manager'
   views:
     gestionnaires:
       groupe_gestionnaires:

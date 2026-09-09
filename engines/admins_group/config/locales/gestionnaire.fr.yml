@@ -12,6 +12,8 @@ fr:
     mailers:
       commentaire_groupe_gestionnaire_footer:
         do_not_reply_html: Merci de ne pas répondre à cet email. Consultez votre message sur %{application_name} ou contactez votre expéditeur par <a href="mailto:%{sender_email}">mail</a>
+  account_dropdown_component:
+    go_gestionnaire: 'Passer en gestionnaire'
   views:
     gestionnaires:
       groupe_gestionnaires:

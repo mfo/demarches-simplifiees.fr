@@ -4,7 +4,6 @@ en:
   go_instructeur: 'Switch to instructor'
   go_expert: 'Switch to expert'
   go_administrateur: 'Switch to administrator'
-  go_gestionnaire: 'Switch to admins group manager'
   profile: 'See my profile'
   logout: 'Log out'
   my_account: 'My profile'
