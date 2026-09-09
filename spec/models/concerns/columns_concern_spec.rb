@@ -344,4 +344,197 @@ describe ColumnsConcern do
       end
     end
   end
+
+  describe '#customizable_columns' do
+    include Logic
+
+    let(:procedure) do
+      create(:procedure, :published,
+             public_type_de_champs: [
+               { type: :text, libelle: 'Ville', mandatory: true },
+               { type: :date, libelle: 'Date arrivée' },
+               { type: :textarea, libelle: 'Description' },
+               { type: :piece_justificative, libelle: 'Justificatif' },
+               { type: :yes_no, libelle: 'Accord' },
+               { type: :header_section, libelle: 'Section A' },
+             ],
+             private_type_de_champs: [
+               { type: :text, libelle: 'Note interne' },
+             ])
+    end
+
+    it 'includes proposable public champ types' do
+      expect(procedure.customizable_columns.map(&:label)).to include('Ville', 'Date arrivée')
+    end
+
+    it 'excludes non-proposable types (textarea, piece_justificative, yes_no, header_section)' do
+      labels = procedure.customizable_columns.map(&:label)
+      expect(labels).not_to include('Description', 'Justificatif', 'Accord', 'Section A')
+    end
+
+    it 'excludes private annotations' do
+      expect(procedure.customizable_columns.map(&:label)).not_to include('Note interne')
+    end
+
+    it 'returns Columns::ChampColumn instances carrying mandatory flag' do
+      expect(procedure.customizable_columns).to all(be_a(Columns::ChampColumn))
+      ville_column = procedure.customizable_columns.find { _1.label == 'Ville' }
+      expect(ville_column.mandatory).to eq(true)
+    end
+
+    it 'returns a single entry for a multi-column champ like address' do
+      procedure = create(:procedure, :published, public_type_de_champs: [{ type: :address, libelle: 'Domicile' }])
+      columns = procedure.customizable_columns.filter { _1.label.include?('Domicile') }
+      expect(columns.size).to eq(1)
+      expect(columns.first.tdc_type).to eq('address')
+    end
+
+    it 'offers the commune name column for a commune champ' do
+      procedure = create(:procedure, :published, public_type_de_champs: [{ type: :communes, libelle: 'Ville de naissance' }])
+      dossier = create(:dossier, :with_populated_champs, procedure:)
+
+      column = procedure.customizable_columns.sole
+      expect(column.label).to eq('Ville de naissance – Commune')
+      expect(column.value(dossier.champs.first)).to eq('Coye-la-Forêt')
+    end
+
+    it 'offers the canonical column for a single-column champ' do
+      ville_column = procedure.customizable_columns.find { _1.label == 'Ville' }
+      expect(ville_column.h_id[:column_id]).to eq("type_de_champ/#{ville_column.stable_id}")
+    end
+
+    it 'excludes champs that carry a condition' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Toujours visible' },
+        { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+      ])
+
+      expect(procedure.customizable_columns.map(&:label)).to eq(['Toujours visible'])
+    end
+
+    it 'excludes a champ conditioned in the published revision even if unconditioned in an older revision' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Cible', stable_id: 2 },
+      ])
+      tdc = procedure.draft_revision.find_and_ensure_exclusive_use(2)
+      tdc.update!(condition: ds_eq(champ_value(1), constant(true)))
+      procedure.publish_revision!(procedure.administrateurs.first)
+      procedure.reload
+
+      expect(procedure.customizable_columns.map(&:label)).not_to include('Cible')
+    end
+
+    it 'excludes a champ removed from the published revision even if present in an older revision' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :text, libelle: 'Conservé', stable_id: 1 },
+        { type: :text, libelle: 'Supprimé', stable_id: 2 },
+      ])
+      procedure.draft_revision.remove_type_de_champ(2)
+      procedure.publish_revision!(procedure.administrateurs.first)
+      procedure.reload
+
+      expect(procedure.customizable_columns.map(&:label)).to eq(['Conservé'])
+    end
+  end
+
+  describe '#customizable_columns_by_section' do
+    include Logic
+
+    let(:procedure) do
+      create(:procedure, :published,
+             public_type_de_champs: [
+               { type: :text, libelle: 'Avant section' },
+               { type: :header_section, libelle: 'Identité' },
+               { type: :text, libelle: 'Nom' },
+               { type: :textarea, libelle: 'Bio' },
+               { type: :header_section, libelle: 'Adresse' },
+               { type: :address, libelle: 'Domicile' },
+             ])
+    end
+
+    it 'groups personnalisable columns under their preceding section, in form order' do
+      result = procedure.customizable_columns_by_section
+      labels = result.map { |_stable_id, section_label, columns| [section_label, columns.map(&:label)] }
+
+      expect(labels).to eq([
+        [nil, ['Avant section']],
+        ['1. Identité', ['Nom']],
+        ['2. Adresse', ['Domicile']],
+      ])
+    end
+
+    it 'omits sections that contain no personnalisable column but counts them for numbering' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :header_section, libelle: 'Vide' },
+        { type: :textarea, libelle: 'Long' },
+        { type: :header_section, libelle: 'Pleine' },
+        { type: :text, libelle: 'Court' },
+      ])
+
+      sections = procedure.customizable_columns_by_section.map { |_stable_id, label, _columns| label }
+      expect(sections).to eq(['2. Pleine'])
+    end
+
+    it 'numbers sub-sections with dotted notation' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :header_section, libelle: 'Parent', level: 1 },
+        { type: :text, libelle: 'Champ parent' },
+        { type: :header_section, libelle: 'Enfant', level: 2 },
+        { type: :text, libelle: 'Champ enfant' },
+      ])
+
+      sections = procedure.customizable_columns_by_section.map { |_stable_id, label, _columns| label }
+      expect(sections).to eq(['1. Parent', '1.1. Enfant'])
+    end
+
+    it 'does not auto-number when the admin already numbered at least one section' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :header_section, libelle: '1. Identité' },
+        { type: :text, libelle: 'Nom' },
+        { type: :header_section, libelle: 'Représentant légal' },
+        { type: :text, libelle: 'Fonction' },
+      ])
+
+      sections = procedure.customizable_columns_by_section.map { |_stable_id, label, _columns| label }
+      expect(sections).to eq(['1. Identité', 'Représentant légal'])
+    end
+
+    it 'returns the section header stable_id as a stable key' do
+      stable_ids = procedure.customizable_columns_by_section.map(&:first)
+      header_stable_ids = procedure.published_revision.public_root_type_de_champs.filter(&:header_section?).map(&:stable_id)
+
+      expect(stable_ids).to eq([nil, *header_stable_ids])
+    end
+
+    it 'does not query procedure_revisions or type_de_champs on each call (no N+1)' do
+      p = Procedure.includes(published_revision: { revision_type_de_champs: :type_de_champ }).find(procedure.id)
+
+      revision_query_count = 0
+      tdc_query_count = 0
+      ActiveSupport::Notifications.subscribed(
+        lambda { |_n, _s, _f, _i, payload|
+          sql = payload[:sql].to_s
+          revision_query_count += 1 if sql.include?("procedure_revisions")
+          tdc_query_count += 1 if sql.include?("type_de_champs")
+        },
+        "sql.active_record"
+      ) { p.customizable_columns_by_section }
+
+      expect(revision_query_count).to eq(0)
+      expect(tdc_query_count).to eq(0)
+    end
+
+    it 'excludes champs that carry a condition' do
+      procedure = create(:procedure, :published, public_type_de_champs: [
+        { type: :yes_no, libelle: 'Gate', stable_id: 1 },
+        { type: :text, libelle: 'Toujours visible' },
+        { type: :text, libelle: 'Conditionné', condition: ds_eq(champ_value(1), constant(true)) },
+      ])
+
+      labels = procedure.customizable_columns_by_section.flat_map { |_stable_id, _label, columns| columns.map(&:label) }
+      expect(labels).to eq(['Toujours visible'])
+    end
+  end
 end
