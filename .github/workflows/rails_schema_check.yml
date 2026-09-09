@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - 'db/migrate/**'
+      - 'engines/*/db/migrate/**'
       - 'db/schema.rb'
   pull_request:
     branches: [main]
     paths:
       - 'db/migrate/**'
+      - 'engines/*/db/migrate/**'
       - 'db/schema.rb'
 
 jobs:
@@ -27,8 +29,13 @@ jobs:
         #!/bin/bash
         set -e
 
-        latest_migration_file=$(ls -v db/migrate/*.rb | tail -n 1)
-        latest_migration_version=$(basename $latest_migration_file | grep -oE '^[0-9]+')
+        # In-repo engines carry their own migrations, so the latest version has to
+        # be looked for across all migration paths. Sorting on the file names
+        # would rank them by directory first, so compare the versions themselves.
+        shopt -s nullglob
+        migration_files=(db/migrate/*.rb engines/*/db/migrate/*.rb)
+        latest_migration_version=$(printf '%s\n' "${migration_files[@]##*/}" | grep -oE '^[0-9]+' | sort -n | tail -n 1)
+        latest_migration_file=$(printf '%s\n' "${migration_files[@]}" | grep "/${latest_migration_version}_")
 
         # Get the schema version, without underscores
         schema_version=$(grep -oE 'define.version: [0-9_]+' db/schema.rb | cut -d ' ' -f 2 | tr -d _)

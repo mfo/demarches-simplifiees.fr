@@ -9,12 +9,20 @@ module AdminsGroup
   # (User, Administrateur, ApplicationController). Isolating it would rename
   # every route helper for no benefit.
   #
-  # Its tables are part of the host schema, so db/migrate and db/schema.rb stay
-  # in the host: a disabled instance still carries the columns, it just never
-  # reaches the feature.
+  # db/schema.rb stays in the host: it is dumped from the whole database, which
+  # holds the feature's tables like any other.
   class Engine < ::Rails::Engine
-    # The engine's specs live next to its code, so the mailer previews have to be
-    # told where to look. Its factories are picked up by rails_helper's glob.
+    # The engine owns the tables of the feature, so it carries their migrations.
+    # Appending the path, rather than installing copies into the host's
+    # db/migrate, keeps them with the code they belong to. Already-applied
+    # versions are tracked in schema_migrations, so moving the files changes
+    # nothing for an existing database.
+    initializer 'admins_group.migrations' do |app|
+      config.paths['db/migrate'].expanded.each { app.config.paths['db/migrate'] << it }
+    end
+
+    # The engine's specs live next to its code, so the mailer previews have to
+    # be told where to look. Its factories are picked up by rails_helper's glob.
     initializer 'admins_group.mailer_previews' do |app|
       app.config.action_mailer.preview_paths << root.join('spec/mailers/previews').to_s
     end
