@@ -74,7 +74,7 @@ describe DossierExportConcern do
             dossier_test = create(:dossier, procedure: proc_test)
             type_champs = proc_test.all_revisions_type_de_champs(parent: tdc_repetition).to_a
             expect(type_champs.size).to eq(1)
-            expect(dossier.champ_values_for_export(type_champs, format: :xlsx).size).to eq(3)
+            expect(dossier_test.champ_values_for_export(type_champs, format: :xlsx).size).to eq(3)
           end
         end
 
