@@ -26,6 +26,13 @@ describe Administrateurs::GroupeGestionnaireController, type: :controller do
         expect(assigns(:groupe_gestionnaire)).to eq(groupe_gestionnaire)
         expect(response.body).to match(%r{<div class="metadatas[^"]*">\s*<h1[^>]*>#{Regexp.escape(groupe_gestionnaire.name)}</h1>})
       end
+
+      # Contributed to the administrateur nav bar through ViewExtensionHelper.
+      # Matched on the nav link itself: the breadcrumb of this very page carries
+      # the same label, so a bare include() would pass without the contribution.
+      it 'shows the nav bar link to the group' do
+        expect(response.body).to match(%r{<a[^>]*class="fr-nav__link"[^>]*>Mon groupe gestionnaire</a>})
+      end
     end
   end
 
