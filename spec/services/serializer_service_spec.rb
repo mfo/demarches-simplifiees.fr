@@ -67,4 +67,18 @@ describe SerializerService do
       expect(SerializerService.dossier(dossiers.en_construction)).to include("number" => dossiers.en_construction.id)
     end
   end
+  describe "error reporting" do
+    let(:dossier) { dossiers.en_construction }
+
+    before { allow(API::V2::StoredQuery).to receive(:execute).and_return({ "errors" => [{ "message" => "boom" }] }) }
+    after { Sentry.get_current_scope.clear }
+
+    it "raises once, tagged with the dossier, instead of capturing a message on top of the raise" do
+      expect(Sentry).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception)
+
+      expect { SerializerService.dossier(dossier) }.to raise_error(SerializerService::Error, "boom")
+      expect(Sentry.get_current_scope.tags).to include(dossier: dossier.id)
+    end
+  end
 end
