@@ -161,7 +161,6 @@ end
 group :development, :test do
   gem 'graphql-schema_comparator'
   gem 'irb'
-  gem 'mina', require: false # Deploy
   gem 'oaken' # Seed data shared between development and test
   gem 'rspec-rails'
   gem 'simple_xlsx_reader'
