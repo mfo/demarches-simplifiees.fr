@@ -206,4 +206,580 @@ describe RevisionComparisonConcern do
       end
     end
   end
+
+  describe '#compare_type_de_champs' do
+    let(:draft) { procedure.draft_revision }
+    include Logic
+    let(:new_draft) { procedure.create_new_revision }
+    subject { procedure.active_revision.compare_type_de_champs(new_draft.reload).map(&:to_h) }
+
+    describe 'when tdcs changes' do
+      let(:first_tdc) { draft.public_root_type_de_champs.first }
+      let(:second_tdc) { draft.public_root_type_de_champs.second }
+
+      context 'with a procedure with 2 tdcs' do
+        let(:procedure) do
+          create(:procedure, public_type_de_champs: [
+            { type: :integer_number, libelle: 'l1' },
+            { type: :text, libelle: 'l2' },
+          ])
+        end
+
+        context 'when a condition is added' do
+          before do
+            second = new_draft.find_and_ensure_exclusive_use(second_tdc.stable_id)
+            second.update(condition: ds_eq(champ_value(first_tdc.stable_id), constant(3)))
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                attribute: :condition,
+                from: nil,
+                label: "l2",
+                op: :update,
+                private: false,
+                stable_id: second_tdc.stable_id,
+                to: "(l1 == 3)",
+              },
+            ])
+          end
+        end
+
+        context 'when a condition is removed' do
+          before do
+            second_tdc.update(condition: ds_eq(champ_value(first_tdc.stable_id), constant(2)))
+            draft.reload
+
+            second = new_draft.find_and_ensure_exclusive_use(second_tdc.stable_id)
+            second.update(condition: nil)
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                attribute: :condition,
+                from: "(l1 == 2)",
+                label: "l2",
+                op: :update,
+                private: false,
+                stable_id: second_tdc.stable_id,
+                to: nil,
+              },
+            ])
+          end
+        end
+
+        context 'when a condition is changed' do
+          before do
+            second_tdc.update(condition: ds_eq(champ_value(first_tdc.stable_id), constant(2)))
+            draft.reload
+
+            second = new_draft.find_and_ensure_exclusive_use(second_tdc.stable_id)
+            second.update(condition: ds_eq(champ_value(first_tdc.stable_id), constant(3)))
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                attribute: :condition,
+                from: "(l1 == 2)",
+                label: "l2",
+                op: :update,
+                private: false,
+                stable_id: second_tdc.stable_id,
+                to: "(l1 == 3)",
+              },
+            ])
+          end
+        end
+      end
+
+      context 'when a type de champ is added' do
+        let(:procedure) { create(:procedure) }
+        let(:new_tdc) do
+          new_draft.add_type_de_champ(
+            type_champ: TypeDeChamp.type_champs.fetch(:text),
+            mandatory: false,
+            libelle: "Un champ text"
+          )
+        end
+
+        before { new_tdc }
+
+        it do
+          is_expected.to eq([
+            {
+              op: :add,
+              label: "Un champ text",
+              private: false,
+              mandatory: false,
+              stable_id: new_tdc.stable_id,
+            },
+          ])
+        end
+      end
+
+      context 'when a type de champ is changed' do
+        context 'when libelle, description, and mandatory are changed' do
+          let(:procedure) { create(:procedure, :with_type_de_champ) }
+
+          before do
+            updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+
+            updated_tdc.update(libelle: 'modifier le libelle', description: 'une description', mandatory: !updated_tdc.mandatory)
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                op: :update,
+                attribute: :libelle,
+                label: first_tdc.libelle,
+                private: false,
+                from: first_tdc.libelle,
+                to: "modifier le libelle",
+                stable_id: first_tdc.stable_id,
+              },
+              {
+                op: :update,
+                attribute: :description,
+                label: first_tdc.libelle,
+                private: false,
+                from: first_tdc.description,
+                to: "une description",
+                stable_id: first_tdc.stable_id,
+              },
+              {
+                op: :update,
+                attribute: :mandatory,
+                label: first_tdc.libelle,
+                private: false,
+                from: true,
+                to: false,
+                stable_id: first_tdc.stable_id,
+              },
+            ])
+          end
+        end
+
+        context 'when collapsible_explanation_enabled and collapsible_explanation_text are changed' do
+          let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :explication }]) }
+
+          before do
+            updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+
+            updated_tdc.update(collapsible_explanation_enabled: "1", collapsible_explanation_text: 'afficher au clique')
+          end
+          it do
+            is_expected.to eq([
+              {
+                op: :update,
+                attribute: :collapsible_explanation_enabled,
+                label: first_tdc.libelle,
+                private: first_tdc.private?,
+                from: false,
+                to: true,
+                stable_id: first_tdc.stable_id,
+              },
+              {
+                op: :update,
+                attribute: :collapsible_explanation_text,
+                label: first_tdc.libelle,
+                private: first_tdc.private?,
+                from: nil,
+                to: 'afficher au clique',
+                stable_id: first_tdc.stable_id,
+              },
+            ])
+          end
+        end
+      end
+
+      context 'when a type de champ is transformed into a text_area with no character limit' do
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
+
+        before do
+          updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+          updated_tdc.update(type_champ: :textarea, options: { "character_limit" => "" })
+        end
+
+        it do
+          is_expected.to eq([
+            {
+              op: :update,
+              attribute: :type_champ,
+              label: first_tdc.libelle,
+              private: false,
+              from: "text",
+              to: "textarea",
+              stable_id: first_tdc.stable_id,
+            },
+          ])
+        end
+      end
+
+      context 'when a type de champ is moved' do
+        let(:procedure) { create(:procedure, public_type_de_champs: Array.new(3) { { type: :text } }) }
+        let(:new_draft_second_tdc) { new_draft.public_root_type_de_champs.second }
+        let(:new_draft_third_tdc) { new_draft.public_root_type_de_champs.third }
+
+        before do
+          new_draft_second_tdc
+          new_draft_third_tdc
+          new_draft.move_type_de_champ(new_draft_second_tdc.stable_id, 2)
+        end
+
+        it do
+          is_expected.to eq([
+            {
+              op: :move,
+              label: new_draft_third_tdc.libelle,
+              private: false,
+              from: 2,
+              to: 1,
+              stable_id: new_draft_third_tdc.stable_id,
+            },
+            {
+              op: :move,
+              label: new_draft_second_tdc.libelle,
+              private: false,
+              from: 1,
+              to: 2,
+              stable_id: new_draft_second_tdc.stable_id,
+            },
+          ])
+        end
+      end
+
+      context 'when a type de champ is removed' do
+        let(:procedure) { create(:procedure, :with_type_de_champ) }
+
+        before do
+          new_draft.remove_type_de_champ(first_tdc.stable_id)
+        end
+
+        it do
+          is_expected.to eq([
+            {
+              op: :remove,
+              label: first_tdc.libelle,
+              private: false,
+              stable_id: first_tdc.stable_id,
+            },
+          ])
+        end
+      end
+
+      context 'when a child type de champ is transformed into a drop_down_list' do
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }, { type: :integer_number }] }]) }
+
+        before do
+          child = new_draft.children_of(new_draft.public_root_type_de_champs.last).first
+          new_draft.find_and_ensure_exclusive_use(child.stable_id).becomes_type('drop_down_list').update(type_champ: :drop_down_list, drop_down_options: ['one', 'two'])
+        end
+
+        it do
+          is_expected.to eq([
+            {
+              op: :update,
+              attribute: :type_champ,
+              label: "sub type de champ",
+              private: false,
+              from: "text",
+              to: "drop_down_list",
+              stable_id: new_draft.children_of(new_draft.public_root_type_de_champs.last).first.stable_id,
+            },
+            {
+              op: :update,
+              attribute: :drop_down_options,
+              label: "sub type de champ",
+              private: false,
+              from: [],
+              to: ["one", "two"],
+              stable_id: new_draft.children_of(new_draft.public_root_type_de_champs.last).first.stable_id,
+            },
+          ])
+        end
+      end
+
+      context 'when a child type de champ is transformed into a map' do
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, children: [{ type: :text, libelle: 'sub type de champ' }, { type: :integer_number }] }]) }
+
+        before do
+          child = new_draft.children_of(new_draft.public_root_type_de_champs.last).first
+          new_draft.find_and_ensure_exclusive_use(child.stable_id).update(type_champ: :carte, options: { cadastres: true, znieff: true })
+        end
+
+        it do
+          is_expected.to eq([
+            {
+              op: :update,
+              attribute: :type_champ,
+              label: "sub type de champ",
+              private: false,
+              from: "text",
+              to: "carte",
+              stable_id: new_draft.children_of(new_draft.public_root_type_de_champs.last).first.stable_id,
+            },
+            {
+              op: :update,
+              attribute: :carte_layers,
+              label: "sub type de champ",
+              private: false,
+              from: [],
+              to: [:cadastres, :znieff],
+              stable_id: new_draft.children_of(new_draft.public_root_type_de_champs.last).first.stable_id,
+            },
+          ])
+        end
+      end
+
+      describe '#compare_referentiel_changes' do
+        let(:procedure) { create(:procedure, public_type_de_champs:) }
+        let(:referentiel_1) do
+          create(
+            :api_referentiel,
+            :exact_match,
+            name: SecureRandom.uuid,
+            hint: 'Saisissez le code de votre reference'
+          )
+        end
+        let(:referentiel_2) do
+          create(
+            :api_referentiel,
+            :autocomplete,
+            name: SecureRandom.uuid,
+            hint: 'Saisissez le code de votre autre reference'
+          )
+        end
+        let(:public_type_de_champs) do
+          [
+            {
+              type: :referentiel,
+              referentiel: referentiel_1,
+              referentiel_mapping: { key: 'value1' },
+              stable_id: 123,
+              libelle: 'libelle',
+            },
+          ]
+        end
+
+        before do
+          updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+          updated_tdc.update(referentiel: referentiel_2, referentiel_mapping: { key: 'value2' })
+        end
+
+        it 'detects changes in referentiel fields' do
+          is_expected.to include({
+            :attribute => :referentiel_url_tiptap,
+            :from => "https://rnb-api.beta.gouv.fr/api/alpha/buildings/{Valeur saisie par l'usager}/",
+            :label => "libelle",
+            :op => :update,
+            :private => false,
+            :stable_id => 123,
+            :to => "https://tabular-api.data.gouv.fr?finess__contains={Valeur saisie par l'usager}",
+          })
+          is_expected.to include({
+            :attribute => :referentiel_mode,
+            :from => "exact_match",
+            :label => "libelle",
+            :op => :update,
+            :private => false,
+            :stable_id => 123,
+            :to => "autocomplete",
+          })
+          is_expected.to include({
+            :attribute => :referentiel_hint,
+            :from => 'Saisissez le code de votre reference',
+            :label => "libelle",
+            :op => :update,
+            :private => false,
+            :stable_id => 123,
+            :to => 'Saisissez le code de votre autre reference',
+          })
+          is_expected.to include({
+            :attribute => :referentiel_test_data_tiptap,
+            :from => referentiel_1.test_data_tiptap.values.join(", "),
+            :label => "libelle",
+            :op => :update,
+            :private => false,
+            :stable_id => 123,
+            :to => referentiel_2.test_data_tiptap.values.join(", "),
+          })
+          is_expected.to include({
+            :attribute => :referentiel_mapping,
+            :from => { "key" => "value1" },
+            :label => "libelle",
+            :op => :update,
+            :private => false,
+            :stable_id => 123,
+            :to => { "key" => "value2" },
+          })
+        end
+      end
+
+      context 'when a dossier_link type de champ has procedures_limit and procedure_ids changed' do
+        let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :dossier_link, libelle: 'Dossier lié' }]) }
+
+        context 'when procedures_limit is enabled' do
+          before do
+            updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+            updated_tdc.update(procedures_limit: "1")
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                op: :update,
+                attribute: :procedures_limit,
+                label: "Dossier lié",
+                private: false,
+                stable_id: first_tdc.stable_id,
+                from: false,
+                to: true,
+              },
+            ])
+          end
+        end
+
+        context 'when dossier_link_procedure_ids are changed' do
+          let!(:proc_a) { create(:procedure, libelle: "Démarche A") }
+          let!(:proc_b) { create(:procedure, libelle: "Démarche B") }
+
+          before do
+            updated_tdc = new_draft.find_and_ensure_exclusive_use(first_tdc.stable_id)
+            updated_tdc.update(dossier_link_procedure_ids: [proc_a.id, proc_b.id])
+          end
+
+          it do
+            is_expected.to eq([
+              {
+                op: :update,
+                attribute: :dossier_link_procedure_ids,
+                label: "Dossier lié",
+                private: false,
+                stable_id: first_tdc.stable_id,
+                from: [],
+                to: [{ id: proc_a.id, libelle: "Démarche A" }, { id: proc_b.id, libelle: "Démarche B" }],
+              },
+            ])
+          end
+        end
+      end
+    end
+
+    context 'when repetition limits are changed' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :repetition, libelle: 'bloc' }]) }
+      let(:repetition_tdc) { draft.public_root_type_de_champs.first }
+
+      before do
+        updated_tdc = new_draft.find_and_ensure_exclusive_use(repetition_tdc.stable_id)
+        updated_tdc.update(limit_repetitions: "1", min_repetitions: "2", max_repetitions: "5")
+      end
+
+      it do
+        is_expected.to eq([
+          {
+            op: :update,
+            attribute: :limit_repetitions,
+            label: "bloc",
+            private: false,
+            from: false,
+            to: true,
+            stable_id: repetition_tdc.stable_id,
+          },
+          {
+            op: :update,
+            attribute: :min_repetitions,
+            label: "bloc",
+            private: false,
+            from: nil,
+            to: "2",
+            stable_id: repetition_tdc.stable_id,
+          },
+          {
+            op: :update,
+            attribute: :max_repetitions,
+            label: "bloc",
+            private: false,
+            from: nil,
+            to: "5",
+            stable_id: repetition_tdc.stable_id,
+          },
+        ])
+      end
+    end
+  end
+
+  describe 'compare_ineligibilite_rules' do
+    include Logic
+    let(:new_draft) { procedure.create_new_revision }
+    subject { procedure.active_revision.compare_ineligibilite_rules(new_draft.reload) }
+
+    context 'when ineligibilite_rules changes' do
+      let(:procedure) { create(:procedure, :published, public_type_de_champs:) }
+      let(:public_type_de_champs) { [{ type: :yes_no }] }
+      let(:yes_no_tdc) { new_draft.public_root_type_de_champs.first }
+
+      context 'when nothing changed' do
+        it { is_expected.to be_empty }
+      end
+
+      context 'when ineligibilite_rules added' do
+        before do
+          new_draft.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
+        end
+
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::AddEligibiliteRuleChange)) }
+      end
+
+      context 'when ineligibilite_rules removed' do
+        before do
+          procedure.published_revision.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
+        end
+
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::RemoveEligibiliteRuleChange)) }
+      end
+
+      context 'when ineligibilite_rules changed' do
+        before do
+          procedure.published_revision.update!(ineligibilite_rules: ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)))
+          new_draft.update!(ineligibilite_rules: ds_and([
+            ds_eq(champ_value(yes_no_tdc.stable_id), constant(true)),
+            empty_operator(empty, empty),
+          ]))
+        end
+
+        it { is_expected.to contain_exactly(an_instance_of(ProcedureRevisionChange::UpdateEligibiliteRuleChange)) }
+      end
+
+      context 'when when ineligibilite_enabled changes from false to true' do
+        before do
+          procedure.published_revision.update!(ineligibilite_enabled: false, ineligibilite_message: :required)
+          new_draft.update!(ineligibilite_enabled: true, ineligibilite_message: :required)
+        end
+
+        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::EligibiliteEnabledChange)) }
+      end
+
+      context 'when ineligibilite_enabled changes from true to false' do
+        before do
+          procedure.published_revision.update!(ineligibilite_enabled: true, ineligibilite_message: :required)
+          new_draft.update!(ineligibilite_enabled: false, ineligibilite_message: :required)
+        end
+
+        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::EligibiliteDisabledChange)) }
+      end
+
+      context 'when ineligibilite_message changes' do
+        before do
+          procedure.published_revision.update!(ineligibilite_message: :a)
+          new_draft.update!(ineligibilite_message: :b)
+        end
+
+        it { is_expected.to include(an_instance_of(ProcedureRevisionChange::UpdateEligibiliteMessageChange)) }
+      end
+    end
+  end
 end
