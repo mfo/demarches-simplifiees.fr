@@ -1,6 +1,27 @@
 # frozen_string_literal: true
 
 class API::V2::StoredQuery
+  # Stored documents are ours and validated against the schema by the schema spec,
+  # so they are parsed once and executed without static validation or query
+  # analysis. graphql-ruby runs both under a wall-clock Timeout (validate_timeout,
+  # 3 s): re-validating the 65 operations of ds-query-v2 on every audit log entry
+  # ran past it under Sidekiq load and failed batch operations (RAILS-MJM).
+  def self.execute(query_id, variables:, context:, operation_name:)
+    API::V2::Schema.execute(document: document(query_id),
+      variables:,
+      context:,
+      operation_name:,
+      validate: false,
+      max_depth: nil,
+      max_complexity: nil)
+  end
+
+  def self.document(query_id)
+    DOCUMENTS.fetch(query_id) do
+      raise GraphQL::ExecutionError.new("No query with id \"#{query_id}\"", extensions: { code: :bad_request })
+    end
+  end
+
   def self.get(query_id)
     case query_id
     when 'ds-query-v2'
@@ -1344,4 +1365,10 @@ class API::V2::StoredQuery
     color
   }
   GRAPHQL
+
+  DOCUMENTS = {
+    'ds-query-v2' => GraphQL.parse(QUERY_V2),
+    'ds-mutation-v2' => GraphQL.parse(MUTATION_V2),
+    'introspection' => GraphQL.parse(GraphQL::Introspection::INTROSPECTION_QUERY),
+  }.freeze
 end

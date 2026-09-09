@@ -60,7 +60,7 @@ class SerializerService
   end
 
   def self.execute_query(operation_name, variables)
-    result = API::V2::Schema.execute(API::V2::StoredQuery::QUERY_V2,
+    result = API::V2::StoredQuery.execute('ds-query-v2',
       variables: variables.stringify_keys,
       context: { internal_use: true },
       operation_name: operation_name)
