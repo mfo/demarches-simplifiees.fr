@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class DossierTransfer < ApplicationRecord
-  has_many :dossiers, dependent: :nullify
+  # autosave: attaching a dossier must not re-validate it (see BatchOperation).
+  has_many :dossiers, dependent: :nullify, autosave: true
 
   EXPIRATION_LIMIT = 2.weeks
 

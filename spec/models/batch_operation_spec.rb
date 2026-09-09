@@ -271,6 +271,17 @@ describe BatchOperation, type: :model do
         expect(subject.dossiers).not_to include(dossier)
       end
     end
+
+    context 'with a dossier that is invalid at rest' do
+      let(:dossier) { dossiers.accepte }
+
+      before { Individual.where(dossier:).delete_all }
+
+      it 'still attaches the dossier to the batch' do
+        expect(subject.dossiers).to include(dossier)
+        expect(dossier.reload.batch_operation).to eq(subject)
+      end
+    end
   end
 
   describe '#process_one' do
