@@ -197,4 +197,51 @@ describe ProcedurePathConcern do
       end
     end
   end
+
+  describe 'suggested_path' do
+    let!(:procedure) { create(:procedure, aasm_state: :publiee, libelle: 'Inscription au Collège', zones: [zones.default]) }
+    let(:path) { nil }
+
+    before do
+      travel(3.seconds)
+      procedure.claim_path!(procedure.administrateurs.first, path)
+    end
+
+    subject { procedure.suggested_path }
+
+    context 'when the path has been customized' do
+      let(:path) { 'custom_path' }
+
+      it { is_expected.to eq 'custom_path' }
+    end
+
+    context 'when the suggestion does not conflict' do
+      it { is_expected.to eq 'inscription-au-college' }
+    end
+
+    context 'when the suggestion conflicts with one procedure' do
+      before do
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', zones: [zones.default])
+      end
+
+      it { is_expected.to eq 'inscription-au-college-2' }
+    end
+
+    context 'when the suggestion conflicts with several procedures' do
+      before do
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', zones: [zones.default])
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college-2', zones: [zones.default])
+      end
+
+      it { is_expected.to eq 'inscription-au-college-3' }
+    end
+
+    context 'when the suggestion conflicts with another procedure of the same admin' do
+      before do
+        create(:procedure, aasm_state: :publiee, path: 'inscription-au-college', administrateurs: procedure.administrateurs, zones: [zones.default])
+      end
+
+      it { is_expected.to eq 'inscription-au-college-2' }
+    end
+  end
 end
