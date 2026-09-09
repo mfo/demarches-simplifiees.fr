@@ -3,16 +3,21 @@
 require "administrate/base_dashboard"
 
 class AdministrateurDashboard < Administrate::BaseDashboard
+  # The groupe gestionnaire column only means something on the instances
+  # enabling the feature; everywhere else the association is always nil.
+  #
+  # Administrate reads these lists as frozen constants, so a feature cannot
+  # append to them from outside. Kept here rather than behind a registry: a
+  # registry would move the name to another file of the host without removing
+  # it, for a single contributor.
+  ADMINS_GROUP_ATTRIBUTES = Rails.application.config.ds_admins_group_enabled ? [:groupe_gestionnaire] : []
+
   # ATTRIBUTE_TYPES
   # a hash that describes the type of each of the model's fields.
   #
   # Each different type represents an Administrate::Field object,
   # which determines how the attribute is displayed
   # on pages throughout the dashboard.
-  # The groupe gestionnaire column only means something on the instances
-  # enabling the feature; everywhere else the association is always nil.
-  ADMINS_GROUP_ATTRIBUTES = Rails.application.config.ds_admins_group_enabled ? [:groupe_gestionnaire] : []
-
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     user: Field::HasOne.with_options(searchable: true, searchable_fields: %w[email]),
