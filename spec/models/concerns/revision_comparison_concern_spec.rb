@@ -207,7 +207,7 @@ describe RevisionComparisonConcern do
     end
   end
 
-  describe '#compare_type_de_champs' do
+  describe '#compare_type_de_champs between two revisions' do
     let(:draft) { procedure.draft_revision }
     include Logic
     let(:new_draft) { procedure.create_new_revision }
