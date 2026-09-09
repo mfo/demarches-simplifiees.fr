@@ -181,6 +181,20 @@ describe API::V2::GraphqlController do
       }
     end
 
+    # Stored documents are parsed once and executed without static validation, so a
+    # request does not depend on graphql-ruby's wall-clock validate_timeout.
+    context 'static validation budget' do
+      let(:variables) { { dossierNumber: dossier.id } }
+      let(:operation_name) { 'getDossier' }
+
+      before { allow(API::V2::Schema).to receive(:validate_timeout).and_return(0.001) }
+
+      it {
+        expect(gql_errors).to be_nil
+        expect(gql_data[:dossier][:id]).to eq(dossier.to_typed_id)
+      }
+    end
+
     context 'getDossier' do
       let(:variables) { { dossierNumber: dossier.id } }
       let(:operation_name) { 'getDossier' }

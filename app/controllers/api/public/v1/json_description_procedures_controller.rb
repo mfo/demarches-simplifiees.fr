@@ -16,7 +16,7 @@ class API::Public::V1::JSONDescriptionProceduresController < API::Public::V1::Ba
   end
 
   def procedure_graph_ql_schema
-    API::V2::Schema.execute(API::V2::StoredQuery.get('ds-query-v2'),
+    API::V2::StoredQuery.execute('ds-query-v2',
       variables: {
         demarche: { "number": @procedure.id },
         includeRevision: true,

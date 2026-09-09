@@ -55,4 +55,30 @@ describe SerializerService do
       end
     end
   end
+
+  describe "execute_query" do
+    # graphql-ruby wraps static validation in a wall-clock Timeout (validate_timeout, 3 s).
+    # Re-validating the whole stored document on every audit log entry ran past that budget
+    # under Sidekiq load, and batch operations failed (RAILS-MJM). The document is our own,
+    # validated by spec/graphql/api/v2/schema_spec.rb, so it is executed without static validation.
+    it "does not depend on static validation finishing within validate_timeout" do
+      allow(API::V2::Schema).to receive(:validate_timeout).and_return(0.001)
+
+      expect(SerializerService.dossier(dossiers.en_construction)).to include("number" => dossiers.en_construction.id)
+    end
+  end
+  describe "error reporting" do
+    let(:dossier) { dossiers.en_construction }
+
+    before { allow(API::V2::StoredQuery).to receive(:execute).and_return({ "errors" => [{ "message" => "boom" }] }) }
+    after { Sentry.get_current_scope.clear }
+
+    it "raises once, tagged with the dossier, instead of capturing a message on top of the raise" do
+      expect(Sentry).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception)
+
+      expect { SerializerService.dossier(dossier) }.to raise_error(SerializerService::Error, "boom")
+      expect(Sentry.get_current_scope.tags).to include(dossier: dossier.id)
+    end
+  end
 end
