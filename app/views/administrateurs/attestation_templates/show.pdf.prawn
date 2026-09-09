@@ -24,7 +24,9 @@ max_signature_size = 50.mm
 def normalize_pdf_text(text)
   stripped = strip_tags(text&.tr("\t", '  '))
   return if stripped.nil?
-  CGI.unescapeHTML(stripped)
+  # strip_tags re-encodes its output as HTML (U+00A0 becomes `&nbsp;`, `&` becomes
+  # `&amp;`); decode every entity, not only the few CGI.unescapeHTML knows.
+  Nokogiri::HTML.fragment(stripped).text
 end
 
 title = normalize_pdf_text(@attestation.fetch(:title))
