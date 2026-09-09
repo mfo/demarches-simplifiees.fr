@@ -21,7 +21,11 @@ class BatchOperation < ApplicationRecord
     restaurer_repousser_expiration: 'restaurer_repousser_expiration',
   }
 
-  has_many :dossiers, dependent: :nullify
+  # autosave: attaching a dossier must not re-validate it. Without it Rails
+  # ignores a persisted dossier's own errors when validating the batch, then
+  # saves the dossier with validation on and fails the whole batch on a
+  # dossier that is invalid at rest (missing individual, blank mandataire…).
+  has_many :dossiers, dependent: :nullify, autosave: true
   has_many :dossier_operations, class_name: 'DossierBatchOperation', dependent: :destroy
   has_many :groupe_instructeurs, through: :dossier_operations
   belongs_to :instructeur

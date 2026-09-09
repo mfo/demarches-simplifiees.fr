@@ -18,6 +18,18 @@ RSpec.describe DossierTransfer, type: :model do
       expect(dossier.transfer_logs.count).to eq(0)
     end
 
+    context 'with a dossier that is invalid at rest' do
+      # a fresh instance, so the missing individual is discovered by validation
+      let(:dossier) { Dossier.find(dossiers.brouillon.id) }
+
+      before { Individual.where(dossier:).delete_all }
+
+      it 'still attaches the dossier to the transfer' do
+        expect(subject).to be_persisted
+        expect(dossier.reload.transfer).to eq(subject)
+      end
+    end
+
     describe 'accept' do
       let(:transfer_log) { dossier.transfer_logs.first }
 
