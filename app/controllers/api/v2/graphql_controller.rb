@@ -6,7 +6,11 @@ class API::V2::GraphqlController < API::V2::BaseController
   around_action :profile_with_vernier, only: :execute, if: :vernier_profile_requested?
 
   def execute
-    result = API::V2::Schema.execute(query:, variables:, context:, operation_name:)
+    result = if params[:queryId].present?
+      API::V2::StoredQuery.execute(params[:queryId], variables:, context:, operation_name:)
+    else
+      API::V2::Schema.execute(params[:query], variables:, context:, operation_name:)
+    end
     @query_info = result.context.query_info
 
     rename_skylight_endpoint(result)
@@ -70,14 +74,6 @@ class API::V2::GraphqlController < API::V2::BaseController
     super
   rescue ActionDispatch::Http::Parameters::ParseError => exception
     render json: graphql_error(exception.cause.message, :bad_request), status: :bad_request
-  end
-
-  def query
-    if params[:queryId].present?
-      API::V2::StoredQuery.get(params[:queryId])
-    else
-      params[:query]
-    end
   end
 
   def variables
