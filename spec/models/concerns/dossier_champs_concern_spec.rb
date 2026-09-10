@@ -1515,4 +1515,276 @@ RSpec.describe DossierChampsConcern do
       expect(merged.read_attribute(:value_updated_at)).to be_present
     end
   end
+
+  # Housekeeping run by the state transitions: #clean_champs_after_submit! on
+  # dépôt and on each usager correction, #clean_champs_after_instruction! on
+  # each decision. One example per rule, then one per entry point.
+  describe 'champ cleanup on transitions' do
+    include Logic
+
+    let(:hidden) { ds_eq(constant(true), constant(false)) }
+    let(:public_type_de_champs) do
+      [
+        { type: :text, stable_id: 90 },
+        { type: :text, stable_id: 91 },
+        { type: :piece_justificative, stable_id: 92, condition: hidden },
+        { type: :repetition, stable_id: 94, children: [{ type: :text, stable_id: 941 }] },
+        { type: :repetition, stable_id: 95, children: [{ type: :text, stable_id: 951 }] },
+        { type: :repetition, stable_id: 96, children: [{ type: :text, stable_id: 961 }], condition: hidden },
+        { type: :text, stable_id: 97, condition: hidden },
+        { type: :piece_justificative, nature: 'titre_identite', stable_id: 98 },
+        { type: :piece_justificative, pj_auto_purge: '1', stable_id: 99 },
+        { type: :piece_justificative, stable_id: 100 },
+      ]
+    end
+    let(:procedure) { create(:procedure, :published, :for_individual, public_type_de_champs:) }
+    let(:dossier) { create(:dossier, :en_construction, :with_individual, :with_populated_champs, procedure:) }
+    let(:file) { fixture_file_upload('spec/fixtures/files/logo_test_procedure.png', 'image/png') }
+
+    before { allow(ClamavService).to receive(:safe_file?).and_return(true) }
+
+    def main_champs(stable_id) = dossier.champ_data.where(stable_id:, stream: Dossier::MAIN_STREAM)
+    def rows_of(stable_id) = dossier.champ_data.filter { it.row? && it.stable_id == stable_id }
+    def attach_pj(stable_id) = main_champs(stable_id).sole.piece_justificative_file.attach(file)
+
+    # After a revision changed the type of the champ, the champ_data row keeps
+    # its piece_justificative STI type while the type de champ is now an IBAN.
+    def retype_to_iban(stable_id)
+      procedure.draft_revision.find_and_ensure_exclusive_use(stable_id)
+        .becomes_type(:iban)
+        .update!(type_champ: TypeDeChamp.type_champs.fetch(:iban))
+      publish_and_rebase
+      expect(dossier.champ_data.find_by(stable_id:)).to be_a(Champs::PieceJustificativeChamp)
+    end
+
+    def remove_from_revision(stable_id)
+      procedure.draft_revision.remove_type_de_champ(stable_id)
+      publish_and_rebase
+    end
+
+    def publish_and_rebase
+      procedure.publish_revision!(procedure.administrateurs.first)
+      perform_enqueued_jobs
+      dossier.reload
+    end
+
+    describe '#clean_champs_after_submit!' do
+      subject(:clean) do
+        dossier.reload.clean_champs_after_submit!
+        dossier.reload
+      end
+
+      # The rebase normally drops them; this guards the dossiers that were
+      # submitted before the rebase caught up.
+      it 'removes the champs whose type de champ is no longer in the revision' do
+        orphan = main_champs(90).sole.dup
+        orphan.stable_id = 12_345
+        orphan.save!(validate: false)
+        expect(main_champs(12_345)).to be_present
+
+        clean
+
+        expect(main_champs(12_345)).to be_empty
+        expect(main_champs(90)).to be_present
+      end
+
+      it 'removes the discarded repetition rows' do
+        rows_of(94).first.touch(:discarded_at)
+        row_count = rows_of(94).size
+
+        clean
+
+        expect(rows_of(94).size).to eq(row_count - 1)
+        expect(rows_of(94).none?(&:discarded?)).to be(true)
+      end
+
+      it 'removes the rows of hidden repetitions and keeps the visible ones' do
+        expect(rows_of(96)).to be_present
+
+        clean
+
+        expect(rows_of(96)).to be_empty
+        expect(rows_of(95)).to be_present
+      end
+
+      it 'clears the values of hidden champs and keeps the visible ones' do
+        expect(main_champs(97).sole.value).to be_present
+        attach_pj(92)
+
+        clean
+
+        expect(main_champs(97).sole.value).to be_nil
+        expect(main_champs(92).sole.piece_justificative_file).not_to be_attached
+        expect(main_champs(90).sole.value).to be_present
+      end
+
+      it 'keeps the attachments of visible pièces justificatives, whatever their nature' do
+        [98, 99, 100].each { attach_pj(it) }
+
+        clean
+
+        expect([98, 99, 100].map { main_champs(it).sole.piece_justificative_file.attached? }).to all(be(true))
+      end
+
+      # The projection of the retyped row is a fresh, blank IBAN champ: the
+      # persisted row behind it is the one to wipe.
+      it 'purges the attachments of a pièce justificative whose type de champ changed type' do
+        attach_pj(100)
+        retype_to_iban(100)
+
+        clean
+
+        expect(main_champs(100).sole.piece_justificative_file).not_to be_attached
+      end
+
+      context 'with a hidden pre_rempli champ' do
+        let(:public_type_de_champs) { [{ type: :pre_rempli, pre_rempli_hidden: '1', stable_id: 101 }] }
+
+        it 'preserves its value' do
+          main_champs(101).sole.update!(value: 'valeur cachée')
+          clean
+          expect(main_champs(101).sole.value).to eq('valeur cachée')
+        end
+      end
+
+      context 'with a pre_rempli champ behind a false condition' do
+        let(:public_type_de_champs) { [{ type: :pre_rempli, stable_id: 101, condition: hidden }] }
+
+        it 'clears its value like any hidden champ' do
+          main_champs(101).sole.update!(value: 'valeur conditionnelle')
+          clean
+          expect(main_champs(101).sole.value).to be_nil
+        end
+      end
+
+      describe 'pièce justificative of a FranceConnect champ' do
+        let(:public_type_de_champs) { [{ type: :quotient_familial, stable_id: 102 }] }
+        let(:champ) { main_champs(102).sole }
+
+        before { champ.piece_justificative_file.attach(file) }
+
+        it 'is purged when the fetched data were confirmed accurate' do
+          champ.update!(value: 'true', external_state: 'fetched')
+          clean
+          expect(champ.reload.piece_justificative_file).not_to be_attached
+        end
+
+        it 'is kept when the fetched data were not confirmed' do
+          champ.update!(value: 'false', external_state: 'fetched')
+          clean
+          expect(champ.reload.piece_justificative_file).to be_attached
+        end
+
+        it 'is kept when nothing was fetched' do
+          champ.update!(external_state: 'idle')
+          clean
+          expect(champ.reload.piece_justificative_file).to be_attached
+        end
+      end
+    end
+
+    describe '#clean_champs_after_instruction!' do
+      let(:dossier) { create(:dossier, :en_instruction, :with_individual, :with_populated_champs, procedure:) }
+
+      subject(:clean) do
+        dossier.reload.clean_champs_after_instruction!
+        dossier.reload
+      end
+
+      before { [98, 99, 100].each { attach_pj(it) } }
+
+      it 'purges titres identité and auto-purged pièces justificatives, keeps the others' do
+        clean
+
+        expect(main_champs(98).sole.piece_justificative_file).not_to be_attached
+        expect(main_champs(99).sole.piece_justificative_file).not_to be_attached
+        expect(main_champs(100).sole.piece_justificative_file).to be_attached
+      end
+
+      it 'removes the discarded repetition rows but keeps the hidden champs' do
+        rows_of(94).first.touch(:discarded_at)
+        row_count = rows_of(94).size
+
+        clean
+
+        expect(rows_of(94).size).to eq(row_count - 1)
+        expect(main_champs(97).sole.value).to be_present
+        expect(rows_of(96)).to be_present
+      end
+
+      it 'purges the titres identité on every stream, history included' do
+        dossier.with_update_stream(dossier.user) do
+          dossier.public_champ_for_update('98', updated_by: dossier.user.email).piece_justificative_file.attach(file)
+        end
+        dossier.merge_user_buffer_stream!
+        expect(dossier.history.filter { it.stable_id == 98 }.map(&:piece_justificative_file)).to all(be_attached)
+
+        clean
+
+        expect(dossier.history.filter { it.stable_id == 98 }.map(&:piece_justificative_file)).to all(satisfy { !it.attached? })
+        expect(main_champs(98).sole.piece_justificative_file).not_to be_attached
+      end
+
+      # Nothing can display a pièce justificative whose type de champ changed type
+      # (RAILS-MH0) or left the revision: its attachments are stale whatever its
+      # nature, and a former titre identité among them must not survive.
+      it 'purges a pièce justificative whose type de champ changed type, whatever its nature' do
+        retype_to_iban(98)
+        retype_to_iban(100)
+
+        clean
+
+        expect(dossier.champ_data.find_by(stable_id: 98).piece_justificative_file).not_to be_attached
+        expect(dossier.champ_data.find_by(stable_id: 100).piece_justificative_file).not_to be_attached
+      end
+
+      it 'purges a pièce justificative whose type de champ left the revision, whatever its nature' do
+        remove_from_revision(98)
+        remove_from_revision(100)
+
+        clean
+
+        expect(dossier.champ_data.find_by(stable_id: 98).piece_justificative_file).not_to be_attached
+        expect(dossier.champ_data.find_by(stable_id: 100).piece_justificative_file).not_to be_attached
+      end
+    end
+
+    describe 'entry points' do
+      it 'cleans on dépôt' do
+        dossier = create(:dossier, :brouillon, :with_individual, :with_populated_champs, procedure:)
+
+        dossier.passer_en_construction!
+
+        expect(dossier.reload.champ_data.find_by(stable_id: 97).value).to be_nil
+      end
+
+      it 'cleans on each usager correction' do
+        main_champs(97).sole.update_columns(value: 'réapparu')
+
+        dossier.usager_submit_en_construction!
+
+        expect(main_champs(97).sole.value).to be_nil
+      end
+
+      it 'does not clean on an instructeur correction' do
+        instructeur = create(:instructeur)
+        procedure.defaut_groupe_instructeur.add_instructeurs(ids: [instructeur.id])
+        main_champs(97).sole.update_columns(value: 'réapparu')
+
+        dossier.instructeur_submit_en_construction!(instructeur:)
+
+        expect(main_champs(97).sole.value).to eq('réapparu')
+      end
+
+      it 'purges the titres identité on decision' do
+        dossier = create(:dossier, :en_instruction, :with_individual, :with_populated_champs, procedure:)
+        champ = dossier.champ_data.find_by(stable_id: 98)
+        champ.piece_justificative_file.attach(file)
+
+        dossier.accepter!(instructeur: create(:instructeur), motivation: 'ok')
+
+        expect(champ.reload.piece_justificative_file).not_to be_attached
+      end
+    end
+  end
 end
