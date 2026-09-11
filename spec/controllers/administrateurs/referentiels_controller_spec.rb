@@ -272,6 +272,41 @@ describe Administrateurs::ReferentielsController, type: :controller do
         expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
       end
     end
+
+    describe '#update_mapping_type_de_champ' do
+      subject do
+        patch :update_mapping_type_de_champ, params: {
+          procedure_id: procedure.id,
+          stable_id:,
+          type_de_champ: { referentiel_mapping: { "$.records{0}.id" => { type: "string" }, "$.records{0}.fields.Nom" => { type: "string" } } },
+        }
+      end
+
+      it 'writes the result path on a copy and leaves the published revision on the original' do
+        expect { subject }.to change { Referentiel.count }.by(1)
+
+        expect(referentiel.reload.result_path).to be_nil
+        expect(published_type_de_champ.reload.referentiel).to eq(referentiel)
+        expect(draft_type_de_champ.referentiel).not_to eq(referentiel)
+        expect(draft_type_de_champ.referentiel.result_path).to eq("$.records[0]")
+        expect(response).to redirect_to(prefill_and_display_admin_procedure_referentiel_path(procedure, stable_id))
+      end
+    end
+
+    describe '#reset_mapping' do
+      subject do
+        delete :reset_mapping, params: { procedure_id: procedure.id, stable_id:, scope: 'all' }
+      end
+
+      it 'resets the result path on a copy and leaves the published revision on the original' do
+        referentiel.update!(result_path: "$.records[0]")
+
+        expect { subject }.to change { Referentiel.count }.by(1)
+
+        expect(referentiel.reload.result_path).to eq("$.records[0]")
+        expect(draft_type_de_champ.referentiel.result_path).to eq("$")
+      end
+    end
   end
 
   describe "#edit" do
@@ -555,6 +590,23 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
     end
 
+    context 'when the mapping targets the first element of a collection' do
+      let(:initial_mapping) { {} }
+      let(:payload_referentiel_mapping) do
+        {
+          "$.records{0}.id" => { type: "integer_number" },
+          "$.records{0}.fields.Nom" => { type: "string" },
+        }
+      end
+
+      it 'stores the common prefix of the mapped paths as the result path of the referentiel' do
+        expect { subject }
+          .to change { referentiel.reload.result_path }
+          .from(nil)
+          .to("$.records[0]")
+      end
+    end
+
     context 'when update fails' do
       let(:payload_referentiel_mapping) { { "$.jsonpath" => { type: "type" } } }
 
@@ -764,10 +816,14 @@ describe Administrateurs::ReferentielsController, type: :controller do
     context 'scope=all' do
       let(:scope) { 'all' }
 
-      it 'clears the entire mapping' do
+      before { referentiel.update!(result_path: "$.records[0]") }
+
+      it 'clears the entire mapping and resets the result path to the root' do
         subject
         expect(type_de_champ.reload.referentiel_mapping).to eq({})
+        expect(referentiel.reload.result_path).to eq("$")
         expect(flash[:notice]).to eq("La configuration a bien été réinitialisée")
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id))
       end
     end
 
