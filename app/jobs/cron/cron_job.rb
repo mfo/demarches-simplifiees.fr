@@ -4,8 +4,14 @@ class Cron::CronJob < ApplicationJob
   # A cron job is scheduled again anyway: the next run is the retry. With the
   # default budget of 25 retries, a nightly job that fails on a statement
   # timeout is retried for about three weeks, so a dozen instances of the same
-  # job overlap and every failure yields a dozen Sentry events. A job whose run
-  # cannot be caught up by the next one opts back in with `use_sidekiq_retry`.
+  # job overlap and every failure yields a dozen Sentry events.
+  #
+  # A job whose run cannot be caught up by the next one raises its own budget with
+  # `use_sidekiq_retry(max_retry:)` -- sized to its window, not to MAX_ATTEMPTS_JOBS.
+  # `perform` recomputes the current date at every attempt, so once the retries reach
+  # the next run (retry 14 lands a day later) they no longer redo the lost work: they
+  # run the next run's scope, in addition to the next run. Past its own window, a
+  # retry stops being a catch-up and becomes a duplicate.
   use_sidekiq_retry(max_retry: 2)
 
   queue_as :default

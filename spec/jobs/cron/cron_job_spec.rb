@@ -14,8 +14,9 @@ RSpec.describe Cron::CronJob, type: :job do
       expect(Cron::Datagouv::ExportAndPublishDemarchesPubliquesJob.get_sidekiq_options['retry']).to eq(2)
     end
 
-    it 'lets a job whose run cannot be caught up keep the full budget' do
-      expect(Cron::PurgeOldBrevoMailsJob.get_sidekiq_options['retry']).to eq(ActiveJob::RetryOnStandardError::MAX_ATTEMPTS_JOBS)
+    it 'gives a job whose run cannot be caught up a few minutes, reported once it persists' do
+      expect(Cron::PurgeOldBrevoMailsJob.get_sidekiq_options['retry']).to eq(5)
+      expect(Cron::PurgeOldBrevoMailsJob.get_sidekiq_options['attempt_threshold']).to eq(5)
     end
 
     it 'gives the monthly data.gouv publications about four hours, reported once they persist' do
