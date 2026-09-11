@@ -31,19 +31,26 @@ RSpec.describe Cron::CronJob, type: :job do
       expect(Cron::Datagouv::AccountByMonthJob.get_sidekiq_options['attempt_threshold']).to eq(10)
     end
 
-    it 'keeps the list of jobs raising their budget explicit' do
+    it 'every cron job declares how a lost run is recovered' do
       Rails.application.eager_load!
 
-      above_the_cap = Cron::CronJob.descendants
-        .reject { |job| job <= Cron::Datagouv::BaseJob } # the whole family shares the budget asserted above
-        .filter { |job| job.get_sidekiq_options['retry'] != 2 }
+      # Not `schedulable?`: it depends on env flags (ds_opendata_enabled,
+      # CRON_JOBS_DISABLED), which would silently skip the whole data.gouv family here.
+      undeclared = Cron::CronJob.descendants
+        .filter { |job| job.schedule_expression.present? }
+        .reject(&:lost_run_recovery)
 
-      expect(above_the_cap.map(&:name)).to match_array([
-        'Cron::AdministrateurActivateBeforeExpirationJob',
-        'Cron::NotifyDraftNotSubmittedJob',
-        'Cron::PurgeOldBrevoMailsJob',
-        'Cron::SendAPITokenExpirationNoticeJob',
-      ])
+      expect(undeclared).to be_empty, <<~MSG
+        #{undeclared.join(', ')}: add `recovers_by :next_run`, `:next_run_but_late` or `:never`.
+        Question: if this run fails for good, does the next one catch up the lost work?
+      MSG
+    end
+
+    it 'refuses an answer it does not know, without touching the job' do
+      expect { Cron::UpdateStatsJob.recovers_by(:whenever) }
+        .to raise_error(ArgumentError, /unknown recovery strategy/)
+
+      expect(Cron::UpdateStatsJob.lost_run_recovery).to eq(:next_run)
     end
   end
 end

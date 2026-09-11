@@ -2,6 +2,7 @@
 
 class Cron::ExpiredUsersDeletionJob < Cron::CronJob
   self.schedule_expression = Expired.schedule_at(self)
+  recovers_by :next_run
   discard_on StandardError
 
   def perform(*args)

@@ -2,6 +2,7 @@
 
 class Cron::NeverTouchedDossiersBrouillonDeletionJob < Cron::CronJob
   self.schedule_expression = Expired.schedule_at(self)
+  recovers_by :next_run
 
   def perform(*args)
     Expired::DossiersDeletionService.new.process_never_touched_dossiers_brouillon

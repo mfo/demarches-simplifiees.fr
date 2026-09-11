@@ -2,6 +2,7 @@
 
 class Cron::DossierOperationLogMoveToColdStorageJob < Cron::CronJob
   self.schedule_expression = "every day at 23:00"
+  recovers_by :next_run
 
   def perform
     DossierOperationLog

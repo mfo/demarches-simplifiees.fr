@@ -3,11 +3,9 @@
 class Cron::Datagouv::BaseJob < Cron::CronJob
   include DatagouvCronSchedulableConcern
 
-  # Monthly publication: `missing_months` backfills what a lost run missed, but only
-  # a month later, and data.gouv is flaky. Hence about four hours of retries -- long
-  # enough for an outage to clear, short enough not to collide with the next run --
-  # and a Sentry report only once the failure outlives them.
-  use_sidekiq_retry(max_retry: 10, report_after_attempts: 10)
+  # `missing_months` backfills what a lost run missed, but only at the next monthly
+  # run -- and data.gouv is flaky. Declared once for the whole family.
+  recovers_by :next_run_but_late
 
   DATASET = '62d677bde7e4ca2c759142ce'
   DATE_FORMAT = "%Y-%m"
