@@ -2,6 +2,7 @@
 
 class Cron::PurgeOrphanReferentielsJob < Cron::CronJob
   self.schedule_expression = "every week at 4:00"
+  recovers_by :next_run
 
   def perform
     referentiel_ids = TypeDeChamp.select(:referentiel_id).where.not(referentiel_id: nil).distinct.pluck(:referentiel_id)

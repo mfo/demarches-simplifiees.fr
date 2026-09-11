@@ -2,6 +2,7 @@
 
 class Cron::StalledDeclarativeProceduresJob < Cron::CronJob
   self.schedule_expression = "every 10 minutes"
+  recovers_by :next_run
 
   def perform
     recent_or_open = Procedure.where(aasm_state: [:publiee, :depubliee])

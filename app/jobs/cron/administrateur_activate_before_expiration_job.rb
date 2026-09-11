@@ -2,6 +2,7 @@
 
 class Cron::AdministrateurActivateBeforeExpirationJob < Cron::CronJob
   self.schedule_expression = "every day at 08:00"
+  recovers_by :next_run
 
   def perform(*args)
     Administrateur

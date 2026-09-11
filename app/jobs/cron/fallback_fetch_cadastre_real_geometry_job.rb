@@ -2,6 +2,7 @@
 
 class Cron::FallbackFetchCadastreRealGeometryJob < Cron::CronJob
   self.schedule_expression = "every hour"
+  recovers_by :next_run
 
   queue_as :low
 

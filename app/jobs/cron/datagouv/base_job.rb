@@ -3,8 +3,8 @@
 class Cron::Datagouv::BaseJob < Cron::CronJob
   include DatagouvCronSchedulableConcern
 
-  # Monthly publication to an external API: keep the full retry budget.
-  use_sidekiq_retry
+  # Monthly publication to an external API. Declared once for the whole family.
+  recovers_by :never
 
   DATASET = '62d677bde7e4ca2c759142ce'
   DATE_FORMAT = "%Y-%m"

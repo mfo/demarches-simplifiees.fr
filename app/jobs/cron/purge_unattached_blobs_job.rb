@@ -2,6 +2,7 @@
 
 class Cron::PurgeUnattachedBlobsJob < Cron::CronJob
   self.schedule_expression = "every day at 00:30"
+  recovers_by :next_run
 
   def perform
     # .in_batches { _1.each... } is more efficient in this case that in_batches.each_record or find_each

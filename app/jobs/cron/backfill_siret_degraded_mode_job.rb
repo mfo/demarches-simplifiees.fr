@@ -3,6 +3,7 @@
 # TODO: remove this job in a few days once all failed etablissements are queued as separate jobs
 class Cron::BackfillSiretDegradedModeJob < Cron::CronJob
   self.schedule_expression = "every 2 hour"
+  recovers_by :next_run
 
   def perform(*args)
     fix_etablissement_with_dossier

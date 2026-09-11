@@ -2,6 +2,7 @@
 
 class Cron::TrustedDeviceTokenRenewalJob < Cron::CronJob
   self.schedule_expression = "every day at noon"
+  recovers_by :next_run
 
   def perform
     Instructeur

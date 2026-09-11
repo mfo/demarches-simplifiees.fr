@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class Cron::DiscardedDossiersDeletionBaseJob < Cron::CronJob
+  # Same as CrispDeleteInactivePeopleJob: re-enqueued in batches of 100, and the
+  # remainder is still there tomorrow. Declared once for the three subclasses.
+  recovers_by :next_run
+
   MAX_DOSSIERS_PER_RUN = 100
 
   # Classe abstraite : empêche `rake jobs:schedule` de tenter d'enregistrer

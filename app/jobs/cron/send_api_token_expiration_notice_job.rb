@@ -2,6 +2,7 @@
 
 class Cron::SendAPITokenExpirationNoticeJob < Cron::CronJob
   self.schedule_expression = "every day at 23:45"
+  recovers_by :next_run
 
   def perform
     windows = [

@@ -2,6 +2,7 @@
 
 class Cron::ProcedureProcessSVASVRJob < Cron::CronJob
   self.schedule_expression = "every day at 01:15"
+  recovers_by :next_run
 
   def perform
     Procedure.sva_svr.find_each do |procedure|
