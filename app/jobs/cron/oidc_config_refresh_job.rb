@@ -2,6 +2,7 @@
 
 class Cron::OidcConfigRefreshJob < Cron::CronJob
   self.schedule_expression = "every day at 11:00"
+  recovers_by :next_run
 
   def perform
     FranceConnectConfig.refresh! if FranceConnectService.enabled?

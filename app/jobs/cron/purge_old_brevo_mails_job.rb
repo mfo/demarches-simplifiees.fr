@@ -3,8 +3,8 @@
 class Cron::PurgeOldBrevoMailsJob < Cron::CronJob
   self.schedule_expression = "every day at 00:15"
 
-  # Deletes one specific day: a lost run is never caught up, keep the full retry budget.
-  use_sidekiq_retry
+  # Deletes one specific day: a lost run is never caught up.
+  recovers_by :never
 
   def perform
     brevo = Brevo::API.new

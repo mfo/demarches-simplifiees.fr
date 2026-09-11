@@ -2,6 +2,7 @@
 
 class Cron::InstructeurEmailNotificationJob < Cron::CronJob
   self.schedule_expression = "from monday through friday at 9 am"
+  recovers_by :next_run
 
   def perform(*args)
     NotificationService.send_instructeur_email_notification

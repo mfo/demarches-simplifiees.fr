@@ -2,6 +2,7 @@
 
 class Cron::AutoArchiveProcedureJob < Cron::CronJob
   self.schedule_expression = "every 1 minute"
+  recovers_by :next_run
   queue_as :critical
 
   def perform(*args)

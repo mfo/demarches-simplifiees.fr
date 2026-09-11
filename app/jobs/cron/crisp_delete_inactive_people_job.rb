@@ -20,6 +20,10 @@ class Cron::CrispDeleteInactivePeopleJob < Cron::CronJob
   include Dry::Monads[:result]
 
   self.schedule_expression = "every day at 3:30"
+  # Re-enqueues itself page by page, so mid-chain nothing but the dying run would
+  # resume the walk -- but the scope is a state scope, so tomorrow's run sees the
+  # remainder anyway.
+  recovers_by :next_run
 
   queue_as :low
 

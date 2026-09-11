@@ -2,6 +2,7 @@
 
 class Cron::PurgeSoftDeletedBlobsJob < Cron::CronJob
   self.schedule_expression = "every day at 01:00" # after PurgeUnattachedBlobsJob (00:30)
+  recovers_by :next_run
 
   def perform
     return if ENV['PURGE_LATER_DELAY_IN_DAY'].blank?
