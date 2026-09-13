@@ -4,7 +4,7 @@ class LLM::GenerateRuleSuggestionJob < ApplicationJob
   queue_as :default
 
   rescue_from(StandardError) do |exception|
-    Sentry.capture_exception(exception, level: :error)
+    Sentry.capture_exception(exception)
   end
 
   def perform(suggestion, action:, user_id: nil)

@@ -87,7 +87,6 @@ class APIEntrepriseService
     def report_error(failure, tags = {})
       Sentry.capture_message(
         "API Entreprise error: #{failure[:type]}",
-        level: :error,
         tags:,
         extra: { code: failure[:code], raw_body: failure[:raw_response]&.body&.truncate(1000) }
       )

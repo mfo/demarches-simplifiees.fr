@@ -193,7 +193,6 @@ describe APIEntrepriseService do
 
       expect(Sentry).to receive(:capture_message).with(
         "API Entreprise error: server_error",
-        level: :error,
         tags: { dossier: 42 },
         extra: { code: 503, raw_body: nil }
       )
@@ -207,7 +206,7 @@ describe APIEntrepriseService do
 
       expect(Sentry).to receive(:capture_message).with(
         "API Entreprise error: timeout",
-        hash_including(level: :error, extra: hash_including(raw_body: a_string_matching(/\.\.\.$/)))
+        hash_including(extra: hash_including(raw_body: a_string_matching(/\.\.\.$/)))
       )
 
       APIEntrepriseService.report_error(failure, siret: '123')

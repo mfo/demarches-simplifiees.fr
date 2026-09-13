@@ -65,11 +65,6 @@ class API::Client
 
   def handle_response(response, schema:)
     if response.success?
-      scope = Sentry.get_current_scope
-      if scope.extra.key?(:external_id)
-        scope.set_extras(raw_body: response.body.to_s)
-      end
-
       # Typhoeus normalize headers key names with [] method.
       body = if response.headers && response.headers["content-type"] == "text/plain"
         Success(response.body)
