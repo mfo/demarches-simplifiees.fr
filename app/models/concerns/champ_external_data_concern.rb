@@ -97,7 +97,7 @@ module ChampExternalDataConcern
     in Failure(retryable: true, error:, code:)
       save_external_error(error, code)
       retry!
-      raise RetryableFetchError.new(error)
+      raise RetryableFetchError.new(error, provider: self.class.name)
     in Failure(retryable: false, error:, code:)
       save_external_error(error, code)
       Sentry.capture_exception(error) if code != 404

@@ -79,9 +79,9 @@ class APIIgn::API
   # the request: the HTTP status alone is not enough to validate the response.
   def self.handle_wms_response(response)
     if !response.success?
-      raise RetryableFetchError, "WMS IGN: #{response.code} #{response.return_message}"
+      raise RetryableFetchError.new("WMS IGN: #{response.code} #{response.return_message}", provider: name)
     elsif !response.headers['Content-Type'].to_s.start_with?('image/')
-      raise RetryableFetchError, "WMS IGN: unexpected response (#{response.headers['Content-Type']})"
+      raise RetryableFetchError.new("WMS IGN: unexpected response (#{response.headers['Content-Type']})", provider: name)
     end
 
     response.body

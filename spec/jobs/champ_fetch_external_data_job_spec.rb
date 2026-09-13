@@ -57,7 +57,7 @@ RSpec.describe ChampFetchExternalDataJob, type: :job do
         3.times do
           perform_enqueued_jobs(only: ChampFetchExternalDataJob)
         rescue StandardError
-          # After 3 RetryableFetchError retries, the exhaust block raises err.cause
+          # After 3 RetryableFetchError retries, the exhaust block reports the error
         end
 
         champ.reload

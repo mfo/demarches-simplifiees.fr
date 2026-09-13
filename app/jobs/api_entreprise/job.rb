@@ -4,6 +4,17 @@ class APIEntreprise::Job < ApplicationJob
   class RetryableError < StandardError; end
   class ProviderDownError < RetryableError; end
 
+  # The upstream provider behind API Entreprise failed in a way a retry may fix
+  # (5xx, timeout); reported once the Sidekiq attempt threshold is reached.
+  class UpstreamError < StandardError
+    include SentryFingerprint::ProviderOutage
+
+    def initialize(message, provider:)
+      @provider = provider
+      super(message)
+    end
+  end
+
   include Dry::Monads[:result]
 
   queue_as :default
@@ -86,7 +97,7 @@ class APIEntreprise::Job < ApplicationJob
     in Failure(retryable: true, type: :rate_limited, code:, **)
       raise RetryableError, "#{self.class.name}: rate limited by API (pool #{api_pool}), retrying later"
     in Failure(retryable: true, type:, code:, raw_response:, **)
-      raise StandardError, format_error(type, code, raw_response)
+      raise UpstreamError.new(format_error(type, code, raw_response), provider: self.class.name)
     in Failure(retryable: false, type:, code:, **)
       Rails.logger.info("APIEntreprise non-retryable failure: type=#{type} code=#{code}")
       nil

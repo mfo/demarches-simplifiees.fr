@@ -8,8 +8,9 @@ class ChampFetchExternalDataJob < ApplicationJob
     champ = job.arguments.first
     champ.external_data_error!
 
-    # Don't raise, otherwise it will pop forever as "working" queue without doing anything
-    Sentry.capture_exception(err.cause)
+    # Don't raise, otherwise it will pop forever as "working" queue without doing anything.
+    # The wrapper carries the provider SentryFingerprint groups the outage by.
+    Sentry.capture_exception(err)
   end
 
   def perform(champ, external_id)
