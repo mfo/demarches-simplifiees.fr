@@ -125,7 +125,7 @@ class AttestationTemplate < ApplicationRecord
   def logo_url
     if logo.attached?
       logo_variant = logo.variant(resize_to_limit: [400, 400])
-      logo_variant.key.present? ? logo_variant.processed.url : Rails.application.routes.url_helpers.url_for(logo)
+      logo_variant.image&.attached? ? logo_variant.url : Rails.application.routes.url_helpers.url_for(logo)
     end
   end
 
