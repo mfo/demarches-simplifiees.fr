@@ -10,7 +10,7 @@ class GroupeGestionnaire::GroupeGestionnaireListCommentaires::CommentaireCompone
 
   def email
     if @commentaire.sender == current_gestionnaire
-      "Messages avec le groupe gestionnaire parent"
+      t(".messages_with_parent_group")
     elsif @commentaire.groupe_gestionnaire_id.in?([@groupe_gestionnaire.parent_id, @groupe_gestionnaire.id])
       @commentaire.sender_email
     else
@@ -23,7 +23,7 @@ class GroupeGestionnaire::GroupeGestionnaireListCommentaires::CommentaireCompone
   end
 
   def see_button
-    link_to 'Voir',
+    link_to t("views.shared.actions.see"),
       @commentaire.sender == current_gestionnaire ? parent_groupe_gestionnaire_gestionnaire_groupe_gestionnaire_commentaires_path(@groupe_gestionnaire) : gestionnaire_groupe_gestionnaire_commentaire_path(@groupe_gestionnaire, @commentaire),
       class: 'fr-btn'
   end
