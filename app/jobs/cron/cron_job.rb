@@ -6,7 +6,7 @@ class Cron::CronJob < ApplicationJob
   # timeout is retried for about three weeks, so a dozen instances of the same
   # job overlap and every failure yields a dozen Sentry events. A job whose run
   # cannot be caught up by the next one opts back in with `use_sidekiq_retry`.
-  use_sidekiq_retry(retry: 2)
+  use_sidekiq_retry(max_retry: 2)
 
   queue_as :default
   class_attribute :schedule_expression
