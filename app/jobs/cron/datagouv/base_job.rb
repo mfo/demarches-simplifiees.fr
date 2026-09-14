@@ -3,8 +3,11 @@
 class Cron::Datagouv::BaseJob < Cron::CronJob
   include DatagouvCronSchedulableConcern
 
-  # Monthly publication to an external API: keep the full retry budget.
-  use_sidekiq_retry
+  # Monthly publication: `missing_months` backfills what a lost run missed, but only
+  # a month later, and data.gouv is flaky. Hence about four hours of retries -- long
+  # enough for an outage to clear, short enough not to collide with the next run --
+  # and a Sentry report only once the failure outlives them.
+  use_sidekiq_retry(max_retry: 10, report_after_attempts: 10)
 
   DATASET = '62d677bde7e4ca2c759142ce'
   DATE_FORMAT = "%Y-%m"

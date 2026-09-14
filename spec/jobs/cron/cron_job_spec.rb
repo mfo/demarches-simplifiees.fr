@@ -11,12 +11,16 @@ RSpec.describe Cron::CronJob, type: :job do
     it 'caps Sidekiq retries: the next scheduled run is the retry' do
       expect(Cron::CronJob.get_sidekiq_options['retry']).to eq(2)
       expect(Cron::PurgeSoftDeletedBlobsJob.get_sidekiq_options['retry']).to eq(2)
+      expect(Cron::Datagouv::ExportAndPublishDemarchesPubliquesJob.get_sidekiq_options['retry']).to eq(2)
     end
 
     it 'lets a job whose run cannot be caught up keep the full budget' do
       expect(Cron::PurgeOldBrevoMailsJob.get_sidekiq_options['retry']).to eq(ActiveJob::RetryOnStandardError::MAX_ATTEMPTS_JOBS)
-      expect(Cron::Datagouv::AccountByMonthJob.get_sidekiq_options['retry']).to eq(ActiveJob::RetryOnStandardError::MAX_ATTEMPTS_JOBS)
-      expect(Cron::Datagouv::ExportAndPublishDemarchesPubliquesJob.get_sidekiq_options['retry']).to eq(ActiveJob::RetryOnStandardError::MAX_ATTEMPTS_JOBS)
+    end
+
+    it 'gives the monthly data.gouv publications about four hours, reported once they persist' do
+      expect(Cron::Datagouv::AccountByMonthJob.get_sidekiq_options['retry']).to eq(10)
+      expect(Cron::Datagouv::AccountByMonthJob.get_sidekiq_options['attempt_threshold']).to eq(10)
     end
   end
 end
