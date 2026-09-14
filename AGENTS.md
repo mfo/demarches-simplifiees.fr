@@ -73,6 +73,14 @@ Production row counts, from the cleaned production dump of **2026-09-07** (updat
 - Override the default messages in i18n under `activerecord.errors.models.<model>.attributes.<attr>.<kind>` (fr **and** en) — the built-in ones quote the raw bound ("doit être supérieur à 2026-09-02").
 - Specs assert the attribute **and** the error kind (`expect(record.errors).to be_of_kind(:attr, :kind)`), never a bare `be_invalid`. Beware: with `inclusion: { message: :custom_symbol }` the kind stays `:inclusion` — the symbol only drives the translation lookup.
 
+## Sentry
+
+- **Ids are tags, named after the model, without suffix**: `procedure`, `dossier`, `champ`, `user`, `siret`, `export`, `blob`.
+- **Extras hold debugging payloads that need no search**: an error code, a list of validation messages, a truncated response. Never a whole record, an external response body beyond a few hundred bytes, or anything about a person.
+- **`capture_message` titles are static.** The title is the grouping key, so a code, an id or a response body in it splits one cause into an issue per variant. The variable part goes in extras.
+- **Set tags with `Sentry.set_tags`** on the current scope (the request, or the job — sentry-sidekiq isolates each), not inside `Sentry.with_scope`: its tags are popped before a raised exception is captured.
+- **Grouping overrides live in `app/lib/sentry_fingerprint.rb`** (`before_send`), not in `fingerprint:` arguments at call sites.
+
 ## Testing
 
 - Use TDD where possible, prefer system specs for user-facing behaviour, and don't over-test: suite execution must stay fast. Every PR carries tests.
