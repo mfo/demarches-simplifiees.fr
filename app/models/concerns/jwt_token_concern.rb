@@ -42,6 +42,17 @@ module JwtTokenConcern
     invalid? || expired_or_expires_soon?
   end
 
+  def missing? = jwt_token.blank?
+
+  def usable? = !missing? && !expired?
+
+  def unusable_reason
+    return :token_missing if missing?
+    return :token_expired if expired?
+
+    nil
+  end
+
   private
 
   def decoded_token
