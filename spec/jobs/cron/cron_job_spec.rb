@@ -16,7 +16,6 @@ RSpec.describe Cron::CronJob, type: :job do
 
     it 'gives a job whose run cannot be caught up a few minutes, reported once it persists' do
       [
-        Cron::PurgeOldBrevoMailsJob,
         Cron::NotifyDraftNotSubmittedJob,
         Cron::AdministrateurActivateBeforeExpirationJob,
         Cron::SendAPITokenExpirationNoticeJob,
@@ -26,9 +25,14 @@ RSpec.describe Cron::CronJob, type: :job do
       end
     end
 
-    it 'gives the monthly data.gouv publications about four hours, reported once they persist' do
-      expect(Cron::Datagouv::AccountByMonthJob.get_sidekiq_options['retry']).to eq(10)
-      expect(Cron::Datagouv::AccountByMonthJob.get_sidekiq_options['attempt_threshold']).to eq(10)
+    it 'gives a job whose window is the whole day about four hours, reported once it persists' do
+      [
+        Cron::PurgeOldBrevoMailsJob,
+        Cron::Datagouv::AccountByMonthJob,
+      ].each do |job|
+        expect(job.get_sidekiq_options['retry']).to eq(10)
+        expect(job.get_sidekiq_options['attempt_threshold']).to eq(10)
+      end
     end
 
     it 'keeps the list of jobs raising their budget explicit' do
