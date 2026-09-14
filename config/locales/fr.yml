@@ -577,7 +577,6 @@ fr:
               other: "Corbeille (%{count})"
           personnalisation_link:
             label: Personnaliser la liste des dossiers
-            tooltip: Personnaliser la liste des dossiers
           search:
             back_to_list: "Mes dossiers"
             result_title: "Résultat de la recherche pour « %{search_terms} »"
