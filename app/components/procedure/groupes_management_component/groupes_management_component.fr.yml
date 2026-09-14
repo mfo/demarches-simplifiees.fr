@@ -11,6 +11,15 @@ fr:
     custom: Personnalisé
     not_custom: Non personnalisé
     defaut: Groupe par défaut
+    groupes: Groupes
+    dossiers: Dossiers
+    instructeurs: Instructeurs
+    inactif: inactif
+    regle_nil: aucune règle
+    regle_invalide: règle invalide
+    regle_deja_attribuee: "règle déjà attribuée à %{groups}"
+  title: Groupes
+  heading: Gestion des groupes
   add_groupe_modal:
     title: Ajouter un groupe
     label: Nouveau groupe
@@ -22,6 +31,7 @@ fr:
     export_instructeurs: Exporter la liste des groupes / instructeurs (.csv)
     export_contact_informations: Exporter les informations de contact par groupes (.csv)
   bulk_assignment:
+    default_label: "Et si aucune règle ne correspond, router vers :"
     title: Affectation en masse des instructeurs (tous les groupes)
     notification_alert_html: Tous les instructeurs que vous ajouterez / retirerez de la démarche <strong>seront notifiés par email</strong>.
     tab_add: Ajout
