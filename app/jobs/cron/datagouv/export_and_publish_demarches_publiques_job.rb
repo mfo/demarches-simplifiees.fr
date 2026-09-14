@@ -2,6 +2,7 @@
 
 class Cron::Datagouv::ExportAndPublishDemarchesPubliquesJob < Cron::CronJob
   include DatagouvCronSchedulableConcern
+
   self.schedule_expression = "every day at 4:10"
   DATASET = '62a0afdacffa4c3ea5cbd1b4'
   RESOURCE = '666211e9-6226-4fad-8d2f-5a4135f40e47'
