@@ -63,6 +63,21 @@ describe SentryFingerprint do
       expect(fingerprint_for(exception: wrong_type)).to be_empty
     end
 
+    it 'groups a provider outage by provider, whatever the message or the wrapped error' do
+      timeout = RetryableFetchError.new(StandardError.new('API Entreprise: timeout'), provider: 'Champs::SiretChamp')
+      degraded = RetryableFetchError.new(StandardError.new('API Entreprise: degraded mode'), provider: 'Champs::SiretChamp')
+      expect(fingerprint_for(exception: timeout)).to eq(['provider-outage', 'Champs::SiretChamp'])
+      expect(fingerprint_for(exception: degraded)).to eq(['provider-outage', 'Champs::SiretChamp'])
+
+      upstream = APIEntreprise::Job::UpstreamError.new('API Entreprise error: type=server_error code=502', provider: 'APIEntreprise::ExercicesJob')
+      expect(fingerprint_for(exception: upstream)).to eq(['provider-outage', 'APIEntreprise::ExercicesJob'])
+    end
+
+    it 'lets an infrastructure error wrapped in a provider outage win' do
+      wrapped = RetryableFetchError.new(Redis::CannotConnectError.new('Connection refused'), provider: 'Champs::SiretChamp')
+      expect(fingerprint_for(exception: wrapped)).to eq(['Redis::CannotConnectError'])
+    end
+
     it 'leaves other errors, statement timeouts and messages to the default grouping' do
       expect(fingerprint_for(exception: RuntimeError.new('boom'))).to be_empty
       expect(fingerprint_for(exception: ActiveRecord::QueryCanceled.new('canceling statement'))).to be_empty

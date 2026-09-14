@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Sentry `before_send` hook grouping infrastructure outages by exception class.
+# Sentry `before_send` hook grouping outages by their source.
 #
 # Sentry groups events by stacktrace and transaction, so a single Redis,
 # PostgreSQL or object storage outage fans out into dozens of issues (one per
@@ -11,10 +11,25 @@
 # every burst land in a single issue per class, which Sentry reopens as
 # "regressed" the next time the component goes down.
 #
-# Only connection-level errors of our own infrastructure are grouped. Errors
-# from external providers (API Entreprise, FranceConnect, mail delivery…) keep
-# the default grouping: their failures are per endpoint and per transaction.
+# Two kinds of events are grouped: connection-level errors of our own
+# infrastructure, by exception class; and availability errors of an external
+# provider, by provider, when the exception says so by including
+# ProviderOutage. Everything else (4xx, schema mismatches, mail delivery…)
+# keeps the default grouping: those failures are per endpoint and per
+# transaction.
 module SentryFingerprint
+  # Mixed into an exception meaning "an external provider is unavailable":
+  # timeout, connection failure, 5xx, once the retries the caller allows are
+  # spent. `provider` names the source (a job class, a champ type, an API
+  # client) and becomes the issue: one per provider, whatever the message, the
+  # transaction or the release. Errors that depend on the input (4xx, schema
+  # mismatches) must not include it.
+  module ProviderOutage
+    attr_reader :provider
+  end
+
+  PROVIDER_OUTAGE_KEY = "provider-outage"
+
   INFRASTRUCTURE_ERRORS = [
     # Redis (Kredis, cache, Sidekiq)
     Redis::BaseConnectionError,
@@ -43,11 +58,13 @@ module SentryFingerprint
   def self.for_exception(exception)
     return if exception.nil?
 
-    infrastructure_error = Sentry::Utils::ExceptionCauseChain
-      .exception_to_array(exception)
-      .find { infrastructure_error?(it) }
+    chain = Sentry::Utils::ExceptionCauseChain.exception_to_array(exception)
 
-    [infrastructure_error.class.name] if infrastructure_error
+    infrastructure_error = chain.find { infrastructure_error?(it) }
+    return [infrastructure_error.class.name] if infrastructure_error
+
+    provider_outage = chain.find { it.is_a?(ProviderOutage) }
+    [PROVIDER_OUTAGE_KEY, provider_outage.provider.to_s] if provider_outage
   end
 
   def self.infrastructure_error?(exception)
