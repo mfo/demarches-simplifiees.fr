@@ -568,7 +568,6 @@ en:
               other: "Trash (%{count})"
           personnalisation_link:
             label: Customize the dossier list
-            tooltip: Customize the dossier list
           search:
             back_to_list: "My files"
             result_title: "Search results for \"%{search_terms}\""

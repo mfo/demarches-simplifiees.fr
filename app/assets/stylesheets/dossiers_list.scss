@@ -12,18 +12,24 @@
   &__title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   &__personnalisation {
     --underline-img: none;
 
-    // Le DSFR déclare --icon-size et un margin-right (prévu pour un lien avec
-    // texte) directement sur le pseudo-élément : la surcharge doit cibler ::before.
-    &::before {
-      --icon-size: 1.25rem;
+    // Le DSFR dimensionne l’icône sur le pseudo-élément via un sélecteur
+    // d’attribut ([class*=" fr-icon-"]::before) : la surcharge doit être plus
+    // spécifique, sinon --icon-size est ignoré. Le libellé n’étant affiché
+    // qu’à partir de md, l’espacement ne vaut qu’à partir de md.
+    &.fr-link[class*=' fr-icon-']::before {
+      --icon-size: 1.5rem;
 
       margin-right: 0;
+
+      @media (min-width: 48em) {
+        margin-right: 0.25rem;
+      }
     }
   }
 

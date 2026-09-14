@@ -33,7 +33,7 @@ describe 'Usager personnalise la liste des dossiers', js: true do
   it 'lets the user pick fields and persists the personnalisation' do
     visit dossiers_path
 
-    expect(page).to have_css('.mes-dossiers-header__personnalisation')
+    expect(page).to have_css('.mes-dossiers-header__personnalisation', text: 'Personnaliser la liste des dossiers')
     find('.mes-dossiers-header__personnalisation').click
 
     expect(page).to have_content('Personnaliser la liste des dossiers')
