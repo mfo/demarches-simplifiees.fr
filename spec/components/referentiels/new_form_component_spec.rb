@@ -24,13 +24,13 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
       context 'when mode was not selected' do
         it 'renders form with hidden fields and no legacy inputs' do
           inputs = {
-            referentiel_id: 1,
             hint: 1,
           }
           input[:type] = 2 if Referentiels::APIReferentiel.csv_available?
 
           expect(page).to have_css('form[method=post]')
-          expect(page).to have_css("form[action=\"#{url_helpers.admin_procedure_referentiels_path(procedure, type_de_champ.stable_id)}\"]")
+          expect(page).to have_css('input[name=_method][value=patch]')
+          expect(page).to have_css("form[action=\"#{url_helpers.admin_procedure_referentiel_path(procedure, type_de_champ.stable_id)}\"]")
           expect(page).not_to have_selector('input[type="file"]')
           expect(page).not_to have_selector('input[name="referentiel[url]"]')
           expect(page).not_to have_selector('input[name="referentiel[test_data]"]')
@@ -78,7 +78,7 @@ RSpec.describe Referentiels::NewFormComponent, type: :component do
       it 'render form to update' do
         expect(page).to have_css('form[method=post]')
         expect(page).to have_css('input[name=_method][value=patch]')
-        expect(page).to have_css("form[action=\"#{url_helpers.admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel)}\"]")
+        expect(page).to have_css("form[action=\"#{url_helpers.admin_procedure_referentiel_path(procedure, type_de_champ.stable_id)}\"]")
       end
     end
   end

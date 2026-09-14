@@ -4,28 +4,20 @@ module Administrateurs
   class ReferentielsController < AdministrateurController
     before_action :retrieve_procedure
     before_action :retrieve_type_de_champ
-    before_action :retrieve_referentiel, except: [:new, :create, :validate_url]
+    before_action :retrieve_referentiel, except: [:edit, :update, :validate_url]
+    before_action :ensure_exclusive_referentiel, only: [:update_autocomplete_configuration]
     before_action :reachable_referentiel?, only: [:mapping_type_de_champ, :autocomplete_configuration]
     layout 'empty_layout'
 
-    def new
-      @referentiel = @type_de_champ.build_referentiel(build_or_clone_by_id_params)
-    end
-
-    def configuration_error
-    end
-
     def edit
-      render :new
-    end
-
-    def create
-      handle_referentiel_save(@type_de_champ.build_referentiel(referentiel_params_with_carried_attributes))
+      @referentiel = @type_de_champ.referentiel || @type_de_champ.build_referentiel(new_referentiel_params)
     end
 
     def update
-      @referentiel.assign_attributes(referentiel_params)
-      handle_referentiel_save(@referentiel)
+      handle_referentiel_save(referentiel_to_write)
+    end
+
+    def configuration_error
     end
 
     def validate_url
@@ -48,7 +40,7 @@ module Administrateurs
 
     def update_autocomplete_configuration
       if @referentiel.update(autocomplete_configuration_params) && params[:commit].present?
-        redirect_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel), flash: { notice: "La configuration de l’autocomplete a bien été enregistrée" }
+        redirect_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id), flash: { notice: "La configuration de l’autocomplete a bien été enregistrée" }
       else
         @referentiel.validate
         component = Referentiels::AutocompleteConfigurationComponent.new(referentiel: @referentiel, type_de_champ: @type_de_champ, procedure: @procedure)
@@ -64,9 +56,9 @@ module Administrateurs
 
     def update_mapping_type_de_champ
       if @type_de_champ.update(referentiel_mapping: @type_de_champ.safe_referentiel_mapping.deep_merge(referentiel_mapping_params))
-        redirect_to prefill_and_display_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel), flash: { notice: "La configuration du mapping a bien été enregistrée" }
+        redirect_to prefill_and_display_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id), flash: { notice: "La configuration du mapping a bien été enregistrée" }
       else
-        redirect_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel), flash: { alert: "Une erreur est survenue" }
+        redirect_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id), flash: { alert: "Une erreur est survenue" }
       end
     end
 
@@ -78,7 +70,7 @@ module Administrateurs
           redirect_to annotations_admin_procedure_path(@procedure), flash: { notice: "La configuration du pré remplissage des champs et/ou affichage des données récupérées a bien été enregistrée" }
         end
       else
-        redirect_to prefill_and_display_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel), flash: { alert: "Une erreur est survenue" }
+        redirect_to prefill_and_display_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id), flash: { alert: "Une erreur est survenue" }
       end
     end
 
@@ -93,7 +85,7 @@ module Administrateurs
         @type_de_champ.update!(referentiel_mapping: cleaned)
       end
 
-      redirect_back_or_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel),
+      redirect_back_or_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id),
                          flash: { notice: "La configuration a bien été réinitialisée" }
     end
 
@@ -107,7 +99,7 @@ module Administrateurs
 
     def reachable_referentiel?
       if !ReferentielService.new(referentiel: @referentiel).validate_referentiel
-        redirect_to configuration_error_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, @referentiel), flash: { alert: "Le référentiel n’est pas accessible" }
+        redirect_to configuration_error_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id), flash: { alert: "Le référentiel n’est pas accessible" }
       end
     end
 
@@ -124,9 +116,9 @@ module Administrateurs
 
       if saved && !auto_submitted
         if referentiel.autocomplete?
-          redirect_to autocomplete_configuration_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, referentiel)
+          redirect_to autocomplete_configuration_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id)
         else
-          redirect_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id, referentiel)
+          redirect_to mapping_type_de_champ_admin_procedure_referentiel_path(@procedure, @type_de_champ.stable_id)
         end
       else
         component = Referentiels::NewFormComponent.new(referentiel:, type_de_champ: @type_de_champ, procedure: @procedure)
@@ -145,32 +137,15 @@ module Administrateurs
       permitted_mapping
     end
 
+    REFERENTIEL_ATTRIBUTES = [
+      :mode, :hint, :url_tiptap, :authentication_method,
+      { authentication_data: [:header, :value], test_data_tiptap: {} },
+    ].freeze
+
     def referentiel_params
-      params.require(:referentiel)
-        .permit(:type, :mode, :hint, :url_tiptap,
-                :authentication_method, authentication_data: [:header, :value],
-                test_data_tiptap: {})
+      params.require(:referentiel).permit(*REFERENTIEL_ATTRIBUTES)
     rescue ActionController::ParameterMissing
       {}
-    end
-
-    # When cloning an existing referentiel, some attributes are not submitted by the
-    # form and would be lost on save: the auth inputs are rendered as `disabled` to
-    # hide the secret, and the autocomplete configuration belongs to a later step of
-    # the wizard. We carry them over from the source.
-    def referentiel_params_with_carried_attributes
-      attrs = referentiel_params.to_h
-      source_id = params.dig(:referentiel, :referentiel_id).presence
-      return attrs if source_id.blank?
-
-      source = @type_de_champ.referentiel
-      return attrs if source.nil? || source.id != source_id.to_i
-
-      if attrs[:authentication_method] == 'header_token' && attrs[:authentication_data].blank?
-        attrs[:authentication_data] = source.authentication_data
-      end
-      attrs[:autocomplete_configuration] = source.autocomplete_configuration if source.autocomplete_configuration.present?
-      attrs
     end
 
     def retrieve_type_de_champ
@@ -179,19 +154,30 @@ module Administrateurs
 
     def retrieve_referentiel
       @referentiel = @type_de_champ.referentiel
-      raise ActiveRecord::RecordNotFound if @referentiel.nil? || @referentiel.id != params[:id].to_i
+      raise ActiveRecord::RecordNotFound if @referentiel.nil?
     end
 
-    def build_or_clone_by_id_params
-      if params[:referentiel_id]
-        referentiel = @type_de_champ.referentiel
-        raise ActiveRecord::RecordNotFound if referentiel.nil? || referentiel.id != params[:referentiel_id].to_i
-        referentiel.attributes.slice(*%w[url_tiptap test_data_tiptap hint mode type authentication_data authentication_method])
+    # Le champ n'a pas encore de référentiel : on le construit, seul moment où `type`
+    # est lu (la classe STI d'une ligne ne change plus après sa création). Sinon on
+    # écrit sur le référentiel du champ, dupliqué s'il est partagé.
+    def referentiel_to_write
+      if @type_de_champ.referentiel.nil?
+        @type_de_champ.build_referentiel(new_referentiel_params)
       else
-        params = referentiel_params.to_h
-        params = params.merge(type: Referentiels::APIReferentiel) if !Referentiels::APIReferentiel.csv_available?
-        params
+        @type_de_champ.ensure_exclusive_referentiel!.tap { it.assign_attributes(referentiel_params) }
       end
+    end
+
+    # Le champ du brouillon est déjà exclusif (retrieve_type_de_champ) ; son référentiel
+    # doit l'être aussi avant d'être modifié, sinon la révision publiée le verrait changer.
+    def ensure_exclusive_referentiel
+      @referentiel = @type_de_champ.ensure_exclusive_referentiel!
+    end
+
+    def new_referentiel_params
+      attributes = params.fetch(:referentiel, {}).permit(:type, *REFERENTIEL_ATTRIBUTES).to_h
+      attributes = attributes.merge(type: Referentiels::APIReferentiel) if !Referentiels::APIReferentiel.csv_available?
+      attributes
     end
 
     def autocomplete_configuration_params

@@ -231,21 +231,18 @@ scope module: 'administrateurs', path: 'admin', as: 'admin', defaults: { nav_bar
       post :reset
     end
 
-    resources :referentiels, only: [:new, :create, :edit, :update], path: ':stable_id', constraints: { stable_id: /\d+/ } do
-      collection do
-        patch :validate_url
-        post :validate_url
-      end
-      member do
-        get :configuration_error
-        patch :update_autocomplete_configuration
-        get :autocomplete_configuration
-        get :mapping_type_de_champ
-        patch :update_mapping_type_de_champ
-        patch :update_prefill_and_display_type_de_champ
-        get :prefill_and_display
-        delete :reset_mapping
-      end
+    # Un champ a au plus un référentiel : il est désigné par le stable_id du champ.
+    resource :referentiel, only: [:edit, :update], path: ':stable_id', constraints: { stable_id: /\d+/ } do
+      patch :validate_url
+      post :validate_url
+      get :configuration_error
+      patch :update_autocomplete_configuration
+      get :autocomplete_configuration
+      get :mapping_type_de_champ
+      patch :update_mapping_type_de_champ
+      patch :update_prefill_and_display_type_de_champ
+      get :prefill_and_display
+      delete :reset_mapping
     end
 
     resource :dossier_submitted_message, only: [:edit, :update, :create] do
