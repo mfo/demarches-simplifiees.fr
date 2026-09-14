@@ -25,6 +25,20 @@ describe DataSources::EducationController, type: :controller do
         search
         expect(response).to have_http_status(:ok)
       end
+
+      context "when a successful answer is not JSON" do
+        let(:upstream_response) do
+          Typhoeus::Response.new(code: 200, body: "<!DOCTYPE html><html><body>#{'x' * 300}</body></html>", mock: true)
+        end
+
+        it "reports the failure with a truncated body and answers an empty list" do
+          expect(Sentry).to receive(:capture_message).with("Education API failure", extra: { code: 200, body: a_string_starting_with("<!DOCTYPE html>").and(having_attributes(length: 200)) })
+          expect(Sentry).not_to receive(:capture_exception)
+          search
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body).to eq([])
+        end
+      end
     end
   end
 end
