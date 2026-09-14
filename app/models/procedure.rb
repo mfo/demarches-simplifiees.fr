@@ -2,6 +2,7 @@
 
 class Procedure < ApplicationRecord
   include APIEntrepriseTokenConcern
+  include APIParticulierTokenConcern
   include ProcedureStatsConcern
   include InitiationProcedureConcern
   include ProcedureGroupeInstructeurAPIHackConcern
@@ -350,7 +351,6 @@ class Procedure < ApplicationRecord
     empty_file: true,
     if: -> { new_record? || created_at > Date.new(2020, 11, 13) }
 
-  validates :api_particulier_token, format: { with: /\A[A-Za-z0-9\-_=.]{15,}\z/ }, allow_blank: true
   validates :auto_archive_on,
             comparison: { greater_than: -> (_) { Date.current } },
             allow_nil: true,
