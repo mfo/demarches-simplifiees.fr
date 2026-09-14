@@ -1949,6 +1949,35 @@ describe Procedure do
     end
   end
 
+  describe '#logo_url' do
+    subject { procedure.logo_url }
+
+    context 'without a logo' do
+      let(:procedure) { create(:procedure) }
+
+      it { is_expected.to match(%r{/assets/.*republique-francaise-logo}) }
+    end
+
+    # The variant is made by BlobProcessorJob. Reading the logo must not make one:
+    # the web servers that render this page carry no image library.
+    context 'with a logo whose variant is not made yet' do
+      let(:procedure) { create(:procedure, :with_logo) }
+
+      it 'returns the logo itself and makes no variant' do
+        expect { subject }.not_to change { ActiveStorage::VariantRecord.count }
+        expect(subject).to match(%r{/rails/active_storage/blobs/})
+      end
+    end
+
+    context 'with a logo whose variant is made', :external_deps do
+      let(:procedure) { create(:procedure, :with_logo) }
+
+      before { procedure.logo.variant(resize_to_limit: [400, 400]).processed }
+
+      it { is_expected.to match(%r{/rails/active_storage/disk/}) }
+    end
+  end
+
   private
 
   def create_dossier_with_pj_of_size(size, procedure)
