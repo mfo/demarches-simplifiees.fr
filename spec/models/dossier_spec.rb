@@ -1225,6 +1225,25 @@ describe Dossier, type: :model do
           end
         end
       end
+
+      context "when the dossier expires" do
+        # The badge is created within the let: the outer subject! runs before a let! of this context would.
+        let(:dossier) do
+          dossiers.accepte.tap do
+            create(:dossier_notification, dossier: it, instructeur_id: it.groupe_instructeur.instructeur_ids.first, notification_type: :dossier_expirant)
+          end
+        end
+        let(:user) { :automatic }
+        let(:reason) { :expired }
+
+        it "replaces the dossier_expirant notification with a dossier_suppression one" do
+          subject
+          notifications = DossierNotification.where(dossier:)
+          expect(notifications.pluck(:notification_type).uniq).to eq(["dossier_suppression"])
+          expect(notifications.pluck(:instructeur_id)).to match_array(dossier.groupe_instructeur.instructeur_ids)
+          expect(notifications.pluck(:display_at).map(&:to_date).uniq).to eq([Time.zone.today])
+        end
+      end
     end
   end
 

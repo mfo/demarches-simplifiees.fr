@@ -22,7 +22,6 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
   def process_expired_dossiers_termine
     send_termine_expiration_notices
     delete_expired_termine_and_notify
-    update_notifications_dossiers_termine
   end
 
   def send_brouillon_expiration_notices
@@ -96,25 +95,6 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
     end
   end
 
-  def update_notifications_dossiers_termine
-    # Ids, not a subquery: it would put the sparse scan back inside the in_batches
-    # cursor of create_notifications_for_non_customisable_type.
-    close_to_expiration_ids = Dossier.termine_close_to_expiration.without_dossier_expirant_notification
-      .order(:expired_at)
-      .limit(TERMINE_NOTICES_LIMIT_PER_DAY)
-      .pluck(:id)
-    expired_ids = Dossier.termine_expired_after_notice_grace
-      .order(:termine_close_to_expiration_notice_sent_at)
-      .limit(TERMINE_DELETION_LIMIT_PER_DAY)
-      .pluck(:id)
-    close_to_expiration = Dossier.where(id: close_to_expiration_ids)
-    expired = Dossier.where(id: expired_ids)
-
-    DossierNotification.create_notifications_for_non_customisable_type(close_to_expiration, :dossier_expirant)
-    DossierNotification.destroy_notifications_by_dossier_and_type(expired, :dossier_expirant)
-    DossierNotification.create_notifications_for_non_customisable_type(expired, :dossier_suppression)
-  end
-
   private
 
   # All the dossiers of one user land in the same batch, hence in the same mail.
@@ -138,12 +118,16 @@ class Expired::DossiersDeletionService < Expired::MailRateLimiter
     administration_notifications = group_by_administration_email(dossiers_close_to_expiration, preference: :instant_email_dossier_expiration)
 
     # One statement per batch: for a notified termine dossier, expiration_date
-    # is the notice date plus the remaining weeks.
+    # is the notice date plus the remaining weeks. The instructeur badge is
+    # created in the same transaction, so the flag and the badge always agree.
     now = Time.zone.now
-    dossiers_close_to_expiration.update_all(
-      close_to_expiration_flag => now,
-      expired_at: now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks
-    )
+    Dossier.transaction do
+      dossiers_close_to_expiration.update_all(
+        close_to_expiration_flag => now,
+        expired_at: now + Expired::REMAINING_WEEKS_BEFORE_EXPIRATION.weeks
+      )
+      DossierNotification.create_notifications_for_non_customisable_type(dossiers_close_to_expiration, :dossier_expirant)
+    end
 
     user_notifications.each do |(email, dossiers)|
       mail = DossierMailer.notify_near_deletion_to_user(dossiers, email)

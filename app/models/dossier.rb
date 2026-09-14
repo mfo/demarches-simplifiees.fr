@@ -377,15 +377,6 @@ class Dossier < ApplicationRecord
 
   scope :without_brouillon_expiration_notice_sent, -> { where(brouillon_close_to_expiration_notice_sent_at: nil) }
   scope :without_termine_expiration_notice_sent, -> { where(termine_close_to_expiration_notice_sent_at: nil) }
-  scope :without_dossier_expirant_notification, -> do
-    where.not(
-      DossierNotification
-        .where("dossier_notifications.dossier_id = dossiers.id")
-        .where(notification_type: :dossier_expirant)
-        .arel.exists
-    )
-  end
-
   scope :deleted_by_user_expired, -> { where(dossiers: { hidden_by_user_at: ...REMAINING_WEEKS_BEFORE_DELETION.weeks.ago }) }
   scope :deleted_by_administration_expired, -> { where(dossiers: { hidden_by_administration_at: ...REMAINING_WEEKS_BEFORE_DELETION.weeks.ago }) }
   scope :deleted_by_automatic_expired, -> { where(dossiers: { hidden_by_expired_at: ...REMAINING_WEEKS_BEFORE_DELETION.weeks.ago }) }
@@ -929,6 +920,8 @@ class Dossier < ApplicationRecord
       elsif is_automatic?(author) && can_be_deleted_by_automatic?(reason)
         update(hidden_by_expired_at: Time.zone.now, hidden_by_reason: reason)
         log_automatic_dossier_operation(:supprimer, self)
+        DossierNotification.destroy_notifications_by_dossier_and_type(self, :dossier_expirant)
+        DossierNotification.create_notifications_for_non_customisable_type(self, :dossier_suppression)
       else
         raise "Unauthorized dossier hide attempt Dossier##{id} by #{author} for reason #{reason}"
       end
