@@ -254,4 +254,33 @@ describe AttestationTemplate, type: :model do
       end
     end
   end
+
+  describe '#logo_url' do
+    subject { attestation_template.logo_url }
+
+    context 'without a logo' do
+      let(:attestation_template) { create(:attestation_template) }
+
+      it { is_expected.to be_nil }
+    end
+
+    # The variant is made by BlobProcessorJob. Reading the logo must not make one:
+    # the web servers that render this page carry no image library.
+    context 'with a logo whose variant is not made yet' do
+      let(:attestation_template) { create(:attestation_template, :with_files) }
+
+      it 'returns the logo itself and makes no variant' do
+        expect { subject }.not_to change { ActiveStorage::VariantRecord.count }
+        expect(subject).to match(%r{/rails/active_storage/blobs/})
+      end
+    end
+
+    context 'with a logo whose variant is made', :external_deps do
+      let(:attestation_template) { create(:attestation_template, :with_files) }
+
+      before { attestation_template.logo.variant(resize_to_limit: [400, 400]).processed }
+
+      it { is_expected.to match(%r{/rails/active_storage/disk/}) }
+    end
+  end
 end
