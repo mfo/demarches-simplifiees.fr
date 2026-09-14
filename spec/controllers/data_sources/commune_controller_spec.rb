@@ -25,6 +25,30 @@ describe DataSources::CommuneController, type: :controller do
         search
         expect(response).to have_http_status(:ok)
       end
+
+      context "when the API answers an error" do
+        let(:upstream_response) do
+          Typhoeus::Response.new(code: 504, body: "<!DOCTYPE html><html><body>#{'x' * 300}</body></html>", mock: true)
+        end
+
+        it "reports the failure with a truncated body and answers 502" do
+          expect(Sentry).to receive(:capture_message).with("Commune API failure", extra: { code: 504, message: "HTTP 504", body: a_string_starting_with("<!DOCTYPE html>").and(having_attributes(length: 200)) })
+          search
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context "when a successful answer is not JSON" do
+        let(:upstream_response) do
+          Typhoeus::Response.new(code: 200, body: "<!DOCTYPE html>", mock: true)
+        end
+
+        it "reports the failure and answers 502" do
+          expect(Sentry).to receive(:capture_message).with("Commune API failure", extra: { code: 200, body: "<!DOCTYPE html>" })
+          search
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
     end
   end
 end
