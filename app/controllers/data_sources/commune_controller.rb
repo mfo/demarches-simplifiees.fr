@@ -15,15 +15,18 @@ class DataSources::CommuneController < DataSources::BaseController
         if response.code == 0
           error_message = response.return_message
         else
-          Sentry.set_extras(body: response.body, code: response.code)
           error_message = "HTTP #{response.code}"
         end
 
-        Sentry.capture_message("Commune API failure", extra: { code: response.code, message: error_message })
+        Sentry.capture_message("Commune API failure", extra: { code: response.code, message: error_message, body: response.body.to_s.truncate(200) })
         return head :bad_gateway
       end
     else
       render json: []
     end
+
+  rescue JSON::ParserError
+    Sentry.capture_message("Commune API failure", extra: { code: response.code, body: response.body.to_s.truncate(200) })
+    return head :bad_gateway
   end
 end

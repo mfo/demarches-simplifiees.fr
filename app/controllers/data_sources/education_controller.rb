@@ -14,9 +14,8 @@ class DataSources::EducationController < DataSources::BaseController
 
     render json: []
 
-  rescue JSON::ParserError => e
-    Sentry.set_extras(body: response.body, code: response.code)
-    Sentry.capture_exception(e)
+  rescue JSON::ParserError
+    Sentry.capture_message("Education API failure", extra: { code: response.code, body: response.body.to_s.truncate(200) })
     render json: []
   end
 

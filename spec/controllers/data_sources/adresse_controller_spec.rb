@@ -31,6 +31,42 @@ describe DataSources::AdresseController, type: :controller do
         expect(Typhoeus).to have_received(:get)
           .with(start_with(API_ADRESSE_URL), hash_including(params: hash_including(q: "12 rue de la Paix")))
       end
+
+      context "when the API answers an error with a JSON body" do
+        let(:upstream_response) do
+          Typhoeus::Response.new(code: 503, body: { message: "Service indisponible" }.to_json, mock: true)
+        end
+
+        it "reports the failure with the upstream message and answers 502" do
+          expect(Sentry).to receive(:capture_message).with("Adresse API failure", extra: { code: 503, message: "Service indisponible" })
+          search
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context "when the API answers an error with an HTML page" do
+        let(:upstream_response) do
+          Typhoeus::Response.new(code: 504, body: "<!DOCTYPE html><html><body>#{'x' * 300}</body></html>", mock: true)
+        end
+
+        it "reports the failure with a truncated body and answers 502" do
+          expect(Sentry).to receive(:capture_message).with("Adresse API failure", extra: { code: 504, body: a_string_starting_with("<!DOCTYPE html>").and(having_attributes(length: 200)) })
+          search
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context "when a successful answer is not JSON" do
+        let(:upstream_response) do
+          Typhoeus::Response.new(code: 200, body: "<!DOCTYPE html>", mock: true)
+        end
+
+        it "reports the failure and answers 502" do
+          expect(Sentry).to receive(:capture_message).with("Adresse API failure", extra: { code: 200, body: "<!DOCTYPE html>" })
+          search
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
     end
   end
 
