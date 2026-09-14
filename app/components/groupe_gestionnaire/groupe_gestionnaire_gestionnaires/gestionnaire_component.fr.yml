@@ -1,0 +1,4 @@
+fr:
+  yourself_indicator: "(C’est vous !)"
+  remove_from_group: "Retirer du groupe"
+  remove_confirm: "Retirer « %{email} » des gestionnaires de « %{group_name} » ?"
