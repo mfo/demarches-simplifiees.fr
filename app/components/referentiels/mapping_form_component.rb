@@ -11,9 +11,9 @@ class Referentiels::MappingFormComponent < Referentiels::MappingFormBase
 
   def back_url
     if referentiel.autocomplete?
-      autocomplete_configuration_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel.id)
+      autocomplete_configuration_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id)
     else
-      edit_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel.id)
+      edit_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id)
     end
   end
 

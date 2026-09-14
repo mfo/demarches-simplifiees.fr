@@ -6,11 +6,11 @@ class Referentiels::AutocompleteConfigurationComponent < Referentiels::MappingFo
   end
 
   def back_url
-    edit_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel.id)
+    edit_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id)
   end
 
   def form_url
-    update_autocomplete_configuration_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel.id)
+    update_autocomplete_configuration_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id)
   end
 
   def datasource

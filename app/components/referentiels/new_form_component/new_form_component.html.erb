@@ -1,4 +1,4 @@
-<%= form_with model: @referentiel, scope: :referentiel, url: form_url, **form_options do |form| -%>
+<%= form_with model: @referentiel, scope: :referentiel, url: form_url, method: :patch, **form_options do |form| -%>
   <div class="<%= bordered_container_class_names %>">
     <div>
       <% if Referentiels::APIReferentiel.csv_available? -%>

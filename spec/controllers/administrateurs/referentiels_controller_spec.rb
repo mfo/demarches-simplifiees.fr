@@ -8,37 +8,38 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
   before { sign_in(procedure.administrateurs.first.user) }
 
-  describe 'IDOR on retrieve_referentiel (edit/update)' do
+  describe 'IDOR on retrieve_type_de_champ (edit/update)' do
     let(:other_referentiel) { create(:api_referentiel, :exact_match, :with_authentication_data) }
     let(:other_procedure) { create(:procedure, public_type_de_champs: [{ type: :referentiel, referentiel: other_referentiel }]) }
-    let(:other_admin) { other_procedure.administrateurs.first }
+    let(:other_stable_id) { other_procedure.draft_revision.type_de_champs.first.stable_id }
 
     it 'blocks reading another admin referentiel via edit' do
       expect {
-        get :edit, params: { procedure_id: procedure.id, stable_id:, id: other_referentiel.id }
+        get :edit, params: { procedure_id: procedure.id, stable_id: other_stable_id }
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it 'blocks modifying another admin referentiel via update' do
       expect {
         patch :update, params: {
-          procedure_id: procedure.id, stable_id:, id: other_referentiel.id,
+          procedure_id: procedure.id, stable_id: other_stable_id,
           referentiel: { hint: 'hacked' },
         }, format: :turbo_stream
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
-  describe '#new' do
-    it 'renders successifully' do
-      get :new, params: { procedure_id: procedure.id, stable_id: }
+  describe '#edit without referentiel' do
+    it 'renders the form for a referentiel to build' do
+      get :edit, params: { procedure_id: procedure.id, stable_id: }
       expect(response).to have_http_status(:success)
+      expect(assigns(:referentiel)).to be_new_record
     end
   end
 
-  describe '#create' do
+  describe '#update without referentiel' do
     context 'partial update (selecting type)' do
-      subject { post :create, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params, commit:	"Étape+suivante" }, format: :turbo_stream }
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params, commit:	"Étape+suivante" }, format: :turbo_stream }
       let(:referentiel_params) { { type: 'Referentiels::APIReferentiel' } }
       it 're-render form' do
         expect { subject }.not_to change { Referentiel.count }
@@ -47,7 +48,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context 'partial update (autosave with tiptap url, hint etc...)' do
-      subject { post :create, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
 
       let(:url_tiptap_json) do
         {
@@ -95,7 +96,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context 'with commit params (submit save)' do
-      subject { post :create, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+      subject { patch :update, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
 
       let(:url_tiptap_json) do
         {
@@ -128,7 +129,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
           referentiel = Referentiel.first
 
-          expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+          expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
 
           expect(referentiel.type_de_champs).to include(TypeDeChamp.find_by(stable_id:))
           expect(referentiel.type).to eq(referentiel_params[:type])
@@ -155,7 +156,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
           referentiel = Referentiel.first
 
-          expect(response).to redirect_to(autocomplete_configuration_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+          expect(response).to redirect_to(autocomplete_configuration_admin_procedure_referentiel_path(procedure, stable_id))
 
           expect(referentiel.type_de_champs).to include(TypeDeChamp.find_by(stable_id:))
           expect(referentiel.type).to eq(referentiel_params[:type])
@@ -168,7 +169,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
   end
 
-  describe '#create with tiptap' do
+  describe '#update without referentiel, with tiptap' do
     let(:url_tiptap_json) do
       {
         type: "doc",
@@ -187,7 +188,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context 'partial update (autosave with tiptap params)' do
-      subject { post :create, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
 
       let(:referentiel_params) do
         {
@@ -212,7 +213,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
 
     context 'with commit params (submit save)' do
-      subject { post :create, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
+      subject { patch :update, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
 
       let(:referentiel_params) do
         {
@@ -228,7 +229,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         expect { subject }.to change { Referentiel.count }.by(1)
 
         referentiel = Referentiel.last
-        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
         expect(referentiel.url_tiptap).to eq(url_tiptap_json.deep_stringify_keys)
         expect(referentiel.test_data_tiptap).to eq({ "{query}" => "0100026", "tdc#{stable_id}" => "ABC123" })
       end
@@ -243,7 +244,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
     describe '#update' do
       subject do
-        patch :update, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: { hint: 'après' } }, format: :turbo_stream
+        patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: { hint: 'après' } }, format: :turbo_stream
       end
 
       it 'applies the change to a copy and leaves the published revision on the original' do
@@ -260,7 +261,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       let!(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, type_de_champs: [published_type_de_champ]) }
 
       subject do
-        patch :update_autocomplete_configuration, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id, commit: 'Étape suivante', referentiel: { datasource: '$.', tiptap_template: '{}' } }
+        patch :update_autocomplete_configuration, params: { procedure_id: procedure.id, stable_id:, commit: 'Étape suivante', referentiel: { datasource: '$.', tiptap_template: '{}' } }
       end
 
       it 'applies the change to a copy and redirects to the mapping of that copy' do
@@ -268,27 +269,27 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
         expect(referentiel.reload.datasource).to be_nil
         expect(draft_type_de_champ.referentiel.datasource).to eq('$.')
-        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, draft_type_de_champ.referentiel))
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
       end
     end
   end
 
   describe "#edit" do
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     it 'works' do
-      get :edit, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id }
+      get :edit, params: { procedure_id: procedure.id, stable_id: }
       expect(response).to have_http_status(:success)
     end
   end
 
   describe "#update" do
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     context 'partial update (updating hint only)' do
-      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: referentiel_params }, format: :turbo_stream }
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
 
       let(:referentiel_params) { { hint: 'Nouvel indice' } }
 
@@ -302,12 +303,21 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
     end
 
+    context 'submitting another type' do
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: { type: 'Referentiels::CsvReferentiel', hint: 'Nouvel indice' } }, format: :turbo_stream }
+
+      it 'keeps the STI class of the row' do
+        expect { subject }.to change { referentiel.reload.hint }.to('Nouvel indice')
+        expect(referentiel.type).to eq('Referentiels::APIReferentiel')
+      end
+    end
+
     context 'full update (updating all attributes) without autosave' do
-      subject { patch :update, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: referentiel_params }, format: :turbo_stream }
+      subject { patch :update, params: { commit: 'Étape suivante', procedure_id: procedure.id, stable_id:, referentiel: referentiel_params }, format: :turbo_stream }
       let(:new_url_tiptap) do
         { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://rnb-api.beta.gouv.fr/api/alpha/buildings/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } }] }] }
       end
-      let(:referentiel) do
+      let!(:referentiel) do
         create(
           :api_referentiel,
           :exact_match,
@@ -333,7 +343,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       it 'updates the referentiel and redirects without clearing mapping' do
         subject
 
-        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
 
         referentiel.reload
         expect(referentiel.mode).to eq(referentiel_params[:mode])
@@ -360,14 +370,14 @@ describe Administrateurs::ReferentielsController, type: :controller do
         ],
       }
     end
-    let(:referentiel) do
+    let!(:referentiel) do
       create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ],
         url_tiptap: initial_url_tiptap,
         test_data_tiptap: { "{query}" => "old_value" })
     end
 
     context 'partial update (autosave hint only)' do
-      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id, referentiel: { hint: 'Updated hint' } }, format: :turbo_stream }
+      subject { patch :update, params: { procedure_id: procedure.id, stable_id:, referentiel: { hint: 'Updated hint' } }, format: :turbo_stream }
 
       it 'updates hint without clearing cache' do
         subject
@@ -382,7 +392,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       let(:new_url_tiptap) do
         { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "https://api.gouv.fr/new/" }, { "type" => "mention", "attrs" => { "id" => "{query}", "label" => "Query" } }] }] }
       end
-      let(:referentiel) do
+      let!(:referentiel) do
         create(:api_referentiel, :exact_match, :with_exact_match_response, type_de_champs: [type_de_champ],
             url_tiptap: initial_url_tiptap,
           test_data_tiptap: { "{query}" => "old_value" },
@@ -395,7 +405,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       subject do
         patch :update, params: {
           commit: 'Étape suivante',
-          procedure_id: procedure.id, stable_id:, id: referentiel.id,
+          procedure_id: procedure.id, stable_id:,
           referentiel: {
             mode: 'exact_match',
             url_tiptap: new_url_tiptap.to_json,
@@ -415,7 +425,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
         expect(type_de_champ.reload.referentiel_mapping).to eq({ "old" => { "type" => "string" } })
 
-        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
       end
     end
   end
@@ -453,11 +463,11 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
   describe "configuration_error" do
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     it 'works' do
       allow_any_instance_of(Referentiels::APIReferentiel).to receive(:save).and_return(false)
-      get :configuration_error, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id }
+      get :configuration_error, params: { procedure_id: procedure.id, stable_id: }
       expect(response).to have_http_status(:success)
     end
   end
@@ -466,17 +476,17 @@ describe Administrateurs::ReferentielsController, type: :controller do
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
 
     context 'when referentiel not ready' do
-      let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+      let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
       it 'redirects to configuration error' do
         allow_any_instance_of(ReferentielService).to receive(:validate_referentiel).and_return(false)
-        get :mapping_type_de_champ, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id }
-        expect(response).to redirect_to(configuration_error_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel))
+        get :mapping_type_de_champ, params: { procedure_id: procedure.id, stable_id: }
+        expect(response).to redirect_to(configuration_error_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id))
       end
     end
 
     context "when referentiel is ready" do
-      let(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, type_de_champs: [type_de_champ]) }
+      let!(:referentiel) { create(:api_referentiel, :exact_match, :with_exact_match_response, type_de_champs: [type_de_champ]) }
 
       before do
         allow_any_instance_of(API::Client)
@@ -484,7 +494,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
       end
 
       context 'test APIReferentiel return valid response' do
-        let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+        let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
         include Dry::Monads[:result]
         OK = Data.define(:body, :response)
 
@@ -493,7 +503,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         let(:stub_response) { Success(OK[body, http_response]) }
 
         it 'renders' do
-          expect { get :mapping_type_de_champ, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id } }
+          expect { get :mapping_type_de_champ, params: { procedure_id: procedure.id, stable_id: } }
             .to change { referentiel.reload.last_response }.from(nil).to({ "body" => {}, "status" => 200 })
           expect(response).to have_http_status(200)
         end
@@ -514,12 +524,11 @@ describe Administrateurs::ReferentielsController, type: :controller do
     end
     let(:public_type_de_champs) { [{ type: :referentiel, stable_id:, referentiel_mapping: initial_mapping }] }
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.find { _1.stable_id == stable_id } }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
     subject do
       patch :update_mapping_type_de_champ, params: {
         procedure_id: procedure.id,
             stable_id: stable_id,
-            id: referentiel.id,
             type_de_champ: { referentiel_mapping: payload_referentiel_mapping },
       }
     end
@@ -541,7 +550,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
           .to change { type_de_champ.reload.referentiel_mapping }
           .from(initial_mapping)
           .to(initial_mapping.deep_merge(payload_referentiel_mapping))
-        expect(response).to redirect_to(prefill_and_display_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+        expect(response).to redirect_to(prefill_and_display_admin_procedure_referentiel_path(procedure, stable_id))
         expect(flash[:notice]).to eq("La configuration du mapping a bien été enregistrée")
       end
     end
@@ -553,7 +562,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
       it 'redirects to mapping_type_de_champ_admin_procedure_referentiel_path with alert' do
         subject
-        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id, referentiel))
+        expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, stable_id))
         expect(flash[:alert]).to eq("Une erreur est survenue")
       end
     end
@@ -570,19 +579,19 @@ describe Administrateurs::ReferentielsController, type: :controller do
       }
     end
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     context 'when admin not signed in' do
       before { sign_out(procedure.administrateurs.first.user) }
       it 'redirects to the login page' do
-        get :prefill_and_display, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id, id: referentiel.id }
+        get :prefill_and_display, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id }
         expect(response).to redirect_to(new_user_session_path)
       end
     end
 
     context 'when admin signed in' do
       it 'returns http success' do
-        get :prefill_and_display, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id, id: referentiel.id }
+        get :prefill_and_display, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id }
         expect(response).to have_http_status(:success)
       end
     end
@@ -601,7 +610,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
     let(:prefillable_stable_id) { 2 }
 
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.find(&:referentiel?) }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     let(:referentiel_mapping) do
       {
@@ -629,7 +638,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
           patch :update_prefill_and_display_type_de_champ, params: {
             procedure_id: procedure.id,
             stable_id: type_de_champ.stable_id,
-            id: referentiel.id,
             type_de_champ: update_params,
           }
           expect(response).to redirect_to(champs_admin_procedure_path(procedure))
@@ -653,7 +661,6 @@ describe Administrateurs::ReferentielsController, type: :controller do
           patch :update_prefill_and_display_type_de_champ, params: {
             procedure_id: procedure.id,
               stable_id: type_de_champ.stable_id,
-              id: referentiel.id,
               type_de_champ: update_params,
           }
           expect(response).to redirect_to(annotations_admin_procedure_path(procedure))
@@ -663,14 +670,13 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
     describe '#autocomplete_configuration' do
       let(:type_de_champ) { procedure.draft_revision.type_de_champs.first }
-      let(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, type_de_champs: [type_de_champ]) }
+      let!(:referentiel) { create(:api_referentiel, :autocomplete, :with_autocomplete_response, type_de_champs: [type_de_champ]) }
 
       context 'PATCH autocomplete_configuration' do
         subject do
           patch :update_autocomplete_configuration, params: {
             procedure_id: procedure.id,
             stable_id: type_de_champ.stable_id,
-            id: referentiel.id,
             referentiel: {
               datasource: "$.results",
               tiptap_template: { type: "OK" }.to_json,
@@ -682,7 +688,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
         it 'updates the autocomplete_configuration (and serialize tiptap template) and redirects' do
           expect { subject }.to change { referentiel.reload.datasource }.to("$.results")
           expect(referentiel.json_template).to eq({ "type" => "OK" })
-          expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel))
+          expect(response).to redirect_to(mapping_type_de_champ_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id))
           expect(flash[:notice]).to eq("La configuration de l’autocomplete a bien été enregistrée")
         end
 
@@ -699,15 +705,15 @@ describe Administrateurs::ReferentielsController, type: :controller do
         context 'when referentiel not ready' do
           it 'redirects to configuration error' do
             allow_any_instance_of(ReferentielService).to receive(:validate_referentiel).and_return(false)
-            get :autocomplete_configuration, params: { procedure_id: procedure.id, stable_id:, id: referentiel.id }
-            expect(response).to redirect_to(configuration_error_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel))
+            get :autocomplete_configuration, params: { procedure_id: procedure.id, stable_id: }
+            expect(response).to redirect_to(configuration_error_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id))
           end
         end
 
         context 'when referentiel is ready' do
           it 'renders successfully and returns the configuration' do
             allow_any_instance_of(ReferentielService).to receive(:validate_referentiel).and_return(true)
-            get :autocomplete_configuration, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id, id: referentiel.id }
+            get :autocomplete_configuration, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id }
             expect(response).to have_http_status(:success)
           end
         end
@@ -732,10 +738,9 @@ describe Administrateurs::ReferentielsController, type: :controller do
         patch :update_prefill_and_display_type_de_champ, params: {
           procedure_id: procedure.id,
           stable_id: type_de_champ.stable_id,
-          id: referentiel.id,
           type_de_champ: update_params,
         }
-        expect(response).to redirect_to(prefill_and_display_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id, referentiel))
+        expect(response).to redirect_to(prefill_and_display_admin_procedure_referentiel_path(procedure, type_de_champ.stable_id))
         expect(flash[:alert]).to eq("Une erreur est survenue")
       end
     end
@@ -743,7 +748,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
   describe '#reset_mapping' do
     let(:type_de_champ) { procedure.draft_revision.type_de_champs.find(&:referentiel?) }
-    let(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
+    let!(:referentiel) { create(:api_referentiel, :exact_match, type_de_champs: [type_de_champ]) }
 
     let(:referentiel_mapping) do
       {
@@ -754,7 +759,7 @@ describe Administrateurs::ReferentielsController, type: :controller do
 
     before { type_de_champ.update!(referentiel_mapping:) }
 
-    subject { delete :reset_mapping, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id, id: referentiel.id, scope: } }
+    subject { delete :reset_mapping, params: { procedure_id: procedure.id, stable_id: type_de_champ.stable_id, scope: } }
 
     context 'scope=all' do
       let(:scope) { 'all' }
