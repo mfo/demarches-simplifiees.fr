@@ -98,6 +98,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_180000) do
   end
 
   create_table "agent_connect_informations", force: :cascade do |t|
+    t.string "acr"
     t.string "amr", default: [], array: true
     t.string "belonging_population"
     t.datetime "created_at", null: false
