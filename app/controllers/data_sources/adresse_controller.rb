@@ -17,7 +17,6 @@ class DataSources::AdresseController < DataSources::BaseController
         if response.code == 0
           error_message = response.return_message
         else
-          Sentry.set_extras(body: response.body, code: response.code)
           error_message = JSON.parse(response.body, symbolize_names: true).dig(:message)
         end
 
@@ -28,10 +27,9 @@ class DataSources::AdresseController < DataSources::BaseController
 
     render json: []
 
-  rescue JSON::ParserError => e
-    Sentry.set_extras(body: response.body, code: response.code)
-    Sentry.capture_exception(e)
-    return head :server_error
+  rescue JSON::ParserError
+    Sentry.capture_message("Adresse API failure", extra: { code: response.code, body: response.body.to_s.truncate(200) })
+    return head :bad_gateway
   end
 
   private
