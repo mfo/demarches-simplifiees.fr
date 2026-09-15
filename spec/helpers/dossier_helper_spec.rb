@@ -30,12 +30,12 @@ RSpec.describe DossierHelper, type: :helper do
     subject { url_for_dossier(dossier) }
 
     context "when the dossier is in the brouillon state" do
-      let(:dossier) { create(:dossier, state: Dossier.states.fetch(:brouillon)) }
+      let(:dossier) { dossiers.brouillon }
       it { is_expected.to eq "/dossiers/#{dossier.id}/brouillon" }
     end
 
     context "when the dossier is any other state" do
-      let(:dossier) { create(:dossier, state: Dossier.states.fetch(:en_construction)) }
+      let(:dossier) { dossiers.en_construction }
       it { is_expected.to eq "/dossiers/#{dossier.id}" }
     end
   end
@@ -81,12 +81,11 @@ RSpec.describe DossierHelper, type: :helper do
   end
 
   describe ".dossier_submission_is_closed?" do
-    let(:dossier) { create(:dossier, state: state) }
-    let(:state) { Dossier.states.fetch(:brouillon) }
-
     subject { dossier_submission_is_closed?(dossier) }
 
     context "when dossier state is brouillon" do
+      let(:dossier) { dossiers.brouillon }
+
       it { is_expected.to be false }
 
       context "when dossier state is brouillon and procedure is close" do
@@ -107,38 +106,38 @@ RSpec.describe DossierHelper, type: :helper do
     end
 
     context "when dossier state is en_construction" do
-      let(:state) { Dossier.states.fetch(:en_construction) }
+      let(:dossier) { dossiers.en_construction }
 
       it_behaves_like "returns false"
     end
 
-    context "when dossier state is en_construction" do
-      let(:state) { Dossier.states.fetch(:en_instruction) }
+    context "when dossier state is en_instruction" do
+      let(:dossier) { dossiers.en_instruction }
 
       it_behaves_like "returns false"
     end
 
-    context "when dossier state is en_construction" do
-      let(:state) { Dossier.states.fetch(:accepte) }
+    context "when dossier state is accepte" do
+      let(:dossier) { dossiers.accepte }
 
       it_behaves_like "returns false"
     end
 
-    context "when dossier state is en_construction" do
-      let(:state) { Dossier.states.fetch(:refuse) }
+    context "when dossier state is refuse" do
+      let(:dossier) { dossiers.refuse }
 
       it_behaves_like "returns false"
     end
 
-    context "when dossier state is en_construction" do
-      let(:state) { Dossier.states.fetch(:sans_suite) }
+    context "when dossier state is sans_suite" do
+      let(:dossier) { create(:dossier, state: Dossier.states.fetch(:sans_suite)) }
 
       it_behaves_like "returns false"
     end
   end
 
   describe '.dossier_display_state' do
-    let(:dossier) { create(:dossier) }
+    let(:dossier) { dossiers.brouillon }
 
     subject { dossier_display_state(dossier) }
 
@@ -194,25 +193,25 @@ RSpec.describe DossierHelper, type: :helper do
     subject { dossier_legacy_state(dossier) }
 
     context 'when the dossier is en instruction' do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.brouillon }
 
       it { is_expected.to eq('brouillon') }
     end
 
     context 'when the dossier is en instruction' do
-      let(:dossier) { create(:dossier, :en_instruction) }
+      let(:dossier) { dossiers.en_instruction }
 
       it { is_expected.to eq('received') }
     end
 
     context 'when the dossier is accepte' do
-      let(:dossier) { create(:dossier, state: Dossier.states.fetch(:accepte)) }
+      let(:dossier) { dossiers.accepte }
 
       it { is_expected.to eq('closed') }
     end
 
     context 'when the dossier is refuse' do
-      let(:dossier) { create(:dossier, state: Dossier.states.fetch(:refuse)) }
+      let(:dossier) { dossiers.refuse }
 
       it { is_expected.to eq('refused') }
     end
@@ -275,7 +274,7 @@ RSpec.describe DossierHelper, type: :helper do
     subject { tags_notification([notification]) }
 
     context "with dossier_depose notification" do
-      let(:instructeur) { create(:instructeur) }
+      let(:instructeur) { instructeurs.default }
       let(:dossier) { create(:dossier, depose_at: 10.days.ago) }
       let!(:notification) { create(:dossier_notification, instructeur:, dossier:, notification_type: :dossier_depose, display_at: (dossier.depose_at + DossierNotification::DELAY_DOSSIER_DEPOSE)) }
 
@@ -319,7 +318,7 @@ RSpec.describe DossierHelper, type: :helper do
     subject { expiration_badge(dossier) }
 
     context "when dossier is a brouillon close to expiration" do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.brouillon }
 
       before { dossier.update_column(:expired_at, 5.days.from_now.change(hour: 23)) }
 
@@ -327,7 +326,7 @@ RSpec.describe DossierHelper, type: :helper do
     end
 
     context "when dossier expires tomorrow" do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.brouillon }
 
       before { dossier.update_column(:expired_at, 1.day.from_now.change(hour: 23)) }
 
@@ -335,7 +334,7 @@ RSpec.describe DossierHelper, type: :helper do
     end
 
     context "when dossier expires today" do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.brouillon }
 
       before { dossier.update_column(:expired_at, Time.zone.now.end_of_day) }
 
@@ -343,7 +342,7 @@ RSpec.describe DossierHelper, type: :helper do
     end
 
     context "when dossier is not close to expiration" do
-      let(:dossier) { create(:dossier) }
+      let(:dossier) { dossiers.brouillon }
 
       before { dossier.update_column(:expired_at, 1.year.from_now) }
 
@@ -351,7 +350,7 @@ RSpec.describe DossierHelper, type: :helper do
     end
 
     context "when dossier is en_construction (never expires)" do
-      let(:dossier) { create(:dossier, :en_construction) }
+      let(:dossier) { dossiers.en_construction }
 
       before { dossier.update_column(:expired_at, 5.days.from_now) }
 
@@ -359,8 +358,7 @@ RSpec.describe DossierHelper, type: :helper do
     end
 
     context "when dossier is termine" do
-      let(:procedure) { create(:procedure, :published) }
-      let(:dossier) { create(:dossier, :accepte, procedure:) }
+      let(:dossier) { dossiers.accepte }
 
       before { dossier.update_column(:expired_at, 5.days.from_now) }
 
@@ -386,13 +384,13 @@ RSpec.describe DossierHelper, type: :helper do
     subject { helper.show_new_message_notification?(dossier) }
 
     context "when an instructeur sent an unread message" do
-      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil) }
+      before { create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: nil) }
 
       it { is_expected.to be_truthy }
     end
 
     context "when an expert sent an unread message" do
-      before { create(:commentaire, dossier:, expert: create(:expert), seen_by_recipient_at: nil) }
+      before { create(:commentaire, dossier:, expert: experts.default, seen_by_recipient_at: nil) }
 
       it { is_expected.to be_truthy }
     end
@@ -400,19 +398,19 @@ RSpec.describe DossierHelper, type: :helper do
     context "when the dossier is en_instruction" do
       let(:dossier) { create(:dossier, :en_instruction) }
 
-      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil) }
+      before { create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: nil) }
 
       it { is_expected.to be_truthy }
     end
 
     context "when the agent message has been seen" do
-      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: 1.day.ago) }
+      before { create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: 1.day.ago) }
 
       it { is_expected.to be_falsey }
     end
 
     context "when the agent message is discarded" do
-      before { create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil, discarded_at: Time.current) }
+      before { create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: nil, discarded_at: Time.current) }
 
       it { is_expected.to be_falsey }
     end
@@ -429,7 +427,7 @@ RSpec.describe DossierHelper, type: :helper do
 
     context "when the dossier is pending_correction" do
       before do
-        create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+        create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: nil)
         create(:dossier_correction, dossier:)
       end
 
@@ -438,7 +436,7 @@ RSpec.describe DossierHelper, type: :helper do
 
     context "when the dossier is pending_response" do
       before do
-        create(:commentaire, dossier:, instructeur: create(:instructeur), seen_by_recipient_at: nil)
+        create(:commentaire, dossier:, instructeur: instructeurs.default, seen_by_recipient_at: nil)
         create(:dossier_pending_response, dossier:)
       end
 
