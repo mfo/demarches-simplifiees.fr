@@ -31,5 +31,5 @@ Votre collègue trouvera alors une copie de votre démarche dans ses démarches 
 
 Vous pouvez également rechercher la démarche depuis la page « _Toutes les démarches_ », où il est possible de filtrer les démarches par zones, statut, SIRET ou tags, y compris celles avec moins de 30 dossiers déposés.
 
-![Capture d’écran du lien vers la page Toute les démarches {aria-hidden="true"}](faq/administrateur-link-all-procedures.png)
+![Capture d’écran du lien vers la page Toutes les démarches {aria-hidden="true"}](faq/administrateur-link-all-procedures.png)
 ![Capture d’écran de la page Toutes les démarches {aria-hidden="true"}](faq/administrateur-all-procedures.png)

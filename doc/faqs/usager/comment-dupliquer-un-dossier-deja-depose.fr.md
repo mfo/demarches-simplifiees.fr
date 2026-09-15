@@ -9,7 +9,7 @@ title: "Comment dupliquer un dossier déjà déposé ?"
 
 # Comment dupliquer un dossier déjà déposé ?
 
-En tant qu’usager, vous avez la possibilité de dupliquer un dossier existant si la démarche n’a pas été clôturée. **Cette action permet de préremplir de automatiquement votre dossier afin de le déposer rapidement !**
+En tant qu’usager, vous avez la possibilité de dupliquer un dossier existant si la démarche n’a pas été clôturée. **Cette action permet de préremplir automatiquement votre dossier afin de le déposer rapidement !**
 
 Pour cela, il vous suffit de cliquer sur le bouton **« Dupliquer ce dossier »** depuis le menu déroulant **« Actions »** situé à droite du dossier concerné :
 
@@ -30,6 +30,6 @@ Après avoir vérifié et/ou complété le dossier, vous pouvez cliquer sur le b
 > [!INFO]
 > Si le bouton *Dupliquer ce dossier* n’est pas affiché cela signifie que la démarche a été clôturée.
 
-Pour connaitre le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une question sur la démarche »** (en cliquant sur le numéro de dossier).
+Pour connaître le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une question sur la démarche »** (en cliquant sur le numéro de dossier).
 
 ![Image montrant comment trouver les informations de contact d’une démarche {aria-hidden="true"}](faq/usager-procedure-close-focus-contact.png)

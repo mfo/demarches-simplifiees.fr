@@ -4,7 +4,7 @@ category: instructeur
 subcategory: instructeur_account
 slug: "je-n-arrive-pas-a-acceder-aux-dossiers-que-je-souhaite-instruire"
 locale: "fr"
-keywords: "acces dossiers, administrateur demarche, affectation instructeur,
+keywords: "accès dossiers, administrateur démarche, affectation instructeur,
 contact administrateur"
 ---
 

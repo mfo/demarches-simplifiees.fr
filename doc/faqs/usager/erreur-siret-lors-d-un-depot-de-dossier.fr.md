@@ -55,7 +55,7 @@ Certaines entreprises demandent à ce que leurs informations ne soient pas
 accessibles dans la base publique des SIRET. Si c’est le cas, nous ne pouvons pas
 récupérer les informations associées.
 
-Pour vous assurer que les informations de votre entreprises ne sont pas privées,
+Pour vous assurer que les informations de votre entreprise ne sont pas privées,
 allez sur l’Annuaire des Entreprises, et rentrez votre numéro de SIRET dans le
 champ de recherche.
 

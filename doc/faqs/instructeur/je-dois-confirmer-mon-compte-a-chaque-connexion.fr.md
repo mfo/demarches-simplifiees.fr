@@ -16,9 +16,9 @@ Ce processus peut parfois vous être demandé à chaque connexion, nous avons id
 - Une mauvaise configuration de votre navigateur
 - Le navigateur authentifié n’est pas celui que vous utilisez
 
-Finalement, le lien reçu par email est valide une semaine et peut-être utilisé plusieurs fois. Vous pouvez donc probablement le réutiliser pour authentifier votre navigateur sans attendre un nouvel email.
+Finalement, le lien reçu par email est valide une semaine et peut être utilisé plusieurs fois. Vous pouvez donc probablement le réutiliser pour authentifier votre navigateur sans attendre un nouvel email.
 
-## Mauvaise configuration de notre navigateur
+## Mauvaise configuration de votre navigateur
 
 Ce problème apparaît lorsque votre navigateur est configuré de manière très sécurisée et efface les données provenant de %{application_name} à chaque fermeture.
 
@@ -27,7 +27,7 @@ Solution : Pour corriger ce problème, configurez votre navigateur pour accepter
 - pour Firefox [https://support.mozilla.org/fr/kb/sites-disent-cookies-bloques-les-debloquer](https://support.mozilla.org/fr/kb/sites-disent-cookies-bloques-les-debloquer),
 - pour Chrome [https://support.google.com/accounts/answer/61416?co=GENIE.Platform%3DDesktop&hl=fr](https://support.google.com/accounts/answer/61416?co=GENIE.Platform%3DDesktop&hl=fr).
 
-Si vous n’avez pas les droits suffisant pour modifier cette configuration, contactez votre support informatique en nous mettant en copie : %{contact_email}
+Si vous n’avez pas les droits suffisants pour modifier cette configuration, contactez votre support informatique en nous mettant en copie : %{contact_email}
 
 ## Le navigateur authentifié n’est pas celui que vous utilisez
 

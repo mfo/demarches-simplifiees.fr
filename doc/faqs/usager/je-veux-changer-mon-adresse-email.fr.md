@@ -25,7 +25,7 @@ Pour changer l’adresse électronique associée à votre compte, suivez les ét
 ![Menu Usager avec lien Voir mon profil {aria-hidden="true"}](faq/usager-dropdown.png)
 
 3. Dans l’encadré _« Coordonnées »_, renseignez la nouvelle adresse électronique que vous souhaitez utiliser. Puis cliquez sur _« Changer mon adresse »_. **Attention** : Cette adresse ne doit pas être déjà utilisée par un autre compte sur %{application_name}.
-![Section Coordonées avec formulaire de modification d’email {aria-hidden="true"}](faq/usager-edit-email.png)
+![Section Coordonnées avec formulaire de modification d’email {aria-hidden="true"}](faq/usager-edit-email.png)
 
 4. Ouvrez la boîte email de votre nouvelle adresse, et cliquez sur le lien de confirmation que nous vous avons envoyé.
 
@@ -41,4 +41,4 @@ Dans ce cas, revenez sur la page _« Profil »_, et choisissez une autre adres
 Pour savoir comment transférer des dossiers, nous vous invitons à consulter la page suivante : %{application_base_url}/faq/usager/mon-dossier-a-ete-depose-par-un-tiers-et-je-souhaite-y-acceder
 
 
-Une fois le transfert opéré, nous pourrons procéder à la suppression de votre ancien compte en nous contactant à l’adresse %{contact_email}.
+Une fois le transfert opéré, contactez-nous à l’adresse %{contact_email} afin que nous procédions à la suppression de votre ancien compte.

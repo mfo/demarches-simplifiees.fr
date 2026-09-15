@@ -9,7 +9,7 @@ title: "Comment clore une démarche ?"
 
 # Comment clore une démarche ?
 
-Pour rendre une démarche inaccessible au public, vous avez la possibilité de la clôturer à tout moment. Suite à la clôture, l’URL de la démarche redirige l’usager vers une page lui indiquant que la démarche recherchée est close accompagné d’un message optionnel, et qu’il n’est plus possible de commencer un nouveau dossier.
+Pour rendre une démarche inaccessible au public, vous avez la possibilité de la clôturer à tout moment. Suite à la clôture, l’URL de la démarche redirige l’usager vers une page lui indiquant que la démarche recherchée est close, accompagnée d’un message optionnel, et qu’il n’est plus possible de commencer un nouveau dossier.
 
 ## Pour clore une démarche
 
@@ -17,15 +17,15 @@ Cliquez sur le bouton **« Clore »** situé à droite de la démarche.
 
 Bien que l’accès à la démarche soit restreint, les dossiers déjà déposés ne sont pas affectés et leur instruction peut se poursuivre normalement.
 
-![Capture d’écran de la page de clôture de la demarche {aria-hidden="true"}](faq/administrateur-procedure-action-close.png)
+![Capture d’écran de la page de clôture de la démarche {aria-hidden="true"}](faq/administrateur-procedure-action-close.png)
 
 ## Informer les usagers accédant à la démarche close
 
- Un usager qui suit un lien vers la démarche sera informé qu’elle est close. Cependant au moment de la clôture vous pouvez indiquer quelle démarche la remplace (nous le redigerons vers celle-ci), ou la raison pour laquelle est close.
+ Un usager qui suit un lien vers la démarche sera informé qu’elle est close. Cependant au moment de la clôture vous pouvez indiquer quelle démarche la remplace (nous le redirigerons vers celle-ci), ou la raison pour laquelle elle est close.
 
 ![Capture d’écran du remplacement de démarche {aria-hidden="true"}](faq/administrateur-procedure-close-replace.png)
 
-![Capture d’écran pour saisir le motif de cloture de démarche {aria-hidden="true"}](faq/administrateur-procedure-close-message.png)
+![Capture d’écran pour saisir le motif de clôture de démarche {aria-hidden="true"}](faq/administrateur-procedure-close-message.png)
 
 ## Comment prévoir la clôture automatique d’une démarche ?
 

@@ -19,7 +19,7 @@ title: "Comment trouver ma démarche ?"
 
 > Pour effectuer un dépôt sur %{application_name} vous devez notamment disposer d’un lien qui vous a été communiqué par l’administration.
 
-> Par exemple s’il s’agit d’une démarche relative à un titre de séjour, vous trouverez l’information sur le site de la préfécture dont vous dépendez. S’il s’agit d’une demande de Pass Culture, vous trouverez les liens utiles sur le site du Pass Culture, etc…
+> Par exemple s’il s’agit d’une démarche relative à un titre de séjour, vous trouverez l’information sur le site de la préfecture dont vous dépendez. S’il s’agit d’une demande de Pass Culture, vous trouverez les liens utiles sur le site du Pass Culture, etc…
 
 ## 1. Trouver le lien de votre démarche
 
@@ -36,7 +36,7 @@ Vous trouverez ci-dessous la liste des démarches les plus courantes dématéria
 
 - [Démarches relatives au permis de conduire](%{doc_url}/listes-des-demarches/demarches-relatives-au-permis-de-conduire)
 - [Démarches relatives au transporteur](%{doc_url}/listes-des-demarches/demarches-relatives-au-transporteur)
-- [Démarches relative à l’inscription au service de restauration](%{doc_url}/listes-des-demarches/demarches-relative-a-linscription-au-service-de-restauration)
+- [Démarches relatives à l’inscription au service de restauration](%{doc_url}/listes-des-demarches/demarches-relative-a-linscription-au-service-de-restauration)
 - [Démarches relatives aux cartes professionnelles de chauffeurs de voiture de tourisme (VTC)](%{doc_url}/listes-des-demarches/demarches-relatives-aux-cartes-professionnelles-de-chauffeurs-de-voiture-de-tourisme-vtc)
 - [Démarches relatives aux étrangers résidant en France](%{doc_url}/listes-des-demarches/demarches-relatives-aux-titres-de-sejour-pour-les-etrangers)
 - [Démarches relatives aux médailles d’honneur](%{doc_url}/listes-des-demarches/demarches-relatives-aux-medailles-dhonneur)
@@ -79,6 +79,6 @@ Pour commencer un nouveau dossier sur une démarche déjà réalisée, [connecte
 
 ### Si le bouton "Commencer un autre dossier vide" n’est pas affiché cela signifie que la démarche a été clôturée.
 
-Pour connaitre le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une questions sur la démarche »** (en cliquant sur le numéro de dossier).
+Pour connaître le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une question sur la démarche »** (en cliquant sur le numéro de dossier).
 
 ![Image montrant comment trouver les informations de contact d’une démarche {aria-hidden="true"}](faq/usager-procedure-close-focus-contact.png)
