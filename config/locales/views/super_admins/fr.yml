@@ -1,4 +1,6 @@
 fr:
   super_admins:
+    enable_otp:
+      invalid_credentials: "Mot de passe ou code OTP incorrect."
     lockout:
       locked: "Trop de tentatives invalides : votre compte a été verrouillé et vous avez été déconnecté. Un email de déverrouillage vous a été envoyé."

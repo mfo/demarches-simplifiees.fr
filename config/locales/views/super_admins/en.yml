@@ -1,4 +1,6 @@
 en:
   super_admins:
+    enable_otp:
+      invalid_credentials: "Incorrect password or OTP code."
     lockout:
       locked: "Too many invalid attempts: your account has been locked and you have been signed out. An unlock email has been sent."

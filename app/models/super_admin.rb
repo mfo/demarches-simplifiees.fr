@@ -39,6 +39,14 @@ class SuperAdmin < ApplicationRecord
     with_attempt_limit { validate_and_consume_otp!(code) }
   end
 
+  def verify_otp_enrollment!(password:, otp:)
+    return :invalid if password.blank? || (otp_required_for_login? && otp.blank?)
+
+    with_attempt_limit do
+      valid_password?(password) && (!otp_required_for_login? || validate_and_consume_otp!(otp))
+    end
+  end
+
   def invite_admin(email)
     user = User.create_or_promote_to_administrateur(email, SecureRandom.hex)
 

@@ -105,6 +105,20 @@ describe SuperAdmin, type: :model do
     end
   end
 
+  describe '#verify_otp_enrollment!' do
+    let(:super_admin) { create(:super_admin, :with_otp) }
+
+    it 'counts a wrong password as a failed attempt' do
+      expect { expect(super_admin.verify_otp_enrollment!(password: 'wrong-password', otp: super_admin.current_otp)).to eq(:invalid) }
+        .to change { super_admin.reload.failed_attempts }.from(0).to(1)
+    end
+
+    it 'does not count a blank password' do
+      expect { expect(super_admin.verify_otp_enrollment!(password: '', otp: super_admin.current_otp)).to eq(:invalid) }
+        .not_to change { super_admin.reload.failed_attempts }
+    end
+  end
+
   describe '#password_complexity' do
     # This password list is sorted by password complexity, according to zxcvbn (used for complexity evaluation)
     # 0 - too guessable: risky password. (guesses < 10^3)

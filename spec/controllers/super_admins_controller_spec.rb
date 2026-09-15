@@ -80,6 +80,18 @@ describe SuperAdminsController, type: :controller do
         expect(response).to redirect_to(edit_super_admin_otp_path)
         expect(flash[:alert]).to be_present
       end
+
+      context 'when the attempt reaches the lockout threshold' do
+        before { super_admin.update!(failed_attempts: SuperAdmin.maximum_attempts - 1) }
+
+        it 'keeps the secret, even with valid credentials, locks the account and signs out' do
+          expect { put :enable_otp, params: { current_password: password, otp_attempt: current_otp_for(super_admin) } }
+            .not_to change { super_admin.reload.otp_secret }
+
+          expect(response).to redirect_to(new_super_admin_session_path)
+          expect(controller.super_admin_signed_in?).to be(false)
+        end
+      end
     end
   end
 
