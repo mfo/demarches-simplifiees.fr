@@ -31,6 +31,16 @@ describe Manager::BannersController, type: :controller do
       end
     end
 
+    context 'when the attempt reaches the lockout threshold' do
+      before { super_admin.update!(failed_attempts: SuperAdmin.maximum_attempts - 1) }
+
+      it 'rejects the action, even with a valid code, and signs the super admin out' do
+        expect { subject }.not_to change { banner.reload.content }
+        expect(response).to redirect_to(new_super_admin_session_path)
+        expect(flash[:error]).to include("Trop de tentatives invalides")
+      end
+    end
+
     it 'publie en renseignant le contenu' do
       subject
 

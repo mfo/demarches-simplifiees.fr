@@ -1,0 +1,4 @@
+en:
+  super_admins:
+    lockout:
+      locked: "Too many invalid attempts: your account has been locked and you have been signed out. An unlock email has been sent."

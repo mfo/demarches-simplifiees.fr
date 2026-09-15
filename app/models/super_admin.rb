@@ -33,6 +33,12 @@ class SuperAdmin < ApplicationRecord
     save!
   end
 
+  def verify_step_up_otp!(code)
+    return :invalid if code.blank?
+
+    with_attempt_limit { validate_and_consume_otp!(code) }
+  end
+
   def invite_admin(email)
     user = User.create_or_promote_to_administrateur(email, SecureRandom.hex)
 
@@ -46,5 +52,23 @@ class SuperAdmin < ApplicationRecord
 
   def send_devise_notification(notification, *args)
     devise_mailer.send(notification, self, *args).deliver_later
+  end
+
+  private
+
+  # Returns :ok, :invalid or :locked. The attempt is counted before the
+  # credentials are checked: concurrent requests each take a slot, so fewer than
+  # maximum_attempts guesses are ever tested before the account locks.
+  def with_attempt_limit
+    increment_failed_attempts
+    if attempts_exceeded?
+      lock_access! unless access_locked?
+      return :locked
+    end
+
+    return :invalid unless yield
+
+    reset_failed_attempts!
+    :ok
   end
 end
