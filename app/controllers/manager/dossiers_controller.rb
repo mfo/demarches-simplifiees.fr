@@ -45,7 +45,7 @@ module Manager
       if transfer.persisted?
         flash[:notice] = "Une invitation de transfert a été envoyée à #{params[:email]}"
       else
-        flash[:alert] = transfer.errors.full_messages.join("<br>")
+        flash[:alert] = transfer.errors.full_messages.to_sentence
       end
 
       redirect_to manager_dossier_path(params[:id])
