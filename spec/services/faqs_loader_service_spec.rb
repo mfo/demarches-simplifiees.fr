@@ -99,5 +99,17 @@ RSpec.describe FAQsLoaderService do
     it 'load, perform substitutions and returns all FAQs' do
       expect(service.all.keys).to match_array(["administrateur", "instructeur", "usager"])
     end
+
+    # The slug is the public URL of a FAQ: keeping it derivable from the file
+    # name is the only way to notice a typo in one of them.
+    it 'names every file after its slug, with an optional ordering prefix' do
+      Dir.glob("#{FAQsLoaderService::PATH}/**/*.md").each do |file_path|
+        front_matter = FrontMatterParser::Parser.parse_file(file_path).front_matter
+
+        expect(File.basename(file_path))
+          .to eq("#{front_matter['slug']}.#{front_matter['locale']}.md")
+          .or eq("01_#{front_matter['slug']}.#{front_matter['locale']}.md")
+      end
+    end
   end
 end
