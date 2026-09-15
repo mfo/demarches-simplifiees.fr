@@ -47,7 +47,7 @@ Pour cela, utilisez les balises HTML, identifiées par les caractères `<` et `>
   - Balise fermante : `</p>`
   - Exemple : `<p>Mon paragraphe</p>`.
 
- Généralement vous n’aurez pas besoin de créer un paragraphe, car un saut de ligne vide en crée toujours un nouveau.
+Généralement vous n’aurez pas besoin de créer un paragraphe, car un saut de ligne vide en crée toujours un nouveau.
 
 ## Aperçu du texte avec ces balises
 

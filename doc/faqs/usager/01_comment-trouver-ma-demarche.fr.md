@@ -44,17 +44,17 @@ Vous trouverez ci-dessous la liste des démarches les plus courantes dématéria
 
 **Pour être guidé dans vos démarches essentielles les plus courantes**, vous pouvez également consulter 11 tutoriels vidéo :
 
-*   [Saisir le Défenseur des droits](https://dai.ly/x902hs6)
-*   [Signaler une utilisation frauduleuse de carte bancaire en ligne](https://dai.ly/x902ha4)
-*   [Consulter ses points permis de conduire](https://dai.ly/x902ie0)
-*   [Demander l’aide au logement (APL)](https://dai.ly/x902i16)
-*   [Formuler ses choix d’orientation en fin de collège (post 3e)](https://dai.ly/x902jm8)
-*   [Formuler ses choix d’orientation au lycée (post 2de GT)](https://dai.ly/x902jfg)
-*   [Faire son recensement citoyen obligatoire](https://dai.ly/x902jsa)
-*   [Participer à la journée défense et citoyenneté](https://dai.ly/x902k20)
-*   [Demander un extrait de casier judiciaire (bulletin n°3)](https://dai.ly/x902hh0)
-*   [Demander l’aide juridictionnelle](https://dai.ly/x902j5m)
-*   [Demander un logement en cité universitaire](https://dai.ly/x902iva)
+- [Saisir le Défenseur des droits](https://dai.ly/x902hs6)
+- [Signaler une utilisation frauduleuse de carte bancaire en ligne](https://dai.ly/x902ha4)
+- [Consulter ses points permis de conduire](https://dai.ly/x902ie0)
+- [Demander l’aide au logement (APL)](https://dai.ly/x902i16)
+- [Formuler ses choix d’orientation en fin de collège (post 3e)](https://dai.ly/x902jm8)
+- [Formuler ses choix d’orientation au lycée (post 2de GT)](https://dai.ly/x902jfg)
+- [Faire son recensement citoyen obligatoire](https://dai.ly/x902jsa)
+- [Participer à la journée défense et citoyenneté](https://dai.ly/x902k20)
+- [Demander un extrait de casier judiciaire (bulletin n°3)](https://dai.ly/x902hh0)
+- [Demander l’aide juridictionnelle](https://dai.ly/x902j5m)
+- [Demander un logement en cité universitaire](https://dai.ly/x902iva)
 
 
 ## 3. Je ne trouve pas le lien pour ma démarche

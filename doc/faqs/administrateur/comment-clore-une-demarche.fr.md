@@ -21,7 +21,7 @@ Bien que l’accès à la démarche soit restreint, les dossiers déjà déposé
 
 ## Informer les usagers accédant à la démarche close
 
- Un usager qui suit un lien vers la démarche sera informé qu’elle est close. Cependant au moment de la clôture vous pouvez indiquer quelle démarche la remplace (nous le redirigerons vers celle-ci), ou la raison pour laquelle elle est close.
+Un usager qui suit un lien vers la démarche sera informé qu’elle est close. Cependant au moment de la clôture vous pouvez indiquer quelle démarche la remplace (nous le redirigerons vers celle-ci), ou la raison pour laquelle elle est close.
 
 ![Capture d’écran du remplacement de démarche {aria-hidden="true"}](faq/administrateur-procedure-close-replace.png)
 

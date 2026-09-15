@@ -24,4 +24,4 @@ Vérifiez que le message ne se trouve pas dans les spams ou indésirables.
 L’email peut mettre quelques minutes avant que vous le receviez. Réitérez la demande éventuellement.
 
 Si ce n’est pas le cas, vous pouvez nous contacter par [notre formulaire de contact](/contact)
-ou par email  à l’adresse *%{contact_email}*.
+ou par email à l’adresse *%{contact_email}*.
