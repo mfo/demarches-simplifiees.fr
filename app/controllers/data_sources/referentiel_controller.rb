@@ -73,7 +73,13 @@ class DataSources::ReferentielController < DataSources::BaseController
     return nil if candidate.nil?
 
     @type_de_champ = @dossier.revision.type_de_champs.find { it.referentiel_id == candidate.id }
-    candidate if @type_de_champ.present?
+    candidate if @type_de_champ.present? && (@type_de_champ.public? || can_update_annotations?)
+  end
+
+  # Les annotations privées sont remplies par l'instructeur, et par l'administrateur
+  # dans l'aperçu de sa démarche.
+  def can_update_annotations?
+    @dossier.for_procedure_preview? || current_user.instructeur&.dossiers&.exists?(id: @dossier.id)
   end
 
   # L'usager remplit le formulaire sur un stream de brouillon : les tags de l'URL doivent

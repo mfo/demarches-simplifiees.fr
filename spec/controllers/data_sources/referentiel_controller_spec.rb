@@ -234,6 +234,32 @@ describe DataSources::ReferentielController, type: :controller do
         end
       end
 
+      context 'when the referentiel belongs to a private annotation' do
+        let(:procedure) { create(:procedure, instructeurs: [instructeurs.default], private_type_de_champs: [{ type: :referentiel, referentiel: }]) }
+        let(:dossier) { create(:dossier, :en_construction, procedure:, user:) }
+
+        it 'returns an empty array to the usager without calling the API' do
+          expect_any_instance_of(ReferentielService).not_to receive(:call)
+          expect(subject.parsed_body).to eq([])
+        end
+
+        context 'when signed in as the instructeur of the dossier' do
+          before { sign_in(instructeurs.default.user) }
+
+          it 'returns results', vcr: 'referentiel/datagouv-finess' do
+            expect(subject.parsed_body.size).to eq(1)
+          end
+        end
+
+        context "when the dossier is the administrateur's preview of the procedure" do
+          let(:dossier) { procedure.draft_revision.dossier_for_preview(user) }
+
+          it 'returns results', vcr: 'referentiel/datagouv-finess' do
+            expect(subject.parsed_body.size).to eq(1)
+          end
+        end
+      end
+
       context 'when failure' do
         let(:referentiel_service) { double(call: service_respone) }
 
