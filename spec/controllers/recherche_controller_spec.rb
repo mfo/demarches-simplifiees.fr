@@ -8,14 +8,12 @@ describe RechercheController, type: :controller do
                        private_type_de_champs: [{ type: :text }, { type: :text }])
   }
   let(:dossier) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
-  let(:instructeur) { create(:instructeur) }
-
   let(:dossier_with_expert) { create(:dossier, :en_construction, :with_individual, procedure: procedure) }
   let(:avis) { create(:avis, dossier: dossier_with_expert) }
 
-  let(:user) { instructeur.user }
+  let(:user) { instructeurs.default.user }
 
-  before { instructeur.assign_to_procedure(dossier.procedure) }
+  before { instructeurs.default.assign_to_procedure(dossier.procedure) }
 
   describe 'GET #index' do
     before { sign_in(user) }
@@ -82,7 +80,7 @@ describe RechercheController, type: :controller do
         let!(:gi_p1_2) { GroupeInstructeur.create(label: 'groupe 2', procedure: procedure) }
         let!(:dossier3) { create(:dossier, :accepte, :with_individual, procedure: procedure, groupe_instructeur: gi_p1_2) }
 
-        before { gi_p1_1.instructeurs << instructeur }
+        before { gi_p1_1.instructeurs << instructeurs.default }
 
         let(:query) { dossier3.id }
 
@@ -166,7 +164,7 @@ describe RechercheController, type: :controller do
 
       context 'when dossier has notification' do
         let(:query) { 'district A' }
-        let!(:notification) { create(:dossier_notification, dossier:, instructeur:, notification_type: :dossier_modifie) }
+        let!(:notification) { create(:dossier_notification, dossier:, instructeur: instructeurs.default, notification_type: :dossier_modifie) }
 
         it 'assigns notification' do
           subject
