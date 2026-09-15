@@ -13,4 +13,4 @@ Un administrateur est en charge de la construction du formulaire et de la gestio
 
 Pour passer de l’action administrative à l’instruction des dossiers, l’administrateur doit changer de profil pour adopter celui d’instructeur. Cela montre la flexibilité du rôle d’administrateur, qui peut également endosser les rôles d’instructeur, d’usager, ou encore d’expert-invité selon les besoins de la démarche.
 
-Pour plus d’informations concernant le profil administrateur, vous pouvez consulter notre documentation : [Tutoriel Administrateur](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-administrateur)
+Pour plus d’informations concernant le profil administrateur, vous pouvez consulter notre documentation : [Tutoriel Administrateur](%{doc_url}/tutoriels/tutoriel-administrateur)

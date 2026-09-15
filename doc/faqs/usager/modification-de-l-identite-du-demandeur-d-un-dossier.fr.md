@@ -11,7 +11,7 @@ title: "Modification de l’identité du demandeur d’un dossier"
 
 En tant qu’usager, vous avez la possibilité de modifier l’identité associée au dossier, lorsqu’il s’agit d’un dossier en **brouillon** mais également lorsque le dossier est en **construction**.
 
-## Le dossier est en "brouillon"
+## Le dossier est en « brouillon »
 
 Pour modifier votre dossier en brouillon, il suffit de cliquer sur le dossier concerné puis de cliquer sur le bouton _« Mon identité »_ situé à droite de l’écran comme ci-dessous :
 
@@ -21,9 +21,9 @@ Vous pourrez ensuite modifier votre identité depuis le bouton _« Modifier l�
 
 ![Image montrant le bouton pour modifier l’identité {aria-hidden="true"}](faq/usager-edit-identity-brouillon-2.png)
 
-## Le dossier est en "construction"
+## Le dossier est en « construction »
 
-Une fois votre dossier déposé, il devient _en construction_ (tant que l’administration ne traite votre dossier), et vous avez la possibilité de modifier votre identité.
+Une fois votre dossier déposé, il devient _en construction_ (tant que l’administration ne traite pas votre dossier), et vous avez la possibilité de modifier votre identité.
 
 Pour cela, cliquez sur le bouton _« Modifier le dossier »_ depuis la liste de vos dossiers.
 
@@ -35,6 +35,6 @@ Après avoir cliqué sur l’onglet _« Votre dossier »_, suivez le lien _«�
 
 ## Le dossier a un autre statut
 
-Si le dossier est en déjà _en instruction_, vous ne pouvez plus modifier son identité. Échangez avec l’administration via la messagerie si nécessaire.
+Si le dossier est déjà _en instruction_, vous ne pouvez plus modifier son identité. Échangez avec l’administration via la messagerie si nécessaire.
 
-Information : pour certaines démarches, un dossier déposé ne passe pas par le statut _"en construction"_ et il n’est alors pas possible de modifier l’identité sans contacter l’administration.
+Information : pour certaines démarches, un dossier déposé ne passe pas par le statut _« en construction »_ et il n’est alors pas possible de modifier l’identité sans contacter l’administration.

@@ -29,4 +29,4 @@ Si vous utilisez une ancienne version de Firefox, il est probable que le **webGL
 
 1. Entrez **about:config** dans la barre d’adresse (comme s’il s’agissait d’un site web, sans http devant).
 2. Recherchez **webgl.force-enabled** et changez la valeur à **true**
-3. Recherchez **webgl.disabled** et et assurez que la valeur est à **false**
+3. Recherchez **webgl.disabled** et assurez-vous que la valeur est à **false**

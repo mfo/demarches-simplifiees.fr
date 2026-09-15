@@ -28,14 +28,14 @@ Vous pouvez faire tester la partie usager (étape 1) et instructeur (étape 2) p
 
 **Vous pouvez effectuer toutes les modifications que vous souhaitez sur votre démarche pendant cette phase de test.**
 
-Bien évidemment, avant de tester la démarche, il faut l’avoir créé. Pour cela, vous pouvez vous aider de [notre guide de la dématérialisation réussie via %{application_name}](https://456404736-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-L7_aKvpAJdAIEfxHudA%2Fuploads%2FGJm7S7LVjHPKVlMCE36e%2FGuide%20des%20bonnes%20pratiques%20démarches-simplifiees.pdf?alt=media&token=228e63c7-a168-4656-9cda-3f53a10645c2). Vous pouvez également consulter la documentation [Comment créer une nouvelle démarche](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-administrateur)
+Bien évidemment, avant de tester la démarche, il faut l’avoir créée. Pour cela, vous pouvez vous aider de [notre guide de la dématérialisation réussie via %{application_name}](https://456404736-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-L7_aKvpAJdAIEfxHudA%2Fuploads%2FGJm7S7LVjHPKVlMCE36e%2FGuide%20des%20bonnes%20pratiques%20démarches-simplifiees.pdf?alt=media&token=228e63c7-a168-4656-9cda-3f53a10645c2). Vous pouvez également consulter la documentation [Comment créer une nouvelle démarche](%{doc_url}/tutoriels/tutoriel-administrateur)
 
 ## Étape 1 : Déposer un dossier de test côté usager
 
 Vous devez commencer par cette étape afin de tester le parcours d’un usager pour déposer un dossier. De plus, sans dossier déposé, vous ne pourrez pas tester les fonctionnalités relatives à l’instruction.
 
-1. Utilisez le bouton **« Tester la démarche »** (ou suivez le lien de la démarche), accessibles depuis votre interface administrateur. Toute personne ayant connaissance du lien pourra remplir des dossiers test sur votre démarche qui seront supprimés plus tard.
-  ![Bouton Tester la démarche depuis la tableau de bord de la démarche {aria-hidden="true"}](faq/administrateur-procedure-test-button.png)
+1. Utilisez le bouton **« Tester la démarche »** (ou suivez le lien de la démarche), accessible depuis votre interface administrateur. Toute personne ayant connaissance du lien pourra remplir des dossiers test sur votre démarche qui seront supprimés plus tard.
+  ![Bouton Tester la démarche depuis le tableau de bord de la démarche {aria-hidden="true"}](faq/administrateur-procedure-test-button.png)
   ![Affichage du lien de test de la démarche {aria-hidden="true"}](faq/administrateur-procedure-test-link.png)
 
 2. Commencez à remplir votre dossier en suivant le bouton **« Commencer la démarche »**.
@@ -68,14 +68,14 @@ Trouvez le dossier à suivre, puis testez l’instruction du dossier.
 
 ![Dossier à suivre {aria-hidden="true"}](faq/administrateur-test-instruction-dossiers-list.png)
 
-Voici le tutoriel pour instruire un dossier en tant qu’instructeur : [Tutoriel Instructeur](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-instructeur)
+Voici le tutoriel pour instruire un dossier en tant qu’instructeur : [Tutoriel Instructeur](%{doc_url}/tutoriels/tutoriel-instructeur)
 
 ## Étape 3 : Tester les fonctionnalités secondaires
 
 Vous pourrez ici tester différents éléments secondaires :
 
-- Demande d’**avis externe** (partie instruction) . Pour plus d’information, vous pouvez consulter [notre tutoriel expert invité](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-expert-invite)
-- **Vérifiez les adresses électroniques** d’accusé de réception, de passage en instruction, d’acceptation, de refus et de classement sans suite (partie usager)
+- Demande d’**avis externe** (partie instruction). Pour plus d’information, vous pouvez consulter [notre tutoriel expert invité](%{doc_url}/tutoriels/tutoriel-expert-invite)
+- **Vérifiez les emails automatiques** d’accusé de réception, de passage en instruction, d’acceptation, de refus et de classement sans suite (partie usager)
 - Testez la **messagerie du dossier** en envoyant un message à l’usager. Si vous souhaitez anonymiser l’adresse électronique des instructeurs dans la messagerie, vous pouvez [nous contacter à l’adresse %{contact_email}](mailto:%{contact_email})
 - Si l’**attestation automatique d’acceptation** et la partie annotations privées ont été paramétrées, vérifiez qu’il n’y a pas d’erreur
 

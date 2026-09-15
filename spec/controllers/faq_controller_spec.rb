@@ -54,6 +54,19 @@ RSpec.describe FAQController, type: :controller do
         # link to siblings
         expect(response.body).to include(faq_path(category: 'usager', slug: 'je-veux-changer-mon-mot-de-passe'))
       end
+
+      it "renders a > [!INFO] callout as an alert rather than as raw markdown" do
+        get :show, params: { category: 'usager', slug: 'comment-deposer-un-autre-dossier-pour-une-meme-demarche' }
+
+        expect(response.body).to include('fr-alert')
+        expect(response.body).not_to include('[!INFO]')
+      end
+
+      it "substitutes the documentation URL rather than linking a hardcoded domain" do
+        get :show, params: { category: 'administrateur', slug: 'qu-est-ce-qu-un-administrateur' }
+
+        expect(response.body).to include("#{DOC_URL}/tutoriels/tutoriel-administrateur")
+      end
     end
 
     context "when the FAQ does not exist" do

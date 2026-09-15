@@ -21,6 +21,8 @@ class FAQController < ApplicationController
                             application_base_url: Current.application_base_url,
                             application_name: Current.application_name,
                             contact_email: Current.contact_email,
+                            doc_url: DOC_URL,
+                            status_page_url: STATUS_PAGE_URL,
                           }.merge(dynamic_substitutions)
 
                           FAQsLoaderService.new(substitutions)

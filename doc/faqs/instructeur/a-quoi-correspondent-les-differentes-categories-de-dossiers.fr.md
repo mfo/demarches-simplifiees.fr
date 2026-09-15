@@ -13,7 +13,7 @@ Pour chaque démarche, les dossiers sont répartis dans plusieurs onglets :
 
 - L’onglet **« à suivre »** contient l’ensemble des dossiers qui ne sont suivis par aucun instructeur. Pour s’affecter le dossier, il suffit de cliquer sur « Suivre » le dossier.
 
-- L’onglet **« suivis par moi »** contient les dossiers que vous suivez. Lorsque vous (ou un autre instructeur) suivez un dossier, ce dossier n’apparaît plus dans les dossiers « à suivre ». Vous pouvez échanger avec le demandeur jusqu’à pouvoir accepter, refuser classer sans suite son dossier.
+- L’onglet **« suivis par moi »** contient les dossiers que vous suivez. Lorsque vous (ou un autre instructeur) suivez un dossier, ce dossier n’apparaît plus dans les dossiers « à suivre ». Vous pouvez échanger avec le demandeur jusqu’à pouvoir accepter, refuser ou classer sans suite son dossier.
 
 - L’onglet **« traités »** contient les dossiers sur lesquels un ou plusieurs instructeurs ont statué et apporté une décision (accepté, refusé ou classé sans suite).
 
@@ -21,7 +21,7 @@ Pour chaque démarche, les dossiers sont répartis dans plusieurs onglets :
 
 - L’onglet **« expirant »** contient les dossiers dont le délai de conservation va bientôt expirer (la durée de conservation des dossiers est fixée par l’administrateur de la démarche).
 
-- L’onglet **« à archiver »** contient les dossiers qui étaient anciennement dans l’onglet « traités » (ils ont été déplacés par un instructeur dans cet onglet « à archiver »). La messagerie usager est automatiquement désactivée sur le dossier dès qu’il est « à archiver ». Ces dossiers seront supprimés lorsque leur délai de conservation dans demarche.numerique.gouv.fr sera expiré. Pour sauvegarder et archiver vos dossiers sur votre serveur, vous devez les télécharger.
+- L’onglet **« à archiver »** contient les dossiers qui étaient anciennement dans l’onglet « traités » (ils ont été déplacés par un instructeur dans cet onglet « à archiver »). La messagerie usager est automatiquement désactivée sur le dossier dès qu’il est « à archiver ». Ces dossiers seront supprimés lorsque leur délai de conservation dans %{application_name} sera expiré. Pour sauvegarder et archiver vos dossiers sur votre serveur, vous devez les télécharger.
 
 - L’onglet **« corbeille »** contient :
   - les dossiers dont le délai de conservation a expiré (la durée de conservation des dossiers est fixée par l’administrateur de la démarche).

@@ -1,7 +1,7 @@
 ---
 category: "instructeur"
 subcategory: "instruction"
-slug: "comment-recevoir-run-email-chaque-fois-qu-un-dossier-est-depose"
+slug: "comment-recevoir-un-email-chaque-fois-qu-un-dossier-est-depose"
 locale: "fr"
 keywords: "notification, suivi dossier, alerte dépôt dossier"
 title: "Comment recevoir un email chaque fois qu’un dossier est déposé ?"

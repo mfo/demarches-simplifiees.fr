@@ -13,7 +13,7 @@ Si vous êtes administrateur, vous pouvez partager le lien de votre démarche en
 
 **Attention : tout dossier déposé, même instruit, sera supprimé une fois la démarche publiée. Ne communiquez pas ce lien à des vrais usagers !**
 
-## Message: *« La demarche n’existe pas »*
+## Message : *« La démarche n’existe pas »*
 
 Si la personne qui teste voit un bandeau avec le message *« La démarche n’existe pas »* après s’être identifié(e), cela indique généralement un problème avec le lien.
 

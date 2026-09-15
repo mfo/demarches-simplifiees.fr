@@ -3,7 +3,7 @@ category: "usager"
 subcategory: "dossier_technical_issue"
 slug: "quels-sont-les-navigateurs-supportes"
 locale: "fr"
-keywords: "navigateur,  compatibilité, mise à jour"
+keywords: "navigateur, compatibilité, mise à jour"
 title: "Quels sont les navigateurs supportés ?"
 ---
 

@@ -19,7 +19,7 @@ title: "Comment trouver ma démarche ?"
 
 > Pour effectuer un dépôt sur %{application_name} vous devez notamment disposer d’un lien qui vous a été communiqué par l’administration.
 
-> Par exemple s’il s’agit d’une démarche relative à un titre de séjour, vous trouverez l’information sur le site de la préfécture dont vous dépendez. S’il s’agit d’une demande de Pass Culture, vous trouverez les liens utiles sur le site du Pass Culture, etc…
+> Par exemple s’il s’agit d’une démarche relative à un titre de séjour, vous trouverez l’information sur le site de la préfecture dont vous dépendez. S’il s’agit d’une demande de Pass Culture, vous trouverez les liens utiles sur le site du Pass Culture, etc…
 
 ## 1. Trouver le lien de votre démarche
 
@@ -34,27 +34,27 @@ Ce lien vous est communiqué par l’administration compétente pour votre déma
 
 Vous trouverez ci-dessous la liste des démarches les plus courantes dématérialisées sur %{application_name} :
 
-- [Démarches relatives au permis de conduire](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-au-permis-de-conduire)
-- [Démarches relatives au transporteur](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-au-transporteur)
-- [Démarches relative à l’inscription au service de restauration](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relative-a-linscription-au-service-de-restauration)
-- [Démarches relatives aux cartes professionnelles de chauffeurs de voiture de tourisme (VTC)](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-aux-cartes-professionnelles-de-chauffeurs-de-voiture-de-tourisme-vtc)
-- [Démarches relatives aux étrangers résidant en France](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-aux-titres-de-sejour-pour-les-etrangers)
-- [Démarches relatives aux médailles d’honneur](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-aux-medailles-dhonneur)
+- [Démarches relatives au permis de conduire](%{doc_url}/listes-des-demarches/demarches-relatives-au-permis-de-conduire)
+- [Démarches relatives au transporteur](%{doc_url}/listes-des-demarches/demarches-relatives-au-transporteur)
+- [Démarches relatives à l’inscription au service de restauration](%{doc_url}/listes-des-demarches/demarches-relative-a-linscription-au-service-de-restauration)
+- [Démarches relatives aux cartes professionnelles de chauffeurs de voiture de tourisme (VTC)](%{doc_url}/listes-des-demarches/demarches-relatives-aux-cartes-professionnelles-de-chauffeurs-de-voiture-de-tourisme-vtc)
+- [Démarches relatives aux étrangers résidant en France](%{doc_url}/listes-des-demarches/demarches-relatives-aux-titres-de-sejour-pour-les-etrangers)
+- [Démarches relatives aux médailles d’honneur](%{doc_url}/listes-des-demarches/demarches-relatives-aux-medailles-dhonneur)
 - [Démarche relative à la consultation du domaine](%{application_base_url}/commencer/consultation-du-domaine)
 
 **Pour être guidé dans vos démarches essentielles les plus courantes**, vous pouvez également consulter 11 tutoriels vidéo :
 
-*   [Saisir le Défenseur des droits](https://dai.ly/x902hs6)
-*   [Signaler une utilisation frauduleuse de carte bancaire en ligne](https://dai.ly/x902ha4)
-*   [Consulter ses points permis de conduire](https://dai.ly/x902ie0)
-*   [Demander l’aide au logement (APL)](https://dai.ly/x902i16)
-*   [Formuler ses choix d’orientation en fin de collège (post 3e)](https://dai.ly/x902jm8)
-*   [Formuler ses choix d’orientation au lycée (post 2de GT)](https://dai.ly/x902jfg)
-*   [Faire son recensement citoyen obligatoire](https://dai.ly/x902jsa)
-*   [Participer à la journée défense et citoyenneté](https://dai.ly/x902k20)
-*   [Demander un extrait de casier judiciaire (bulletin n°3)](https://dai.ly/x902hh0)
-*   [Demander l’aide juridictionnelle](https://dai.ly/x902j5m)
-*   [Demander un logement en cité universitaire](https://dai.ly/x902iva)
+- [Saisir le Défenseur des droits](https://dai.ly/x902hs6)
+- [Signaler une utilisation frauduleuse de carte bancaire en ligne](https://dai.ly/x902ha4)
+- [Consulter ses points permis de conduire](https://dai.ly/x902ie0)
+- [Demander l’aide au logement (APL)](https://dai.ly/x902i16)
+- [Formuler ses choix d’orientation en fin de collège (post 3e)](https://dai.ly/x902jm8)
+- [Formuler ses choix d’orientation au lycée (post 2de GT)](https://dai.ly/x902jfg)
+- [Faire son recensement citoyen obligatoire](https://dai.ly/x902jsa)
+- [Participer à la journée défense et citoyenneté](https://dai.ly/x902k20)
+- [Demander un extrait de casier judiciaire (bulletin n°3)](https://dai.ly/x902hh0)
+- [Demander l’aide juridictionnelle](https://dai.ly/x902j5m)
+- [Demander un logement en cité universitaire](https://dai.ly/x902iva)
 
 
 ## 3. Je ne trouve pas le lien pour ma démarche
@@ -77,8 +77,9 @@ Pour commencer un nouveau dossier sur une démarche déjà réalisée, [connecte
 
 ![Image montrant le lien pour Commencer un autre dossier vide {aria-hidden="true"}](faq/usager-dossier-actions-menu-start-new.png)
 
-### Si le bouton "Commencer un autre dossier vide" n’est pas affiché cela signifie que la démarche a été clôturée.
+> [!INFO]
+> Si le bouton **« Commencer un autre dossier vide »** n’est pas affiché, cela signifie que la démarche a été clôturée.
 
-Pour connaitre le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une questions sur la démarche »** (en cliquant sur le numéro de dossier).
+Pour connaître le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une question sur la démarche »** (en cliquant sur le numéro de dossier).
 
 ![Image montrant comment trouver les informations de contact d’une démarche {aria-hidden="true"}](faq/usager-procedure-close-focus-contact.png)

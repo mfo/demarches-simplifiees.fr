@@ -15,7 +15,7 @@ Lorsque vous acceptez, refusez ou classez sans suite un dossier, il est possible
 
 ## Note importante
 
-Pour que l’usager reçoive par email un lien lui permettant d’accéder au document en question, il est nécessaire d’inclure la balise `--lien attestation--` dans l’email d’acceptation. Cette opération requiert des droits d’administrateur. Vous pouvez trouver [dans la documentation comment procéder à cette opération](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-administrateur#les-e-mails-automatiques). Ce lien de téléchargement est disponible directement dans l’email **uniquement** en cas d’acceptation du dossier.
+Pour que l’usager reçoive par email un lien lui permettant d’accéder au document en question, il est nécessaire d’inclure la balise `--lien attestation--` dans l’email d’acceptation. Cette opération requiert des droits d’administrateur. Vous pouvez trouver [dans la documentation comment procéder à cette opération](%{doc_url}/tutoriels/tutoriel-administrateur#les-e-mails-automatiques). Ce lien de téléchargement est disponible directement dans l’email **uniquement** en cas d’acceptation du dossier.
 
 Dans tous les cas, le document sera accessible dans l’interface de l’usager, qui pourra le télécharger, comme illustré ci-dessous :
 
