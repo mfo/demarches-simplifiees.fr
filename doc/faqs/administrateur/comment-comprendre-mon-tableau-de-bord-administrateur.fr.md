@@ -19,7 +19,7 @@ Une démarche est considérée comme publiée lorsqu’elle est finalisée et ac
 
 ## En test
 
-Les démarches à l’état de brouillon sont celles créées mais non finalisées et non publiées. Aucun usager ne peut y déposer des dossiers (à moins de disposer du lien de test de la démarche) et la démarche peut être modifiée à volonté.
+Les démarches en test sont celles créées mais non finalisées et non publiées. Aucun usager ne peut y déposer des dossiers (à moins de disposer du lien de test de la démarche) et la démarche peut être modifiée à volonté.
 
 **Attention : un dossier déposé sur une démarche en test sera définitivement supprimé**, et non récupérable, lorsque la démarche sera publiée. Ne publiez donc jamais publiquement le lien d’une démarche en test. Gardez ce lien pour des tests internes.
 

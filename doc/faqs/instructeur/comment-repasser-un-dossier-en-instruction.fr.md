@@ -3,7 +3,7 @@ category: "instructeur"
 subcategory: "instruction"
 slug: "comment-repasser-un-dossier-en-instruction"
 locale: "fr"
-keywords: "repasser instruction, dossier clôt, droits usager, demande correction"
+keywords: "repasser instruction, dossier clos, droits usager, demande correction"
 title: "Comment repasser un dossier en instruction ?"
 ---
 
@@ -15,7 +15,7 @@ Toutefois, **l’acceptation d’un dossier génère des droits pour l’usager*
 
 ## Repasser un dossier en instruction
 
-Pour cela, cliquez sur le bouton relatif au statut du dossier (*Accepter*, *Refuser* ou *Classer sans suite*), puis sur **Repasser le dossier en construction**. L’usager recevra alors un email suivant le modèle ci-dessous.
+Pour cela, cliquez sur le bouton relatif au statut du dossier (*Accepter*, *Refuser* ou *Classer sans suite*), puis sur **Repasser en instruction**. L’usager recevra alors un email suivant le modèle ci-dessous.
 
 ![Email reçu par un usager lorsque son dossier repasse en instruction, mentionnant que la précédente décision sur ce dossier est caduque.](faq/usager-email-dossier-repasser-instruction.png)
 

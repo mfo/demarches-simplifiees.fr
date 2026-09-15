@@ -12,7 +12,7 @@ title: "Transfert de dossier - cas d’usage : mon dossier a été déposé par 
 
 Vous devez **contacter la personne qui a déposé le dossier** et lui demander de vous le transférer.
 
-Pour cela, la personne doit cliquer sur le bouton **« Action »** (ou _« Autres actions »_), situé à droite du dossier depuis son interface :
+Pour cela, la personne doit cliquer sur le bouton **« Actions »** (ou _« Autres actions »_), situé à droite du dossier depuis son interface :
 
 ![Image illustrant le bouton Autres actions avec le menu de transfert de dossier {aria-hidden="true"}](faq/usager-dossier-actions-menu-transfer.png)
 
