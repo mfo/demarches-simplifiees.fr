@@ -54,6 +54,12 @@ RSpec.describe FAQController, type: :controller do
         # link to siblings
         expect(response.body).to include(faq_path(category: 'usager', slug: 'je-veux-changer-mon-mot-de-passe'))
       end
+
+      it "substitutes the documentation URL rather than linking a hardcoded domain" do
+        get :show, params: { category: 'administrateur', slug: 'qu-est-ce-qu-un-administrateur' }
+
+        expect(response.body).to include("#{DOC_URL}/tutoriels/tutoriel-administrateur")
+      end
     end
 
     context "when the FAQ does not exist" do

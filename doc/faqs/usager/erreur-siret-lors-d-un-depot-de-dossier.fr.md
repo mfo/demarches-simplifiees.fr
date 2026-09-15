@@ -68,8 +68,8 @@ a une panne temporaire.
 
 La plupart du temps, le problème est résolu en quelques heures maximum.
 
-Pour plus d’information, vous pouvez consulter l’état du service SIRET. Si une des
-lignes est rouge, c’est probablement la cause du problème.
+Pour plus d’information, vous pouvez consulter [l’état de nos services](%{status_page_url}).
+Si une des lignes est rouge, c’est probablement la cause du problème.
 
 ## Contactez-nous
 

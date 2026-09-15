@@ -34,12 +34,12 @@ Ce lien vous est communiqué par l’administration compétente pour votre déma
 
 Vous trouverez ci-dessous la liste des démarches les plus courantes dématérialisées sur %{application_name} :
 
-- [Démarches relatives au permis de conduire](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-au-permis-de-conduire)
-- [Démarches relatives au transporteur](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-au-transporteur)
-- [Démarches relative à l’inscription au service de restauration](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relative-a-linscription-au-service-de-restauration)
-- [Démarches relatives aux cartes professionnelles de chauffeurs de voiture de tourisme (VTC)](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-aux-cartes-professionnelles-de-chauffeurs-de-voiture-de-tourisme-vtc)
-- [Démarches relatives aux étrangers résidant en France](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-aux-titres-de-sejour-pour-les-etrangers)
-- [Démarches relatives aux médailles d’honneur](https://doc.demarches-simplifiees.fr/listes-des-demarches/demarches-relatives-aux-medailles-dhonneur)
+- [Démarches relatives au permis de conduire](%{doc_url}/listes-des-demarches/demarches-relatives-au-permis-de-conduire)
+- [Démarches relatives au transporteur](%{doc_url}/listes-des-demarches/demarches-relatives-au-transporteur)
+- [Démarches relative à l’inscription au service de restauration](%{doc_url}/listes-des-demarches/demarches-relative-a-linscription-au-service-de-restauration)
+- [Démarches relatives aux cartes professionnelles de chauffeurs de voiture de tourisme (VTC)](%{doc_url}/listes-des-demarches/demarches-relatives-aux-cartes-professionnelles-de-chauffeurs-de-voiture-de-tourisme-vtc)
+- [Démarches relatives aux étrangers résidant en France](%{doc_url}/listes-des-demarches/demarches-relatives-aux-titres-de-sejour-pour-les-etrangers)
+- [Démarches relatives aux médailles d’honneur](%{doc_url}/listes-des-demarches/demarches-relatives-aux-medailles-dhonneur)
 - [Démarche relative à la consultation du domaine](%{application_base_url}/commencer/consultation-du-domaine)
 
 **Pour être guidé dans vos démarches essentielles les plus courantes**, vous pouvez également consulter 11 tutoriels vidéo :

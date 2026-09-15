@@ -3,7 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe FAQsLoaderService do
-  let(:substitutions) { { application_name: "demarche.numerique.gouv.fr", application_base_url: APPLICATION_BASE_URL, contact_email: CONTACT_EMAIL } }
+  let(:substitutions) do
+    {
+      application_name: "demarche.numerique.gouv.fr",
+      application_base_url: APPLICATION_BASE_URL,
+      contact_email: CONTACT_EMAIL,
+      doc_url: DOC_URL,
+      status_page_url: STATUS_PAGE_URL,
+    }
+  end
   let(:service) { FAQsLoaderService.new(substitutions) }
 
   context "behavior with stubbed markdown files" do
@@ -98,6 +106,17 @@ RSpec.describe FAQsLoaderService do
   context "with actual files" do
     it 'load, perform substitutions and returns all FAQs' do
       expect(service.all.keys).to match_array(["administrateur", "instructeur", "usager"])
+    end
+
+    # Our own name and URLs move (demarches-simplifiees.fr became
+    # demarche.numerique.gouv.fr): they belong to the substitutions, never to
+    # the markdown.
+    it 'never hardcodes a URL we own' do
+      offenders = Dir.glob("#{FAQsLoaderService::PATH}/**/*.md").filter do |file_path|
+        File.read(file_path).match?(/demarches-simplifiees\.fr|demarche\.numerique\.gouv\.fr/)
+      end
+
+      expect(offenders).to be_empty
     end
 
     # The slug is the public URL of a FAQ: keeping it derivable from the file
