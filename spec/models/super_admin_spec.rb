@@ -73,6 +73,59 @@ describe SuperAdmin, type: :model do
     end
   end
 
+  describe '#verify_step_up_otp!' do
+    let(:super_admin) { create(:super_admin, :with_otp) }
+    let(:valid_code) { super_admin.current_otp }
+    let(:invalid_code) { (valid_code.to_i + 1).to_s.rjust(6, '0') }
+
+    it 'counts an invalid code as a failed attempt' do
+      expect { expect(super_admin.verify_step_up_otp!(invalid_code)).to eq(:invalid) }
+        .to change { super_admin.reload.failed_attempts }.from(0).to(1)
+    end
+
+    it 'does not count a blank code' do
+      expect { expect(super_admin.verify_step_up_otp!('')).to eq(:invalid) }
+        .not_to change { super_admin.reload.failed_attempts }
+    end
+
+    it 'resets the counter on a valid code' do
+      super_admin.update!(failed_attempts: 3)
+
+      expect(super_admin.verify_step_up_otp!(valid_code)).to eq(:ok)
+      expect(super_admin.reload.failed_attempts).to eq(0)
+    end
+
+    it 'locks the account at the threshold without testing the code' do
+      super_admin.update!(failed_attempts: SuperAdmin.maximum_attempts - 1)
+
+      expect { expect(super_admin.verify_step_up_otp!(valid_code)).to eq(:locked) }
+        .not_to have_enqueued_mail(DeviseUserMailer, :unlock_instructions)
+      expect(super_admin.reload).to be_access_locked
+      expect(super_admin.consumed_timestep).to be_nil
+    end
+
+    it 'keeps the account locked until it is unlocked by hand' do
+      super_admin.update!(failed_attempts: SuperAdmin.maximum_attempts, locked_at: 1.year.ago)
+
+      expect(super_admin.verify_step_up_otp!(valid_code)).to eq(:locked)
+      expect(super_admin.reload).to be_access_locked
+    end
+  end
+
+  describe '#verify_otp_enrollment!' do
+    let(:super_admin) { create(:super_admin, :with_otp) }
+
+    it 'counts a wrong password as a failed attempt' do
+      expect { expect(super_admin.verify_otp_enrollment!(password: 'wrong-password', otp: super_admin.current_otp)).to eq(:invalid) }
+        .to change { super_admin.reload.failed_attempts }.from(0).to(1)
+    end
+
+    it 'does not count a blank password' do
+      expect { expect(super_admin.verify_otp_enrollment!(password: '', otp: super_admin.current_otp)).to eq(:invalid) }
+        .not_to change { super_admin.reload.failed_attempts }
+    end
+  end
+
   describe '#password_complexity' do
     # This password list is sorted by password complexity, according to zxcvbn (used for complexity evaluation)
     # 0 - too guessable: risky password. (guesses < 10^3)
