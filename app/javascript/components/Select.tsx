@@ -26,7 +26,8 @@ import './react-aria/components/Select.css';
 import { SearchField } from './react-aria/components/SearchField';
 import {
   DropdownListBox as SelectListBox,
-  DropdownItem as SelectItem
+  DropdownItem as SelectItem,
+  DropdownItemContent
 } from './react-aria/components/ListBox';
 import {
   type Item,
@@ -130,32 +131,45 @@ function Select<M extends SelectionMode = 'single'>({
               {sections ? (
                 <Collection items={sections}>
                   {(section) => (
-                    <ListBoxSection id={section.id ?? section.label}>
+                    // Section keys share the collection with item keys, and a
+                    // key collision sends react-aria's filter into infinite
+                    // recursion. Item values are strings, so a numeric key
+                    // can never collide with one.
+                    <ListBoxSection id={sections.indexOf(section)}>
                       <Header className="dropdown-section-header">
                         {section.label}
                       </Header>
                       <Collection items={section.items}>
-                        {(item) => (
-                          <SelectItem id={item.value}>
-                            {item.mandatory ? `${item.label} *` : item.label}
-                          </SelectItem>
-                        )}
+                        {selectOption}
                       </Collection>
                     </ListBoxSection>
                   )}
                 </Collection>
               ) : (
-                (item) => (
-                  <SelectItem id={item.value}>
-                    {item.mandatory ? `${item.label} *` : item.label}
-                  </SelectItem>
-                )
+                selectOption
               )}
             </SelectListBox>
           </Virtualizer>
         </Autocomplete>
       </Popover>
     </AriaSelect>
+  );
+}
+
+// The render function must return the item element itself (the collection
+// reads its `id`), so this is a function, not a component. `textValue` is what
+// the search filter and typeahead match; it is derived from string children
+// only, hence explicit here where the children are not a string.
+function selectOption(item: Item) {
+  const label = item.mandatory ? `${item.label} *` : item.label;
+  return (
+    <SelectItem id={item.value} textValue={label}>
+      <DropdownItemContent
+        icon={item.icon}
+        label={label}
+        description={item.description}
+      />
+    </SelectItem>
   );
 }
 

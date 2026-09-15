@@ -8,7 +8,9 @@ export const Item = s.object({
   label: s.string(),
   value: s.string(),
   data: s.any(),
-  mandatory: s.optional(s.boolean())
+  mandatory: s.optional(s.boolean()),
+  icon: s.optional(s.string()),
+  description: s.optional(s.string())
 });
 export type Item = s.Infer<typeof Item>;
 

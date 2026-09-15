@@ -157,7 +157,8 @@ export function ComboBox({
             {sections ? (
               <Collection items={sections}>
                 {(section) => (
-                  <ListBoxSection id={section.label}>
+                  // Numeric keys cannot collide with item values, see Select.tsx
+                  <ListBoxSection id={sections.indexOf(section)}>
                     <Header className="dropdown-section-header">
                       {section.label}
                     </Header>
