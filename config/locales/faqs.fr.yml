@@ -3,7 +3,7 @@ fr:
     index:
       meta_title: "Foire aux Questions"
       title: Foire aux Questions (FAQ) de %{app_name}
-    sidebar_button: Dans cette Foire Aux Questions
+    sidebar_button: Dans cette Foire aux Questions
     categories:
       usager:
         short_name: Usager
@@ -43,4 +43,4 @@ fr:
         description: Les bonnes pratiques à anticiper avant mon départ
       procedure_test:
         name: Comment tester ma démarche
-        description: Comment tester une nouvelle demarche ?
+        description: Comment tester une nouvelle démarche ?
