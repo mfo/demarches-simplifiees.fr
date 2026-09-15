@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-devise_for :super_admins, skip: [:registrations], controllers: {
+devise_for :super_admins, skip: [:registrations, :unlocks], controllers: {
   sessions: 'super_admins/sessions',
 }
 

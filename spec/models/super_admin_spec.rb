@@ -99,9 +99,16 @@ describe SuperAdmin, type: :model do
       super_admin.update!(failed_attempts: SuperAdmin.maximum_attempts - 1)
 
       expect { expect(super_admin.verify_step_up_otp!(valid_code)).to eq(:locked) }
-        .to have_enqueued_mail(DeviseUserMailer, :unlock_instructions)
+        .not_to have_enqueued_mail(DeviseUserMailer, :unlock_instructions)
       expect(super_admin.reload).to be_access_locked
       expect(super_admin.consumed_timestep).to be_nil
+    end
+
+    it 'keeps the account locked until it is unlocked by hand' do
+      super_admin.update!(failed_attempts: SuperAdmin.maximum_attempts, locked_at: 1.year.ago)
+
+      expect(super_admin.verify_step_up_otp!(valid_code)).to eq(:locked)
+      expect(super_admin.reload).to be_access_locked
     end
   end
 

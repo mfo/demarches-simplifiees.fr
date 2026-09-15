@@ -6,7 +6,10 @@ class SuperAdmin < ApplicationRecord
 
   # No :rememberable, it would make the daily deadline below a fiction: on the
   # 25th hour the cookie reopens the session for another day.
-  devise :trackable, :validatable, :lockable, :recoverable
+  #
+  # unlock_strategy :none: a locked account stays locked, neither time nor an
+  # email link lifts it. Unlock it from a console: SuperAdmin.find(id).unlock_access!
+  devise :trackable, :validatable, :lockable, :recoverable, unlock_strategy: :none
   if SUPER_ADMIN_OTP_ENABLED
     devise :two_factor_authenticatable, sign_in_after_reset_password: false
   else
