@@ -74,8 +74,8 @@ Voici le tutoriel pour instruire un dossier en tant qu’instructeur : [Tutorie
 
 Vous pourrez ici tester différents éléments secondaires :
 
-- Demande d’**avis externe** (partie instruction) . Pour plus d’information, vous pouvez consulter [notre tutoriel expert invité](%{doc_url}/tutoriels/tutoriel-expert-invite)
-- **Vérifiez les adresses électroniques** d’accusé de réception, de passage en instruction, d’acceptation, de refus et de classement sans suite (partie usager)
+- Demande d’**avis externe** (partie instruction). Pour plus d’information, vous pouvez consulter [notre tutoriel expert invité](%{doc_url}/tutoriels/tutoriel-expert-invite)
+- **Vérifiez les emails automatiques** d’accusé de réception, de passage en instruction, d’acceptation, de refus et de classement sans suite (partie usager)
 - Testez la **messagerie du dossier** en envoyant un message à l’usager. Si vous souhaitez anonymiser l’adresse électronique des instructeurs dans la messagerie, vous pouvez [nous contacter à l’adresse %{contact_email}](mailto:%{contact_email})
 - Si l’**attestation automatique d’acceptation** et la partie annotations privées ont été paramétrées, vérifiez qu’il n’y a pas d’erreur
 

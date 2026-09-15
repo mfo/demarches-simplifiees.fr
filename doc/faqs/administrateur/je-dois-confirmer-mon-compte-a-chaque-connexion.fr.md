@@ -31,6 +31,6 @@ Si vous n’avez pas les droits suffisants pour modifier cette configuration, co
 
 ## Le navigateur authentifié n’est pas celui que vous utilisez
 
-Il est possible que lorsque vous cliquez sur le lien de l’email, celui-ci ouvre le navigateur par défaut, souvent Internet Explorer, alors que vous utilisez un autre navigateur, comme Firefox, pour accéder à %{application_name}. Le lendemain, lorsque vous ouvrez Firefox, le navigateur n’est toujours pas authentifié et vous devez à nouveau cliquer sur le lien de connexion.
+Il est possible que lorsque vous cliquez sur le lien de l’email, celui-ci ouvre le navigateur par défaut de votre poste, alors que vous utilisez un autre navigateur pour accéder à %{application_name}. Le lendemain, lorsque vous ouvrez votre navigateur habituel, celui-ci n’est toujours pas authentifié et vous devez à nouveau cliquer sur le lien de connexion.
 
 **Solution :** Copiez le lien de l’email et ouvrez-le avec le navigateur que vous utilisez habituellement pour aller sur %{application_name}.

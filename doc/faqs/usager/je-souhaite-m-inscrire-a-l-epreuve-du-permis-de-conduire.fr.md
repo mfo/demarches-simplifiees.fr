@@ -9,9 +9,9 @@ title: "Je souhaite m’inscrire à l’épreuve du permis de conduire"
 
 # Je souhaite m’inscrire à l’épreuve du permis de conduire
 
-Pour vous inscrire à l’épreuve pratique du permis de conduire, rendez-vous sur la page dédiée où vous trouverez les départements qui permettent d’utiliser %{application_name} pour vous inscrire : %{doc_url}/listes-des-demarches/demarches-relatives-au-permis-de-conduire
+Pour vous inscrire à l’épreuve pratique du permis de conduire, rendez-vous sur la page dédiée où vous trouverez les départements qui permettent d’utiliser %{application_name} pour vous inscrire : [départements concernés par les démarches relatives au permis de conduire](%{doc_url}/listes-des-demarches/demarches-relatives-au-permis-de-conduire)
 
-Pour savoir comment remplir votre démarche, vous pouvez consulter le tutoriel usager en cliquant sur le lien suivant : %{doc_url}/tutoriels/tutoriel-usager
+Pour savoir comment remplir votre démarche, vous pouvez consulter le tutoriel usager en cliquant sur le lien suivant : [tutoriel usager](%{doc_url}/tutoriels/tutoriel-usager)
 
 Par ailleurs, comme chaque administration choisit d’utiliser cette plateforme ou non, il n’est pas obligatoire que la démarche recherchée soit dématérialisée sur notre site.
 

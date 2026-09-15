@@ -40,14 +40,14 @@ Il est possible que le SIRET de votre entreprise ou association ait changé (sui
 établissement et rend le numéro de SIRET invalide), et ne fonctionne donc plus.
 
 Pour vous assurer de la validité et du caractère public de votre SIRET, allez sur
-[entreprise.data.gouv.fr](https://entreprise.data.gouv.fr), rentrez votre numéro
+l’[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr), rentrez votre numéro
 de SIRET dans le champ de recherche, et vérifiez si votre SIRET est encore valide
 ou non. S’il ne l’est plus, la page affichée vous indiquera alors le nouveau
 numéro de SIRET.
 
 Après l’immatriculation de votre entreprise, il faut compter quelques jours avant
 que les informations relatives à celle-ci ne soient disponibles et récupérables
-depuis entreprise.data.gouv.fr.
+depuis l’Annuaire des Entreprises.
 
 ## Vérifiez que les informations concernant votre entreprise sont publiques
 
@@ -56,8 +56,8 @@ accessibles dans la base publique des SIRET. Si c’est le cas, nous ne pouvons 
 récupérer les informations associées.
 
 Pour vous assurer que les informations de votre entreprise ne sont pas privées,
-allez sur l’Annuaire des Entreprises, et rentrez votre numéro de SIRET dans le
-champ de recherche.
+allez sur l’[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr),
+et rentrez votre numéro de SIRET dans le champ de recherche.
 
 ## Lorsque les informations SIRET sont temporairement indisponibles
 
