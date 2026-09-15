@@ -77,7 +77,8 @@ Pour commencer un nouveau dossier sur une démarche déjà réalisée, [connecte
 
 ![Image montrant le lien pour Commencer un autre dossier vide {aria-hidden="true"}](faq/usager-dossier-actions-menu-start-new.png)
 
-### Si le bouton "Commencer un autre dossier vide" n’est pas affiché cela signifie que la démarche a été clôturée.
+> [!INFO]
+> Si le bouton **« Commencer un autre dossier vide »** n’est pas affiché, cela signifie que la démarche a été clôturée.
 
 Pour connaître le nouveau lien vers la démarche en ligne, nous vous invitons à contacter le service en charge de la démarche. Vous trouverez les informations de contact en bas du formulaire dans la partie **« Poser une question sur la démarche »** (en cliquant sur le numéro de dossier).
 
