@@ -26,6 +26,34 @@ export function ListBoxItem(props: ListBoxItemProps) {
   );
 }
 
+// The body of an option: a DSFR icon (decorative, the label names the option),
+// the label, and an optional description that screen readers announce as the
+// option's description. `Text` slots wire the ARIA attributes inside a
+// ListBoxItem; `SelectValue` renders the same children in the trigger, where the
+// icon stays and the description is hidden by Select.css.
+export function DropdownItemContent({
+  icon,
+  label,
+  description
+}: {
+  icon?: string;
+  label: string;
+  description?: string;
+}) {
+  return (
+    <>
+      {icon ? (
+        <span
+          className={`dropdown-item__icon ${icon} fr-icon--sm`}
+          aria-hidden="true"
+        />
+      ) : null}
+      <Text slot="label">{label}</Text>
+      {description ? <Text slot="description">{description}</Text> : null}
+    </>
+  );
+}
+
 export function DropdownListBox<T extends object>(props: ListBoxProps<T>) {
   return <AriaListBox {...props} className="dropdown-listbox" />;
 }
@@ -47,7 +75,7 @@ export function DropdownItem({
         <>
           {isSelected && (
             <span
-              className="fr-icon-check-line fr-icon--sm"
+              className="dropdown-item__check fr-icon-check-line fr-icon--sm"
               aria-hidden="true"
             />
           )}

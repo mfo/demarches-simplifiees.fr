@@ -40,9 +40,14 @@
   color: var(--text-color);
   font-weight: 500;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  /* Two columns: the icon (empty and zero-width when there is none) and the
+     text, label above description. Explicit columns keep a label-only item in
+     the text column; the zero minimum lets a long unbreakable value wrap
+     instead of widening the track. */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  align-items: center;
   min-height: 2rem;
   margin-inline: 0.25rem;
   -webkit-tap-highlight-color: transparent;
@@ -59,7 +64,7 @@
     font-weight: 500;
     color: var(--text-color);
 
-    .fr-icon-check-line {
+    .dropdown-item__check {
       position: absolute;
       top: 50%;
       left: 0.25rem;
@@ -85,11 +90,19 @@
     color: var(--highlight-foreground);
   }
 
+  .dropdown-item__icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin-right: 0.5rem;
+  }
+
   [slot='label'] {
+    grid-column: 2;
     font-weight: 500;
   }
 
   [slot='description'] {
+    grid-column: 2;
     font-size: 0.75rem;
   }
 
