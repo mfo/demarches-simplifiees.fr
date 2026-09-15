@@ -24,7 +24,7 @@ en:
         name: I want to find my file
         description: What if I can't find my file?
       fill_dossier:
-        name: I want to make a
+        name: I want to complete a procedure
       dossier_state:
         name: I want to follow the progress of my application
       account:
