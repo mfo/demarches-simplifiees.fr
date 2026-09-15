@@ -11,7 +11,7 @@ class GroupeGestionnaire::GroupeGestionnaireGestionnaires::GestionnaireComponent
 
   def email
     if @gestionnaire == current_gestionnaire
-      "#{@gestionnaire.email} (C’est vous !)"
+      "#{@gestionnaire.email} #{t(".yourself_indicator")}"
     else
       @gestionnaire.email
     end
@@ -27,11 +27,11 @@ class GroupeGestionnaire::GroupeGestionnaireGestionnaires::GestionnaireComponent
 
   def remove_button
     if is_there_at_least_another_active_admin? && @is_gestionnaire
-      button_to 'Retirer du groupe',
+      button_to t(".remove_from_group"),
        gestionnaire_groupe_gestionnaire_gestionnaire_path(@groupe_gestionnaire, @gestionnaire),
        method: :delete,
        class: 'fr-btn fr-btn--sm fr-btn--tertiary',
-       form: { data: { turbo: true, turbo_confirm: "Retirer « #{@gestionnaire.email} » des gestionnaires de « #{@groupe_gestionnaire.name} » ?" } }
+       form: { data: { turbo: true, turbo_confirm: t(".remove_confirm", email: @gestionnaire.email, group_name: @groupe_gestionnaire.name) } }
     end
   end
 

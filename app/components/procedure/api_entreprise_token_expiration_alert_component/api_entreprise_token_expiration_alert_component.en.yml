@@ -1,3 +1,4 @@
 ---
 en:
   technical_issues: 'Issues are affecting the proper functioning of the process'
+  token_expired_html: "The <a href=\"%{url}\" class=\"error-anchor\">Jeton API Entreprise</a> token is expired or about to expire"
