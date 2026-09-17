@@ -58,11 +58,10 @@ module ApplicationHelper
     'alert'
   end
 
+  # Every profile hangs off current_user and delegates #email to it, so the
+  # fallbacks this used to chain through could never produce anything else.
   def current_email
-    current_user&.email ||
-      current_instructeur&.email ||
-      current_administrateur&.email ||
-      current_gestionnaire&.email
+    current_user&.email
   end
 
   def staging?
@@ -77,16 +76,18 @@ module ApplicationHelper
     link_to title, contact_url(params), options
   end
 
+  def profile_home_path(profile)
+    path_helper = NavBarProfile::HOME_PATH_HELPERS[profile] if NavBarProfile.all.include?(profile)
+
+    path_helper ? send(path_helper) : root_path
+  end
+
+  # :expert is deliberately excluded: the header has no destination for it,
+  # unlike the breadcrumb which sends experts to their avis list. Giving them
+  # one would be a UX change, not a refactor.
   def root_path_info_for_profile(nav_bar_profile)
-    case nav_bar_profile
-    when :administrateur
-      [admin_procedures_path, t("admin", scope: "layouts.root_path_link_title")]
-    when :gestionnaire
-      [gestionnaire_groupe_gestionnaires_path, t("gestionnaire", scope: "layouts.root_path_link_title")]
-    when :instructeur
-      [instructeur_procedures_path, t("instructeur", scope: "layouts.root_path_link_title")]
-    when :user
-      [dossiers_path, t("user", scope: "layouts.root_path_link_title")]
+    if nav_bar_profile != :expert && NavBarProfile.all.include?(nav_bar_profile)
+      [profile_home_path(nav_bar_profile), t(nav_bar_profile, scope: "layouts.root_path_link_title")]
     else
       [root_path, t("default", scope: "layouts.root_path_link_title")]
     end

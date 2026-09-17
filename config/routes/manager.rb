@@ -66,7 +66,7 @@ namespace :manager do
     end
   end
 
-  if ENV['ADMINS_GROUP_ENABLED'] == 'enabled' || Rails.env.test? # can be removed if needed when EVERY PARTS of the feature will be merged / from env.example.optional
+  if Rails.application.config.ds_admins_group_enabled
     resources :gestionnaires, only: [:index, :show, :edit, :update] do
       delete :delete, on: :member
     end

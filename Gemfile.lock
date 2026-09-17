@@ -6,6 +6,13 @@ GIT
       json (>= 2.5)
       sidekiq (~> 7.0)
 
+PATH
+  remote: engines/admins_group
+  specs:
+    admins_group (0.1.0)
+      ancestry
+      rails (>= 8.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -953,8 +960,8 @@ DEPENDENCIES
   activestorage-openstack
   addressable
   administrate
+  admins_group!
   after_commit_everywhere
-  ancestry
   anchored
   aws-sdk-s3
   bcrypt

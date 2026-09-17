@@ -40,6 +40,8 @@ require "rack_session_access/capybara"
 #
 Rails.root.glob('spec/support/**/*.rb').each { |f| require f }
 Rails.root.glob('spec/factories/**/*.rb').each { |f| require f }
+# In-repo engines keep their factories next to their code.
+Rails.root.glob('engines/*/spec/factories/**/*.rb').each { |f| require f }
 
 # Checks for pending migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.

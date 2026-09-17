@@ -1,0 +1,14 @@
+<%# Contributed to the manager's user page through ViewExtensionHelper. %>
+<dl>
+  <dt class="attribute-label">
+    Gestionnaire
+  </dt>
+
+  <dd class="attribute-data attribute-data--meta-usager">
+    <% if user.gestionnaire? %>
+      <%= link_to('Voir son compte gestionnaire', manager_gestionnaire_path(user.gestionnaire)) %>
+    <% else %>
+      Pas gestionnaire !
+    <% end %>
+  </dd>
+</dl>

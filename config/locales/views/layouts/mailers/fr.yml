@@ -40,6 +40,3 @@ fr:
         third_part: Pour en connaitre la nature, veuillez consulter votre dossier dans votre compte %{application_name}.
         button_text: Consulter mon dossier
         commentaire_html: <p>Bonjour,</p><p>Nous vous informons qu’une décision sur votre dossier a été rendue.</p>Cordialement,<br>%{service}
-
-      commentaire_groupe_gestionnaire_footer:
-        do_not_reply_html: Merci de ne pas répondre à cet email. Consultez votre message sur %{application_name} ou contactez votre expéditeur par <a href="mailto:%{sender_email}">mail</a>

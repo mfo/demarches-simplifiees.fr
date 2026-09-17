@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include TrustedDeviceConcern
   include NavBarProfileConcern
+  include GestionnaireSignInConcern
   include Pundit::Authorization
   include Devise::StoreLocationExtension
   include ApplicationController::ErrorHandling
@@ -32,7 +33,7 @@ class ApplicationController < ActionController::Base
 
   helper_method :multiple_devise_profile_connect?, :instructeur_signed_in?, :current_instructeur, :current_expert, :expert_signed_in?,
     :administrateur_signed_in?, :current_administrateur, :current_account, :localization_enabled?, :set_locale, :current_expert_not_instructeur?,
-    :gestionnaire_signed_in?, :current_gestionnaire, :extra_query_params, :chatbot_disabled_page?
+    :extra_query_params, :chatbot_disabled_page?
 
   before_action do
     Current.request_id = request.uuid
@@ -56,14 +57,7 @@ class ApplicationController < ActionController::Base
   end
 
   def multiple_devise_profile_connect?
-    user_signed_in? && instructeur_signed_in? ||
-        instructeur_signed_in? && administrateur_signed_in? ||
-        instructeur_signed_in? && gestionnaire_signed_in? ||
-        instructeur_signed_in? && expert_signed_in? ||
-        user_signed_in? && administrateur_signed_in? ||
-        user_signed_in? && gestionnaire_signed_in? ||
-        user_signed_in? && expert_signed_in? ||
-        administrateur_signed_in? && gestionnaire_signed_in?
+    NavBarProfile.all.count { send(:"#{it}_signed_in?") } > 1
   end
 
   def current_instructeur
@@ -82,14 +76,6 @@ class ApplicationController < ActionController::Base
     current_administrateur.present?
   end
 
-  def current_gestionnaire
-    current_user&.gestionnaire
-  end
-
-  def gestionnaire_signed_in?
-    current_gestionnaire.present?
-  end
-
   def current_expert
     current_user&.expert
   end
@@ -103,13 +89,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_account
-    {
-      gestionnaire: current_gestionnaire,
-      administrateur: current_administrateur,
-      instructeur: current_instructeur,
-      expert: current_expert,
-      user: current_user,
-    }.compact
+    NavBarProfile.all.index_with { send(:"current_#{it}") }.compact
   end
 
   alias_method :pundit_user, :current_user
@@ -156,18 +136,10 @@ class ApplicationController < ActionController::Base
     flash.now[:alert] = t('errors.csrf_retry.message')
   end
 
+  # Each authenticate_<profile>! below is a no-op once that profile is signed
+  # in, so the only case that does anything is "no profile at all".
   def authenticate_logged_user!
-    if instructeur_signed_in?
-      authenticate_instructeur!
-    elsif expert_signed_in?
-      authenticate_expert!
-    elsif administrateur_signed_in?
-      authenticate_administrateur!
-    elsif gestionnaire_signed_in?
-      authenticate_gestionnaire!
-    else
-      authenticate_user!
-    end
+    authenticate_user! if NavBarProfile.roles.none? { send(:"#{it}_signed_in?") }
   end
 
   def authenticate_instructeur!
@@ -194,12 +166,6 @@ class ApplicationController < ActionController::Base
   def authenticate_administrateur!
     if !administrateur_signed_in?
       store_location_for(:user, request.fullpath)
-      redirect_to new_user_session_path
-    end
-  end
-
-  def authenticate_gestionnaire!
-    if !gestionnaire_signed_in?
       redirect_to new_user_session_path
     end
   end
@@ -265,14 +231,9 @@ class ApplicationController < ActionController::Base
 
   def current_user_roles
     @current_user_roles ||= begin
-      roles = [
-        current_user,
-        current_instructeur,
-        current_expert,
-        current_administrateur,
-        current_gestionnaire,
-        current_super_admin,
-      ].compact.map { |role| role.class.name }
+      roles = (current_account.values + [current_super_admin])
+        .compact
+        .map { |role| role.class.name }
 
       roles.any? ? roles.join(', ') : 'Guest'
     end

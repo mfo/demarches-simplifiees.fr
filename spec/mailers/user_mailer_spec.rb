@@ -190,25 +190,6 @@ RSpec.describe UserMailer, type: :mailer do
     it { expect(subject['BYPASS_UNVERIFIED_MAIL_PROTECTION']).to be_present }
   end
 
-  describe '.invite_gestionnaire' do
-    let(:groupe_gestionnaire) { create(:groupe_gestionnaire) }
-    subject { described_class.invite_gestionnaire(user, "reset_token", groupe_gestionnaire) }
-
-    it { expect(subject['BYPASS_UNVERIFIED_MAIL_PROTECTION']).to be_present }
-  end
-
-  describe '.invite_gestionnaire_via_pro_connect' do
-    let(:groupe_gestionnaire) { create(:groupe_gestionnaire) }
-    subject { described_class.invite_gestionnaire_via_pro_connect(user, groupe_gestionnaire) }
-
-    it do
-      expect(subject.body).to include(groupe_gestionnaire.name)
-      expect(subject.body).to include(pro_connect_url(force_pro_connect: true))
-      expect(subject.body).not_to include('token=')
-      expect(subject['BYPASS_UNVERIFIED_MAIL_PROTECTION']).to be_present
-    end
-  end
-
   describe '.reset_password_via_pro_connect' do
     subject { described_class.reset_password_via_pro_connect(user) }
 

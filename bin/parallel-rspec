@@ -37,5 +37,11 @@ bin/rails assets:precompile
 # grouping falls back to file sizes while the log lacks data — don't pass
 # --group-by runtime, which aborts in that case).
 # llm_eval specs need a live LLM endpoint and are also excluded in CI.
+# With no argument, cover the host suite and the in-repo engines, which keep
+# their specs next to their code.
+if [ $# -eq 0 ]; then
+  set -- spec engines
+fi
+
 exec bin/bundle exec parallel_rspec -n "$processes" \
-  -o "--tag ~llm_eval" "${@:-spec}"
+  -o "--tag ~llm_eval" "$@"

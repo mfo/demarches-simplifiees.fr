@@ -32,52 +32,12 @@
               <%= t('.connected_as', profile: t(nav_bar_profile, scope: :layouts)) %>
             <% end %>
           </li>
-          <%- if user_signed_in? && nav_bar_profile != :user -%>
+          <%- switchable_profiles.each do |profile| -%>
             <li>
-              <%= link_to dossiers_path, class: "fr-nav__link" do %>
+              <%= link_to switch_path_for(profile), class: "fr-nav__link" do %>
                 <span>
                   <span class="fr-icon-refresh-line fr-icon--sm"></span>
-                  <%= t('.go_user') %>
-                </span>
-              <% end %>
-            </li>
-          <%- end -%>
-          <%- if instructeur_signed_in? && nav_bar_profile != :instructeur -%>
-            <li>
-              <%= link_to instructeur_path, class: "fr-nav__link" do %>
-                <span>
-                  <span class="fr-icon-refresh-line fr-icon--sm"></span>
-                  <%= t('.go_instructor') %>
-                </span>
-              <% end %>
-            </li>
-          <%- end -%>
-          <%- if expert_signed_in? && nav_bar_profile != :expert -%>
-            <li>
-              <%= link_to expert_all_avis_path, class: "fr-nav__link" do %>
-                <span>
-                  <span class="fr-icon-refresh-line fr-icon--sm"></span>
-                  <%= t('.go_expert') %>
-                </span>
-              <% end %>
-            </li>
-          <%- end -%>
-          <%- if administrateur_signed_in? && nav_bar_profile != :administrateur -%>
-            <li>
-              <%= link_to admin_path, class: "fr-nav__link" do %>
-                <span>
-                  <span class="fr-icon-refresh-line fr-icon--sm"></span>
-                  <%= t('.go_admin') %>
-                </span>
-              <% end %>
-            </li>
-          <%- end -%>
-          <%- if gestionnaire_signed_in? && nav_bar_profile != :gestionnaire -%>
-            <li>
-              <%= link_to gestionnaire_groupe_gestionnaires_path, class: "fr-nav__link" do %>
-                <span>
-                  <span class="fr-icon-refresh-line fr-icon--sm"></span>
-                  <%= t('.go_gestionnaire') %>
+                  <%= t(".go_#{profile}") %>
                 </span>
               <% end %>
             </li>

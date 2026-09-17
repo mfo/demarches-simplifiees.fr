@@ -1,0 +1,35 @@
+# frozen_string_literal: true
+
+# The profiles a signed-in account can hold, ordered from the most specific to
+# the least: the first one an account holds is the profile it lands on.
+#
+# Shared chrome — the account dropdown, the nav bar, the breadcrumbs, the
+# request logs — iterates this list instead of carrying one branch per profile.
+# A profile that ships only to some instances declares its condition in
+# OPTIONAL; when the condition is false, the profile does not exist at all.
+module NavBarProfile
+  ALL = [:gestionnaire, :administrateur, :instructeur, :expert, :user].freeze
+
+  OPTIONAL = {
+    gestionnaire: -> { Rails.application.config.ds_admins_group_enabled },
+  }.freeze
+
+  def self.all
+    ALL.filter { OPTIONAL.key?(it) ? OPTIONAL[it].call : true }
+  end
+
+  # Where each profile lands when it has no more specific destination: the
+  # breadcrumb root, and the account dropdown when switching to it.
+  HOME_PATH_HELPERS = {
+    gestionnaire: :gestionnaire_groupe_gestionnaires_path,
+    administrateur: :admin_procedures_path,
+    instructeur: :instructeur_procedures_path,
+    expert: :expert_all_avis_path,
+    user: :dossiers_path,
+  }.freeze
+
+  # Every profile but :user, which every signed-in account holds by definition.
+  def self.roles
+    all.excluding(:user)
+  end
+end

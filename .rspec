@@ -1,3 +1,4 @@
 --color
 --require rails_helper
 --profile
+--pattern **/*_spec.rb,../engines/*/spec/**/*_spec.rb

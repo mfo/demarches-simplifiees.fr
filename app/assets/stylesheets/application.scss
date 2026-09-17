@@ -1,1 +1,4 @@
 // = require_tree .
+// require_tree only reaches this directory, so engine stylesheets are pulled in
+// by their logical path. Last, so their overrides win as they did in the tree.
+// = require admins_group

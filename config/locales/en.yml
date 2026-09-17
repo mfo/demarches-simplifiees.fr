@@ -118,8 +118,7 @@ en:
       default: 'Go to homepage'
       user: 'Go to files list'
       instructeur: 'Go to procedures list'
-      admin: 'Go to administration panel'
-      gestionnaire: "Go to admins group panel"
+      administrateur: 'Go to administration panel'
   views:
     legal_notice:
       title: "Legal Notices"
@@ -429,9 +428,6 @@ en:
           accuse_lecture: This procedure is subject to a reading receipt.
           accuse_lecture_with_agreement: The user has read the decision taken on his file on %{agreement}.
           accuse_lecture_without_agreement: The user has not yet learned of the decision on their file.
-    gestionnaires:
-      groupe_gestionnaires:
-        delete: Delete
     instructeurs:
       procedure_menu: "Files of the procedure number %{id}"
       procedures_menu: "Procedures"

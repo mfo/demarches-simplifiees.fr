@@ -86,6 +86,10 @@ Rails.application.configure do
 
   config.ds_zonage_enabled = true
 
+  # The suite runs with the admins group feature on. The dedicated CI job flips
+  # it off to check the app still works without it, the way our own instance runs.
+  config.ds_admins_group_enabled = ENV['DISABLE_ADMINS_GROUP'].blank?
+
   # BCrypt is slow by design - but during tests we want to make it faster
   # to compute hashes of passwords.
   silence_warnings do
