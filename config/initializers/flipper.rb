@@ -20,6 +20,7 @@ end
 # A list of features to be deployed on first push
 features = [
   :administrateur_web_hook,
+  :annotation_prefill_champs_public,
   :blocking_pending_correction,
   :cojo_type_de_champ,
   :dossier_pdf_vide,
