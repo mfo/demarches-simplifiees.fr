@@ -452,6 +452,9 @@ module DossierStateConcern
       .flat_map(&:row_ids)
 
     return if row_ids.empty?
+    # Détruit aussi les lignes qu'un appel d'API a préremplies, dès que leur condition
+    # d'affichage devient fausse — perte irréversible, dont la seule parade est de
+    # figer les valeurs attendues avant la mise en production.
     champ_data.where(stream: Dossier::MAIN_STREAM, row_id: row_ids).destroy_all
   end
 
