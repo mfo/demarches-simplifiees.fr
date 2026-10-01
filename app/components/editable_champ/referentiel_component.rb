@@ -20,7 +20,9 @@ class EditableChamp::ReferentielComponent < EditableChamp::EditableChampBaseComp
       loader: data_sources_data_source_referentiel_path(referentiel_id: referentiel.id, dossier_id: @champ.dossier_id, row_id: @champ.row_id),
       minimum_input_length: DataSources::ReferentielController::MIN_QUERY_LENGTH,
       use_post: true,
-      is_disabled: false,
+      # Le mode autocomplete propage le pré-remplissage dans la requête, via le
+      # setter data= : sans ce verrou, l'appel lèverait en pleine soumission.
+      is_disabled: @champ.locked_until_instruction?,
       ariaLabelledbyPrefix: aria_labelledby_prefix,
       labelId: input_label_id(@champ),
       inputId: @champ.focusable_input_id)

@@ -86,6 +86,19 @@ class Champs::ReferentielChamp < ChampData
       .map { |_jsonpath, mapping| mapping[:prefill_stable_id].to_i }
   end
 
+  def prefills_public_champs?
+    dossier.revision.type_de_champs.any? { it.public? && it.stable_id.in?(prefillable_stable_ids) }
+  end
+
+  # Le pré-remplissage écrit des champs publics sur le stream principal, ce que
+  # check_valid_stream_on_write? interdit sur un dossier en construction — et
+  # seulement là : sans ce verrou, l'appel y lèverait une RuntimeError brute.
+  def locked_until_instruction?
+    # L'état du dossier d'abord : il est gratuit, alors que la recherche de cible
+    # publique charge la révision et parcourt ses coordonnées.
+    private? && dossier.en_construction? && prefills_public_champs?
+  end
+
   def prefillable_champs
     elligible_stable_ids = prefillable_stable_ids
     if public?
@@ -134,11 +147,30 @@ class Champs::ReferentielChamp < ChampData
   private
 
   def prefillable_type_de_champs
-    if main_stream?
-      dossier.revision.type_de_champs
+    return dossier.public_type_de_champs_all if !main_stream?
+
+    if private? && dossier.en_construction?
+      # Une annotation ne peut pas écrire un champ public sur le stream principal d'un
+      # dossier en construction : on écarte ces cibles en le signalant, plutôt que
+      # d'interrompre l'appel.
+      report_dropped_public_prefill
+      dossier.private_type_de_champs_all
     else
-      dossier.public_type_de_champs_all
+      dossier.revision.type_de_champs
     end
+  end
+
+  # La configuration demandait un pré-remplissage qui n'aura pas lieu, et rien dans
+  # l'interface ne le dira : sans ce signalement la perte serait inobservable.
+  def report_dropped_public_prefill
+    dropped = dossier.public_type_de_champs_all.filter { it.stable_id.in?(prefillable_stable_ids) }
+    return if dropped.empty?
+
+    Sentry.set_tags(dossier: dossier.id, champ: id)
+    Sentry.capture_message(
+      "Referentiel prefill of public champs dropped on a dossier en construction",
+      extra: { stable_ids: dropped.map(&:stable_id) }
+    )
   end
 
   def clear_previous_result

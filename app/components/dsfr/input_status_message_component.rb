@@ -46,7 +46,7 @@ module Dsfr
     end
 
     def referentiel_support_statut?
-      type_de_champ.referentiel? && (!@champ.idle? || type_de_champ.referentiel.blank?)
+      type_de_champ.referentiel? && (!@champ.idle? || type_de_champ.referentiel.blank? || @champ.locked_until_instruction?)
     end
 
     def pjs_statut?
@@ -147,6 +147,10 @@ module Dsfr
           { state: :warning, text: t(".referentiel.error", value: @champ.external_id) }
         elsif @champ.value.present?
           { state: :valid, text: t(".referentiel.success", value: @champ.value) }
+        elsif @champ.locked_until_instruction?
+          # En dernier : un résultat trouvé ou une erreur d'appel passent devant, quel
+          # que soit le mode — un champ autocomplete ne quitte jamais l'état idle.
+          { state: :info, text: t(".referentiel.locked_until_instruction") }
         end
       when TypeDeChamp.type_champs[:address]
         if @champ.pending?

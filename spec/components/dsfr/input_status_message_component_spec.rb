@@ -47,6 +47,42 @@ describe Dsfr::InputStatusMessageComponent, type: :component do
     end
   end
 
+  describe 'an annotation referentiel locked until instruction' do
+    let(:procedure) do
+      create(:procedure,
+             public_type_de_champs: [{ type: :text, libelle: 'Nom', stable_id: 99 }],
+             private_type_de_champs: [
+               {
+                 type: :referentiel,
+                 stable_id: 88,
+                 referentiel: create(:api_referentiel, :exact_match),
+                 referentiel_mapping: { "$.nom" => { prefill: "1", prefill_stable_id: 99, type: "string" } },
+               },
+             ])
+    end
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+    let(:champ) { dossier.champ_data.find { it.stable_id == 88 } }
+
+    context 'while nothing has been fetched' do
+      it 'explains why the input is greyed out' do
+        render_inline(described_class.new(champ:, as_announcement: true))
+
+        expect(page).to have_text('une fois le dossier passé en instruction')
+      end
+    end
+
+    context 'when a reference was already found' do
+      before { champ.update_columns(external_id: 'JE-VALIDE', value: 'JE-VALIDE', external_state: 'fetched') }
+
+      it 'keeps showing the result rather than the lock' do
+        render_inline(described_class.new(champ:, as_announcement: true))
+
+        expect(page).to have_text('Référence trouvée : JE-VALIDE')
+        expect(page).not_to have_text('une fois le dossier passé en instruction')
+      end
+    end
+  end
+
   describe 'a degraded siret champ' do
     let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :siret }]) }
 
