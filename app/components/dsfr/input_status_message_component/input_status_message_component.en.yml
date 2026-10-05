@@ -17,6 +17,7 @@ en:
     degraded: "SIRET %{value} is saved. Company information will arrive later: you can carry on."
   referentiel:
     not_configured: "This field has not been configured by the administrator yet."
+    locked_until_instruction: "You will be able to fill this field once the dossier is under review."
     fetching: "Search in progress."
     error: "No item found for the reference: %{value}"
     success: "Reference found: %{value}"

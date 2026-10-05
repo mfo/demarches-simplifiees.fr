@@ -471,4 +471,78 @@ describe Champs::ReferentielChamp, type: :model do
       expect(referentiel_champ.selected_items).to eq([{ label: 'label', value: 'label' }])
     end
   end
+
+  describe 'prefilling public champs while the dossier is en construction' do
+    let(:procedure) do
+      create(:procedure,
+             public_type_de_champs: [{ type: :text, libelle: 'Nom', stable_id: 99 }],
+             private_type_de_champs: [
+               {
+                 type: :referentiel,
+                 stable_id: 88,
+                 referentiel:,
+                 referentiel_mapping: {
+                   public_mapping_path => { prefill: "1", prefill_stable_id: 99, type: "string" },
+                   private_mapping_path => { prefill: "1", prefill_stable_id: 77, type: "string" },
+                 },
+               },
+               { type: :text, libelle: 'Avis', stable_id: 77 },
+             ])
+    end
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+    let(:champ) { dossier.champ_data.find { it.stable_id == 88 } }
+
+    def public_target
+      dossier.reload.flat_champs_public.find { it.stable_id == 99 }
+    end
+
+    def private_target
+      dossier.reload.flat_champs_private.find { it.stable_id == 77 }
+    end
+
+    context 'in exact match mode' do
+      let(:referentiel) { create(:api_referentiel, :exact_match) }
+      let(:public_mapping_path) { "$.nom" }
+      let(:private_mapping_path) { "$.avis" }
+
+      it { expect(champ).to be_locked_until_instruction }
+
+      # Le chemin asynchrone : l'instructeur saisit la référence en instruction, le
+      # dossier repasse en construction, puis le job s'exécute. Il doit écarter la
+      # seule cible publique — et écrire les autres, sans quoi la fonctionnalité
+      # ne ferait plus rien du tout.
+      it 'drops the public target and still writes the private ones' do
+        expect { champ.update_external_data!(data: { 'nom' => 'Dupont', 'avis' => 'Favorable' }, value: 'JE-VALIDE', value_json: {}) }
+          .not_to raise_error
+
+        expect(private_target.value).to eq('Favorable')
+        expect(public_target.value).to be_nil
+      end
+    end
+
+    context 'in autocomplete mode' do
+      let(:referentiel) { create(:api_referentiel, :autocomplete, datasource: '$.items') }
+      let(:public_mapping_path) { "$.items[0].nom" }
+      let(:private_mapping_path) { "$.items[0].avis" }
+      let(:token) { MessageEncryptorService.new.encrypt_and_sign({ 'nom' => 'Dupont', 'avis' => 'Favorable' }, purpose: :storage, expires_in: 1.hour) }
+
+      it 'drops the public target and still writes the private ones' do
+        expect { champ.data = token }.not_to raise_error
+
+        expect(private_target.value).to eq('Favorable')
+        expect(public_target.value).to be_nil
+      end
+
+      # Le garde n'a rien à faire sur l'écriture de `data` : le modèle s'en sert pour
+      # sa propre plomberie, et l'intercepter laisserait un data périmé derrière.
+      it 'still lets the model clear its own previous result' do
+        champ.update_columns(external_id: 'OLD', value: 'OLD', data: { 'nom' => 'Ancien' })
+
+        champ.external_id = 'NEW'
+        champ.save
+
+        expect(champ.reload.data).to be_nil
+      end
+    end
+  end
 end

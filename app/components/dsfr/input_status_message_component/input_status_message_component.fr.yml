@@ -17,6 +17,7 @@ fr:
     degraded: "Le SIRET %{value} est bien enregistré. Les informations sur lʼentreprise arriveront plus tard : vous pouvez continuer."
   referentiel:
     not_configured: "Ce champ n’est pas encore configuré par l’administrateur."
+    locked_until_instruction: "Vous pourrez renseigner ce champ une fois le dossier passé en instruction."
     fetching: "Recherche en cours."
     error: "Aucun élément trouvé pour la référence : %{value}"
     success: "Référence trouvée : %{value}"

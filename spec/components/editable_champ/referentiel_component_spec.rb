@@ -26,6 +26,74 @@ describe EditableChamp::ReferentielComponent, type: :component do
     end
   end
 
+  describe 'an annotation referentiel, locked until the dossier is en instruction' do
+    let(:referentiel) { create(:api_referentiel, :exact_match) }
+    let(:public_type_de_champs) { [{ type: :text, libelle: 'Nom', stable_id: 99 }] }
+    let(:private_type_de_champs) do
+      [{ type: :referentiel, referentiel:, referentiel_mapping: mapping }]
+    end
+    let(:procedure) { create(:procedure, public_type_de_champs:, private_type_de_champs:) }
+    let(:champ) { dossier.root_champs_private.first }
+
+    context 'when it prefills a public champ' do
+      let(:mapping) { { "$.nom" => { prefill: "1", prefill_stable_id: 99, type: "string" } } }
+
+      context 'on a dossier en construction' do
+        let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+        it 'disables the input, because the prefill would write a public champ on the main stream' do
+          expect(subject).to have_field(type: 'text', disabled: true)
+        end
+      end
+
+      context 'on a dossier en instruction' do
+        let(:dossier) { create(:dossier, :en_instruction, procedure:) }
+
+        it 'leaves the input editable' do
+          expect(subject).to have_field(type: 'text', disabled: false)
+        end
+      end
+
+      # check_valid_stream_on_write? ne lève que sur un dossier en construction :
+      # verrouiller un dossier terminé empêcherait une saisie pourtant légale.
+      context 'on a terminated dossier' do
+        let(:dossier) { create(:dossier, :accepte, procedure:) }
+
+        it 'leaves the input editable' do
+          expect(subject).to have_field(type: 'text', disabled: false)
+        end
+      end
+
+      # Le mode autocomplete propage le pré-remplissage dans la requête elle-même,
+      # via le setter data= : il doit être verrouillé comme la correspondance exacte.
+      context 'when the referentiel runs in autocomplete mode' do
+        let(:referentiel) { create(:api_referentiel, :autocomplete) }
+        let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+        it 'disables the combobox' do
+          expect(subject.to_html).to include('is_disabled&quot;:true')
+        end
+      end
+    end
+
+    # Le cas de non-régression : un référentiel privé qui ne préremplit que des
+    # annotations n'écrit jamais de champ public, donc rien ne doit le verrouiller.
+    context 'when it prefills only annotations' do
+      let(:private_type_de_champs) do
+        [
+          { type: :referentiel, referentiel:, referentiel_mapping: mapping },
+          { type: :text, libelle: 'Avis', stable_id: 77 },
+        ]
+      end
+      let(:mapping) { { "$.avis" => { prefill: "1", prefill_stable_id: 77, type: "string" } } }
+      let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+      it 'leaves the input editable' do
+        expect(subject).to have_field(type: 'text', disabled: false)
+      end
+    end
+  end
+
   context 'when referentiel is present' do
     let(:referentiel) { create(:api_referentiel, :autocomplete) }
 
