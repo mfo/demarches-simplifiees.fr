@@ -677,6 +677,121 @@ describe 'Referentiel API:' do
     end
   end
 
+  context 'when the instructeur homologates a dossier to unlock the rest of the usager form' do
+    include Logic
+
+    let(:status_stable_id) { 301 }
+    let(:repetition_stable_id) { 310 }
+    let(:dirigeant_nom_stable_id) { 311 }
+    let(:homologation_stable_id) { 320 }
+    let(:referentiel) { create(:api_referentiel, :exact_match) }
+
+    let(:public_type_de_champs) do
+      [
+        {
+          type: :pre_rempli,
+          libelle: "Statut de l'homologation",
+          stable_id: status_stable_id,
+          drop_down_options_from_text: "CONFIRME\r\nREFUSE",
+        },
+        {
+          type: :repetition,
+          libelle: 'Dirigeants',
+          stable_id: repetition_stable_id,
+          # Sans quoi le dossier naît avec une ligne vide (build_default_champs_for),
+          # alors que le bloc est fermé au dépôt : c'est l'API qui crée les lignes.
+          mandatory: false,
+          condition: ds_eq(champ_value(status_stable_id), constant('CONFIRME')),
+          children: [{ type: :text, libelle: 'Nom du dirigeant', stable_id: dirigeant_nom_stable_id }],
+        },
+      ]
+    end
+
+    let(:private_type_de_champs) do
+      [
+        { type: :checkbox, libelle: 'Homologation', stable_id: homologation_stable_id },
+        {
+          type: :referentiel,
+          libelle: 'Validation SIAF',
+          referentiel:,
+          referentiel_mapping: {
+            "$.homologation" => { prefill: "1", prefill_stable_id: status_stable_id, type: "string" },
+            "$.dirigeant[0].nom" => { prefill: "1", prefill_stable_id: dirigeant_nom_stable_id, type: "string" },
+          },
+        },
+      ]
+    end
+
+    let(:dossier) { create(:dossier, :en_construction, procedure:) }
+
+    before do
+      Flipper.enable(:pre_rempli_type_de_champ, procedure)
+      Flipper.enable(:annotation_prefill_champs_public, procedure)
+    end
+
+    def public_champs_with(stable_id)
+      dossier.reload.flat_champs_public.filter { it.stable_id == stable_id }
+    end
+
+    # Pas de `vcr: true` : sans fixture par exemple, VCR passerait en enregistrement
+    # et rouvrirait le réseau réel. Les cassettes imbriquées suffisent.
+    scenario 'the instructeur homologates, reviews the proposal, then sends it', js: true do
+      dossier.passer_en_instruction!(instructeur:)
+
+      visit annotations_privees_instructeur_dossier_path(procedure, dossier)
+      custom_check(find(:label, text: 'Homologation')['for'])
+      expect(page).to have_content('Annotations enregistrées')
+
+      VCR.use_cassette('referentiel/siaf_homologation') do
+        fill_in('Validation SIAF', with: 'JE-VALIDE')
+        perform_enqueued_jobs do
+          expect(page).to have_content('Référence trouvée : JE-VALIDE')
+        end
+      end
+
+      # La réponse de l'API attend sur le buffer : l'instructeur voit ce qui sera écrit,
+      # et le dossier de l'usager n'a pas bougé.
+      expect(page).to have_content('Ces champs du formulaire seront mis à jour')
+      expect(public_champs_with(status_stable_id).map(&:value)).to eq([nil])
+
+      click_on 'Envoyer à l’usager'
+      expect(page).to have_content('Les champs préremplis ont été envoyés à l’usager')
+
+      expect(public_champs_with(status_stable_id).map(&:value)).to eq(['CONFIRME'])
+      expect(public_champs_with(dirigeant_nom_stable_id).map(&:value)).to match_array(['Dupont', 'Martin'])
+
+      # Le bloc répétable, fermé au dépôt, s'ouvre sur la valeur du statut.
+      expect(public_champs_with(repetition_stable_id).first).to be_visible
+
+      # L'usager retrouve son dossier modifiable, le bloc ouvert et pré-rempli.
+      login_as dossier.user, scope: :user
+      visit modifier_dossier_path(dossier)
+
+      expect(page).to have_content('Dirigeants')
+      expect(page).to have_field('Nom du dirigeant', with: 'Dupont')
+      expect(page).to have_field('Nom du dirigeant', with: 'Martin')
+    end
+
+    scenario 'a status outside the declared options leaves the block closed, silently', js: true do
+      dossier.passer_en_instruction!(instructeur:)
+      visit annotations_privees_instructeur_dossier_path(procedure, dossier)
+
+      VCR.use_cassette('referentiel/siaf_homologation_unexpected_value') do
+        fill_in('Validation SIAF', with: 'JE-VALIDE')
+        perform_enqueued_jobs do
+          expect(page).to have_content('Référence trouvée : JE-VALIDE')
+        end
+      end
+
+      # La comparaison de la condition est une égalité stricte de chaînes : « Confirmé »
+      # n'est pas « CONFIRME ». La donnée est bien arrivée, mais le bloc reste fermé et
+      # l'usager ne verra jamais ses dirigeants — sans erreur nulle part.
+      expect(public_champs_with(status_stable_id).map(&:value)).to eq(['Confirmé'])
+      expect(public_champs_with(dirigeant_nom_stable_id).map(&:value)).to eq(['Dupont'])
+      expect(public_champs_with(repetition_stable_id).first).not_to be_visible
+    end
+  end
+
   private
 
   def publish(procedure)
