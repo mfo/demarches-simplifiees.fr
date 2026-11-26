@@ -10,6 +10,17 @@ fr:
             moved_after_itself: "« %{libelle} » ne peut pas être déplacé après lui-même."
             other_block: "Le champ « %{stable_id} » n’est pas dans le même bloc : un champ se place après un champ du même formulaire (usager ou annotations privées) et du même bloc répétable."
             introduced_error: "Cette modification est annulée : elle rendrait invalide « %{libelle} » (%{stable_id}) : %{message}"
+            unknown_type_champ: "Le type de champ « %{type_champ} » n’existe pas."
+            not_a_repetition: "Le champ « %{libelle} » n’est pas un bloc répétable : il ne peut pas contenir d’autres champs."
+            type_champ_disabled: "Le type de champ « %{type_champ} » n’est pas activé sur cette démarche."
+            type_champ_not_in_repetition: "Le type de champ « %{type_champ} » ne peut pas être utilisé dans un bloc répétable."
+            type_champ_not_private: "Le type de champ « %{type_champ} » ne peut pas être utilisé dans les annotations privées."
+            type_champ_private_only: "Le type de champ « %{type_champ} » ne peut être utilisé que dans les annotations privées."
+            options_not_an_object: "Les options doivent être un objet (clé/valeur)."
+            unknown_options: "Options inconnues pour le type « %{type_champ} » : %{unknown}. Options acceptées : %{allowed}."
+            no_option: "aucune"
+            revision_published: "Le brouillon vient d’être publié : il n’est plus modifiable."
+            parent_other_form: "Le bloc répétable « %{libelle} » n’est pas dans ce formulaire : un champ ajouté dans un bloc répétable appartient au même formulaire (usager ou annotations privées) que lui."
     attributes:
       procedure_revision:
         ineligibilite_message: Message d’inéligibilité

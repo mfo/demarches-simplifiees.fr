@@ -326,4 +326,260 @@ describe RevisionDraftEditingConcern do
       it { expect(subject.errors.first).to include('n’existe pas dans le brouillon') }
     end
   end
+
+  describe '#add_type_de_champ_checked' do
+    let(:params) { { type_champ: 'text', libelle: 'nom' } }
+
+    subject { draft.add_type_de_champ_checked(**params) }
+
+    it 'adds first in the form without a position' do
+      expect(subject).to be_success
+      expect(subject.stable_id).to eq(stable_id('nom').to_s)
+      expect(libelles).to eq(['nom', 'age', 'enfants', 'boursier'])
+    end
+
+    context 'with a position' do
+      let(:params) { super().merge(after_stable_id: stable_id('age').to_s) }
+
+      it { expect { subject }.to change { libelles }.to(['age', 'nom', 'enfants', 'boursier']) }
+    end
+
+    context 'in a repetition' do
+      let(:params) { super().merge(parent_stable_id: stable_id('enfants'), after_stable_id: stable_id('prénom')) }
+
+      it 'adds it after the sibling' do
+        expect(subject).to be_success
+        expect(child('enfants').flat_children.map(&:libelle)).to eq(['prénom', 'nom'])
+      end
+    end
+
+    context 'with a parent that is not a repetition' do
+      let(:params) { super().merge(parent_stable_id: stable_id('age')) }
+
+      it { expect(subject.errors.first).to include('« age »', 'pas un bloc répétable') }
+    end
+
+    context 'with a position in another block' do
+      let(:params) { super().merge(after_stable_id: stable_id('prénom')) }
+
+      it { expect(subject.errors.first).to include('même bloc') }
+    end
+
+    context 'with a position of nowhere' do
+      let(:params) { super().merge(after_stable_id: '0') }
+
+      it { expect(subject.errors.first).to include('n’existe pas dans le brouillon') }
+    end
+
+    context 'with an unknown type' do
+      let(:params) { super().merge(type_champ: 'formule') }
+
+      it { expect(subject.errors).to eq(['Le type de champ « formule » n’existe pas.']) }
+    end
+
+    context 'with a repetition inside a repetition' do
+      let(:params) { super().merge(type_champ: 'repetition', parent_stable_id: stable_id('enfants')) }
+
+      it { expect(subject.errors.first).to include('bloc répétable') }
+    end
+
+    context 'with a type behind a feature flag' do
+      let(:params) { super().merge(type_champ: 'engagement_juridique', private: true) }
+
+      it { expect(subject.errors.first).to include('n’est pas activé') }
+
+      it 'is accepted once the flag is enabled' do
+        Flipper.enable(:engagement_juridique_type_de_champ, procedure)
+
+        expect(subject).to be_success
+      end
+    end
+
+    context 'with a type of the annotations in the form' do
+      let(:params) { super().merge(type_champ: 'engagement_juridique') }
+
+      before { Flipper.enable(:engagement_juridique_type_de_champ, procedure) }
+
+      it { expect(subject.errors.first).to include('annotations privées') }
+    end
+
+    context 'with options' do
+      let(:params) { { type_champ: 'drop_down_list', libelle: 'couleur', options: { drop_down_options: ['rouge', ' vert '], drop_down_other: true } } }
+
+      it 'goes through the writers of the type' do
+        expect(subject).to be_success
+        expect(child('couleur').drop_down_options).to eq(['rouge', 'vert'])
+        expect(child('couleur')).to be_drop_down_other
+      end
+    end
+
+    context 'with the options of another type' do
+      let(:params) { { type_champ: 'textarea', libelle: 'motivation', options: { max_number: 3 } } }
+
+      it 'is refused, naming the accepted options' do
+        expect(subject.errors.first).to include('max_number', 'character_limit')
+        expect(libelles).not_to include('motivation')
+      end
+    end
+
+    context 'with an option the editor does not offer' do
+      let(:params) { { type_champ: 'piece_justificative', libelle: 'rib', options: { skip_pj_validation: true } } }
+
+      it { expect(subject.errors.first).to include('skip_pj_validation') }
+    end
+
+    context 'with options that are not an object' do
+      let(:params) { super().merge(options: ['a']) }
+
+      it { expect(subject.errors).to eq(['Les options doivent être un objet (clé/valeur).']) }
+    end
+
+    context 'with a type without option' do
+      let(:params) { super().merge(options: { character_limit: 10 }) }
+
+      it { expect(subject.errors.first).to include('Options acceptées : aucune') }
+    end
+
+    context 'with the layers of a carte' do
+      let(:params) { { type_champ: 'carte', libelle: 'parcelle', options: { cadastres: true, unesco: true, znieff: true } } }
+
+      it 'keeps every layer' do
+        expect(subject).to be_success
+        expect(child('parcelle').carte_optional_layers).to eq([:cadastres, :unesco, :znieff])
+      end
+    end
+
+    context 'with a header section level that does not exist' do
+      let(:params) { { type_champ: 'header_section', libelle: 'titre', options: { header_section_level: '9' } } }
+
+      it 'is refused and nothing is added' do
+        expect(subject).not_to be_success
+        expect(libelles).not_to include('titre')
+      end
+
+      it 'is accepted within the levels' do
+        draft.add_type_de_champ_checked(type_champ: 'header_section', libelle: 'chapitre', options: { header_section_level: 1 })
+
+        expect(draft.add_type_de_champ_checked(**params, after_stable_id: stable_id('chapitre').to_s, options: { header_section_level: 2 })).to be_success
+        expect(child('titre').header_section_level).to eq(2)
+      end
+    end
+
+    describe 'mandatory' do
+      it 'is left to the column default when absent' do
+        subject
+
+        expect(child('nom')).to be_mandatory
+      end
+
+      it 'is kept when given' do
+        draft.add_type_de_champ_checked(**params, mandatory: false)
+
+        expect(child('nom')).not_to be_mandatory
+      end
+
+      context 'with a header section, which cannot be filled' do
+        let(:params) { { type_champ: 'header_section', libelle: 'titre' } }
+
+        it 'is not mandatory, even when asked' do
+          draft.add_type_de_champ_checked(**params, mandatory: true)
+
+          expect(child('titre')).not_to be_mandatory
+        end
+      end
+
+      context 'with a type that must be mandatory' do
+        let(:procedure) { create(:procedure, :with_api_particulier_token) }
+        let(:params) { { type_champ: 'quotient_familial', libelle: 'qf' } }
+
+        it 'is mandatory, even when refused' do
+          result = draft.add_type_de_champ_checked(**params, mandatory: false)
+
+          expect(draft.reload.type_de_champ(result.stable_id)).to be_mandatory
+        end
+      end
+
+      context 'in the annotations' do
+        let(:params) { super().merge(private: true) }
+
+        it 'is not mandatory' do
+          subject
+
+          expect(child('nom')).to be_private
+          expect(child('nom')).not_to be_mandatory
+        end
+      end
+    end
+
+    context 'with a formatted type de champ' do
+      let(:params) { { type_champ: 'formatted', libelle: 'code', options: { max_character_length: 5 } } }
+
+      it 'completes the options given with the defaults' do
+        expect(subject).to be_success
+        expect(child('code')).to have_attributes(formatted_mode: 'simple', max_character_length: 5)
+        expect(child('code')).to be_letters_accepted
+      end
+    end
+
+    context 'with a type that the editor shows invalid once added' do
+      let(:params) { { type_champ: 'integer_number', libelle: 'montant', options: { range_number: true, min_number: 10, max_number: 1 } } }
+
+      it 'is refused and not kept' do
+        expect(subject).not_to be_success
+        expect(libelles).not_to include('montant')
+      end
+    end
+
+    context 'when a repetition is added' do
+      let(:params) { { type_champ: 'repetition', libelle: 'dépenses' } }
+
+      it 'is accepted empty' do
+        expect(subject).to be_success
+        expect(draft.reload.type_de_champ(subject.stable_id)).to be_repetition
+      end
+
+      it 'is refused when its range is inconsistent' do
+        params[:options] = { limit_repetitions: true, min_repetitions: 5, max_repetitions: 2 }
+        expect(subject).not_to be_success
+        expect(libelles).not_to include('dépenses')
+        expect(draft.reload.type_de_champs.map(&:libelle)).not_to include('dépenses')
+      end
+
+      it 'is refused when limited without bounds' do
+        params[:options] = { limit_repetitions: true }
+        expect(subject).not_to be_success
+        expect(draft.reload.type_de_champs.map(&:libelle)).not_to include('dépenses')
+      end
+    end
+
+    context 'when the draft is published meanwhile' do
+      before { draft.update_columns(published_at: Time.zone.now) }
+
+      it { expect(subject.errors).to eq(['Le brouillon vient d’être publié : il n’est plus modifiable.']) }
+    end
+
+    context 'with an annotation in a public repetition' do
+      let(:params) { { type_champ: 'text', libelle: 'note', private: true, parent_stable_id: stable_id('enfants') } }
+
+      it 'is refused and nothing is added' do
+        expect(subject).not_to be_success
+        expect(subject.errors.first).to include('enfants')
+        expect(draft.reload.type_de_champs.map(&:libelle)).not_to include('note')
+      end
+    end
+
+    context 'with the privacy omitted in a private repetition' do
+      let(:params) { { type_champ: 'text', libelle: 'note', parent_stable_id: stable_id('suivi') } }
+
+      before do
+        parent = draft.add_type_de_champ({ type_champ: 'repetition', libelle: 'suivi', private: true })
+        draft.add_type_de_champ({ type_champ: 'text', libelle: 'ancien', private: true, parent_stable_id: parent.stable_id })
+      end
+
+      it 'follows the block' do
+        expect(subject).to be_success
+        expect(child('note')).to be_private
+      end
+    end
+  end
 end
