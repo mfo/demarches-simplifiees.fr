@@ -699,4 +699,20 @@ describe ProcedureCloneConcern, type: :model do
       end
     end
   end
+
+  describe 'a header section holding a legacy level out of range' do
+    let(:procedure) { create(:procedure, administrateurs: [administrateurs.default], public_type_de_champs: [{ type: :header_section }]) }
+
+    before { procedure.draft_revision.public_root_type_de_champs.first.update_columns(options: { header_section_level: '9' }) }
+
+    it 'is cloned' do
+      expect { procedure.clone(admin: administrateurs.default) }.not_to raise_error
+    end
+
+    it 'cannot be created through the editor' do
+      added = procedure.draft_revision.add_type_de_champ(type_champ: 'header_section', libelle: 'Titre', header_section_level: '9')
+      expect(added).not_to be_persisted
+      expect(added.errors).to be_of_kind(:header_section_level, :in)
+    end
+  end
 end

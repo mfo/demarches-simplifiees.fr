@@ -4,6 +4,7 @@ fr:
       type_de_champ: 'Type de champ'
     attributes:
       type_de_champ:
+        header_section_level: "Niveau du titre"
         categorie:
           structure: 'Structure du formulaire'
           standard: 'Champs standards'
@@ -93,7 +94,7 @@ fr:
         type_de_champ:
           attributes:
             header_section_level:
-              invalid_level: "devrait être un niveau de titre valide (entier de 1 à 3)"
+              invalid_level: "devrait être un niveau de titre valide (entier de 1 à %{max})"
       type_de_champ:
         attributes:
           header_section_level:

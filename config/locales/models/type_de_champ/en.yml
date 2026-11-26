@@ -4,6 +4,7 @@ en:
       type_de_champ: 'Field type'
     attributes:
       type_de_champ:
+        header_section_level: "Header level"
         categorie:
           structure: 'Form structure'
           standard: 'Standard fields'
@@ -90,7 +91,7 @@ en:
         type_de_champ:
           attributes:
             header_section_level:
-              invalid_level: "should be a valid header level (whole number from 1 to 3)"
+              invalid_level: "should be a valid header level (whole number from 1 to %{max})"
       type_de_champ:
         attributes:
           header_section_level:

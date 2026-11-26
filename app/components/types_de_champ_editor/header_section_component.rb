@@ -10,18 +10,16 @@ class TypesDeChampEditor::HeaderSectionComponent < ApplicationComponent
 
   def header_section_options_for_select
     closest_level = @tdc.previous_section_level(@upper_tdcs)
-    next_level = [closest_level + 1, max_level].min
+    next_level = [closest_level + 1, TypesDeChamp::HeaderSectionTypeDeChamp::MAX_LEVEL].min
 
     available_levels = (1..next_level).map(&method(:option_for_level))
-    disabled_levels = errors? ? (next_level + 1..max_level).map(&method(:option_for_level)) : []
+    disabled_levels = errors? ? (next_level + 1..TypesDeChamp::HeaderSectionTypeDeChamp::MAX_LEVEL).map(&method(:option_for_level)) : []
     options_for_select(
       available_levels + disabled_levels,
       disabled: disabled_levels.map(&:second),
       selected: @tdc.header_section_level_value
     )
   end
-
-  def max_level = TypesDeChamp::HeaderSectionTypeDeChamp::MAX_LEVEL
 
   def errors
     @tdc.check_coherent_header_level(@upper_tdcs)
