@@ -77,6 +77,23 @@ describe ConditionForm, type: :model do
       expect(form.condition_from_raw(13, Logic::Eq.name, '4')).to eq(ds_eq(champ_value(13), constant('4')))
     end
 
+    it 'reads true and false as booleans for a yes_no target' do
+      yes_no = build(:type_de_champ_yes_no, stable_id: 14)
+      form = ConditionForm.new(source_tdcs: [yes_no])
+
+      expect(form.condition_from_raw(14, Logic::Eq.name, 'true')).to eq(ds_eq(champ_value(14), constant(true)))
+      expect(form.condition_from_raw(14, Logic::Eq.name, 'False')).to eq(ds_eq(champ_value(14), constant(false)))
+    end
+
+    it 'keeps any other value for a yes_no target as a string the condition refuses' do
+      yes_no = build(:type_de_champ_yes_no, stable_id: 14)
+      form = ConditionForm.new(source_tdcs: [yes_no])
+      condition = form.condition_from_raw(14, Logic::Eq.name, 'Défavorable')
+
+      expect(condition.right).to eq(constant('Défavorable'))
+      expect(condition.errors([yes_no])).to be_present
+    end
+
     it 'builds an empty right term for a blank value' do
       expect(form.condition_from_raw(12, Logic::Eq.name, '')).to eq(ds_eq(champ_value(12), empty))
     end

@@ -71,6 +71,13 @@ class ConditionForm
   def literal(left_type, value)
     return empty if value.blank?
 
+    if left_type == :boolean
+      # anything but true or false stays a string, for the condition to refuse it
+      boolean = { 'true' => true, 'false' => false }[value.to_s.downcase]
+
+      return constant(boolean) if !boolean.nil?
+    end
+
     if left_type == :number
       # in this special case, we try to cast as Float, then Integer
       # but it can still be a previous string value or a mistap
