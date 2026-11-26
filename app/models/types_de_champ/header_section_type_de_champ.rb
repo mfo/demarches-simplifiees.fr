@@ -5,7 +5,23 @@ class TypesDeChamp::HeaderSectionTypeDeChamp < TypeDeChamp
   def self.icon = 'fr-icon-heading'
   def self.option_keys = [:header_section_level]
 
+  MAX_LEVEL = 3
+
   store_accessor :options, :header_section_level
+
+  validates :header_section_level, numericality: {
+    only_integer: true,
+    in: 1..MAX_LEVEL,
+    max: MAX_LEVEL,
+    allow_blank: true,
+    message: :invalid_level,
+  }, if: :header_section_level_edited?
+
+  # a copy keeps the level of its original, an out of range legacy one included
+  def initialize_dup(*)
+    super
+    @copy = true
+  end
 
   def fillable? = false
   def description_configurable? = false
@@ -34,4 +50,8 @@ class TypesDeChamp::HeaderSectionTypeDeChamp < TypeDeChamp
       nil
     end
   end
+
+  private
+
+  def header_section_level_edited? = header_section_level_changed? && !@copy
 end
