@@ -12,6 +12,10 @@ module RevisionEditConcern
   # FOR KEY SHARE.
   TYPE_DE_CHAMP_TREE_LOCK = 'FOR NO KEY UPDATE'
 
+  # FIXME: dropped once #14704 is deployed. While it deploys, this code would
+  # rebuild from the coordinates a tree the new one no longer writes them for.
+  class EditFrozenError < StandardError; end
+
   def public_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.public? }.sort_by(&:position)
   def private_revision_type_de_champs = revision_type_de_champs.filter { _1.root? && _1.private? }.sort_by(&:position)
 
@@ -67,6 +71,8 @@ module RevisionEditConcern
     else
       type_de_champ
     end
+  rescue EditFrozenError
+    raise
   rescue => e
     TypeDeChamp.new.tap { _1.errors.add(:base, e.message) }
   end
@@ -242,6 +248,7 @@ module RevisionEditConcern
   # (#14009): a published revision is then refused without exception.
   def edit_type_de_champs(allow_published: false)
     raise ArgumentError, "save the revision before editing its types de champ: the lock reloads it" if new_record? || has_changes_to_save?
+    raise EditFrozenError, "the types de champ are frozen while #14704 deploys" if Flipper.enabled?(:type_de_champ_tree_edit_frozen)
 
     with_lock(TYPE_DE_CHAMP_TREE_LOCK) do
       refuse_published_revision if !allow_published

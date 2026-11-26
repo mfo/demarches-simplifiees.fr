@@ -1154,6 +1154,7 @@ fr:
       reset_to_admin_default:
         notice: "Les colonnes définies par l’administrateur sont affichées."
   administrateurs:
+    type_de_champ_tree_edit_frozen: "Une mise à jour est en cours : le formulaire ne peut être ni modifié ni publié pendant quelques minutes. Réessayez dans un instant."
     procedures_menu: "Mes démarches"
     preview_menu: "Démarche « %{libelle} »"
     index:

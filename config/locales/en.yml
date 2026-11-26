@@ -1014,6 +1014,7 @@ en:
       one: deleted
       other: deleted
   administrateurs:
+    type_de_champ_tree_edit_frozen: "An update is in progress: the form can be neither edited nor published for a few minutes. Please try again shortly."
     procedures_menu: "My procedures"
     preview_menu: "Procedure ‘%{libelle}’"
     procedures:
