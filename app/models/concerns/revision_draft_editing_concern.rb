@@ -112,6 +112,39 @@ module RevisionDraftEditingConcern
     end
   end
 
+  # Changes the label, description, mandatory flag, type and options of a type
+  # de champ. The options not given are kept. Refused where the editor would
+  # not offer the change, and where it would silently break what reads the champ.
+  def update_type_de_champ_checked(stable_id, libelle: nil, description: nil, mandatory: nil, type_champ: nil, options: nil)
+    type_de_champ = find_type_de_champ_to_edit(stable_id)
+    return draft_edit_not_found(stable_id) if type_de_champ.nil?
+
+    changing_type = type_champ.present? && type_champ != type_de_champ.type_champ
+    errors = changing_type ? draft_edit_type_change_errors(type_de_champ, type_champ) : []
+    klass = TypeDeChamp.find_sti_class(changing_type ? type_champ : type_de_champ.type_champ) if errors.empty?
+    errors = draft_edit_option_errors(klass, options) if errors.empty?
+    errors = draft_edit_read_options_errors(type_de_champ, options) if errors.empty?
+    return Result.failure(errors) if errors.present?
+
+    params = { libelle:, description:, mandatory: }.compact
+    return draft_edit_failure(:nothing_to_update) if params.empty? && options.blank? && !changing_type
+
+    apply_draft_edit_unless_new_errors do
+      type_de_champ = find_and_ensure_exclusive_use(type_de_champ.stable_id)
+      type_de_champ = type_de_champ.becomes_type(type_champ) if changing_type
+      params[:type_champ] = type_champ if changing_type
+      params = draft_edit_option_params(klass, options, current: type_de_champ.options).merge(params)
+
+      if update_type_de_champ(type_de_champ, params)
+        Result.success(type_de_champ.stable_id)
+      else
+        Result.failure(type_de_champ.errors.full_messages)
+      end
+    end
+  rescue ActiveRecord::RecordNotFound # the revision got published meanwhile
+    draft_edit_not_found(stable_id)
+  end
+
   # Runs an edit returning a Result and keeps it only if the editor shows no
   # error more than before: the editor lets an edit break a rule and shows it
   # broken, a client that does not look at the form afterwards is told instead.
@@ -169,6 +202,28 @@ module RevisionDraftEditingConcern
     [draft_edit_t(reason, type_champ: klass.sti_name)]
   end
 
+  # The matrix of the type selector, which keeps the answers of the dossiers
+  # already filed readable, then what the selector offers there.
+  def draft_edit_type_change_errors(type_de_champ, type_champ)
+    return [draft_edit_t(:unknown_type_champ, type_champ:)] if !TypeDeChamp.type_champs.value?(type_champ)
+    return [type_de_champ.type_change_locked_message] if type_de_champ.type_champ_locked?
+    return [draft_edit_t(:repetition_not_empty, libelle: type_de_champ.libelle)] if type_de_champ.repetition? && type_de_champ.children.present?
+
+    accepted = type_de_champ.accepted_type_champs
+    return [draft_edit_t(:type_change_published, libelle: type_de_champ.libelle, accepted: accepted.join(', '))] if !accepted.include?(type_champ)
+
+    draft_edit_type_champ_errors(TypeDeChamp.find_sti_class(type_champ), private: type_de_champ.private?, in_repetition: type_de_champ.in_repetition?)
+  end
+
+  # The editor does not check the rules of routing and of ineligibility against
+  # the options they were written for (the values of a list).
+  def draft_edit_read_options_errors(type_de_champ, options)
+    return [] if options.blank?
+    return [] if !type_de_champ.type_champ_lock_reason.in?([:used_by_routing_rules, :used_by_ineligibilite_rules])
+
+    [draft_edit_t(:options_read_by_rules, libelle: type_de_champ.libelle)]
+  end
+
   def draft_edit_option_errors(klass, options)
     return [] if options.blank?
     return [draft_edit_t(:options_not_an_object)] if !options.respond_to?(:to_h) || options.is_a?(Array)
@@ -183,7 +238,7 @@ module RevisionDraftEditingConcern
   # The options go through the writers of the type, as the editor form sends
   # them. A type reading some of its options from the jsonb without a writer
   # (the layers of a carte) gets them all merged there, as its own editor does.
-  def draft_edit_option_params(klass, options)
+  def draft_edit_option_params(klass, options, current: {})
     return {} if options.blank?
 
     options = options.to_h.transform_keys(&:to_sym)
@@ -191,7 +246,7 @@ module RevisionDraftEditingConcern
     if klass.option_keys.all? { klass.method_defined?(:"#{it}=") }
       options
     else
-      { options: options.stringify_keys }
+      { options: (current || {}).to_h.merge(options.stringify_keys) }
     end
   end
 

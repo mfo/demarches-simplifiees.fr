@@ -327,6 +327,132 @@ describe RevisionDraftEditingConcern do
     end
   end
 
+  describe '#update_type_de_champ_checked' do
+    subject { draft.update_type_de_champ_checked(stable_id('age'), **params) }
+
+    let(:params) { { libelle: 'âge', description: 'en années', mandatory: false } }
+
+    it 'updates the type de champ' do
+      expect(subject).to be_success
+      expect(child('âge')).to have_attributes(description: 'en années', mandatory: false)
+    end
+
+    context 'with options' do
+      let(:params) { { options: { min_number: '0' } } }
+
+      it 'keeps the options it does not mention' do
+        draft.update_type_de_champ_checked(stable_id('age'), options: { max_number: '120' })
+
+        expect(subject).to be_success
+        expect(child('age').options).to include('min_number' => '0', 'max_number' => '120')
+      end
+    end
+
+    context 'with an option the type does not have' do
+      let(:params) { { options: { character_limit: '4' } } }
+
+      it { expect(subject.errors.first).to include('character_limit') }
+    end
+
+    context 'with a type of the matrix' do
+      let(:params) { { type_champ: 'decimal_number' } }
+
+      it 'changes the type' do
+        expect(subject).to be_success
+        expect(child('age').type_champ).to eq('decimal_number')
+      end
+    end
+
+    context 'with a type and its options at once' do
+      let(:params) { { type_champ: 'integer_number', options: { min_number: '1' } } }
+
+      it { expect(subject).to be_success }
+    end
+
+    context 'with a type outside the matrix of a published champ' do
+      let(:params) { { type_champ: 'yes_no' } }
+
+      before do
+        procedure.publish!(procedure.administrateurs.first)
+        procedure.reload
+      end
+
+      it 'is refused and the type stays' do
+        expect(subject.errors.first).to include('« age »', 'integer_number', 'decimal_number')
+        expect(child('age').type_champ).to eq('integer_number')
+      end
+    end
+
+    context 'with an unknown type' do
+      let(:params) { { type_champ: 'telepathy' } }
+
+      it { expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.unknown_type_champ', type_champ: 'telepathy')]) }
+    end
+
+    context 'with a repetition that holds a child' do
+      subject { draft.update_type_de_champ_checked(stable_id('enfants'), type_champ: 'text') }
+
+      it 'is refused and the child stays' do
+        expect(subject.errors.first).to include('« enfants »')
+        expect(child('enfants').type_champ).to eq('repetition')
+        expect(child('prénom').stable_id).to be_present
+      end
+    end
+
+    context 'when the type de champ is locked by a routing rule' do
+      let(:params) { { type_champ: 'decimal_number' } }
+
+      before { allow_any_instance_of(TypeDeChamp).to receive(:type_champ_lock_reason).and_return(:used_by_routing_rules) }
+
+      it 'refuses the type only' do
+        expect(subject.errors.first).to include('age')
+        expect(draft.update_type_de_champ_checked(stable_id('age'), libelle: 'âge')).to be_success
+      end
+    end
+
+    [:used_by_routing_rules, :used_by_ineligibilite_rules].each do |reason|
+      context "when the options are read by #{reason}" do
+        let(:params) { { options: { min_number: '3' } } }
+
+        before { allow_any_instance_of(TypeDeChamp).to receive(:type_champ_lock_reason).and_return(reason) }
+
+        it 'refuses to change them' do
+          expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.options_read_by_rules', libelle: 'age')])
+          expect(child('age').options).not_to include('min_number')
+        end
+      end
+    end
+
+    context 'when the change breaks a condition' do
+      let(:params) { { type_champ: 'yes_no' } }
+
+      before { child('boursier').update!(condition: equals(stable_id('age'))) }
+
+      it 'is undone' do
+        expect(subject).not_to be_success
+        expect(child('age').type_champ).to eq('integer_number')
+      end
+    end
+
+    context 'with nothing to change' do
+      let(:params) { {} }
+
+      it { expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.nothing_to_update')]) }
+    end
+
+    context 'with a stable id of nowhere' do
+      subject { draft.update_type_de_champ_checked('0', libelle: 'x') }
+
+      it { expect(subject.errors.first).to include('n’existe pas') }
+    end
+
+    context 'when the procedure is published meanwhile' do
+      before { draft.update_columns(published_at: Time.zone.now) }
+
+      it { expect(subject).not_to be_success }
+    end
+  end
+
   describe '#add_type_de_champ_checked' do
     let(:params) { { type_champ: 'text', libelle: 'nom' } }
 
