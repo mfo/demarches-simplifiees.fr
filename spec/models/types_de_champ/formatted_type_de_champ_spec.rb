@@ -15,6 +15,57 @@ describe TypesDeChamp::FormattedTypeDeChamp do
       expect(reloaded.special_characters_accepted).to eq(true)
     end
 
+    it 'fill the missing keys of a new record built with some options' do
+      tdc = TypeDeChamp.new(type_champ: 'formatted', options: { max_character_length: 10 })
+
+      expect(tdc.formatted_mode).to eq('simple')
+      expect(tdc.letters_accepted).to eq(true)
+      expect(tdc.max_character_length).to eq(10)
+    end
+
+    it 'keep the explicit values of a new record' do
+      tdc = TypeDeChamp.new(type_champ: 'formatted', options: { formatted_mode: 'advanced', letters_accepted: false })
+
+      expect(tdc.formatted_mode).to eq('advanced')
+      expect(tdc.letters_accepted).to eq(false)
+      expect(tdc.numbers_accepted).to be_nil
+    end
+
+    it 'do not widen the accepted character classes when one is listed' do
+      tdc = TypeDeChamp.new(type_champ: 'formatted', options: { numbers_accepted: '1' })
+
+      expect(tdc.formatted_mode).to eq('simple')
+      expect(tdc.numbers_accepted?).to eq(true)
+      expect(tdc.letters_accepted?).to eq(false)
+      expect(tdc.special_characters_accepted?).to eq(false)
+    end
+
+    it 'fill the defaults when a saved field of another type is retyped' do
+      tdc = create(:type_de_champ_drop_down_list).becomes_type('formatted')
+      tdc.update!(type_champ: 'formatted', max_character_length: 10)
+
+      reloaded = TypeDeChamp.find(tdc.id)
+      expect(reloaded.formatted_mode).to eq('simple')
+      expect(reloaded.max_character_length).to eq(10)
+    end
+
+    it 'do not add defaults on an update without type change' do
+      TypeDeChamp.where(id: type_de_champ.id).update_all(options: { max_character_length: 10 })
+
+      TypeDeChamp.find(type_de_champ.id).update!(libelle: 'x')
+
+      expect(TypeDeChamp.find(type_de_champ.id).formatted_mode).to be_nil
+    end
+
+    it 'do not add defaults to a persisted row that has options' do
+      TypeDeChamp.where(id: type_de_champ.id).update_all(options: { max_character_length: 10 })
+
+      reloaded = TypeDeChamp.find(type_de_champ.id)
+
+      expect(reloaded.formatted_mode).to be_nil
+      expect(reloaded.max_character_length).to eq(10)
+    end
+
     it 'do not overwrite the persisted options' do
       type_de_champ.update!(formatted_mode: 'advanced', expression_reguliere: '\d+')
 
