@@ -86,6 +86,11 @@ en:
           justificatif_domicile: "Proof of address"
           avis_impot: "Tax notice"
     errors:
+      models:
+        type_de_champ:
+          attributes:
+            header_section_level:
+              invalid_level: "should be a valid header level (whole number from 1 to 3)"
       type_de_champ:
         attributes:
           header_section_level:

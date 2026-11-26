@@ -89,6 +89,11 @@ fr:
           justificatif_domicile: "Justificatif de domicile"
           avis_impot: "Avis d’impôt"
     errors:
+      models:
+        type_de_champ:
+          attributes:
+            header_section_level:
+              invalid_level: "devrait être un niveau de titre valide (entier de 1 à 3)"
       type_de_champ:
         attributes:
           header_section_level:

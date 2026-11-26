@@ -5,7 +5,16 @@ class TypesDeChamp::HeaderSectionTypeDeChamp < TypeDeChamp
   def self.icon = 'fr-icon-heading'
   def self.option_keys = [:header_section_level]
 
+  MAX_LEVEL = 3
+
   store_accessor :options, :header_section_level
+
+  validates :header_section_level, numericality: {
+    only_integer: true,
+    in: 1..MAX_LEVEL,
+    allow_blank: true,
+    message: :invalid_level,
+  }
 
   def fillable? = false
   def description_configurable? = false
