@@ -29,7 +29,12 @@ class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
   def formatted_advanced? = formatted_mode == 'advanced'
   boolean_options :letters_accepted, :numbers_accepted, :special_characters_accepted
 
-  after_initialize :set_default_options
+  DEFAULT_MODE = { 'formatted_mode' => 'simple' }.freeze
+  DEFAULT_ACCEPTED = { 'letters_accepted' => true, 'numbers_accepted' => true, 'special_characters_accepted' => true }.freeze
+  private_constant :DEFAULT_MODE, :DEFAULT_ACCEPTED
+
+  after_initialize :fill_default_options, if: -> { new_record? || options.blank? }
+  before_validation :fill_default_options, if: :type_champ_changed?
 
   def invalid_regexp?
     self.errors.delete(:expression_reguliere)
@@ -55,9 +60,11 @@ class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
 
   private
 
-  def set_default_options
-    if options&.empty?
-      self.options = { formatted_mode: 'simple', letters_accepted: true, numbers_accepted: true, special_characters_accepted: true }
-    end
+  # Rows loaded with options are left alone, so existing dossiers validate as before.
+  # The accepted character classes are filled as a group: listing one means the others are off.
+  def fill_default_options
+    given = (options || {}).stringify_keys
+    defaults = given.keys.intersect?(DEFAULT_ACCEPTED.keys) ? DEFAULT_MODE : DEFAULT_MODE.merge(DEFAULT_ACCEPTED)
+    self.options = defaults.merge(given)
   end
 end
