@@ -15,7 +15,7 @@ describe Champs::FormattedChamp do
 
     context 'with simple mode' do
       context 'only numbers accepted' do
-        let(:tdc_definition) { { type: :formatted, formatted_mode: "simple", numbers_accepted: "1", letters_accepted: "0", special_characters_accepted: "0" } }
+        let(:tdc_definition) { { type: :formatted, formatted_mode: "simple", numbers_accepted: "1" } }
 
         context 'with value' do
           let(:value) { "2534" }

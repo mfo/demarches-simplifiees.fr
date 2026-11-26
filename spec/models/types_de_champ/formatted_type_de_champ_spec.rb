@@ -28,7 +28,33 @@ describe TypesDeChamp::FormattedTypeDeChamp do
 
       expect(tdc.formatted_mode).to eq('advanced')
       expect(tdc.letters_accepted).to eq(false)
-      expect(tdc.numbers_accepted).to eq(true)
+      expect(tdc.numbers_accepted).to be_nil
+    end
+
+    it 'do not widen the accepted character classes when one is listed' do
+      tdc = TypeDeChamp.new(type_champ: 'formatted', options: { numbers_accepted: '1' })
+
+      expect(tdc.formatted_mode).to eq('simple')
+      expect(tdc.numbers_accepted?).to eq(true)
+      expect(tdc.letters_accepted?).to eq(false)
+      expect(tdc.special_characters_accepted?).to eq(false)
+    end
+
+    it 'fill the defaults when a saved field of another type is retyped' do
+      tdc = create(:type_de_champ_drop_down_list).becomes_type('formatted')
+      tdc.update!(type_champ: 'formatted', max_character_length: 10)
+
+      reloaded = TypeDeChamp.find(tdc.id)
+      expect(reloaded.formatted_mode).to eq('simple')
+      expect(reloaded.max_character_length).to eq(10)
+    end
+
+    it 'do not add defaults on an update without type change' do
+      TypeDeChamp.where(id: type_de_champ.id).update_all(options: { max_character_length: 10 })
+
+      TypeDeChamp.find(type_de_champ.id).update!(libelle: 'x')
+
+      expect(TypeDeChamp.find(type_de_champ.id).formatted_mode).to be_nil
     end
 
     it 'do not add defaults to a persisted row that has options' do
