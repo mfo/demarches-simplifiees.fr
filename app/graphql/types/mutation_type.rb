@@ -41,5 +41,6 @@ module Types
     field :demarche_supprimer_administrateur, mutation: Mutations::DemarcheSupprimerAdministrateur
     field :demarche_modifier_parametres, mutation: Mutations::DemarcheModifierParametres
     field :demarche_publier, mutation: Mutations::DemarchePublier
+    field :demarche_supprimer_champ, mutation: Mutations::DemarcheSupprimerChamp
   end
 end

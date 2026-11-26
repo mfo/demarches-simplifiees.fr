@@ -1,0 +1,9 @@
+en:
+  activerecord:
+    errors:
+      models:
+        procedure_revision:
+          draft_edit:
+            not_found: "Field \"%{stable_id}\" does not exist in the draft of this procedure."
+            dependent: "‘%{libelle}’ (%{stable_id})"
+            dependent_conditions: "\"%{type_de_champ}\" is used by the display condition of %{dependents}: remove or change that condition first."
