@@ -91,14 +91,16 @@ module RevisionDraftEditingConcern
 
   def draft_edit_introduced_error(error)
     type_de_champ = error.options[:type_de_champ]
-    I18n.t('activerecord.errors.models.procedure_revision.draft_edit.introduced_error', libelle: type_de_champ.libelle, stable_id: type_de_champ.stable_id, message: error.message)
+    draft_edit_t(:introduced_error, libelle: type_de_champ.libelle, stable_id: type_de_champ.stable_id, message: error.message)
   end
 
   def same_block?(type_de_champ, other)
     type_de_champ.private? == other.private? && type_de_champ.enclosing_repetition&.stable_id == other.enclosing_repetition&.stable_id
   end
 
-  def draft_edit_failure(key, **) = Result.failure(I18n.t("activerecord.errors.models.procedure_revision.draft_edit.#{key}", **))
+  def draft_edit_failure(key, **) = Result.failure(draft_edit_t(key, **))
+
+  def draft_edit_t(key, **) = I18n.t("activerecord.errors.models.procedure_revision.draft_edit.#{key}", **)
 
   # Not dependent_conditions: it only scans the root types de champ, so it would
   # miss repetition children and public champs conditioned on an annotation.
@@ -106,12 +108,10 @@ module RevisionDraftEditingConcern
     type_de_champs.filter { it.condition? && it.condition.sources.include?(type_de_champ.stable_id) }
   end
 
-  def draft_edit_not_found(stable_id)
-    Result.failure(I18n.t('activerecord.errors.models.procedure_revision.draft_edit.not_found', stable_id:))
-  end
+  def draft_edit_not_found(stable_id) = draft_edit_failure(:not_found, stable_id:)
 
   def draft_edit_dependent_conditions(type_de_champ, dependents)
-    libelles = dependents.map { I18n.t('activerecord.errors.models.procedure_revision.draft_edit.dependent', libelle: it.libelle, stable_id: it.stable_id) }.to_sentence
-    Result.failure(I18n.t('activerecord.errors.models.procedure_revision.draft_edit.dependent_conditions', type_de_champ: type_de_champ.libelle, dependents: libelles))
+    libelles = dependents.map { draft_edit_t(:dependent, libelle: it.libelle, stable_id: it.stable_id) }.to_sentence
+    draft_edit_failure(:dependent_conditions, type_de_champ: type_de_champ.libelle, dependents: libelles)
   end
 end
