@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class TypesDeChampEditor::HeaderSectionComponent < ApplicationComponent
-  MAX_LEVEL = 3
-
   def initialize(form:, type_de_champ:)
     @form = form
     @tdc = type_de_champ
@@ -12,10 +10,10 @@ class TypesDeChampEditor::HeaderSectionComponent < ApplicationComponent
 
   def header_section_options_for_select
     closest_level = @tdc.previous_section_level(@upper_tdcs)
-    next_level = [closest_level + 1, MAX_LEVEL].min
+    next_level = [closest_level + 1, TypesDeChamp::HeaderSectionTypeDeChamp::MAX_LEVEL].min
 
     available_levels = (1..next_level).map(&method(:option_for_level))
-    disabled_levels = errors? ? (next_level + 1..MAX_LEVEL).map(&method(:option_for_level)) : []
+    disabled_levels = errors? ? (next_level + 1..TypesDeChamp::HeaderSectionTypeDeChamp::MAX_LEVEL).map(&method(:option_for_level)) : []
     options_for_select(
       available_levels + disabled_levels,
       disabled: disabled_levels.map(&:second),
