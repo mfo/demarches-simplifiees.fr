@@ -159,4 +159,127 @@ describe RevisionDraftEditingConcern do
       end
     end
   end
+
+  describe '#move_type_de_champ_checked' do
+    subject { draft.move_type_de_champ_checked(target, after_stable_id: after) }
+
+    let(:target) { stable_id('boursier') }
+    let(:after) { nil }
+
+    it 'moves first without a position' do
+      expect(subject).to be_success
+      expect(subject.stable_id).to eq(target.to_s)
+      expect(libelles).to eq(['boursier', 'age', 'enfants'])
+    end
+
+    context 'after another type de champ' do
+      let(:target) { stable_id('age') }
+      let(:after) { stable_id('boursier') }
+
+      it do
+        expect(subject).to be_success
+        expect(libelles).to eq(['enfants', 'boursier', 'age'])
+      end
+    end
+
+    context 'in a repetition' do
+      before { draft.add_type_de_champ({ type_champ: 'text', libelle: 'nom', parent_stable_id: stable_id('enfants') }) }
+
+      let(:target) { stable_id('prénom') }
+      let(:after) { stable_id('nom') }
+
+      it do
+        expect(subject).to be_success
+        expect(child('enfants').flat_children.map(&:libelle)).to eq(['nom', 'prénom'])
+      end
+    end
+
+    context 'with the stable id of nowhere' do
+      let(:target) { 0 }
+
+      it { expect(subject.errors.first).to include('n’existe pas dans le brouillon') }
+    end
+
+    context 'after a champ of nowhere' do
+      let(:after) { 'abc' }
+
+      it { expect(subject.errors).to eq(["Le champ « abc » n’existe pas dans le brouillon de cette démarche."]) }
+    end
+
+    context 'after itself' do
+      let(:after) { target }
+
+      it { expect(subject.errors.first).to include('après lui-même') }
+    end
+
+    context 'after itself written with leading zeros' do
+      let(:after) { "0#{target}" }
+
+      it 'is still after itself' do
+        expect(subject.errors.first).to include('après lui-même')
+        expect(libelles).to eq(['age', 'enfants', 'boursier'])
+      end
+    end
+
+    context 'after a champ of another block' do
+      let(:after) { stable_id('prénom') }
+
+      it 'is refused' do
+        expect(subject.errors.first).to include('n’est pas dans le même bloc')
+        expect(libelles).to eq(['age', 'enfants', 'boursier'])
+      end
+    end
+
+    context 'when the source of a condition is moved after the champ it conditions' do
+      before { child('boursier').update!(condition: equals(stable_id('age'))) }
+
+      let(:target) { stable_id('age') }
+      let(:after) { stable_id('boursier') }
+
+      it 'is refused and the order is unchanged' do
+        expect(subject).not_to be_success
+        expect(subject.errors.first).to include('« boursier »')
+        expect(libelles).to eq(['age', 'enfants', 'boursier'])
+      end
+
+      it 'leaves the revision in memory as in the database' do
+        subject
+        expect(draft.public_root_type_de_champs.map(&:libelle)).to eq(['age', 'enfants', 'boursier'])
+      end
+
+      it 'rolls back inside an enclosing transaction too' do
+        ActiveRecord::Base.transaction do
+          expect(subject).not_to be_success
+          expect(libelles).to eq(['age', 'enfants', 'boursier'])
+        end
+      end
+    end
+
+    context 'when the champ conditioned is moved before its source' do
+      before { child('boursier').update!(condition: equals(stable_id('age'))) }
+
+      it 'is refused' do
+        expect(subject.errors.first).to include('« boursier »')
+        expect(libelles).to eq(['age', 'enfants', 'boursier'])
+      end
+    end
+
+    context 'when the condition was already broken' do
+      before { child('boursier').update!(condition: equals(stable_id('age'))) }
+
+      let(:target) { stable_id('enfants') }
+      let(:after) { stable_id('boursier') }
+
+      it 'does not hold a move that changes nothing against it' do
+        draft.move_type_de_champ(stable_id('age'), 2)
+        expect(subject).to be_success
+      end
+    end
+
+    context 'when the procedure is published meanwhile' do
+      before { draft.update_columns(published_at: Time.zone.now) }
+
+      it { expect(subject.errors.first).to include('n’existe pas dans le brouillon') }
+    end
+  end
 end

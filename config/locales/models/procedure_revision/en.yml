@@ -7,3 +7,6 @@ en:
             not_found: "Field \"%{stable_id}\" does not exist in the draft of this procedure."
             dependent: "‘%{libelle}’ (%{stable_id})"
             dependent_conditions: "\"%{type_de_champ}\" is used by the display condition of %{dependents}: remove or change that condition first."
+            moved_after_itself: "\"%{libelle}\" cannot be moved after itself."
+            other_block: "Field \"%{stable_id}\" is not in the same block: a field is placed after a field of the same form (applicant or private annotations) and of the same repetition."
+            introduced_error: "This change is cancelled: it would make \"%{libelle}\" (%{stable_id}) invalid: %{message}"

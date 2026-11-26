@@ -34,7 +34,71 @@ module RevisionDraftEditingConcern
     draft_edit_not_found(stable_id)
   end
 
+  # Moves a type de champ right after another one of the same block, or first
+  # in its block without one. Undone when it breaks a condition or another rule
+  # of the editor.
+  def move_type_de_champ_checked(stable_id, after_stable_id: nil)
+    type_de_champ = find_type_de_champ_to_edit(stable_id)
+    return draft_edit_not_found(stable_id) if type_de_champ.nil?
+
+    after = nil
+    if after_stable_id.present?
+      after = find_type_de_champ_to_edit(after_stable_id)
+      return draft_edit_not_found(after_stable_id) if after.nil?
+      return draft_edit_failure(:moved_after_itself, libelle: type_de_champ.libelle) if after.stable_id == type_de_champ.stable_id
+      return draft_edit_failure(:other_block, stable_id: after.stable_id) if !same_block?(type_de_champ, after)
+    end
+
+    apply_draft_edit_unless_new_errors do
+      moved = after ? move_type_de_champ_after(type_de_champ.stable_id, after.stable_id) : move_type_de_champ(type_de_champ.stable_id, 0)
+      moved.present? ? Result.success(type_de_champ.stable_id) : draft_edit_not_found(stable_id)
+    end
+  rescue ActiveRecord::RecordNotFound # the revision got published meanwhile
+    draft_edit_not_found(stable_id)
+  end
+
+  # Runs an edit returning a Result and keeps it only if the editor shows no
+  # error more than before: the editor lets an edit break a rule and shows it
+  # broken, a client that does not look at the form afterwards is told instead.
+  def apply_draft_edit_unless_new_errors
+    errors_before = draft_editor_error_keys
+    result = nil
+    undone = false
+
+    transaction(requires_new: true) do
+      result = yield
+      next if !result.success?
+
+      introduced = procedure.draft_editor_errors_by_stable_id.values.flatten.reject { draft_editor_error_key(it).in?(errors_before) }
+      next if introduced.empty?
+
+      result = Result.failure(introduced.map { draft_edit_introduced_error(it) })
+      undone = true
+      raise ActiveRecord::Rollback
+    end
+
+    reload if undone # it has seen an edit the database has not kept
+    result
+  end
+
   private
+
+  def draft_editor_error_keys
+    procedure.draft_editor_errors_by_stable_id.values.flatten.to_set { draft_editor_error_key(it) }
+  end
+
+  def draft_editor_error_key(error) = [error.options[:type_de_champ].stable_id, error.attribute, error.type]
+
+  def draft_edit_introduced_error(error)
+    type_de_champ = error.options[:type_de_champ]
+    I18n.t('activerecord.errors.models.procedure_revision.draft_edit.introduced_error', libelle: type_de_champ.libelle, stable_id: type_de_champ.stable_id, message: error.message)
+  end
+
+  def same_block?(type_de_champ, other)
+    type_de_champ.private? == other.private? && type_de_champ.enclosing_repetition&.stable_id == other.enclosing_repetition&.stable_id
+  end
+
+  def draft_edit_failure(key, **) = Result.failure(I18n.t("activerecord.errors.models.procedure_revision.draft_edit.#{key}", **))
 
   # Not dependent_conditions: it only scans the root types de champ, so it would
   # miss repetition children and public champs conditioned on an annotation.
