@@ -13,9 +13,6 @@ class TypesDeChampEditor::TypeDeChampSelectorComponent < ApplicationComponent
 
   attr_reader :type_de_champ, :form
 
-  delegate :revision, to: :type_de_champ
-  delegate :procedure, to: :revision
-
   def trigger_id = dom_id(type_de_champ, :type_champ)
   def label_id = dom_id(type_de_champ, :type_champ_label)
 
@@ -55,42 +52,11 @@ class TypesDeChampEditor::TypeDeChampSelectorComponent < ApplicationComponent
       .uniq
   end
 
-  def available_types
-    @available_types ||= TypeDeChamp.type_champ_classes
-      .filter(&method(:filter_featured_type_champ))
-      .filter(&method(:filter_block_type_champ))
-      .filter(&method(:filter_public_or_private_only_type_champ))
-  end
-
-  ACCEPTED_TYPES = Columns::ChampColumn::CAST.keys
-    .group_by { |(from)| from.to_s }
-    .transform_values { |pairs| pairs.map { |(_, to)| to.to_s } }
-
-  def accepted_type_champs
-    @accepted_type_champs ||= if published_type_champ.present?
-      ([published_type_champ] + ACCEPTED_TYPES.fetch(published_type_champ, [])).uniq
-    else
-      TypeDeChamp.type_champs.keys
-    end
-  end
-
-  def published_type_champ
-    @published_type_champ ||= procedure.published_revision&.type_de_champs&.find { _1.stable_id == type_de_champ.stable_id }&.type_champ
-  end
-
   def disabled?
     type_de_champ.type_champ_locked? || accepted_type_champs.size == 1
   end
 
-  def filter_block_type_champ(klass)
-    !type_de_champ.in_repetition? || klass.allowed_in_repetition?
-  end
+  def available_types = @available_types ||= type_de_champ.available_types
 
-  def filter_public_or_private_only_type_champ(klass)
-    type_de_champ.private? ? !klass.public_only? : !klass.private_only?
-  end
-
-  def filter_featured_type_champ(klass)
-    klass.feature_flag.nil? || procedure.feature_enabled?(klass.feature_flag)
-  end
+  def accepted_type_champs = @accepted_type_champs ||= type_de_champ.accepted_type_champs
 end
