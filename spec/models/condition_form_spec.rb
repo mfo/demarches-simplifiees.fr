@@ -62,4 +62,48 @@ describe ConditionForm, type: :model do
       it { is_expected.to eq(expected) }
     end
   end
+
+  describe 'with raw values' do
+    let(:number_tdc) { build(:type_de_champ_integer_number, stable_id: 12) }
+    let(:enum_tdc) { build(:type_de_champ_drop_down_list, stable_id: 13) }
+    let(:source_tdcs) { [number_tdc, enum_tdc] }
+    let(:form) { ConditionForm.new(source_tdcs:) }
+
+    it 'parses the value as a number for a number target' do
+      expect(form.condition_from_raw(12, Logic::GreaterThan.name, '4')).to eq(greater_than(champ_value(12), constant(4)))
+    end
+
+    it 'keeps a string constant for an enum target' do
+      expect(form.condition_from_raw(13, Logic::Eq.name, '4')).to eq(ds_eq(champ_value(13), constant('4')))
+    end
+
+    it 'builds an empty right term for a blank value' do
+      expect(form.condition_from_raw(12, Logic::Eq.name, '')).to eq(ds_eq(champ_value(12), empty))
+    end
+
+    it 'targets a column when a column_id is given' do
+      condition = form.condition_from_raw(12, Logic::Eq.name, '4', column_id: 'value')
+
+      expect(condition.left).to be_a(Logic::ChampColumnValue)
+      expect(condition.left.stable_id).to eq(12)
+    end
+
+    it 'reports an unknown target through the condition errors' do
+      condition = form.condition_from_raw(99, Logic::Eq.name, '4')
+
+      expect(condition.errors(source_tdcs)).to include({ type: :not_available })
+    end
+
+    it 'never reads the value as a serialized term' do
+      value = champ_value(13).to_json
+
+      expect(form.condition_from_raw(12, Logic::Eq.name, value).right).to eq(constant(value))
+    end
+
+    it 'rejects an operator name that is not a binary operator' do
+      ['Logic::Foo', Logic::And.name, Logic::ChampColumnValue.name].each do |name|
+        expect { form.condition_from_raw(12, name, '4') }.to raise_error(ArgumentError, /unknown operator/)
+      end
+    end
+  end
 end
