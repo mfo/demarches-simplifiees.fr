@@ -24,7 +24,6 @@ class Logic::ErrorMessages
 
   def humanize(error)
     case error
-    in { type: :not_available }
     in { type: :incompatible, stable_id: nil }
       I18n.t('logic.error_messages.not_available')
     in { type: :unmanaged, stable_id: stable_id }
