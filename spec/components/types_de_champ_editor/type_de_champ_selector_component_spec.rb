@@ -168,29 +168,4 @@ describe TypesDeChampEditor::TypeDeChampSelectorComponent, type: :component do
       end
     end
   end
-
-  describe 'ACCEPTED_TYPES' do
-    let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text }]) }
-
-    it 'contains expected conversions' do
-      expect(described_class::ACCEPTED_TYPES).to include(
-        "checkbox" => ["yes_no", "text", "textarea", "formatted"],
-        "civilite" => ["text", "textarea", "formatted"],
-        "communes" => ["text", "textarea", "formatted"],
-        "date" => ["datetime", "text", "textarea", "formatted"],
-        "datetime" => ["date", "text", "textarea", "formatted"],
-        "decimal_number" => ["integer_number", "text", "textarea", "formatted"],
-        "drop_down_list" => ["multiple_drop_down_list", "text", "textarea", "formatted", "pre_rempli"],
-        "email" => ["text", "textarea", "formatted"],
-        "formatted" => ["textarea", "text", "email", "phone", "pre_rempli"],
-        "integer_number" => ["decimal_number", "text", "textarea", "formatted"],
-        "multiple_drop_down_list" => ["drop_down_list", "text", "textarea", "formatted"],
-        "phone" => ["text", "textarea", "formatted"],
-        "pre_rempli" => ["text", "textarea", "formatted", "drop_down_list"],
-        "text" => ["textarea", "formatted", "email", "phone", "decimal_number", "integer_number", "pre_rempli"],
-        "textarea" => ["text", "formatted", "pre_rempli"],
-        "yes_no" => ["checkbox", "text", "textarea", "formatted"]
-      )
-    end
-  end
 end

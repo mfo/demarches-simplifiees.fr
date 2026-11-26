@@ -7,6 +7,7 @@ class TypeDeChamp < ApplicationRecord
   class_attribute :boolean_option_keys, default: [].freeze
 
   include EstimatedDurationConcern
+  include TypeDeChampTypeChangeConcern
 
   STRUCTURE = :structure
   STANDARD = :standard
