@@ -324,6 +324,33 @@ describe TypeDeChamp do
     it_behaves_like "a non-prefillable type de champ", :type_de_champ_annuaire_education
   end
 
+  describe 'mandatory constraints' do
+    it 'forces a non-fillable type to optional, even when mandatory is set explicitly' do
+      tdc = create(:type_de_champ_header_section, mandatory: false)
+      tdc.mandatory = true
+      tdc.valid?
+      expect(tdc.mandatory).to be(false)
+    end
+
+    it 'forces a type that cannot be mandatory to optional, even when mandatory is set explicitly' do
+      tdc = create(:type_de_champ_pre_rempli, mandatory: false)
+      tdc.mandatory = true
+      tdc.valid?
+      expect(tdc.mandatory).to be(false)
+    end
+
+    it 'forces a type that must be mandatory to mandatory, even when mandatory is set to false' do
+      tdc = build(:type_de_champ, type_champ: :aah, mandatory: false)
+      tdc.valid?
+      expect(tdc.mandatory).to be(true)
+    end
+
+    it 'keeps an explicit value for an unconstrained type' do
+      expect(build(:type_de_champ_text, mandatory: false).tap(&:valid?).mandatory).to be(false)
+      expect(build(:type_de_champ_text, mandatory: true).tap(&:valid?).mandatory).to be(true)
+    end
+  end
+
   describe 'libelle normalization' do
     it 'strips surrounding whitespace on assignment' do
       expect(build(:type_de_champ, :header_section, libelle: " 2.3 Test").libelle).to eq("2.3 Test")
