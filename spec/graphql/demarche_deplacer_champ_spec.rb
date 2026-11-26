@@ -16,7 +16,7 @@ RSpec.describe Mutations::DemarcheDeplacerChamp, type: :graphql do
     <<~GRAPHQL
       mutation($input: DemarcheDeplacerChampInput!) {
         demarcheDeplacerChamp(input: $input) {
-          demarche { number }
+          champDescriptor { id label }
           errors { message }
         }
       }
@@ -34,7 +34,7 @@ RSpec.describe Mutations::DemarcheDeplacerChamp, type: :graphql do
   before { procedure }
 
   it 'moves the champ first without apresId' do
-    expect(data).to eq(demarche: { number: procedure.id }, errors: nil)
+    expect(data).to eq(champDescriptor: { id: champ_id, label: 'boursier' }, errors: nil)
     expect(public_libelles).to eq(['boursier', 'age', 'enfants'])
   end
 
@@ -45,6 +45,17 @@ RSpec.describe Mutations::DemarcheDeplacerChamp, type: :graphql do
     it do
       expect(data[:errors]).to be_nil
       expect(public_libelles).to eq(['enfants', 'boursier', 'age'])
+    end
+  end
+
+  context 'on a published démarche' do
+    let(:procedure) do
+      create(:procedure, :published, administrateurs: [admin], public_type_de_champs: [{ type: :integer_number, libelle: 'age' }, { type: :yes_no, libelle: 'boursier' }])
+    end
+
+    it 'moves the draft and returns the champ' do
+      expect(data).to eq(champDescriptor: { id: champ_id, label: 'boursier' }, errors: nil)
+      expect(public_libelles).to eq(['boursier', 'age'])
     end
   end
 
@@ -91,7 +102,7 @@ RSpec.describe Mutations::DemarcheDeplacerChamp, type: :graphql do
     let(:context) { super().merge(procedure_ids: []) }
 
     it do
-      expect(data).to eq(demarche: nil, errors: [{ message: I18n.t('graphql.mutations.demarche_brouillon.demarche_not_found', number: procedure.id) }])
+      expect(data).to eq(champDescriptor: nil, errors: [{ message: I18n.t('graphql.mutations.demarche_brouillon.demarche_not_found', number: procedure.id) }])
       expect(public_libelles).to eq(['age', 'enfants', 'boursier'])
     end
   end

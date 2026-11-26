@@ -185,12 +185,22 @@ describe RevisionDraftEditingConcern do
     context 'in a repetition' do
       before { draft.add_type_de_champ({ type_champ: 'text', libelle: 'nom', parent_stable_id: stable_id('enfants') }) }
 
-      let(:target) { stable_id('prénom') }
-      let(:after) { stable_id('nom') }
+      let(:target) { stable_id('nom') }
+      let(:after) { stable_id('prénom') }
 
       it do
         expect(subject).to be_success
-        expect(child('enfants').flat_children.map(&:libelle)).to eq(['nom', 'prénom'])
+        expect(child('enfants').flat_children.map(&:libelle)).to eq(['prénom', 'nom'])
+      end
+
+      context 'first without a position' do
+        let(:target) { stable_id('prénom') }
+        let(:after) { nil }
+
+        it do
+          expect(subject).to be_success
+          expect(child('enfants').flat_children.map(&:libelle)).to eq(['prénom', 'nom'])
+        end
       end
     end
 
@@ -217,6 +227,17 @@ describe RevisionDraftEditingConcern do
 
       it 'is still after itself' do
         expect(subject.errors.first).to include('après lui-même')
+        expect(libelles).to eq(['age', 'enfants', 'boursier'])
+      end
+    end
+
+    context 'after a private annotation' do
+      before { draft.add_type_de_champ({ type_champ: 'text', libelle: 'note', private: true }) }
+
+      let(:after) { stable_id('note') }
+
+      it 'is refused' do
+        expect(subject.errors.first).to include('n’est pas dans le même bloc')
         expect(libelles).to eq(['age', 'enfants', 'boursier'])
       end
     end
@@ -273,6 +294,29 @@ describe RevisionDraftEditingConcern do
       it 'does not hold a move that changes nothing against it' do
         draft.move_type_de_champ(stable_id('age'), 2)
         expect(subject).to be_success
+      end
+    end
+
+    context 'when a champ has no libelle' do
+      before { draft.type_de_champs.find { it.libelle == 'age' }.update_columns(libelle: '') }
+
+      context 'and it is moved after another one' do
+        let(:target) { draft.type_de_champs.find { it.libelle == '' }.stable_id }
+        let(:after) { stable_id('boursier') }
+
+        it do
+          expect(subject).to be_success
+          expect(libelles).to eq(['enfants', 'boursier', ''])
+        end
+      end
+
+      context 'and another one is moved across it' do
+        let(:after) { nil }
+
+        it do
+          expect(subject).to be_success
+          expect(libelles).to eq(['boursier', '', 'enfants'])
+        end
       end
     end
 

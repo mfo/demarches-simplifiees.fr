@@ -8,7 +8,7 @@ fr:
             dependent: "« %{libelle} » (%{stable_id})"
             dependent_conditions: "« %{type_de_champ} » est utilisé par la condition d’affichage de %{dependents} : retirez ou modifiez d’abord cette condition."
             moved_after_itself: "« %{libelle} » ne peut pas être déplacé après lui-même."
-            other_block: "Le champ « %{stable_id} » n’est pas dans le même bloc : un champ se place après un champ du même formulaire (usager ou annotations privées) et de la même répétition."
+            other_block: "Le champ « %{stable_id} » n’est pas dans le même bloc : un champ se place après un champ du même formulaire (usager ou annotations privées) et du même bloc répétable."
             introduced_error: "Cette modification est annulée : elle rendrait invalide « %{libelle} » (%{stable_id}) : %{message}"
     attributes:
       procedure_revision:

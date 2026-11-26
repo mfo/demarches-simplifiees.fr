@@ -46,7 +46,7 @@ module RevisionDraftEditingConcern
       after = find_type_de_champ_to_edit(after_stable_id)
       return draft_edit_not_found(after_stable_id) if after.nil?
       return draft_edit_failure(:moved_after_itself, libelle: type_de_champ.libelle) if after.stable_id == type_de_champ.stable_id
-      return draft_edit_failure(:other_block, stable_id: after.stable_id) if !same_block?(type_de_champ, after)
+      return draft_edit_failure(:other_block, stable_id: after.stable_id) if type_de_champ.flat_siblings.none? { it.stable_id == after.stable_id }
     end
 
     apply_draft_edit_unless_new_errors do
@@ -92,10 +92,6 @@ module RevisionDraftEditingConcern
   def draft_edit_introduced_error(error)
     type_de_champ = error.options[:type_de_champ]
     draft_edit_t(:introduced_error, libelle: type_de_champ.libelle, stable_id: type_de_champ.stable_id, message: error.message)
-  end
-
-  def same_block?(type_de_champ, other)
-    type_de_champ.private? == other.private? && type_de_champ.enclosing_repetition&.stable_id == other.enclosing_repetition&.stable_id
   end
 
   def draft_edit_failure(key, **) = Result.failure(draft_edit_t(key, **))
