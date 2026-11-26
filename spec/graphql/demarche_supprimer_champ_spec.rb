@@ -40,7 +40,7 @@ RSpec.describe Mutations::DemarcheSupprimerChamp, type: :graphql do
   context 'with an invalid id' do
     let(:champ_id) { 'not-an-id' }
 
-    it { expect(data[:errors]).to eq([{ message: "L'identifiant de champ \"not-an-id\" est invalide." }]) }
+    it { expect(data[:errors]).to eq([{ message: I18n.t('graphql.mutations.demarche_brouillon.invalid_champ_id', id: 'not-an-id') }]) }
   end
 
   context 'with the id of another kind of object' do

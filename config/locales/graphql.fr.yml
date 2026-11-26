@@ -2,5 +2,5 @@ fr:
   graphql:
     mutations:
       demarche_brouillon:
-        demarche_not_found: "La démarche \"%{number}\" n'existe pas ou vous n'avez pas le droit de la modifier."
-        invalid_champ_id: "L'identifiant de champ \"%{id}\" est invalide."
+        demarche_not_found: "La démarche \"%{number}\" n’existe pas ou vous n’avez pas le droit de la modifier."
+        invalid_champ_id: "L’identifiant de champ \"%{id}\" est invalide."
