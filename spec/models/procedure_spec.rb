@@ -2008,4 +2008,64 @@ describe Procedure do
     dossier = create(:dossier, :accepte, procedure: procedure)
     create(:champ_piece_justificative, size: size, dossier: dossier)
   end
+  describe '#draft_editor_errors_by_stable_id' do
+    include Logic
+
+    def condition_on(stable_id) = ds_eq(champ_value(stable_id), constant(true))
+
+    let(:procedure) do
+      create(:procedure,
+        public_type_de_champs: [{ type: :repetition, children: [{ type: :text }], limit_repetitions: '1', min_repetitions: 3, max_repetitions: 1 }, { type: :text }],
+        private_type_de_champs: [{ type: :repetition, children: [] }])
+    end
+
+    it 'groups the public and private editor errors by stable_id, with their kind' do
+      public_repetition = procedure.draft_revision.public_root_type_de_champs.first
+      private_repetition = procedure.draft_revision.private_root_type_de_champs.first
+
+      errors = procedure.draft_editor_errors_by_stable_id
+
+      expect(errors.keys).to contain_exactly(public_repetition.stable_id, private_repetition.stable_id)
+      expect(errors[public_repetition.stable_id].map { [it.attribute, it.type] })
+        .to contain_exactly([:public_draft_type_de_champs, :invalid_repetition_range])
+      expect(errors[private_repetition.stable_id].map(&:attribute)).to all(eq(:private_draft_type_de_champs))
+    end
+
+    it 'is empty when the editor is valid' do
+      valid = create(:procedure, public_type_de_champs: [{ type: :text }])
+
+      expect(valid.draft_editor_errors_by_stable_id).to eq({})
+    end
+
+    it 'reports a condition cycle once, whichever editor finds it' do
+      cyclic = create(:procedure,
+        public_type_de_champs: [{ type: :yes_no, stable_id: 1, condition: condition_on(10) }],
+        private_type_de_champs: [{ type: :yes_no, stable_id: 10, condition: condition_on(1) }])
+
+      errors = cyclic.draft_editor_errors_by_stable_id
+
+      expect(errors.values.flatten.map { [it.attribute, it.type] }).to eq([[:draft_type_de_champs, :condition_cycle]])
+    end
+
+    it 'leaves out the errors that concern no type de champ' do
+      procedure.draft_revision.update_columns(ineligibilite_enabled: true, ineligibilite_message: nil)
+      stable_ids = procedure.draft_revision.type_de_champs.filter_map { it.stable_id if it.repetition? }
+
+      expect(procedure.draft_editor_errors_by_stable_id.keys).to match_array(stable_ids)
+    end
+
+    it 'does not touch the errors of the receiver' do
+      procedure.validate(:public_type_de_champs_editor)
+
+      expect { procedure.draft_editor_errors_by_stable_id }.not_to change { procedure.errors.map(&:type) }
+    end
+
+    it 'reads the persisted state, not the loaded draft revision' do
+      procedure.draft_editor_errors_by_stable_id
+
+      added = procedure.draft_revision.add_type_de_champ(type_champ: :repetition, libelle: 'r')
+
+      expect(procedure.draft_editor_errors_by_stable_id.keys).to include(added.stable_id)
+    end
+  end
 end
