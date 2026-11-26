@@ -38,6 +38,7 @@ features = [
   :champ_matching,
   :dossier_vide_weasyprint,
   :s3_storage,
+  :type_de_champ_tree_edit_frozen,
 ]
 
 def database_exists?

@@ -57,6 +57,20 @@ describe Administrateurs::TypesDeChampController, type: :controller do
 
     subject { post :create, params: params, format: :turbo_stream }
 
+    context 'while #14704 deploys, the edits frozen' do
+      let(:type_champ) { TypeDeChamp.type_champs.fetch(:text) }
+
+      render_views
+
+      before { Flipper.enable(:type_de_champ_tree_edit_frozen) }
+
+      it 'adds nothing, and the flash says why' do
+        expect { subject }.not_to change { procedure.type_de_champs.count }
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('flash_messages', 'Une mise à jour est en cours')
+      end
+    end
+
     context "create type_de_champ text" do
       let(:type_champ) { TypeDeChamp.type_champs.fetch(:text) }
 
@@ -116,6 +130,18 @@ describe Administrateurs::TypesDeChampController, type: :controller do
 
       expect(siblings).to eq(['l1', 'updated', 'l3'])
       expect(morpheds).to eq([['updated', ['l1']], ['l3', ['l1', 'updated']]])
+    end
+
+    context 'while #14704 deploys, the edits frozen' do
+      render_views
+
+      before { Flipper.enable(:type_de_champ_tree_edit_frozen) }
+
+      it 'leaves the champ as it is, and the flash says why' do
+        is_expected.to have_http_status(:ok)
+        expect(response.body).to include('flash_messages', 'Une mise à jour est en cours')
+        expect(second_coordinate.type_de_champ.reload.libelle).to eq('l2')
+      end
     end
 
     context 'when the champ was already removed (replayed autosave)' do

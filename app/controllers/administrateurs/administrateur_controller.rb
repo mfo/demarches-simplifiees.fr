@@ -10,6 +10,8 @@ module Administrateurs
     before_action :alert_for_missing_service, if: -> { request.format.symbol == :html }
     helper_method :administrateur_as_manager?
 
+    rescue_from RevisionEditConcern::EditFrozenError, with: :type_de_champ_tree_edit_frozen
+
     def nav_bar_profile
       :administrateur
     end
@@ -32,6 +34,21 @@ module Administrateurs
     end
 
     private
+
+    # FIXME: dropped along with the flag once #14704 is deployed. The editor
+    # autosave ignores a failed response: answered 200, the flash says why.
+    def type_de_champ_tree_edit_frozen
+      message = t('administrateurs.type_de_champ_tree_edit_frozen')
+
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now.alert = message
+          render 'administrateurs/administrateur/type_de_champ_tree_edit_frozen', layout: 'application'
+        end
+        format.html { redirect_back_or_to admin_procedures_path, alert: message }
+        format.any { head :service_unavailable }
+      end
+    end
 
     def ensure_pro_connect_if_required!
       procedure_id = pro_connect_procedure_id
