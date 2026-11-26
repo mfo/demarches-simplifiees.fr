@@ -21,11 +21,7 @@ class TypeDeChamps::LibelleValidator < ActiveModel::EachValidator
       [:missing_libelle, { position: position_of(draft, tdc) }]
     end
 
-    procedure.errors.add(
-      attribute,
-      procedure.errors.generate_message(attribute, message_key, options),
-      type_de_champ: tdc
-    )
+    procedure.errors.add(attribute, message_key, **options, type_de_champ: tdc)
   end
 
   # the number the editor shows, not TypeDeChamp#position: header sections do not restart it.
