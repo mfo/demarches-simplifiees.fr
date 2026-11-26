@@ -92,12 +92,8 @@ module RevisionDraftEditingConcern
 
     params = { type_champ:, libelle:, description:, mandatory:, private:, parent_stable_id: parent&.stable_id, after_stable_id: after&.stable_id }.compact
 
-    # a repetition is added empty: its first child cannot exist before it
     added = nil
-    empty_repetition = -> do
-      tdc = it.options[:type_de_champ]
-      tdc.stable_id == added&.stable_id && it.type == procedure.errors.generate_message(it.attribute, :empty_repetition, { value: tdc.libelle })
-    end
+    empty_repetition = -> { draft_edit_empty_repetition_error?(it, added&.stable_id) }
 
     apply_draft_edit_unless_new_errors(tolerated: empty_repetition) do
       added = type_de_champ = add_type_de_champ(draft_edit_option_params(klass, options).merge(params))
@@ -122,17 +118,28 @@ module RevisionDraftEditingConcern
     changing_type = type_champ.present? && type_champ != type_de_champ.type_champ
     errors = changing_type ? draft_edit_type_change_errors(type_de_champ, type_champ) : []
     klass = TypeDeChamp.find_sti_class(changing_type ? type_champ : type_de_champ.type_champ) if errors.empty?
+    errors = draft_edit_configurable_errors(type_de_champ, changing_type ? type_champ : nil, libelle:, description:, mandatory:) if errors.empty?
     errors = draft_edit_option_errors(klass, options) if errors.empty?
-    errors = draft_edit_read_options_errors(type_de_champ, options) if errors.empty?
+    errors = draft_edit_read_options_errors(type_de_champ, klass, options) if errors.empty?
     return Result.failure(errors) if errors.present?
 
     params = { libelle:, description:, mandatory: }.compact
     return draft_edit_failure(:nothing_to_update) if params.empty? && options.blank? && !changing_type
 
-    apply_draft_edit_unless_new_errors do
+    # a repetition is turned empty: its first child cannot exist before it
+    tolerated = -> { changing_type && type_champ == 'repetition' && draft_edit_empty_repetition_error?(it, type_de_champ.stable_id) }
+
+    apply_draft_edit_unless_new_errors(tolerated:) do
       type_de_champ = find_and_ensure_exclusive_use(type_de_champ.stable_id)
-      type_de_champ = type_de_champ.becomes_type(type_champ) if changing_type
-      params[:type_champ] = type_champ if changing_type
+
+      if changing_type # again under the lock: a child may have been added since the read
+        errors = draft_edit_type_change_errors(type_de_champ, type_champ)
+        next Result.failure(errors) if errors.present?
+
+        type_de_champ = type_de_champ.becomes_type(type_champ)
+        params[:type_champ] = type_champ
+      end
+
       params = draft_edit_option_params(klass, options, current: type_de_champ.options).merge(params)
 
       if update_type_de_champ(type_de_champ, params)
@@ -141,8 +148,8 @@ module RevisionDraftEditingConcern
         Result.failure(type_de_champ.errors.full_messages)
       end
     end
-  rescue ActiveRecord::RecordNotFound # the revision got published meanwhile
-    draft_edit_not_found(stable_id)
+  rescue ActiveRecord::RecordNotFound # the draft was published or the field deleted meanwhile
+    published_at? ? draft_edit_failure(:revision_published) : draft_edit_not_found(stable_id)
   end
 
   # Runs an edit returning a Result and keeps it only if the editor shows no
@@ -215,13 +222,41 @@ module RevisionDraftEditingConcern
     draft_edit_type_champ_errors(TypeDeChamp.find_sti_class(type_champ), private: type_de_champ.private?, in_repetition: type_de_champ.in_repetition?)
   end
 
+  # The editor offers no label, description or mandatory flag where the type
+  # has none: a client is told, instead of seeing the change silently dropped.
+  def draft_edit_configurable_errors(type_de_champ, type_champ, libelle:, description:, mandatory:)
+    target = type_champ ? type_de_champ.becomes_type(type_champ) : type_de_champ
+    type_champ = target.class.sti_name
+
+    if !libelle.nil? && !target.libelle_configurable?
+      [draft_edit_t(:libelle_not_configurable, type_champ:)]
+    elsif !description.nil? && !target.description_configurable?
+      [draft_edit_t(:description_not_configurable, type_champ:)]
+    elsif mandatory == true && (!target.fillable? || target.cannot_be_mandatory?)
+      [draft_edit_t(:mandatory_not_configurable, type_champ:)]
+    elsif mandatory == false && target.must_be_mandatory?
+      [draft_edit_t(:mandatory_not_configurable, type_champ:)]
+    else
+      []
+    end
+  end
+
   # The editor does not check the rules of routing and of ineligibility against
-  # the options they were written for (the values of a list).
-  def draft_edit_read_options_errors(type_de_champ, options)
+  # the options they were written for: refuse to remove a value they can compare to.
+  def draft_edit_read_options_errors(type_de_champ, klass, options)
     return [] if options.blank?
-    return [] if !type_de_champ.type_champ_lock_reason.in?([:used_by_routing_rules, :used_by_ineligibilite_rules])
+    return [] if !(type_de_champ.used_by_routing_rules? || type_de_champ.used_by_ineligibilite_rules?)
+
+    edited = type_de_champ.dup
+    edited.assign_attributes(draft_edit_option_params(klass, options, current: type_de_champ.options))
+    return [] if (type_de_champ.condition_options - edited.condition_options).empty?
 
     [draft_edit_t(:options_read_by_rules, libelle: type_de_champ.libelle)]
+  end
+
+  def draft_edit_empty_repetition_error?(error, stable_id)
+    tdc = error.options[:type_de_champ]
+    tdc.stable_id == stable_id && error.type == procedure.errors.generate_message(error.attribute, :empty_repetition, { value: tdc.libelle })
   end
 
   def draft_edit_option_errors(klass, options)

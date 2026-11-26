@@ -399,27 +399,97 @@ describe RevisionDraftEditingConcern do
       end
     end
 
+    context 'with a carte, whose options are merged' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte, libelle: 'plan' }]) }
+
+      it 'keeps the layer set before' do
+        draft.update_type_de_champ_checked(stable_id('plan'), options: { cadastres: true })
+
+        expect(draft.update_type_de_champ_checked(stable_id('plan'), options: { unesco: true })).to be_success
+        expect(child('plan').options).to include('cadastres' => true, 'unesco' => true)
+      end
+    end
+
+    context 'with a text turned into a repetition' do
+      subject { draft.update_type_de_champ_checked(stable_id('nom'), type_champ: 'repetition') }
+
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'nom' }]) }
+
+      it 'succeeds, the repetition being empty' do
+        expect(subject).to be_success
+        expect(child('nom').type_champ).to eq('repetition')
+      end
+    end
+
+    context 'with a header section' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :header_section, libelle: 'titre' }]) }
+
+      [{ mandatory: true }, { description: 'x' }].each do |params|
+        it "refuses #{params.keys.first} and saves nothing" do
+          result = draft.update_type_de_champ_checked(stable_id('titre'), **params)
+
+          expect(result).not_to be_success
+          expect(child('titre')).to have_attributes(mandatory: false)
+          expect(child('titre').description).not_to eq('x')
+        end
+      end
+    end
+
+    context 'with a mandatory flag against the constraints of the type' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'nom' }]) }
+
+      it 'refuses a text turned into a header section that is mandatory' do
+        result = draft.update_type_de_champ_checked(stable_id('nom'), type_champ: 'header_section', mandatory: true)
+
+        expect(result.errors.first).to include('header_section')
+        expect(child('nom').type_champ).to eq('text')
+      end
+    end
+
     context 'when the type de champ is locked by a routing rule' do
       let(:params) { { type_champ: 'decimal_number' } }
 
-      before { allow_any_instance_of(TypeDeChamp).to receive(:type_champ_lock_reason).and_return(:used_by_routing_rules) }
+      before do
+        procedure.defaut_groupe_instructeur.update!(routing_rule: Logic::Eq.new(Logic::ChampValue.new(stable_id('age')), Logic::Constant.new('18')))
+        procedure.reload
+      end
 
       it 'refuses the type only' do
         expect(subject.errors.first).to include('age')
         expect(draft.update_type_de_champ_checked(stable_id('age'), libelle: 'âge')).to be_success
       end
+
+      it 'accepts options the rule does not read' do
+        expect(draft.update_type_de_champ_checked(stable_id('age'), options: { max_number: '120' })).to be_success
+        expect(child('age').options).to include('max_number' => '120')
+      end
     end
 
-    [:used_by_routing_rules, :used_by_ineligibilite_rules].each do |reason|
-      context "when the options are read by #{reason}" do
-        let(:params) { { options: { min_number: '3' } } }
+    context 'when a drop-down list is read by an eligibility rule' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'ville', options: ['Paris', 'Lyon'] }]) }
+      let(:ville) { stable_id('ville') }
+      let(:refused) { I18n.t('activerecord.errors.models.procedure_revision.draft_edit.options_read_by_rules', libelle: 'ville') }
 
-        before { allow_any_instance_of(TypeDeChamp).to receive(:type_champ_lock_reason).and_return(reason) }
+      before do
+        draft.update!(ineligibilite_enabled: true, ineligibilite_message: 'non', ineligibilite_rules: Logic::Eq.new(Logic::ChampValue.new(ville), Logic::Constant.new('Paris')))
+      end
 
-        it 'refuses to change them' do
-          expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.options_read_by_rules', libelle: 'age')])
-          expect(child('age').options).not_to include('min_number')
-        end
+      it 'refuses to remove a choice' do
+        result = draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['Paris'] })
+
+        expect(result.errors).to eq([refused])
+        expect(child('ville').drop_down_options).to eq(['Paris', 'Lyon'])
+      end
+
+      it 'accepts an added choice and an unchanged list' do
+        expect(draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['Paris', 'Lyon', 'Nice'] })).to be_success
+        expect(draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['Paris', 'Lyon', 'Nice'] })).to be_success
+      end
+
+      it 'still refuses when the field is also in a referentiel url' do
+        allow_any_instance_of(Procedure).to receive(:used_by_referentiel_urls?).and_return(true)
+
+        expect(draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['13', '69'] }).errors).to eq([refused])
       end
     end
 
@@ -449,7 +519,7 @@ describe RevisionDraftEditingConcern do
     context 'when the procedure is published meanwhile' do
       before { draft.update_columns(published_at: Time.zone.now) }
 
-      it { expect(subject).not_to be_success }
+      it { expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.revision_published')]) }
     end
   end
 
