@@ -711,8 +711,6 @@ class TypeDeChamp < ApplicationRecord
   end
 
   def enforce_mandatory_constraints
-    return if mandatory_changed?
-
     self.mandatory = false if !fillable? || cannot_be_mandatory?
     self.mandatory = true if must_be_mandatory?
   end
