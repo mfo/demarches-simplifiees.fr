@@ -790,6 +790,20 @@ class Procedure < ApplicationRecord
     [administrateurs_to_add, invalid_emails, not_found_emails]
   end
 
+  TYPE_DE_CHAMPS_EDITOR_CONTEXTS = [:public_type_de_champs_editor, :private_type_de_champs_editor].freeze
+
+  # Read from the database, on a copy: an edit just made is not in the loaded
+  # draft revision, and validating would replace the errors of this instance.
+  def draft_editor_errors_by_stable_id
+    fresh = Procedure.with_discarded.find(id)
+
+    TYPE_DE_CHAMPS_EDITOR_CONTEXTS
+      .flat_map { fresh.validate(it); fresh.errors.errors }
+      .filter { it.options[:type_de_champ] }
+      .uniq { [it.attribute, it.type, it.options[:type_de_champ].stable_id] }
+      .group_by { it.options[:type_de_champ].stable_id }
+  end
+
   private
 
   def champ_value_in_routing_rule?
