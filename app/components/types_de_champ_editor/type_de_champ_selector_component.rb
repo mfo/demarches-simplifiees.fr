@@ -52,9 +52,11 @@ class TypesDeChampEditor::TypeDeChampSelectorComponent < ApplicationComponent
       .uniq
   end
 
-  delegate :available_types, :accepted_type_champs, to: :type_de_champ
-
   def disabled?
     type_de_champ.type_champ_locked? || accepted_type_champs.size == 1
   end
+
+  def available_types = @available_types ||= type_de_champ.available_types
+
+  def accepted_type_champs = @accepted_type_champs ||= type_de_champ.accepted_type_champs
 end
