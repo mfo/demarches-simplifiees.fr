@@ -43,10 +43,21 @@ class ConditionForm
     left = Logic.from_json(row[:targeted_champ])
     right = parse_value(left.type(source_tdcs), row[:value])
 
-    Logic.class_from_name(row[:operator_name]).new(left, right)
+    build_condition(left, Logic.class_from_name(row[:operator_name]), right)
   end
 
+  def build_condition(left, operator_class, right) = operator_class.new(left, right)
+
   def parse_value(left_type, value)
+    return empty if value.blank?
+
+    # it can be a serialized Constant(true | false) term or a serialized Empty term
+    term = Logic.from_json(value) rescue nil
+
+    term.presence || literal(left_type, value)
+  end
+
+  def literal(left_type, value)
     return empty if value.blank?
 
     if left_type == :number
@@ -56,11 +67,6 @@ class ConditionForm
 
       return constant(number) if number
     end
-
-    # otherwise it can be a serialized Constant(true | false) term
-    # or a serialized Empty term
-    term = Logic.from_json(value) rescue nil
-    return term if term.present?
 
     # if anything else, save it as a constant of string
     constant(value)
