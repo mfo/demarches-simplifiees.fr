@@ -55,9 +55,14 @@ class TypesDeChamp::FormattedTypeDeChamp < TypeDeChamp
 
   private
 
+  DEFAULT_OPTIONS = { 'formatted_mode' => 'simple', 'letters_accepted' => true, 'numbers_accepted' => true, 'special_characters_accepted' => true }.freeze
+
+  # Persisted rows with options are never touched, so existing dossiers validate as before.
   def set_default_options
-    if options&.empty?
-      self.options = { formatted_mode: 'simple', letters_accepted: true, numbers_accepted: true, special_characters_accepted: true }
+    if new_record?
+      self.options = DEFAULT_OPTIONS.merge((options || {}).stringify_keys)
+    elsif options&.empty?
+      self.options = DEFAULT_OPTIONS.dup
     end
   end
 end
