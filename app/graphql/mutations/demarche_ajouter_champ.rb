@@ -7,8 +7,8 @@ module Mutations
     argument :type, Types::ChampDescriptorType::TypeDeChampType, "Le type du champ.", required: true
     argument :label, String, "Le libellé du champ.", required: true
     argument :description, String, "La description du champ.", required: false
-    argument :required, Boolean, "Est-ce que le champ est obligatoire ? Sans valeur, le champ est obligatoire sauf si son type ne le permet pas.", required: false
-    argument :annotation, Boolean, "Ajouter le champ aux annotations privées plutôt qu’au formulaire usager.", required: false, default_value: false
+    argument :required, Boolean, "Est-ce que le champ est obligatoire ? Sans valeur, le champ est obligatoire sauf si son type ne le permet pas ou s’il s’agit d’une annotation privée.", required: false
+    argument :annotation, Boolean, "Ajouter le champ aux annotations privées plutôt qu’au formulaire usager. Dans un bloc répétable, le champ suit le bloc et `annotation` peut être omis.", required: false
     argument :parent_id, ID, "Le bloc répétable dans lequel ajouter le champ.", required: false
     argument :apres_id, ID, "Le champ après lequel ajouter le champ. Sans lui, le champ est ajouté en premier.", required: false
     argument :options, GraphQL::Types::JSON, "Les options propres au type du champ, par exemple `{ \"drop_down_options\": [\"Oui\", \"Non\"] }`.", required: false
@@ -19,7 +19,7 @@ module Mutations
 
     def success_payload(procedure, result) = { champ_descriptor: procedure.draft_revision.type_de_champ(result.stable_id) }
 
-    def edit(revision, type:, label:, description: nil, required: nil, annotation: false, parent_id: nil, apres_id: nil, options: nil)
+    def edit(revision, type:, label:, description: nil, required: nil, annotation: nil, parent_id: nil, apres_id: nil, options: nil)
       revision.add_type_de_champ_checked(
         type_champ: type.to_s,
         libelle: label,

@@ -69,6 +69,16 @@ RSpec.describe Mutations::DemarcheAjouterChamp, type: :graphql do
     end
   end
 
+  context 'as an annotation in a public repetition' do
+    let(:input) { { type: 'text', label: 'note', annotation: true, parentId: id('enfants') } }
+
+    it 'is refused' do
+      expect(data[:champDescriptor]).to be_nil
+      expect(data[:errors].first[:message]).to include('enfants')
+      expect(tdc('note')).to be_nil
+    end
+  end
+
   context 'in a repetition' do
     let(:input) { { type: 'date', label: 'naissance', parentId: id('enfants'), apresId: id('prénom') } }
 
