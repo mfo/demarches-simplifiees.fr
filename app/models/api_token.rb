@@ -10,6 +10,12 @@ class APIToken < ApplicationRecord
   # that a preset never lands past the cap on a leap year.
   LIFETIMES = { oneWeek: 7.days, oneMonth: 30.days, sixMonths: 182.days, oneYear: 365.days }.freeze
 
+  # What a token may do. `application` is the English name of a dossier (see
+  # GLOSSARY.md); the API itself keeps the frozen v2 `Dossier` vocabulary.
+  APPLICATION_READ = 'application_read'
+  APPLICATION_WRITE = 'application_write'
+  SCOPES = [APPLICATION_READ, APPLICATION_WRITE].freeze
+
   belongs_to :administrateur, inverse_of: :api_tokens
 
   # Tokens created before we made it mandatory have no expiration date. They are
@@ -56,6 +62,9 @@ class APIToken < ApplicationRecord
       .without_any_expiration_notice_sent_within(duration)
   end
 
+  # The built-in inclusion validator cannot check each element of an array.
+  validate :scopes_are_known
+
   before_save :sanitize_targeted_procedure_ids
 
   def context
@@ -63,9 +72,19 @@ class APIToken < ApplicationRecord
       administrateur_id:,
       api_token_id: id,
       procedure_ids:,
-      write_access:,
+      write_access: scopes_include?(APPLICATION_WRITE),
+      scopes: effective_scopes,
     }
   end
+
+  # `scopes` is nil on the tokens created before scopes existed: they keep
+  # exactly the rights `write_access` gave them, with no backfill to run or to
+  # get wrong. An explicit list always wins over `write_access`.
+  def effective_scopes
+    scopes || (write_access? ? SCOPES : [APPLICATION_READ])
+  end
+
+  def scopes_include?(scope) = effective_scopes.include?(scope)
 
   def procedure_ids
     if full_access?
@@ -184,6 +203,11 @@ class APIToken < ApplicationRecord
   end
 
   private
+
+  def scopes_are_known
+    unknown = Array(scopes) - SCOPES
+    errors.add(:scopes, :inclusion) if unknown.any?
+  end
 
   def sanitize_targeted_procedure_ids
     if targeted_procedure_ids.present?
