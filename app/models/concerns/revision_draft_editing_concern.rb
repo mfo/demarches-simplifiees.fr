@@ -19,6 +19,10 @@ module RevisionDraftEditingConcern
     type_de_champ(id) if id
   end
 
+  # Options the editor form does not offer either: internal switches, and the
+  # mapping of a referentiel, which has an editor of its own.
+  HIDDEN_OPTIONS = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :referentiel_mapping].freeze
+
   # Removes a type de champ (and the children of a repetition) unless the
   # editor would refuse, or leave a condition pointing at it.
   def remove_type_de_champ_checked(stable_id)
@@ -57,10 +61,62 @@ module RevisionDraftEditingConcern
     draft_edit_not_found(stable_id)
   end
 
+  # Adds a type de champ first in its block, or after a sibling, unless the
+  # editor would not offer the type there. `mandatory` is left out when nil, so
+  # that the constraints of the type and the default of the column apply.
+  def add_type_de_champ_checked(type_champ:, libelle:, description: nil, mandatory: nil, private: nil, parent_stable_id: nil, after_stable_id: nil, options: nil)
+    return draft_edit_failure(:unknown_type_champ, type_champ:) if !TypeDeChamp.type_champs.value?(type_champ)
+
+    parent = find_type_de_champ_to_edit(parent_stable_id) if parent_stable_id.present?
+    if parent_stable_id.present?
+      return draft_edit_not_found(parent_stable_id) if parent.nil?
+      return draft_edit_failure(:not_a_repetition, libelle: parent.libelle) if !parent.repetition?
+
+      return draft_edit_failure(:parent_other_form, libelle: parent.libelle) if !private.nil? && private != parent.private?
+
+      private = parent.private?
+    else
+      private = private.present?
+    end
+
+    klass = TypeDeChamp.find_sti_class(type_champ)
+    errors = draft_edit_type_champ_errors(klass, private:, in_repetition: parent.present?)
+    errors = draft_edit_option_errors(klass, options) if errors.empty?
+    return Result.failure(errors) if errors.present?
+
+    if after_stable_id.present?
+      after = find_type_de_champ_to_edit(after_stable_id)
+      return draft_edit_not_found(after_stable_id) if after.nil?
+      return draft_edit_failure(:other_block, stable_id: after.stable_id) if after.enclosing_repetition&.stable_id != parent&.stable_id || after.private? != private
+    end
+
+    params = { type_champ:, libelle:, description:, mandatory:, private:, parent_stable_id: parent&.stable_id, after_stable_id: after&.stable_id }.compact
+
+    # a repetition is added empty: its first child cannot exist before it
+    added = nil
+    empty_repetition = -> do
+      tdc = it.options[:type_de_champ]
+      tdc.stable_id == added&.stable_id && it.type == procedure.errors.generate_message(it.attribute, :empty_repetition, { value: tdc.libelle })
+    end
+
+    apply_draft_edit_unless_new_errors(tolerated: empty_repetition) do
+      added = type_de_champ = add_type_de_champ(draft_edit_option_params(klass, options).merge(params))
+
+      if type_de_champ.persisted? && type_de_champ.errors.empty?
+        Result.success(type_de_champ.stable_id)
+      elsif published_at? # reloaded by the lock: the draft was published meanwhile
+        draft_edit_failure(:revision_published)
+      else
+        Result.failure(type_de_champ.errors.full_messages)
+      end
+    end
+  end
+
   # Runs an edit returning a Result and keeps it only if the editor shows no
   # error more than before: the editor lets an edit break a rule and shows it
   # broken, a client that does not look at the form afterwards is told instead.
-  def apply_draft_edit_unless_new_errors
+  # `tolerated` tells the new errors that are expected after this very edit.
+  def apply_draft_edit_unless_new_errors(tolerated: nil)
     errors_before = draft_editor_error_keys
     result = nil
     undone = false
@@ -69,7 +125,7 @@ module RevisionDraftEditingConcern
       result = yield
       next if !result.success?
 
-      introduced = procedure.draft_editor_errors_by_stable_id.values.flatten.reject { draft_editor_error_key(it).in?(errors_before) }
+      introduced = procedure.draft_editor_errors_by_stable_id.values.flatten.reject { draft_editor_error_key(it).in?(errors_before) || tolerated&.call(it) }
       next if introduced.empty?
 
       result = Result.failure(introduced.map { draft_edit_introduced_error(it) })
@@ -92,6 +148,51 @@ module RevisionDraftEditingConcern
   def draft_edit_introduced_error(error)
     type_de_champ = error.options[:type_de_champ]
     draft_edit_t(:introduced_error, libelle: type_de_champ.libelle, stable_id: type_de_champ.stable_id, message: error.message)
+  end
+
+  def draft_editable_option_keys(klass) = klass.option_keys - HIDDEN_OPTIONS
+
+  # What the type selector of the editor filters out of its menu.
+  def draft_edit_type_champ_errors(klass, private:, in_repetition:)
+    return [] if TypeDeChamp.available_types(procedure:, private:, in_repetition:).include?(klass)
+
+    reason = if klass.feature_flag.present? && !procedure.feature_enabled?(klass.feature_flag)
+      :type_champ_disabled
+    elsif in_repetition && !klass.allowed_in_repetition?
+      :type_champ_not_in_repetition
+    elsif private
+      :type_champ_not_private
+    else
+      :type_champ_private_only
+    end
+
+    [draft_edit_t(reason, type_champ: klass.sti_name)]
+  end
+
+  def draft_edit_option_errors(klass, options)
+    return [] if options.blank?
+    return [draft_edit_t(:options_not_an_object)] if !options.respond_to?(:to_h) || options.is_a?(Array)
+
+    allowed = draft_editable_option_keys(klass).map(&:to_s)
+    unknown = options.to_h.keys.map(&:to_s) - allowed
+    return [] if unknown.empty?
+
+    [draft_edit_t(:unknown_options, type_champ: klass.sti_name, unknown: unknown.join(', '), allowed: allowed.presence&.join(', ') || draft_edit_t(:no_option))]
+  end
+
+  # The options go through the writers of the type, as the editor form sends
+  # them. A type reading some of its options from the jsonb without a writer
+  # (the layers of a carte) gets them all merged there, as its own editor does.
+  def draft_edit_option_params(klass, options)
+    return {} if options.blank?
+
+    options = options.to_h.transform_keys(&:to_sym)
+
+    if klass.option_keys.all? { klass.method_defined?(:"#{it}=") }
+      options
+    else
+      { options: options.stringify_keys }
+    end
   end
 
   def draft_edit_failure(key, **) = Result.failure(draft_edit_t(key, **))

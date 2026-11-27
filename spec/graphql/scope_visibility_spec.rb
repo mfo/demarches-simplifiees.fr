@@ -42,7 +42,7 @@ RSpec.describe 'closed by default visibility', type: :graphql do
 
     it 'sees only the form editing mutations' do
       expect(type_names(scopes: form_scopes)).to include('Mutation')
-      expect(field_names('Mutation', scopes: form_scopes)).to contain_exactly('demarcheSupprimerChamp', 'demarcheDeplacerChamp')
+      expect(field_names('Mutation', scopes: form_scopes)).to contain_exactly('demarcheSupprimerChamp', 'demarcheDeplacerChamp', 'demarcheAjouterChamp')
     end
 
     it 'only sees the form types' do
