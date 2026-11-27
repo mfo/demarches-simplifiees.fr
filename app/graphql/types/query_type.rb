@@ -2,6 +2,8 @@
 
 module Types
   class QueryType < Types::BaseObject
+    form_fields :demarche, :demarche_descriptor, :demarche_descriptors
+
     field :demarche, DemarcheType, null: false, description: "Informations concernant une démarche." do
       argument :number, Int, "Numéro de la démarche.", required: true
     end

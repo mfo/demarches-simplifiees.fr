@@ -5,6 +5,8 @@ module Types::Champs
     implements Types::ChampType
 
     class RegionType < Types::BaseObject
+      form_structure!
+
       field :name, String, null: false
       field :code, String, null: false
     end

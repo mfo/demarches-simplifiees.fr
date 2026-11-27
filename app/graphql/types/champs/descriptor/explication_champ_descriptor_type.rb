@@ -3,6 +3,7 @@
 module Types::Champs::Descriptor
   class ExplicationChampDescriptorType < Types::BaseObject
     implements Types::ChampDescriptorType
+    form_structure!
 
     field :collapsible_explanation_enabled, Boolean, null: true
     field :collapsible_explanation_text, String, null: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_25_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_buffercache"
   enable_extension "pg_catalog.plpgsql"
@@ -127,6 +127,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_100000) do
     t.datetime "last_v2_authenticated_at"
     t.string "name", null: false
     t.boolean "requires_ip_filtering", default: true, null: false
+    t.string "scopes", array: true
     t.inet "stored_ips", default: [], array: true
     t.string "token_digest"
     t.datetime "updated_at", null: false

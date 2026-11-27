@@ -3,6 +3,7 @@
 module Types::Champs::Descriptor
   class DropDownListChampDescriptorType < Types::BaseObject
     implements Types::ChampDescriptorType
+    form_structure!
 
     field :options, [String], "List des options d’un champ avec selection.", null: true
     field :other_option, Boolean, "La selection contien l’option \"Autre\".", null: true

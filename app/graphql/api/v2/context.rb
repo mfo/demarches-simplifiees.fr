@@ -28,8 +28,25 @@ class API::V2::Context < GraphQL::Query::Context
     self[:internal_use]
   end
 
+  # Contexts built without scopes (the unauthenticated request, internal
+  # callers, specs) fall back on what write_access used to mean.
+  def self.scopes(values)
+    values[:scopes] || APIToken.legacy_scopes(values[:write_access])
+  end
+
+  # Writing implies reading; internal callers (exports, schema dump) see it all.
+  def self.application_read?(values)
+    values[:internal_use] || scopes(values).intersect?(APIToken::SCOPES)
+  end
+
+  def scopes = self.class.scopes(self)
+
+  # Whoever reads applications sees the whole schema; the others only see what
+  # Types::ScopeVisibility opened.
+  def application_read? = self.class.application_read?(self)
+
   def write_access?
-    self[:write_access]
+    scopes.include?(APIToken::APPLICATION_WRITE)
   end
 
   def remote_ip

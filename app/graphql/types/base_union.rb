@@ -2,5 +2,6 @@
 
 module Types
   class BaseUnion < GraphQL::Schema::Union
+    extend ScopeVisibility
   end
 end
