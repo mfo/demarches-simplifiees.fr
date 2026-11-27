@@ -54,9 +54,7 @@
 
     <hr class="fr-hr">
 
-    <%= render 'scopes_fieldset',
-      selected: @api_token_params.scopes,
-      error: @scopes_error %>
+    <%= render APITokens::ScopesFieldsetComponent.new(selected: @api_token_params.scopes, error: @scopes_error) %>
 
     <%= render APITokens::HiddenFieldsComponent.new(fields: @api_token_params.hidden_fields_for(%i[target targets scopes])) %>
 

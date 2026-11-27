@@ -33,9 +33,7 @@
   <%= form_with url: admin_api_token_path(api_token), method: :patch do |f| -%>
     <%= hidden_field_tag :update_scopes, true %>
 
-    <%= render 'administrateurs/api_tokens/scopes_fieldset',
-      selected: api_token.effective_scopes,
-      error: invalid_scopes_message %>
+    <%= render APITokens::ScopesFieldsetComponent.new(selected: api_token.effective_scopes, error: invalid_scopes_message) %>
 
     <button class="fr-btn fr-btn--primary">
       <%= t('.scopes_button') %>

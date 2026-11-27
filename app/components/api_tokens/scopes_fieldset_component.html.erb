@@ -1,0 +1,43 @@
+<fieldset
+  class="<%= class_names('fr-fieldset', 'fr-fieldset--error': error.present?) %>"
+  id="api-token-scopes"
+  aria-labelledby="api-token-scopes-legend api-token-scopes-messages"
+  <%= tag.attributes(role: ('group' if error.present?)) %>
+>
+  <legend
+    class="fr-fieldset__legend fr-text--regular"
+    id="api-token-scopes-legend"
+  >
+    <%= t('administrateurs.api_tokens.scopes.legend') %>
+
+    <span class="fr-hint-text">
+      <%= t('administrateurs.api_tokens.scopes.legend_hint') %>
+    </span>
+  </legend>
+
+  <% APIToken::SCOPES.each do |scope| %>
+    <div class="fr-fieldset__element">
+      <div class="fr-checkbox-group">
+        <%= check_box_tag 'scopes[]', scope, selected.include?(scope), id: "scopes_#{scope}" %>
+
+        <label class="fr-label" for="scopes_<%= scope %>">
+          <%= scope_t(scope, :label) %>
+
+          <span class="fr-hint-text" id="scopes_<%= scope %>_hint">
+            <%= scope_t(scope, :hint) %>
+          </span>
+        </label>
+      </div>
+    </div>
+  <% end %>
+
+  <div
+    class="fr-messages-group"
+    id="api-token-scopes-messages"
+    aria-live="polite"
+  >
+    <% if error.present? %>
+      <p class="fr-message fr-message--error"><%= error %></p>
+    <% end %>
+  </div>
+</fieldset>
