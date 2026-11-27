@@ -38,7 +38,7 @@ describe 'As an administrateur I create an API token', js: true do
     fill_in 'Sélectionner les démarches autorisées', with: procedure.libelle
     find('[role="option"]', text: procedure.libelle).click
     send_keys(:escape)
-    custom_check 'access_read_write'
+    custom_check 'scopes_application_write'
     click_on 'Continuer'
     expect(page).to have_content("Sécurité")
 
@@ -60,7 +60,7 @@ describe 'As an administrateur I create an API token', js: true do
     fill_in 'Nom du jeton', with: 'jeton manuel'
     click_on 'Continuer'
 
-    custom_check 'access_read_write'
+    custom_check 'scopes_application_write'
     custom_check 'target_all'
     click_on 'Continuer'
     expect(page).to have_content("Sécurité")
@@ -82,7 +82,7 @@ describe 'As an administrateur I create an API token', js: true do
     fill_in 'Nom du jeton', with: 'jeton semestriel'
     click_on 'Continuer'
 
-    custom_check 'access_read_write'
+    custom_check 'scopes_application_write'
     custom_check 'target_all'
     click_on 'Continuer'
     expect(page).to have_content("Sécurité")
@@ -104,7 +104,7 @@ describe 'As an administrateur I create an API token', js: true do
     fill_in 'Nom du jeton', with: 'jeton daté'
     click_on 'Continuer'
 
-    custom_check 'access_read_write'
+    custom_check 'scopes_application_write'
     custom_check 'target_all'
     click_on 'Continuer'
     expect(page).to have_content("Sécurité")
@@ -129,20 +129,20 @@ describe 'As an administrateur I create an API token', js: true do
     fill_in 'Sélectionner les démarches autorisées', with: procedure.libelle
     find('[role="option"]', text: procedure.libelle).click
     send_keys(:escape)
-    custom_check 'access_read_write'
+    custom_check 'scopes_application_write'
     click_on 'Continuer'
     expect(page).to have_content('Sécurité')
 
     click_on 'Retour'
     expect(page).to have_content('Privilèges du jeton')
-    expect(page).to have_checked_field('access_read_write')
+    expect(page).to have_checked_field('scopes_application_write')
     expect(page).to have_text(procedure.libelle)
 
     click_on 'Retour'
     expect(page).to have_field('Nom du jeton', with: 'jeton avec retour')
 
     click_on 'Continuer'
-    expect(page).to have_checked_field('access_read_write')
+    expect(page).to have_checked_field('scopes_application_write')
     expect(page).to have_text(procedure.libelle)
     click_on 'Continuer'
     expect(page).to have_content('Sécurité')
@@ -168,7 +168,7 @@ describe 'As an administrateur I create an API token', js: true do
     expect(page).to have_field('Nom du jeton', with: 'Jeton original')
     click_on 'Continuer'
 
-    expect(page).to have_checked_field('access_read_write')
+    expect(page).to have_checked_field('scopes_application_write')
     expect(page).to have_text(procedure.libelle)
     click_on 'Continuer'
 

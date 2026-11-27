@@ -55,6 +55,8 @@ export class ApiTokenAutorisationController extends ApplicationController {
   }
 
   accessDefined() {
-    return this.element.querySelectorAll("[name='access']:checked").length == 1;
+    return (
+      this.element.querySelectorAll("[name='scopes[]']:checked").length >= 1
+    );
   }
 }

@@ -21,7 +21,7 @@ describe APITokenParams do
         expect(api_token_params.name).to eq('Mon jeton')
         expect(api_token_params.to_h).to include(
           target: 'all',
-          access: 'read_write',
+          scopes: APIToken::APPLICATION_SCOPES,
           networkFiltering: 'customNetworks',
           networks: '192.168.1.0/24 10.0.0.0/8'
         )
@@ -43,7 +43,7 @@ describe APITokenParams do
         expect(api_token_params.to_h).to include(
           target: 'custom',
           targets: [procedure.id],
-          access: 'read',
+          scopes: [APIToken::APPLICATION_READ],
           networkFiltering: 'autoAssign'
         )
         expect(api_token_params.to_h).not_to have_key(:networks)

@@ -15,7 +15,7 @@ describe Administrateurs::APITokensController, type: :controller do
     let(:default_params) do
       {
         name: 'Test',
-        access: 'read_write',
+        scopes: [APIToken::APPLICATION_READ, APIToken::APPLICATION_WRITE],
         target: 'all',
         lifetime: 'oneWeek',
       }
@@ -40,9 +40,38 @@ describe Administrateurs::APITokensController, type: :controller do
     end
 
     context 'with read access' do
-      let(:params) { default_params.merge(access: 'read') }
+      let(:params) { default_params.merge(scopes: [APIToken::APPLICATION_READ]) }
 
-      it { expect(token.write_access?).to be false }
+      it do
+        expect(token.write_access?).to be false
+        expect(token.scopes).to eq([APIToken::APPLICATION_READ])
+      end
+    end
+
+    context 'with the form scope only' do
+      let(:params) { default_params.merge(scopes: [APIToken::FORM_WRITE]) }
+
+      it do
+        expect(token.scopes).to eq([APIToken::FORM_WRITE])
+        expect(token.write_access?).to be false
+        expect(token.effective_scopes).not_to include(APIToken::APPLICATION_READ)
+      end
+    end
+
+    context 'with cumulated scopes and a forged one' do
+      let(:params) { default_params.merge(scopes: [APIToken::APPLICATION_READ, APIToken::FORM_WRITE, 'everything']) }
+
+      it { expect(token.scopes).to eq([APIToken::APPLICATION_READ, APIToken::FORM_WRITE]) }
+    end
+
+    context 'without any scope' do
+      let(:params) { default_params.except(:scopes) }
+
+      it 'does not create a token and sends the admin back to the permissions step' do
+        expect(token).to be_nil
+        expect(response.location).to include(autorisations_admin_api_tokens_path)
+        expect(response.location).to include('noScope=true')
+      end
     end
 
     APIToken.selectable_lifetimes.each do |lifetime, duration|
@@ -178,7 +207,7 @@ describe Administrateurs::APITokensController, type: :controller do
     render_views
 
     it 'carries the targeted procedures over to the creation form and the back link' do
-      get :securite, params: { name: 'Test', access: 'read', target: 'custom', targets: [procedure.id], invalidNetwork: true }
+      get :securite, params: { name: 'Test', scopes: [APIToken::APPLICATION_READ], target: 'custom', targets: [procedure.id], invalidNetwork: true }
 
       form = response.parsed_body
       expect(form.css("input[type=hidden][name='targets[]']").map { it['value'] }).to eq([procedure.id.to_s])
@@ -205,6 +234,22 @@ describe Administrateurs::APITokensController, type: :controller do
     end
   end
 
+  describe 'autorisations scopes' do
+    render_views
+
+    it 'offers the three scopes in a fieldset and says the form scope never reaches applicant data' do
+      get :autorisations, params: { name: 'Test', scopes: [APIToken::FORM_WRITE], noScope: true }
+
+      page = response.parsed_body
+      expect(page.css('fieldset legend').map(&:text).join).to include(I18n.t('administrateurs.api_tokens.scopes.legend'))
+      expect(page.css("input[type=checkbox][name='scopes[]']").map { it['value'] }).to eq(APIToken::SCOPES)
+      expect(page.at_css("input[value=#{APIToken::FORM_WRITE}]")['checked']).to be_present
+      expect(page.at_css("input[value=#{APIToken::APPLICATION_READ}]")['checked']).to be_nil
+      expect(page.at_css('#scopes_form_write_hint').text).to include('Aucun accès aux données des usagers')
+      expect(page.at_css('.fr-message--error').text).to include(I18n.t('administrateurs.api_tokens.autorisations.no_scope'))
+    end
+  end
+
   describe 'update' do
     let(:token) { APIToken.generate(admin).first }
     let(:params) { { name:, networks:, procedure_to_add: } }
@@ -220,6 +265,28 @@ describe Administrateurs::APITokensController, type: :controller do
       it 'updates a token' do
         expect(token.name).to eq('new name')
         expect(token.authorized_networks).to eq([IPAddr.new('118.218.200.200')])
+      end
+    end
+
+    context 'changing the scopes' do
+      let(:params) { { update_scopes: true, scopes: [APIToken::FORM_WRITE] } }
+
+      before { subject; token.reload }
+
+      it 'stores them and keeps write_access in step' do
+        expect(token.scopes).to eq([APIToken::FORM_WRITE])
+        expect(token.write_access?).to be false
+      end
+    end
+
+    context 'emptying the scopes' do
+      let(:params) { { update_scopes: true } }
+
+      before { subject; token.reload }
+
+      it 'keeps the previous rights' do
+        expect(token.scopes).to be_nil
+        expect(token.effective_scopes).to eq(APIToken::APPLICATION_SCOPES)
       end
     end
 

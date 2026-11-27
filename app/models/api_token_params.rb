@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 class APITokenParams
-  FIELDS = [:name, :api_token_to_duplicate, :target, :targets, :access, :networkFiltering, :networks, :lifetime, :customLifetime].freeze
+  FIELDS = [:name, :api_token_to_duplicate, :target, :targets, :scopes, :networkFiltering, :networks, :lifetime, :customLifetime].freeze
 
   attr_reader :params
 
   def initialize(params)
-    @params = params.permit(:name, :api_token_to_duplicate, :target, :access, :networkFiltering, :networks, :lifetime, :customLifetime, targets: [])
+    @params = params.permit(:name, :api_token_to_duplicate, :target, :networkFiltering, :networks, :lifetime, :customLifetime, targets: [], scopes: [])
   end
 
   def name
@@ -15,6 +15,10 @@ class APITokenParams
 
   def targets
     Array(params[:targets])
+  end
+
+  def scopes
+    Array(params[:scopes]) & APIToken::SCOPES
   end
 
   def duplicating?
@@ -35,7 +39,7 @@ class APITokenParams
       name: token.name,
       target: token.allowed_procedure_ids.blank? ? 'all' : 'custom',
       targets: token.allowed_procedure_ids,
-      access: token.write_access? ? 'read_write' : 'read',
+      scopes: token.effective_scopes,
       networkFiltering: token.authorized_networks.blank? ? 'autoAssign' : 'customNetworks',
       networks: token.authorized_networks_for_ui.gsub(', ', ' ').presence
     ))
