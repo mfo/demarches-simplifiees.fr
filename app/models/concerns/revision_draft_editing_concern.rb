@@ -23,6 +23,16 @@ module RevisionDraftEditingConcern
   # mapping of a referentiel, which has an editor of its own.
   HIDDEN_OPTIONS = [:old_pj, :skip_pj_validation, :skip_content_type_pj_validation, :referentiel_mapping].freeze
 
+  # The names a client gives the operators of a condition: 'eq', 'not_eq',
+  # 'greater_than', 'include', 'in_departement'…
+  CONDITION_OPERATORS = [
+    Logic::Eq, Logic::NotEq, Logic::GreaterThan, Logic::GreaterThanEq, Logic::LessThan, Logic::LessThanEq,
+    Logic::IncludeOperator, Logic::ExcludeOperator,
+    Logic::InDepartementOperator, Logic::NotInDepartementOperator, Logic::InRegionOperator, Logic::NotInRegionOperator,
+  ].index_by { it.name.demodulize.underscore.delete_suffix('_operator') }.freeze
+
+  CONDITION_TOP_OPERATORS = { 'and' => Logic::And, 'or' => Logic::Or }.freeze
+
   # Removes a type de champ (and the children of a repetition) unless the
   # editor would refuse, or leave a condition pointing at it.
   def remove_type_de_champ_checked(stable_id)
@@ -150,6 +160,38 @@ module RevisionDraftEditingConcern
     end
   rescue ActiveRecord::RecordNotFound # the draft was published or the field deleted meanwhile
     published_at? ? draft_edit_failure(:revision_published) : draft_edit_not_found(stable_id)
+  end
+
+  # Sets the display condition of a type de champ from terms
+  # ({ source_stable_id:, operator:, value:, source_column: }), none removing
+  # it. Checked before the type de champ is cloned for the draft: a refused
+  # condition leaves no clone behind.
+  def set_condition_checked(stable_id, terms:, operator: 'and')
+    type_de_champ = find_type_de_champ_to_edit(stable_id)
+    return draft_edit_not_found(stable_id) if type_de_champ.nil?
+
+    top_operator = CONDITION_TOP_OPERATORS[operator.to_s.downcase]
+    return draft_edit_failure(:unknown_condition_combinator, operator:, accepted: CONDITION_TOP_OPERATORS.keys.join(', ')) if top_operator.nil?
+
+    sources = type_de_champ.condition_source_type_de_champs
+    conditions, errors = draft_edit_condition_terms(type_de_champ, sources, terms)
+    return Result.failure(errors) if errors.present?
+
+    condition = conditions.many? ? top_operator.new(conditions) : conditions.first
+    errors = Logic::ErrorMessages.new(condition, sources).to_a
+    return Result.failure(errors) if errors.present?
+
+    apply_draft_edit_unless_new_errors do
+      type_de_champ = find_and_ensure_exclusive_use(type_de_champ.stable_id)
+
+      if update_type_de_champ(type_de_champ, { condition: })
+        Result.success(type_de_champ.stable_id)
+      else
+        Result.failure(type_de_champ.errors.full_messages)
+      end
+    end
+  rescue ActiveRecord::RecordNotFound # the revision got published meanwhile
+    draft_edit_not_found(stable_id)
   end
 
   # Runs an edit returning a Result and keeps it only if the editor shows no
@@ -282,6 +324,49 @@ module RevisionDraftEditingConcern
       options
     else
       { options: (current || {}).to_h.merge(options.stringify_keys) }
+    end
+  end
+
+  def draft_edit_condition_terms(type_de_champ, sources, terms)
+    form = ConditionForm.new(source_tdcs: sources)
+    errors = []
+
+    conditions = terms.filter_map do |term|
+      term = term.to_h.symbolize_keys
+      operator_class = CONDITION_OPERATORS[term[:operator].to_s]
+      source = sources.find { it.stable_id.to_s == term[:source_stable_id].to_s }
+
+      error = if operator_class.nil?
+        draft_edit_t(:unknown_condition_operator, operator: term[:operator], accepted: CONDITION_OPERATORS.keys.join(', '))
+      elsif source.nil?
+        draft_edit_unavailable_source(type_de_champ, term[:source_stable_id])
+      end
+
+      if error
+        errors << error
+        next
+      end
+
+      form.condition_from_raw(source.stable_id, operator_class.name, term[:value], column_id: term[:source_column])
+    end
+
+    [conditions, errors]
+  end
+
+  # Why a type de champ cannot be read by the condition of another.
+  def draft_edit_unavailable_source(conditioned, source_stable_id)
+    source = find_type_de_champ_to_edit(source_stable_id)
+    return draft_edit_t(:not_found, stable_id: source_stable_id) if source.nil?
+
+    repetition = source.enclosing_repetition
+    values = { libelle: source.libelle, stable_id: source.stable_id }
+
+    if repetition.present? && repetition.stable_id != conditioned.enclosing_repetition&.stable_id
+      draft_edit_t(:condition_source_in_repetition, **values, repetition: repetition.libelle)
+    elsif source.private? && conditioned.public?
+      draft_edit_t(:condition_source_private, **values)
+    else
+      draft_edit_t(:condition_source_after, **values, conditioned: conditioned.libelle)
     end
   end
 

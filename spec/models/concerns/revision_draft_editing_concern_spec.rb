@@ -778,4 +778,151 @@ describe RevisionDraftEditingConcern do
       end
     end
   end
+
+  describe '#set_condition_checked' do
+    let(:target) { stable_id('boursier') }
+    let(:terms) { [{ source_stable_id: stable_id('age'), operator: 'less_than', value: '26' }] }
+
+    subject { draft.set_condition_checked(target, terms:) }
+
+    it 'sets a condition of one term, the number read as a number' do
+      expect(subject).to be_success
+      expect(child('boursier').condition).to eq(Logic::LessThan.new(Logic::ChampValue.new(stable_id('age')), Logic::Constant.new(26)))
+    end
+
+    context 'with two terms and the or combinator' do
+      subject { draft.set_condition_checked(target, operator: 'or', terms: terms + [{ source_stable_id: stable_id('age'), operator: 'greater_than', value: '60' }]) }
+
+      it 'combines them' do
+        expect(subject).to be_success
+        expect(child('boursier').condition).to be_a(Logic::Or)
+        expect(child('boursier').condition.operands.size).to eq(2)
+      end
+    end
+
+    context 'with a yes_no source' do
+      let(:target) { stable_id('age') }
+      let(:terms) { [{ source_stable_id: stable_id('boursier'), operator: 'eq', value: 'true' }] }
+
+      before { draft.move_type_de_champ(stable_id('boursier'), 0) }
+
+      it 'reads true as a boolean' do
+        expect(subject).to be_success
+        expect(child('age').condition.right).to eq(Logic::Constant.new(true))
+      end
+
+      context 'when the value is not a boolean' do
+        let(:terms) { [{ source_stable_id: stable_id('boursier'), operator: 'eq', value: 'Défavorable' }] }
+
+        it 'is refused instead of read as true' do
+          expect(subject).not_to be_success
+          expect(child('age').condition).to be_nil
+        end
+      end
+    end
+
+    context 'without term' do
+      before { child('boursier').update!(condition: equals(stable_id('age'))) }
+
+      subject { draft.set_condition_checked(target, terms: []) }
+
+      it 'removes the condition' do
+        expect(subject).to be_success
+        expect(child('boursier').condition).to be_nil
+      end
+    end
+
+    context 'with an unknown operator' do
+      let(:terms) { [{ source_stable_id: stable_id('age'), operator: 'bigger', value: '26' }] }
+
+      it { expect(subject.errors.first).to include('« bigger »', 'less_than') }
+    end
+
+    context 'with an unknown combinator' do
+      subject { draft.set_condition_checked(target, operator: 'xor', terms:) }
+
+      it { expect(subject.errors.first).to include('« xor »', 'and, or') }
+    end
+
+    context 'with a champ of nowhere' do
+      let(:target) { 0 }
+
+      it { expect(subject.errors.first).to include('n’existe pas dans le brouillon') }
+    end
+
+    context 'with a source placed after the champ' do
+      let(:target) { stable_id('age') }
+      let(:terms) { [{ source_stable_id: stable_id('boursier'), operator: 'eq', value: 'true' }, { source_stable_id: stable_id('enfants'), operator: 'eq', value: '1' }] }
+
+      it 'is refused and names the champs' do
+        expect(subject.errors.join).to include('« enfants »')
+        expect(subject.errors).to all(be_a(String))
+        expect(child('age').condition).to be_nil
+      end
+    end
+
+    context 'with a source of a repeatable block' do
+      let(:terms) { [{ source_stable_id: stable_id('prénom'), operator: 'eq', value: 'a' }] }
+
+      it { expect(subject.errors.first).to include('« prénom »', 'bloc répétable « enfants »') }
+    end
+
+    context 'with a condition the editor refuses' do
+      let(:terms) { [{ source_stable_id: stable_id('age'), operator: 'include', value: '26' }] }
+
+      it 'gives the editor wording of the errors' do
+        expect(subject).not_to be_success
+        expect(subject.errors.first).to be_present
+        expect(child('boursier').condition).to be_nil
+      end
+    end
+
+    context 'with a public and a private yes_no' do
+      let(:procedure) do
+        create(:procedure,
+          public_type_de_champs: [{ type: :yes_no, libelle: 'A' }],
+          private_type_de_champs: [{ type: :yes_no, libelle: 'P' }])
+      end
+      let(:target) { stable_id('A') }
+      let(:terms) { [{ source_stable_id: stable_id('P'), operator: 'eq', value: 'true' }] }
+
+      context 'when the public champ reads the private one and the flag is off' do
+        it 'is refused naming the annotation' do
+          expect(subject).not_to be_success
+          expect(subject.errors.join).to include('« P »')
+          expect(child('A').condition).to be_nil
+        end
+      end
+
+      context 'when the flag is on and the private champ already reads the public one' do
+        before do
+          Flipper.enable(:annotation_condition_champs_public, procedure)
+          tdcs = procedure.draft_revision.type_de_champs.to_a
+          tdcs.find { it.libelle == 'P' }.update!(condition: Logic::Eq.new(Logic::ChampValue.new(tdcs.find { it.libelle == 'A' }.stable_id), Logic::Constant.new(true)))
+          procedure.publish!(procedure.administrateurs.first)
+        end
+
+        it 'refuses the loop and leaves no clone' do
+          expect(subject).not_to be_success
+          expect(subject.errors.join).to include('→')
+          expect(child('A').condition).to be_nil
+          expect(draft.reload.type_de_champ(target)).to be_in(procedure.published_revision.type_de_champs)
+        end
+      end
+    end
+
+    context 'when the type de champ is shared with the published revision' do
+      before { procedure.publish!(procedure.administrateurs.first) }
+
+      it 'clones it only when the condition is accepted' do
+        refused = draft.reload.set_condition_checked(target, terms: [{ source_stable_id: stable_id('age'), operator: 'include', value: '26' }])
+        expect(refused).not_to be_success
+        expect(draft.reload.type_de_champ(target)).to be_in(procedure.published_revision.type_de_champs)
+
+        expect(draft.set_condition_checked(target, terms:)).to be_success
+        expect(draft.reload.type_de_champ(target)).not_to be_in(procedure.published_revision.type_de_champs)
+        expect(procedure.published_revision.reload.type_de_champs.find { it.stable_id == target }.condition).to be_nil
+      end
+    end
+  end
 end

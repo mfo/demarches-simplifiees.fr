@@ -28,3 +28,8 @@ en:
             description_not_configurable: "The type \"%{type_champ}\" has no description to change."
             mandatory_not_configurable: "The type \"%{type_champ}\" cannot be made mandatory or optional that way: the mandatory flag is imposed by the type."
             nothing_to_update: "Nothing to update."
+            unknown_condition_combinator: "The combinator \"%{operator}\" is unknown. Accepted combinators: %{accepted}."
+            unknown_condition_operator: "The operator \"%{operator}\" is unknown. Accepted operators: %{accepted}."
+            condition_source_in_repetition: "\"%{libelle}\" (%{stable_id}) is in the repeatable block \"%{repetition}\": it can only condition fields of that block."
+            condition_source_private: "\"%{libelle}\" (%{stable_id}) is an internal field: it cannot condition a field of the applicant form."
+            condition_source_after: "\"%{libelle}\" (%{stable_id}) cannot be the source of this condition: the source must be placed before \"%{conditioned}\"."

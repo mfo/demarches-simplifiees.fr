@@ -28,6 +28,11 @@ fr:
             description_not_configurable: "Le type « %{type_champ} » n’a pas de description modifiable."
             mandatory_not_configurable: "Le caractère obligatoire du type « %{type_champ} » est imposé par le type : il ne peut pas être modifié ainsi."
             nothing_to_update: "Aucune modification demandée."
+            unknown_condition_combinator: "Le combinateur « %{operator} » est inconnu. Combinateurs acceptés : %{accepted}."
+            unknown_condition_operator: "L’opérateur « %{operator} » est inconnu. Opérateurs acceptés : %{accepted}."
+            condition_source_in_repetition: "« %{libelle} » (%{stable_id}) est dans le bloc répétable « %{repetition} » : il ne peut conditionner que des champs de ce bloc."
+            condition_source_private: "« %{libelle} » (%{stable_id}) est une annotation privée : elle ne peut pas conditionner un champ du formulaire usager."
+            condition_source_after: "« %{libelle} » (%{stable_id}) ne peut pas être la source de cette condition : la source doit être placée avant « %{conditioned} »."
     attributes:
       procedure_revision:
         ineligibilite_message: Message d’inéligibilité

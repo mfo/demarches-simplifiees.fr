@@ -3,7 +3,7 @@
 module Types
   class MutationType < Types::BaseObject
     # The only mutations a token without the application scopes sees.
-    form_fields :demarche_supprimer_champ, :demarche_deplacer_champ, :demarche_ajouter_champ, :demarche_modifier_champ
+    form_fields :demarche_supprimer_champ, :demarche_deplacer_champ, :demarche_ajouter_champ, :demarche_modifier_champ, :demarche_modifier_champ_condition
 
     field :create_direct_upload, mutation: Mutations::CreateDirectUpload
 
@@ -48,5 +48,6 @@ module Types
     field :demarche_deplacer_champ, mutation: Mutations::DemarcheDeplacerChamp
     field :demarche_supprimer_champ, mutation: Mutations::DemarcheSupprimerChamp
     field :demarche_modifier_champ, mutation: Mutations::DemarcheModifierChamp
+    field :demarche_modifier_champ_condition, mutation: Mutations::DemarcheModifierChampCondition
   end
 end
