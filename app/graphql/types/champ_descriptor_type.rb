@@ -4,6 +4,8 @@ module Types
   module ChampDescriptorType
     include Types::BaseInterface
 
+    form_structure!
+
     class TypeDeChampType < Types::BaseEnum
       TypeDeChamp.type_champs.each do |symbol_name, string_name|
         value(string_name,

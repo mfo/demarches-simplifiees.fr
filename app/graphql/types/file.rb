@@ -2,6 +2,8 @@
 
 module Types
   class File < Types::BaseObject
+    form_structure!
+
     field :url, Types::URL, null: false
     field :filename, String, null: false
     field :byte_size, Int, null: false, deprecation_reason: "Utilisez le champ `byteSizeBigInt` à la place."

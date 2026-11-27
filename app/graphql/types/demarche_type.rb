@@ -20,6 +20,12 @@ module Types
 
     description "Une démarche"
 
+    # Everything about the form, nothing about the applicants or the agents.
+    form_fields :id, :number, :title, :description, :state, :declarative,
+      :date_creation, :date_publication, :date_derniere_modification, :date_depublication, :date_fermeture,
+      :champ_descriptors, :annotation_descriptors,
+      :active_revision, :draft_revision, :published_revision, :revisions, :service
+
     global_id_field :id
     field :number, Int, "Numero de la démarche.", null: false, method: :id
     field :title, String, "Titre de la démarche.", null: false, method: :libelle

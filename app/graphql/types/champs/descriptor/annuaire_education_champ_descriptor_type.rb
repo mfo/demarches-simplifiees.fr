@@ -3,5 +3,6 @@
 module Types::Champs::Descriptor
   class AnnuaireEducationChampDescriptorType < Types::BaseObject
     implements Types::ChampDescriptorType
+    form_structure!
   end
 end

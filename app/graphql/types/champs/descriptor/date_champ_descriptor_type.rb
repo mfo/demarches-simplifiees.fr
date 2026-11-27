@@ -3,6 +3,7 @@
 module Types::Champs::Descriptor
   class DateChampDescriptorType < Types::BaseObject
     implements Types::ChampDescriptorType
+    form_structure!
 
     field :birthdate, Boolean, "Ce champ est une date de naissance.", null: true
 
