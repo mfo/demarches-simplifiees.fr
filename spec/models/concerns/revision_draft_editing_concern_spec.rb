@@ -327,6 +327,202 @@ describe RevisionDraftEditingConcern do
     end
   end
 
+  describe '#update_type_de_champ_checked' do
+    subject { draft.update_type_de_champ_checked(stable_id('age'), **params) }
+
+    let(:params) { { libelle: 'âge', description: 'en années', mandatory: false } }
+
+    it 'updates the type de champ' do
+      expect(subject).to be_success
+      expect(child('âge')).to have_attributes(description: 'en années', mandatory: false)
+    end
+
+    context 'with options' do
+      let(:params) { { options: { min_number: '0' } } }
+
+      it 'keeps the options it does not mention' do
+        draft.update_type_de_champ_checked(stable_id('age'), options: { max_number: '120' })
+
+        expect(subject).to be_success
+        expect(child('age').options).to include('min_number' => '0', 'max_number' => '120')
+      end
+    end
+
+    context 'with an option the type does not have' do
+      let(:params) { { options: { character_limit: '4' } } }
+
+      it { expect(subject.errors.first).to include('character_limit') }
+    end
+
+    context 'with a type of the matrix' do
+      let(:params) { { type_champ: 'decimal_number' } }
+
+      it 'changes the type' do
+        expect(subject).to be_success
+        expect(child('age').type_champ).to eq('decimal_number')
+      end
+    end
+
+    context 'with a type and its options at once' do
+      let(:params) { { type_champ: 'integer_number', options: { min_number: '1' } } }
+
+      it { expect(subject).to be_success }
+    end
+
+    context 'with a type outside the matrix of a published champ' do
+      let(:params) { { type_champ: 'yes_no' } }
+
+      before do
+        procedure.publish!(procedure.administrateurs.first)
+        procedure.reload
+      end
+
+      it 'is refused and the type stays' do
+        expect(subject.errors.first).to include('« age »', 'integer_number', 'decimal_number')
+        expect(child('age').type_champ).to eq('integer_number')
+      end
+    end
+
+    context 'with an unknown type' do
+      let(:params) { { type_champ: 'telepathy' } }
+
+      it { expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.unknown_type_champ', type_champ: 'telepathy')]) }
+    end
+
+    context 'with a repetition that holds a child' do
+      subject { draft.update_type_de_champ_checked(stable_id('enfants'), type_champ: 'text') }
+
+      it 'is refused and the child stays' do
+        expect(subject.errors.first).to include('« enfants »')
+        expect(child('enfants').type_champ).to eq('repetition')
+        expect(child('prénom').stable_id).to be_present
+      end
+    end
+
+    context 'with a carte, whose options are merged' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :carte, libelle: 'plan' }]) }
+
+      it 'keeps the layer set before' do
+        draft.update_type_de_champ_checked(stable_id('plan'), options: { cadastres: true })
+
+        expect(draft.update_type_de_champ_checked(stable_id('plan'), options: { unesco: true })).to be_success
+        expect(child('plan').options).to include('cadastres' => true, 'unesco' => true)
+      end
+    end
+
+    context 'with a text turned into a repetition' do
+      subject { draft.update_type_de_champ_checked(stable_id('nom'), type_champ: 'repetition') }
+
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'nom' }]) }
+
+      it 'succeeds, the repetition being empty' do
+        expect(subject).to be_success
+        expect(child('nom').type_champ).to eq('repetition')
+      end
+    end
+
+    context 'with a header section' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :header_section, libelle: 'titre' }]) }
+
+      [{ mandatory: true }, { description: 'x' }].each do |params|
+        it "refuses #{params.keys.first} and saves nothing" do
+          result = draft.update_type_de_champ_checked(stable_id('titre'), **params)
+
+          expect(result).not_to be_success
+          expect(child('titre')).to have_attributes(mandatory: false)
+          expect(child('titre').description).not_to eq('x')
+        end
+      end
+    end
+
+    context 'with a mandatory flag against the constraints of the type' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :text, libelle: 'nom' }]) }
+
+      it 'refuses a text turned into a header section that is mandatory' do
+        result = draft.update_type_de_champ_checked(stable_id('nom'), type_champ: 'header_section', mandatory: true)
+
+        expect(result.errors.first).to include('header_section')
+        expect(child('nom').type_champ).to eq('text')
+      end
+    end
+
+    context 'when the type de champ is locked by a routing rule' do
+      let(:params) { { type_champ: 'decimal_number' } }
+
+      before do
+        procedure.defaut_groupe_instructeur.update!(routing_rule: Logic::Eq.new(Logic::ChampValue.new(stable_id('age')), Logic::Constant.new('18')))
+        procedure.reload
+      end
+
+      it 'refuses the type only' do
+        expect(subject.errors.first).to include('age')
+        expect(draft.update_type_de_champ_checked(stable_id('age'), libelle: 'âge')).to be_success
+      end
+
+      it 'accepts options the rule does not read' do
+        expect(draft.update_type_de_champ_checked(stable_id('age'), options: { max_number: '120' })).to be_success
+        expect(child('age').options).to include('max_number' => '120')
+      end
+    end
+
+    context 'when a drop-down list is read by an eligibility rule' do
+      let(:procedure) { create(:procedure, public_type_de_champs: [{ type: :drop_down_list, libelle: 'ville', options: ['Paris', 'Lyon'] }]) }
+      let(:ville) { stable_id('ville') }
+      let(:refused) { I18n.t('activerecord.errors.models.procedure_revision.draft_edit.options_read_by_rules', libelle: 'ville') }
+
+      before do
+        draft.update!(ineligibilite_enabled: true, ineligibilite_message: 'non', ineligibilite_rules: Logic::Eq.new(Logic::ChampValue.new(ville), Logic::Constant.new('Paris')))
+      end
+
+      it 'refuses to remove a choice' do
+        result = draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['Paris'] })
+
+        expect(result.errors).to eq([refused])
+        expect(child('ville').drop_down_options).to eq(['Paris', 'Lyon'])
+      end
+
+      it 'accepts an added choice and an unchanged list' do
+        expect(draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['Paris', 'Lyon', 'Nice'] })).to be_success
+        expect(draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['Paris', 'Lyon', 'Nice'] })).to be_success
+      end
+
+      it 'still refuses when the field is also in a referentiel url' do
+        allow_any_instance_of(Procedure).to receive(:used_by_referentiel_urls?).and_return(true)
+
+        expect(draft.update_type_de_champ_checked(ville, options: { drop_down_options: ['13', '69'] }).errors).to eq([refused])
+      end
+    end
+
+    context 'when the change breaks a condition' do
+      let(:params) { { type_champ: 'yes_no' } }
+
+      before { child('boursier').update!(condition: equals(stable_id('age'))) }
+
+      it 'is undone' do
+        expect(subject).not_to be_success
+        expect(child('age').type_champ).to eq('integer_number')
+      end
+    end
+
+    context 'with nothing to change' do
+      let(:params) { {} }
+
+      it { expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.nothing_to_update')]) }
+    end
+
+    context 'with a stable id of nowhere' do
+      subject { draft.update_type_de_champ_checked('0', libelle: 'x') }
+
+      it { expect(subject.errors.first).to include('n’existe pas') }
+    end
+
+    context 'when the procedure is published meanwhile' do
+      before { draft.update_columns(published_at: Time.zone.now) }
+
+      it { expect(subject.errors).to eq([I18n.t('activerecord.errors.models.procedure_revision.draft_edit.revision_published')]) }
+    end
+  end
+
   describe '#add_type_de_champ_checked' do
     let(:params) { { type_champ: 'text', libelle: 'nom' } }
 

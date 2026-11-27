@@ -21,6 +21,13 @@ fr:
             no_option: "aucune"
             revision_published: "Le brouillon vient d’être publié : il n’est plus modifiable."
             parent_other_form: "Le bloc répétable « %{libelle} » n’est pas dans ce formulaire : un champ ajouté dans un bloc répétable appartient au même formulaire (usager ou annotations privées) que lui."
+            repetition_not_empty: "« %{libelle} » est un bloc répétable qui contient des champs : son type ne peut pas changer, les champs qu’il contient seraient perdus. Supprimez d’abord ces champs."
+            type_change_published: "« %{libelle} » est déjà publié : son type ne peut devenir que %{accepted}, pour que les dossiers déposés restent lisibles."
+            options_read_by_rules: "« %{libelle} » est utilisé par une règle de routage ou d’inéligibilité : les valeurs qu’elle lit ne peuvent pas être retirées. Modifiez d’abord la règle."
+            libelle_not_configurable: "Le type « %{type_champ} » n’a pas de libellé modifiable."
+            description_not_configurable: "Le type « %{type_champ} » n’a pas de description modifiable."
+            mandatory_not_configurable: "Le caractère obligatoire du type « %{type_champ} » est imposé par le type : il ne peut pas être modifié ainsi."
+            nothing_to_update: "Aucune modification demandée."
     attributes:
       procedure_revision:
         ineligibilite_message: Message d’inéligibilité
