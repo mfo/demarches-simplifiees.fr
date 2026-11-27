@@ -5,6 +5,7 @@ class ProcedureRevision < ApplicationRecord
   include RevisionDescribableToLLMConcern
   include RevisionComparisonConcern
   include RevisionEditConcern
+  include RevisionDraftEditingConcern
   self.implicit_order_column = :created_at
   belongs_to :administrateur, optional: true
   belongs_to :procedure, -> { with_discarded }, inverse_of: :revisions, optional: false

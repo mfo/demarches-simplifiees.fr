@@ -1,0 +1,7 @@
+en:
+  graphql:
+    mutations:
+      demarche_brouillon:
+        demarche_not_found: 'Procedure "%{number}" does not exist or you are not allowed to edit it.'
+        form_scope_required: 'The token does not have the "form editing" scope.'
+        invalid_champ_id: 'The field id "%{id}" is invalid.'
