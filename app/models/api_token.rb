@@ -73,6 +73,8 @@ class APIToken < ApplicationRecord
   validate :scopes_are_known
 
   before_save :sanitize_targeted_procedure_ids
+  # write_access is still read elsewhere: keep it in step with explicit scopes.
+  before_save :sync_write_access, unless: -> { scopes.nil? }
 
   def context
     {
@@ -91,6 +93,9 @@ class APIToken < ApplicationRecord
   end
 
   def self.legacy_scopes(write_access) = write_access ? APPLICATION_SCOPES : READ_ONLY_SCOPES
+
+  # Drops unknown values and gives a stable order, whatever the client sent.
+  def self.known_scopes(values) = SCOPES & Array(values)
 
   def procedure_ids
     if full_access?
@@ -213,6 +218,10 @@ class APIToken < ApplicationRecord
   def scopes_are_known
     unknown = Array(scopes) - SCOPES
     errors.add(:scopes, :inclusion) if unknown.any?
+  end
+
+  def sync_write_access
+    self.write_access = scopes.include?(APPLICATION_WRITE)
   end
 
   def sanitize_targeted_procedure_ids

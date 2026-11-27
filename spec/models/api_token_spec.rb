@@ -183,6 +183,31 @@ describe APIToken, type: :model do
     end
   end
 
+  describe 'write_access sync' do
+    let(:api_token) { APIToken.generate(administrateur).first }
+
+    it 'follows explicit scopes' do
+      api_token.update!(scopes: [APIToken::FORM_WRITE])
+      expect(api_token.write_access?).to be false
+
+      api_token.update!(scopes: [APIToken::APPLICATION_WRITE])
+      expect(api_token.write_access?).to be true
+    end
+
+    it 'is left untouched when scopes is nil' do
+      api_token.update!(write_access: false)
+
+      expect(api_token.reload.write_access?).to be false
+    end
+  end
+
+  describe '.known_scopes' do
+    it 'keeps the known ones in the canonical order' do
+      expect(APIToken.known_scopes(['form_write', 'nope', 'application_read'])).to eq([APIToken::APPLICATION_READ, APIToken::FORM_WRITE])
+      expect(APIToken.known_scopes(nil)).to eq([])
+    end
+  end
+
   describe 'form scope' do
     let(:api_token) { APIToken.generate(administrateur).first }
 

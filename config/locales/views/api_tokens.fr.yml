@@ -14,7 +14,6 @@ fr:
       scopes:
         legend: Ce jeton permet de
         legend_hint: Les droits sont cumulables, choisissez-en au moins un.
-        at_least_one: Sélectionnez au moins un droit
         application_read:
           label: Lire les dossiers
           hint: récupérer des dossiers, des pièces jointes
@@ -32,7 +31,6 @@ fr:
         all_procedures_hint: présentes et futures
         select_procedures: Sélectionner les démarches autorisées
         no_procedure: Sélectionnez au moins une démarche
-        no_scope: Sélectionnez au moins un droit
         cancel: Retour
         continue: Continuer
       edit:

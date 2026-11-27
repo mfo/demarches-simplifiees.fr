@@ -246,7 +246,7 @@ describe Administrateurs::APITokensController, type: :controller do
       expect(page.at_css("input[value=#{APIToken::FORM_WRITE}]")['checked']).to be_present
       expect(page.at_css("input[value=#{APIToken::APPLICATION_READ}]")['checked']).to be_nil
       expect(page.at_css('#scopes_form_write_hint').text).to include('Aucun accès aux données des usagers')
-      expect(page.at_css('.fr-message--error').text).to include(I18n.t('administrateurs.api_tokens.autorisations.no_scope'))
+      expect(page.at_css('.fr-message--error').text).to include(I18n.t('activerecord.errors.models.api_token.attributes.scopes.too_short'))
     end
   end
 

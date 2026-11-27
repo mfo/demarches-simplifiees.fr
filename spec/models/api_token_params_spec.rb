@@ -4,6 +4,14 @@ describe APITokenParams do
   let(:admin) { administrateurs.default }
   let(:token) { APIToken.generate(admin).first }
 
+  describe '#scopes' do
+    it 'ignores the order sent by the client' do
+      params = ActionController::Parameters.new(scopes: ['form_write', 'application_read'])
+
+      expect(described_class.new(params).scopes).to eq([APIToken::APPLICATION_READ, APIToken::FORM_WRITE])
+    end
+  end
+
   describe '.from_token' do
     subject(:api_token_params) { described_class.from_token(token) }
 

@@ -16,6 +16,7 @@ module Administrateurs
     def autorisations
       @name = @api_token_params.name
       @libelle_id_procedures = libelle_id_procedures
+      @scopes_error = no_scope_message if params[:noScope].present?
     end
 
     def securite
@@ -42,7 +43,7 @@ module Administrateurs
 
       @api_token, @packed_token = APIToken.generate(current_administrateur, expires_at:)
 
-      @api_token.update!(name: @api_token_params.name, scopes: @api_token_params.scopes, write_access: write_access?(@api_token_params.scopes),
+      @api_token.update!(name: @api_token_params.name, scopes: @api_token_params.scopes,
                          allowed_procedure_ids:, authorized_networks:,
                          requires_ip_filtering: true)
 
@@ -89,15 +90,14 @@ module Administrateurs
       end
 
       if params[:update_scopes].present?
-        scopes = Array(params[:scopes]) & APIToken::SCOPES
+        scopes = APIToken.known_scopes(params[:scopes])
 
         if scopes.empty?
-          @invalid_scopes_message = t('administrateurs.api_tokens.scopes.at_least_one')
+          @invalid_scopes_message = no_scope_message
           return render :edit
         end
 
         h[:scopes] = scopes
-        h[:write_access] = write_access?(scopes)
       end
 
       if params[:name].present?
@@ -185,9 +185,8 @@ module Administrateurs
       params[:procedure_to_add]&.to_i
     end
 
-    # Kept in step with the scopes while write_access is still read elsewhere.
-    def write_access?(scopes)
-      scopes.include?(APIToken::APPLICATION_WRITE)
+    def no_scope_message
+      t('activerecord.errors.models.api_token.attributes.scopes.too_short')
     end
 
     def allowed_procedure_ids

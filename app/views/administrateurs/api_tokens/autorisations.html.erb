@@ -56,7 +56,7 @@
 
     <%= render 'scopes_fieldset',
       selected: @api_token_params.scopes,
-      error: params[:noScope].present? ? t('.no_scope') : nil %>
+      error: @scopes_error %>
 
     <%= render APITokens::HiddenFieldsComponent.new(fields: @api_token_params.hidden_fields_for(%i[target targets scopes])) %>
 

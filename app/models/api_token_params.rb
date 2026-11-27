@@ -18,7 +18,7 @@ class APITokenParams
   end
 
   def scopes
-    Array(params[:scopes]) & APIToken::SCOPES
+    APIToken.known_scopes(params[:scopes])
   end
 
   def duplicating?

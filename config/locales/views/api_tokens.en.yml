@@ -14,7 +14,6 @@ en:
       scopes:
         legend: This token allows
         legend_hint: Permissions can be combined, choose at least one.
-        at_least_one: Select at least one permission
         application_read:
           label: Read applications
           hint: retrieve applications, attachments
@@ -32,7 +31,6 @@ en:
         all_procedures_hint: current and future
         select_procedures: Select authorized procedures
         no_procedure: Select at least one procedure
-        no_scope: Select at least one permission
         cancel: back
         continue: continue
       edit:
