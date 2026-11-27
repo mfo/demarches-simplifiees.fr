@@ -14,6 +14,7 @@ fr:
       scopes:
         legend: Ce jeton permet de
         legend_hint: Les droits sont cumulables, choisissez-en au moins un.
+        cannot_widen: "Un jeton permanent ne peut pas obtenir de droits supplémentaires : créez un nouveau jeton."
         application_read:
           label: Lire les dossiers
           hint: récupérer des dossiers, des pièces jointes

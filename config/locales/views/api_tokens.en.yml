@@ -14,6 +14,7 @@ en:
       scopes:
         legend: This token allows
         legend_hint: Permissions can be combined, choose at least one.
+        cannot_widen: "A permanent token cannot gain more permissions: create a new token."
         application_read:
           label: Read applications
           hint: retrieve applications, attachments

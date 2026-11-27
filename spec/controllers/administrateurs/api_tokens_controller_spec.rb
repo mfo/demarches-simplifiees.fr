@@ -279,12 +279,40 @@ describe Administrateurs::APITokensController, type: :controller do
       end
     end
 
+    context 'on a permanent token' do
+      context 'when widening the scopes' do
+        before { token.update_columns(expires_at: nil, scopes: [APIToken::APPLICATION_READ]) }
+
+        let(:params) { { update_scopes: true, scopes: [APIToken::APPLICATION_READ, APIToken::FORM_WRITE] } }
+
+        before { subject }
+
+        it 'refuses and leaves the token unchanged' do
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(token.reload.scopes).to eq([APIToken::APPLICATION_READ])
+        end
+      end
+
+      context 'when narrowing the scopes' do
+        let(:token) { APIToken.generate(admin).first.tap { it.update_columns(expires_at: nil, scopes: APIToken::SCOPES) } }
+        let(:params) { { update_scopes: true, scopes: [APIToken::FORM_WRITE] } }
+
+        before { subject }
+
+        it 'accepts' do
+          expect(response).to have_http_status(:ok)
+          expect(token.reload.scopes).to eq([APIToken::FORM_WRITE])
+        end
+      end
+    end
+
     context 'emptying the scopes' do
       let(:params) { { update_scopes: true } }
 
       before { subject; token.reload }
 
       it 'keeps the previous rights' do
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(token.scopes).to be_nil
         expect(token.effective_scopes).to eq(APIToken::APPLICATION_SCOPES)
       end

@@ -94,7 +94,13 @@ module Administrateurs
 
         if scopes.empty?
           @invalid_scopes_message = no_scope_message
-          return render :edit
+          return render :edit, status: :unprocessable_content
+        end
+
+        # A token that never expires must not gain rights: that would sidestep MAX_LIFETIME.
+        if @api_token.expires_at.nil? && (scopes - @api_token.effective_scopes).any?
+          @invalid_scopes_message = t('administrateurs.api_tokens.scopes.cannot_widen')
+          return render :edit, status: :unprocessable_content
         end
 
         h[:scopes] = scopes
