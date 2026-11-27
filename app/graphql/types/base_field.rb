@@ -9,7 +9,7 @@ module Types
     private
 
     def visible_for_scopes?(context)
-      context.dossier_read? || (owner.respond_to?(:form_field?) && owner.form_field?(original_name))
+      ScopeVisibility.application_read?(context) || (owner.respond_to?(:form_field?) && owner.form_field?(original_name))
     end
 
     def visible_unless_deprecated?(context)

@@ -15,6 +15,7 @@ class APIToken < ApplicationRecord
   APPLICATION_READ = 'application_read'
   APPLICATION_WRITE = 'application_write'
   SCOPES = [APPLICATION_READ, APPLICATION_WRITE].freeze
+  READ_ONLY_SCOPES = [APPLICATION_READ].freeze
 
   belongs_to :administrateur, inverse_of: :api_tokens
 
@@ -72,7 +73,6 @@ class APIToken < ApplicationRecord
       administrateur_id:,
       api_token_id: id,
       procedure_ids:,
-      write_access: scopes_include?(APPLICATION_WRITE),
       scopes: effective_scopes,
     }
   end
@@ -81,10 +81,10 @@ class APIToken < ApplicationRecord
   # exactly the rights `write_access` gave them, with no backfill to run or to
   # get wrong. An explicit list always wins over `write_access`.
   def effective_scopes
-    scopes || (write_access? ? SCOPES : [APPLICATION_READ])
+    scopes || self.class.legacy_scopes(write_access?)
   end
 
-  def scopes_include?(scope) = effective_scopes.include?(scope)
+  def self.legacy_scopes(write_access) = write_access ? SCOPES : READ_ONLY_SCOPES
 
   def procedure_ids
     if full_access?

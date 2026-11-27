@@ -14,13 +14,13 @@ RSpec.describe 'closed by default visibility', type: :graphql do
   end
 
   def field_names(type, scopes:)
-    run("{ __type(name: \"#{type}\") { fields { name } } }", scopes:).dig('data', '__type', 'fields').map { it['name'] }
+    Array(run("{ __type(name: \"#{type}\") { fields { name } } }", scopes:).dig('data', '__type', 'fields')).map { it['name'] }
   end
 
   let(:form_scopes) { [] }
   let(:read_scopes) { [APIToken::APPLICATION_READ] }
 
-  describe 'a token without the dossier read scope' do
+  describe 'a token without the application read scope' do
     it 'reads the form of a procedure' do
       result = run('query($number: Int!) { demarche(number: $number) { title draftRevision { champDescriptors { __typename label } } service { nom } } }', scopes: form_scopes)
 
@@ -53,7 +53,7 @@ RSpec.describe 'closed by default visibility', type: :graphql do
     end
   end
 
-  describe 'a token with the dossier read scope' do
+  describe 'a token with the application read scope' do
     it 'sees the whole schema' do
       expect(type_names(scopes: read_scopes)).to include('Dossier', 'Message', 'Profile', 'Mutation')
       expect(field_names('Demarche', scopes: read_scopes)).to include('dossiers', 'administrateurs', 'groupeInstructeurs')
@@ -74,6 +74,68 @@ RSpec.describe 'closed by default visibility', type: :graphql do
       legacy = API::V2::Schema.execute('{ __typename }', context: { write_access: true }).context
 
       expect([write.write_access?, read.write_access?, legacy.write_access?]).to eq([true, false, true])
+    end
+  end
+
+  describe 'the descriptor of a procedure' do
+    let(:query) { 'query($number: Int!) { demarcheDescriptor(demarche: { number: $number }) { title dossiersCount } }' }
+
+    it 'hides the dossiers count from a form token, and gives it to a read token' do
+      expect(run(query, scopes: form_scopes)['errors'].first['message']).to include("dossiersCount")
+      expect(run(query, scopes: read_scopes).dig('data', 'demarcheDescriptor', 'dossiersCount')).to be_a(Integer)
+    end
+  end
+
+  describe 'the champ descriptors of a form' do
+    it 'lists the options of the geographic descriptors' do
+      query = '{ __type(name: "PaysChampDescriptor") { fields { name } } }'
+      expect(run(query, scopes: form_scopes).dig('data', '__type', 'fields').map { it['name'] }).to include('options')
+    end
+  end
+
+  describe 'the types opened to a form token' do
+    it 'only differ from the full schema on Query, Demarche and DemarcheDescriptor' do
+      gaps = type_names(scopes: form_scopes).filter do |type|
+        (field_names(type, scopes: read_scopes) - field_names(type, scopes: form_scopes)).any?
+      end
+
+      expect(gaps - ['Query', 'Demarche', 'DemarcheDescriptor']).to eq([])
+    end
+  end
+
+  describe 'a write-only token' do
+    it 'also reads' do
+      names = type_names(scopes: [APIToken::APPLICATION_WRITE])
+
+      expect(names).to include('Mutation', 'Dossier')
+    end
+  end
+
+  describe 'without a query' do
+    it 'sees the whole schema' do
+      expect { API::V2::Schema.get_type('Dossier') }.not_to raise_error
+      expect(API::V2::Schema.get_type('Dossier')).to be_present
+    end
+  end
+
+  describe 'a stored query' do
+    def stored(query_id, scopes:)
+      API::V2::StoredQuery.execute(query_id, variables: { demarcheNumber: procedure.id }, operation_name: 'getDemarche',
+        context: { administrateur_id: admin.id, procedure_ids: admin.procedure_ids, scopes: })
+    end
+
+    it 'is refused to a form token with a clear error' do
+      expect { stored('ds-query-v2', scopes: form_scopes) }.to raise_error(GraphQL::ExecutionError, /application_read/)
+    end
+
+    it 'still lets a form token introspect' do
+      result = API::V2::StoredQuery.execute('introspection', variables: {}, operation_name: nil, context: { scopes: form_scopes })
+
+      expect(result['errors']).to be_nil
+    end
+
+    it 'runs for a read token' do
+      expect(stored('ds-query-v2', scopes: read_scopes)['errors']).to be_nil
     end
   end
 end

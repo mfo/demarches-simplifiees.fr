@@ -7,6 +7,12 @@ class API::V2::StoredQuery
   # 3 s): re-validating the 65 operations of ds-query-v2 on every audit log entry
   # ran past it under Sidekiq load and failed batch operations (RAILS-MJM).
   def self.execute(query_id, variables:, context:, operation_name:)
+    # Not validated, so a field hidden from the token would raise instead of
+    # returning an error: only the introspection query is meant for such a token.
+    if query_id != 'introspection' && !API::V2::Context.application_read?(context)
+      raise GraphQL::ExecutionError.new("This token cannot use this query: it needs the application_read scope", extensions: { code: :forbidden })
+    end
+
     API::V2::Schema.execute(document: document(query_id),
       variables:,
       context:,
