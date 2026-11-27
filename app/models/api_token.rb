@@ -14,8 +14,12 @@ class APIToken < ApplicationRecord
   # GLOSSARY.md); the API itself keeps the frozen v2 `Dossier` vocabulary.
   APPLICATION_READ = 'application_read'
   APPLICATION_WRITE = 'application_write'
-  SCOPES = [APPLICATION_READ, APPLICATION_WRITE].freeze
+  APPLICATION_SCOPES = [APPLICATION_READ, APPLICATION_WRITE].freeze
   READ_ONLY_SCOPES = [APPLICATION_READ].freeze
+  # Editing the drafts of a form. It never reaches what the applicants entered,
+  # and it never publishes: publishing stays a human gesture in the UI.
+  FORM_WRITE = 'form_write'
+  SCOPES = [*APPLICATION_SCOPES, FORM_WRITE].freeze
 
   belongs_to :administrateur, inverse_of: :api_tokens
 
@@ -63,6 +67,8 @@ class APIToken < ApplicationRecord
       .without_any_expiration_notice_sent_within(duration)
   end
 
+  # nil is a legacy token (see effective_scopes); an explicit list is never empty.
+  validates :scopes, length: { minimum: 1 }, allow_nil: true
   # The built-in inclusion validator cannot check each element of an array.
   validate :scopes_are_known
 
@@ -84,7 +90,7 @@ class APIToken < ApplicationRecord
     scopes || self.class.legacy_scopes(write_access?)
   end
 
-  def self.legacy_scopes(write_access) = write_access ? SCOPES : READ_ONLY_SCOPES
+  def self.legacy_scopes(write_access) = write_access ? APPLICATION_SCOPES : READ_ONLY_SCOPES
 
   def procedure_ids
     if full_access?

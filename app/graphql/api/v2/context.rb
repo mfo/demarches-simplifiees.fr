@@ -36,7 +36,7 @@ class API::V2::Context < GraphQL::Query::Context
 
   # Writing implies reading; internal callers (exports, schema dump) see it all.
   def self.application_read?(values)
-    values[:internal_use] || scopes(values).intersect?(APIToken::SCOPES)
+    values[:internal_use] || scopes(values).intersect?(APIToken::APPLICATION_SCOPES)
   end
 
   def scopes = self.class.scopes(self)
@@ -47,6 +47,10 @@ class API::V2::Context < GraphQL::Query::Context
 
   def write_access?
     scopes.include?(APIToken::APPLICATION_WRITE)
+  end
+
+  def form_write?
+    scopes.include?(APIToken::FORM_WRITE)
   end
 
   def remote_ip
