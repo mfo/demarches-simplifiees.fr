@@ -3,4 +3,5 @@ fr:
     mutations:
       demarche_brouillon:
         demarche_not_found: "La démarche \"%{number}\" n’existe pas ou vous n’avez pas le droit de la modifier."
+        form_scope_required: "Le jeton utilisé n’a pas la portée « édition des formulaires »."
         invalid_champ_id: "L’identifiant de champ \"%{id}\" est invalide."

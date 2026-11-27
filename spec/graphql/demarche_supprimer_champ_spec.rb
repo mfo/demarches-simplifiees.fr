@@ -9,7 +9,7 @@ RSpec.describe Mutations::DemarcheSupprimerChamp, type: :graphql do
       { type: :yes_no, libelle: 'boursier' },
     ])
   end
-  let(:context) { { administrateur_id: admin.id, procedure_ids: admin.procedure_ids, write_access: true, remote_ip: '192.168.1.23' } }
+  let(:context) { { administrateur_id: admin.id, procedure_ids: admin.procedure_ids, scopes: [APIToken::FORM_WRITE], remote_ip: '192.168.1.23' } }
   let(:champ_id) { id('enfants') }
   let(:query) do
     <<~GRAPHQL
@@ -89,11 +89,11 @@ RSpec.describe Mutations::DemarcheSupprimerChamp, type: :graphql do
     end
   end
 
-  context 'with a token without write access' do
-    let(:context) { super().merge(write_access: false) }
+  context 'with a token without the form editing scope' do
+    let(:context) { super().merge(scopes: [APIToken::APPLICATION_READ, APIToken::APPLICATION_WRITE]) }
 
     it 'is refused' do
-      expect(data[:errors]).to eq([{ message: 'Le jeton utilisé est configuré seulement en lecture' }])
+      expect(data[:errors]).to eq([{ message: I18n.t('graphql.mutations.demarche_brouillon.form_scope_required') }])
       expect(public_libelles).to include('enfants')
     end
   end

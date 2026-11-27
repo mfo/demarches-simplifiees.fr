@@ -40,8 +40,9 @@ RSpec.describe 'closed by default visibility', type: :graphql do
       expect(run('query($number: Int!) { groupeInstructeur(number: $number) { id } }', scopes: form_scopes)['errors']).to be_present
     end
 
-    it 'sees no mutation' do
-      expect(type_names(scopes: form_scopes)).not_to include('Mutation')
+    it 'sees only the form editing mutations' do
+      expect(type_names(scopes: form_scopes)).to include('Mutation')
+      expect(field_names('Mutation', scopes: form_scopes)).to eq(['demarcheSupprimerChamp'])
     end
 
     it 'only sees the form types' do
@@ -94,12 +95,12 @@ RSpec.describe 'closed by default visibility', type: :graphql do
   end
 
   describe 'the types opened to a form token' do
-    it 'only differ from the full schema on Query, Demarche and DemarcheDescriptor' do
+    it 'only differ from the full schema on Query, Mutation, Demarche and DemarcheDescriptor' do
       gaps = type_names(scopes: form_scopes).filter do |type|
         (field_names(type, scopes: read_scopes) - field_names(type, scopes: form_scopes)).any?
       end
 
-      expect(gaps - ['Query', 'Demarche', 'DemarcheDescriptor']).to eq([])
+      expect(gaps - ['Query', 'Mutation', 'Demarche', 'DemarcheDescriptor']).to eq([])
     end
   end
 
@@ -110,7 +111,7 @@ RSpec.describe 'closed by default visibility', type: :graphql do
       expect(context.form_write?).to be true
       expect(context.write_access?).to be false
       expect(context.application_read?).to be false
-      expect(type_names(scopes: form_scopes)).not_to include('Mutation', 'DemarchePublierInput')
+      expect(type_names(scopes: form_scopes)).not_to include('DemarchePublierInput')
     end
 
     it 'does not make an application token a form editor' do

@@ -31,6 +31,13 @@ module Mutations
 
     private
 
+    # Editing a form is a scope of its own: a dossier-only token is refused, even with write access.
+    def ready?(**args)
+      return false, { errors: [I18n.t('graphql.mutations.demarche_brouillon.form_scope_required')] } unless context.form_write?
+
+      authorized_before_load?(**args)
+    end
+
     # The id a ChampDescriptor exposes is the stable id of the champ, typed.
     def stable_id_from(id)
       type, stable_id = GraphQL::Schema::UniqueWithinType.decode(id)
