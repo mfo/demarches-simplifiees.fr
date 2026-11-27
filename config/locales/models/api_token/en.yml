@@ -8,3 +8,5 @@ en:
               blank: "must be set"
               greater_than: "must be later than today"
               less_than_or_equal_to: "cannot exceed the maximum allowed duration"
+            scopes:
+              too_short: "Select at least one permission"

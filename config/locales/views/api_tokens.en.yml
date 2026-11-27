@@ -11,6 +11,22 @@ en:
         continue: Continue
         cancel: Back
         dashboard: Dashboard
+      scopes:
+        legend: This token allows
+        legend_hint: Permissions can be combined, choose at least one.
+        cannot_widen: "A permanent token cannot gain more permissions: create a new token."
+        application_read:
+          name: read applications
+          label: Read applications
+          hint: retrieve applications, attachments
+        application_write:
+          name: write applications
+          label: Edit applications
+          hint: "change the status of an application, write messages (includes reading). Also manages the procedure through the API: publish it, clone it, manage its administrators and teams"
+        form_write:
+          name: edit forms (drafts)
+          label: Edit forms
+          hint: build the draft of a procedure (fields, conditions). No access to applicants’ data. Does not, on its own, allow publishing a procedure.
       autorisations:
         title: Token privileges ‘%{name}’
         token_access: This token accesses
@@ -19,11 +35,6 @@ en:
         all_procedures_hint: current and future
         select_procedures: Select authorized procedures
         no_procedure: Select at least one procedure
-        token_permission: This token allows
-        read_only: read only
-        read_only_hint: retrieve dossiers, attachments
-        read_write: read and write
-        read_write_hint: change dossier status, write messages
         cancel: back
         continue: continue
       edit:
@@ -31,6 +42,7 @@ en:
         title: 'Edit API token ‘%{name}’'
       edit_form:
         title: 'Edit API token ‘%{name}’'
+        scopes_button: Change permissions
         rename_button: Rename
         enter_at_least_one_network: 'Enter at least 1 authorized network'
         enter_authorized_ips: 'Enter authorized IP addresses'

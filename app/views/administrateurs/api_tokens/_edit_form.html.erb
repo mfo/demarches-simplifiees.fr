@@ -31,6 +31,18 @@
 
 <div class="fr-card fr-p-3w fr-mb-2w">
   <%= form_with url: admin_api_token_path(api_token), method: :patch do |f| -%>
+    <%= hidden_field_tag :update_scopes, true %>
+
+    <%= render APITokens::ScopesFieldsetComponent.new(selected: api_token.effective_scopes, error: invalid_scopes_message) %>
+
+    <button class="fr-btn fr-btn--primary">
+      <%= t('.scopes_button') %>
+    </button>
+  <%- end -%>
+</div>
+
+<div class="fr-card fr-p-3w fr-mb-2w">
+  <%= form_with url: admin_api_token_path(api_token), method: :patch do |f| -%>
     <div class="fr-input-group <%= class_names('fr-input-group--error': invalid_network_message.present?) %>">
       <%= f.label :name, class: 'fr-label' do -%>
         <%- if !@api_token.requires_ip_filtering? -%>

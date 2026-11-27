@@ -1,7 +1,6 @@
 ---
 fr:
-  read_write_prefix: "lecture et écriture sur"
-  read_only_prefix: "lecture seule sur"
+  scopes_prefix: "%{scopes} sur"
   all_procedures: "Toutes les démarches"
   network_filtering: "filtrage : %{networks}"
   pending_ip: "En attente de détection IP (1er appel)"

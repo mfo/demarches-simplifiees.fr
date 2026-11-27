@@ -20,8 +20,6 @@ en:
         procedures: "Procedures:"
         networks: "Authorized networks:"
         expiration: "Expiration date:"
-        read_write: read and write
-        read_only: read only
         all_procedures: all
         all_networks: all internet
         back_to_profile: Back to profile

@@ -17,7 +17,7 @@ RSpec.describe 'closed by default visibility', type: :graphql do
     Array(run("{ __type(name: \"#{type}\") { fields { name } } }", scopes:).dig('data', '__type', 'fields')).map { it['name'] }
   end
 
-  let(:form_scopes) { [] }
+  let(:form_scopes) { [APIToken::FORM_WRITE] }
   let(:read_scopes) { [APIToken::APPLICATION_READ] }
 
   describe 'a token without the application read scope' do
@@ -69,7 +69,7 @@ RSpec.describe 'closed by default visibility', type: :graphql do
 
   describe 'the write scope' do
     it 'only comes from an explicit write scope, or from the legacy write_access' do
-      write = API::V2::Schema.execute('{ __typename }', context: { scopes: APIToken::SCOPES }).context
+      write = API::V2::Schema.execute('{ __typename }', context: { scopes: APIToken::APPLICATION_SCOPES }).context
       read = API::V2::Schema.execute('{ __typename }', context: { scopes: read_scopes }).context
       legacy = API::V2::Schema.execute('{ __typename }', context: { write_access: true }).context
 
@@ -100,6 +100,23 @@ RSpec.describe 'closed by default visibility', type: :graphql do
       end
 
       expect(gaps - ['Query', 'Demarche', 'DemarcheDescriptor']).to eq([])
+    end
+  end
+
+  describe 'a token with the form scope only' do
+    it 'carries the scope but cannot write applications, nor publish' do
+      context = API::V2::Schema.execute('{ __typename }', context: { scopes: form_scopes }).context
+
+      expect(context.form_write?).to be true
+      expect(context.write_access?).to be false
+      expect(context.application_read?).to be false
+      expect(type_names(scopes: form_scopes)).not_to include('Mutation', 'DemarchePublierInput')
+    end
+
+    it 'does not make an application token a form editor' do
+      context = API::V2::Schema.execute('{ __typename }', context: { scopes: APIToken::APPLICATION_SCOPES }).context
+
+      expect(context.form_write?).to be false
     end
   end
 

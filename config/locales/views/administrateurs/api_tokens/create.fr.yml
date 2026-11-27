@@ -20,8 +20,6 @@ fr:
         procedures: "Démarches :"
         networks: "Réseaux autorisés :"
         expiration: "Date de fin de validité :"
-        read_write: lecture et écriture
-        read_only: lecture
         all_procedures: toutes
         all_networks: tout internet
         back_to_profile: Retour au profil

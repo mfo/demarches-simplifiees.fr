@@ -16,6 +16,7 @@ module Administrateurs
     def autorisations
       @name = @api_token_params.name
       @libelle_id_procedures = libelle_id_procedures
+      @scopes_error = no_scope_message if params[:noScope].present?
     end
 
     def securite
@@ -24,6 +25,10 @@ module Administrateurs
     def create
       if params[:target] == "custom" && allowed_procedure_ids.empty?
         return redirect_to autorisations_admin_api_tokens_path(@api_token_params.to_h.merge(noProcedure: true))
+      end
+
+      if @api_token_params.scopes.empty?
+        return redirect_to autorisations_admin_api_tokens_path(@api_token_params.to_h.merge(noScope: true))
       end
 
       if params[:networkFiltering] == "customNetworks" && invalid_network?
@@ -38,7 +43,7 @@ module Administrateurs
 
       @api_token, @packed_token = APIToken.generate(current_administrateur, expires_at:)
 
-      @api_token.update!(name: @api_token_params.name, write_access:,
+      @api_token.update!(name: @api_token_params.name, scopes: @api_token_params.scopes,
                          allowed_procedure_ids:, authorized_networks:,
                          requires_ip_filtering: true)
 
@@ -84,6 +89,23 @@ module Administrateurs
           (Array.wrap(@api_token.allowed_procedure_ids) + to_add).uniq
       end
 
+      if params[:update_scopes].present?
+        scopes = APIToken.known_scopes(params[:scopes])
+
+        if scopes.empty?
+          @invalid_scopes_message = no_scope_message
+          return render :edit, status: :unprocessable_content
+        end
+
+        # A token that never expires must not gain rights: that would sidestep MAX_LIFETIME.
+        if @api_token.expires_at.nil? && (scopes - @api_token.effective_scopes).any?
+          @invalid_scopes_message = t('administrateurs.api_tokens.scopes.cannot_widen')
+          return render :edit, status: :unprocessable_content
+        end
+
+        h[:scopes] = scopes
+      end
+
       if params[:name].present?
         h[:name] = params[:name]
       end
@@ -100,7 +122,7 @@ module Administrateurs
       @api_token.save!
 
       @libelle_id_procedures = libelle_id_procedures
-      render turbo_stream: turbo_stream.update("tokenUpdate", partial: "administrateurs/api_tokens/edit_form", locals: { api_token: @api_token, libelle_id_procedures: @libelle_id_procedures, invalid_network_message: nil })
+      render turbo_stream: turbo_stream.update("tokenUpdate", partial: "administrateurs/api_tokens/edit_form", locals: { api_token: @api_token, libelle_id_procedures: @libelle_id_procedures, invalid_network_message: nil, invalid_scopes_message: nil })
     end
 
     def destroy
@@ -169,8 +191,8 @@ module Administrateurs
       params[:procedure_to_add]&.to_i
     end
 
-    def write_access
-      params[:access] == "read_write"
+    def no_scope_message
+      t('activerecord.errors.models.api_token.attributes.scopes.too_short')
     end
 
     def allowed_procedure_ids

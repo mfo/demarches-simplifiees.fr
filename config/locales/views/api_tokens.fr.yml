@@ -11,6 +11,22 @@ fr:
         continue: Continuer
         cancel: Retour
         dashboard: Tableau de bord
+      scopes:
+        legend: Ce jeton permet de
+        legend_hint: Les droits sont cumulables, choisissez-en au moins un.
+        cannot_widen: "Un jeton permanent ne peut pas obtenir de droits supplémentaires : créez un nouveau jeton."
+        application_read:
+          name: lecture des dossiers
+          label: Lire les dossiers
+          hint: récupérer des dossiers, des pièces jointes
+        application_write:
+          name: écriture des dossiers
+          label: Modifier les dossiers
+          hint: "changer le statut d’un dossier, écrire des messages (inclut la lecture). Permet aussi de gérer la démarche via l’API : la publier, la cloner, gérer ses administrateurs et ses groupes d’instructeurs"
+        form_write:
+          name: édition des formulaires (brouillons)
+          label: Modifier les formulaires
+          hint: construire le brouillon d’une démarche (champs, conditions). Aucun accès aux données des usagers. Ne permet pas, à lui seul, de publier une démarche.
       autorisations:
         title: Privilèges du jeton « %{name} »
         token_access: Ce jeton accède à
@@ -19,11 +35,6 @@ fr:
         all_procedures_hint: présentes et futures
         select_procedures: Sélectionner les démarches autorisées
         no_procedure: Sélectionnez au moins une démarche
-        token_permission: Ce jeton permet
-        read_only: de lire uniquement
-        read_only_hint: récupérer des dossiers, des pièces-jointes
-        read_write: de lire et dʼécrire
-        read_write_hint: changer le statut de dossier, écrire des messages
         cancel: Retour
         continue: Continuer
       edit:
@@ -31,6 +42,7 @@ fr:
         title: 'Modification du jeton « %{name} »'
       edit_form:
         title: 'Modification du jeton « %{name} »'
+        scopes_button: Modifier les droits
         rename_button: Renommer
         enter_at_least_one_network: 'Entrez au moins 1 réseau autorisé'
         enter_authorized_ips: 'Entrez les adresses ip autorisées'
