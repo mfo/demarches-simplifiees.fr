@@ -16,14 +16,17 @@ en:
         legend_hint: Permissions can be combined, choose at least one.
         cannot_widen: "A permanent token cannot gain more permissions: create a new token."
         application_read:
+          name: read applications
           label: Read applications
           hint: retrieve applications, attachments
         application_write:
+          name: write applications
           label: Edit applications
-          hint: change the status of an application, write messages (includes reading)
+          hint: "change the status of an application, write messages (includes reading). Also manages the procedure through the API: publish it, clone it, manage its administrators and teams"
         form_write:
+          name: edit forms (drafts)
           label: Edit forms
-          hint: build the draft of a procedure (fields, conditions). No access to applicants’ data. Never allows publishing a procedure.
+          hint: build the draft of a procedure (fields, conditions). No access to applicants’ data. Does not, on its own, allow publishing a procedure.
       autorisations:
         title: Token privileges ‘%{name}’
         token_access: This token accesses

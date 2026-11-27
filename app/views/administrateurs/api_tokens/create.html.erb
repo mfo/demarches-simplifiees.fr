@@ -83,7 +83,7 @@
 
     <li>
       <strong><%= t('.access') %></strong>
-      <%= @api_token.effective_scopes.map { t("administrateurs.api_tokens.scopes.#{it}.label") }.to_sentence %>
+      <%= @api_token.effective_scopes.map { t("administrateurs.api_tokens.scopes.#{it}.name") }.to_sentence %>
     </li>
 
     <li>

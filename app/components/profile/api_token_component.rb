@@ -12,7 +12,7 @@ class Profile::APITokenComponent < ApplicationComponent
   end
 
   def autorizations
-    right = t(".scopes_prefix", scopes: @api_token.effective_scopes.map { t(".scope.#{it}") }.to_sentence)
+    right = t(".scopes_prefix", scopes: @api_token.effective_scopes.map { t("administrateurs.api_tokens.scopes.#{it}.name") }.to_sentence)
     scope = @api_token.full_access? ? t(".all_procedures") : @api_token.procedures.map(&:libelle).join(', ')
     sanitize("#{right} #{tag.b(scope)}")
   end

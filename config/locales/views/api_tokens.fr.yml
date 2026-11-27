@@ -16,14 +16,17 @@ fr:
         legend_hint: Les droits sont cumulables, choisissez-en au moins un.
         cannot_widen: "Un jeton permanent ne peut pas obtenir de droits supplémentaires : créez un nouveau jeton."
         application_read:
+          name: lecture des dossiers
           label: Lire les dossiers
           hint: récupérer des dossiers, des pièces jointes
         application_write:
+          name: écriture des dossiers
           label: Modifier les dossiers
-          hint: changer le statut d’un dossier, écrire des messages (inclut la lecture)
+          hint: "changer le statut d’un dossier, écrire des messages (inclut la lecture). Permet aussi de gérer la démarche via l’API : la publier, la cloner, gérer ses administrateurs et ses groupes d’instructeurs"
         form_write:
+          name: édition des formulaires (brouillons)
           label: Modifier les formulaires
-          hint: construire le brouillon d’une démarche (champs, conditions). Aucun accès aux données des usagers. Ne permet jamais de publier une démarche.
+          hint: construire le brouillon d’une démarche (champs, conditions). Aucun accès aux données des usagers. Ne permet pas, à lui seul, de publier une démarche.
       autorisations:
         title: Privilèges du jeton « %{name} »
         token_access: Ce jeton accède à

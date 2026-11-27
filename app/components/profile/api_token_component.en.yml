@@ -1,10 +1,6 @@
 ---
 en:
   scopes_prefix: "%{scopes} on"
-  scope:
-    application_read: "read applications"
-    application_write: "write applications"
-    form_write: "edit forms (drafts)"
   all_procedures: "All procedures"
   network_filtering: "filtering: %{networks}"
   pending_ip: "Awaiting IP detection (1st call)"
