@@ -2,7 +2,12 @@
 
 module Types
   class DemarcheDescriptorType < Types::BaseObject
-    form_structure!
+    form_fields :id, :number, :title, :description, :state, :declarative, :for_individual,
+      :date_creation, :date_publication, :date_derniere_modification, :date_depublication,
+      :date_fermeture, :date_limite, :duree_conservation_dossiers,
+      :demarcheUrl, :siteWebUrl, :dpoUrl, :noticeUrl, :cadreJuridiqueUrl,
+      :demarcheURL, :siteWebURL, :dpoURL, :noticeURL, :cadreJuridiqueURL,
+      :opendata, :tags, :zones, :revision, :service, :logo, :notice, :deliberation
 
     class FindDemarcheInput < Types::BaseInputObject
       one_of
